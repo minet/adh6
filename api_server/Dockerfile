@@ -29,8 +29,7 @@ COPY api_server/requirements.txt ./
 RUN pip3 install -r ./requirements.txt
 
 # Build all MIBs required by pysnmp
-RUN mibdump.py CISCO-VLAN-MEMBERSHIP-MIB.my
-RUN mibdump.py IF-MIB
+RUN mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
 RUN chmod 0755 /root
 RUN chown -R uwsgi:www-data /root/.pysnmp
 # Copy source files

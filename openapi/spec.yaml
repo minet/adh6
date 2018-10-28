@@ -913,6 +913,8 @@ paths:
       operationId: "set_port_mab"
       produces:
       - "application/json"
+      consumes:
+      - "text/plain"
       parameters:
       - name: "port_id"
         in: "path"

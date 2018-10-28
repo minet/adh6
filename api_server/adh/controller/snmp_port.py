@@ -155,8 +155,62 @@ def set_port_vlan(port_id, vlan):
 
 @auth_regular_admin
 def get_port_mab(port_id):
-    return False, 200
+        """ [API] Get the MAB status of the specified port_id """
+    s = g.session
+
+    try:
+        port = Port.find(s, port_id)
+    except PortNotFound:
+        return NoContent, 404
+
+    errorIndication, errorStatus, errorIndex, varBinds = next(
+    getCmd(SnmpEngine(),
+           CommunityData(port.switch.communaute),
+           UdpTransportTarget((port.switch.ip, 161)),
+           ContextData(),
+           ObjectType(ObjectIdentity('CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', port.oid)))
+    )
+
+    if errorIndication:
+        return errorIndication, 500
+    elif errorStatus:
+        return '%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), 500
+    else:
+        if len(varBinds) > 1:
+            return "Too many values in SNMP response", 500
+
+        logging.info("%s fetched the MAB status of port %s", g.admin.login, str(port_id))
+
+        return int(varBinds[0][1].prettyPrint()), 200
 
 @auth_regular_admin
 def set_port_mab(port_id, mab):
-    return NoContent, 204
+        """ [API] Set the MAB status of the specified port_id to vlan to mab """
+    s = g.session
+
+    try:
+        port = Port.find(s, port_id)
+    except PortNotFound:
+        return NoContent, 404
+
+    errorIndication, errorStatus, errorIndex, varBinds = next(
+    setCmd(SnmpEngine(),
+           CommunityData(port.switch.communaute),
+           UdpTransportTarget((port.switch.ip, 161)),
+           ContextData(),
+           ObjectType(ObjectIdentity('CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', port.oid), str(mab)))
+    )
+
+    if errorIndication:
+        return errorIndication, 500
+    elif errorStatus:
+        return '%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), 500
+    else:
+        if len(varBinds) > 1:
+            return "Too many values in SNMP response", 500
+
+        logging.info("%s changed the MAB status of port %s to %s", g.admin.login, str(port_id), str(mab))
+
+        return int(varBinds[0][1].prettyPrint()), 200
