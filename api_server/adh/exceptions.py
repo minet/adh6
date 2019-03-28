@@ -32,3 +32,6 @@ class VlanNotFound(ValueError):
 
 class RoomNotFound(ValueError):
     pass
+
+class TransactionNotFound(ValueError):
+    pass
