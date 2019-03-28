@@ -36,6 +36,7 @@ CREATE TABLE `adherents` (
   `commentaires` varchar(255) DEFAULT NULL,
   `mode_association` datetime DEFAULT '2011-04-30 17:50:17',
   `access_token` varchar(255) DEFAULT NULL,
+  `compte` int(11) DEFAULT NULL, 
   PRIMARY KEY (`id`),
   KEY `index_adherents_on_chambre_id` (`chambre_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55124 DEFAULT CHARSET=latin1;
@@ -991,7 +992,7 @@ ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk1` FOREIGN KEY (`src`) R
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk2` FOREIGN KEY (`dst`) REFERENCES `account`(`id`);
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk3` FOREIGN KEY (`type`) REFERENCES `payment_method`(`id`);
 ALTER TABLE `payment_method` ADD CONSTRAINT `payment_method_fk0` FOREIGN KEY (`account`) REFERENCES `account`(`id`);
-
+ALTER TABLE `member` ADD CONSTRAINT ̀`member_fk0` FOREIGN KEY (`compte`) REFERENCES `account`(`id`);
 --
 -- Final view structure for view `last_use_mac_U6`
 --
