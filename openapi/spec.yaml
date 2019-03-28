@@ -1216,11 +1216,11 @@ paths:
       x-swagger-router-controller: "adh.controller.account_type"
       security:
       - oauth2: ["profile"]
-    patch:
+    put:
       tags:
       - "account_type"
-      summary: "Partially update"
-      operationId: "patch_account_type"
+      summary: "Update an account type"
+      operationId: "update_account_type"
       produces:
       - "application/json"
       parameters:
@@ -1234,7 +1234,7 @@ paths:
         description: "New values of the account type"
         required: true
         schema:
-          $ref: "#/definitions/AccountTypePatchRequest"
+          $ref: "#/definitions/AccountType"
       responses:
         404:
           description: "Not found"
@@ -1338,11 +1338,11 @@ paths:
       x-swagger-router-controller: "adh.controller.payment_method"
       security:
       - oauth2: ["profile"]
-    patch:
+    put:
       tags:
       - "payment_method"
-      summary: "Partially update"
-      operationId: "patch_payment_method"
+      summary: "Update a payment method"
+      operationId: "update_payment_method"
       produces:
       - "application/json"
       parameters:
@@ -1356,7 +1356,7 @@ paths:
         description: "New values of the payment method"
         required: true
         schema:
-          $ref: "#/definitions/PaymentMethodPatchRequest"
+          $ref: "#/definitions/PaymentMethod"
       responses:
         404:
           description: "Not found"
@@ -1842,14 +1842,6 @@ definitions:
     example:
       id: 1
       name: "Adhérent"
-  AccountTypePatchRequest:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-        example: "Adhérent"
-    example:
-      name: "Adhérent"
   PaymentMethod:
     type: "object"
     required:
@@ -1864,14 +1856,6 @@ definitions:
         example: "Carte bancaire"
     example:
       id: 1
-      name: "Carte bancaire"
-  PaymentMethodPatchRequest:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-        example: "Carte bancaire"
-    example:
       name: "Carte bancaire"
   Account:
     type: "object"
