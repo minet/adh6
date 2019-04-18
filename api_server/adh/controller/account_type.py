@@ -11,8 +11,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from adh.auth import auth_regular_admin
 from adh.model import models
 from adh.util.session_decorator import require_sql
-# from adh.exceptions import AccountTypeNotFound
-# def account_type_exists(s, account_type_id):
+from adh.exceptions import AccountTypeNotFound
 
 
 @require_sql
@@ -22,7 +21,7 @@ def filter_account_type(limit=100, offset=0, terms=None):
     s = g.session
     if limit < 0:
         return "Limit must be positive", 400
-    
+
     q = s.query(AccountType)
     if terms:
         q = q.filter(
@@ -43,7 +42,24 @@ def filter_account_type(limit=100, offset=0, terms=None):
 @require_sql
 @auth_regular_admin
 def create_account_type(body):
-    pass
+    """ [API] Create account type from the database """
+    s = g.session
+
+    # Create a valid object
+    try:
+        new_account_type = AccountType.from_dict(s, body)
+    except ValueError:
+        return "String must not be empty", 400
+
+    new_account_type = s.merge(new_account_type)
+
+    # Create the corresponding modification
+    Modification.add(s, new_account_type, g.admin)
+
+    logging.info("%s created the account type \n%s",
+                g.admin.login, json.dumps(body, sort_keys=True))
+    return NoContent, 201
+
 
 @require_sql
 @auth_regular_admin
@@ -51,37 +67,36 @@ def get_account_type(account_type_id):
     """ [API] Get the specified account type from the database """
     s = g.session
     try:
-        logging.info("%s fetched the account type %s", g.admin.login, account_type_id)
-        return dict(AccountType.find(s, account_type_id)), 200
+        result = AccountType.find(s, account_type_id)
     except AccountTypeNotFound:
         return NoContent, 404
+
+    result = dict(result)
+    logging.info("%s fetched the account type %s",
+                 g.admin.login, account_type_id)
+    return result, 200
 
 
 @require_sql
 @auth_regular_admin
-def patch_account_type(account_type_id, body):
+def update_account_type(account_type_id, body):
     """ [API] Update an account type from the database """
+    if "id" in body:
+        return "You cannot update the id", 400
+
+    name = body["name"]
     s = g.session
 
-    # Create a valid object
-
-    # Check if it already exists
-    update = account_type_exists(s, account_type_id)
-
-    if not update:
-        return NoContent, 404
-
-    account_type = AccountType.find(s, account_type_id)
-    account_type.start_modif_tracking()
     try:
-        account_type.name = body.get("name", account_type.name)
-    except ValueError:
-        return "String must not be empty", 400
+        new_account_type = AccountType.find(s, account_type_id)
+    except AccountTypeNotFound:
+        return "Account type not found", 400
 
-    # Create the corresponding modification
-    Modification.add(s, account_type, g.admin)
+    new_account_type.name = name
 
-    logging.info("%s updated the account_type %s\n%s",
-                 g.admin.login, account_type_id, json.dumps(body, sort_keys=True))
+    # Build the corresponding modification
+    Modification.add(s, new_account_type, g.admin)
+
+    logging.info("%s updated the account type %s",
+                 g.admin.login, account_type_id)
     return NoContent, 204
-

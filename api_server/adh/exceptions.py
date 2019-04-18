@@ -35,3 +35,9 @@ class RoomNotFound(ValueError):
 
 class TransactionNotFound(ValueError):
     pass
+
+class AccountTypeNotFound(ValueError):
+    pass
+
+class PaymentMethodNotFound(ValueError):
+    pass

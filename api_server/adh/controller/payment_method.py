@@ -11,7 +11,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from adh.auth import auth_regular_admin
 from adh.model import models
 from adh.util.session_decorator import require_sql
-# from adh.expections import PaymentMethodNotFound
+from adh.expections import PaymentMethodNotFound
 # def payment_method_exists(s, payment_method_id):
 
 @require_sql
@@ -42,7 +42,23 @@ def filter_payment_methods(limit=100, offset=0, terms=None):
 @require_sql
 @auth_regular_admin
 def create_payment_method(body):
-    pass
+    """ [API] Create payment method from the database """
+    s = g.session
+
+    # Create a valid object
+    try:
+        new_payment_method = PaymentMethod.from_dict(s, body)
+    except ValueError:
+        return "String must not be empty", 400
+
+    new_payment_method = s.merge(new_payment_method)
+
+    # Create the corresponding modification
+    Modification.add(s, new_payment_method, g.admin)
+
+    logging.info("%s created the payment method \n%s",
+                g.admin.login, json.dumps(body, sort_keys=True))
+    return NoContent, 201
 
 @require_sql
 @auth_regular_admin
@@ -50,38 +66,35 @@ def get_payment_method(payment_method_id):
     """ [API] Get the specified payment method from the database """
     s = g.session
     try:
-        logging.info("%s fetched the payment method %s", g.admin.login, payment_method_id)
-        return dict(PaymentMethod.find(s, payment_method_id)), 200
+        result = PaymentMethod.find(s, payment_method_id)
     except PaymentMethodNotFound:
         return NoContent, 404
 
+    result = dict(result)
+    logging.info("%s fetched the payment method %s",
+                 g.admin.login, payment_method_id)
+    return result, 200
 
 @require_sql
 @auth_regular_admin
-def patch_payment_method(payment_method_id, body):
+def update_payment_method(payment_method_id, body):
     """ [API] Update a payment method from the database """
+    if "id" in body:
+        return "You cannot update the id", 400
+
+    name = body["name"]
     s = g.session
 
-    # Create a valid object
-
-    # Check if it already exists
-    update = payment_method_exists(s, payment_method_id)
-
-    if not update:
-        return NoContent, 404
-
-    payment_method = AccountType.find(s, payment_method_id)
-    payment_method.start_modif_tracking()
     try:
-        payment_method.name = body.get("name", payment_method.name)
-    except ValueError:
-        return "String must not be empty", 400
+        new_payment_method = PaymentMethod.find(s, payment_method_id)
+    except PaymentMethodNotFound:
+        return "Payment method not found", 400
 
-    # Create the corresponding modification
-    Modification.add(s, payment_method, g.admin)
+    new_payment_method.name = name
 
-    logging.info("%s updated the payment method %s\n%s",
-                 g.admin.login, payment_method_id, json.dumps(body, sort_keys=True))
+    # Build the corresponding modification
+    Modification.add(s, new_payment_method, g.admin)
+
+    logging.info("%s updated the payment method type %s",
+                 g.admin.login, payment_method_id)
     return NoContent, 204
-
-
