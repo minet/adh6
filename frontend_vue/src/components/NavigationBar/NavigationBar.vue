@@ -1,35 +1,43 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark minet-bg-blue">
-        <a class="navbar-brand" href="#">
+        <router-link v-bind:to="{name:'home'}" class="navbar-brand" href="#">
             <img src="../../assets/logo.png" height="30" class="d-inline-block align-top" alt="">
             ADH6
-        </a>
+        </router-link>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <input class="form-control mr-sm-2 w-100" type="search" placeholder="Search" aria-label="Search">
             <ul class="navbar-nav mr-auto">
-                <navigation-bar-link content="Home" route="home"></navigation-bar-link>
-                <navigation-bar-link content="Adhérent" route="member-search"></navigation-bar-link>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Plus
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <router-link v-bind:to="{name:'member-search'}" nameclass="dropdown-item" href="#">
+                            <a class="dropdown-item" href="#">
+                                Adhérent
+                            </a>
+                        </router-link>
+                        <a class="dropdown-item" href="#">Appareil</a>
+                        <a class="dropdown-item" href="#">Chambre</a>
+                        <a class="dropdown-item" href="#">Switch</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Déconnexion</a>
+                    </div>
+                </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </nav>
 </template>
 
 <script>
-    import NavigationBarLink from './NavigationBarLink'
 
-    export default {
-        components: {
-            NavigationBarLink,
-        }
-    }
+    export default {}
 </script>
 
 <style>
