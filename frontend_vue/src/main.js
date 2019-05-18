@@ -3,6 +3,12 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+// jQuery and popper.js are requirements for bootstrap.
+import 'jquery'
+import 'popper.js'
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 Vue.config.productionTip = false
 
 new Vue({
