@@ -1,7 +1,7 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark minet-bg-blue">
         <a class="navbar-brand" href="#">
-            <img src="../assets/logo.png" height="30" class="d-inline-block align-top" alt="">
+            <img src="../../assets/logo.png" height="30" class="d-inline-block align-top" alt="">
             ADH6
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
