@@ -14,7 +14,7 @@ export default new Router({
         {
             path: '/member/search',
             name: 'member-search',
-            component: () => import(/* webpackChunkName: "member-search" */ './views/Member/MemberSearch.vue'),
+            component: () => import(/* webpackChunkName: "member-search" */ '@/views/MemberSearch.vue'),
         },
     ]
 })

@@ -2,9 +2,7 @@
     <div id="app">
         <navigation-bar></navigation-bar>
         <div class="container-fluid">
-            <div class="row">
-                <router-view/>
-            </div>
+            <router-view/>
         </div>
     </div>
 </template>
