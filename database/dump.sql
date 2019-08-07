@@ -36,6 +36,7 @@ CREATE TABLE `adherents` (
   `commentaires` varchar(255) DEFAULT NULL,
   `mode_association` datetime DEFAULT '2011-04-30 17:50:17',
   `access_token` varchar(255) DEFAULT NULL,
+  `sss_threshold` int(11) NOT NULL DEFAULT 3,
   PRIMARY KEY (`id`),
   KEY `index_adherents_on_chambre_id` (`chambre_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55124 DEFAULT CHARSET=latin1;
@@ -47,7 +48,7 @@ CREATE TABLE `adherents` (
 
 LOCK TABLES `adherents` WRITE;
 /*!40000 ALTER TABLE `adherents` DISABLE KEYS */;
-INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL);
+INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3);
 /*!40000 ALTER TABLE `adherents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1012,6 +1013,19 @@ ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`type`) REFERENC
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk1` FOREIGN KEY (`src`) REFERENCES `account`(`id`);
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk2` FOREIGN KEY (`dst`) REFERENCES `account`(`id`);
 ALTER TABLE `transaction` ADD CONSTRAINT `transaction_fk3` FOREIGN KEY (`type`) REFERENCES `payment_method`(`id`);
+
+DROP TABLE IF EXISTS `key_share`;
+CREATE TABLE `key_share` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `share` text NOT NULL,
+    `share_coeff` int(11) NOT NULL,
+    `member_id` int(11) NOT NULL,
+    `adh_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`)
+); 
+
+ALTER TABLE `key_share` ADD CONSTRAINT `key_share_fk1` FOREIGN KEY (`adh_id`) REFERENCES `adherents`(`id`); 
+/* ALTER TABLE `key_share` ADD CONSTRAINT `key_share_fk2` FOREIGN KEY (`member_id`) REFERENCES `members`(`id`); */
 
 --
 -- Final view structure for view `last_use_mac_U6`

@@ -57,6 +57,7 @@ class Adherent(Base, RubyHashTrackable):
         server_default=text("'2011-04-30 17:50:17'")
     )
     access_token = Column(String(255))
+    sss_threshold = Column(Integer)
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
