@@ -14,6 +14,7 @@ connexion==2.3.0
 coverage==4.5.3           # via pytest-cov
 elasticsearch==7.0.2
 flask==1.0.3
+gfshare==1.1.0
 idna==2.8                 # via requests
 importlib-metadata==0.18  # via pluggy, pytest
 inflection==0.3.1         # via connexion
@@ -37,6 +38,7 @@ pysnmp==4.4.9
 pytest-cov==2.7.1
 pytest==4.6.3
 python-dateutil==2.8.0
+python-gnupg==0.4.4
 pyyaml==5.1.1
 requests==2.22.0
 six==1.12.0               # via connexion, openapi-spec-validator, packaging, pip-tools, pytest, python-dateutil

@@ -28,6 +28,7 @@ RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
       libpcre3-dev \
       libssl-dev \
       libmariadbclient-dev \
+      libgfshare-dev \
       && useradd uwsgi
 
 WORKDIR /adh6/api_server

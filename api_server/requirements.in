@@ -27,3 +27,7 @@ requests
 
 # Easily create requirements.txt
 pip-tools
+
+# Encryption of the logs
+gfshare
+python-gnupg
