@@ -16,6 +16,10 @@
   <div class="form-group">
     <label>Login DISI :</label>
     <input class="w-100 form-control" type="text" formControlName="username">
+    <div *ngIf="memberEdit.controls['username'].invalid && memberEdit.controls['username'].dirty && memberEdit.controls['username'].touched">
+      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.minlength">Le nom d'utilisateur doit contenir au moins 7 caractères.</span>
+      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.maxlength">Le nom d'utilisateur doit contenir moins de 8 caractères.</span>
+    </div>
   </div>
 
   <div class="form-group">
