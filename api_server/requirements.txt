@@ -4,14 +4,17 @@
 #
 #    pip-compile
 #
+asn1crypto==0.24.0        # via cryptography
 atomicwrites==1.3.0       # via pytest
 attrs==19.1.0             # via pytest
 certifi==2019.6.16        # via requests
+cffi==1.12.3              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0                # via clickclick, flask, pip-tools
 clickclick==1.2.2         # via connexion
 connexion==2.3.0
 coverage==4.5.3           # via pytest-cov
+cryptography==2.7         # via pyopenssl
 elasticsearch==7.0.2
 flask==1.0.3
 gfshare==1.1.0
@@ -31,7 +34,9 @@ pluggy==0.12.0            # via pytest
 ply==3.11                 # via pysmi
 py==1.8.0                 # via pytest
 pyasn1==0.4.5             # via pysnmp
+pycparser==2.19           # via cffi
 pycryptodomex==3.8.2      # via pysnmp
+pyopenssl==19.0.0
 pyparsing==2.4.0          # via packaging
 pysmi==0.3.4              # via pysnmp
 pysnmp==4.4.9
@@ -41,7 +46,7 @@ python-dateutil==2.8.0
 python-gnupg==0.4.4
 pyyaml==5.1.1
 requests==2.22.0
-six==1.12.0               # via connexion, openapi-spec-validator, packaging, pip-tools, pytest, python-dateutil
+six==1.12.0               # via connexion, cryptography, openapi-spec-validator, packaging, pip-tools, pyopenssl, pytest, python-dateutil
 sqlalchemy==1.3.5
 swagger-ui-bundle==0.0.4
 urllib3==1.25.3           # via elasticsearch, requests

@@ -36,7 +36,6 @@ CREATE TABLE `adherents` (
   `commentaires` varchar(255) DEFAULT NULL,
   `mode_association` datetime DEFAULT '2011-04-30 17:50:17',
   `access_token` varchar(255) DEFAULT NULL,
-  `sss_threshold` int(11) NOT NULL DEFAULT 3,
   PRIMARY KEY (`id`),
   KEY `index_adherents_on_chambre_id` (`chambre_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55124 DEFAULT CHARSET=latin1;
@@ -48,7 +47,7 @@ CREATE TABLE `adherents` (
 
 LOCK TABLES `adherents` WRITE;
 /*!40000 ALTER TABLE `adherents` DISABLE KEYS */;
-INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL,3);
+INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,'2019-09-18',NULL,'2011-04-30 17:50:17',NULL),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,'2019-08-27',NULL,'2011-04-30 17:50:17',NULL),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,'2019-07-14',NULL,'2011-04-30 17:50:17',NULL);
 /*!40000 ALTER TABLE `adherents` ENABLE KEYS */;
 UNLOCK TABLES;
 

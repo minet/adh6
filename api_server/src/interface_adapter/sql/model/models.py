@@ -57,7 +57,6 @@ class Adherent(Base, RubyHashTrackable):
         server_default=text("'2011-04-30 17:50:17'")
     )
     access_token = Column(String(255))
-    sss_threshold = Column(Integer)
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -365,3 +364,13 @@ class Ecriture(Base):
     utilisateur = relationship(Utilisateur)
     adherent_id = Column(Integer, ForeignKey(Adherent.id), index=True)
     adherent = relationship(Adherent)
+
+
+class KeyShare(Base):
+    __tablename__ = 'key_share'
+
+    id = Column(Integer, primary_key=True)
+    share = Column(String(255))
+    share_coeff = Column(Integer)
+    member_id = Column(Integer)  # Foreign key MembresMiNET.id
+    adh_id = Column(Integer, ForeignKey(Adherent.id), index=True)
