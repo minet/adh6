@@ -1036,6 +1036,12 @@ CREATE TABLE `bureau_members` (
     UNIQUE KEY `fp` (`fp`)
 );
 
+INSERT INTO bureau_members (name, fp) VALUES ("president", "381D33C36341AE05D4766F759F12C528DC94BFB2");
+INSERT INTO bureau_members (name, fp) VALUES ("vice-president", "01D3F475F0CF8DC38A7BC0E97A14B16D51D25113");
+INSERT INTO bureau_members (name, fp) VALUES ("secretaire", "0AC8A4D812E5698BEA4443BD461C25D6330076F0");
+INSERT INTO bureau_members (name, fp) VALUES ("tresorier", "E6822F85C0A550DFABB2CD00720E87ACFA7EE7E9");
+INSERT INTO bureau_members (name, fp) VALUES ("respo-web", "EA2BDA1F6453AD417D6C25DCA522C81CB0E0B2F4");
+
 --
 -- Final view structure for view `last_use_mac_U6`
 --

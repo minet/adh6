@@ -366,11 +366,19 @@ class Ecriture(Base):
     adherent = relationship(Adherent)
 
 
+class BureauMembers(Base):
+    __tablename__ = 'bureau_members'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False, unique=True)
+    fp = Column(String(255), nullable=False, unique=True)
+
+
 class KeyShare(Base):
     __tablename__ = 'key_share'
 
     id = Column(Integer, primary_key=True)
     share = Column(String(255))
     share_coeff = Column(Integer)
-    member_id = Column(Integer)  # Foreign key MembresMiNET.id
-    adh_id = Column(Integer, ForeignKey(Adherent.id), index=True)
+    member_id = Column(Integer, ForeignKey(BureauMembers.id), index=True)  # Bureau Member
+    adh_id = Column(Integer, ForeignKey(Adherent.id), index=True)  # Adhérent

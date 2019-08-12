@@ -10,7 +10,7 @@ for member in president vice-president secretaire tresorier respo-web; do
 	cat > ${tmpfile} <<-EOF
 		Key-Type: RSA
 		Key-Length: 2048
-		Name-Real: Force ${member}
+		Name-Real: ${member}
 		Name-Email: ${member}@example.com
 		Expire-Date: 0
 		%no-protection

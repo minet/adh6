@@ -6,11 +6,13 @@ from datetime import datetime
 from dateutil.parser import parse
 from sqlalchemy.orm.exc import NoResultFound
 from typing import List
+from gfshare import split
+from gnupg import GPG
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.member import Member
 from src.exceptions import RoomNotFoundError, MemberAlreadyExist, MemberNotFoundError
-from src.interface_adapter.sql.model.models import Adherent, Chambre, Adhesion
+from src.interface_adapter.sql.model.models import Adherent, Chambre, Adhesion, KeyShare, BureauMembers
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
@@ -45,7 +47,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     def create_member(self, ctx,
                       last_name=None, first_name=None, email=None, username=None, comment=None,
-                      room_number=None, departure_date=None, association_mode=None
+                      room_number=None, departure_date=None, association_mode=None, keypair=None
                       ) -> None:
         """
         Create a member.
@@ -82,6 +84,17 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         with track_modifications(ctx, s, member):
             s.add(member)
+
+        member = _get_member_by_login(s, member.login)
+
+        members = get_bureau_members(s)
+
+        for share in sss(keypair['private'], threshold=3, sharecount=5, members=members):
+            keyshare = KeyShare(share=share['enc_data'],
+                                share_coeff=share['coeff'],
+                                member_id=share['member_id'],       # membre du bureau
+                                adh_id=member.id)                   # adhérent
+            s.add(keyshare)
 
     def update_member(self, ctx, member_to_update,
                       last_name=None, first_name=None, email=None, username=None, comment=None,
@@ -210,3 +223,20 @@ def _parse_date_or_none(d: str):
         return None
 
     return parse(d)
+
+
+def sss(private_key, threshold, sharecount, members):
+    shares = split(threshold, sharecount, private_key)
+    gpg = GPG(gnupghome='/root/.gnupg')
+
+    for member, share, share_coeff in zip(members, shares.values(), shares.keys()):
+        LOG.debug(share)
+        LOG.debug(member.fp)
+        LOG.debug(gpg.search_keys(member.fp))
+        LOG.debug(gpg.encrypt(share, member.fp, always_trust=True).data)
+        yield {'member_id': member.id,
+               'enc_data': gpg.encrypt(share, member.fp, always_trust=True).data.decode('utf-8'), 'coeff': share_coeff}
+
+
+def get_bureau_members(s):
+    return s.query(BureauMembers).all()

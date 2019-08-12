@@ -287,13 +287,15 @@ class MemberManager:
             fields = asdict(mutation_request)
             fields = {k: v for k, v in fields.items()}
 
-            self.member_repository.create_member(ctx, **fields)
-
             keypair = self.gen_key_pair()
 
+            message = json.dumps({'username': username, 'message': keypair['public'].decode()})
+
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.sendto(keypair['public'], (UDP_IP, UDP_PORT))
+            sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
             sock.close()
+
+            self.member_repository.create_member(ctx, **fields, keypair=keypair)
 
             # Log action
             LOG.info('member_create', extra=log_extra(

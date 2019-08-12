@@ -46,6 +46,12 @@ COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
 COPY --from=generate_config /tmp/CONFIGURATION.py config/
 
+# Import PGP keys of bureau members
+RUN gpg --import gpg_keys/president.public.asc \
+	&& gpg --import gpg_keys/vice-president.public.asc \
+	&& gpg --import gpg_keys/secretaire.public.asc \
+	&& gpg --import gpg_keys/tresorier.public.asc \
+	&& gpg --import gpg_keys/respo-web.public.asc
 
 ENV ENVIRONMENT="dev"
 
