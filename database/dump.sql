@@ -1024,7 +1024,17 @@ CREATE TABLE `key_share` (
 ); 
 
 ALTER TABLE `key_share` ADD CONSTRAINT `key_share_fk1` FOREIGN KEY (`adh_id`) REFERENCES `adherents`(`id`); 
-/* ALTER TABLE `key_share` ADD CONSTRAINT `key_share_fk2` FOREIGN KEY (`member_id`) REFERENCES `members`(`id`); */
+ALTER TABLE `key_share` ADD CONSTRAINT `key_share_fk2` FOREIGN KEY (`member_id`) REFERENCES `bureau_members`(`id`);
+
+DROP TABLE IF EXISTS `bureau_members`;
+CREATE TABLE `bureau_members` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(100) NOT NULL,
+    `fp` varchar(100) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name` (`name`),
+    UNIQUE KEY `fp` (`fp`)
+);
 
 --
 -- Final view structure for view `last_use_mac_U6`
