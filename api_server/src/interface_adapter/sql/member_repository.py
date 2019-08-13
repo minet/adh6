@@ -2,12 +2,16 @@
 """
 Implements everything related to actions on the SQL database.
 """
+import socket
+import json
+
 from datetime import datetime
 from dateutil.parser import parse
 from sqlalchemy.orm.exc import NoResultFound
 from typing import List
 from gfshare import split
 from gnupg import GPG
+from OpenSSL import crypto
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.member import Member
@@ -19,6 +23,9 @@ from src.use_case.interface.membership_repository import MembershipRepository
 from src.util.context import log_extra
 from src.util.date import date_to_string
 from src.util.log import LOG
+
+UDP_IP = "192.168.103.196"  # LogStash instance IP address
+UDP_PORT = 4001
 
 
 class MemberSQLRepository(MemberRepository, MembershipRepository):
@@ -47,8 +54,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     def create_member(self, ctx,
                       last_name=None, first_name=None, email=None, username=None, comment=None,
-                      room_number=None, departure_date=None, association_mode=None, keypair=None
-                      ) -> None:
+                      room_number=None, departure_date=None, association_mode=None) -> None:
         """
         Create a member.
 
@@ -88,6 +94,14 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         member = _get_member_by_login(s, member.login)
 
         members = get_bureau_members(s)
+
+        keypair = gen_key_pair(self)
+
+        message = json.dumps({'username': username, 'message': keypair['public'].decode()})
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+        sock.close()
 
         for share in sss(keypair['private'], threshold=3, sharecount=5, members=members):
             keyshare = KeyShare(share=share['enc_data'],
@@ -225,9 +239,21 @@ def _parse_date_or_none(d: str):
     return parse(d)
 
 
+def gen_key_pair(self) -> dict:
+    """
+    called when creating a new member to generate one's key pair, to encrypt one's logs
+    """
+    keypair = crypto.PKey()
+    keypair.generate_key(crypto.TYPE_RSA, 2048)
+    public_key = crypto.dump_publickey(crypto.FILETYPE_PEM, keypair)
+    private_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, keypair)
+
+    return {'public': public_key, 'private': private_key}
+
+
 def sss(private_key, threshold, sharecount, members):
     shares = split(threshold, sharecount, private_key)
-    gpg = GPG(gnupghome='/root/.gnupg')
+    gpg = GPG(gnupghome='~/.gnupg')
 
     for member, share, share_coeff in zip(members, shares.values(), shares.keys()):
         LOG.debug(share)

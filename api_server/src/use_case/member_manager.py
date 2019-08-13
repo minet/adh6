@@ -2,10 +2,9 @@
 """ Use cases (business rule layer) of everything related to members. """
 import datetime
 import json
-import socket
+
 from dataclasses import dataclass, asdict
 from typing import List, Optional
-from OpenSSL import crypto
 
 from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
 from src.entity.member import Member
@@ -21,9 +20,6 @@ from src.util.date import string_to_date
 from src.util.hash import ntlm_hash
 from src.util.log import LOG
 from src.util.validator import is_email, is_empty, is_date
-
-UDP_IP = "192.168.103.196"  # LogStash instance IP address
-UDP_PORT = 4001
 
 
 @dataclass
@@ -287,15 +283,7 @@ class MemberManager:
             fields = asdict(mutation_request)
             fields = {k: v for k, v in fields.items()}
 
-            keypair = self.gen_key_pair()
-
-            message = json.dumps({'username': username, 'message': keypair['public'].decode()})
-
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
-            sock.close()
-
-            self.member_repository.create_member(ctx, **fields, keypair=keypair)
+            self.member_repository.create_member(ctx, **fields)
 
             # Log action
             LOG.info('member_create', extra=log_extra(
@@ -405,13 +393,4 @@ class MemberManager:
             LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=username))
             return []  # We fail open here.
 
-    def gen_key_pair(self) -> dict:
-        """
-        called when creating a new member to generate one's key pair, to encrypt one's logs
-        """
-        keypair = crypto.PKey()
-        keypair.generate_key(crypto.TYPE_RSA, 2048)
-        public_key = crypto.dump_publickey(crypto.FILETYPE_PEM, keypair)
-        private_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, keypair)
 
-        return {'public': public_key, 'private': private_key}
