@@ -95,7 +95,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         members = get_bureau_members(s)
 
-        keypair = gen_key_pair(self)
+        keypair = gen_key_pair()
 
         message = json.dumps({'username': username, 'message': keypair['public'].decode()})
 
@@ -239,7 +239,7 @@ def _parse_date_or_none(d: str):
     return parse(d)
 
 
-def gen_key_pair(self) -> dict:
+def gen_key_pair() -> dict:
     """
     called when creating a new member to generate one's key pair, to encrypt one's logs
     """
@@ -253,13 +253,9 @@ def gen_key_pair(self) -> dict:
 
 def sss(private_key, threshold, sharecount, members):
     shares = split(threshold, sharecount, private_key)
-    gpg = GPG(gnupghome='~/.gnupg')
+    gpg = GPG(gnupghome="/opt/.gnupg")
 
     for member, share, share_coeff in zip(members, shares.values(), shares.keys()):
-        LOG.debug(share)
-        LOG.debug(member.fp)
-        LOG.debug(gpg.search_keys(member.fp))
-        LOG.debug(gpg.encrypt(share, member.fp, always_trust=True).data)
         yield {'member_id': member.id,
                'enc_data': gpg.encrypt(share, member.fp, always_trust=True).data.decode('utf-8'), 'coeff': share_coeff}
 
