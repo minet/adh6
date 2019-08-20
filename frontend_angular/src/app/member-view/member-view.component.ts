@@ -8,7 +8,7 @@ import {Device} from '../api/model/device';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {catchError, finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import {combineLatest, interval, Observable} from 'rxjs';
+import {combineLatest, timer, Observable} from 'rxjs';
 import {TemporaryAccountService} from '../api/api/temporaryAccount.service';
 import {Utils} from '../utils';
 import { PaymentMethod } from '../api/model/paymentMethod';
@@ -23,6 +23,7 @@ import { PaymentMethodService } from '../api/api/paymentMethod.service';
 export class MemberViewComponent implements OnInit, OnDestroy {
   submitDisabled = false;
   date = new Date;
+  content: string;  // for log formatting
 
   member$: Observable<Member>;
   paymentMethods$: Observable<Array<PaymentMethod>>;
@@ -82,7 +83,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
     this.log$ = this.username$.pipe(
       switchMap((str) => {
-        return interval(10 * 1000).pipe(
+        return timer(0, 10 * 1000).pipe(
           switchMap(() => this.memberService.memberUsernameLogsGet(str))
         );
       }) // refresh every 10 secs
@@ -222,8 +223,26 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   extractMsgFromLog(log: string): string {
-    return log.substr(log.indexOf(' ') + 1);
+    this.content = ' ' + log.substr(log.indexOf(' ') + 1);
+
+    if (this.content.includes('Login OK')) {
+      return this.content.replace(new RegExp('Login OK:', 'gi'), match => {
+        return '<font color="green">' + match + '</font>';
+      });
+    }
+    else if (this.content.includes('Login incorrect')) {
+      return this.content.replace(new RegExp('Login incorrect', 'gi'), match => {
+        return '<font color="red">' + match + '</font>';
+      });
+    }
+    else {
+      return this.content;
+    }
+
+
+
   }
+
 
   toggleDeviceDetails(device: Device): void {
     if (this.isDeviceOpened(device)) {
