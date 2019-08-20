@@ -13,6 +13,7 @@ from gfshare import split
 from gnupg import GPG
 from OpenSSL import crypto
 
+from config import TEST_CONFIGURATION
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.member import Member
 from src.exceptions import RoomNotFoundError, MemberAlreadyExist, MemberNotFoundError
@@ -23,9 +24,6 @@ from src.use_case.interface.membership_repository import MembershipRepository
 from src.util.context import log_extra
 from src.util.date import date_to_string
 from src.util.log import LOG
-
-UDP_IP = "192.168.103.196"  # LogStash instance IP address
-UDP_PORT = 4001
 
 
 class MemberSQLRepository(MemberRepository, MembershipRepository):
@@ -99,8 +97,10 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         message = json.dumps({'username': username, 'message': keypair['public'].decode()})
 
+        udp_ip, udp_port = TEST_CONFIGURATION.LOG_HOST['host'], TEST_CONFIGURATION.LOG_HOST['port']
+
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+        sock.sendto(message.encode(), (udp_ip, udp_port))
         sock.close()
 
         for share in sss(keypair['private'], threshold=3, sharecount=5, members=members):

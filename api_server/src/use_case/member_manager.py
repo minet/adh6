@@ -15,6 +15,7 @@ from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
+from src.use_case.interface.device_repository import DeviceRepository
 from src.util.context import log_extra
 from src.util.date import string_to_date
 from src.util.hash import ntlm_hash
@@ -122,11 +123,13 @@ class MemberManager:
                  membership_repository: MembershipRepository,
                  logs_repository: LogsRepository,
                  money_repository: MoneyRepository,
+                 device_repository: DeviceRepository,
                  configuration):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
         self.money_repository = money_repository
+        self.device_repository = device_repository
         self.config = configuration
 
     def new_membership(self, ctx, username, duration, payment_method, start_str=None) -> None:
@@ -379,8 +382,8 @@ class MemberManager:
 
         # Do the actual log fetching.
         try:
-            # TODO: Fetch all the devices and put them into this request.
-            logs = self.logs_repository.get_logs(ctx, username, [])
+            devices = self.device_repository.search_device_by(ctx, username=username)[0]
+            logs = self.logs_repository.get_logs(ctx, username=username, devices=devices)
 
             LOG.info('member_get_logs', extra=log_extra(
                 ctx,

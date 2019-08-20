@@ -2,12 +2,14 @@
 """
 Logs repository.
 """
+
 from elasticsearch import Elasticsearch
 
 from src.constants import CTX_TESTING, DEFAULT_LIMIT
 from src.use_case.interface.logs_repository import LogsRepository
 from src.exceptions import LogFetchError
 from src.util.mac import get_mac_variations
+from src.util.log import LOG
 
 
 class ElasticSearchRepository(LogsRepository):
@@ -17,6 +19,9 @@ class ElasticSearchRepository(LogsRepository):
 
     def __init__(self, configuration):
         self.config = configuration
+        LOG.info('About to instantiate ElasticSearch')
+        LOG.debug('ELK_HOSTS:' + str(self.config.ELK_HOSTS))
+        self.es = Elasticsearch(self.config.ELK_HOSTS)
 
     def get_logs(self, ctx, limit=DEFAULT_LIMIT, username=None, devices=None):
         """
@@ -40,19 +45,28 @@ class ElasticSearchRepository(LogsRepository):
             },
             "query": {
                 "bool": {
+                    "filter": {
+                        "match": {"program": "radiusd"}
+                    },
+                    "must": {
+                      "match": {"tags": "anonymous"}
+                    },
                     "should": [  # "should" in a "bool" query basically act as a "OR"
-                        {"match": {"message": username}},  # Match every log mentioning this member
+                        {"match": {"radius_user": username}},  # Match every log mentioning this member
                         # rules to match MACs addresses are added in the next chunk of code
                     ],
                     "minimum_should_match": 1,
                 },
             },
-            "_source": ["@   timestamp", "message"],  # discard any other field than timestamp & message
+            "_source": ["@timestamp", "message"],  # discard any other field than timestamp & message
             "size": limit,
+            "from": 0,
         }
 
+        LOG.info(devices)
         # Add the macs to the "should"
-        for addr in devices:
+        for d in devices:
+            addr = d.mac_address
             variations = map(
                 lambda x: {"match_phrase": {"message": x}},
                 get_mac_variations(addr)
@@ -60,9 +74,8 @@ class ElasticSearchRepository(LogsRepository):
             # noinspection PyTypeChecker
             query["query"]["bool"]["should"] += list(variations)
 
-        # TODO: instantiate only once the Elasticsearch client
-        es = Elasticsearch(self.config.ELK_HOSTS)
-        res = es.search(index="", body=query)['hits']['hits']
+        LOG.info('About to query ElasticSearch')
+        res = self.es.search(index="", body=query)['hits']['hits']
 
         return list(map(
             lambda x: "{} {}".format(x["_source"]["@timestamp"], x["_source"]["message"]),
