@@ -27,8 +27,9 @@ DURATION_STRING = {
 
 # IPs and ports for Elasticsearch nodes
 ELK_HOSTS = [
-    {'host': '127.0.0.1', 'port': 9200},
-    {'host': '192.168.1.1', 'port': 9200},
+    # {'host': '127.0.0.1', 'port': 9200},
+    # {'host': '192.168.1.1', 'port': 9200},
+    {'host': '192.168.103.196', 'port': 9200}
 ]
 
 
