@@ -1,8 +1,29 @@
 <div *ngIf="(member$ | async) as member" class="row">
-  <!-- Left column -->
-  <div class="col-md-9">
-    <h2><span class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
+  <div class="col-md-3"></div>
+  <div class="col-md-9"><h2><span class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
+  </div>
+</div>
 
+<div *ngIf="(member$ | async) as member" class="row">
+  <!-- Left column -->
+  <div class="col-md-3" >
+    <div class="card shadow" style="position: sticky; top: 10px;">
+        <div class="card-body">
+            <!-- Comment -->
+            <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
+            <!-- DISI picture -->
+            <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
+                  src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
+            <!-- Association button -->
+            <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
+            <!-- History -->
+    </div>
+
+  </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="col-md-9">
     <table class="w-100 shift-content-right">
       <thead>
       <tr>
@@ -34,8 +55,8 @@
       </tr>
       </tbody>
     </table>
-    <br/>
-    <div class="row">
+
+    <div class="row mt-3">
       <div class="col-md-6">
         <a [routerLink]="['/member/edit/', member.username ]">
           <button class="w-100 btn btn-primary mb-3">Éditer le profil</button>
@@ -195,7 +216,15 @@
       </div>
     </form>
 
-    <h3>Journal</h3>
+    <div class="container" >
+      <div class="row">
+        <div class="col-auto mr-auto p-0"><h3>Journal</h3></div>
+        <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
+          <button class="btn btn-primary" (click)="refreshLog()" title="Actualiser le journal">&#x27F3;</button>
+        </div>
+      </div>
+    </div>
+
     <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
       <ul class="list-unstyled u-max-full-width">
         <li *ngFor="let log of log$ | async">
@@ -203,17 +232,10 @@
         </li>
       </ul>
     </div>
-  </div>
 
-  <!-- Right column -->
-  <div class="col-md-3">
-    <!-- Comment -->
-    <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
-    <!-- DISI picture -->
-    <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
-          src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
-    <!-- Association button -->
-    <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
-    <!-- History -->
+    <div class="form-check mt-3 mb-3">
+      <input type="checkbox" class="form-check-input" id="logsDhcp" (change)="getDhcp = !getDhcp">
+      <label class="form-check-label" for="logsDhcp">Logs DHCP</label>
+    </div>
   </div>
 </div>

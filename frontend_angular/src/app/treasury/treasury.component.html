@@ -28,15 +28,15 @@
 <div class="list-group" *ngIf="showFundManagement">
   <div class="list-group-item">
       <form [formGroup]="fundManagementForm" (ngSubmit)="onSubmit()" novalidate>
-        <div class="row form-group">
-          <div class="col-md-4">
+        <div class="form-row">
+          <div class="col-md-4 form-group">
             <label>Opérations caisse</label>
             <select class="form-control">
               <option>Ajouter dans la caisse</option>
               <option>Sortir de la caisse</option>
             </select>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-8 form-group">
             <label>Montant</label>
             <input
             class="w-100 form-control"
@@ -47,16 +47,17 @@
           />
           </div>
         </div>
+        <hr/>
 
-        <div class="row form-group">
-            <div class="col-md-4">
+        <div class="form-row">
+            <div class="col-md-4 form-group">
               <label>Opérations coffre</label>
               <select class="form-control">
                 <option>Ajouter dans le coffre</option>
                 <option>Sortir du coffre</option>
               </select>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-8 form-group">
               <label>Montant</label>
               <input
               class="w-100 form-control"
@@ -67,6 +68,7 @@
             />
             </div>
           </div>
+          <hr/>
 
           <div class="form-group">
               <label for="labelOp">Libellé</label>
