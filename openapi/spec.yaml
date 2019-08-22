@@ -529,6 +529,12 @@ paths:
         required: true
         schema:
           type: string
+      - description: fetch DHCP logs
+        in: query
+        name: dhcp
+        required: false
+        schema:
+            type: boolean
       responses:
         200:
           content:
