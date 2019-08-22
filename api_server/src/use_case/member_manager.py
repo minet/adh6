@@ -361,7 +361,7 @@ class MemberManager:
             username=username,
         ))
 
-    def get_logs(self, ctx, username) -> List[str]:
+    def get_logs(self, ctx, username, dhcp=False) -> List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -383,7 +383,7 @@ class MemberManager:
         # Do the actual log fetching.
         try:
             devices = self.device_repository.search_device_by(ctx, username=username)[0]
-            logs = self.logs_repository.get_logs(ctx, username=username, devices=devices)
+            logs = self.logs_repository.get_logs(ctx, username=username, devices=devices, dhcp=dhcp)
 
             LOG.info('member_get_logs', extra=log_extra(
                 ctx,

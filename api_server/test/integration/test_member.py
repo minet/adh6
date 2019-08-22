@@ -595,8 +595,12 @@ def test_member_change_password_member_not_exist(api_client):
 
 def test_member_get_logs(api_client):
     USERNAME = "dubois_j"
+    body = {
+        "dhcp": False,
+    }
     result = api_client.get(
         '{}/member/{}/logs/'.format(base_url, USERNAME),
+        data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )

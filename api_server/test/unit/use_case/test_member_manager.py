@@ -358,7 +358,7 @@ class TestDelete:
     def test_happy_path(self, ctx,
                         mock_member_repository: MagicMock,
                         member_manager: MemberManager):
-        # When...
+        # When...g
         member_manager.delete(ctx, TEST_USERNAME)
 
         # Expect...
@@ -391,7 +391,8 @@ class TestGetLogs:
         # Expect...
         assert TEST_LOGS == result
         devices = mock_device_repository.search_device_by(ctx, username=TEST_USERNAME)
-        mock_logs_repository.get_logs.assert_called_once_with(ctx, devices=devices.__getitem__(), username=TEST_USERNAME)
+        mock_logs_repository.get_logs.assert_called_once_with(ctx, devices=devices.__getitem__(),
+                                                              username=TEST_USERNAME, dhcp=False)
 
     def test_fetch_failed(self, ctx,
                           mock_logs_repository: MagicMock,
