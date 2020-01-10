@@ -1,3 +1,7 @@
+.device_row {
+  cursor: pointer;
+}
+
 /* .association-button {
   white-space: normal;
   line-height: 2em;

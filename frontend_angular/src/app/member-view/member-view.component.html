@@ -1,9 +1,29 @@
 <div *ngIf="(member$ | async) as member" class="row">
+  <div class="col-md-3"></div>
+  <div class="col-md-9"><h2><span class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
+  </div>
+</div>
+
+<div *ngIf="(member$ | async) as member" class="row">
   <!-- Left column -->
+  <div class="col-md-3" >
+    <div class="card shadow" style="position: sticky; top: 10px;">
+        <div class="card-body">
+            <!-- Comment -->
+            <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
+            <!-- DISI picture -->
+            <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
+                  src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
+            <!-- Association button -->
+            <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
+            <!-- History -->
+    </div>
+
+  </div>
+  </div>
+
+  <!-- Right column -->
   <div class="col-md-9">
-    <h2><span class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
-
-
     <table class="w-100 shift-content-right">
       <thead>
       <tr>
@@ -13,19 +33,19 @@
       <tbody>
       <tr>
         <td class="profile-field">Identifiant DISI</td>
-        <td>{{ member.username }}</td>
+        <td class="pb-2">{{ member.username }}</td>
       </tr>
       <tr>
         <td class="profile-field">Mail</td>
-        <td><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
+        <td class="pb-2"><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
       </tr>
       <tr>
         <td class="profile-field">Date de départ</td>
-        <td>{{ member.departureDate }}</td>
+        <td class="pb-2">{{ member.departureDate | date:'dd/MM/y' }}</td>
       </tr>
       <tr>
         <td class="profile-field">Chambre</td>
-        <td>
+        <td class="pb-2">
           <a [routerLink]='["/room/view/", member.roomNumber]'>
             <button class="btn btn-primary" [disabled]="member.roomNumber == null">
               {{ member.roomNumber || "Aucune" }}
@@ -35,8 +55,8 @@
       </tr>
       </tbody>
     </table>
-    <br/>
-    <div class="row">
+
+    <div class="row mt-3">
       <div class="col-md-6">
         <a [routerLink]="['/member/edit/', member.username ]">
           <button class="w-100 btn btn-primary mb-3">Éditer le profil</button>
@@ -110,47 +130,35 @@
           </div>
         </form>
       </div>
-
+      <hr/>
 
     <!-- Device list -->
 
-    <table class="w-100 shift-content-right table table-striped clickable-table mt-3">
-      <thead>
-      <tr>
-        <th><h3 class="table-title my-0">Appareils</h3></th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
+    <h3 class="table-title my-0">Appareils</h3>
+
+    <table class="w-100 shift-content-right table table-striped table-hover mt-3">
       <ng-container *ngFor="let device of all_devices$ | async">
         <tr class="device_row"
             [ngClass]="{'mac_highlighted': device.mac == (macHighlighted$ | async)}"
             (click)="toggleDeviceDetails(device)">
           <td>{{ device.mac | uppercase }}</td>
-          <td><a>Détails</a></td>
+          <td style="text-align: right;">{{ isDeviceOpened(device) === false ? "&#x25bc;" : "&#x25b2;" }}</td>
         </tr>
         <tr *ngIf="isDeviceOpened(device)" class="device_details_area">
-          <td colspan="2">
-            <table class="device_details">
-              <tr>
-                <td class="device_property">Type</td>
-                <td style="font-style: italic">{{ device.connectionType }}</td>
-              </tr>
-              <tr>
-                <td class="device_property">IPv4</td>
-                <td>{{ device.ipAddress }}</td>
-              </tr>
-              <tr>
-                <td class="device_property">IPv6</td>
-                <td>{{ device.ipv6Address }}</td>
-              </tr>
-              <tr>
-                <td class="device_property">Fabriquant</td>
-                <td>
-                  <app-mac-vendor mac="{{ device.mac }}"></app-mac-vendor>
-                </td>
-              </tr>
-            </table>
+          <td colspan="3">
+            <dl class="row">
+              <dt class="col-md-2">Type</dt>
+              <dd class="col-md-10" style="font-style: italic">{{ device.connectionType }}</dd>
+
+              <dt class="col-md-2">IPv4</dt>
+              <dd class="col-md-10">{{ device.ipAddress }}</dd>
+
+              <dt class="col-md-2">IPv6</dt>
+              <dd class="col-md-10">{{ device.ipv6Address }}</dd>
+
+              <dt class="col-md-2">Fabriquant</dt>
+              <dd class="col-md-10"><app-mac-vendor mac="{{ device.mac }}"></app-mac-vendor></dd>
+            </dl>
 
             <a (click)="deviceDelete(device.mac)">
               <button [disabled]="submitDisabled" class="btn btn-danger">Supprimer</button>
@@ -170,17 +178,16 @@
           </td>
         </tr>
       </ng-container>
-      </tbody>
     </table>
 
 
     <form [formGroup]="deviceForm" (ngSubmit)="submitDevice()" novalidate class="w-100">
       <div class="form-row">
         <div class="from-group col-md-8">
-          <input class="w-100 form-control" type="text" formControlName="mac">
+          <input class="w-100 form-control mb-3" type="text" formControlName="mac">
         </div>
         <div class="from-group col-md-4">
-          <select class="w-100 form-control" type="text"
+          <select class="w-100 form-control mb-3" type="text"
                   formControlName="connectionType">
             <option value="wired">Filaire</option>
             <option value="wireless">Wi-Fi</option>
@@ -191,7 +198,7 @@
       <div class="form-group">
         <button type="submit"
                 [disabled]="submitDisabled || deviceForm.status == 'INVALID'"
-                class="w-100 btn btn-primary mt-3">Ajouter l'appareil
+                class="w-100 btn btn-primary mb-3">Ajouter l'appareil
         </button>
       </div>
     </form>
@@ -209,26 +216,26 @@
       </div>
     </form>
 
-    <h3>Journal</h3>
+    <div class="container" >
+      <div class="row">
+        <div class="col-auto mr-auto p-0"><h3>Journal</h3></div>
+        <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
+          <button class="btn btn-primary" (click)="refreshLog()" title="Actualiser le journal">&#x27F3;</button>
+        </div>
+      </div>
+    </div>
+
     <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
-      <ul class="nobullet u-max-full-width">
+      <ul class="list-unstyled u-max-full-width">
         <li *ngFor="let log of log$ | async">
-          <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> {{ extractMsgFromLog(log) }}
+          <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span [innerHtml]="extractMsgFromLog(log)"></span>
         </li>
       </ul>
     </div>
 
-  </div>
-
-  <!-- Right column -->
-  <div class="col-md-3">
-    <!-- Comment -->
-    <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
-    <!-- DISI picture -->
-    <img class="w-100 image-disi"
-          src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
-    <!-- Association button -->
-    <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
-    <!-- History -->
+    <div class="form-check mt-3 mb-3">
+      <input type="checkbox" class="form-check-input" id="logsDhcp" (change)="getDhcp = !getDhcp">
+      <label class="form-check-label" for="logsDhcp">Logs DHCP</label>
+    </div>
   </div>
 </div>

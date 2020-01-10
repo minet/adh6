@@ -140,14 +140,14 @@ class MemberHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def logs_search(self, ctx, username):
+    def logs_search(self, ctx, username, dhcp=False):
         """ Get logs from a member. """
-        LOG.debug("http_member_get_logs_called", extra=log_extra(ctx, username=username))
+        LOG.debug("http_member_get_logs_called", extra=log_extra(ctx, username=username, dhcp=dhcp))
         try:
-            return self.member_manager.get_logs(ctx, username), 200
-
+            return self.member_manager.get_logs(ctx, username, dhcp=dhcp), 200
         except MemberNotFoundError:
             return NoContent, 404
+
 
 
 def _map_member_to_http_response(member: Member) -> dict:

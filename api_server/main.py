@@ -91,6 +91,7 @@ def init(testing=True):
         money_repository=money_repository,
         membership_repository=member_sql_repository,
         logs_repository=elk_repository,
+        device_repository=device_sql_repository,
         configuration=configuration,
     )
     room_manager = RoomManager(

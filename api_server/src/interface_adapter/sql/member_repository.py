@@ -2,11 +2,16 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
+import socket
+import json
+
 from datetime import datetime
 from dateutil.parser import parse
 from sqlalchemy.orm.exc import NoResultFound
 from typing import List
 
+from config import TEST_CONFIGURATION
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.member import Member
 from src.exceptions import RoomNotFoundError, MemberAlreadyExist, MemberNotFoundError
@@ -45,8 +50,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     def create_member(self, ctx,
                       last_name=None, first_name=None, email=None, username=None, comment=None,
-                      room_number=None, departure_date=None, association_mode=None
-                      ) -> None:
+                      room_number=None, departure_date=None, association_mode=None) -> None:
         """
         Create a member.
 

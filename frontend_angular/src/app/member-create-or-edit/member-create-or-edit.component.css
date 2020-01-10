@@ -1,0 +1,10 @@
+.ng-valid:not(form).ng-touched  {
+  border-left: 5px solid #28a745;
+}
+.ng-invalid:not(form).ng-touched  {
+  border-left: 5px solid #dc3545;
+}
+span.invalid {
+  color: #dc3545;
+  font-size: .8em;
+}

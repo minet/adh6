@@ -2,6 +2,7 @@
 """ Use cases (business rule layer) of everything related to members. """
 import datetime
 import json
+
 from dataclasses import dataclass, asdict
 from typing import List, Optional
 
@@ -12,6 +13,7 @@ from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, No
     IntMustBePositive, StringMustNotBeEmpty, InvalidDate, MissingRequiredField
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
+from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
@@ -121,11 +123,13 @@ class MemberManager:
                  membership_repository: MembershipRepository,
                  logs_repository: LogsRepository,
                  money_repository: MoneyRepository,
+                 device_repository: DeviceRepository,
                  configuration):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
         self.money_repository = money_repository
+        self.device_repository = device_repository
         self.config = configuration
 
     def new_membership(self, ctx, username, duration, payment_method, start_str=None) -> None:
@@ -176,7 +180,7 @@ class MemberManager:
 
         except UnknownPaymentMethod:
             LOG.warning("create_membership_record_unknown_payment_method",
-                     extra=log_extra(ctx, payment_method=payment_method))
+                        extra=log_extra(ctx, payment_method=payment_method))
             raise
 
         LOG.info("create_membership_record", extra=log_extra(
@@ -246,7 +250,7 @@ class MemberManager:
         :raise StringMustNotBeEmptyException
         :raise UsernameMismatchError
         """
-        # Make sure all the fielobjectds set are valid.
+        # Make sure all the object fields set are valid.
         mutation_request.validate()
 
         # Make sure all the necessary fields are set.
@@ -357,7 +361,7 @@ class MemberManager:
             username=username,
         ))
 
-    def get_logs(self, ctx, username) -> List[str]:
+    def get_logs(self, ctx, username, dhcp=False) -> List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -378,12 +382,14 @@ class MemberManager:
 
         # Do the actual log fetching.
         try:
-            # TODO: Fetch all the devices and put them into this request.
-            logs = self.logs_repository.get_logs(ctx, username, [])
+            devices = self.device_repository.search_device_by(ctx, username=username)[0]
+            logs = self.logs_repository.get_logs(ctx, username=username, devices=devices, dhcp=dhcp)
 
             LOG.info('member_get_logs', extra=log_extra(
                 ctx,
                 username=username,
+                #devices=devices,
+                logs=logs,
             ))
 
             return logs

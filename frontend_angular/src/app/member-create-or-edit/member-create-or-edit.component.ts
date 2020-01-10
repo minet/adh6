@@ -108,6 +108,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
               lastName: v.lastName,
               username: v.username,
               roomNumber: (v.roomNumber == null ? 0 : v.roomNumber),
+              departureDate: new Date(),
             };
             return this.memberService.memberUsernamePut(requestUsername, req, 'response');
           }

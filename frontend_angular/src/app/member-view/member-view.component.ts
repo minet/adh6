@@ -8,7 +8,7 @@ import {Device} from '../api/model/device';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {catchError, finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import {combineLatest, interval, Observable} from 'rxjs';
+import {combineLatest, timer, Observable} from 'rxjs';
 import {TemporaryAccountService} from '../api/api/temporaryAccount.service';
 import {Utils} from '../utils';
 import { PaymentMethod } from '../api/model/paymentMethod';
@@ -23,6 +23,8 @@ import { PaymentMethodService } from '../api/api/paymentMethod.service';
 export class MemberViewComponent implements OnInit, OnDestroy {
   submitDisabled = false;
   date = new Date;
+  getDhcp = false;
+
 
   member$: Observable<Member>;
   paymentMethods$: Observable<Array<PaymentMethod>>;
@@ -39,6 +41,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private selectedDevice: string;
   private options = {year: "numeric", month: "long", day: "numeric"};
   private amountToPay: number = 0;
+  private content: string;  // for log formatting
 
   constructor(
     public memberService: MemberService,
@@ -82,8 +85,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
     this.log$ = this.username$.pipe(
       switchMap((str) => {
-        return interval(10 * 1000).pipe(
-          switchMap(() => this.memberService.memberUsernameLogsGet(str))
+        return timer(0, 10 * 1000).pipe(
+          switchMap(() => this.memberService.memberUsernameLogsGet(str, this.getDhcp))
         );
       }) // refresh every 10 secs
     );
@@ -96,6 +99,26 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
   refreshInfo(): void {
     this.refreshInfoOrder$.next(null);
+  }
+
+  // switchMap(username => this.memberService.memberUsernameGet(username)),
+  // tap((user) => this.commentForm.setValue({comment: (user.comment === undefined) ? '' : user.comment})),
+  // share(),
+
+  refreshLog(): void {
+    // stream, which will emit the username every time the profile needs to be refreshed
+    const refresh$ = combineLatest([this.username$, this.refreshInfoOrder$])
+      .pipe(
+        map(([x]) => x),
+      );
+
+    this.log$ = this.username$.pipe(
+      switchMap((str) => {
+        return timer(0, 10 * 1000).pipe(
+          switchMap(() => this.memberService.memberUsernameLogsGet(str, this.getDhcp))
+        );
+      }) // refresh every 10 secs
+    );
   }
 
   toggleCotisationMenu(): void {
@@ -222,8 +245,25 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   extractMsgFromLog(log: string): string {
-    return log.substr(log.indexOf(' ') + 1);
+    this.content = ' ' + log.substr(log.indexOf(' ') + 1);
+
+    if (this.content.includes('Login OK')) {
+      return this.content.replace(new RegExp('Login OK:', 'gi'), match => {
+        return '<font color="green">' + match + '</font>';
+      });
+    }
+    else if (this.content.includes('Login incorrect')) {
+      return this.content.replace(new RegExp('Login incorrect', 'gi'), match => {
+        return '<font color="red">' + match + '</font>';
+      });
+    }
+    else {
+      return this.content;
+    }
   }
+
+
+
 
   toggleDeviceDetails(device: Device): void {
     if (this.isDeviceOpened(device)) {

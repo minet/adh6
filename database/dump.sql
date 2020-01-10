@@ -47,7 +47,7 @@ CREATE TABLE `adherents` (
 
 LOCK TABLES `adherents` WRITE;
 /*!40000 ALTER TABLE `adherents` DISABLE KEYS */;
-INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,NULL,NULL,'2011-04-30 17:50:17',NULL);
+INSERT INTO `adherents` VALUES (55121,'Test','Numero1','a@a.fr','testtest',NULL,2853,NULL,NULL,'2019-09-18',NULL,'2011-04-30 17:50:17',NULL),(55122,'Test','Numero2','b@b.fr','tasttast',NULL,2854,NULL,NULL,'2019-08-27',NULL,'2011-04-30 17:50:17',NULL),(55123,'Test','Numero3','c@c.fr','tusttust',NULL,NULL,NULL,NULL,'2019-07-14',NULL,'2011-04-30 17:50:17',NULL);
 /*!40000 ALTER TABLE `adherents` ENABLE KEYS */;
 UNLOCK TABLES;
 

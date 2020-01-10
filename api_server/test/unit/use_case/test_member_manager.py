@@ -13,6 +13,7 @@ from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
+from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.member_manager import MemberManager, FullMutationRequest, PartialMutationRequest
 from src.util.hash import ntlm_hash
 from test.unit.use_case.conftest import TEST_USERNAME, TEST_EMAIL, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_COMMENT, \
@@ -377,6 +378,7 @@ class TestGetLogs:
     def test_happy_path(self, ctx,
                         mock_logs_repository: MagicMock,
                         mock_member_repository: MagicMock,
+                        mock_device_repository: MagicMock,
                         sample_member: Member,
                         member_manager: MemberManager):
         # Given...
@@ -387,7 +389,9 @@ class TestGetLogs:
 
         # Expect...
         assert TEST_LOGS == result
-        mock_logs_repository.get_logs.assert_called_once_with(ctx, TEST_USERNAME, [])
+        devices = mock_device_repository.search_device_by(ctx, username=TEST_USERNAME)
+        mock_logs_repository.get_logs.assert_called_once_with(ctx, devices=devices.__getitem__(),
+                                                              username=TEST_USERNAME, dhcp=False)
 
     def test_fetch_failed(self, ctx,
                           mock_logs_repository: MagicMock,
@@ -435,12 +439,14 @@ def member_manager(
         mock_money_repository,
         mock_membership_repository,
         mock_logs_repository,
+        mock_device_repository,
 ):
     return MemberManager(
         member_repository=mock_member_repository,
         money_repository=mock_money_repository,
         membership_repository=mock_membership_repository,
         logs_repository=mock_logs_repository,
+        device_repository=mock_device_repository,
         configuration=TEST_CONFIGURATION,
     )
 
@@ -465,3 +471,8 @@ def mock_logs_repository():
     r = MagicMock(spec=LogsRepository)
     r.get_logs = MagicMock(return_value=TEST_LOGS)
     return r
+
+
+@fixture
+def mock_device_repository():
+    return MagicMock(spec=DeviceRepository)
