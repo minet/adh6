@@ -28,11 +28,11 @@ services:
       dockerfile: ./api_server/Dockerfile
       args:
         CAS_PROFILE_URL: "https://cas.minet.net/oauth2.0/profile"
-        DATABASE_HOST: "database"
+        DATABASE_HOST: "192.168.102.54"
         DATABASE_PORT: "3306"
         DATABASE_USERNAME: "adh6"
-        DATABASE_PASSWORD: "adh6_pass"
-        DATABASE_DB_NAME: "adh6" # Database name.
+        DATABASE_PASSWORD: "sltouictrounmdplour"
+        DATABASE_DB_NAME: "adh6_prod" # Database name.
     links:
       - database
     expose:
