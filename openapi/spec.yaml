@@ -1481,6 +1481,24 @@ paths:
       summary: Update/create
       tags:
       - transaction
+  /bug_report/:
+    post:
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BugReport'
+        description: BugReport to create
+        required: true
+      responses:
+        200:
+          description: Created
+        400:
+          description: Invalid input
+      summary: Submit a new bug report
+      tags:
+      - bug_report
 components:
   schemas:
     Account:
@@ -1861,6 +1879,18 @@ components:
       - paymentMethodID
       - dstID
       - srcID
+      type: object
+    BugReport:
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        labels:
+          type: array
+      required:
+      - title
+      - description
       type: object
 
   securitySchemes:

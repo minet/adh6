@@ -2,6 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AppComponent} from './app.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {AppRoutingModule} from './/app-routing.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
@@ -47,6 +48,7 @@ import { ProductCreateComponent } from './product-create/product-create.componen
 import { ProductViewComponent } from './product-view/product-view.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductEditComponent } from './product-edit/product-edit.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 
 @NgModule({
@@ -87,6 +89,7 @@ import { ProductEditComponent } from './product-edit/product-edit.component';
     ProductEditComponent,
   ],
   imports: [
+    FontAwesomeModule,
     BrowserModule,
     AppRoutingModule,
     ApiModule,
@@ -105,6 +108,7 @@ import { ProductEditComponent } from './product-edit/product-edit.component';
     PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
     HttpClientModule,
+    ModalModule.forRoot(),
   ],
   providers: [
     AppComponent,

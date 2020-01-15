@@ -2,8 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
 import {authConfig} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
+import {FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +14,13 @@ import {filter, first, map} from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy {
   titre = 'ADH6';
+  faBug = faBug;
+  submitBugForm: FormGroup;
 
   constructor(
     private oauthService: OAuthService,
     private route: ActivatedRoute,
+    private router: Router
   ) {
     this.configureWithNewConfigApi();
   }
@@ -47,6 +52,21 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+  }
+
+  onSubmitBug() {
+
+  }
+
+  getCurrentComponent() {
+    let state = this.router.routerState.root;
+
+    while (state.firstChild) {
+      state = state.firstChild;
+    }
+
+    const stateComponent = <any>state.component;
+    return stateComponent ? stateComponent.name : '';
   }
 
   private configureWithNewConfigApi() {
