@@ -52,7 +52,7 @@ export class ProductEditComponent implements OnInit, OnDestroy  {
       sellingPrice: v.productSellingPrice,
     };
 
-    this.productService.productProductIdPatch(this.product.id, productPatch, 'response')
+    this.productService.productProductIdPatch(productPatch, this.product.id,'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/product/view']);

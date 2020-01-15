@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SwitchService} from '../api/api/switch.service';
-import {Switch} from '../api/model/switch';
+import {ModelSwitch} from '../api/model/modelSwitch';
 
 @Component({
   selector: 'app-switch-edit',
@@ -11,7 +11,7 @@ import {Switch} from '../api/model/switch';
 })
 export class SwitchEditComponent implements OnInit {
 
-  switches$: Observable<Array<Switch>>;
+  switches$: Observable<Array<ModelSwitch>>;
   switchForm: FormGroup;
 
   constructor(

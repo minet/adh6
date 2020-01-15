@@ -10,13 +10,9 @@
  * Do not edit the class manually.
  */
 
-export interface MemberPatchRequest { 
-    associationMode?: Date;
-    comment?: string;
-    departureDate?: Date;
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    roomNumber?: number;
-    username?: string;
+export interface ModelSwitch { 
+    community: string;
+    description?: string;
+    id?: number;
+    ip: string;
 }

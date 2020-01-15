@@ -100,7 +100,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             if (v.roomNumber) {
               req.roomNumber = v.roomNumber;
             }
-            return this.memberService.memberUsernamePatch(requestUsername, req, 'response');
+            return this.memberService.memberUsernamePatch(req, requestUsername, 'response');
           } else {
             const req: Member = {
               email: v.email,
@@ -110,7 +110,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
               roomNumber: (v.roomNumber == null ? 0 : v.roomNumber),
               departureDate: new Date(),
             };
-            return this.memberService.memberUsernamePut(requestUsername, req, 'response');
+            return this.memberService.memberUsernamePut(req, requestUsername, 'response');
           }
         }),
         first(),

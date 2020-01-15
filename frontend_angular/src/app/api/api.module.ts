@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 
 import { AccountService } from './api/account.service';
 import { AccountTypeService } from './api/accountType.service';
+import { BugReportService } from './api/bugReport.service';
+import { DefaultService } from './api/default.service';
 import { DeviceService } from './api/device.service';
 import { MemberService } from './api/member.service';
 import { MembershipService } from './api/membership.service';
@@ -23,6 +25,8 @@ import { TransactionService } from './api/transaction.service';
   providers: [
     AccountService,
     AccountTypeService,
+    BugReportService,
+    DefaultService,
     DeviceService,
     MemberService,
     MembershipService,

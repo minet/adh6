@@ -17,15 +17,14 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Body1 } from '../model/body1';
-import { InlineResponse2002 } from '../model/inlineResponse2002';
+import { BugReport } from '../model/bugReport';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
 
 @Injectable()
-export class TemporaryAccountService {
+export class BugReportService {
 
     protected basePath = '/api';
     public defaultHeaders = new HttpHeaders();
@@ -57,61 +56,25 @@ export class TemporaryAccountService {
 
 
     /**
-     * Revoke all active temporary accounts.
+     * Submit a new bug report
      *
+     * @param body BugReport to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public temporaryAccountDelete(observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public temporaryAccountDelete(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public temporaryAccountDelete(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public temporaryAccountDelete(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-        let headers = this.defaultHeaders;
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<any>('delete',`${this.basePath}/temporary_account/`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Create new temporary account for this day. Only super admins can do that.
-     *
-     * @param body
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public temporaryAccountPost(body: Body1, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
-    public temporaryAccountPost(body: Body1, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
-    public temporaryAccountPost(body: Body1, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
-    public temporaryAccountPost(body: Body1, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public bugReportPost(body: BugReport, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public bugReportPost(body: BugReport, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public bugReportPost(body: BugReport, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public bugReportPost(body: BugReport, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling temporaryAccountPost.');
+            throw new Error('Required parameter body was null or undefined when calling bugReportPost.');
         }
 
         let headers = this.defaultHeaders;
 
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
-            'application/json'
         ];
         const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         if (httpHeaderAcceptSelected != undefined) {
@@ -127,7 +90,7 @@ export class TemporaryAccountService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-        return this.httpClient.request<InlineResponse2002>('post',`${this.basePath}/temporary_account/`,
+        return this.httpClient.request<any>('post',`${this.basePath}/bug_report/`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,

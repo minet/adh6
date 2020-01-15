@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NotificationsService} from 'angular2-notifications';
 import {SwitchService} from '../api/api/switch.service';
-import {Switch} from '../api/model/switch';
+import {ModelSwitch} from '../api/model/modelSwitch';
 import {takeWhile} from 'rxjs/operators';
 
 @Component({
@@ -14,7 +14,7 @@ import {takeWhile} from 'rxjs/operators';
 })
 export class SwitchNewComponent implements OnInit {
 
-  switches$: Observable<Array<Switch>>;
+  switches$: Observable<Array<ModelSwitch>>;
   switchForm: FormGroup;
   disabled = false;
   private alive = true;
@@ -38,7 +38,7 @@ export class SwitchNewComponent implements OnInit {
 
   onSubmit() {
     const v = this.switchForm.value;
-    const varSwitch: Switch = {
+    const varSwitch: ModelSwitch = {
       description: v.description,
       ip: v.ip,
       community: v.community,

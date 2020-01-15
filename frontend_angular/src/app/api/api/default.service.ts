@@ -17,14 +17,13 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { MembershipRequest } from '../model/membershipRequest';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
 
 @Injectable()
-export class MembershipService {
+export class DefaultService {
 
     protected basePath = '/api';
     public defaultHeaders = new HttpHeaders();
@@ -56,32 +55,17 @@ export class MembershipService {
 
 
     /**
-     * Add a membership record for an member
+     * Health endpoint, query this with zabbix to know if ADH6 is running or not.
      *
-     * @param body Membership record, if no start is specified, it will use the current date. Duration is expressed in days. WARNING: DO NOT set the start date to be in the future, it is not implemented for the moment.
-     * @param username The username of the member
-     * @param xIdempotencyKey Just a random string to ensure that membership creation is idempotent (very important since double submission may result to the member being charged two times). I recommand using a long random string for that.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public memberUsernameMembershipPost(body: MembershipRequest, username: string, xIdempotencyKey?: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public memberUsernameMembershipPost(body: MembershipRequest, username: string, xIdempotencyKey?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public memberUsernameMembershipPost(body: MembershipRequest, username: string, xIdempotencyKey?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public memberUsernameMembershipPost(body: MembershipRequest, username: string, xIdempotencyKey?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling memberUsernameMembershipPost.');
-        }
-
-        if (username === null || username === undefined) {
-            throw new Error('Required parameter username was null or undefined when calling memberUsernameMembershipPost.');
-        }
-
+    public health(observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public health(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public health(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public health(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
-        if (xIdempotencyKey !== undefined && xIdempotencyKey !== null) {
-            headers = headers.set('X-Idempotency-Key', String(xIdempotencyKey));
-        }
 
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
@@ -93,16 +77,10 @@ export class MembershipService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
 
-        return this.httpClient.request<any>('post',`${this.basePath}/member/${encodeURIComponent(String(username))}/membership/`,
+        return this.httpClient.request<any>('get',`${this.basePath}/health/`,
             {
-                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

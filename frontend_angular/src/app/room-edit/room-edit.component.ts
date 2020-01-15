@@ -49,7 +49,7 @@ export class RoomEditComponent implements OnInit, OnDestroy {
       vlan: v.vlan,
       description: v.description
     };
-    this.roomService.roomRoomNumberPut(v.roomNumber, room, 'response')
+    this.roomService.roomRoomNumberPut(room, v.roomNumber, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/room/view', v.roomNumber]);
