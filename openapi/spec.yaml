@@ -139,6 +139,32 @@ paths:
       summary: Partially update
       tags:
       - account
+  /account/{account_id}/balance:
+    get:
+      parameters:
+      - description: The id of the account whose balance needs to be fetched.
+        in: path
+        name: account_id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  balance:
+                    description: balance of the account
+                    example: 1
+                    type: number
+                type: object
+          description: Success
+        404:
+          description: Not found
+      summary: Retrieve
+      tags:
+      - account
   /account_type/:
     get:
       parameters:

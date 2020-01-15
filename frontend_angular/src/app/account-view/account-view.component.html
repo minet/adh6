@@ -1,5 +1,5 @@
 <div *ngIf="(account$ | async) as account">
-  <h2 class="text-left">Liste des écritures du compte {{ account.name }}</h2>
+  <h2 class="text-left" *ngIf="(balance$ | async) as balance">Liste des écritures du compte {{ account.name }} : {{ balance.balance }} €</h2>
   <br/>
 
   <div class="row">
@@ -24,7 +24,7 @@
           <th>De / Vers</th>
         </tr>
       </thead>
-      <tr *ngFor="let transaction of result.transactions | paginate: { itemsPerPage: result.item_per_page, currentPage: result.current_page, totalItems: result.item_count}"
+      <tr *ngFor="let transaction of result.transactions.reverse() | paginate: { itemsPerPage: result.item_per_page, currentPage: result.current_page, totalItems: result.item_count}"
           [ngClass]="(transaction.dst.id==account.id)?'table-success':'table-danger'">
         <td>{{ transaction.timestamp }}</td>
         <td>admin</td>

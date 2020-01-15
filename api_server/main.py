@@ -127,7 +127,7 @@ def init(testing=True):
     temporary_account_handler = TemporaryAccountHandler()
     account_type_handler = AccountTypeHandler(account_type_manager)
     payment_method_handler = PaymentMethodHandler(payment_method_manager)
-    account_handler = AccountHandler(account_manager)
+    account_handler = AccountHandler(account_manager, transaction_manager)
     product_handler = ProductHandler(product_manager)
     bug_report_handler = BugReportHandler()
 

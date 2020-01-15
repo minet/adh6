@@ -11,13 +11,15 @@ from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.account_manager import PartialMutationRequest, AccountManager, FullMutationRequest
+from src.use_case.transaction_manager import TransactionManager
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
 class AccountHandler:
-    def __init__(self, account_manager: AccountManager):
+    def __init__(self, account_manager: AccountManager, transaction_manager: TransactionManager):
         self.account_manager = account_manager
+        self.transaction_manager = transaction_manager
 
     @with_context
     @require_sql
@@ -42,16 +44,32 @@ class AccountHandler:
     @with_context
     @require_sql
     @auth_regular_admin
+    def balance_search(self, ctx, account_id):
+        LOG.debug("http_balance_search_called", extra=log_extra(ctx,
+                                                                account_id=account_id))
+        try:
+            result = self.account_manager.get_by_id(ctx, account_id)
+            transactions, count = self.transaction_manager.search(ctx, 1000000, 0, account_id, '')
+            balance = sum(
+                [(1 if transaction.dst == result else -1) * transaction.value for transaction in transactions])
+            return {"balance": balance}, 200
+
+        except UserInputError as e:
+            return bad_request(e), 400  # 400 Bad Request
+
+    @with_context
+    @require_sql
+    @auth_regular_admin
     def post(self, ctx, body):
         """ Add an account record in the database """
         LOG.debug("http_account_post_called", extra=log_extra(ctx, request=body))
 
         try:
             created = self.account_manager.update_or_create(ctx, req=FullMutationRequest(
-                                                            name=body.get('name'),
-                                                            type=body.get('type_'),
-                                                            actif=body.get('actif'),
-                                                            creation_date=body.get('creation_date')),
+                name=body.get('name'),
+                type=body.get('type_'),
+                actif=body.get('actif'),
+                creation_date=body.get('creation_date')),
                                                             account_id=body.get('account_id'))
             if created:
                 return NoContent, 201  # 201 Created

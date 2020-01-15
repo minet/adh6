@@ -10,6 +10,7 @@ import {Transaction} from '../api/model/transaction';
 import {PagingConf} from '../paging.config';
 
 import {SearchPage} from '../search-page';
+import {InlineResponse200} from '../api';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -25,6 +26,7 @@ export interface TransactionListResult {
 })
 export class AccountViewComponent extends SearchPage implements OnInit {
   account$: Observable<Account>;
+  balance$: Observable<InlineResponse200>
 
   result$: Observable<TransactionListResult>;
   private id$: Observable<number>;
@@ -33,7 +35,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
     private accountService: AccountService,
     private transactionService: TransactionService,
     private route: ActivatedRoute,
-  ) { 
+  ) {
     super();
   }
 
@@ -48,16 +50,24 @@ export class AccountViewComponent extends SearchPage implements OnInit {
       .pipe(
         map(([x]) => x),
       );
-
     this.account$ = refresh$.pipe(
       switchMap(id => this.accountService.accountAccountIdGet(''+id)),
       share()
     );
 
-    this.result$ = this.getSearchResult((id, page) => this.fetchTransaction(+id, page));
+    this.result$ = refresh$.pipe(
+      switchMap(account => <Observable<TransactionListResult>>this.getSearchResult((terms, page) => this.fetchTransaction(account, page) )),
+      share(),
+    );
+
+    this.balance$ = refresh$.pipe(
+      switchMap( id => this.accountService.accountAccountIdBalanceGet(''+id)),
+      share()
+    );
   }
 
   private fetchTransaction(account: number, page: number): Observable<TransactionListResult> {
+    console.log(account);
     const n = +PagingConf.item_count;
     return this.transactionService.transactionGet(n, (page - 1) * n, undefined, account, 'response')
       .pipe(
