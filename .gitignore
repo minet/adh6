@@ -82,3 +82,4 @@ frontend_angular/certs/
 frontend_angular/src/app/api/.keep
 
 secrets/**
+.env
