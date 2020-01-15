@@ -5,7 +5,7 @@ import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
-import {FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -18,11 +18,19 @@ export class AppComponent implements OnInit, OnDestroy {
   submitBugForm: FormGroup;
 
   constructor(
+    private fb: FormBuilder,
     private oauthService: OAuthService,
     private route: ActivatedRoute,
     private router: Router
   ) {
     this.configureWithNewConfigApi();
+    this.createForm();
+  }
+
+  createForm() {
+    this.submitBugForm = this.fb.group({
+      bugTitle: ['', Validators.required]
+    });
   }
 
   isAuthenticated() {

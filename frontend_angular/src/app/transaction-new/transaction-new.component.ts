@@ -55,7 +55,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   }
 
   srcSearch(terms: string) {
-    this.srcSearchResult$ = this.getSearchResult((terms) => {
+    this.srcSearchResult$ = this.getSearchResult((x) => {
         return this.accountService.accountGet(20, 0, terms).pipe(
           map((response) => {
             return <AccountListResult>{
@@ -67,7 +67,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   }
 
   dstSearch(terms: string) {
-    this.dstSearchResult$ = this.getSearchResult((terms) => {
+    this.dstSearchResult$ = this.getSearchResult((x) => {
         return this.accountService.accountGet(20, 0, terms).pipe(
           map((response) => {
             return <AccountListResult>{
@@ -96,6 +96,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.transactionDetails = this.fb.group({
       name: ['', Validators.required],
       value: ['', Validators.required],
+      srcAccount: ['', Validators.required],
+      dstAccount: ['', Validators.required],
       paymentMethod: ['', Validators.required]
     });
   }
