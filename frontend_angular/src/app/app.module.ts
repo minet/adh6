@@ -38,7 +38,7 @@ import {NotifInterceptor} from './http-interceptor/notif-interceptor';
 import {MemberPasswordEditComponent} from './member-password-edit/member-password-edit.component';
 import {CreateTemporaryAccountComponent} from './create-temporary-account/create-temporary-account.component';
 import {TreasuryComponent} from "./treasury/treasury.component";
-import {TransactionNewComponent} from "./transaction-new/transaction-new.component"
+import {ClickOutsideDirective, TransactionNewComponent} from './transaction-new/transaction-new.component';
 import {BASE_PATH} from './api';
 import {environment} from '../environments/environment';
 import { AccountCreateComponent } from './account-create/account-create.component';
@@ -49,6 +49,8 @@ import { ProductViewComponent } from './product-view/product-view.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
+
+export {ClickOutsideDirective} from './clickOutside.directive';
 
 
 @NgModule({
@@ -87,6 +89,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     ProductViewComponent,
     ProductListComponent,
     ProductEditComponent,
+    ClickOutsideDirective,
   ],
   imports: [
     FontAwesomeModule,

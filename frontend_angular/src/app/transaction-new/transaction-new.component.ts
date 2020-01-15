@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
-import {takeWhile} from 'rxjs/operators';
+import {share, takeWhile} from 'rxjs/operators';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
 
 import {TransactionService} from '../api/api/transaction.service';
@@ -15,6 +15,9 @@ import { PaymentMethod } from '../api/model/paymentMethod';
 import { Account } from '../api/model/account';
 import { AccountService } from '../api/api/account.service';
 import { PaymentMethodService } from '../api/api/paymentMethod.service';
+import {InlineResponse200} from '../api';
+
+export {ClickOutsideDirective} from '../clickOutside.directive';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -35,12 +38,17 @@ export interface AccountListResult {
 export class TransactionNewComponent extends SearchPage implements OnInit {
   transactionDetails: FormGroup;
   private alive = true;
+  displaySrc = false;
+  displayDst = false;
 
   paymentMethods$: Observable<Array<PaymentMethod>>;
   result$: Observable<TransactionListResult>;
 
   srcSearchResult$: Observable<Array<Account>>;
   dstSearchResult$: Observable<Array<Account>>;
+
+  selectedSrcAccountBalance$: Observable<InlineResponse200>;
+  selectedDstAccountBalance$: Observable<InlineResponse200>;
 
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
@@ -58,6 +66,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.srcSearchResult$ = this.getSearchResult((x) => {
         return this.accountService.accountGet(20, 0, terms).pipe(
           map((response) => {
+            this.displaySrc = true;
             return <AccountListResult>{
               accounts: response
             };
@@ -70,6 +79,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.dstSearchResult$ = this.getSearchResult((x) => {
         return this.accountService.accountGet(20, 0, terms).pipe(
           map((response) => {
+            this.displayDst = true;
             return <AccountListResult>{
               accounts: response
             };
@@ -82,10 +92,14 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     if (src == true) {
       this.srcSearchResult$ = undefined;
       this.selectedSrcAccount = account;
+      this.selectedSrcAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id);
     } else {
       this.dstSearchResult$ = undefined;
       this.selectedDstAccount = account;
+      this.selectedDstAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id);
     }
+    this.displayDst = false;
+    this.displaySrc = false;
   }
 
   isFormInvalid() {
