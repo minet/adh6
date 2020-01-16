@@ -8,3 +8,5 @@ export const authConfig: AuthConfig = {
   scope: 'profile',
   oidc: false,
 };
+
+export const authBypass = false;

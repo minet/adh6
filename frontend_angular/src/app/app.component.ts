@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
-import {authConfig} from './config/auth.config';
+import {authConfig, authBypass} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
@@ -34,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isAuthenticated() {
-    return this.oauthService.hasValidAccessToken();
+    return authBypass || this.oauthService.hasValidAccessToken();
   }
 
   ngOnInit() {

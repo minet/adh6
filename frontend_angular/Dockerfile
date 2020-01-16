@@ -7,6 +7,7 @@ WORKDIR /tmp
 ARG ADH6_URL="adh6.minet.net"
 ARG SSO_LOGOUT="cas.minet.net/logout"
 ARG SSO_AUTHORIZE="cas.minet.net/oauth2.0/authorize"
+ARG BYPASS_AUTH="false"
 
 COPY frontend_angular/src/app/config/auth.config.template.ts .
 
@@ -52,6 +53,7 @@ COPY --from=generate_config /tmp/auth.config.ts ./src/app/config/auth.config.ts
 
 COPY frontend_angular/src ./src
 
+RUN rm ./src/app/config/auth.config.template.ts
 
 USER angular
 # We use /bin/sh to be able to use ENV vars...
