@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {ProductService} from '../api/api/product.service';
+import {ProductService} from '../api';
 import {PagingConf} from '../paging.config';
 import {SearchPage} from '../search-page';
 import {map} from 'rxjs/operators';

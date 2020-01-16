@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {map} from 'rxjs/operators';
 
-import {DeviceService} from '../api/api/device.service';
-import {Device} from '../api/model/device';
+import {DeviceService} from '../api';
+import {Device} from '../api';
 
 import {PagingConf} from '../paging.config';
 import {Observable} from 'rxjs';

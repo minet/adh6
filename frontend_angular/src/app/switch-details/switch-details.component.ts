@@ -3,11 +3,11 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 
-import {ModelSwitch} from '../api/model/modelSwitch';
-import {SwitchService} from '../api/api/switch.service';
+import {ModelSwitch} from '../api';
+import {SwitchService} from '../api';
 
-import {PortService} from '../api/api/port.service';
-import {Port} from '../api/model/port';
+import {PortService} from '../api';
+import {Port} from '../api';
 
 import {SearchPage} from '../search-page';
 import {BehaviorSubject} from 'rxjs';

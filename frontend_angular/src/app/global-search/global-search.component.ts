@@ -3,15 +3,15 @@ import {Component, OnInit} from '@angular/core';
 import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
 
-import {MemberService} from '../api/api/member.service';
+import {MemberService} from '../api';
 
-import {DeviceService} from '../api/api/device.service';
+import {DeviceService} from '../api';
 
-import {RoomService} from '../api/api/room.service';
+import {RoomService} from '../api';
 
-import {SwitchService} from '../api/api/switch.service';
+import {SwitchService} from '../api';
 
-import {PortService} from '../api/api/port.service';
+import {PortService} from '../api';
 import {Port} from '../api';
 
 class QueryParams {

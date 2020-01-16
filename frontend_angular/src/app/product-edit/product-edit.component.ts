@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { ProductService } from "../api/api/product.service";
-import { Product } from "../api/model/product";
+import { ProductService } from '../api';
+import { Product } from '../api';
 import { NotificationsService } from 'angular2-notifications';
 import { Observable } from "rxjs";
 import { switchMap, takeWhile } from 'rxjs/operators';

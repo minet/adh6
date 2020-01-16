@@ -11,10 +11,10 @@
     <div class="card shadow" style="position: sticky; top: 10px;">
       <div class="card-body">
         <!-- Comment -->
-        <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
+        <div [ngClass]="{'commentaire': member.comment!=null}" class="w-100 mb-3">{{ member.comment }}</div>
         <!-- DISI picture -->
-        <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
-             src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
+        <img class="w-100 image-disi" src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"
+             style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
         <!-- Association button -->
         <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
         <!-- History -->
@@ -48,7 +48,7 @@
         <td class="profile-field">Chambre</td>
         <td class="pb-2">
           <a [routerLink]='["/room/view/", member.roomNumber]'>
-            <button class="btn btn-primary" [disabled]="member.roomNumber == null">
+            <button [disabled]="member.roomNumber == null" class="btn btn-primary">
               {{ member.roomNumber || "Aucune" }}
             </button>
           </a>
@@ -72,11 +72,11 @@
 
     <div class="row">
       <div class="col-md-6">
-        <button class="w-100 btn btn-primary mb-3" (click)="toggleCotisationMenu()">Cotiser</button>
+        <button (click)="toggleCotisationMenu()" class="w-100 btn btn-primary mb-3">Cotiser</button>
       </div>
 
       <div class="col-md-6">
-        <button class="w-100 btn btn-primary mb-3" [routerLink]="['../../../account/view/', member.accountID ]">
+        <button [routerLink]="['../../../account/view/', member.accountID ]" class="w-100 btn btn-primary mb-3">
           Historique des transactions
         </button>
       </div>
@@ -85,11 +85,11 @@
 
     <div *ngIf="cotisation">
       <h3>Cotisation</h3>
-      <form [formGroup]="subscriptionForm" (ngSubmit)="submitSubscription()">
+      <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
         <div class="form-group">
           <label>Renouvellement pour</label>
-          <select class="w-100 form-control" type="text"
-                  formControlName="renewal" (change)="updateAmount()">
+          <select (change)="updateAmount()" class="w-100 form-control"
+                  formControlName="renewal" type="text">
             <option value="0">Aucun</option>
             <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
             <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
@@ -102,22 +102,22 @@
         <div class="form-group">
           <label>Matériel à ajouter</label>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" formControlName="checkCable3" id="checkCable3"
-                   (change)="updateAmount()">
+            <input (change)="updateAmount()" class="form-check-input" formControlName="checkCable3" id="checkCable3" type="checkbox"
+                   value="">
             <label class="form-check-label" for="checkCable3">
               Câble 3m (3 €)
             </label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" formControlName="checkCable5" id="checkCable5"
-                   (change)="updateAmount()">
+            <input (change)="updateAmount()" class="form-check-input" formControlName="checkCable5" id="checkCable5" type="checkbox"
+                   value="">
             <label class="form-check-label" for="checkCable5">
               Câble 5m (5 €)
             </label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" formControlName="checkAdapter" id="checkAdapter"
-                   (change)="updateAmount()">
+            <input (change)="updateAmount()" class="form-check-input" formControlName="checkAdapter" id="checkAdapter" type="checkbox"
+                   value="">
             <label class="form-check-label" for="checkAdapter">
               Adaptateur Ethernet / USB (13 €)
             </label>
@@ -125,8 +125,8 @@
         </div>
         <div class="form-group">
           <label>Payer par (montant : {{ amountToPay }} €)</label>
-          <select class="w-100 form-control" type="text"
-                  formControlName="paidBy">
+          <select class="w-100 form-control" formControlName="paidBy"
+                  type="text">
             <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.payment_method_id }}">{{ pm.name }}</option>
           </select>
         </div>
@@ -144,26 +144,26 @@
     <br>
     <h4 class="table-title my-0">Filaire</h4>
     <app-member-device-list [deviceDelete]="deviceDelete"
+                            [devices]="all_devices$"
                             [filter]="{connectionType: 'wired'}"
-                            [macHighlighted]="macHighlighted$"
-                            [devices]="all_devices$"></app-member-device-list>
+                            [macHighlighted]="macHighlighted$"></app-member-device-list>
 
     <br>
     <h4 class="table-title my-0">Wifi</h4>
     <app-member-device-list [deviceDelete]="deviceDelete"
+                            [devices]="all_devices$"
                             [filter]="{connectionType: 'wireless'}"
-                            [macHighlighted]="macHighlighted$"
-                            [devices]="all_devices$"></app-member-device-list>
+                            [macHighlighted]="macHighlighted$"></app-member-device-list>
 
 
-    <form [formGroup]="deviceForm" (ngSubmit)="submitDevice()" novalidate class="w-100">
+    <form (ngSubmit)="submitDevice()" [formGroup]="deviceForm" class="w-100" novalidate>
       <div class="form-row">
         <div class="from-group col-md-8">
-          <input class="w-100 form-control mb-3" type="text" formControlName="mac">
+          <input class="w-100 form-control mb-3" formControlName="mac" type="text">
         </div>
         <div class="from-group col-md-4">
-          <select class="w-100 form-control mb-3" type="text"
-                  formControlName="connectionType">
+          <select class="w-100 form-control mb-3" formControlName="connectionType"
+                  type="text">
             <option value="wired">Filaire</option>
             <option value="wireless">Wi-Fi</option>
           </select>
@@ -171,22 +171,22 @@
       </div>
 
       <div class="form-group">
-        <button type="submit"
-                [disabled]="submitDisabled || deviceForm.status == 'INVALID'"
-                class="w-100 btn btn-primary mb-3">Ajouter l'appareil
+        <button [disabled]="submitDisabled || deviceForm.status == 'INVALID'"
+                class="w-100 btn btn-primary mb-3"
+                type="submit">Ajouter l'appareil
         </button>
       </div>
     </form>
 
 
     <h3>Commentaire</h3>
-    <form [formGroup]="commentForm" (ngSubmit)="submitComment()" novalidate>
+    <form (ngSubmit)="submitComment()" [formGroup]="commentForm" novalidate>
       <div class="form-group">
         <textarea class="w-100 form-control" formControlName="comment"></textarea>
       </div>
       <div class="form-group">
-        <button type="submit" class="w-100 btn btn-primary"
-                [disabled]="submitDisabled">Envoyer
+        <button [disabled]="submitDisabled" class="w-100 btn btn-primary"
+                type="submit">Envoyer
         </button>
       </div>
     </form>
@@ -195,7 +195,7 @@
       <div class="row">
         <div class="col-auto mr-auto p-0"><h3>Journal</h3></div>
         <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
-          <button class="btn btn-primary" (click)="refreshLog()" title="Actualiser le journal">&#x27F3;</button>
+          <button (click)="refreshLog()" class="btn btn-primary" title="Actualiser le journal">&#x27F3;</button>
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@
     </div>
 
     <div class="form-check mt-3 mb-3">
-      <input type="checkbox" class="form-check-input" id="logsDhcp" (change)="getDhcp = !getDhcp">
+      <input (change)="getDhcp = !getDhcp" class="form-check-input" id="logsDhcp" type="checkbox">
       <label class="form-check-label" for="logsDhcp">Logs DHCP</label>
     </div>
   </div>

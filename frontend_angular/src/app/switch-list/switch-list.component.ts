@@ -2,11 +2,11 @@ import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {SwitchService} from '../api/api/switch.service';
+import {SwitchService} from '../api';
 import {PagingConf} from '../paging.config';
 import {SearchPage} from '../search-page';
 import {map} from 'rxjs/operators';
-import {ModelSwitch} from '../api/model/modelSwitch';
+import {ModelSwitch} from '../api';
 
 export interface SwitchListResult {
   switches: Array<ModelSwitch>;

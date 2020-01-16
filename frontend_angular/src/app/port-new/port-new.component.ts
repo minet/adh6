@@ -2,8 +2,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NotificationsService} from 'angular2-notifications';
-import {PortService} from '../api/api/port.service';
-import {Port} from '../api/model/port';
+import {PortService} from '../api';
+import {Port} from '../api';
 import {takeWhile} from 'rxjs/operators';
 
 @Component({

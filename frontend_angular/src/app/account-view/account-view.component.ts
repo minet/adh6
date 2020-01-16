@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, combineLatest } from "rxjs";
 import {map, share, switchMap} from 'rxjs/operators';
-import { AccountService } from "../api/api/account.service";
-import { Account } from "../api/model/account";
+import { AccountService } from '../api';
+import { Account } from '../api';
 import {ActivatedRoute, Router} from '@angular/router';
 
-import {TransactionService} from '../api/api/transaction.service';
-import {Transaction} from '../api/model/transaction';
+import {TransactionService} from '../api';
+import {Transaction} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {SearchPage} from '../search-page';
@@ -26,7 +26,7 @@ export interface TransactionListResult {
 })
 export class AccountViewComponent extends SearchPage implements OnInit {
   account$: Observable<Account>;
-  balance$: Observable<InlineResponse200>
+  balance$: Observable<InlineResponse200>;
 
   result$: Observable<TransactionListResult>;
   private id$: Observable<number>;

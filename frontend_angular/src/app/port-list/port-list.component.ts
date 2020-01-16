@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {PortService} from '../api/api/port.service';
-import {Port} from '../api/model/port';
+import {PortService} from '../api';
+import {Port} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';

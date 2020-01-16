@@ -17,9 +17,9 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Account } from '../model/account';
-import { AccountPatchRequest } from '../model/accountPatchRequest';
-import { InlineResponse200 } from '../model/inlineResponse200';
+import { Account } from '..';
+import { AccountPatchRequest } from '..';
+import { InlineResponse200 } from '..';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';

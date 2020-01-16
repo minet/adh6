@@ -63,7 +63,7 @@
               class="w-100 form-control"
               formControlName="toCashRegister"
               type="number"
-              id="toCashRegister"
+              id="toChest"
               placeholder="€"
             />
             </div>
@@ -126,8 +126,8 @@
         | paginate
           : {
               id: 'paginationControlsTemplate',
-              itemsPerPage: result.items_per_page,
-              currentPage: result.current_page,
+              itemsPerPage: result.item_per_page,
+              currentPage: result.page_number,
               totalItems: result.item_count
             }
     "

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {PortService} from '../api/api/port.service';
-import {Port} from '../api/model/port';
+import {PortService} from '../api';
+import {Port} from '../api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 

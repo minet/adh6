@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Product } from "../api/model/product";
-import { ProductService } from '../api/api/product.service';
+import { Product } from '../api';
+import { ProductService } from '../api';
 import { takeWhile } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationsService } from 'angular2-notifications';

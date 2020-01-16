@@ -3,8 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 
-import {RoomService} from '../api/api/room.service';
-import {Room} from '../api/model/room';
+import {RoomService} from '../api';
+import {Room} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {switchMap, takeWhile} from 'rxjs/operators';
 

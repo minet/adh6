@@ -4,15 +4,15 @@ import {Observable} from 'rxjs';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import {AccountService} from '../api/api/account.service';
-import {Account} from '../api/model/account';
+import {AccountService} from '../api';
+import {Account} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';
 import {SearchPage} from '../search-page';
-import { AccountType } from '../api/model/accountType';
-import { AccountTypeService } from "../api/api/accountType.service";
-import {CaisseService} from '../api/api/caisse.service';
+import { AccountType } from '../api';
+import { AccountTypeService } from '../api';
+import {CaisseService} from '../api';
 import {InlineResponse2003} from '../api/model/inlineResponse2003';
 
 class AccountListResponse {
@@ -72,7 +72,7 @@ export class TreasuryComponent extends SearchPage implements OnInit {
 
   onSubmit() {
     // TODO
-    console.log("onSubmit() à compléter");;
+    console.log('onSubmit() à compléter');
   }
 
   toggleFundManagement() {

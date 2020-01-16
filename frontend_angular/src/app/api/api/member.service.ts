@@ -17,9 +17,9 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Body } from '../model/body';
-import { Member } from '../model/member';
-import { MemberPatchRequest } from '../model/memberPatchRequest';
+import { Body } from '..';
+import { Member } from '..';
+import { MemberPatchRequest } from '..';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';

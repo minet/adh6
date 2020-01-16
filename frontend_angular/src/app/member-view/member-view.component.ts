@@ -1,18 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BehaviorSubject, of} from 'rxjs';
-import {MemberService} from '../api/api/member.service';
-import {DeviceService} from '../api/api/device.service';
-import {Member} from '../api/model/member';
-import {Device} from '../api/model/device';
+import {MemberService} from '../api';
+import {DeviceService} from '../api';
+import {Member} from '../api';
+import {Device} from '../api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
 import {catchError, finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
 import {combineLatest, timer, Observable} from 'rxjs';
-import {TemporaryAccountService} from '../api/api/temporaryAccount.service';
+import {TemporaryAccountService} from '../api';
 import {Utils} from '../utils';
-import { PaymentMethod } from '../api/model/paymentMethod';
-import { PaymentMethodService } from '../api/api/paymentMethod.service';
+import { PaymentMethod } from '../api';
+import { PaymentMethodService } from '../api';
 
 @Component({
   selector: 'app-member-details',
@@ -284,7 +284,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     return this.date.toLocaleDateString("fr-FR", this.options);
   }
 
-  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50]
+  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
 
   updateAmount() {
     this.amountToPay = 0;

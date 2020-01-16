@@ -17,8 +17,8 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { Device } from '../model/device';
-import { InlineResponse2001 } from '../model/inlineResponse2001';
+import { Device } from '..';
+import { InlineResponse2001 } from '..';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';

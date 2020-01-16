@@ -2,13 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { AccountService } from "../api/api/account.service";
-import { Account } from "../api/model/account";
+import { AccountService } from '../api';
+import { Account } from '../api';
 import { NotificationsService } from 'angular2-notifications';
 import { Observable } from "rxjs";
 import { switchMap, takeWhile } from 'rxjs/operators';
-import { AccountType } from '../api/model/accountType';
-import { AccountTypeService } from "../api/api/accountType.service";
+import { AccountType } from '../api';
+import { AccountTypeService } from '../api';
 import { AccountPatchRequest } from '../api';
 
 @Component({

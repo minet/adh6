@@ -4,15 +4,15 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {map, takeWhile} from 'rxjs/operators';
 
-import {TransactionService} from '../api/api/transaction.service';
-import {Transaction} from '../api/model/transaction';
+import {TransactionService} from '../api';
+import {Transaction} from '../api';
 
 import {SearchPage} from '../search-page';
 
-import {PaymentMethod} from '../api/model/paymentMethod';
-import {Account} from '../api/model/account';
-import {AccountService} from '../api/api/account.service';
-import {PaymentMethodService} from '../api/api/paymentMethod.service';
+import {PaymentMethod} from '../api';
+import {Account} from '../api';
+import {AccountService} from '../api';
+import {PaymentMethodService} from '../api';
 import {InlineResponse200} from '../api';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';

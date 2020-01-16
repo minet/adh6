@@ -3,8 +3,8 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 
 
-import {MemberService} from '../api/api/member.service';
-import {Member} from '../api/model/member';
+import {MemberService} from '../api';
+import {Member} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';

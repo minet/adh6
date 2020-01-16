@@ -2,8 +2,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import {MemberService} from '../api/api/member.service';
-import {Member} from '../api/model/member';
+import {MemberService} from '../api';
+import {Member} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, flatMap} from 'rxjs/operators';
 import {EMPTY, Observable, of} from 'rxjs';

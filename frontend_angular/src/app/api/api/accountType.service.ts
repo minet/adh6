@@ -17,8 +17,8 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { AccountType } from '../model/accountType';
-import { AccountTypePatchRequest } from '../model/accountTypePatchRequest';
+import { AccountType } from '..';
+import { AccountTypePatchRequest } from '..';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';

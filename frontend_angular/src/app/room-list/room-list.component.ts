@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {RoomService} from '../api/api/room.service';
-import {Room} from '../api/model/room';
+import {RoomService} from '../api';
+import {Room} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';

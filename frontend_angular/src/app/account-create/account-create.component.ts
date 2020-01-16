@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Account } from "../api/model/account";
-import { AccountService } from '../api/api/account.service';
+import { Account } from '../api';
+import { AccountService } from '../api';
 import { takeWhile } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationsService } from 'angular2-notifications';
 import {Observable} from 'rxjs';
-import { AccountType } from '../api/model/accountType';
-import { AccountTypeService } from "../api/api/accountType.service";
+import { AccountType } from '../api';
+import { AccountTypeService } from '../api';
 
 @Component({
   selector: 'app-account-create',

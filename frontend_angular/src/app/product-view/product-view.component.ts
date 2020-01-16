@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {Observable} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 
-import {Product} from '../api/model/product';
-import {ProductService} from '../api/api/product.service';
+import {Product} from '../api';
+import {ProductService} from '../api';
 
 import {SearchPage} from '../search-page';
 import {BehaviorSubject} from 'rxjs';

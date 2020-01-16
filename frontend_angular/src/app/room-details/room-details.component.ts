@@ -2,12 +2,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {RoomService} from '../api/api/room.service';
-import {PortService} from '../api/api/port.service';
-import {Room} from '../api/model/room';
-import {Port} from '../api/model/port';
-import {Member} from '../api/model/member';
-import {MemberService} from '../api/api/member.service';
+import {RoomService} from '../api';
+import {PortService} from '../api';
+import {Room} from '../api';
+import {Port} from '../api';
+import {Member} from '../api';
+import {MemberService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 
