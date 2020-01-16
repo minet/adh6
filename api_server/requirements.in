@@ -24,6 +24,7 @@ elasticsearch
 
 # Communicate with other APIs (fetch MAC vendor)
 requests
+python-gitlab
 
 # Easily create requirements.txt
 pip-tools
