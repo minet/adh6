@@ -1,0 +1,30 @@
+<table class="table table-striped" *ngIf="result$ | async as result">
+  <thead>
+  <tr>
+    <th>Date</th>
+    <th *ngIf="!asAccount">De</th>
+    <th>Intitulé</th>
+    <th>Auteur</th>
+    <th>Moyen</th>
+    <th>Montant</th>
+    <th *ngIf="asAccount; else elseHeader">De / Vers</th>
+    <ng-template #elseHeader><th>Vers</th></ng-template>
+  </tr>
+  </thead>
+  <tbody>
+  <tr
+    *ngFor="let transactionResult of result.transactions.reverse() | paginate: { id: 'paginationControlsTemplate',
+    itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
+    [ngClass]="asAccount ? ((transactionResult.dst.id==this.asAccount)?'table-success':'table-danger') : ''">
+    <td>{{ transactionResult.timestamp }}</td>
+    <td>{{ ( transactionResult.src.id==asAccount ? transactionResult.dst.name : transactionResult.src.name ) }}</td>
+    <td>admin</td>
+    <td>{{ transactionResult.name }}</td>
+    <td>{{ transactionResult.paymentMethod.name }}</td>
+    <td>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }}€</td>
+    <td *ngIf="!asAccount">{{ transactionResult.dst.name }}</td>
+  </tr>
+  </tbody>
+</table>
+<app-custom-pagination id="paginationControlsTemplate"
+                       (changePage)="changePage($event)"></app-custom-pagination>

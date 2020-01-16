@@ -34,6 +34,7 @@
         let switchResult of result.switches
           | paginate
             : {
+                id: 'paginationControlsTemplate',
                 itemsPerPage: result.items_per_page,
                 currentPage: result.current_page,
                 totalItems: result.item_count
@@ -53,6 +54,6 @@
     </tr>
   </table>
 
-  <pagination previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
-              (pageChange)="changePage($event)"></pagination>
+  <app-custom-pagination id="paginationControlsTemplate"
+                         (changePage)="changePage($event)"></app-custom-pagination>
 </div>

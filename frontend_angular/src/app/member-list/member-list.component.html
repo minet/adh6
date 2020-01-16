@@ -24,7 +24,8 @@
     </tr>
     </thead>
     <tr
-      *ngFor="let member of result.members | paginate: { itemsPerPage: result.item_per_page, currentPage: result.current_page, totalItems: result.item_count}"
+      *ngFor="let member of result.members | paginate: { id: 'paginationControlsTemplate',
+      itemsPerPage: result.item_per_page, currentPage: result.page_number, totalItems: result.item_count}"
       [routerLink]="['../view', member.username]">
       <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
       <td>{{ member.username }}</td>
@@ -33,6 +34,6 @@
     <br/>
   </table>
 
-  <pagination previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
-              (pageChange)="changePage($event)"></pagination>
+  <app-custom-pagination id="paginationControlsTemplate"
+                       (changePage)="changePage($event)"></app-custom-pagination>
 </div>

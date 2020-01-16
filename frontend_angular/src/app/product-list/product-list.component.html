@@ -26,6 +26,7 @@
       let productResult of result.products
         | paginate
           : {
+              id: 'paginationControlsTemplate',
               itemsPerPage: result.items_per_page,
               currentPage: result.current_page,
               totalItems: result.item_count
@@ -39,7 +40,7 @@
     <td class="align-middle">{{ productResult.selling_price*0.01 }}</td>
   </tr>
 </table>
-<pagination previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
-(pageChange)="changePage($event)"></pagination>
+  <app-custom-pagination id="paginationControlsTemplate"
+                         (changePage)="changePage($event)"></app-custom-pagination>
 
 </div>

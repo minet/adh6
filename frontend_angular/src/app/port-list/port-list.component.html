@@ -17,7 +17,8 @@
       <th></th>
     </tr>
     <tr
-      *ngFor="let portResult of result.ports | paginate: { itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}">
+      *ngFor="let portResult of result.ports | paginate: { id: 'paginationControlsTemplate',
+      itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}">
       <td class="center">{{ portResult.switchID }}</td>
       <td class="center">{{ portResult.portNumber }}</td>
       <td class="center">
@@ -29,6 +30,6 @@
       </td>
     </tr>
   </table>
-  <pagination previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
-              (pageChange)="changePage($event)"></pagination>
+  <app-custom-pagination id="paginationControlsTemplate"
+                         (changePage)="changePage($event)"></app-custom-pagination>
 </div>

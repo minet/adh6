@@ -49,6 +49,8 @@ import { ProductViewComponent } from './product-view/product-view.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import {CustomPaginationComponent} from './custom-pagination.component';
+import { TransactionListComponent } from './transaction-list/transaction-list.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -90,6 +92,8 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     ProductListComponent,
     ProductEditComponent,
     ClickOutsideDirective,
+    CustomPaginationComponent,
+    TransactionListComponent,
   ],
   imports: [
     FontAwesomeModule,
