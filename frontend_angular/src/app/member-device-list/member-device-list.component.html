@@ -1,0 +1,43 @@
+<table class="w-100 shift-content-right table table-striped table-hover mt-3">
+  <ng-container *ngFor="let device of devices | async | DeviceType: filter">
+    <tr class="device_row"
+        [ngClass]="{'mac_highlighted': device.mac == (macHighlighted | async)}"
+        (click)="toggleDeviceDetails(device)">
+      <td>{{ device.mac | uppercase }}</td>
+      <td style="text-align: right;">{{ isDeviceOpened(device) === false ? "&#x25bc;" : "&#x25b2;" }}</td>
+    </tr>
+    <tr *ngIf="isDeviceOpened(device)" class="device_details_area">
+      <td colspan="3">
+        <dl class="row">
+          <dt class="col-md-2">Type</dt>
+          <dd class="col-md-10" style="font-style: italic">{{ device.connectionType }}</dd>
+
+          <dt class="col-md-2">IPv4</dt>
+          <dd class="col-md-10">{{ device.ipAddress }}</dd>
+
+          <dt class="col-md-2">IPv6</dt>
+          <dd class="col-md-10">{{ device.ipv6Address }}</dd>
+
+          <dt class="col-md-2">Fabriquant</dt>
+          <dd class="col-md-10"><app-mac-vendor mac="{{ device.mac }}"></app-mac-vendor></dd>
+        </dl>
+
+        <a (click)="deviceDelete(device.mac)">
+          <button class="btn btn-danger">Supprimer</button>
+        </a>
+
+        <!--<button
+          (click)="onMAB()"
+          class="btn btn-primary ml-3"
+          [disabled]='MABdisabled'
+          [ngClass]="{
+                      'off':'btn-warning',
+                      'on':'btn-success',
+                      'wifi':'btn-primary'
+                      }[MAB]"
+        >MAB : {{ MAB }}
+        </button>-->
+      </td>
+    </tr>
+  </ng-container>
+</table>

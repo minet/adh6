@@ -1,25 +1,26 @@
 <div *ngIf="(member$ | async) as member" class="row">
   <div class="col-md-3"></div>
-  <div class="col-md-9"><h2><span class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
+  <div class="col-md-9"><h2><span
+    class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
   </div>
 </div>
 
 <div *ngIf="(member$ | async) as member" class="row">
   <!-- Left column -->
-  <div class="col-md-3" >
+  <div class="col-md-3">
     <div class="card shadow" style="position: sticky; top: 10px;">
-        <div class="card-body">
-            <!-- Comment -->
-            <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
-            <!-- DISI picture -->
-            <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
-                  src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
-            <!-- Association button -->
-            <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
-            <!-- History -->
-    </div>
+      <div class="card-body">
+        <!-- Comment -->
+        <div class="w-100 mb-3" [ngClass]="{'commentaire': member.comment!=null}">{{ member.comment }}</div>
+        <!-- DISI picture -->
+        <img class="w-100 image-disi" style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"
+             src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"/>
+        <!-- Association button -->
+        <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
+        <!-- History -->
+      </div>
 
-  </div>
+    </div>
   </div>
 
   <!-- Right column -->
@@ -75,110 +76,84 @@
       </div>
 
       <div class="col-md-6">
-        <button class="w-100 btn btn-primary mb-3" [routerLink]="['../../../account/view/', member.accountID ]">Historique des transactions</button>
+        <button class="w-100 btn btn-primary mb-3" [routerLink]="['../../../account/view/', member.accountID ]">
+          Historique des transactions
+        </button>
       </div>
     </div>
 
 
-
     <div *ngIf="cotisation">
       <h3>Cotisation</h3>
-        <form [formGroup]="subscriptionForm" (ngSubmit)="submitSubscription()">
-          <div class="form-group">
-            <label>Renouvellement pour</label>
-            <select class="w-100 form-control" type="text"
-              formControlName="renewal" (change)="updateAmount()">
-              <option value="0">Aucun</option>
-              <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
-              <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
-              <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
-              <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
-              <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
-              <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
-            </select>
+      <form [formGroup]="subscriptionForm" (ngSubmit)="submitSubscription()">
+        <div class="form-group">
+          <label>Renouvellement pour</label>
+          <select class="w-100 form-control" type="text"
+                  formControlName="renewal" (change)="updateAmount()">
+            <option value="0">Aucun</option>
+            <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
+            <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
+            <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
+            <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
+            <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
+            <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Matériel à ajouter</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" formControlName="checkCable3" id="checkCable3"
+                   (change)="updateAmount()">
+            <label class="form-check-label" for="checkCable3">
+              Câble 3m (3 €)
+            </label>
           </div>
-          <div class="form-group">
-              <label>Matériel à ajouter</label>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" formControlName="checkCable3" id="checkCable3" (change)="updateAmount()">
-                <label class="form-check-label" for="checkCable3">
-                    Câble 3m (3 €)
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" formControlName="checkCable5" id="checkCable5" (change)="updateAmount()">
-                <label class="form-check-label" for="checkCable5">
-                    Câble 5m (5 €)
-                </label>
-              </div>
-              <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" formControlName="checkAdapter" id="checkAdapter" (change)="updateAmount()">
-                  <label class="form-check-label" for="checkAdapter">
-                      Adaptateur Ethernet / USB (13 €)
-                  </label>
-                </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" formControlName="checkCable5" id="checkCable5"
+                   (change)="updateAmount()">
+            <label class="form-check-label" for="checkCable5">
+              Câble 5m (5 €)
+            </label>
           </div>
-          <div class="form-group">
-            <label>Payer par (montant : {{ amountToPay }} €)</label>
-            <select class="w-100 form-control" type="text"
-              formControlName="paidBy">
-              <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.payment_method_id }}">{{ pm.name }}</option>
-            </select>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" formControlName="checkAdapter" id="checkAdapter"
+                   (change)="updateAmount()">
+            <label class="form-check-label" for="checkAdapter">
+              Adaptateur Ethernet / USB (13 €)
+            </label>
           </div>
-          <div class="form-group">
-              <button class="w-100 btn btn-success mt-3" type="submit">Valider</button>
-          </div>
-        </form>
-      </div>
-      <hr/>
+        </div>
+        <div class="form-group">
+          <label>Payer par (montant : {{ amountToPay }} €)</label>
+          <select class="w-100 form-control" type="text"
+                  formControlName="paidBy">
+            <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.payment_method_id }}">{{ pm.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button class="w-100 btn btn-success mt-3" type="submit">Valider</button>
+        </div>
+      </form>
+    </div>
+    <hr/>
 
     <!-- Device list -->
 
-    <h3 class="table-title my-0">Appareils</h3>
+    <h3 class="my-0">Appareils</h3>
 
-    <table class="w-100 shift-content-right table table-striped table-hover mt-3">
-      <ng-container *ngFor="let device of all_devices$ | async">
-        <tr class="device_row"
-            [ngClass]="{'mac_highlighted': device.mac == (macHighlighted$ | async)}"
-            (click)="toggleDeviceDetails(device)">
-          <td>{{ device.mac | uppercase }}</td>
-          <td style="text-align: right;">{{ isDeviceOpened(device) === false ? "&#x25bc;" : "&#x25b2;" }}</td>
-        </tr>
-        <tr *ngIf="isDeviceOpened(device)" class="device_details_area">
-          <td colspan="3">
-            <dl class="row">
-              <dt class="col-md-2">Type</dt>
-              <dd class="col-md-10" style="font-style: italic">{{ device.connectionType }}</dd>
+    <br>
+    <h4 class="table-title my-0">Filaire</h4>
+    <app-member-device-list [deviceDelete]="deviceDelete"
+                            [filter]="{connectionType: 'wired'}"
+                            [macHighlighted]="macHighlighted$"
+                            [devices]="all_devices$"></app-member-device-list>
 
-              <dt class="col-md-2">IPv4</dt>
-              <dd class="col-md-10">{{ device.ipAddress }}</dd>
-
-              <dt class="col-md-2">IPv6</dt>
-              <dd class="col-md-10">{{ device.ipv6Address }}</dd>
-
-              <dt class="col-md-2">Fabriquant</dt>
-              <dd class="col-md-10"><app-mac-vendor mac="{{ device.mac }}"></app-mac-vendor></dd>
-            </dl>
-
-            <a (click)="deviceDelete(device.mac)">
-              <button [disabled]="submitDisabled" class="btn btn-danger">Supprimer</button>
-            </a>
-
-            <button
-              (click)="onMAB()"
-              class="btn btn-primary ml-3"
-              [disabled]='MABdisabled'
-              [ngClass]="{
-                      'off':'btn-warning',
-                      'on':'btn-success',
-                      'wifi':'btn-primary'
-                      }[MAB]"
-            >MAB : {{ MAB }}
-            </button>
-          </td>
-        </tr>
-      </ng-container>
-    </table>
+    <br>
+    <h4 class="table-title my-0">Wifi</h4>
+    <app-member-device-list [deviceDelete]="deviceDelete"
+                            [filter]="{connectionType: 'wireless'}"
+                            [macHighlighted]="macHighlighted$"
+                            [devices]="all_devices$"></app-member-device-list>
 
 
     <form [formGroup]="deviceForm" (ngSubmit)="submitDevice()" novalidate class="w-100">
@@ -216,7 +191,7 @@
       </div>
     </form>
 
-    <div class="container" >
+    <div class="container">
       <div class="row">
         <div class="col-auto mr-auto p-0"><h3>Journal</h3></div>
         <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
@@ -228,7 +203,8 @@
     <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
       <ul class="list-unstyled u-max-full-width">
         <li *ngFor="let log of log$ | async">
-          <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span [innerHtml]="extractMsgFromLog(log)"></span>
+          <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span
+          [innerHtml]="extractMsgFromLog(log)"></span>
         </li>
       </ul>
     </div>
