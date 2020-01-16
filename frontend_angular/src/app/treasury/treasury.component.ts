@@ -12,6 +12,8 @@ import {map} from 'rxjs/operators';
 import {SearchPage} from '../search-page';
 import { AccountType } from '../api/model/accountType';
 import { AccountTypeService } from "../api/api/accountType.service";
+import {CaisseService} from '../api/api/caisse.service';
+import {InlineResponse2003} from '../api/model/inlineResponse2003';
 
 class AccountListResponse {
   accounts?: Array<Account>;
@@ -29,6 +31,8 @@ export class TreasuryComponent extends SearchPage implements OnInit {
   result$: Observable<AccountListResponse>;
   accountTypes: Array<AccountType>;
 
+  caisse$: Observable<InlineResponse2003>;
+
   showFundManagement = false;
   fundManagementForm: FormGroup;
   create = false;
@@ -37,6 +41,7 @@ export class TreasuryComponent extends SearchPage implements OnInit {
     private fb: FormBuilder,
     public accountService: AccountService,
     public accountTypeService: AccountTypeService,
+    public caisseService: CaisseService,
     ) {
       super();
       this.createForm();
@@ -56,6 +61,7 @@ export class TreasuryComponent extends SearchPage implements OnInit {
     super.ngOnInit();
     this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
 
+    this.caisse$ = this.caisseService.caisseGet();
     this.accountTypeService.accountTypeGet()
     .subscribe(
       data => {

@@ -26,4 +26,6 @@ export * from './temporaryAccount.service';
 import { TemporaryAccountService } from './temporaryAccount.service';
 export * from './transaction.service';
 import { TransactionService } from './transaction.service';
-export const APIS = [AccountService, AccountTypeService, BugReportService, DefaultService, DeviceService, MemberService, MembershipService, PaymentMethodService, PortService, ProductService, RoomService, SwitchService, TemporaryAccountService, TransactionService];
+export * from './caisse.service';
+import { CaisseService } from './caisse.service';
+export const APIS = [AccountService, AccountTypeService, BugReportService, DefaultService, DeviceService, MemberService, MembershipService, PaymentMethodService, PortService, ProductService, RoomService, SwitchService, TemporaryAccountService, TransactionService, CaisseService];

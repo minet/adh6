@@ -9,6 +9,7 @@ from src.interface_adapter.elasticsearch.repository import ElasticSearchReposito
 from src.interface_adapter.http_api.account import AccountHandler
 from src.interface_adapter.http_api.account_type import AccountTypeHandler
 from src.interface_adapter.http_api.bug_report import BugReportHandler
+from src.interface_adapter.http_api.caisse import CaisseHandler
 from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
@@ -137,6 +138,7 @@ def init(testing=True):
     account_handler = AccountHandler(account_manager, transaction_manager)
     product_handler = ProductHandler(product_manager)
     bug_report_handler = BugReportHandler()
+    caisse_handler = CaisseHandler(caisse_manager)
 
     # Connexion will use this function to authenticate and fetch the information of the user.
     if os.environ.get('TOKENINFO_FUNC') is None:
@@ -159,6 +161,7 @@ def init(testing=True):
                     'account': account_handler,
                     'product': product_handler,
                     'bug_report': bug_report_handler,
+                    'caisse': caisse_handler,
                 }),
                 validate_responses=True,
                 strict_validation=True,

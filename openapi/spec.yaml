@@ -1525,6 +1525,29 @@ paths:
       summary: Submit a new bug report
       tags:
       - bug_report
+  /caisse/:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  fond:
+                    description: balance in the caisse
+                    example: 1
+                    type: number
+                  coffre:
+                    description: balance in the coffre
+                    example: 1
+                    type: number
+                type: object
+          description: Success
+        404:
+          description: Not found
+      summary: Retrieve
+      tags:
+      - caisse
 components:
   schemas:
     Account:
