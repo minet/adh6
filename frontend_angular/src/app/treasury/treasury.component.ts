@@ -4,7 +4,7 @@ import {Observable} from 'rxjs';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import {AccountService} from '../api';
+import {AccountService, InlineResponse200} from '../api';
 import {Account} from '../api';
 import {PagingConf} from '../paging.config';
 
@@ -15,22 +15,12 @@ import { AccountTypeService } from '../api';
 import {CaisseService} from '../api';
 import {InlineResponse2003} from '../api/model/inlineResponse2003';
 
-class AccountListResponse {
-  accounts?: Array<Account>;
-  page_number?: number;
-  item_count?: number;
-  item_per_page?: number;
-}
-
 @Component({
   selector: 'app-treasury',
   templateUrl: './treasury.component.html',
   styleUrls: ['./treasury.component.css']
 })
-export class TreasuryComponent extends SearchPage implements OnInit {
-  result$: Observable<AccountListResponse>;
-  accountTypes: Array<AccountType>;
-
+export class TreasuryComponent implements OnInit {
   caisse$: Observable<InlineResponse2003>;
 
   showFundManagement = false;
@@ -39,11 +29,8 @@ export class TreasuryComponent extends SearchPage implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    public accountService: AccountService,
-    public accountTypeService: AccountTypeService,
     public caisseService: CaisseService,
     ) {
-      super();
       this.createForm();
   }
 
@@ -58,16 +45,7 @@ export class TreasuryComponent extends SearchPage implements OnInit {
   }
 
   ngOnInit() {
-    super.ngOnInit();
-    this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
-
     this.caisse$ = this.caisseService.caisseGet();
-    this.accountTypeService.accountTypeGet()
-    .subscribe(
-      data => {
-        this.accountTypes = data;
-      }
-    );
   }
 
   onSubmit() {
@@ -78,20 +56,4 @@ export class TreasuryComponent extends SearchPage implements OnInit {
   toggleFundManagement() {
     this.showFundManagement = !this.showFundManagement;
   }
-
-  private fetchAccounts(terms: string, page: number) {
-    const n = +PagingConf.item_count;
-    return this.accountService.accountGet(n, (page - 1) * n, terms, undefined, undefined, 'response')
-      .pipe(
-        // switch to new search observable each time the term changes
-        map((response) => <AccountListResponse>{
-          accounts: response.body,
-          item_count: +response.headers.get('x-total-count'),
-          page_number: page,
-          item_per_page: n,
-        }),
-      );
-  }
-
-
 }

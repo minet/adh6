@@ -1,8 +1,8 @@
-import { DeviceTypePipe } from './DeviceType.pipe';
+import { ObjectFilterPipe } from './ObjectFilter.pipe';
 
 describe('DevicePipe', () => {
   it('create an instance', () => {
-    const pipe = new DeviceTypePipe();
+    const pipe = new ObjectFilterPipe();
     expect(pipe).toBeTruthy();
   });
 });

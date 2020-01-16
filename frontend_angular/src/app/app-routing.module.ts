@@ -20,15 +20,16 @@ import {SwitchNewComponent} from './switch-new/switch-new.component';
 import {DeviceListComponent} from './device-list/device-list.component';
 import {MemberPasswordEditComponent} from './member-password-edit/member-password-edit.component';
 import {CreateTemporaryAccountComponent} from './create-temporary-account/create-temporary-account.component';
-import {TreasuryComponent} from "./treasury/treasury.component";
-import {AccountCreateComponent} from "./account-create/account-create.component";
-import {TransactionNewComponent} from "./transaction-new/transaction-new.component"
-import {AccountViewComponent} from "./account-view/account-view.component";
-import { AccountEditComponent } from "./account-edit/account-edit.component";
-import {ProductViewComponent} from "./product-view/product-view.component";
-import {ProductCreateComponent} from "./product-create/product-create.component";
-import {ProductListComponent} from "./product-list/product-list.component";
-import {ProductEditComponent} from "./product-edit/product-edit.component";
+import {TreasuryComponent} from './treasury/treasury.component';
+import {AccountCreateComponent} from './account-create/account-create.component';
+import {TransactionNewComponent} from './transaction-new/transaction-new.component';
+import {AccountViewComponent} from './account-view/account-view.component';
+import {AccountEditComponent} from './account-edit/account-edit.component';
+import {ProductViewComponent} from './product-view/product-view.component';
+import {ProductCreateComponent} from './product-create/product-create.component';
+import {ProductListComponent} from './product-list/product-list.component';
+import {ProductEditComponent} from './product-edit/product-edit.component';
+import {AccountListComponent} from './account-list/account-list.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -87,15 +88,17 @@ const routes: Routes = [
   {
     path: 'treasury',
     children: [
-    {path:'', component: TreasuryComponent},
+      {path: '', component: TreasuryComponent},
     ]
   },
   {
     path: 'account',
     children: [
-    {path: 'add', component: AccountCreateComponent},
-    {path: 'view/:accountID', component: AccountViewComponent},
-    {path: 'edit/:accountID', component: AccountEditComponent},
+      {path: '', redirectTo: 'search', pathMatch: 'full'},
+      {path: 'search', component: AccountListComponent},
+      {path: 'add', component: AccountCreateComponent},
+      {path: 'view/:accountID', component: AccountViewComponent},
+      {path: 'edit/:accountID', component: AccountEditComponent},
     ]
   },
   {
@@ -105,14 +108,14 @@ const routes: Routes = [
       {path: 'add', component: TransactionNewComponent},
     ]
   },
-   {
+  {
     path: 'product',
     children: [
-    {path: '', redirectTo: 'search', pathMatch: 'full'},
-    {path: 'search', component: ProductListComponent},
-    {path: 'add', component: ProductCreateComponent},
-    {path: 'view/:productID', component: ProductViewComponent},
-    {path: 'edit/:productID', component: ProductEditComponent},
+      {path: '', redirectTo: 'search', pathMatch: 'full'},
+      {path: 'search', component: ProductListComponent},
+      {path: 'add', component: ProductCreateComponent},
+      {path: 'view/:productID', component: ProductViewComponent},
+      {path: 'edit/:productID', component: ProductEditComponent},
     ]
   }
 ];

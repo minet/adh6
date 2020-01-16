@@ -1,5 +1,5 @@
 <table class="w-100 shift-content-right table table-striped table-hover mt-3">
-  <ng-container *ngFor="let device of devices | async | DeviceType: filter">
+  <ng-container *ngFor="let device of devices | async | ObjectFilter: filter">
     <tr class="device_row"
         [ngClass]="{'mac_highlighted': device.mac == (macHighlighted | async)}"
         (click)="toggleDeviceDetails(device)">

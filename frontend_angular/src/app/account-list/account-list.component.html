@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col-md-8">
+    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="form-control mb-3" type="text"/>
+  </div>
+  <div class="col-md-4">
+    <a [routerLink]="['/account/add']">
+      <button class="w-100 btn btn-primary">Nouveau compte</button>
+    </a>
+  </div>
+</div>
+<br/>
+
+<div style="overflow-x:auto;" class="u-max-full-width">
+  <table class="table table-striped clickable-table table-sm" *ngIf="result$ | async as result">
+    <tr>
+      <th>Nom</th>
+      <th>Actif</th>
+      <th>Type</th>
+      <th>Solde</th>
+    </tr>
+
+    <tr
+      *ngFor="
+      let accountResult of result.accounts | ObjectFilter: filter
+        | paginate
+          : {
+              id: 'paginationControlsTemplate',
+              itemsPerPage: result.item_per_page,
+              currentPage: result.page_number,
+              totalItems: result.item_count
+            }
+    "
+      [routerLink]="['/account/view', accountResult.id]"
+    >
+      <td class="align-middle">
+        {{ accountResult.name }}
+      </td>
+      <td class="align-middle">{{ accountResult.actif  == true ? 'Oui' : 'Non' }}</td>
+      <td class="align-middle">{{ accountTypes[accountResult.type-1].name }}</td>
+      <td class="align-middle" *ngIf="balances$[accountResult.id] | async as balance else noBalance">{{ balance.balance }} €</td>
+      <ng-template #noBalance><td class="align-middle">-</td></ng-template>
+    </tr>
+  </table>
+  <app-custom-pagination id="paginationControlsTemplate"
+                         (changePage)="changePage($event)"></app-custom-pagination>
+</div>
