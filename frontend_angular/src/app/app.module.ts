@@ -51,6 +51,7 @@ import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import {CustomPaginationComponent} from './custom-pagination.component';
 import { TransactionListComponent } from './transaction-list/transaction-list.component';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -116,6 +117,7 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     BsDropdownModule.forRoot(),
     HttpClientModule,
     ModalModule.forRoot(),
+    ButtonsModule.forRoot(),
   ],
   providers: [
     AppComponent,

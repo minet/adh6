@@ -3,12 +3,12 @@
   <tr>
     <th>Date</th>
     <th *ngIf="!asAccount">De</th>
+    <th *ngIf="asAccount">De / Vers</th>
     <th>Intitulé</th>
     <th>Auteur</th>
     <th>Moyen</th>
     <th>Montant</th>
-    <th *ngIf="asAccount; else elseHeader">De / Vers</th>
-    <ng-template #elseHeader><th>Vers</th></ng-template>
+    <th *ngIf="!asAccount">Vers</th>
   </tr>
   </thead>
   <tbody>

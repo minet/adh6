@@ -12,14 +12,19 @@ from src.interface_adapter.http_api.payment_method import _map_payment_method_to
 from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
+from src.use_case.caisse_manager import CaisseManager
+from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.transaction_manager import TransactionManager, PartialMutationRequest, FullMutationRequest
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
 class TransactionHandler:
-    def __init__(self, transaction_manager: TransactionManager):
+    def __init__(self, transaction_manager: TransactionManager, payment_method_manager: PaymentMethodManager,
+                 caisse_manager: CaisseManager):
         self.transaction_manager = transaction_manager
+        self.payment_method_manager = payment_method_manager
+        self.caisse_manager = caisse_manager
 
     @with_context
     @require_sql
@@ -66,6 +71,14 @@ class TransactionHandler:
         mutation_request = _map_http_request_to_full_mutation_request(body)
         try:
             created = self.transaction_manager.update_or_create(ctx, mutation_request)
+            if created:
+                caisse, count = self.payment_method_manager.search(ctx, limit=1, terms='Liquide')
+                if mutation_request.paymentMethod == caisse[0].payment_method_id:
+                    if body.get('caisse') == "to":
+                        created = self.caisse_manager.update(ctx, value=mutation_request.value)
+                    elif body.get('caisse') == "from":
+                        created = self.caisse_manager.update(ctx, value=-mutation_request.value)
+
             if created:
                 return NoContent, 201  # 201 Created
             else:

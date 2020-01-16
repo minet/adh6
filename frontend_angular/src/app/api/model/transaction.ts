@@ -24,4 +24,5 @@ export interface Transaction {
     dstID: number;
     srcID: number;
     paymentMethodID: number;
+    caisse?: string;
 }

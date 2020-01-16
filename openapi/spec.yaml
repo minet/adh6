@@ -1896,6 +1896,11 @@ components:
           format: int32
           type: integer
           writeOnly: true
+        caisse:
+          example: direct
+          enum: [to, from, direct]
+          type: string
+          writeOnly: true
       required:
       - value
       - src

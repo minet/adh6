@@ -32,6 +32,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   displaySrc = false;
   displayDst = false;
 
+  cashPaymentMethodID;
+
   paymentMethods$: Observable<Array<PaymentMethod>>;
 
   srcSearchResult$: Observable<Array<Account>>;
@@ -100,13 +102,24 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.transactionDetails = this.fb.group({
       name: ['', Validators.required],
       value: ['', Validators.required],
-      paymentMethod: ['', Validators.required]
+      srcAccount: [''],
+      dstAccount: [''],
+      paymentMethod: ['', Validators.required],
+      caisse: 'direct',
     });
   }
 
   ngOnInit() {
     super.ngOnInit();
     this.paymentMethods$ = this.paymentMethodService.paymentMethodGet();
+    const that = this;
+    this.paymentMethods$.subscribe(
+      pm => pm.forEach(function (value) {
+          if (value.name == 'Liquide') {
+            that.cashPaymentMethodID = value.payment_method_id;
+          }
+        }),
+    );
   }
 
   onSubmit() {
@@ -118,6 +131,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
         srcID: this.selectedSrcAccount.id,
         paymentMethodID: +v.paymentMethod,
         value: v.value,
+        caisse: v.caisse
       };
 
     this.transactionService.transactionPost(varTransaction)

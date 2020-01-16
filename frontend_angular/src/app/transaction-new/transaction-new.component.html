@@ -44,7 +44,17 @@
             <option *ngFor="let pm of paymentMethods$ | async" [value]="pm.payment_method_id">{{ pm.name }}</option>
           </select>
         </div>
-        <div class="input-group input-group-lg">
+        <div class="form-group" *ngIf="transactionDetails.value.paymentMethod == cashPaymentMethodID">
+          <div class="btn-group" btnRadioGroup formControlName="caisse">
+            <label btnRadio="to" class="btn btn-primary"
+                   tabindex="0" role="button">Ajouter caisse</label>
+            <label btnRadio="direct" class="btn btn-primary"
+                   tabindex="1" role="button">Sans caisse</label>
+            <label btnRadio="from" class="btn btn-primary"
+                   tabindex="2" role="button">Sortir caisse</label>
+          </div>
+        </div>
+          <div class="input-group input-group-lg">
           <div class="input-group-prepend">
             <span class="input-group-text" id="value">€</span>
           </div>

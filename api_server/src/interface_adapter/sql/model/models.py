@@ -77,7 +77,7 @@ class Adherent(Base, RubyHashTrackable):
         return self
 
 
-class Caisse(Base):
+class Caisse(Base, RubyHashTrackable):
     __tablename__ = 'caisse'
 
     id = Column(Integer, primary_key=True)
@@ -86,6 +86,19 @@ class Caisse(Base):
     date = Column(DateTime)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    transaction = Column(ForeignKey('transaction.id'), nullable=True, index=True)
+
+    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
+        """
+        Override this method to add the prefix.
+        """
+
+        modif = rubydiff(snap_before, snap_after)
+        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        return modif
+
+    def get_related_member(self):
+        return self
 
 
 class Compte(Base):

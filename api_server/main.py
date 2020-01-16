@@ -22,6 +22,7 @@ from src.interface_adapter.http_api.transaction import TransactionHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
+from src.interface_adapter.sql.caisse_repository import CaisseSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
@@ -35,6 +36,7 @@ from src.interface_adapter.sql.transaction_repository import TransactionSQLRepos
 from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
+from src.use_case.caisse_manager import CaisseManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
 from src.use_case.member_manager import MemberManager
@@ -71,6 +73,7 @@ def init(testing=True):
     payment_method_sql_repository = PaymentMethodSQLRepository()
     transaction_sql_repository = TransactionSQLRepository()
     account_type_sql_repository = AccountTypeSQLRepository()
+    caisse_sql_repository = CaisseSQLRepository()
 
     # Managers
     health_manager = HealthManager(ping_repository)
@@ -115,10 +118,14 @@ def init(testing=True):
     account_type_manager = AccountTypeManager(
         account_type_repository=account_type_sql_repository
     )
+    caisse_manager = CaisseManager(
+        caisse_repository=caisse_sql_repository,
+        transaction_repository=transaction_sql_repository
+    )
 
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
-    transaction_handler = TransactionHandler(transaction_manager)
+    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, caisse_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
     room_handler = RoomHandler(room_manager)
