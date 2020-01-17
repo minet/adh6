@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SearchPage} from '../search-page';
 import {Observable} from 'rxjs';
 import {MemberService, Transaction, TransactionService} from '../api';
@@ -19,6 +19,8 @@ export interface TransactionListResult {
 })
 export class TransactionListComponent extends SearchPage implements OnInit {
   @Input() asAccount: number;
+  @Input() refresh: EventEmitter<{action: string}>;
+
   result$: Observable<TransactionListResult>;
 
   constructor(public transactionService: TransactionService) {
@@ -27,6 +29,15 @@ export class TransactionListComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     super.ngOnInit();
+    this.loadData();
+    this.refresh.subscribe((e: any) => {
+      if (e.action === 'refresh') {
+        this.loadData();
+      }
+    });
+  }
+
+  loadData() {
     this.result$ = this.getSearchResult((terms, page) => this.fetchTransaction(terms, page));
   }
 

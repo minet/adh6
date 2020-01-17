@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {Observable} from 'rxjs';
@@ -14,6 +14,7 @@ import {Account} from '../api';
 import {AccountService} from '../api';
 import {PaymentMethodService} from '../api';
 import {InlineResponse200} from '../api';
+import {NotificationsService} from 'angular2-notifications';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
@@ -45,41 +46,44 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
 
+  private refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
+
 
   constructor(private fb: FormBuilder,
-  public transactionService: TransactionService,
-  public paymentMethodService: PaymentMethodService,
-  private accountService: AccountService) {
+              public transactionService: TransactionService,
+              public paymentMethodService: PaymentMethodService,
+              private accountService: AccountService,
+              private _service: NotificationsService) {
     super();
     this.createForm();
   }
 
   srcSearch(terms: string) {
     this.srcSearchResult$ = this.getSearchResult((x) => {
-        return this.accountService.accountGet(20, 0, terms).pipe(
-          map((response) => {
-            this.displaySrc = true;
-            return <AccountListResult>{
-              accounts: response
-            };
-          }),
-        );
-      });
+      return this.accountService.accountGet(5, 0, terms).pipe(
+        map((response) => {
+          this.displaySrc = true;
+          return <AccountListResult>{
+            accounts: response
+          };
+        }),
+      );
+    });
   }
 
   dstSearch(terms: string) {
     this.dstSearchResult$ = this.getSearchResult((x) => {
-        return this.accountService.accountGet(20, 0, terms).pipe(
-          map((response) => {
-            this.displayDst = true;
-            return <AccountListResult>{
-              accounts: response
-            };
-          }),
-        );
-      });
+      return this.accountService.accountGet(5, 0, terms).pipe(
+        map((response) => {
+          this.displayDst = true;
+          return <AccountListResult>{
+            accounts: response
+          };
+        }),
+      );
+    });
   }
-
+gi
   setSelectedAccount(account, src) {
     if (src == true) {
       this.srcSearchResult$ = undefined;
@@ -115,29 +119,31 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     const that = this;
     this.paymentMethods$.subscribe(
       pm => pm.forEach(function (value) {
-          if (value.name == 'Liquide') {
-            that.cashPaymentMethodID = value.payment_method_id;
-          }
-        }),
+        if (value.name == 'Liquide') {
+          that.cashPaymentMethodID = value.payment_method_id;
+        }
+      }),
     );
   }
 
   onSubmit() {
-      const v = this.transactionDetails.value;
-      const varTransaction: Transaction = {
-        attachments: '',
-        dstID: this.selectedDstAccount.id,
-        name: v.name,
-        srcID: this.selectedSrcAccount.id,
-        paymentMethodID: +v.paymentMethod,
-        value: v.value,
-        caisse: v.caisse
-      };
+    const v = this.transactionDetails.value;
+    const varTransaction: Transaction = {
+      attachments: '',
+      dstID: this.selectedDstAccount.id,
+      name: v.name,
+      srcID: this.selectedSrcAccount.id,
+      paymentMethodID: +v.paymentMethod,
+      value: v.value,
+      caisse: v.caisse
+    };
 
     this.transactionService.transactionPost(varTransaction)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
-          this.ngOnInit();
+        this.transactionDetails.reset();
+        this._service.success('Ok!', 'Transaction créée avec succès !');
+        this.refreshTransactions.next({ action: 'refresh' });
       });
   }
 }
