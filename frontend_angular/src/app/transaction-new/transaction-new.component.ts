@@ -18,7 +18,7 @@ import {NotificationsService} from 'angular2-notifications';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
-import {faArrowUp, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faArrowUp, faTrash, faExchangeAlt} from '@fortawesome/free-solid-svg-icons';
 
 export interface AccountListResult {
   accounts?: Array<Account>;
@@ -35,6 +35,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   displaySrc = false;
   displayDst = false;
 
+  faExchangeAlt = faExchangeAlt;
   actions = [
     {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp},
     {name: 'reverse', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faTrash}
@@ -74,8 +75,6 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.setSelectedAccount(event.transaction.dst, !source);
     this.transactionDetails.patchValue(event.transaction);
     this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.payment_method_id});
-
-    console.log(event.transaction);
   }
 
   srcSearch(terms: string) {
@@ -104,15 +103,21 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     });
   }
 
+  exchangeAccounts() {
+    const srcAccount = this.selectedSrcAccount;
+    this.setSelectedAccount(this.selectedDstAccount, true);
+    this.setSelectedAccount(srcAccount, false);
+  }
+
   setSelectedAccount(account, src) {
     if (src == true) {
       this.srcSearchResult$ = undefined;
       this.selectedSrcAccount = account;
-      this.selectedSrcAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id);
+      if (this.selectedSrcAccount) { this.selectedSrcAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id); }
     } else {
       this.dstSearchResult$ = undefined;
       this.selectedDstAccount = account;
-      this.selectedDstAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id);
+      if (this.selectedDstAccount) { this.selectedDstAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id); }
     }
     this.displayDst = false;
     this.displaySrc = false;
@@ -158,7 +163,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       caisse: v.caisse
     };
     if (!varTransaction.caisse) {
-      varTransaction.caisse = 'none';
+      varTransaction.caisse = 'direct';
     }
     this.transactionService.transactionPost(varTransaction)
       .pipe(takeWhile(() => this.alive))

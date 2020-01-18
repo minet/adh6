@@ -1,3 +1,42 @@
+<div class="modal fade" bsModal #transactionModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
+  <div class="modal-dialog modal-mg">
+    <div class="modal-content" *ngIf="transactionModal.isShown">
+      <div class="modal-header">
+        <h4 id="bug-report-modal-name" class="modal-title pull-left">Récapitulatif d'une transaction</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="transactionModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <tbody>
+              <tr>
+                <th scope="row">Depuis</th>
+                <td>{{ selectedSrcAccount.name }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Montant</th>
+                <td> {{ transactionDetails.get('value').value }} €</td>
+              </tr>
+              <tr>
+                <th scope="row">Vers</th>
+                <td>{{ selectedDstAccount.name }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Description</th>
+                <td>{{ transactionDetails.get('name').value }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <button type="button" class="btn btn-primary w-100" (click)="onSubmit(); transactionModal.hide()">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <h2 class="text-left">Nouvelle transaction</h2>
 <hr>
 
@@ -33,7 +72,11 @@
       <div class="card-footer">Ce compte sera <span class="font-weight-bold">débité</span></div>
     </div>
     <div class="card">
-      <div class="card-header">Transaction</div>
+      <div class="card-header">Transaction
+        <button class="btn btn-primary btn-sm float-right" type="button" (click)="exchangeAccounts()">
+          <fa-icon [icon]="faExchangeAlt"></fa-icon>
+        </button>
+      </div>
       <div class="card-body">
         <div class="form-group mb-3">
           <input type="text" class="form-control" aria-label="Description" placeholder="Description" formControlName="name">
@@ -94,7 +137,8 @@
   </div>
 
   <br>
-  <button type="submit" class="btn btn-primary w-100" [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer</button>
+  <button type="button"(click)="transactionModal.show()" class="btn btn-primary w-100"
+          [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer</button>
 
 </form>
 
