@@ -100,4 +100,5 @@
 
   <br>
   <h3 class="text-left">Transactions récentes</h3>
-  <app-transaction-list [refresh]="refreshTransactions"></app-transaction-list>
+  <app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)"
+                        [actions]="actions"></app-transaction-list>

@@ -4,11 +4,12 @@
     <th>Date</th>
     <th *ngIf="!asAccount">De</th>
     <th *ngIf="asAccount">De / Vers</th>
-    <th>Intitulé</th>
     <th>Auteur</th>
+    <th>Intitulé</th>
     <th>Moyen</th>
     <th>Montant</th>
     <th *ngIf="!asAccount">Vers</th>
+    <th *ngIf="actions">Actions</th>
   </tr>
   </thead>
   <tbody>
@@ -23,6 +24,15 @@
     <td>{{ transactionResult.paymentMethod.name }}</td>
     <td>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }}€</td>
     <td *ngIf="!asAccount">{{ transactionResult.dst.name }}</td>
+    <td *ngIf="actions">
+      <div class="btn-group" role="group" aria-label="actions">
+      <button type="button"
+              *ngFor="let action of actions"
+              class="btn {{ action.class }}"
+              (click)="onAction.emit({name: action.name, transaction: transactionResult})">
+        <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon></button>
+      </div>
+    </td>
   </tr>
   </tbody>
 </table>

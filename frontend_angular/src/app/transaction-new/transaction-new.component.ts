@@ -18,6 +18,8 @@ import {NotificationsService} from 'angular2-notifications';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
+import {faArrowUp, faTrash} from '@fortawesome/free-solid-svg-icons';
+
 export interface AccountListResult {
   accounts?: Array<Account>;
 }
@@ -33,6 +35,10 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   displaySrc = false;
   displayDst = false;
 
+  actions = [
+    {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp},
+    {name: 'reverse', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faTrash}
+  ];
   cashPaymentMethodID;
 
   paymentMethods$: Observable<Array<PaymentMethod>>;
@@ -56,6 +62,20 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
               private _service: NotificationsService) {
     super();
     this.createForm();
+  }
+
+  useTransaction(event: { name, transaction }) {
+    this.transactionDetails.reset();
+    let source = true;
+    if (event.name === 'reverse') {
+      source = false;
+    }
+    this.setSelectedAccount(event.transaction.src, source);
+    this.setSelectedAccount(event.transaction.dst, !source);
+    this.transactionDetails.patchValue(event.transaction);
+    this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.payment_method_id});
+
+    console.log(event.transaction);
   }
 
   srcSearch(terms: string) {
@@ -83,7 +103,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       );
     });
   }
-gi
+
   setSelectedAccount(account, src) {
     if (src == true) {
       this.srcSearchResult$ = undefined;
@@ -137,13 +157,15 @@ gi
       value: v.value,
       caisse: v.caisse
     };
-
+    if (!varTransaction.caisse) {
+      varTransaction.caisse = 'none';
+    }
     this.transactionService.transactionPost(varTransaction)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.transactionDetails.reset();
         this._service.success('Ok!', 'Transaction créée avec succès !');
-        this.refreshTransactions.next({ action: 'refresh' });
+        this.refreshTransactions.next({action: 'refresh'});
       });
   }
 }
