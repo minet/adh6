@@ -42,11 +42,13 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   ngOnInit() {
     super.ngOnInit();
     this.loadData();
-    this.refresh.subscribe((e: any) => {
-      if (e.action === 'refresh') {
-        this.loadData();
-      }
-    });
+    if (this.refresh) {
+      this.refresh.subscribe((e: any) => {
+        if (e.action === 'refresh') {
+          this.loadData();
+        }
+      });
+    }
   }
 
   loadData() {
