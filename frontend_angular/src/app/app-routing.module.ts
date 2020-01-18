@@ -106,6 +106,7 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'add', pathMatch: 'full'},
       {path: 'add', component: TransactionNewComponent},
+      {path: 'add/:accountID', component: TransactionNewComponent}
     ]
   },
   {

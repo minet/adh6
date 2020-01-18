@@ -2,7 +2,7 @@ import {Component, EventEmitter, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {Observable} from 'rxjs';
-import {map, takeWhile} from 'rxjs/operators';
+import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
 
 import {TransactionService} from '../api';
 import {Transaction} from '../api';
@@ -19,6 +19,7 @@ import {NotificationsService} from 'angular2-notifications';
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
 import {faArrowUp, faTrash, faExchangeAlt} from '@fortawesome/free-solid-svg-icons';
+import {ActivatedRoute} from '@angular/router';
 
 export interface AccountListResult {
   accounts?: Array<Account>;
@@ -60,7 +61,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
               public transactionService: TransactionService,
               public paymentMethodService: PaymentMethodService,
               private accountService: AccountService,
-              private _service: NotificationsService) {
+              private _service: NotificationsService,
+              private route: ActivatedRoute) {
     super();
     this.createForm();
   }
@@ -140,6 +142,15 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     super.ngOnInit();
+
+    this.route.params.pipe(
+      map(params => params['accountID']),
+      filter(id => id),
+      switchMap(id => this.accountService.accountAccountIdGet(id))
+    ).subscribe(
+      account => this.setSelectedAccount(account, true)
+    );
+
     this.paymentMethods$ = this.paymentMethodService.paymentMethodGet();
     const that = this;
     this.paymentMethods$.subscribe(
