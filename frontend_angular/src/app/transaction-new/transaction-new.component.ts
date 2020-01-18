@@ -54,7 +54,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
 
-  private refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
+  refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
 
 
   constructor(private fb: FormBuilder,
