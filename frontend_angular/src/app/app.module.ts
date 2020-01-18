@@ -55,6 +55,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { ObjectFilterPipe } from './ObjectFilter.pipe';
 import { MemberDeviceListComponent } from './member-device-list/member-device-list.component';
 import { AccountListComponent } from './account-list/account-list.component';
+import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -124,6 +125,7 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     HttpClientModule,
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
+    TypeaheadModule.forRoot(),
   ],
   providers: [
     AppComponent,

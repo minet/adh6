@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 
 import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
+import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import {MemberService} from '../api';
 
@@ -13,6 +14,7 @@ import {SwitchService} from '../api';
 
 import {PortService} from '../api';
 import {Port} from '../api';
+import {Router} from '@angular/router';
 
 class QueryParams {
   highlight: string;
@@ -50,6 +52,8 @@ export class SearchResult {
   styleUrls: ['./global-search.component.css']
 })
 export class GlobalSearchComponent implements OnInit {
+  searchBox: string;
+  @ViewChild('searchInput') searchInput: ElementRef;
 
   searchResult$: Observable<Array<SearchResult>>;
   private searchTerm$ = new Subject<string>();
@@ -60,6 +64,7 @@ export class GlobalSearchComponent implements OnInit {
     private roomService: RoomService,
     private switchService: SwitchService,
     private portService: PortService,
+    private router: Router
   ) {
   }
 
@@ -68,9 +73,9 @@ export class GlobalSearchComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    // This is a stream of what the user types debounced
-    const debouncedSearchTerm$ = this.searchTerm$.pipe(
+    const debouncedSearchTerm$ = new Observable((observer: any) => {
+      observer.next(this.searchBox);
+    }).pipe(
       debounceTime(300),
       distinctUntilChanged()
     );
@@ -143,6 +148,12 @@ export class GlobalSearchComponent implements OnInit {
       }, []),
     );
 
+  }
+
+  typeaheadOnSelect(e: TypeaheadMatch) {
+    this.router.navigate(e.item.link);
+    this.searchBox = "";
+    this.searchInput.nativeElement.blur();
   }
 
   private capitalizeFirstLetter(str: string) {
