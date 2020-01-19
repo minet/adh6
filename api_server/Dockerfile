@@ -6,6 +6,7 @@ ARG DATABASE_PORT="1234"
 ARG DATABASE_USERNAME="my_db_username"
 ARG DATABASE_PASSWORD="my_db_password"
 ARG DATABASE_DB_NAME="adh6"
+ARG GITLAB_ACCESS_TOKEN="token"
 
 WORKDIR /tmp
 COPY api_server/config/ .

@@ -2,6 +2,10 @@ API_CONF = {
     'AUTH_SERVER_ADDRESS': '${CAS_PROFILE_URL}',
 }
 
+GITLAB_CONF = {
+    'access_token': '${GITLAB_ACCESS_TOKEN}',
+}
+
 DATABASE = {
     'drivername': 'mysql+mysqldb',
     'host': '${DATABASE_HOST}',

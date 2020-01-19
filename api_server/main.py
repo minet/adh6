@@ -38,6 +38,7 @@ from src.interface_adapter.sql.transaction_repository import TransactionSQLRepos
 from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
+from src.use_case.bug_report_manager import BugReportManager
 from src.use_case.caisse_manager import CaisseManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
@@ -124,6 +125,7 @@ def init(testing=True):
         caisse_repository=caisse_sql_repository,
         transaction_repository=transaction_sql_repository
     )
+    bug_report_manager = BugReportManager(configuration.GITLAB_CONF)
 
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
@@ -139,7 +141,7 @@ def init(testing=True):
     payment_method_handler = PaymentMethodHandler(payment_method_manager)
     account_handler = AccountHandler(account_manager, transaction_manager)
     product_handler = ProductHandler(product_manager)
-    bug_report_handler = BugReportHandler()
+    bug_report_handler = BugReportHandler(bug_report_manager)
     caisse_handler = CaisseHandler(caisse_manager)
 
     # Connexion will use this function to authenticate and fetch the information of the user.

@@ -47,3 +47,4 @@ uwsgi==2.0.18
 wcwidth==0.1.7            # via pytest
 werkzeug==0.15.4          # via flask
 zipp==0.5.1               # via importlib-metadata
+python-gitlab

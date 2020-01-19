@@ -14,13 +14,18 @@
       </div>
       <div class="modal-body">
         <form [formGroup]="submitBugForm" (ngSubmit)="onSubmitBug()" novalidate>
-          <label class="sr-only" for="bugTitle">Username</label>
+          <label class="sr-only" for="bugTitle">Title</label>
           <div class="input-group mb-2">
             <div class="input-group-prepend">
               <div class="input-group-text">Titre</div>
             </div>
-            <input type="text" class="form-control" id="bugTitle" value="{{ getCurrentComponent() }} : ">
+            <input formControlName="bugTitle" type="text" class="form-control" id="bugTitle" value="{{ getCurrentComponent() }} : ">
           </div>
+          <label class="sr-only" for="bugDescription">Description</label>
+          <div class="form-group">
+            <textarea formControlName="bugDescription" class="form-control" id="bugDescription" rows="3" placeholder="Description"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Envoyer</button>
         </form>
       </div>
     </div>

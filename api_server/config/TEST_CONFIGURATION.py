@@ -8,6 +8,10 @@ API_CONF = {
     'AUTH_SERVER_ADDRESS': 'https://adh6.minet.net/oauth',
 }
 
+GITLAB_CONF = {
+    'access_token': 'test',
+}
+
 # Temporary database, that will be cleared at every test, used when you launch
 # the unit tests. Default settings is in RAM memory.
 DATABASE = {

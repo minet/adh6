@@ -1,11 +1,14 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
 import {authConfig, authBypass} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
-import {filter, first, map} from 'rxjs/operators';
+import {filter, first, map, takeWhile} from 'rxjs/operators';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {BugReportService} from './api';
+import {NotificationsService} from 'angular2-notifications';
+import {BugReport} from './api/model/bugReport';
 
 @Component({
   selector: 'app-root',
@@ -17,11 +20,15 @@ export class AppComponent implements OnInit, OnDestroy {
   faBug = faBug;
   submitBugForm: FormGroup;
 
+  @ViewChild('bugReportModal') bugReportModal;
+
   constructor(
     private fb: FormBuilder,
     private oauthService: OAuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private _service: NotificationsService,
+    private bugReportSevice: BugReportService,
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
@@ -29,7 +36,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   createForm() {
     this.submitBugForm = this.fb.group({
-      bugTitle: ['', Validators.required]
+      bugTitle: ['', Validators.required],
+      bugDescription: ['', Validators.required]
     });
   }
 
@@ -63,7 +71,17 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onSubmitBug() {
+    const bugReport: BugReport = {
+      'title': this.submitBugForm.value.bugTitle,
+      'description': this.submitBugForm.value.bugDescription,
+    };
 
+    this.bugReportSevice.bugReportPost(bugReport)
+      .subscribe((res) => {
+        this.bugReportModal.hide();
+        this.submitBugForm.reset();
+        this._service.success('Ok!', 'Bug envoyé avec succès ');
+      });
   }
 
   getCurrentComponent() {
