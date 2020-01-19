@@ -10,6 +10,6 @@
  * Do not edit the class manually.
  */
 
-export interface PaymentMethodPatchRequest { 
-    name?: string;
+export interface Statistics { 
+    activeAccounts?: number;
 }

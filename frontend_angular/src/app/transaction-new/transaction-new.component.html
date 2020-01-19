@@ -84,7 +84,7 @@
         <div class="form-group">
           <label for="paidBy">Payé par :</label>
           <select class="w-100 form-control" formControlName="paymentMethod" id="paidBy">
-            <option *ngFor="let pm of paymentMethods$ | async" [value]="pm.payment_method_id">{{ pm.name }}</option>
+            <option *ngFor="let pm of paymentMethods$ | async" [value]="pm.id">{{ pm.name }}</option>
           </select>
         </div>
         <div class="form-group" *ngIf="transactionDetails.value.paymentMethod == cashPaymentMethodID">

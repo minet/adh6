@@ -10,6 +10,13 @@
  * Do not edit the class manually.
  */
 
-export interface AccountTypePatchRequest { 
-    name?: string;
+export interface InlineResponse2004 { 
+    /**
+     * balance in the caisse
+     */
+    fond?: number;
+    /**
+     * balance in the coffre
+     */
+    coffre?: number;
 }

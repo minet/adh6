@@ -21,6 +21,20 @@ paths:
         503:
           description: Database is down.
       summary: Health endpoint, query this with zabbix to know if ADH6 is running or not.
+  /stats/:
+    get:
+      operationId: stats
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Statistics'
+                type: array
+          description: Success
+        400:
+          description: Invalid input
   /account/:
     get:
       parameters:
@@ -208,28 +222,6 @@ paths:
       summary: Filter account types
       tags:
       - account_type
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountType'
-        description: Account type to create
-        required: true
-      responses:
-        200:
-          description: Created
-          headers:
-            Location:
-              description: URI to the newly created account type
-              schema:
-                type: string
-        400:
-          description: Invalid input
-      summary: Create an account type
-      tags:
-      - account_type
   /account_type/{account_type_id}:
     get:
       parameters:
@@ -248,31 +240,6 @@ paths:
         404:
           description: Not found
       summary: Retrieve an account type
-      tags:
-      - account_type
-    patch:
-      parameters:
-      - description: Name of the account type will be updated
-        in: path
-        name: account_type_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AccountTypePatchRequest'
-        description: New values of the account type
-        required: true
-      responses:
-        204:
-          description: Updated
-        400:
-          description: Invalid input
-        404:
-          description: Not found
-      summary: Partially update
       tags:
       - account_type
   /device/:
@@ -363,7 +330,7 @@ paths:
       - device
     put:
       parameters:
-      - description: The mac address of the device that will be update
+      - description: The mac address of the device that will be updated
         in: path
         name: mac_address
         required: true
@@ -682,28 +649,6 @@ paths:
       summary: Filter payment methods
       tags:
       - payment_method
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PaymentMethod'
-        description: Payment method to create
-        required: true
-      responses:
-        200:
-          description: Created
-          headers:
-            Location:
-              description: URI to the newly created payment method
-              schema:
-                type: string
-        400:
-          description: Invalid input
-      summary: Create a payment method
-      tags:
-      - payment_method
   /payment_method/{payment_method_id}:
     get:
       parameters:
@@ -722,31 +667,6 @@ paths:
         404:
           description: Not found
       summary: Retrieve a payment method
-      tags:
-      - payment_method
-    patch:
-      parameters:
-      - description: Name of the payment method will be updated
-        in: path
-        name: payment_method_id
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PaymentMethodPatchRequest'
-        description: New values of the payment method
-        required: true
-      responses:
-        204:
-          description: Updated
-        400:
-          description: Invalid input
-        404:
-          description: Not found
-      summary: Partially update
       tags:
       - payment_method
   /port/:
@@ -1447,7 +1367,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: '#/components/schemas/TransactionPatchRequest'
         description: Transaction to create
         required: true
       responses:
@@ -1461,6 +1381,33 @@ paths:
         400:
           description: Invalid input
       summary: Create a transaction
+      tags:
+      - transaction
+  /transaction/{transaction_id}/upload/:
+    post:
+      parameters:
+      - description: The unique identifier of the transaction that needs to be fetched
+        in: path
+        name: transaction_id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: Success
+        404:
+          description: Not found
+      summary: Add an attachment to a transaction
       tags:
       - transaction
   /transaction/{transaction_id}:
@@ -1484,29 +1431,31 @@ paths:
       summary: Retrieve
       tags:
       - transaction
-    put:
+    patch:
       parameters:
-      - description: The unique identifier of the transaction that needs to be updated
+      - description: transaction_id of the transaction that will be updated
         in: path
         name: transaction_id
         required: true
         schema:
-          type: integer
+          type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
-        description: New values for the transaction, only the attachments can be modified
+              $ref: '#/components/schemas/TransactionPatchRequest'
+        description: New values of the transaction
         required: true
       responses:
         204:
           description: Updated
         400:
           description: Invalid input
-      summary: Update/create
+        404:
+          description: Not found
+      summary: Partially update
       tags:
-      - transaction
+      - member
   /bug_report/:
     post:
       parameters: []
@@ -1525,6 +1474,23 @@ paths:
       summary: Submit a new bug report
       tags:
       - bug_report
+    get:
+      operationId: get_labels
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  labels:
+                    items:
+                      type: string
+                    type: array
+                type: object
+          description: Success
+        400:
+          description: Invalid input
+
   /caisse/:
     get:
       responses:
@@ -1559,6 +1525,10 @@ components:
           description: Account state
           example: 'true'
           type: boolean
+        pinned:
+          description: whether this account should be displayed first
+          example: 'true'
+          type: boolean
         id:
           description: ID of the account
           example: 1
@@ -1578,6 +1548,7 @@ components:
       required:
       - type
       - actif
+      - name
       type: object
     AccountPatchRequest:
       example:
@@ -1609,14 +1580,6 @@ components:
           type: string
       required:
       - name
-      type: object
-    AccountTypePatchRequest:
-      example:
-        name: "Adh\xE9rent"
-      properties:
-        name:
-          example: "Adh\xE9rent"
-          type: string
       type: object
     Device:
       example:
@@ -1756,14 +1719,6 @@ components:
       required:
       - name
       type: object
-    PaymentMethodPatchRequest:
-      example:
-        name: Carte bancaire
-      properties:
-        name:
-          example: Carte bancaire
-          type: string
-      type: object
     Port:
       example:
         portNumber: 1/0/4
@@ -1889,7 +1844,8 @@ components:
           $ref: '#/components/schemas/Account'
         dst:
           readOnly: true
-          $ref: '#/components/schemas/Account'  
+          allOf:
+            - $ref: '#/components/schemas/Account'  
         timestamp:
           example: '2000-01-23T04:56:07.000+00:00'
           format: date-time
@@ -1904,17 +1860,35 @@ components:
           type: number
         attachments:
           type: string
-        dstID:
+      required:
+      - value
+      - src
+      - dst
+      - name
+      - paymentMethod
+      type: object
+    TransactionPatchRequest:
+      properties:
+        name:
+          example: Transaction test
+          type: string
+        value:
+          example: 42.0
+          format: double
+          type: number
+        attachments:
+          type: string
+        src:
           example: 0
           format: int32
           type: integer
           writeOnly: true
-        srcID:
+        dst:
           example: 0
           format: int32
           type: integer
           writeOnly: true
-        paymentMethodID:
+        paymentMethod:
           example: 0
           format: int32
           type: integer
@@ -1924,15 +1898,6 @@ components:
           enum: [to, from, direct]
           type: string
           writeOnly: true
-      required:
-      - value
-      - src
-      - dst
-      - name
-      - paymentMethod
-      - paymentMethodID
-      - dstID
-      - srcID
       type: object
     BugReport:
       properties:
@@ -1942,9 +1907,16 @@ components:
           type: string
         labels:
           type: array
+          items:
+            type: string
       required:
       - title
       - description
+      type: object
+    Statistics:
+      properties:
+        active_accounts:
+          type: integer
       type: object
 
   securitySchemes:

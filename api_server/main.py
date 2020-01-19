@@ -17,6 +17,7 @@ from src.interface_adapter.http_api.payment_method import PaymentMethodHandler
 from src.interface_adapter.http_api.port import PortHandler
 from src.interface_adapter.http_api.product import ProductHandler
 from src.interface_adapter.http_api.room import RoomHandler
+from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.switch import SwitchHandler
 from src.interface_adapter.http_api.temporary_account import TemporaryAccountHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
@@ -126,6 +127,7 @@ def init(testing=True):
 
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
+    stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
     transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, caisse_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
@@ -149,6 +151,7 @@ def init(testing=True):
                 # resolver=RestyResolver('src.interface_adapter.http_api'),
                 resolver=ADHResolver({
                     'health': health_handler,
+                    'stats': stats_handler,
                     'transaction': transaction_handler,
                     'member': member_handler,
                     'device': device_handler,
@@ -168,6 +171,7 @@ def init(testing=True):
                 pythonic_params=True,
                 auth_all_paths=True,
                 )
+
     app.app.config.update(configuration.API_CONF)
 
     return app

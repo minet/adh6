@@ -16,13 +16,17 @@ export interface Account {
      */
     actif: boolean;
     /**
+     * whether this account should be displayed first
+     */
+    pinned?: boolean;
+    /**
      * ID of the account
      */
     id?: number;
     /**
      * Name of the account
      */
-    name?: string;
+    name: string;
     /**
      * The type of account
      */

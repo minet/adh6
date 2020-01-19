@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
 
-import {TransactionService} from '../api';
+import {TransactionPatchRequest, TransactionService} from '../api';
 import {Transaction} from '../api';
 
 import {SearchPage} from '../search-page';
@@ -76,7 +76,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.setSelectedAccount(event.transaction.src, source);
     this.setSelectedAccount(event.transaction.dst, !source);
     this.transactionDetails.patchValue(event.transaction);
-    this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.payment_method_id});
+    this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.id});
   }
 
   srcSearch(terms: string) {
@@ -156,7 +156,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     this.paymentMethods$.subscribe(
       pm => pm.forEach(function (value) {
         if (value.name == 'Liquide') {
-          that.cashPaymentMethodID = value.payment_method_id;
+          that.cashPaymentMethodID = value.id;
         }
       }),
     );
@@ -164,12 +164,12 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
 
   onSubmit() {
     const v = this.transactionDetails.value;
-    const varTransaction: Transaction = {
+    const varTransaction: TransactionPatchRequest = {
       attachments: '',
-      dstID: this.selectedDstAccount.id,
+      dst: this.selectedDstAccount.id,
       name: v.name,
-      srcID: this.selectedSrcAccount.id,
-      paymentMethodID: +v.paymentMethod,
+      src: this.selectedSrcAccount.id,
+      paymentMethod: +v.paymentMethod,
       value: v.value,
       caisse: v.caisse
     };
