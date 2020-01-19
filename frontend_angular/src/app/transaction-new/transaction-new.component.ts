@@ -155,7 +155,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     const that = this;
     this.paymentMethods$.subscribe(
       pm => pm.forEach(function (value) {
-        if (value.name == 'Liquide') {
+        if (value.name === 'Liquide') {
           that.cashPaymentMethodID = value.id;
         }
       }),

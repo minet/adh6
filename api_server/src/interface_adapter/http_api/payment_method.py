@@ -63,7 +63,7 @@ class PaymentMethodHandler:
 
 def _map_payment_method_to_http_response(payment_method: PaymentMethod) -> dict:
     fields = {
-        'payment_method_id': payment_method.payment_method_id,
+        'id': payment_method.payment_method_id,
         'name': payment_method.name,
     }
     return {k: v for k, v in fields.items() if v is not None}
