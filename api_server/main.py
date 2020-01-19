@@ -125,7 +125,7 @@ def init(testing=True):
         caisse_repository=caisse_sql_repository,
         transaction_repository=transaction_sql_repository
     )
-    bug_report_manager = BugReportManager(configuration.GITLAB_CONF)
+    bug_report_manager = BugReportManager(configuration.GITLAB_CONF, testing=testing)
 
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
