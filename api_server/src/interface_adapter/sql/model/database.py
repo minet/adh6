@@ -1,14 +1,11 @@
 # coding=utf-8
-import time
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 
-from src.interface_adapter.sql.model.models import Base, NainA
-from src.util.log import LOG
+from src.interface_adapter.sql.model.models import Base
 
 
 class Database:
@@ -40,8 +37,9 @@ class Database:
             Base.metadata.create_all(self.engine)
 
         else:
+            pass
             # Create NainA table if not exists. (The other tables should already exist.)
-            for retries in range(Database.RETRY_COUNT):
+            """for retries in range(Database.RETRY_COUNT):
                 try:
                     LOG.info("connecting_to_database")
                     Base.metadata.create_all(
@@ -54,7 +52,7 @@ class Database:
                     LOG.warning("could_not_connect_to_database", extra={'exception': e})
                     if retries + 1 == Database.RETRY_COUNT:
                         raise
-                    time.sleep(Database.RETRY_INTERVAL)
+                    time.sleep(Database.RETRY_INTERVAL)"""
 
     def get_session(self):
         return self.session_maker()

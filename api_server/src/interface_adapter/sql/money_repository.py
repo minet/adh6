@@ -8,12 +8,6 @@ from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.log import LOG
 
-PAYMENT_METHOD_TO_DB = {
-    'card': 'CB',
-    'cash': 'Liquide',
-    'bank_cheque': 'Chèque',
-}
-
 
 class MoneySQLRepository(MoneyRepository):
     def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str,
@@ -32,7 +26,7 @@ class MoneySQLRepository(MoneyRepository):
         member_sql = s.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if member_sql is None:
             raise MemberNotFoundError(member_username)
-
+        """
         payment_method_db = PAYMENT_METHOD_TO_DB.get(payment_method)
         if payment_method_db is None:
             raise UnknownPaymentMethod()
@@ -48,4 +42,4 @@ class MoneySQLRepository(MoneyRepository):
             utilisateur=admin_sql,
             adherent=member_sql,
         )
-        s.add(e)
+        s.add(e)"""

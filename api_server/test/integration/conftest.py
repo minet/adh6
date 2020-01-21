@@ -4,14 +4,13 @@ import pytest
 from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
-    Adherent, Chambre, Vlan, Ordinateur, Portable, Switch, Port,
-    NainA)
+    Adherent, Chambre, Vlan, Device, Switch, Port)
 from test.integration.test_member import prep_db
 
 
 @pytest.fixture
 def wired_device(sample_member1):
-    yield Ordinateur(
+    yield Device(
         mac='96-24-F6-D0-48-A7',
         ip='157.159.42.42',
         dns='bonnet_n4651',
@@ -22,7 +21,7 @@ def wired_device(sample_member1):
 
 @pytest.fixture
 def wired_device2(sample_member3):
-    yield Ordinateur(
+    yield Device(
         mac='96-24-F6-D0-48-A8',
         ip='157.159.43.43',
         dns='test',
@@ -33,7 +32,7 @@ def wired_device2(sample_member3):
 
 @pytest.fixture
 def wireless_device(sample_member2):
-    yield Portable(
+    yield Device(
         mac='80-65-F3-FC-44-A9',
         adherent=sample_member2,
     )
@@ -184,30 +183,6 @@ def sample_port2(sample_switch2):
         switch=sample_switch2,
         chambre_id=0,
 
-    )
-
-
-@pytest.fixture
-def sample_naina():
-    yield NainA(
-        first_name="Nain",
-        last_name="Ha",
-        access_token="WEAK_TOKEN",
-        start_time=datetime.datetime.now(),
-        expiration_time=datetime.datetime.now() + datetime.timedelta(hours=2),
-        admin="admin_who_created_naina",
-    )
-
-
-@pytest.fixture
-def sample_naina_expired():
-    yield NainA(
-        first_name="NainExpired",
-        last_name="HaExpired",
-        access_token="EXPIRED_TOKEN",
-        start_time=datetime.datetime.now() - datetime.timedelta(hours=2),
-        expiration_time=datetime.datetime.now() - datetime.timedelta(hours=1),
-        admin="admin_who_created_naina",
     )
 
 

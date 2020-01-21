@@ -16,8 +16,6 @@ TESTING_CLIENT = 'TestingClient'
 
 
 def token_info(access_token) -> dict:
-    if access_token.startswith("NAINA_"):
-        return authenticate_temp_account(access_token[6:])
 
     if current_app.config["TESTING"]:
         return {
@@ -26,28 +24,6 @@ def token_info(access_token) -> dict:
             "groups": []
         }
     return authenticate_against_sso(access_token)
-
-
-def authenticate_temp_account(access_token):
-    s = Db.get_db().get_session()
-
-    q = s.query(NainA)
-    q = q.filter(NainA.access_token == access_token)
-    try:
-        naina = q.one()
-        now = datetime.datetime.now()
-        if naina.expiration_time > now > naina.start_time:  # Make sure the token is still valid.
-            return {
-                "uid": f"TEMP_ACCOUNT({naina.id})[{naina.first_name} {naina.last_name}]",
-                "scope": ["profile"],
-                "groups": [ADH6_USER]
-            }
-        else:
-            return None  # Expired token.
-    except NoResultFound:
-        return None  # No token found.
-    finally:
-        s.close()
 
 
 def get_sso_groups(token):

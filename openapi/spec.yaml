@@ -1274,44 +1274,6 @@ paths:
       summary: Update a switch
       tags:
       - switch
-  /temporary_account/:
-    delete:
-      responses:
-        204:
-          description: Success
-      summary: Revoke all active temporary accounts.
-      tags:
-      - temporary_account
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                firstname:
-                  example: Jean
-                  type: string
-                lastname:
-                  example: Dupont
-                  type: string
-              type: object
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                properties:
-                  access_token:
-                    example: NAINA_AMLKSJQLMHFQ
-                    type: string
-                type: object
-          description: Success
-      summary: Create new temporary account for this day. Only super admins can do
-        that.
-      tags:
-      - temporary_account
   /transaction/:
     get:
       parameters:
@@ -1944,6 +1906,4 @@ tags:
   name: switch
 - description: Operations on ports
   name: port
-- description: Temporary accounts
-  name: temporary_account
 

@@ -20,7 +20,6 @@ from src.interface_adapter.http_api.product import ProductHandler
 from src.interface_adapter.http_api.room import RoomHandler
 from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.switch import SwitchHandler
-from src.interface_adapter.http_api.temporary_account import TemporaryAccountHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
@@ -144,7 +143,6 @@ def init(testing=True, managing=False):
     room_handler = RoomHandler(room_manager)
     switch_handler = SwitchHandler(switch_manager)
     port_handler = PortHandler(port_manager, switch_manager, switch_network_manager)
-    temporary_account_handler = TemporaryAccountHandler()
     account_type_handler = AccountTypeHandler(account_type_manager)
     payment_method_handler = PaymentMethodHandler(payment_method_manager)
     account_handler = AccountHandler(account_manager, transaction_manager)
@@ -168,7 +166,6 @@ def init(testing=True, managing=False):
                     'room': room_handler,
                     'switch': switch_handler,
                     'port': port_handler,
-                    'temporary_account': temporary_account_handler,
                     'account_type': account_type_handler,
                     'payment_method': payment_method_handler,
                     'account': account_handler,
