@@ -2,7 +2,7 @@
 import datetime
 import ipaddress
 
-from src.interface_adapter.sql.model.models import Ordinateur, Adherent
+from src.interface_adapter.sql.model.models import Device, Adherent
 
 
 def get_available_ip(network, ip_taken):
@@ -21,20 +21,20 @@ def get_available_ip(network, ip_taken):
 
 
 def get_all_used_ipv4(s):
-    q = s.query(Ordinateur)
-    q = q.filter(Ordinateur.ip != "En Attente")
+    q = s.query(Device)
+    q = q.filter(Device.ip != "En Attente")
     return list(map(lambda x: x.ip, q.all()))
 
 
 def get_all_used_ipv6(s):
-    q = s.query(Ordinateur)
-    q = q.filter(Ordinateur.ipv6 != "En Attente")
+    q = s.query(Device)
+    q = q.filter(Device.ipv6 != "En Attente")
     return list(map(lambda x: x.ipv6, q.all()))
 
 
 def _get_expired_devices(session):
-    q = session.query(Ordinateur)
-    q = q.filter(Ordinateur.ip != "En Attente")
+    q = session.query(Device)
+    q = q.filter(Device.ip != "En Attente")
     q = q.join(Adherent)
     q = q.filter(Adherent.date_de_depart < datetime.datetime.now())
     return list(q.all())

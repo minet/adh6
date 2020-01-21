@@ -3,7 +3,7 @@ from datetime import datetime
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, MemberNotFoundError
-from src.interface_adapter.sql.model.models import Ecriture, Utilisateur, Adherent
+from src.interface_adapter.sql.model.models import Utilisateur, Adherent
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.log import LOG

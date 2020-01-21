@@ -126,16 +126,6 @@ class Inscription(Base):
     updated_at = Column(DateTime)
 
 
-class MacVendor(Base):
-    __tablename__ = 'mac_vendors'
-
-    id = Column(Integer, primary_key=True)
-    prefix = Column(String(255))
-    nom = Column(String(255))
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
-
-
 class Modification(Base):
     __tablename__ = 'modifications'
 
@@ -147,19 +137,19 @@ class Modification(Base):
     utilisateur_id = Column(Integer, index=True)
 
 
-class Ordinateur(Base, RubyHashTrackable):
-    __tablename__ = 'ordinateurs'
+class Device(Base, RubyHashTrackable):
+    __tablename__ = 'devices'
 
     id = Column(Integer, primary_key=True)
     mac = Column(String(255))
     ip = Column(String(255))
-    dns = Column(String(255))
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
     adherent = relationship(Adherent)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     last_seen = Column(DateTime)
     ipv6 = Column(String(255))
+    type = Column(String(255))
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -170,39 +160,10 @@ class Ordinateur(Base, RubyHashTrackable):
             proper_mac = snap_before.get('mac').upper().replace(":", "-")
             return (
                 "---\n"
-                "ordinateur: Suppression de l'ordinateur {}\n".format(proper_mac)
+                "device: Suppression du périphérique {}\n".format(proper_mac)
             )
 
-        modif = 'ordinateur: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
-        return modif
-
-    def get_related_member(self):
-        return self.adherent
-
-
-class Portable(Base, RubyHashTrackable):
-    __tablename__ = 'portables'
-
-    id = Column(Integer, primary_key=True)
-    mac = Column(String(255))
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent)
-    last_seen = Column(DateTime)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-
-    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
-        """
-        Override this method to add the prefix.
-        """
-        modif = rubydiff(snap_before, snap_after)
-        if snap_after is None:
-            proper_mac = snap_before.get('mac').upper().replace(":", "-")
-            return (
-                "---\n"
-                "portable: Suppression du portable {}\n".format(proper_mac)
-            )
-        modif = 'portable: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        modif = 'device: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
         return modif
 
     def get_related_member(self):
@@ -360,20 +321,3 @@ class Transaction(Base, RubyHashTrackable):
 
     def get_related_member(self):
         return self
-
-
-class Ecriture(Base):
-    __tablename__ = 'ecritures'
-
-    id = Column(Integer, primary_key=True)
-    intitule = Column(String(255))
-    montant = Column(Numeric(10, 2))
-    moyen = Column(String(255))
-    date = Column(DateTime)
-    compte_id = Column(Integer, index=True)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    utilisateur_id = Column(Integer, ForeignKey(Utilisateur.id), index=True)
-    utilisateur = relationship(Utilisateur)
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), index=True)
-    adherent = relationship(Adherent)
