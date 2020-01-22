@@ -3,7 +3,7 @@ import pytest
 
 from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.sql.model.database import Database as db
-from src.interface_adapter.sql.model.models import Ordinateur, Portable
+from src.interface_adapter.sql.model.models import Device
 from .resource import (
     base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created)
@@ -107,7 +107,7 @@ def test_device_filter_hit_limit(api_client, sample_member1):
     # Create a lot of devices
     for i in range(LIMIT * 2):
         suffix = "{0:04X}".format(i)
-        dev = Portable(
+        dev = Device(
             adherent=sample_member1,
             mac='00-00-00-00-' + suffix[:2] + "-" + suffix[2:]
         )
@@ -160,8 +160,9 @@ def test_device_put_create_wired_without_ip(api_client, wired_device_dict):
     assert_modification_was_created(db.get_db().get_session())
 
     s = db.get_db().get_session()
-    q = s.query(Ordinateur)
-    q = q.filter(Ordinateur.mac == wired_device_dict["mac"])
+    q = s.query(Device)
+    q = q.filter(Device.type == "wired")
+    q = q.filter(Device.mac == wired_device_dict["mac"])
     dev = q.one()
     assert dev.ip == "192.168.42.3"
     assert dev.ipv6 == 'fe80::3'
@@ -178,8 +179,9 @@ def test_device_put_create_wired(api_client, wired_device_dict):
     assert_modification_was_created(db.get_db().get_session())
 
     s = db.get_db().get_session()
-    q = s.query(Ordinateur)
-    q = q.filter(Ordinateur.mac == wired_device_dict["mac"])
+    q = s.query(Device)
+    q = q.filter(Device.type == "wired")
+    q = q.filter(Device.mac == wired_device_dict["mac"])
     dev = q.one()
     assert dev.ip == "127.0.0.1"
 
@@ -327,8 +329,9 @@ def test_device_delete_wired(api_client, wired_device):
     assert_modification_was_created(db.get_db().get_session())
 
     s = db.get_db().get_session()
-    q = s.query(Ordinateur)
-    q = q.filter(Ordinateur.mac == mac)
+    q = s.query(Device)
+    q = q.filter(Device.type == "wireless")
+    q = q.filter(Device.mac == mac)
     assert not s.query(q.exists()).scalar(), "Object not actually deleted"
 
 
@@ -342,8 +345,9 @@ def test_device_delete_wireless(api_client, wireless_device):
     assert_modification_was_created(db.get_db().get_session())
 
     s = db.get_db().get_session()
-    q = s.query(Portable)
-    q = q.filter(Portable.mac == mac)
+    q = s.query(Device)
+    q = q.filter(Device.type == "wireless")
+    q = q.filter(Device.mac == mac)
     assert not s.query(q.exists()).scalar(), "Object not actually deleted"
 
 

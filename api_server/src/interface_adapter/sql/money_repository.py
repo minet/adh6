@@ -26,7 +26,7 @@ class MoneySQLRepository(MoneyRepository):
         member_sql = s.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if member_sql is None:
             raise MemberNotFoundError(member_username)
-        """
+        """ @TODO
         payment_method_db = PAYMENT_METHOD_TO_DB.get(payment_method)
         if payment_method_db is None:
             raise UnknownPaymentMethod()

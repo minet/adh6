@@ -6,7 +6,6 @@ from flask import current_app
 from sqlalchemy.orm.exc import NoResultFound
 
 from src.interface_adapter.sql.model.database import Database as Db
-from src.interface_adapter.sql.model.models import NainA
 from src.util.env import is_development_environment
 
 ADH6_USER = "adh6_user"

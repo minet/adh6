@@ -3,8 +3,8 @@ import sys
 
 sys._called_from_test = True  # This will make sure we don't call 'init' anywhere else.
 
-import main
+import common
 
-app = main.init(testing=True)
+app, _ = common.init(testing=True)
 
 app.app.config["TESTING"] = True

@@ -289,8 +289,6 @@ paths:
         400:
           description: Invalid input
       summary: Filter devices
-      security:
-      - OAuth2: [devices:search]
       tags:
       - device
   /device/{mac_address}:

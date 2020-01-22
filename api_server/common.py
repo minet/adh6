@@ -182,9 +182,13 @@ def init(testing=True, managing=False):
     app.app.config.update(configuration.API_CONF)
 
     app.app.config.update(configuration.DATABASE)
-    app.app.config.update({'SQLALCHEMY_DATABASE_URI': configuration.DATABASE["drivername"] + "://" + configuration.DATABASE[
+    if 'username' in configuration.DATABASE:
+        app.app.config.update({'SQLALCHEMY_DATABASE_URI': configuration.DATABASE["drivername"] + "://" + configuration.DATABASE[
         'username'] + ":" + configuration.DATABASE["password"] + '@' + configuration.DATABASE['host'] + '/' + \
                                             configuration.DATABASE['database']})
+    else:
+        app.app.config.update(
+            {'SQLALCHEMY_DATABASE_URI': configuration.DATABASE["drivername"] + "://" + configuration.DATABASE['database']})
     db = SQLAlchemy(app.app)
     migrate = Migrate(app.app, db)
 

@@ -29,7 +29,7 @@ def create_wireless_device(ctx, mac_address, username, s):
     dev = Device(
         mac=mac_address,
         adherent=s.query(Adherent).filter(Adherent.login == username).one(),
-        type="wireless"
+        type='type'
     )
 
     with track_modifications(ctx, s, dev):
@@ -45,7 +45,7 @@ def create_wired_device(ctx, mac_address, ip_v4_address, ip_v6_address, username
         ip=ip_v4_address,
         ipv6=ip_v6_address,
         adherent=s.query(Adherent).filter(Adherent.login == username).one(),
-        type="wireless"
+        type='wired'
     )
 
     with track_modifications(ctx, s, dev):
@@ -88,7 +88,7 @@ def update_wired_device(ctx, s, device_to_update, mac_address=None, username=Non
 def delete_wired_device(ctx, s, mac_address):
     """ Delete a wired device from the databse """
     q = s.query(Device).filter(Device.mac == mac_address)
-    q = q.filter(Device.type == "wired")
+    q = q.filter(Device.type == 'wired')
     dev = q.one()
 
     with track_modifications(ctx, s, dev):
@@ -98,7 +98,7 @@ def delete_wired_device(ctx, s, mac_address):
 def delete_wireless_device(ctx, s, mac_address):
     """ Delete a wireless device from the database """
     q = s.query(Device).filter(Device.mac == mac_address)
-    q = q.filter(Device.type == "wireless")
+    q = q.filter(Device.type == 'wireless')
     dev = q.one()
 
     with track_modifications(ctx, s, dev):

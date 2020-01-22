@@ -13,7 +13,7 @@ def wired_device(sample_member1):
     yield Device(
         mac='96-24-F6-D0-48-A7',
         ip='157.159.42.42',
-        dns='bonnet_n4651',
+        type='wired',
         adherent=sample_member1,
         ipv6='e91f:bd71:56d9:13f3:5499:25b:cc84:f7e4'
     )
@@ -24,7 +24,7 @@ def wired_device2(sample_member3):
     yield Device(
         mac='96-24-F6-D0-48-A8',
         ip='157.159.43.43',
-        dns='test',
+        type='wireless',
         adherent=sample_member3,
         ipv6='f91f:bd71:56d9:13f3:5499:25b:cc84:f7e4'
     )
@@ -34,6 +34,7 @@ def wired_device2(sample_member3):
 def wireless_device(sample_member2):
     yield Device(
         mac='80-65-F3-FC-44-A9',
+        type='wireless',
         adherent=sample_member2,
     )
 
@@ -47,6 +48,7 @@ def wireless_device_dict():
     yield {
         'mac': '01-23-45-67-89-AC',
         'connectionType': 'wireless',
+        'type': 'wireless',
         'username': 'dubois_j'
     }
 
@@ -58,6 +60,7 @@ def wired_device_dict():
         'ipAddress': '127.0.0.1',
         'ipv6Address': 'dbb1:39b7:1e8f:1a2a:3737:9721:5d16:166',
         'connectionType': 'wired',
+        'type': 'wired',
         'username': 'dupontje'
     }
 
