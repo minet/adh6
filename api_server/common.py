@@ -5,7 +5,7 @@ import connexion
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from config import CONFIGURATION, TEST_CONFIGURATION, MANAGE_CONFIGURATION
+from config import CONFIGURATION, TEST_CONFIGURATION
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
 from src.interface_adapter.http_api.account import AccountHandler
 from src.interface_adapter.http_api.account_type import AccountTypeHandler
@@ -62,8 +62,6 @@ def init(testing=True, managing=False):
     """
     if testing:
         configuration = TEST_CONFIGURATION
-    elif managing:
-        configuration = MANAGE_CONFIGURATION
     else:
         configuration = CONFIGURATION
 
