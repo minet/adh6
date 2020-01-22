@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: ./frontend_angular/Dockerfile
       args:
-        ADH6_URL: "https://adh6-dev.minet.net/" # Do not forget the trailing slash!
+        ADH6_URL: "https://adh6-dev.minet.net/dashboard" # Do not forget the trailing slash!
         SSO_LOGOUT: "https://cas.minet.net/logout"
         SSO_AUTHORIZE: "https://cas.minet.net/oauth2.0/authorize"
         BYPASS_AUTH: "false"

@@ -289,6 +289,8 @@ paths:
         400:
           description: Invalid input
       summary: Filter devices
+      security:
+      - OAuth2: [devices:search]
       tags:
       - device
   /device/{mac_address}:
@@ -1888,10 +1890,14 @@ components:
         implicit:
           authorizationUrl: https://cas.minet.net/oauth2.0/authorize
           scopes:
-            profile: Read the profile of the user to get their LDAP groups
+            profile: The user's basic information, including groups they are a part of
+            devices:read: Read device information
+            devices:write: Write device information
+            devices:search: Search devices
 
-# security:
-# - OAuth2: [profile]
+
+security:
+- OAuth2: [profile]
 
 tags:
 - description: Operations on members

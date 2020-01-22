@@ -11,8 +11,8 @@ services:
         # SSO URL for getting a token.
         SSO_AUTHORIZE: "https://cas.minet.net/oauth2.0/authorize"
         # URL of ADH6, the SSO will redirect to that URL after login.
-        ADH6_URL: "https://localhost/" # Do not forget the trailing slash!
-        BYPASS_AUTH: "true"
+        ADH6_URL: "https://localhost/dashboard" # Do not forget the trailing slash!
+        BYPASS_AUTH: "false"
     expose:
       - "8443" # app does not start as root here
     volumes:

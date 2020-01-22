@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {OAuthService} from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,10 +8,15 @@ import {Component, OnInit} from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() {
+  constructor(private oauthService: OAuthService) {
   }
 
   ngOnInit() {
   }
 
+  public get name() {
+    const claims = this.oauthService.getIdentityClaims();
+    if (!claims) { return null; }
+    return claims.given_name;
+  }
 }

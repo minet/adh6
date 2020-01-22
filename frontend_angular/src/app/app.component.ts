@@ -42,6 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isAuthenticated() {
+    console.log(this.oauthService.getIdentityClaims());
     return authBypass || this.oauthService.hasValidAccessToken();
   }
 
@@ -98,7 +99,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private configureWithNewConfigApi() {
     this.oauthService.configure(authConfig);
     this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-    this.oauthService.tryLogin();
+
+    this.oauthService.loadDiscoveryDocumentAndLogin({
+      onTokenReceived: (info) => {
+        this.oauthService.loadUserProfile();
+        //this.router.navigate(['/member/view', this.oauthService.getIdentityClaims().sub]);
+      }
+    });
   }
 
 }
