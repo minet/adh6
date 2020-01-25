@@ -15,7 +15,7 @@ export class DashboardComponent implements OnInit {
   }
 
   public get name() {
-    const claims = this.oauthService.getIdentityClaims();
+    const claims: any = this.oauthService.getIdentityClaims();
     if (!claims) { return null; }
     return claims.given_name;
   }
