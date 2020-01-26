@@ -25,7 +25,7 @@ def require_sql(f):
         Wrap http_api function.
         """
         # TODO: Remove dep from SQLAlchemy?
-        if ctx.get(CTX_SQL_SESSION):
+        if ctx is not None and ctx.get(CTX_SQL_SESSION):
             return f(cls, ctx, *args, **kwds)
 
         s = Db.get_db().get_session()
@@ -42,7 +42,7 @@ def require_sql(f):
             msg = result[0]
             if result[0] == NoContent:
                 msg = None
-            if status_code and 200 <= status_code <= 299:
+            if status_code and (200 <= status_code <= 299 or status_code == 302):
                 s.commit()
             else:
                 LOG.info("rollback_sql_transaction_non_200_http_code",
