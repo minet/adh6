@@ -3,7 +3,7 @@
 With context decator.
 """
 import uuid
-from flask import current_app
+from flask import current_app, request
 from functools import wraps
 
 from src.util.context import build_context
@@ -22,6 +22,7 @@ def with_context(f):
         ctx = build_context(
             testing=current_app.config["TESTING"],
             request_id=str(uuid.uuid4()),  # Generates an unique ID on this request so we can track it.
+            url=request.url
         )
         return f(cls, ctx, *args, **kwds)
 
