@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
 import {authConfig, authBypass} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
-import {ActivatedRoute, ActivatedRouteSnapshot, Router} from '@angular/router';
+import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
 import {filter, first, map, takeWhile} from 'rxjs/operators';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -19,6 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   titre = 'ADH6';
   faBug = faBug;
   submitBugForm: FormGroup;
+  currentPageAuthBypass = false;
 
   @ViewChild('bugReportModal') bugReportModal;
 
@@ -32,6 +33,12 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
+    router.events.subscribe(event => {
+      if (event instanceof RoutesRecognized) {
+        const r = event.state.root.firstChild;
+        this.currentPageAuthBypass = !!r.data['bypassAuth'];
+      }
+    });
   }
 
   createForm() {
@@ -42,8 +49,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isAuthenticated() {
-    console.log(this.oauthService.getIdentityClaims());
     return authBypass || this.oauthService.hasValidAccessToken();
+  }
+
+  needsAuth() {
+    return !this.currentPageAuthBypass;
   }
 
   ngOnInit() {
