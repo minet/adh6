@@ -23,10 +23,10 @@ export class AuthorizeComponent implements OnInit {
   constructor(private route: ActivatedRoute, private fb: FormBuilder,) {
   }
 
-  private authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);
-  private scope$: BehaviorSubject<Array<string>> = new BehaviorSubject<Array<string>>(null);
-  private consents = new Map<string, any>();
-  private return_uri = '';
+  public authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);
+  public scope$: BehaviorSubject<Array<string>> = new BehaviorSubject<Array<string>>(null);
+  public consents = new Map<string, any>();
+  public return_uri = '';
 
   SCOPE_LIST = SCOPE_LIST;
 
