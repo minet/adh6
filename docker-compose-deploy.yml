@@ -6,9 +6,10 @@ services:
       context: ./
       dockerfile: ./frontend_angular/Dockerfile
       args:
+        # SSO URL for getting a token.
+        SSO_OAUTH2: "https://adh6-dev.minet.net/api/oauth2.0"
+        # URL of ADH6, the SSO will redirect to that URL after login.
         ADH6_URL: "https://adh6-dev.minet.net/dashboard" # Do not forget the trailing slash!
-        SSO_LOGOUT: "https://cas.minet.net/logout"
-        SSO_AUTHORIZE: "https://cas.minet.net/oauth2.0/authorize"
         BYPASS_AUTH: "false"
     expose:
       - "8443" # app does not start as root here
@@ -28,7 +29,8 @@ services:
       context: ./
       dockerfile: ./api_server/Dockerfile
       args:
-        CAS_PROFILE_URL: "https://cas.minet.net/oauth2.0/profile"
+        OAUTH2_BASE_PATH: "https://adh6-dev.minet.net/api/oauth2"
+        AUTH_CONSENT_ADDRESS: "https://adh6-dev.minet.net/authorize"
         DATABASE_HOST: ${DATABASE_HOST}
         DATABASE_PORT: ${DATABASE_PORT}
         DATABASE_USERNAME: ${DATABASE_USERNAME}
