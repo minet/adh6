@@ -107,7 +107,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private configureWithNewConfigApi() {
-    authConfig.scope = 'openid profile offline_access groups account:read';
     this.oauthService.configure(authConfig);
     this.oauthService.tokenValidationHandler = new JwksValidationHandler();
 

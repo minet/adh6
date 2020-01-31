@@ -7,10 +7,10 @@ services:
       dockerfile: ./frontend_angular/Dockerfile
       args:
         # SSO URL for getting a token.
-        SSO_OAUTH2: "https://localhost/api/oauth2.0"
+        SSO_OAUTH2: "https://localhost/api/oauth2"
         # URL of ADH6, the SSO will redirect to that URL after login.
         ADH6_URL: "https://localhost/dashboard" # Do not forget the trailing slash!
-        BYPASS_AUTH: "false"
+        BYPASS_AUTH: "true"
     expose:
       - "8443" # app does not start as root here
     volumes:

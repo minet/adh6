@@ -1962,7 +1962,7 @@ components:
     OAuth2:
       type: oauth2
       flows:
-        authorizationCode:
+        implicit:
           authorizationUrl: /oauth2/authorize
           tokenUrl: /oauth2/token
           scopes:
