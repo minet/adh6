@@ -7,5 +7,4 @@ from typing import Optional
 class Room:
     room_number: str
     description: str
-    phone_number: Optional[str]  # legacy
     vlan_number: str

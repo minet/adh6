@@ -1830,16 +1830,12 @@ components:
     Room:
       example:
         description: Chambre 5110
-        phone: 6842
         roomNumber: 5110
         vlan: 45
       properties:
         description:
           example: Chambre 5110
           type: string
-        phone:
-          example: 6842
-          type: integer
         roomNumber:
           example: 5110
           type: integer

@@ -1,4 +1,7 @@
 # coding: utf-8
+import time
+
+from authlib.integrations.sqla_oauth2 import OAuth2ClientMixin, OAuth2AuthorizationCodeMixin, OAuth2TokenMixin
 from sqlalchemy import Column, DECIMAL, ForeignKey, String, TIMESTAMP, TEXT, Boolean
 from sqlalchemy import Date, DateTime, Integer, \
     Numeric, Text, text
@@ -28,8 +31,6 @@ class Chambre(Base):
     id = Column(Integer, primary_key=True)
     numero = Column(Integer)
     description = Column(String(255))
-    telephone = Column(String(255))
-    vlan_old = Column(Integer)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     dernier_adherent = Column(Integer)
@@ -86,7 +87,7 @@ class Caisse(Base, RubyHashTrackable):
     date = Column(DateTime)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    transaction = Column(ForeignKey('transaction.id'), nullable=True, index=True)
+    transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -99,16 +100,6 @@ class Caisse(Base, RubyHashTrackable):
 
     def get_related_member(self):
         return self
-
-
-class Compte(Base):
-    __tablename__ = 'comptes'
-
-    id = Column(Integer, primary_key=True)
-    intitule = Column(String(255))
-    description = Column(Text)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
 
 
 class Inscription(Base):
@@ -211,7 +202,7 @@ class Utilisateur(Base):
 
 
 class Adhesion(Base):
-    __tablename__ = 'adhesion'
+    __tablename__ = 'adhesions'
 
     id = Column(Integer, primary_key=True)
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
@@ -221,21 +212,21 @@ class Adhesion(Base):
 
 
 class AccountType(Base):
-    __tablename__ = 'account_type'
+    __tablename__ = 'account_types'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
 
 class PaymentMethod(Base):
-    __tablename__ = 'payment_method'
+    __tablename__ = 'payment_methods'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
 
 class Product(Base, RubyHashTrackable):
-    __tablename__ = 'product'
+    __tablename__ = 'products'
 
     id = Column(Integer, primary_key=True, unique=True)
     buying_price = Column(DECIMAL(8, 2), nullable=False)
@@ -255,10 +246,10 @@ class Product(Base, RubyHashTrackable):
 
 
 class Account(Base, RubyHashTrackable):
-    __tablename__ = 'account'
+    __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True, unique=True)
-    type = Column(ForeignKey('account_type.id'), nullable=False, index=True)
+    type = Column(ForeignKey('account_types.id'), nullable=False, index=True)
     creation_date = Column(TIMESTAMP, nullable=False, unique=True)
     name = Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
@@ -278,16 +269,16 @@ class Account(Base, RubyHashTrackable):
 
 
 class Transaction(Base, RubyHashTrackable):
-    __tablename__ = 'transaction'
+    __tablename__ = 'transactions'
 
     id = Column(Integer, primary_key=True)
     value = Column(DECIMAL(8, 2), nullable=False)
     timestamp = Column(TIMESTAMP, nullable=False)
-    src = Column(ForeignKey('account.id'), nullable=False, index=True)
-    dst = Column(ForeignKey('account.id'), nullable=False, index=True)
+    src = Column(ForeignKey('accounts.id'), nullable=False, index=True)
+    dst = Column(ForeignKey('accounts.id'), nullable=False, index=True)
     name = Column(String(255), nullable=False)
     attachments = Column(TEXT(65535), nullable=False)
-    type = Column(ForeignKey('payment_method.id'), nullable=False, index=True)
+    type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
 
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
