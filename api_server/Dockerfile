@@ -1,6 +1,7 @@
 FROM loicmahieu/alpine-envsubst AS generate_config
 
-ARG CAS_PROFILE_URL="my-sso/oauth2.0/profile"
+ARG OAUTH2_BASE_PATH="my-sso/oauth2.0"
+ARG AUTH_CONSENT_ADDRESS="my-app/consent"
 ARG DATABASE_HOST="localhost"
 ARG DATABASE_PORT="1234"
 ARG DATABASE_USERNAME="my_db_username"
