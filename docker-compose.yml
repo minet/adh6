@@ -6,10 +6,8 @@ services:
       context: ./
       dockerfile: ./frontend_angular/Dockerfile
       args:
-        # SSO (ours is CAS) URL for logging out.
-        SSO_LOGOUT: "https://cas.minet.net/logout"
         # SSO URL for getting a token.
-        SSO_AUTHORIZE: "https://cas.minet.net/oauth2.0/authorize"
+        SSO_OAUTH2: "https://localhost/api/oauth2.0"
         # URL of ADH6, the SSO will redirect to that URL after login.
         ADH6_URL: "https://localhost/dashboard" # Do not forget the trailing slash!
         BYPASS_AUTH: "false"

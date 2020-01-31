@@ -107,10 +107,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private configureWithNewConfigApi() {
+    authConfig.scope = 'openid profile offline_access groups account:read';
     this.oauthService.configure(authConfig);
     this.oauthService.tokenValidationHandler = new JwksValidationHandler();
 
-    this.oauthService.loadDiscoveryDocumentAndLogin({
+    this.oauthService.loadDiscoveryDocumentAndTryLogin({
       onTokenReceived: (info) => {
         this.oauthService.loadUserProfile();
         //this.router.navigate(['/member/view', this.oauthService.getIdentityClaims().sub]);

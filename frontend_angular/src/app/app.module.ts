@@ -56,6 +56,8 @@ import { ObjectFilterPipe } from './ObjectFilter.pipe';
 import { MemberDeviceListComponent } from './member-device-list/member-device-list.component';
 import { AccountListComponent } from './account-list/account-list.component';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { AuthorizeComponent } from './authorize/authorize.component';
+import {NgToggleModule} from '@nth-cloud/ng-toggle';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -102,6 +104,7 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     ObjectFilterPipe,
     MemberDeviceListComponent,
     AccountListComponent,
+    AuthorizeComponent,
   ],
   imports: [
     FontAwesomeModule,
@@ -126,6 +129,7 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     ModalModule.forRoot(),
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
+    NgToggleModule,
   ],
   providers: [
     AppComponent,

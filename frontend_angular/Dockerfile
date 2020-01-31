@@ -5,8 +5,7 @@ FROM loicmahieu/alpine-envsubst AS generate_config
 WORKDIR /tmp
 
 ARG ADH6_URL="adh6.minet.net"
-ARG SSO_LOGOUT="cas.minet.net/logout"
-ARG SSO_AUTHORIZE="cas.minet.net/oauth2.0/authorize"
+ARG SSO_OAUTH2="adh6.minet.net/api/oauth2"
 ARG BYPASS_AUTH="false"
 
 COPY frontend_angular/src/app/config/auth.config.template.ts .

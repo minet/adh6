@@ -30,10 +30,15 @@ import {ProductCreateComponent} from './product-create/product-create.component'
 import {ProductListComponent} from './product-list/product-list.component';
 import {ProductEditComponent} from './product-edit/product-edit.component';
 import {AccountListComponent} from './account-list/account-list.component';
+import {AuthorizeComponent} from './authorize/authorize.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
   {path: 'dashboard', component: DashboardComponent},
+  {path: 'authorize', component: AuthorizeComponent,
+    data: {
+    bypassAuth: true
+  }},
   {
     path: 'member',
     children: [
