@@ -33,7 +33,7 @@ def get_sso_groups(token):
 
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(
-            current_app.config["AUTH_SERVER_ADDRESS"],
+            current_app.config["AUTH_PROFILE_ADDRESS"],
             headers=headers,
             timeout=1,
             verify=verify_cert
@@ -55,6 +55,6 @@ def authenticate_against_sso(access_token):
         return None
     return {
         "uid": infos["id"],
-        "scope": ["profile"],
+        "scope": infos['scope'],
         "groups": infos["groups"]
     }

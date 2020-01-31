@@ -142,7 +142,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             s.delete(member)
 
     def search_member_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, room_number=None, terms=None,
-                         username=None) -> (
+                         username=None, member_id=None) -> (
             List[Member], int):
         """
         Search a member.
@@ -163,6 +163,9 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
                 return [], 0
 
             q = q.filter(Adherent.chambre == result)
+
+        if member_id:
+            q = q.filter(Adherent.id == member_id)
 
         if terms:
             q = q.filter(

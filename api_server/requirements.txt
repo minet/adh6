@@ -50,3 +50,4 @@ zipp==0.5.1               # via importlib-metadata
 python-gitlab
 Flask-Migrate
 flask-script
+authlib

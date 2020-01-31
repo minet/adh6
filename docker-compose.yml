@@ -32,7 +32,8 @@ services:
       dockerfile: ./api_server/Dockerfile
       args:
         # The API will make a request to this URL to verify the authetication token.
-        CAS_PROFILE_URL: "https://cas.minet.net/oauth2.0/profile"
+        OAUTH2_BASE_PATH: "https://localhost/api/oauth2"
+        AUTH_CONSENT_ADDRESS: "https://localhost/authorize"
         DATABASE_HOST: ${DATABASE_HOST}
         DATABASE_PORT: ${DATABASE_PORT}
         DATABASE_USERNAME: ${DATABASE_USERNAME}

@@ -304,3 +304,37 @@ class Transaction(Base, RubyHashTrackable):
 
     def get_related_member(self):
         return self
+
+
+class OAuth2Client(Base, OAuth2ClientMixin):
+    __tablename__ = 'oauth2_client'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
+    user = relationship('Adherent')
+    bypass_consent = Column(Boolean(), nullable=False)
+
+
+class OAuth2AuthorizationCode(Base, OAuth2AuthorizationCodeMixin):
+    __tablename__ = 'oauth2_code'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
+    user = relationship('Adherent')
+
+
+class OAuth2Token(Base, OAuth2TokenMixin):
+    __tablename__ = 'oauth2_token'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
+    user = relationship('Adherent')
+
+    def is_refresh_token_active(self):
+        if self.revoked:
+            return False
+        expires_at = self.issued_at + self.expires_in * 2
+        return expires_at >= time.time()
