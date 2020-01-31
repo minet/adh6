@@ -72,7 +72,6 @@ def sample_room():
         room_number='1234',
         description='Test room.',
         vlan_number='42',
-        phone_number=None,
     )
 
 

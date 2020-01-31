@@ -17,7 +17,6 @@ from src.util.validator import is_empty
 class MutationRequest:
     room_number: str
     description: str
-    phone_number: Optional[str]
     vlan_number: str
 
     def validate(self):

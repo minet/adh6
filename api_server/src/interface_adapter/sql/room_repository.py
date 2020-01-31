@@ -29,7 +29,6 @@ class RoomSQLRepository(RoomRepository):
 
         if terms:
             q = q.filter(or_(
-                Chambre.telephone.contains(terms),
                 Chambre.description.contains(terms),
             ))
 
@@ -45,11 +44,9 @@ class RoomSQLRepository(RoomRepository):
         r = list(map(_map_room_sql_to_entity, r))
         return r, count
 
-    def update_room(self, ctx, room_to_update, room_number=None, description=None, phone_number=None,
-                    vlan_number=None) -> None:
+    def update_room(self, ctx, room_to_update, room_number=None, description=None, vlan_number=None) -> None:
         LOG.debug("sql_room_repository_update_room_called",
-                  extra=log_extra(ctx, room_number=room_number, description=description, phone_number=phone_number,
-                                  vlan_number=vlan_number))
+                  extra=log_extra(ctx, room_number=room_number, description=description, vlan_number=vlan_number))
         s = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
@@ -63,13 +60,12 @@ class RoomSQLRepository(RoomRepository):
 
         room.numero = int(room_number)
         room.description = description
-        room.telephone = phone_number
         room.updated_at = now
         room.vlan = vlan
 
-    def create_room(self, ctx, room_number=None, description=None, phone_number=None, vlan_number=None) -> None:
+    def create_room(self, ctx, room_number=None, description=None, vlan_number=None) -> None:
         LOG.debug("sql_room_repository_create_room_called",
-                  extra=log_extra(ctx, room_number=room_number, description=description, phone_number=phone_number,
+                  extra=log_extra(ctx, room_number=room_number, description=description,
                                   vlan_number=vlan_number))
         s = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
@@ -85,7 +81,6 @@ class RoomSQLRepository(RoomRepository):
         room = Chambre(
             numero=int(room_number),
             description=description,
-            telephone=phone_number,
             created_at=now,
             updated_at=now,
             vlan=vlan,
@@ -112,6 +107,5 @@ def _map_room_sql_to_entity(r: Chambre) -> Room:
     return Room(
         room_number=str(r.numero),
         description=r.description,
-        phone_number=r.telephone,
         vlan_number=vlan_number
     )

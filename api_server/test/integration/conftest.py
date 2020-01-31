@@ -79,7 +79,6 @@ def sample_room1(sample_vlan):
     yield Chambre(
         numero=5110,
         description="Chambre de l'ambiance",
-        telephone=1234,
         vlan=sample_vlan,
     )
 
@@ -89,7 +88,6 @@ def sample_room2(sample_vlan):
     yield Chambre(
         numero=4592,
         description="Chambre voisine du swag",
-        telephone="5678",
         vlan=sample_vlan,
     )
 

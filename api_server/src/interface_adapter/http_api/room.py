@@ -46,7 +46,6 @@ class RoomHandler:
             created = self.room_manager.update_or_create(ctx, room_number, MutationRequest(
                 room_number=body.get('room_number'),
                 description=body.get('description'),
-                phone_number=body.get('phone'),
                 vlan_number=body.get('vlan'),
             ))
             if created:
@@ -88,7 +87,6 @@ def _map_room_to_http_response(room: Room) -> dict:
     fields = {
         'description': room.description,
         'roomNumber': int(room.room_number),
-        'phone': 0 if not room.phone_number else int(room.phone_number),
         'vlan': int(room.vlan_number),
     }
     return {k: v for k, v in fields.items() if v is not None}

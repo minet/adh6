@@ -70,7 +70,6 @@ class TestUpdateOrCreate:
         return MutationRequest(
             room_number='1234',
             description='desc',
-            phone_number='phone',
             vlan_number='vlan',
         )
 

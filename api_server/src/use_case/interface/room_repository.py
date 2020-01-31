@@ -24,7 +24,7 @@ class RoomRepository(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_room(self, ctx, room_to_update, room_number=None, description=None, phone_number=None,
+    def update_room(self, ctx, room_to_update, room_number=None, description=None,
                     vlan_number=None) -> None:
         """
         Update a room.
@@ -32,7 +32,7 @@ class RoomRepository(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def create_room(self, ctx, room_number=None, description=None, phone_number=None, vlan_number=None) -> None:
+    def create_room(self, ctx, room_number=None, description=None, vlan_number=None) -> None:
         """
         Create a room.
         """
