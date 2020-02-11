@@ -13,7 +13,7 @@ cache:
 stages:
   - test
   - build
-  - deploy_dev
+  - deploy
 
 
 angular_try_build:
@@ -66,7 +66,7 @@ python_coverage:
       - api_server/htmlcov/
 
 deploy_dev:
-  stage: deploy_dev
+  stage: deploy
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
@@ -75,3 +75,20 @@ deploy_dev:
     - master
   tags:
     - dev
+    
+deploy_prod:
+  stage: deploy
+  when: manual
+  script:
+    - systemctl stop emperor.uwsgi.service
+    - cd api_server/
+    - pip3 install -r ./requirements.txt
+    - mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+    - cp ../openapi/spec.yaml ./openapi/spec.yaml
+    - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
+    - ln -s -t /etc/uwsgi/vassals/ uwsgi.ini
+    - systemctl start emperor.uwsgi.service
+  only:
+    - master
+  tags:
+    - adh6-prod
