@@ -80,14 +80,15 @@ deploy_prod:
   stage: deploy
   when: manual
   script:
-    - systemctl stop emperor.uwsgi.service
+    - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
     - pip3 install -r ./requirements.txt
-    - mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+    - /usr/local/bin/mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
-    - ln -s -t /etc/uwsgi/vassals/ uwsgi.ini
-    - systemctl start emperor.uwsgi.service
+    - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
+    - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
+    - sudo systemctl start emperor.uwsgi.service
   only:
     - master
   tags:
