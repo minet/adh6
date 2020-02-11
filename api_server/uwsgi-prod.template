@@ -1,0 +1,23 @@
+[uwsgi]
+plugin = python3
+chdir = ${PWD}
+wsgi-file = main.py
+socket = :8080
+
+uid = uwsgi
+gid = uwsgi
+
+harakiri = 30
+offload-threads = 1
+
+vacuum = true
+die-on-term = true
+post-buffering = 4096
+manage-script-name = true
+thunder-lock = true
+
+# Needed for SQLAlchemy
+lazy-apps = true
+
+master = true
+processes = 4
