@@ -1588,6 +1588,10 @@ components:
           description: The date the account was created
           format: date-time
           type: string
+        adherent:
+          description: the member this account belongs to
+          readOnly: true
+          $ref: '#/components/schemas/Member'
       required:
       - type
       - actif
@@ -1898,6 +1902,9 @@ components:
           format: double
           type: number
         attachments:
+          type: string
+        author:
+          readOnly: true
           type: string
       required:
       - value
