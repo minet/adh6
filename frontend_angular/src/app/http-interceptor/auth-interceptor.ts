@@ -13,14 +13,12 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler):
     Observable<HttpEvent<any>> {
     // Check that the request is for the API server
-    if (req.url.startsWith('/api/')) {
-      // if so, add the authentication header
-      req = req.clone({
-        setHeaders: {
-          Authorization: this.oauthService.authorizationHeader()
-        }
-      });
-    }
+    // if so, add the authentication header
+    req = req.clone({
+      setHeaders: {
+        Authorization: this.oauthService.authorizationHeader()
+      }
+    });
     return next.handle(req);
   }
 }
