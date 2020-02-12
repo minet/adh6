@@ -24,9 +24,13 @@ angular_try_build:
     - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
     - npm install
   script:
-    - cp src/app/config/auth.config.ts{.example,}
+    - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
     - rm src/app/config/auth.config.template.ts
     - ng build --prod
+  artifacts:
+    paths:
+    - dist/
+    expire_in: 1 day
 
 python_check_for_vuln_deps:
   stage: test
@@ -83,14 +87,9 @@ deploy_prod_front:
   stage: deploy
   when: manual
   before_script:
-    - cd frontend_angular/
-    - NG_CLI_ANALYTICS=ci npm install @angular/cli@8.0.1
-    - npm install
+    - cd /var/www
   script:
-    - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
-    - rm src/app/config/auth.config.template.ts
-    - ng build --prod
-    - cp -r dist/* /var/www/
+    - wget https://gitlab.minet.net/adh6/core/-/jobs/artifacts/master/download?job=angular_try_build
   environment:
     name: production
     url: https://adh6.minet.net/
@@ -104,7 +103,7 @@ deploy_prod_backend:
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
-    - sudo pip3 install -r ./requirements
+    - sudo pip3 install -r ./requirements.txt
   script:
     - /usr/local/bin/mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
