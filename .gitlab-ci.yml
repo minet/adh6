@@ -15,8 +15,23 @@ stages:
   - build
   - deploy
 
-
 angular_try_build:
+  stage: build
+  image: node:10.16.0-stretch-slim
+  before_script:
+    - apt update && apt-get -y install gettext-base
+    - cd frontend_angular/
+    - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
+    - npm install
+  script:
+    - cp src/app/config/auth.config.ts{.example,}
+    - rm src/app/config/auth.config.template.ts
+    - ng build --prod
+  environment:
+    name: development
+    url: https://adh6-dev.minet.net/
+
+angular_build_prod:
   stage: build
   image: node:10.16.0-stretch-slim
   before_script:
@@ -32,6 +47,9 @@ angular_try_build:
     paths:
     - frontend_angular/dist/
     expire_in: 1 day
+  environment:
+    name: production
+    url: https://adh6.minet.net/
 
 python_check_for_vuln_deps:
   stage: test
