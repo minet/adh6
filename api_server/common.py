@@ -147,7 +147,7 @@ def init(testing=True, managing=False):
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
     stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
-    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, caisse_manager)
+    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, member_manager, caisse_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
     room_handler = RoomHandler(room_manager)

@@ -12,7 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.constants import CTX_SQL_SESSION
 from src.entity.admin import Admin
 from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
-from src.interface_adapter.sql.model.models import Utilisateur
+from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
 from src.util.context import build_context, log_extra
 from src.util.log import LOG
 
@@ -29,24 +29,29 @@ def _find_admin(s, username):
 
     """
     try:
-        q = s.query(Utilisateur)
-        q = q.filter(Utilisateur.login == username)
+        q = s.query(AdminSQL)
+        q = q.join(Adherent)
+        q = q.filter(Adherent.login == username)
         return q.one()
 
     except NoResultFound:
-        now = datetime.datetime.now()
-        new_admin = Utilisateur(
-            nom="-",
-            access=42,
-            email="-",
-            login=username,
-            password_hash="-",
-            created_at=now,
-            updated_at=now,
-            access_token="-"
+        if current_app.config['TESTING']:
+            new_adherent = Adherent(
+                login=TESTING_CLIENT,
+                mail="test@example.com",
+                nom="Test",
+                prenom="test",
+                password=""
+            )
+            s.add(new_adherent)
+
+        adherent = s.query(Adherent).filter(Adherent.login == username).one()
+        new_admin = AdminSQL(
+            adherent_id=adherent.id,
+            roles=""
         )
         s.add(new_admin)
-        return new_admin
+        return _find_admin(s, username)
 
 
 def auth_regular_admin(f):
@@ -69,7 +74,7 @@ def auth_regular_admin(f):
 
         assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), user)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.adherent.login))
         return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
     return wrapper
@@ -83,7 +88,7 @@ def auth_super_admin(f):
     @wraps(f)
     def wrapper(cls, ctx, *args, **kwargs):
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.adherent.login))
         return f(cls, ctx, *args, **kwargs)
 
     # def wrapper(cls, ctx, *args, user, token_info, **kwargs):

@@ -7,6 +7,7 @@ import pytest
 from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import Transaction, PaymentMethod, Account, AccountType
+from test.integration.conftest import sample_member1
 from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
 
 
@@ -28,7 +29,8 @@ def sample_account1():
         account_type=AccountType(
             id=1,
             name='adherent'
-        ))
+        ),
+        adherent=None)
 
 
 @pytest.fixture
@@ -41,11 +43,12 @@ def sample_account2():
         account_type=AccountType(
             id=2,
             name='event'
-        ))
+        ),
+        adherent=None)
 
 
 @pytest.fixture
-def sample_transaction(sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(sample_admin, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         src_account=sample_account1,
         dst_account=sample_account2,
@@ -53,7 +56,8 @@ def sample_transaction(sample_account1, sample_account2, sample_payment_method):
         value='200',
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
-        payment_method=sample_payment_method)
+        payment_method=sample_payment_method,
+        author=sample_admin)
 
 
 def prep_db(session, sample_transaction):

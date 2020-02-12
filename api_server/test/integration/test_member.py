@@ -46,7 +46,7 @@ def test_member_filter_all(api_client):
     assert r.status_code == 200
 
     response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 3
+    assert len(response) == 4 # 4 because of the admin user
 
 
 def test_member_filter_all_with_invalid_limit(api_client):

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, MemberNotFoundError
-from src.interface_adapter.sql.model.models import Utilisateur, Adherent
+from src.interface_adapter.sql.model.models import Admin, Adherent
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.log import LOG
@@ -19,7 +19,7 @@ class MoneySQLRepository(MoneyRepository):
         s = ctx.get(CTX_SQL_SESSION)
         admin = ctx.get(CTX_ADMIN)
 
-        admin_sql = s.query(Utilisateur).filter(Utilisateur.login == admin.login).one_or_none()
+        admin_sql = s.query(Admin).join(Adherent).filter(Adherent.login == admin.login).one_or_none()
         if admin_sql is None:
             raise InvalidAdmin()
 

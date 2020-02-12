@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 
 from src.entity.account import Account
+from src.entity.admin import Admin
+from src.entity.member import Member
 from src.entity.payment_method import PaymentMethod
 
 
@@ -14,3 +16,4 @@ class Transaction:
     timestamp: str
     attachments: str
     paymentMethod: PaymentMethod
+    author: Admin

@@ -8,6 +8,7 @@ from typing import List
 from src.constants import CTX_SQL_SESSION
 from src.entity.account import Account
 from src.exceptions import AccountNotFoundError
+from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Account as SQLAccount
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.account_repository import AccountRepository
@@ -96,7 +97,8 @@ def _map_account_sql_to_entity(a) -> Account:
         actif=a.actif,
         type=a.type,
         creation_date=a.creation_date,
-        account_id=a.id
+        account_id=a.id,
+        adherent=_map_member_sql_to_entity(a.adherent) if a.adherent else None
     )
 
 

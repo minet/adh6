@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from src.constants import CTX_ADMIN
-from src.interface_adapter.sql.model.models import Modification, Utilisateur
+from src.interface_adapter.sql.model.models import Modification, Admin, Adherent
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 
 
@@ -29,7 +29,7 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
         admin = ctx.get(CTX_ADMIN)
         member = obj.get_related_member()
 
-        admin_id = session.query(Utilisateur).filter(Utilisateur.login == admin.login).one().id
+        admin_id = session.query(Admin).join(Adherent).filter(Adherent.login == admin.login).one().id
 
         m = Modification(
             adherent_id=member.id,

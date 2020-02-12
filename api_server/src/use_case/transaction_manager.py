@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, asdict
 from typing import List, Optional
 
-from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
+from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT, CTX_ADMIN
 from src.exceptions import IntMustBePositive, MissingRequiredField, \
     TransactionNotFoundError, UserInputError
 from src.interface_adapter.sql.model.models import Transaction
@@ -150,7 +150,7 @@ class TransactionManager:
         fields = {k: v for k, v in fields.items()}
 
         try:
-            self.transaction_repository.create_transaction(ctx, **fields)
+            self.transaction_repository.create_transaction(ctx, author=ctx.get(CTX_ADMIN).login, **fields)
         except Exception:
             raise
 

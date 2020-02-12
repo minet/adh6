@@ -8,10 +8,13 @@ from typing import List
 from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity.admin import Admin
 from src.entity.transaction import Transaction
-from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
+from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, MemberNotFoundError, AdminNotFoundError
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
-from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Account, PaymentMethod
+from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
+from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Account, PaymentMethod, Adherent
+from src.interface_adapter.sql.model.models import Admin as SQLAdmin
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -54,7 +57,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         return list(map(_map_transaction_sql_to_entity, r)), count
 
-    def create_transaction(self, ctx, src=None, dst=None, name=None, value=None, paymentMethod=None, attachments=None):
+    def create_transaction(self, ctx, src=None, dst=None, name=None, value=None, paymentMethod=None, attachments=None, author=None):
         LOG.debug("sql_device_repository_create_transaction_called", extra=log_extra(ctx, name=name))
         """
         Create a transaction.
@@ -65,6 +68,12 @@ class TransactionSQLRepository(TransactionRepository):
         LOG.debug("sql_transaction_repository_create_transaction_called", extra=log_extra(ctx, name=name))
 
         now = datetime.now()
+
+        author_ref = None
+        if author is not None:
+            author_ref = s.query(SQLAdmin).join(Adherent).filter(Adherent.login == author).one_or_none()
+            if not author_ref:
+                raise AdminNotFoundError(author)
 
         account_src = None
         if src is not None:
@@ -91,7 +100,8 @@ class TransactionSQLRepository(TransactionRepository):
             name=name,
             timestamp=now,
             attachments="",
-            payment_method=method
+            payment_method=method,
+            author=author_ref
         )
 
         with track_modifications(ctx, s, transaction):
@@ -115,5 +125,6 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         name=t.name,
         value=t.value,
         paymentMethod=_map_payment_method_sql_to_entity(t.payment_method),
-        attachments=t.attachments
+        attachments=t.attachments,
+        author=Admin(login=t.author.adherent.login)
     )

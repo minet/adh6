@@ -13,6 +13,7 @@ from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.caisse_manager import CaisseManager
+from src.use_case.member_manager import MemberManager
 from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.transaction_manager import TransactionManager, PartialMutationRequest, FullMutationRequest
 from src.util.context import log_extra
@@ -21,10 +22,12 @@ from src.util.log import LOG
 
 class TransactionHandler:
     def __init__(self, transaction_manager: TransactionManager, payment_method_manager: PaymentMethodManager,
+                 member_manager: MemberManager,
                  caisse_manager: CaisseManager):
         self.transaction_manager = transaction_manager
         self.payment_method_manager = payment_method_manager
         self.caisse_manager = caisse_manager
+        self.member_manager = member_manager
 
     @with_context
     @require_sql
@@ -69,6 +72,7 @@ class TransactionHandler:
         LOG.debug("http_transaction_post_called", extra=log_extra(ctx, request=body))
 
         mutation_request = _map_http_request_to_full_mutation_request(body)
+
         try:
             created = self.transaction_manager.update_or_create(ctx, mutation_request)
             if created:
@@ -108,7 +112,8 @@ def _map_transaction_to_http_response(transaction: Transaction) -> dict:
         "name": transaction.name,
         "paymentMethod": _map_payment_method_to_http_response(transaction.paymentMethod),
         "value": transaction.value,
-        "attachments": transaction.attachments
+        "attachments": transaction.attachments,
+        "author": transaction.author.login
     }
 
     return {k: v for k, v in fields.items() if v is not None}
@@ -120,7 +125,7 @@ def _map_http_request_to_partial_mutation_request(body) -> PartialMutationReques
         dst=body.get('dst_id'),
         name=body.get('name'),
         paymentMethod=body.get('payment_method_id'),
-        value=body.get('value')
+        value=body.get('value'),
     )
 
 

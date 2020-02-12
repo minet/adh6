@@ -187,18 +187,14 @@ class Port(Base):
     updated_at = Column(DateTime)
 
 
-class Utilisateur(Base):
-    __tablename__ = 'utilisateurs'
+class Admin(Base):
+    __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
-    nom = Column(String(255))
-    access = Column(Integer)
-    email = Column(String(255))
-    login = Column(String(255))
-    password_hash = Column(String(255))
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    access_token = Column(String(255))
+    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
+    roles = Column(String(255))
+
+    adherent = relationship('Adherent', foreign_keys=[adherent_id])
 
 
 class Adhesion(Base):
@@ -253,7 +249,9 @@ class Account(Base, RubyHashTrackable):
     creation_date = Column(TIMESTAMP, nullable=False, unique=True)
     name = Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
+    adherent_id = Column(Integer, ForeignKey('adherents.id'), nullable=True)
 
+    adherent = relationship('Adherent', foreign_keys=[adherent_id])
     account_type = relationship('AccountType')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
@@ -279,7 +277,9 @@ class Transaction(Base, RubyHashTrackable):
     name = Column(String(255), nullable=False)
     attachments = Column(TEXT(65535), nullable=False)
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
+    author_id = Column(Integer, ForeignKey('admins.id'), nullable=False)
 
+    author = relationship('Admin', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
     payment_method = relationship('PaymentMethod')

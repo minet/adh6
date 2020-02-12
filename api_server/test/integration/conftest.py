@@ -2,9 +2,10 @@ import datetime
 import pytest
 
 from config.TEST_CONFIGURATION import DATABASE
+from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
-    Adherent, Chambre, Vlan, Device, Switch, Port)
+    Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
 from test.integration.test_member import prep_db
 
 
@@ -89,6 +90,24 @@ def sample_room2(sample_vlan):
         numero=4592,
         description="Chambre voisine du swag",
         vlan=sample_vlan,
+    )
+
+
+@pytest.fixture
+def sample_member_admin():
+    yield Adherent(
+                login=TESTING_CLIENT,
+                mail="test@example.com",
+                nom="Test",
+                prenom="test",
+                password=""
+            )
+
+@pytest.fixture
+def sample_admin(sample_member_admin):
+    yield Admin(
+        adherent=sample_member_admin,
+        roles=""
     )
 
 

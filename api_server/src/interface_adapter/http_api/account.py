@@ -122,6 +122,7 @@ def _map_account_to_http_response(account: Account) -> dict:
         'actif': account.actif,
         'type': account.type,
         'id': account.account_id,
+        'adherent': account.adherent.username if account.adherent else ""
     }
     return {k: v for k, v in fields.items() if v is not None}
 

@@ -101,6 +101,11 @@ class NotFoundError(UserInputError):
         super().__init__(err_msg)
 
 
+class AdminNotFoundError(NotFoundError):
+    def __init__(self, v=None):
+        super().__init__('admin', v)
+
+
 class MemberNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('member', v)

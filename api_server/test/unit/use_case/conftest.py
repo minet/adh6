@@ -13,6 +13,7 @@ from src.entity.transaction import Transaction
 from src.entity.account import Account
 from src.entity.product import Product
 from src.entity.account_type import AccountType
+from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.use_case.member_manager import FullMutationRequest
 from src.util.context import build_context
 
@@ -20,7 +21,7 @@ from src.util.context import build_context
 @fixture
 def ctx():
     return build_context(
-        admin=Admin(login='test_admin'),
+        admin=Admin(login='test_usr'),
         testing=True,
     )
 
@@ -40,6 +41,12 @@ TEST_LOGS = [
 TEST_MAC_ADDRESS1 = 'A0-B1-5A-C1-5F-E3'
 TEST_MAC_ADDRESS2 = '10-0E-9C-19-FF-64'
 
+
+@fixture
+def sample_admin():
+    return Admin(
+        login=TESTING_CLIENT
+    )
 
 @fixture
 def sample_member():
@@ -108,21 +115,23 @@ def sample_payment_method():
 
 
 @fixture
-def sample_transaction():
+def sample_transaction(sample_admin):
     return Transaction(
         src=Account(
             name="Test",
             type=1,
             actif=True,
             creation_date='21/05/2019',
-            account_id=1
+            account_id=1,
+            adherent=None
         ),
         dst=Account(
             name="Test2",
             type=1,
             actif=True,
             creation_date='21/05/2019',
-            account_id=2
+            account_id=2,
+            adherent=None
         ),
         name='description',
         value='200',
@@ -131,7 +140,8 @@ def sample_transaction():
         paymentMethod=PaymentMethod(
             payment_method_id=0,
             name='liquide'
-        ))
+        ),
+        author=sample_admin)
 
 
 @fixture
@@ -141,7 +151,8 @@ def sample_account():
         type=1,
         actif=True,
         creation_date='21/05/2019',
-        account_id=1
+        account_id=1,
+        adherent = None
     )
 
 
