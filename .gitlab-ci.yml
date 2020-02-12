@@ -30,7 +30,7 @@ angular_try_build:
     - ng build --prod
   artifacts:
     paths:
-    - dist/
+    - frontend_angular/dist/
     expire_in: 1 day
 
 python_check_for_vuln_deps:
