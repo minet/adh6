@@ -125,6 +125,7 @@ deploy_prod_backend:
     - /usr/local/bin/mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
+    - python manage.py db upgrade
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
     - sudo rm /etc/uwsgi/vassals/adh6_api.ini
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
