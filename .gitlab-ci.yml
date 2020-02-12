@@ -87,10 +87,8 @@ deploy_dev:
 deploy_prod_front:
   stage: deploy
   when: manual
-  before_script:
-    - cd /var/www
   script:
-    - wget https://gitlab.minet.net/adh6/core/-/jobs/artifacts/master/download?job=angular_try_build
+    - cp -r frontend_angular/dist/* /var/www/
   environment:
     name: production
     url: https://adh6.minet.net/
@@ -110,7 +108,6 @@ deploy_prod_backend:
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
-  after_script:
     - sudo rm /etc/uwsgi/vassals/adh6_api.ini
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
     - sudo systemctl start emperor.uwsgi.service
