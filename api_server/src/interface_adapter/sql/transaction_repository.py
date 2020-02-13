@@ -71,7 +71,9 @@ class TransactionSQLRepository(TransactionRepository):
 
         author_ref = None
         if author is not None:
-            author_ref = s.query(SQLAdmin).join(Adherent).filter(Adherent.login == author).one_or_none()
+            author_ref = s.query(Adherent).join(SQLAdmin)\
+                .filter(Adherent.login == author)\
+                .filter(Adherent.admin is not None).one_or_none()
             if not author_ref:
                 raise AdminNotFoundError(author)
 
@@ -126,5 +128,5 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         value=t.value,
         paymentMethod=_map_payment_method_sql_to_entity(t.payment_method),
         attachments=t.attachments,
-        author=Admin(login=t.author.adherent.login)
+        author=_map_member_sql_to_entity(t.author)
     )

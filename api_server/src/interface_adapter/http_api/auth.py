@@ -44,8 +44,6 @@ def get_sso_groups(token):
         return None
 
     result = r.json()
-    if is_development_environment():
-        result["groups"] = [ADH6_USER, ADH6_ADMIN]  # If we are testing, consider the user asg.admin
     return result
 
 
@@ -56,5 +54,4 @@ def authenticate_against_sso(access_token):
     return {
         "uid": infos["id"],
         "scope": infos['scope'],
-        "groups": [ADH6_USER, ADH6_ADMIN]#infos["groups"]
     }

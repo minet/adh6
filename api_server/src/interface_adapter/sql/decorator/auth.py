@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from src.constants import CTX_SQL_SESSION
 from src.entity.admin import Admin
+from src.exceptions import AdminNotFoundError
 from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
 from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
 from src.util.context import build_context, log_extra
@@ -29,29 +30,30 @@ def _find_admin(s, username):
 
     """
     try:
-        q = s.query(AdminSQL)
-        q = q.join(Adherent)
+        q = s.query(Adherent)
+        q = q.join(AdminSQL)
         q = q.filter(Adherent.login == username)
+        q = q.filter(Adherent.admin is not None)
         return q.one()
 
     except NoResultFound:
         if current_app.config['TESTING']:
+            new_admin = AdminSQL(
+                roles=""
+            )
             new_adherent = Adherent(
                 login=TESTING_CLIENT,
                 mail="test@example.com",
                 nom="Test",
                 prenom="test",
-                password=""
+                password="",
+                admin=new_admin
             )
+            s.add(new_admin)
             s.add(new_adherent)
 
-        adherent = s.query(Adherent).filter(Adherent.login == username).one()
-        new_admin = AdminSQL(
-            adherent_id=adherent.id,
-            roles=""
-        )
-        s.add(new_admin)
-        return _find_admin(s, username)
+            return _find_admin(s, username)
+        raise AdminNotFoundError()
 
 
 def auth_regular_admin(f):
@@ -68,13 +70,15 @@ def auth_regular_admin(f):
         if not current_app.config["TESTING"] and (user is None or token_info is None):
             LOG.warning('could_not_extract_user_and_token_info_kwargs', extra=log_extra(ctx))
             return NoContent, 401
-        if not current_app.config["TESTING"] and ADH6_USER not in token_info["groups"]:
-            # User is not in the right group and we are not testing, do not allow.
-            return NoContent, 401
 
         assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), user)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.adherent.login))
+        roles = admin.admin.roles
+        if not current_app.config["TESTING"] and ADH6_USER not in roles:
+            # User is not in the right group and we are not testing, do not allow.
+            return NoContent, 401
+
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
         return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
     return wrapper
@@ -88,7 +92,7 @@ def auth_super_admin(f):
     @wraps(f)
     def wrapper(cls, ctx, *args, **kwargs):
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.adherent.login))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
         return f(cls, ctx, *args, **kwargs)
 
     # def wrapper(cls, ctx, *args, user, token_info, **kwargs):

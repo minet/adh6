@@ -38,6 +38,13 @@ class Chambre(Base):
     vlan = relationship(Vlan)
 
 
+class Admin(Base):
+    __tablename__ = 'admins'
+
+    id = Column(Integer, primary_key=True)
+    roles = Column(String(255))
+
+
 class Adherent(Base, RubyHashTrackable):
     __tablename__ = 'adherents'
 
@@ -58,6 +65,10 @@ class Adherent(Base, RubyHashTrackable):
         server_default=text("'2011-04-30 17:50:17'")
     )
     access_token = Column(String(255))
+
+    admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
+
+    admin = relationship('Admin', foreign_keys=[admin_id])
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -187,16 +198,6 @@ class Port(Base):
     updated_at = Column(DateTime)
 
 
-class Admin(Base):
-    __tablename__ = 'admins'
-
-    id = Column(Integer, primary_key=True)
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    roles = Column(String(255))
-
-    adherent = relationship('Adherent', foreign_keys=[adherent_id])
-
-
 class Adhesion(Base):
     __tablename__ = 'adhesions'
 
@@ -277,9 +278,9 @@ class Transaction(Base, RubyHashTrackable):
     name = Column(String(255), nullable=False)
     attachments = Column(TEXT(65535), nullable=False)
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
-    author_id = Column(Integer, ForeignKey('admins.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False)
 
-    author = relationship('Admin', foreign_keys=[author_id])
+    author = relationship('Adherent', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
     payment_method = relationship('PaymentMethod')

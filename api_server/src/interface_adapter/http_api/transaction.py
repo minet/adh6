@@ -8,6 +8,7 @@ from src.entity.transaction import Transaction
 from src.exceptions import UserInputError, TransactionNotFoundError
 from src.interface_adapter.http_api.account import _map_account_to_http_response
 from src.interface_adapter.http_api.decorator.with_context import with_context
+from src.interface_adapter.http_api.member import _map_member_to_http_response
 from src.interface_adapter.http_api.payment_method import _map_payment_method_to_http_response
 from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
@@ -113,7 +114,7 @@ def _map_transaction_to_http_response(transaction: Transaction) -> dict:
         "paymentMethod": _map_payment_method_to_http_response(transaction.paymentMethod),
         "value": transaction.value,
         "attachments": transaction.attachments,
-        "author": transaction.author.login
+        "author": _map_member_to_http_response(transaction.author)
     }
 
     return {k: v for k, v in fields.items() if v is not None}
@@ -121,10 +122,10 @@ def _map_transaction_to_http_response(transaction: Transaction) -> dict:
 
 def _map_http_request_to_partial_mutation_request(body) -> PartialMutationRequest:
     return PartialMutationRequest(
-        src=body.get('src_id'),
-        dst=body.get('dst_id'),
+        src=body.get('src'),
+        dst=body.get('dst'),
         name=body.get('name'),
-        paymentMethod=body.get('payment_method_id'),
+        paymentMethod=body.get('payment_method'),
         value=body.get('value'),
     )
 

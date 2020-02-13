@@ -19,7 +19,7 @@ class MoneySQLRepository(MoneyRepository):
         s = ctx.get(CTX_SQL_SESSION)
         admin = ctx.get(CTX_ADMIN)
 
-        admin_sql = s.query(Admin).join(Adherent).filter(Adherent.login == admin.login).one_or_none()
+        admin_sql = s.query(Adherent).join(Admin).filter(Adherent.login == admin.login).filter(Adherent.admin_id is not None).one_or_none()
         if admin_sql is None:
             raise InvalidAdmin()
 

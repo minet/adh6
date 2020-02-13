@@ -48,7 +48,7 @@ def sample_account2():
 
 
 @pytest.fixture
-def sample_transaction(sample_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(sample_member_admin, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         src_account=sample_account1,
         dst_account=sample_account2,
@@ -57,7 +57,7 @@ def sample_transaction(sample_admin, sample_account1, sample_account2, sample_pa
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
         payment_method=sample_payment_method,
-        author=sample_admin)
+        author=sample_member_admin)
 
 
 def prep_db(session, sample_transaction):
@@ -81,8 +81,8 @@ def assert_transaction_in_db(body):
     q = q.filter(Transaction.name == body["name"])
     sw = q.one()
     assert sw.name == body["name"]
-    assert sw.src == body["srcID"]
-    assert sw.dst == body["dstID"]
+    assert sw.src == body["src"]
+    assert sw.dst == body["dst"]
     assert sw.value == body["value"]
 
 
@@ -107,12 +107,12 @@ def test_switch_post_invalid_value(api_client, test_value):
 
 def test_transaction_post_valid(api_client):
     sample_transaction1 = {
-        "srcID": 1,
-        "dstID": 2,
+        "src": 1,
+        "dst": 2,
         "name": "test",
         "attachments": "",
         "value": 400,
-        "paymentMethodID": 1
+        "paymentMethod": 1
     }
 
     # Insert data to the database

@@ -1906,7 +1906,7 @@ components:
           type: string
         author:
           readOnly: true
-          type: string
+          $ref: '#/components/schemas/Member'
       required:
       - value
       - src

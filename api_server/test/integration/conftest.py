@@ -94,21 +94,21 @@ def sample_room2(sample_vlan):
 
 
 @pytest.fixture
-def sample_member_admin():
+def sample_admin():
+    yield Admin(
+        roles=""
+    )
+
+@pytest.fixture
+def sample_member_admin(sample_admin):
     yield Adherent(
                 login=TESTING_CLIENT,
                 mail="test@example.com",
                 nom="Test",
                 prenom="test",
-                password=""
+                password="",
+                admin=sample_admin
             )
-
-@pytest.fixture
-def sample_admin(sample_member_admin):
-    yield Admin(
-        adherent=sample_member_admin,
-        roles=""
-    )
 
 
 @pytest.fixture
