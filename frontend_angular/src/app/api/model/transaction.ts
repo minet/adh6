@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import { Account } from './account';
+import { Member } from './member';
 import { PaymentMethod } from './paymentMethod';
 
 export interface Transaction { 
@@ -21,5 +22,5 @@ export interface Transaction {
     paymentMethod: PaymentMethod;
     value: number;
     attachments?: string;
-    readonly author?: string;
+    author?: Member;
 }

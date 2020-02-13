@@ -19,7 +19,7 @@
     [ngClass]="asAccount ? ((transactionResult.dst.id==this.asAccount)?'table-success':'table-danger') : ''">
     <td>{{ transactionResult.timestamp }}</td>
     <td>{{ ( transactionResult.src.id==asAccount ? transactionResult.dst.name : transactionResult.src.name ) }}</td>
-    <td>admin</td>
+    <td>{{ transactionResult.author?.username }}</td>
     <td>{{ transactionResult.name }}</td>
     <td>{{ transactionResult.paymentMethod.name }}</td>
     <td>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }}€</td>
