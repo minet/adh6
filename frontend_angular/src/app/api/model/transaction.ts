@@ -21,4 +21,5 @@ export interface Transaction {
     paymentMethod: PaymentMethod;
     value: number;
     attachments?: string;
+    readonly author?: string;
 }

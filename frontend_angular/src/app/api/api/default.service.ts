@@ -17,7 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { InlineResponse2003 } from '../model/inlineResponse2003';
+import { InlineResponse2002 } from '../model/inlineResponse2002';
 import { Statistics } from '../model/statistics';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -59,15 +59,141 @@ export class DefaultService {
     /**
      * 
      * 
+     * @param code The OAuth+OIDC code
+     * @param returnTo The URL to return to after successful CAS authentication
+     * @param scope The OAuth2 scope
+     * @param responseMode The OAuth2 response_mode
+     * @param redirectUri The OAuth2 redirect_uri
+     * @param responseType The OAuth2 response_type
+     * @param state The OAuth2 state
+     * @param clientId The OAuth2 client_id
+     * @param nonce The OAuth2 nonce
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getLabels(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2003>;
-    public getLabels(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2003>>;
-    public getLabels(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2003>>;
+    public authorizeGet(code?: string, returnTo?: string, scope?: string, responseMode?: string, redirectUri?: string, responseType?: string, state?: string, clientId?: string, nonce?: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public authorizeGet(code?: string, returnTo?: string, scope?: string, responseMode?: string, redirectUri?: string, responseType?: string, state?: string, clientId?: string, nonce?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public authorizeGet(code?: string, returnTo?: string, scope?: string, responseMode?: string, redirectUri?: string, responseType?: string, state?: string, clientId?: string, nonce?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public authorizeGet(code?: string, returnTo?: string, scope?: string, responseMode?: string, redirectUri?: string, responseType?: string, state?: string, clientId?: string, nonce?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+
+
+
+
+
+
+
+
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (code !== undefined && code !== null) {
+            queryParameters = queryParameters.set('code', <any>code);
+        }
+        if (returnTo !== undefined && returnTo !== null) {
+            queryParameters = queryParameters.set('return_to', <any>returnTo);
+        }
+        if (scope !== undefined && scope !== null) {
+            queryParameters = queryParameters.set('scope', <any>scope);
+        }
+        if (responseMode !== undefined && responseMode !== null) {
+            queryParameters = queryParameters.set('response_mode', <any>responseMode);
+        }
+        if (redirectUri !== undefined && redirectUri !== null) {
+            queryParameters = queryParameters.set('redirect_uri', <any>redirectUri);
+        }
+        if (responseType !== undefined && responseType !== null) {
+            queryParameters = queryParameters.set('response_type', <any>responseType);
+        }
+        if (state !== undefined && state !== null) {
+            queryParameters = queryParameters.set('state', <any>state);
+        }
+        if (clientId !== undefined && clientId !== null) {
+            queryParameters = queryParameters.set('client_id', <any>clientId);
+        }
+        if (nonce !== undefined && nonce !== null) {
+            queryParameters = queryParameters.set('nonce', <any>nonce);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('get',`${this.basePath}/oauth2/authorize`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public authorizePost(observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public authorizePost(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public authorizePost(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public authorizePost(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('post',`${this.basePath}/oauth2/authorize`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getLabels(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
+    public getLabels(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
+    public getLabels(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
     public getLabels(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
 
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
@@ -82,7 +208,7 @@ export class DefaultService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2003>('get',`${this.basePath}/bug_report/`,
+        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/bug_report/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -133,12 +259,90 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
+    public oauth2Config(observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public oauth2Config(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public oauth2Config(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public oauth2Config(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('get',`${this.basePath}/oauth2/.well-known/openid-configuration`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public profileGet(observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public profileGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public profileGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public profileGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('get',`${this.basePath}/oauth2/profile`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
     public stats(observe?: 'body', reportProgress?: boolean): Observable<Array<Statistics>>;
     public stats(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Statistics>>>;
     public stats(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Statistics>>>;
     public stats(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
 
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
@@ -154,6 +358,41 @@ export class DefaultService {
         ];
 
         return this.httpClient.request<Array<Statistics>>('get',`${this.basePath}/stats/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public tokenPost(observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public tokenPost(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public tokenPost(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public tokenPost(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('post',`${this.basePath}/oauth2/token`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

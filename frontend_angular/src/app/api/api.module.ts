@@ -16,7 +16,6 @@ import { PortService } from './api/port.service';
 import { ProductService } from './api/product.service';
 import { RoomService } from './api/room.service';
 import { SwitchService } from './api/switch.service';
-import { TemporaryAccountService } from './api/temporaryAccount.service';
 import { TransactionService } from './api/transaction.service';
 
 @NgModule({
@@ -37,7 +36,6 @@ import { TransactionService } from './api/transaction.service';
     ProductService,
     RoomService,
     SwitchService,
-    TemporaryAccountService,
     TransactionService ]
 })
 export class ApiModule {

@@ -11,5 +11,5 @@
  */
 
 export interface InlineResponse2002 { 
-    accessToken?: string;
+    labels?: Array<string>;
 }

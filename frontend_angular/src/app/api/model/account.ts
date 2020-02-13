@@ -9,6 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { Member } from './member';
 
 export interface Account { 
     /**
@@ -35,4 +36,5 @@ export interface Account {
      * The date the account was created
      */
     creationDate?: Date;
+    adherent?: Member;
 }

@@ -36,7 +36,6 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {AuthInterceptor} from './http-interceptor/auth-interceptor';
 import {NotifInterceptor} from './http-interceptor/notif-interceptor';
 import {MemberPasswordEditComponent} from './member-password-edit/member-password-edit.component';
-import {CreateTemporaryAccountComponent} from './create-temporary-account/create-temporary-account.component';
 import {TreasuryComponent} from "./treasury/treasury.component";
 import {ClickOutsideDirective, TransactionNewComponent} from './transaction-new/transaction-new.component';
 import {BASE_PATH} from './api';
@@ -88,7 +87,6 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     NavbarComponent,
     LoginComponent,
     MemberPasswordEditComponent,
-    CreateTemporaryAccountComponent,
     TreasuryComponent,
     AccountCreateComponent,
     TransactionNewComponent,

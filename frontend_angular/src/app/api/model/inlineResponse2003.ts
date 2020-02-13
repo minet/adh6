@@ -11,5 +11,12 @@
  */
 
 export interface InlineResponse2003 { 
-    labels?: Array<string>;
+    /**
+     * balance in the caisse
+     */
+    fond?: number;
+    /**
+     * balance in the coffre
+     */
+    coffre?: number;
 }

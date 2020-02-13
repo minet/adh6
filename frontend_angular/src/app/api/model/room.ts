@@ -12,7 +12,6 @@
 
 export interface Room { 
     description?: string;
-    phone?: number;
     roomNumber: number;
     vlan?: number;
 }

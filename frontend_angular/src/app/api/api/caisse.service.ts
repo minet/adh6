@@ -17,7 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { InlineResponse2004 } from '../model/inlineResponse2004';
+import { InlineResponse2003 } from '../model/inlineResponse2003';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -61,12 +61,20 @@ export class CaisseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public caisseGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2004>;
-    public caisseGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2004>>;
-    public caisseGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2004>>;
+    public caisseGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2003>;
+    public caisseGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2003>>;
+    public caisseGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2003>>;
     public caisseGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
 
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
@@ -81,7 +89,7 @@ export class CaisseService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2004>('get',`${this.basePath}/caisse/`,
+        return this.httpClient.request<InlineResponse2003>('get',`${this.basePath}/caisse/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

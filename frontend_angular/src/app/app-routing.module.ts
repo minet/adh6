@@ -19,7 +19,6 @@ import {SwitchEditComponent} from './switch-edit/switch-edit.component';
 import {SwitchNewComponent} from './switch-new/switch-new.component';
 import {DeviceListComponent} from './device-list/device-list.component';
 import {MemberPasswordEditComponent} from './member-password-edit/member-password-edit.component';
-import {CreateTemporaryAccountComponent} from './create-temporary-account/create-temporary-account.component';
 import {TreasuryComponent} from './treasury/treasury.component';
 import {AccountCreateComponent} from './account-create/account-create.component';
 import {TransactionNewComponent} from './transaction-new/transaction-new.component';
@@ -85,10 +84,6 @@ const routes: Routes = [
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: PortListComponent},
     ],
-  },
-  {
-    path: 'naina',
-    component: CreateTemporaryAccountComponent,
   },
   {
     path: 'treasury',
