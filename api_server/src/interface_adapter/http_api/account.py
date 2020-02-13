@@ -7,6 +7,7 @@ from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.account import Account
 from src.exceptions import AccountNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
+from src.interface_adapter.http_api.member import _map_member_to_http_response
 from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
@@ -122,7 +123,7 @@ def _map_account_to_http_response(account: Account) -> dict:
         'actif': account.actif,
         'type': account.type,
         'id': account.account_id,
-        'adherent': account.adherent.username if account.adherent else ""
+        'adherent': _map_member_to_http_response(account.adherent) if account.adherent else None
     }
     return {k: v for k, v in fields.items() if v is not None}
 

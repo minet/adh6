@@ -1591,6 +1591,7 @@ components:
         adherent:
           description: the member this account belongs to
           readOnly: true
+          nullable: true
           $ref: '#/components/schemas/Member'
       required:
       - type
