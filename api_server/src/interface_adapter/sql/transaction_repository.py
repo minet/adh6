@@ -125,7 +125,7 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         dst=_map_account_sql_to_entity(t.dst_account),
         timestamp=str(t.timestamp),
         name=t.name,
-        value=str(t.value),
+        value=t.value,
         paymentMethod=_map_payment_method_sql_to_entity(t.payment_method),
         attachments=t.attachments,
         author=_map_member_sql_to_entity(t.author)
