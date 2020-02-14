@@ -38,7 +38,7 @@ export class AccountListComponent extends SearchPage implements OnInit {
         if (value != null) {
           that.balances$ = [];
           value.accounts.forEach(function (account) {
-            that.balances$[account.id] = that.accountService.accountAccountIdBalanceGet('' + account.id);
+            //that.balances$[account.id] = that.accountService.accountAccountIdBalanceGet('' + account.id);
           });
         }
       });

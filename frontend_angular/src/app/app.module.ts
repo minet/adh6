@@ -27,7 +27,7 @@ import {GlobalSearchComponent} from './global-search/global-search.component';
 import {NavbarComponent} from './navbar/navbar.component';
 import {NotificationAnimationType, SimpleNotificationsModule} from 'angular2-notifications';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {OAuthModule} from 'angular-oauth2-oidc';
+import {OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
 import {LoginComponent} from './login/login.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
@@ -60,6 +60,9 @@ import {NgToggleModule} from '@nth-cloud/ng-toggle';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
+export function storageFactory() : OAuthStorage {
+  return localStorage
+}
 
 @NgModule({
   declarations: [
@@ -143,6 +146,7 @@ export {ClickOutsideDirective} from './clickOutside.directive';
     },
     {provide: LOCALE_ID, useValue: 'en-US'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
+    { provide: OAuthStorage, useFactory: storageFactory },
   ],
   bootstrap: [AppComponent]
 })
