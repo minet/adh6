@@ -50,7 +50,7 @@ class TransactionSQLRepository(TransactionRepository):
             )
 
         count = q.count()
-        q = q.order_by(SQLTransaction.timestamp.asc())
+        q = q.order_by(SQLTransaction.timestamp.desc())
         q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
