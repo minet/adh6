@@ -14,7 +14,7 @@
   </thead>
   <tbody>
   <tr
-    *ngFor="let transactionResult of result.transactions.reverse() | paginate: { id: 'paginationControlsTemplate',
+    *ngFor="let transactionResult of result.transactions | paginate: { id: 'paginationControlsTemplate',
     itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
     [ngClass]="asAccount ? ((transactionResult.dst.id==this.asAccount)?'table-success':'table-danger') : ''">
     <td>{{ transactionResult.timestamp }}</td>
