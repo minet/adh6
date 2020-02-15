@@ -34,3 +34,11 @@ class AccountRepository(metaclass=abc.ABCMeta):
         Will raise (one day) AccountNotFound
         """
         pass
+
+    @abc.abstractmethod
+    def get_balance(self, ctx, account_id=None):
+        """
+        Get the balance of an account.
+        Will raise (one day) AccountNotFound
+        """
+        pass

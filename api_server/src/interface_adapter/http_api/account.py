@@ -50,10 +50,7 @@ class AccountHandler:
                                                                 account_id=account_id))
         try:
             result = self.account_manager.get_by_id(ctx, account_id)
-            transactions, count = self.transaction_manager.search(ctx, 1000000, 0, account_id, '')
-            balance = sum(
-                [(1 if transaction.dst == result else -1) * transaction.value for transaction in transactions])
-            return {"balance": balance}, 200
+            return {"balance": result}, 200
 
         except UserInputError as e:
             return bad_request(e), 400  # 400 Bad Request

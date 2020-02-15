@@ -3,13 +3,14 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
+from sqlalchemy import func, case
 from typing import List
 
 from src.constants import CTX_SQL_SESSION
 from src.entity.account import Account
 from src.exceptions import AccountNotFoundError
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.model.models import Account as SQLAccount
+from src.interface_adapter.sql.model.models import Account as SQLAccount, Transaction
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import log_extra
@@ -86,6 +87,25 @@ class AccountSQLRepository(AccountRepository):
             account.type = type or account.type
             account.actif = actif
             account.creation_date = creation_date or account.creation_date
+
+    def get_balance(self, ctx, account_id=None):
+        s = ctx.get(CTX_SQL_SESSION)
+        LOG.debug("sql_account_repository_get_balance_called", extra=log_extra(ctx, account_id=account_id))
+
+        account = _get_account_by_id(s, account_id)
+        if account is None:
+            raise AccountNotFoundError(account_id)
+
+        q = s.query(func.sum(case(value=Transaction.src, whens={
+            account.id: -Transaction.value
+        }, else_=Transaction.value)))
+
+        q = q.filter(
+            (Transaction.src == account_id) |
+            (Transaction.dst == account_id)
+        )
+
+        return q.one()[0]
 
 
 def _map_account_sql_to_entity(a) -> Account:

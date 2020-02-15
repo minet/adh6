@@ -146,3 +146,11 @@ class AccountManager:
             ))
             self.account_repository.update_account(ctx, account_id=account_id, **fields)
             return False
+
+    def get_balance(self, ctx, account_id=None):
+        try:
+            result = self.account_repository.get_balance(ctx, account_id=account_id)
+
+            return result
+        except AccountNotFoundError:
+            raise

@@ -247,7 +247,7 @@ class Account(Base, RubyHashTrackable):
 
     id = Column(Integer, primary_key=True, unique=True)
     type = Column(ForeignKey('account_types.id'), nullable=False, index=True)
-    creation_date = Column(TIMESTAMP, nullable=False, unique=True)
+    creation_date = Column(DateTime, nullable=False)
     name = Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
     adherent_id = Column(Integer, ForeignKey('adherents.id'), nullable=True)
@@ -272,7 +272,7 @@ class Transaction(Base, RubyHashTrackable):
 
     id = Column(Integer, primary_key=True)
     value = Column(DECIMAL(8, 2), nullable=False)
-    timestamp = Column(TIMESTAMP, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
     src = Column(ForeignKey('accounts.id'), nullable=False, index=True)
     dst = Column(ForeignKey('accounts.id'), nullable=False, index=True)
     name = Column(String(255), nullable=False)
