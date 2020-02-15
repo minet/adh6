@@ -4,7 +4,7 @@ import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import {MemberService} from '../api';
+import {AccountService, MemberService} from '../api';
 
 import {DeviceService} from '../api';
 
@@ -60,6 +60,7 @@ export class GlobalSearchComponent implements OnInit {
 
   constructor(
     private memberService: MemberService,
+    private accountService: AccountService,
     private deviceService: DeviceService,
     private roomService: RoomService,
     private switchService: SwitchService,
@@ -100,6 +101,15 @@ export class GlobalSearchComponent implements OnInit {
           )),
         );
 
+        const account$ = this.accountService.accountGet(LIMIT, undefined, terms).pipe(
+          mergeMap((array) => from(array)),
+          map((obj) => new SearchResult(
+            'account',
+            obj.name,
+            ['/account/view','' + obj.id]
+          )),
+        );
+
         const device$ = this.deviceService.deviceGet(LIMIT, undefined, undefined, terms).pipe(
           mergeMap((array) => from(array)),
           map((obj) => new SearchResult(
@@ -129,7 +139,7 @@ export class GlobalSearchComponent implements OnInit {
             )),
         );
 
-        return concat(user$, device$, room$, switch$, port$);
+        return concat(user$, account$, device$, room$, switch$, port$);
       }),
     );
 
