@@ -48,9 +48,6 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   srcSearchResult$: Observable<Array<Account>>;
   dstSearchResult$: Observable<Array<Account>>;
 
-  selectedSrcAccountBalance$: Observable<InlineResponse200>;
-  selectedDstAccountBalance$: Observable<InlineResponse200>;
-
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
 
@@ -115,11 +112,9 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     if (src == true) {
       this.srcSearchResult$ = undefined;
       this.selectedSrcAccount = account;
-      if (this.selectedSrcAccount) { this.selectedSrcAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id); }
     } else {
       this.dstSearchResult$ = undefined;
       this.selectedDstAccount = account;
-      if (this.selectedDstAccount) { this.selectedDstAccountBalance$ = this.accountService.accountAccountIdBalanceGet(account.id); }
     }
     this.displayDst = false;
     this.displaySrc = false;

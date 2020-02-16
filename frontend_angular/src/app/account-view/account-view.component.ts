@@ -26,7 +26,6 @@ export interface TransactionListResult {
 })
 export class AccountViewComponent extends SearchPage implements OnInit {
   account$: Observable<Account>;
-  balance$: Observable<InlineResponse200>;
 
   result$: Observable<TransactionListResult>;
   private id$: Observable<number>;
@@ -58,11 +57,6 @@ export class AccountViewComponent extends SearchPage implements OnInit {
     this.result$ = refresh$.pipe(
       switchMap(account => <Observable<TransactionListResult>>this.getSearchResult((terms, page) => this.fetchTransaction(account, page) )),
       share(),
-    );
-
-    this.balance$ = refresh$.pipe(
-      switchMap( id => this.accountService.accountAccountIdBalanceGet(''+id)),
-      share()
     );
   }
 

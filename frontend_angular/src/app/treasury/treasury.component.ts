@@ -13,7 +13,7 @@ import {SearchPage} from '../search-page';
 import { AccountType } from '../api';
 import { AccountTypeService } from '../api';
 import {CaisseService} from '../api';
-import {InlineResponse2003} from '../api/model/inlineResponse2003';
+import {InlineResponse2002} from '../api/model/inlineResponse2002';
 
 @Component({
   selector: 'app-treasury',
@@ -21,7 +21,7 @@ import {InlineResponse2003} from '../api/model/inlineResponse2003';
   styleUrls: ['./treasury.component.css']
 })
 export class TreasuryComponent implements OnInit {
-  caisse$: Observable<InlineResponse2003>;
+  caisse$: Observable<InlineResponse2002>;
 
   showFundManagement = false;
   fundManagementForm: FormGroup;

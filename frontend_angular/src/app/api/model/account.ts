@@ -21,6 +21,10 @@ export interface Account {
      */
     pinned?: boolean;
     /**
+     * whether this account should be used to compute MiNET' CAV balance
+     */
+    compteCourant?: boolean;
+    /**
      * ID of the account
      */
     id?: number;
@@ -37,4 +41,12 @@ export interface Account {
      */
     creationDate?: Date;
     adherent?: Member;
+    /**
+     * the current balance of this account
+     */
+    readonly balance?: number;
+    /**
+     * the pending balance of this account
+     */
+    readonly pendingBalance?: number;
 }

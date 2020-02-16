@@ -23,7 +23,6 @@ export class AccountListComponent extends SearchPage implements OnInit {
 
   result$: Observable<AccountListResponse>;
   accountTypes: Array<AccountType>;
-  balances$: Array<Observable<InlineResponse200>>;
 
   constructor(public accountService: AccountService,
               public accountTypeService: AccountTypeService) {
@@ -32,16 +31,7 @@ export class AccountListComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
-    const that = this;
-    this.result$.subscribe(
-      value => {
-        if (value != null) {
-          that.balances$ = [];
-          value.accounts.forEach(function (account) {
-            //that.balances$[account.id] = that.accountService.accountAccountIdBalanceGet('' + account.id);
-          });
-        }
-      });
+
     this.accountTypeService.accountTypeGet()
       .subscribe(
         data => {

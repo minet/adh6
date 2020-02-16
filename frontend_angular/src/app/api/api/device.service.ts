@@ -18,7 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { Device } from '../model/device';
-import { InlineResponse2001 } from '../model/inlineResponse2001';
+import { InlineResponse200 } from '../model/inlineResponse200';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -286,9 +286,9 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public vendorGet(macAddress: string, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2001>;
-    public vendorGet(macAddress: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2001>>;
-    public vendorGet(macAddress: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2001>>;
+    public vendorGet(macAddress: string, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse200>;
+    public vendorGet(macAddress: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse200>>;
+    public vendorGet(macAddress: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse200>>;
     public vendorGet(macAddress: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (macAddress === null || macAddress === undefined) {
@@ -318,7 +318,7 @@ export class DeviceService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2001>('get',`${this.basePath}/device/${encodeURIComponent(String(macAddress))}/vendor`,
+        return this.httpClient.request<InlineResponse200>('get',`${this.basePath}/device/${encodeURIComponent(String(macAddress))}/vendor`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

@@ -42,7 +42,7 @@
 
 <form [formGroup]="transactionDetails" (ngSubmit)="onSubmit()">
   <div class="card-deck">
-    <div class="card">
+    <div class="card mb-4">
       <div class="card-header text-white bg-danger">Compte source</div>
       <div class="card-body">
         <div class="suggestion">
@@ -64,14 +64,15 @@
           <hr>
           <div *ngIf="selectedSrcAccount != undefined">
             <p><span class="font-weight-bold">Actif :</span> {{ selectedSrcAccount.actif}}</p>
-            <p *ngIf="(selectedSrcAccountBalance$ | async) as selectedSrcAccountBalance"><span class="font-weight-bold">
-              Solde :</span> {{ selectedSrcAccountBalance.balance}}</p>
+            <p><span class="font-weight-bold">
+              Solde :</span> {{ selectedSrcAccount.balance}}</p>
           </div>
         </div>
       </div>
       <div class="card-footer">Ce compte sera <span class="font-weight-bold">débité</span></div>
     </div>
-    <div class="card">
+    <div class="w-100 d-none d-sm-block d-md-block d-lg-none"><!-- wrap on md--></div>
+    <div class="card mb-4">
       <div class="card-header">Transaction
         <button class="btn btn-primary btn-sm float-right" type="button" (click)="exchangeAccounts()">
           <fa-icon [icon]="faExchangeAlt"></fa-icon>
@@ -105,7 +106,8 @@
         </div>
       </div>
     </div>
-    <div class="card">
+    <div class="w-100 d-none d-sm-block d-md-block d-lg-none"><!-- wrap on md--></div>
+    <div class="card mb-4">
       <div class="card-header text-white bg-success">Compte destination</div>
       <div class="card-body">
         <div class="suggestion">
@@ -127,8 +129,8 @@
           <hr>
           <div *ngIf="selectedDstAccount != undefined">
             <p><span class="font-weight-bold">Actif :</span> {{ selectedDstAccount.actif}}</p>
-            <p *ngIf="selectedDstAccountBalance$ | async as selectedDstAccountBalance"><span class="font-weight-bold">
-              Solde :</span> {{ selectedDstAccountBalance.balance}}</p>
+            <p><span class="font-weight-bold">
+              Solde :</span> {{ selectedDstAccount.balance}}</p>
           </div>
         </div>
       </div>

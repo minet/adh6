@@ -1,5 +1,5 @@
 <div *ngIf="(account$ | async) as account">
-  <h2 class="text-left" *ngIf="(balance$ | async) as balance">Liste des écritures du compte {{ account.name }} : {{ balance.balance }} €</h2>
+  <h2 class="text-left">Liste des écritures du compte {{ account.name }} : {{ account.balance }} €</h2>
   <br/>
 
   <div class="row">

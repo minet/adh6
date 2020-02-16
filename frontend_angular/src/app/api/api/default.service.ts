@@ -17,7 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { InlineResponse2002 } from '../model/inlineResponse2002';
+import { InlineResponse2001 } from '../model/inlineResponse2001';
 import { Statistics } from '../model/statistics';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -180,9 +180,9 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getLabels(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
-    public getLabels(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
-    public getLabels(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
+    public getLabels(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2001>;
+    public getLabels(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2001>>;
+    public getLabels(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2001>>;
     public getLabels(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
@@ -208,7 +208,7 @@ export class DefaultService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/bug_report/`,
+        return this.httpClient.request<InlineResponse2001>('get',`${this.basePath}/bug_report/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

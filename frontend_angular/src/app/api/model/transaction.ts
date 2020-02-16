@@ -23,4 +23,5 @@ export interface Transaction {
     value: number;
     attachments?: string;
     author?: Member;
+    pendingValidation?: boolean;
 }

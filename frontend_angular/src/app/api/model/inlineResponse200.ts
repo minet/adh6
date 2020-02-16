@@ -11,8 +11,5 @@
  */
 
 export interface InlineResponse200 { 
-    /**
-     * balance of the account
-     */
-    balance?: number;
+    vendorname?: string;
 }

@@ -11,5 +11,5 @@
  */
 
 export interface InlineResponse2001 { 
-    vendorname?: string;
+    labels?: Array<string>;
 }

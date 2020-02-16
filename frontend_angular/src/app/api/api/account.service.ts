@@ -19,7 +19,6 @@ import { Observable }                                        from 'rxjs';
 
 import { Account } from '../model/account';
 import { AccountPatchRequest } from '../model/accountPatchRequest';
-import { InlineResponse200 } from '../model/inlineResponse200';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -56,55 +55,6 @@ export class AccountService {
         return false;
     }
 
-
-    /**
-     * Retrieve
-     * 
-     * @param accountId The id of the account whose balance needs to be fetched.
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public accountAccountIdBalanceGet(accountId: string, observe?: 'body', reportProgress?: boolean): Observable<InlineResponse200>;
-    public accountAccountIdBalanceGet(accountId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse200>>;
-    public accountAccountIdBalanceGet(accountId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse200>>;
-    public accountAccountIdBalanceGet(accountId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling accountAccountIdBalanceGet.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // authentication (OAuth2) required
-        if (this.configuration.accessToken) {
-            const accessToken = typeof this.configuration.accessToken === 'function'
-                ? this.configuration.accessToken()
-                : this.configuration.accessToken;
-            headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            'application/json'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<InlineResponse200>('get',`${this.basePath}/account/${encodeURIComponent(String(accountId))}/balance`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
 
     /**
      * Retrieve

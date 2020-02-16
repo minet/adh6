@@ -37,7 +37,7 @@
       </td>
       <td class="align-middle">{{ accountResult.actif  == true ? 'Oui' : 'Non' }}</td>
       <td class="align-middle">{{ accountTypes[accountResult.type-1].name }}</td>
-      <td class="align-middle" *ngIf="balances$ && (balances$[accountResult.id] | async) as balance else noBalance">{{ balance.balance }} €</td>
+      <td class="align-middle">{{ accountResult.balance }} €</td>
       <ng-template #noBalance><td class="align-middle">-</td></ng-template>
     </tr>
   </table>
