@@ -152,6 +152,12 @@ paths:
         required: false
         schema:
           type: integer
+      - description: filter by pinned
+        in: query
+        name: pinned
+        required: false
+        schema:
+          type: boolean
       responses:
         200:
           content:
@@ -1508,7 +1514,7 @@ paths:
         400:
           description: Invalid input
 
-  /caisse/:
+  /treasury/caisse/:
     get:
       responses:
         200:
@@ -1530,7 +1536,24 @@ paths:
           description: Not found
       summary: Retrieve
       tags:
-      - caisse
+      - treasury
+  /treasury/bank:
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                properties:
+                  expected_cav:
+                    description: the excpected balance of MiNET's CAV accunt
+                    type: number
+                    format: double
+                type: object
+          description: Success
+      summary: Retrieve
+      tags:
+      - treasury
 components:
   schemas:
     Account:

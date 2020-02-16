@@ -81,7 +81,7 @@ class AccountManager:
 
         return result[0]
 
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, account_id=None, terms=None) -> (
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, account_id=None, terms=None, pinned=None) -> (
             List[Account], int):
         """
         search member in the database.
@@ -101,6 +101,7 @@ class AccountManager:
                                                                   limit=limit,
                                                                   offset=offset,
                                                                   account_id=account_id,
+                                                                  pinned=None,
                                                                   terms=terms)
 
         # Log action.
@@ -147,10 +148,7 @@ class AccountManager:
             self.account_repository.update_account(ctx, account_id=account_id, **fields)
             return False
 
-    def get_balance(self, ctx, account_id=None):
-        try:
-            result = self.account_repository.get_balance(ctx, account_id=account_id)
+    def get_cav_balance(self, ctx):
+        results, count = self.account_repository.search_account_by(ctx, compte_courant=True)
+        return sum(list(map(lambda a: a.balance, results)))
 
-            return result
-        except AccountNotFoundError:
-            raise

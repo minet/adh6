@@ -10,7 +10,7 @@ from src.interface_adapter.elasticsearch.repository import ElasticSearchReposito
 from src.interface_adapter.http_api.account import AccountHandler
 from src.interface_adapter.http_api.account_type import AccountTypeHandler
 from src.interface_adapter.http_api.bug_report import BugReportHandler
-from src.interface_adapter.http_api.caisse import CaisseHandler
+from src.interface_adapter.http_api.treasury import TreasuryHandler
 from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
@@ -41,7 +41,7 @@ from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
 from src.use_case.bug_report_manager import BugReportManager
-from src.use_case.caisse_manager import CaisseManager
+from src.use_case.caisse_manager import TreasuryManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
 from src.use_case.member_manager import MemberManager
@@ -133,7 +133,7 @@ def init(testing=True, managing=False):
     account_type_manager = AccountTypeManager(
         account_type_repository=account_type_sql_repository
     )
-    caisse_manager = CaisseManager(
+    treasury_manager = TreasuryManager(
         caisse_repository=caisse_sql_repository,
         transaction_repository=transaction_sql_repository
     )
@@ -147,7 +147,7 @@ def init(testing=True, managing=False):
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
     stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
-    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, member_manager, caisse_manager)
+    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, member_manager, treasury_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
     room_handler = RoomHandler(room_manager)
@@ -158,7 +158,7 @@ def init(testing=True, managing=False):
     account_handler = AccountHandler(account_manager, transaction_manager)
     product_handler = ProductHandler(product_manager)
     bug_report_handler = BugReportHandler(bug_report_manager)
-    caisse_handler = CaisseHandler(caisse_manager)
+    treasury_handler = TreasuryHandler(treasury_manager, account_manager)
     oauth_handler = OAuthHandler(oauth_manager)
 
     # Connexion will use this function to authenticate and fetch the information of the user.
@@ -182,7 +182,7 @@ def init(testing=True, managing=False):
                     'account': account_handler,
                     'product': product_handler,
                     'bug_report': bug_report_handler,
-                    'caisse': caisse_handler,
+                    'treasury': treasury_handler,
                     'oauth2': oauth_handler,
                 }),
                 validate_responses=True,

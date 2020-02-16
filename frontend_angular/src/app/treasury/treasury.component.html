@@ -5,8 +5,8 @@
 <div class="card-deck mb-3">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">- €</h5>
-        <p class="card-text text-center">Fond de caisse le ...</p>
+        <h5 class="card-title text-center">{{ balance }} €</h5>
+        <p class="card-text text-center">Montant sur le compte courant.</p>
       </div>
     </div>
     <div class="card">
@@ -100,4 +100,4 @@
 <h3>Liste des comptes</h3>
 <br/>
 
-<app-account-list [filter]="{pinned: true}"></app-account-list>
+<app-account-list [pinned]="true"></app-account-list>

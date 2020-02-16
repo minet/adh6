@@ -172,13 +172,15 @@ export class AccountService {
      * @param terms The generic search terms (will search in any field)
      * @param name Filter by name
      * @param type Filter by type
+     * @param pinned filter by pinned
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, observe?: 'body', reportProgress?: boolean): Observable<Array<Account>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Account>>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Account>>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, pinned?: boolean, observe?: 'body', reportProgress?: boolean): Observable<Array<Account>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, pinned?: boolean, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Account>>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, pinned?: boolean, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Account>>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, name?: string, type?: number, pinned?: boolean, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
 
 
 
@@ -200,6 +202,9 @@ export class AccountService {
         }
         if (type !== undefined && type !== null) {
             queryParameters = queryParameters.set('type', <any>type);
+        }
+        if (pinned !== undefined && pinned !== null) {
+            queryParameters = queryParameters.set('pinned', <any>pinned);
         }
 
         let headers = this.defaultHeaders;

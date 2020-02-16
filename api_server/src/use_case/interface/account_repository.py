@@ -13,22 +13,26 @@ class AccountRepository(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def search_account_by(self, ctx, limit=None, offset=None, account_id=None, terms=None) -> (List[Account], int):
+    def search_account_by(self, ctx, limit=None, offset=None, account_id=None, terms=None, pinned=None,
+                          compte_courant=None) -> (
+            List[Account], int):
         """
         Search for an account.
         """
         pass
-    
+
     @abc.abstractmethod
-    def create_account(self, ctx, name=None, type=None, actif=None, creation_date=None, compte_courant=False, pinned=False):
+    def create_account(self, ctx, name=None, type=None, actif=None, creation_date=None, compte_courant=False,
+                       pinned=False):
         """
         Create an account.
         Will raise (one day) AccountAlreadyExist
         """
         pass
 
-    @abc.abstractmethod 
-    def update_account(self, ctx, account_id=None, name=None, type=None, actif=None, creation_date=None, compte_courant=False, pinned=False):
+    @abc.abstractmethod
+    def update_account(self, ctx, account_id=None, name=None, type=None, actif=None, creation_date=None,
+                       compte_courant=False, pinned=False):
         """
         Update an account.
         Will raise (one day) AccountNotFound

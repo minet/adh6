@@ -25,14 +25,15 @@ class AccountHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, pinned=None):
 
         LOG.debug("http_account_search_called", extra=log_extra(ctx,
                                                                 limit=limit,
                                                                 offset=offset,
+                                                                pinned=None,
                                                                 terms=terms))
         try:
-            result, count = self.account_manager.search(ctx, account_id=None, terms=terms)
+            result, count = self.account_manager.search(ctx, account_id=None, terms=terms, pinned=None)
             headers = {
                 "X-Total-Count": count,
                 'access-control-expose-headers': 'X-Total-Count'

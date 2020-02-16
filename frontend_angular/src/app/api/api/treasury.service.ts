@@ -18,13 +18,14 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { InlineResponse2002 } from '../model/inlineResponse2002';
+import { InlineResponse2003 } from '../model/inlineResponse2003';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
 
 @Injectable()
-export class CaisseService {
+export class TreasuryService {
 
     protected basePath = '/api';
     public defaultHeaders = new HttpHeaders();
@@ -61,10 +62,10 @@ export class CaisseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public caisseGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
-    public caisseGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
-    public caisseGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
-    public caisseGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public treasuryBankGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2003>;
+    public treasuryBankGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2003>>;
+    public treasuryBankGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2003>>;
+    public treasuryBankGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -89,7 +90,51 @@ export class CaisseService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/caisse/`,
+        return this.httpClient.request<InlineResponse2003>('get',`${this.basePath}/treasury/bank`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public treasuryCaisseGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
+    public treasuryCaisseGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
+    public treasuryCaisseGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
+    public treasuryCaisseGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/treasury/caisse/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

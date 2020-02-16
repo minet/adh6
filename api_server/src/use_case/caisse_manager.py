@@ -7,7 +7,7 @@ from src.util.context import log_extra
 from src.util.log import LOG
 
 
-class CaisseManager:
+class TreasuryManager:
     """
     Implements all the use cases related to caisse management.
     """
@@ -19,7 +19,7 @@ class CaisseManager:
         self.caisse_repository = caisse_repository
         self.transaction_repository = transaction_repository
 
-    def get(self, ctx) -> (int, int):
+    def get_caisse(self, ctx) -> (int, int):
         """
         User story: As an admin, I can see the details of a transaction.
 
@@ -33,7 +33,7 @@ class CaisseManager:
         ))
         return fond, coffre
 
-    def update(self, ctx, value=None, transaction=None) -> bool:
+    def update_caisse(self, ctx, value=None, transaction=None) -> bool:
         """
         search transactions in the database.
 

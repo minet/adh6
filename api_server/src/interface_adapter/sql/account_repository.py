@@ -48,7 +48,7 @@ class AccountSQLRepository(AccountRepository):
 
         return account
 
-    def search_account_by(self, ctx, limit=None, offset=None, account_id=None, terms=None) -> (List[Account], int):
+    def search_account_by(self, ctx, limit=None, offset=None, account_id=None, terms=None, pinned=None, compte_courant=None) -> (List[Account], int):
         """
         Search for an account.
         """
@@ -62,6 +62,10 @@ class AccountSQLRepository(AccountRepository):
 
         q = q.join(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
+        if pinned:
+            q = q.filter(SQLAccount.pinned == pinned)
+        if compte_courant:
+            q = q.filter(SQLAccount.compte_courant == compte_courant)
         if account_id:
             q = q.filter(SQLAccount.id == account_id)
         if terms:

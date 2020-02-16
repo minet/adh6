@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import {CaisseService} from '../api';
+import {TreasuryService} from '../api';
 
 import {first, map} from 'rxjs/operators';
 
@@ -13,6 +13,7 @@ import {first, map} from 'rxjs/operators';
 })
 export class TreasuryComponent implements OnInit {
   fond = 0;
+  balance = 0;
 
   showFundManagement = false;
   fundManagementForm: FormGroup;
@@ -20,7 +21,7 @@ export class TreasuryComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    public caisseService: CaisseService,
+    public treasuryService: TreasuryService,
     ) {
       this.createForm();
   }
@@ -36,13 +37,22 @@ export class TreasuryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.caisseService.caisseGet()
+    this.treasuryService.treasuryCaisseGet()
       .pipe(
         map((data) => data.fond),
         first(),
       )
       .subscribe((fond) => {
         this.fond = fond;
+      });
+
+    this.treasuryService.treasuryBankGet()
+      .pipe(
+        map((data) => data.expectedCav),
+        first(),
+      )
+      .subscribe((expectedCav) => {
+        this.balance = expectedCav;
       });
   }
 

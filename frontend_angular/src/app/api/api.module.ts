@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { AccountService } from './api/account.service';
 import { AccountTypeService } from './api/accountType.service';
 import { BugReportService } from './api/bugReport.service';
-import { CaisseService } from './api/caisse.service';
 import { DefaultService } from './api/default.service';
 import { DeviceService } from './api/device.service';
 import { MemberService } from './api/member.service';
@@ -17,6 +16,7 @@ import { ProductService } from './api/product.service';
 import { RoomService } from './api/room.service';
 import { SwitchService } from './api/switch.service';
 import { TransactionService } from './api/transaction.service';
+import { TreasuryService } from './api/treasury.service';
 
 @NgModule({
   imports:      [],
@@ -26,7 +26,6 @@ import { TransactionService } from './api/transaction.service';
     AccountService,
     AccountTypeService,
     BugReportService,
-    CaisseService,
     DefaultService,
     DeviceService,
     MemberService,
@@ -36,7 +35,8 @@ import { TransactionService } from './api/transaction.service';
     ProductService,
     RoomService,
     SwitchService,
-    TransactionService ]
+    TransactionService,
+    TreasuryService ]
 })
 export class ApiModule {
     public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders {

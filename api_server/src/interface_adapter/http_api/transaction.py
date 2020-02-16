@@ -13,7 +13,7 @@ from src.interface_adapter.http_api.payment_method import _map_payment_method_to
 from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
-from src.use_case.caisse_manager import CaisseManager
+from src.use_case.caisse_manager import TreasuryManager
 from src.use_case.member_manager import MemberManager
 from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.transaction_manager import TransactionManager, PartialMutationRequest, FullMutationRequest
@@ -24,10 +24,10 @@ from src.util.log import LOG
 class TransactionHandler:
     def __init__(self, transaction_manager: TransactionManager, payment_method_manager: PaymentMethodManager,
                  member_manager: MemberManager,
-                 caisse_manager: CaisseManager):
+                 treasury_manager: TreasuryManager):
         self.transaction_manager = transaction_manager
         self.payment_method_manager = payment_method_manager
-        self.caisse_manager = caisse_manager
+        self.treasury_manager = treasury_manager
         self.member_manager = member_manager
 
     @with_context
@@ -80,9 +80,9 @@ class TransactionHandler:
                 caisse, count = self.payment_method_manager.search(ctx, limit=1, terms='Liquide')
                 if mutation_request.paymentMethod == caisse[0].payment_method_id:
                     if body.get('caisse') == "to":
-                        created = self.caisse_manager.update(ctx, value=mutation_request.value)
+                        created = self.treasury_manager.update_caisse(ctx, value=mutation_request.value)
                     elif body.get('caisse') == "from":
-                        created = self.caisse_manager.update(ctx, value=-mutation_request.value)
+                        created = self.treasury_manager.update_caisse(ctx, value=-mutation_request.value)
 
             if created:
                 return NoContent, 201  # 201 Created
