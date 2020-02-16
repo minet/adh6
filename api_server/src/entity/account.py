@@ -13,3 +13,6 @@ class Account:
     actif: Optional[bool]
     account_id: Optional[int]
     adherent: Optional[Member]
+    balance: Optional[str]
+    compte_courant: Optional[bool]
+    pinned: Optional[bool]

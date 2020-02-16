@@ -30,7 +30,7 @@ class TransactionRepository(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_transaction(self, ctx, transaction_to_update, attachments=None):
+    def update_transaction(self, ctx, transaction_to_update, attachments=None, pending_validation=False):
         """
         Update a transaction to add an invoice.
 

@@ -103,14 +103,15 @@ class TransactionSQLRepository(TransactionRepository):
             timestamp=now,
             attachments="",
             payment_method=method,
-            author=author_ref
+            author=author_ref,
+            pending_validation=False
         )
 
         with track_modifications(ctx, s, transaction):
             s.add(transaction)
         pass
 
-    def update_transaction(self, ctx, transaction_to_update, attachments=None):
+    def update_transaction(self, ctx, transaction_to_update, attachments=None, pending_validation=False):
         s = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_device_repository_update_device_called", extra=log_extra(ctx, transaction=transaction_to_update))
         pass

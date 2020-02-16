@@ -35,7 +35,8 @@ class Chambre(Base):
     updated_at = Column(DateTime)
     dernier_adherent = Column(Integer)
     vlan_id = Column(Integer, ForeignKey(Vlan.id))
-    vlan = relationship(Vlan)
+
+    vlan = relationship(Vlan, foreign_keys=[vlan_id])
 
 
 class Admin(Base):
@@ -55,7 +56,7 @@ class Adherent(Base, RubyHashTrackable):
     login = Column(String(255))
     password = Column(String(255))
     chambre_id = Column(Integer, ForeignKey(Chambre.id))
-    chambre = relationship(Chambre)
+
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     date_de_depart = Column(Date)
@@ -69,6 +70,7 @@ class Adherent(Base, RubyHashTrackable):
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
     admin = relationship('Admin', foreign_keys=[admin_id])
+    chambre = relationship('Chambre', foreign_keys=[chambre_id])
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -191,12 +193,12 @@ class Port(Base):
     numero = Column(String(255))
     oid = Column(String(255))
     switch_id = Column(Integer, ForeignKey(Switch.id), nullable=False)
-    switch = relationship(Switch)
     chambre_id = Column(Integer, ForeignKey(Chambre.id), nullable=False)
-    chambre = relationship(Chambre)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
+    switch = relationship(Switch, foreign_keys=[switch_id])
+    chambre = relationship(Chambre, foreign_keys=[chambre_id])
 
 class Adhesion(Base):
     __tablename__ = 'adhesions'
@@ -250,6 +252,8 @@ class Account(Base, RubyHashTrackable):
     creation_date = Column(DateTime, nullable=False)
     name = Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
+    compte_courant = Column(Boolean(), nullable=False, default=False)
+    pinned = Column(Boolean(), nullable=False, default=False)
     adherent_id = Column(Integer, ForeignKey('adherents.id'), nullable=True)
 
     adherent = relationship('Adherent', foreign_keys=[adherent_id])
@@ -279,6 +283,7 @@ class Transaction(Base, RubyHashTrackable):
     attachments = Column(TEXT(65535), nullable=False)
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
     author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False)
+    pending_validation = Column(Boolean(), nullable=False)
 
     author = relationship('Adherent', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])

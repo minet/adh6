@@ -123,7 +123,10 @@ def sample_transaction(sample_admin):
             actif=True,
             creation_date='21/05/2019',
             account_id=1,
-            adherent=None
+            adherent=None,
+            balance=None,
+            compte_courant=False,
+            pinned = False
         ),
         dst=Account(
             name="Test2",
@@ -131,7 +134,10 @@ def sample_transaction(sample_admin):
             actif=True,
             creation_date='21/05/2019',
             account_id=2,
-            adherent=None
+            adherent=None,
+            balance=None,
+            compte_courant=False,
+            pinned=False
         ),
         name='description',
         value='200',
@@ -152,7 +158,10 @@ def sample_account():
         actif=True,
         creation_date='21/05/2019',
         account_id=1,
-        adherent = None
+        adherent = None,
+        balance=None,
+        compte_courant=False,
+        pinned=False
     )
 
 

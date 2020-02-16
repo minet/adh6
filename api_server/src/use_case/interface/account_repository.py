@@ -20,7 +20,7 @@ class AccountRepository(metaclass=abc.ABCMeta):
         pass
     
     @abc.abstractmethod
-    def create_account(self, ctx, name=None, type=None, actif=None, creation_date=None):
+    def create_account(self, ctx, name=None, type=None, actif=None, creation_date=None, compte_courant=False, pinned=False):
         """
         Create an account.
         Will raise (one day) AccountAlreadyExist
@@ -28,17 +28,9 @@ class AccountRepository(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod 
-    def update_account(self, ctx, account_id=None, name=None, type=None, actif=None, creation_date=None):
+    def update_account(self, ctx, account_id=None, name=None, type=None, actif=None, creation_date=None, compte_courant=False, pinned=False):
         """
         Update an account.
-        Will raise (one day) AccountNotFound
-        """
-        pass
-
-    @abc.abstractmethod
-    def get_balance(self, ctx, account_id=None):
-        """
-        Get the balance of an account.
         Will raise (one day) AccountNotFound
         """
         pass

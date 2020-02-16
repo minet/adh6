@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from sqlalchemy import func, case
+from sqlalchemy import func, case, or_
 from typing import List
 
 from src.constants import CTX_SQL_SESSION
@@ -22,7 +22,7 @@ class AccountSQLRepository(AccountRepository):
     Represent the interface to the SQL database.
     """
 
-    def create_account(self, ctx, name=None, actif=None, type=None, creation_date=None):
+    def create_account(self, ctx, name=None, actif=None, type=None, creation_date=None, compte_courant=False, pinned=False):
         """
         Create an account.
 
@@ -39,6 +39,8 @@ class AccountSQLRepository(AccountRepository):
             actif=actif,
             type=type,
             creation_date=now,
+            compte_courant=compte_courant,
+            pinned=pinned
         )
 
         with track_modifications(ctx, s, account):
@@ -53,7 +55,12 @@ class AccountSQLRepository(AccountRepository):
         LOG.debug("sql_account_repository_search_called", extra=log_extra(ctx, account_id=account_id, terms=terms))
         s = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLAccount)
+        q = s.query(SQLAccount,
+                    func.sum(case(value=Transaction.src, whens={
+                        SQLAccount.id: -Transaction.value
+                    }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
+
+        q = q.join(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if account_id:
             q = q.filter(SQLAccount.id == account_id)
@@ -66,9 +73,9 @@ class AccountSQLRepository(AccountRepository):
         q = q.limit(limit)
         r = q.all()
 
-        return list(map(_map_account_sql_to_entity, r)), count
+        return list(map(lambda x: _map_account_sql_to_entity(x, True), r)), count
 
-    def update_account(self, ctx, name=None, type=None, actif=None, creation_date=None,
+    def update_account(self, ctx, name=None, type=None, actif=None, creation_date=None, compte_courant=False, pinned=False,
                        account_id=None) -> None:
         """
         Update an account.
@@ -87,38 +94,26 @@ class AccountSQLRepository(AccountRepository):
             account.type = type or account.type
             account.actif = actif
             account.creation_date = creation_date or account.creation_date
-
-    def get_balance(self, ctx, account_id=None):
-        s = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_account_repository_get_balance_called", extra=log_extra(ctx, account_id=account_id))
-
-        account = _get_account_by_id(s, account_id)
-        if account is None:
-            raise AccountNotFoundError(account_id)
-
-        q = s.query(func.sum(case(value=Transaction.src, whens={
-            account.id: -Transaction.value
-        }, else_=Transaction.value)))
-
-        q = q.filter(
-            (Transaction.src == account_id) |
-            (Transaction.dst == account_id)
-        )
-
-        return q.one()[0]
+            account.compte_courant = compte_courant
+            account.pinned = pinned
 
 
-def _map_account_sql_to_entity(a) -> Account:
+def _map_account_sql_to_entity(a, has_balance=False) -> Account:
     """
     Map a Account object from SQLAlchemy to a Account (from the entity folder/layer).
     """
+    if has_balance:
+        (a, balance) = a
     return Account(
         name=a.name,
         actif=a.actif,
         type=a.type,
         creation_date=a.creation_date,
         account_id=a.id,
-        adherent=_map_member_sql_to_entity(a.adherent) if a.adherent else None
+        adherent=_map_member_sql_to_entity(a.adherent) if a.adherent else None,
+        balance=balance if has_balance else None,
+        compte_courant=a.compte_courant,
+        pinned=a.pinned
     )
 
 

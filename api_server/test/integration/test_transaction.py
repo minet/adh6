@@ -30,7 +30,9 @@ def sample_account1():
             id=1,
             name='adherent'
         ),
-        adherent=None)
+        adherent=None,
+        compte_courant=False,
+        pinned=False)
 
 
 @pytest.fixture
@@ -44,7 +46,9 @@ def sample_account2():
             id=2,
             name='event'
         ),
-        adherent=None)
+        adherent=None,
+        compte_courant=False,
+        pinned=False)
 
 
 @pytest.fixture
@@ -57,7 +61,8 @@ def sample_transaction(sample_member_admin, sample_account1, sample_account2, sa
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
         payment_method=sample_payment_method,
-        author=sample_member_admin)
+        author=sample_member_admin,
+        pending_validation=False)
 
 
 def prep_db(session, sample_transaction):

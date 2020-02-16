@@ -234,32 +234,6 @@ paths:
       summary: Partially update
       tags:
       - account
-  /account/{account_id}/balance:
-    get:
-      parameters:
-      - description: The id of the account whose balance needs to be fetched.
-        in: path
-        name: account_id
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                properties:
-                  balance:
-                    description: balance of the account
-                    example: 1
-                    type: number
-                type: object
-          description: Success
-        404:
-          description: Not found
-      summary: Retrieve
-      tags:
-      - account
   /account_type/:
     get:
       parameters:
@@ -1572,6 +1546,10 @@ components:
           description: whether this account should be displayed first
           example: 'true'
           type: boolean
+        compte_courant:
+          description: whether this account should be used to compute MiNET' CAV balance
+          example: 'true'
+          type: boolean
         id:
           description: ID of the account
           example: 1
@@ -1593,6 +1571,16 @@ components:
           readOnly: true
           nullable: true
           $ref: '#/components/schemas/Member'
+        balance:
+          description: the current balance of this account
+          readOnly: true
+          type: number
+          format: double
+        pending_balance:
+          description: the pending balance of this account
+          readOnly: true
+          type: number
+          format: double
       required:
       - type
       - actif
@@ -1907,6 +1895,8 @@ components:
         author:
           readOnly: true
           $ref: '#/components/schemas/Member'
+        pending_validation:
+          type: boolean
       required:
       - value
       - src

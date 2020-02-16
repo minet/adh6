@@ -45,19 +45,6 @@ class AccountHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def balance_search(self, ctx, account_id):
-        LOG.debug("http_balance_search_called", extra=log_extra(ctx,
-                                                                account_id=account_id))
-        try:
-            result = self.account_manager.get_by_id(ctx, account_id)
-            return {"balance": result}, 200
-
-        except UserInputError as e:
-            return bad_request(e), 400  # 400 Bad Request
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
     def post(self, ctx, body):
         """ Add an account record in the database """
         LOG.debug("http_account_post_called", extra=log_extra(ctx, request=body))
@@ -120,7 +107,10 @@ def _map_account_to_http_response(account: Account) -> dict:
         'actif': account.actif,
         'type': account.type,
         'id': account.account_id,
-        'adherent': _map_member_to_http_response(account.adherent) if account.adherent else None
+        'adherent': _map_member_to_http_response(account.adherent) if account.adherent else None,
+        'balance': account.balance,
+        'compte_courant': account.compte_courant,
+        'pinned': account.pinned
     }
     return {k: v for k, v in fields.items() if v is not None}
 
