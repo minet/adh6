@@ -4,22 +4,14 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
 
-import {TransactionPatchRequest, TransactionService} from '../api';
-import {Transaction} from '../api';
+import {Account, AccountService, PaymentMethod, PaymentMethodService, TransactionPatchRequest, TransactionService} from '../api';
 
 import {SearchPage} from '../search-page';
-
-import {PaymentMethod} from '../api';
-import {Account} from '../api';
-import {AccountService} from '../api';
-import {PaymentMethodService} from '../api';
-import {InlineResponse200} from '../api';
 import {NotificationsService} from 'angular2-notifications';
+import {faArrowUp, faExchangeAlt, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {ActivatedRoute} from '@angular/router';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
-
-import {faArrowUp, faTrash, faExchangeAlt} from '@fortawesome/free-solid-svg-icons';
-import {ActivatedRoute} from '@angular/router';
 
 export interface AccountListResult {
   accounts?: Array<Account>;

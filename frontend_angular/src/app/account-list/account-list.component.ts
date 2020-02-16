@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {Account, AccountService, AccountType, AccountTypeService, InlineResponse200} from '../api';
+import {Account, AccountService, AccountType, AccountTypeService} from '../api';
 import {SearchPage} from '../search-page';
 import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';

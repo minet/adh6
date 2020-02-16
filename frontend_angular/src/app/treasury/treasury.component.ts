@@ -1,19 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 
-import {Observable} from 'rxjs';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-import {AccountService, InlineResponse200} from '../api';
-import {Account} from '../api';
-import {PagingConf} from '../paging.config';
-
-import {map} from 'rxjs/operators';
-import {SearchPage} from '../search-page';
-import { AccountType } from '../api';
-import { AccountTypeService } from '../api';
 import {CaisseService} from '../api';
-import {InlineResponse2002} from '../api/model/inlineResponse2002';
+
+import {first, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-treasury',
@@ -21,7 +12,7 @@ import {InlineResponse2002} from '../api/model/inlineResponse2002';
   styleUrls: ['./treasury.component.css']
 })
 export class TreasuryComponent implements OnInit {
-  caisse$: Observable<InlineResponse2002>;
+  fond: 0
 
   showFundManagement = false;
   fundManagementForm: FormGroup;
@@ -45,7 +36,14 @@ export class TreasuryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.caisse$ = this.caisseService.caisseGet();
+    this.caisseService.caisseGet()
+      .pipe(
+        map((data) => data.fond),
+        first(),
+      )
+      .subscribe((fond) => {
+        this.fond = fond;
+      });
   }
 
   onSubmit() {

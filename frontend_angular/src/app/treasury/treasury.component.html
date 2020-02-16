@@ -2,22 +2,22 @@
 
 <h3>État de la caisse</h3>
 
-<div class="card-deck mb-3" *ngIf="(caisse$ | async) as caisse">
+<div class="card-deck mb-3">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">20 €</h5>
+        <h5 class="card-title text-center">- €</h5>
         <p class="card-text text-center">Fond de caisse le ...</p>
       </div>
     </div>
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">{{ caisse.fond }} €</h5>
+        <h5 class="card-title text-center">{{ fond }} €</h5>
         <p class="card-text text-center">Montant dans la caisse</p>
       </div>
     </div>
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">{{ caisse.coffre }} €</h5>
+        <h5 class="card-title text-center">- €</h5>
         <p class="card-text text-center">Montant dans le coffre</p>
       </div>
     </div>

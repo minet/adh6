@@ -1,16 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, combineLatest } from "rxjs";
+import {Component, OnInit} from '@angular/core';
+import {combineLatest, Observable} from 'rxjs';
 import {map, share, switchMap} from 'rxjs/operators';
-import { AccountService } from '../api';
-import { Account } from '../api';
-import {ActivatedRoute, Router} from '@angular/router';
-
-import {TransactionService} from '../api';
-import {Transaction} from '../api';
+import {Account, AccountService, Transaction, TransactionService} from '../api';
+import {ActivatedRoute} from '@angular/router';
 import {PagingConf} from '../paging.config';
 
 import {SearchPage} from '../search-page';
-import {InlineResponse200} from '../api';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
