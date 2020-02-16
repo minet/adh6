@@ -23,6 +23,7 @@ export class AccountListComponent extends SearchPage implements OnInit {
 
   result$: Observable<AccountListResponse>;
   accountTypes: Array<AccountType>;
+  specificSearch = false;
 
   constructor(public accountService: AccountService,
               public accountTypeService: AccountTypeService) {
@@ -42,6 +43,8 @@ export class AccountListComponent extends SearchPage implements OnInit {
 
   private fetchAccounts(terms: string, page: number) {
     const n = +PagingConf.item_count;
+    if (terms !== '') this.specificSearch = true;
+    else this.specificSearch = false;
     return this.accountService.accountGet(n, (page - 1) * n, terms, undefined, undefined, 'response')
       .pipe(
         // switch to new search observable each time the term changes

@@ -5,13 +5,13 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class ObjectFilterPipe implements PipeTransform {
 
-  transform(value: any, args?: any): any {
-    if (!value || !args) {
+  transform(value: any, filter: any, shouldApply: boolean): any {
+    if (!value || !filter || !shouldApply) {
       return value;
     }
     return value.filter(item => {
-      for (const [key, _] of Object.entries(args)) {
-        if (!item.hasOwnProperty(key) || item[key] !== args[key]) { return false; }
+      for (const [key, _] of Object.entries(filter)) {
+        if (!item.hasOwnProperty(key) || item[key] !== filter[key]) { return false; }
       }
       return true;
     });

@@ -12,7 +12,7 @@ import {first, map} from 'rxjs/operators';
   styleUrls: ['./treasury.component.css']
 })
 export class TreasuryComponent implements OnInit {
-  fond: 0
+  fond = 0;
 
   showFundManagement = false;
   fundManagementForm: FormGroup;

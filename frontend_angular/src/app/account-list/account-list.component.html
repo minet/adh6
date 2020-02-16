@@ -21,7 +21,7 @@
 
     <tr
       *ngFor="
-      let accountResult of result.accounts | ObjectFilter: filter
+      let accountResult of result.accounts | ObjectFilter: filter:!specificSearch
         | paginate
           : {
               id: 'paginationControlsTemplate',
