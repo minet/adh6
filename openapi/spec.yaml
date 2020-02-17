@@ -1912,6 +1912,22 @@ components:
             - ipv4Address
             - ipv6Address
             - mac
+    Admin:
+      type: object
+      required:
+        - login
+        - roles
+      properties:
+        login:
+          description: The login of this administrator
+          example: PowerfulPotato
+          type: string
+        role:
+          description: The list of roles of this administrator
+          example: [ "ADH6_USER", "ADH6_ADMIN" ]
+          type: array
+          items:
+            type: string
     AbstractMember:
       type: object
       properties:

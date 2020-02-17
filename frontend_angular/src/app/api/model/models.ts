@@ -4,6 +4,7 @@ export * from './abstractMember';
 export * from './abstractTransaction';
 export * from './account';
 export * from './accountType';
+export * from './admin';
 export * from './bank';
 export * from './body';
 export * from './bugReport';

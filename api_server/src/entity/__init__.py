@@ -20,6 +20,7 @@ from src.entity.abstract_member import AbstractMember
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.account import Account
 from src.entity.account_type import AccountType
+from src.entity.admin import Admin
 from src.entity.bank import Bank
 from src.entity.body import Body
 from src.entity.bug_report import BugReport
