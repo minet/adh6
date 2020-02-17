@@ -95,7 +95,7 @@ class TransactionHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def patch(self, ctx, transaction_id, body):
+    def put(self, ctx, transaction_id, body):
         pass
 
     @with_context
