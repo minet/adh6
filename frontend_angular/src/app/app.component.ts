@@ -113,7 +113,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.oauthService.loadDiscoveryDocumentAndTryLogin({
       onTokenReceived: (info) => {
         this.oauthService.loadUserProfile();
-        //this.router.navigate(['/member/view', this.oauthService.getIdentityClaims().sub]);
+        // this.router.navigate(['/member/view', this.oauthService.getIdentityClaims().sub]);
       }
     });
   }

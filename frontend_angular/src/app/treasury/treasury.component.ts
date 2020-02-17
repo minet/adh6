@@ -37,7 +37,7 @@ export class TreasuryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.treasuryService.treasuryCaisseGet()
+    this.treasuryService.getCaisse()
       .pipe(
         map((data) => data.fond),
         first(),
@@ -46,7 +46,7 @@ export class TreasuryComponent implements OnInit {
         this.fond = fond;
       });
 
-    this.treasuryService.treasuryBankGet()
+    this.treasuryService.getBank()
       .pipe(
         map((data) => data.expectedCav),
         first(),
