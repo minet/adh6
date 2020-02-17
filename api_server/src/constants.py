@@ -1,6 +1,6 @@
 # coding=utf-8
 CTX_SQL_SESSION = 'sql_session'
-CTX_ADMIN = 'admin'
+CTX_LOGIN = 'login'
 CTX_TESTING = 'testing'
 CTX_REQUEST_ID = 'request_uuid'
 CTX_REQUEST_URL = 'url'

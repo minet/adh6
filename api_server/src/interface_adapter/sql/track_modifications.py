@@ -5,7 +5,7 @@ Track modification on SQLAlchemy objects.
 from contextlib import contextmanager
 from datetime import datetime
 
-from src.constants import CTX_ADMIN
+from src.constants import CTX_LOGIN
 from src.interface_adapter.sql.model.models import Modification, Admin, Adherent
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 
@@ -26,10 +26,10 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
             return  # No modification.
 
         now = datetime.now()
-        admin = ctx.get(CTX_ADMIN)
+        login = ctx.get(CTX_LOGIN)
         member = obj.get_related_member()
 
-        admin_id = session.query(Adherent).join(Admin).filter(Adherent.login == admin.login).filter(Adherent.admin_id is not None).one().id
+        admin_id = session.query(Adherent).join(Admin).filter(Adherent.login == login).filter(Adherent.admin_id is not None).one().id
 
         m = Modification(
             adherent_id=member.id,
