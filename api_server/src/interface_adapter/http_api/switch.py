@@ -2,10 +2,10 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.switch import Switch
 from src.exceptions import SwitchNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin, auth_super_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.switch_manager import MutationRequest, SwitchManager
@@ -30,7 +30,7 @@ class SwitchHandler:
                 'access-control-expose-headers': 'X-Total-Count',
                 'X-Total-Count': str(count)
             }
-            result = list(map(_map_switch_to_http_response, result))
+            result = list(map(serialize_response, result))
             return result, 200, headers
 
         except UserInputError as e:
@@ -63,7 +63,7 @@ class SwitchHandler:
 
         try:
             switch = self.switch_manager.get_by_id(ctx, switch_id)
-            return _map_switch_to_http_response(switch), 200
+            return serialize_response(switch), 200
 
         except SwitchNotFoundError:
             return NoContent, 404
@@ -101,13 +101,3 @@ class SwitchHandler:
 
         except SwitchNotFoundError:
             return NoContent, 404
-
-
-def _map_switch_to_http_response(switch: Switch) -> dict:
-    fields = {
-        'id': int(switch.id),
-        'ip': switch.ip_v4,
-        'description': switch.description,
-        'community': switch.community,
-    }
-    return {k: v for k, v in fields.items() if v is not None}

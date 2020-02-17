@@ -2,10 +2,10 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.room import Room
 from src.exceptions import RoomNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin, auth_super_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.room_manager import MutationRequest, RoomManager
@@ -25,7 +25,7 @@ class RoomHandler:
         LOG.debug("http_room_search_called", extra=log_extra(ctx, terms=terms))
         try:
             result, count = self.room_manager.search(ctx, limit=limit, offset=offset, terms=terms)
-            result = map(_map_room_to_http_response, result)
+            result = map(serialize_response, result)
             result = list(result)
             headers = {
                 'access-control-expose-headers': 'X-Total-Count',
@@ -70,7 +70,7 @@ class RoomHandler:
         LOG.debug("http_room_get_called", extra=log_extra(ctx, room_number=room_number))
         try:
             result = self.room_manager.get_by_number(ctx, room_number)
-            return _map_room_to_http_response(result), 200
+            return serialize_response(result), 200
 
         except RoomNotFoundError:
             return NoContent, 404
@@ -87,12 +87,3 @@ class RoomHandler:
 
         except RoomNotFoundError:
             return NoContent, 404
-
-
-def _map_room_to_http_response(room: Room) -> dict:
-    fields = {
-        'description': room.description,
-        'roomNumber': int(room.room_number),
-        'vlan': int(room.vlan_number),
-    }
-    return {k: v for k, v in fields.items() if v is not None}

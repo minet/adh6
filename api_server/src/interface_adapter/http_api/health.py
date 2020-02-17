@@ -1,5 +1,3 @@
-from connexion import NoContent
-
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.health_manager import HealthManager

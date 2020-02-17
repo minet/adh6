@@ -2,10 +2,10 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.account_type import AccountType
 from src.exceptions import UserInputError, AccountTypeNotFoundError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.account_type_manager import AccountTypeManager
@@ -35,13 +35,7 @@ class AccountTypeHandler:
             "X-Total-Count": count,
             "access-control-expose-headers": "X-Total-Count"
         }
-        return list(map(_map_account_type_to_http_response, result)), 200, headers
-
-    @require_sql
-    @auth_regular_admin
-    def post(self, body):
-        pass
-
+        return list(map(serialize_response, result)), 200, headers
     @with_context
     @require_sql
     @auth_regular_admin
@@ -50,20 +44,7 @@ class AccountTypeHandler:
         LOG.debug("http_account_type_get_called", extra=log_extra(ctx, account_type_id=account_type_id))
         try:
             result = self.account_type_manager.get_by_id(ctx, account_type_id=account_type_id)
-            return _map_account_type_to_http_response(result), 200  # OK
+            return serialize_response(result), 200  # OK
 
         except AccountTypeNotFoundError:
             return NoContent, 404  # 404 Not Found
-
-    @require_sql
-    @auth_regular_admin
-    def patch(self, account_type_id, body):
-        pass
-
-
-def _map_account_type_to_http_response(account_type: AccountType) -> dict:
-    fields = {
-        'account_type_id': account_type.account_type_id,
-        'name': account_type.name,
-    }
-    return {k: v for k, v in fields.items() if v is not None}
