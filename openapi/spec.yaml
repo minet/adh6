@@ -1,28 +1,41 @@
 openapi: 3.0.0
-externalDocs:
-  description: Find out more about MiNET
-  url: http://minet.net
 info:
-  description: 'Adherent api'
+  title: ADH6 API
+  description: >
+    This is the specification for **MiNET**'s ADH6 plaform. Its aim is to manage our users, devices and treasury.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Adherent
-  version: 1.0.0
+  version: 2.0.0
+  contact:
+    name: MiNET
+    email: equipe@minet.net
+    url: https://minet.net
 servers:
-  - url: /api
+  - url: https://adh6.minet.net/api/
+    description: ADH6 production server
+  - url: https://adh6-dev.minet.net/api/
+    description: ADH6 staging server
 paths:
-  /health/:
+  /health:
     get:
+      summary: Retrieves the health of the API server
+      description: >
+        This endpoint allows for better monitoring of the state of the API.
+        **TODO**: Improve the amount of information returned
       operationId: health
       responses:
         200:
           description: ADH6 is alive!
         503:
           description: Database is down.
-      summary: Health endpoint, query this with zabbix to know if ADH6 is running or not.
       security: []
   /oauth2/authorize:
+    summary: Performs OAuth2 authorization
+    description: >
+      This endpoint is the starting point for the full OAuth2 authorization flow.
+      It currently only support the implicit flow, and is OpenID compliant.
+      **TODO**: Move the whole OAuth2 flow to a standalone server.
     get:
       operationId: authorize_get
       parameters:
@@ -81,15 +94,12 @@ paths:
         '200':
           description: OK
       security: []
-  /oauth2/token:
-    post:
-      operationId: token_post
-      responses:
-        '200':
-          description: OK
-      security: []
   /oauth2/profile:
     get: 
+      summary: Retrieves an authorized user's profile
+      description: >
+        This endpoint returns the grants following a user's OAuth2 authorization.
+        **TODO**: Move the whole OAuth2 flow to a standalone server.
       operationId: profile_get
       responses:
         '200':
@@ -97,83 +107,70 @@ paths:
       security: []
   /oauth2/.well-known/openid-configuration:
     get:
+      summary: Retrieves this server's OpenID configuration
+      description: >
+        This endpoint returns a JSON document that complies with the OpenID standard.
+        This allows applications to discover the server's OpenID configuration.
+        **TODO**: Move the whole OAuth2 flow to a standalone server.
       operationId: oauth2_config
       responses:
         '200':
           description: OK
       security: []
-  /stats/:
+  /stats:
     get:
+      summary: Retrieves global ADH6 statistics and trivia
+      description: >
+        This endpoint returns useful insights, statistics and data.
+        It *may* be used for monitoring, although its main purpose is to be displayed as part of a dashboard.
       operationId: stats
       responses:
         200:
+          description: The statistics of ADH6
           content:
             application/json:
               schema:
                 items:
                   $ref: '#/components/schemas/Statistics'
                 type: array
-          description: Success
-        400:
-          description: Invalid input
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
   /account/:
     get:
       parameters:
-      - description: Limit the number of accounts returned in the result. Default
-          is 100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: The generic search terms (will search in any field)
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
-      - description: Filter by name
-        in: query
-        name: name
-        required: false
-        schema:
-          type: string
-      - description: Filter by type
-        in: query
-        name: type
-        required: false
-        schema:
-          type: integer
-      - description: filter by pinned
-        in: query
-        name: pinned
-        required: false
-        schema:
-          type: boolean
+          $ref: '#/components/schemas/AbstractAccount'
+        style: deepObject
+        explode: true
       responses:
         200:
+          description: The list of accounts
           content:
             application/json:
               schema:
                 items:
                   $ref: '#/components/schemas/Account'
                 type: array
-          description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter accounts
       tags:
       - account
@@ -183,87 +180,81 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account'
+              $ref: '#/components/schemas/AbstractAccount'
         description: New values of the account
         required: true
-      responses:
-        200:
-          description: Created
-        400:
-          description: Invalid input
-      summary: Create account
-      tags:
-      - account
-  /account/{account_id}:
-    get:
-      parameters:
-      - description: The id of the account that needs to be fetched.
-        in: path
-        name: account_id
-        required: true
-        schema:
-          type: string
       responses:
         200:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
-          description: Success
-        404:
-          description: Not found
-      summary: Retrieve
+          description: The created account
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create account
       tags:
       - account
-    patch:
-      parameters:
-      - description: id of the account will be updated
+  /account/{account_id}:
+    parameters:
+      - description: The id of the account that needs to be fetched.
         in: path
         name: account_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: The fetched account
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve
+      tags:
+      - account
+    patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountPatchRequest'
+              $ref: '#/components/schemas/AbstractAccount'
         description: New values of the account
         required: true
       responses:
         204:
           description: Updated
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Partially update
       tags:
       - account
   /account_type/:
     get:
       parameters:
-      - description: Limit the number of account types returned in the result. Default
-          is 100
-        in: query
-        name: limit
-        required: false
-        schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
       responses:
         200:
           content:
@@ -278,19 +269,21 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
           description: Invalid input
       summary: Filter account types
       tags:
       - account_type
   /account_type/{account_type_id}:
-    get:
-      parameters:
+    parameters:
       - in: path
         name: account_type_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
       responses:
         200:
           content:
@@ -298,41 +291,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccountType'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account type
       tags:
       - account_type
   /device/:
     get:
       parameters:
-      - description: Limit the number of devices returned in the result. Default is
-          100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Filter by owner's username
-        in: query
-        name: username
-        required: false
-        schema:
-          type: string
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+          $ref: '#/components/schemas/AbstractDevice'
+        style: deepObject
+        explode: true
       responses:
         200:
           content:
@@ -348,35 +330,39 @@ paths:
               schema:
                 type: integer
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter devices
       tags:
       - device
-  /device/{mac_address}:
-    delete:
-      parameters:
-      - description: The mac address of the device that will be deleted
+  /device/{device_id}:
+    parameters:
+      - description: The unique identifier of the device
         in: path
-        name: mac_address
+        name: device_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
+    delete:
       responses:
         204:
           description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Delete a device
       tags:
       - device
     get:
-      parameters:
-      - description: The mac address of the device that will be fetched
-        in: path
-        name: mac_address
-        required: true
-        schema:
-          type: string
       responses:
         200:
           content:
@@ -384,46 +370,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/Device'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve a device
       tags:
       - device
     put:
-      parameters:
-      - description: The mac address of the device that will be updated
-        in: path
-        name: mac_address
-        required: true
-        schema:
-          type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Device'
+              $ref: '#/components/schemas/AbstractDevice'
         description: Device to update
         required: true
       responses:
         201:
-          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: The created device
         204:
           description: Updated
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Update/create a device
       tags:
       - device
-  /device/{mac_address}/vendor:
+  /device/{device_id}/vendor:
     get:
       operationId: vendor_get
       parameters:
-      - description: The mac address of the device that will be looked up
+      - description: The unique identifier of the device that will be looked up
         in: path
-        name: mac_address
+        name: device_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
       responses:
         200:
           content:
@@ -435,41 +431,30 @@ paths:
                     type: string
                 type: object
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: No match
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
       tags:
       - device
   /member/:
     get:
       parameters:
-      - description: Limit the number of members returned in the result. Default is
-          100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: The generic search terms (will search in any field)
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
-      - description: Filter by room number
-        in: query
-        name: roomNumber
-        required: false
-        schema:
-          type: integer
+          $ref: '#/components/schemas/AbstractMember'
+        style: deepObject
+        explode: true
       responses:
         200:
           content:
@@ -485,35 +470,39 @@ paths:
               schema:
                 type: integer
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter members
       tags:
       - member
-  /member/{username}:
-    delete:
-      parameters:
-      - description: The username of the member that will be deleted
+  /member/{member_id}:
+    parameters:
+      - description: The unique identifier of the member
         in: path
-        name: username
+        name: member_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
+    delete:
       responses:
         204:
           description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Delete
       tags:
       - member
     get:
-      parameters:
-      - description: The username of the member that needs to be fetched.
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
       responses:
         200:
           content:
@@ -521,44 +510,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Member'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve
       tags:
       - member
     patch:
-      parameters:
-      - description: username of the member will be updated
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MemberPatchRequest'
+              $ref: '#/components/schemas/AbstractMember'
         description: New values of the member
         required: true
       responses:
         204:
           description: Updated
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Partially update
       tags:
       - member
     put:
-      parameters:
-      - description: username of the member will be updated
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
       requestBody:
         content:
           application/json:
@@ -567,23 +552,30 @@ paths:
         description: New values of the member
         required: true
       responses:
-        204:
-          description: Updated
+        201:
+          description: Created
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Update/create
       tags:
       - member
-  /member/{username}/logs/:
+  /member/{member_id}/logs/:
     get:
       parameters:
-      - description: username of the member
+      - description: The unique identifier of the member
         in: path
-        name: username
+        name: member_id
         required: true
         schema:
-          type: string
-      - description: fetch DHCP logs
+          type: integer
+          example: 0
+      - description: Whether to fetch DHCP logs
         in: query
         name: dhcp
         required: false
@@ -599,20 +591,27 @@ paths:
                   type: string
                 type: array
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Get the most recent logs
       tags:
       - member
-  /member/{username}/membership/:
+  /member/{member_id}/membership/:
     post:
       parameters:
-      - description: The username of the member
+      - description: The unique identifier of the member
         in: path
-        name: username
+        name: member_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
       - description: Just a random string to ensure that membership creation is idempotent
           (very important since double submission may result to the member being charged
           two times). I recommand using a long random string for that.
@@ -633,19 +632,26 @@ paths:
         200:
           description: Success
         400:
-          description: Invalid input
-      summary: Add a membership record for an member
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Add a membership record for a member
       tags:
       - membership
-  /member/{username}/password/:
+  /member/{member_id}/password/:
     put:
       parameters:
-      - description: username of the member will be updated
+      - description: The unique identifier of the member that will be updated
         in: path
-        name: username
+        name: member_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
       requestBody:
         content:
           application/json:
@@ -654,43 +660,32 @@ paths:
                 password:
                   example: '&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;'
                   type: string
+                  format: password
               required:
               - password
               type: object
-        description: New values of the member
+        description: New value for the password
         required: true
       responses:
         204:
           description: Modified
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Update password
       tags:
       - member
   /payment_method/:
     get:
       parameters:
-      - description: Limit the number of payment methods returned in the result. Default
-          is 100
-        in: query
-        name: limit
-        required: false
-        schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
       responses:
         200:
           content:
@@ -705,19 +700,21 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
           description: Invalid input
       summary: Filter payment methods
       tags:
       - payment_method
   /payment_method/{payment_method_id}:
-    get:
-      parameters:
+    parameters:
       - in: path
         name: payment_method_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
       responses:
         200:
           content:
@@ -725,47 +722,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaymentMethod'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
       tags:
       - payment_method
   /port/:
     get:
       parameters:
-      - description: Limit the number of ports returned in the result. Default is
-          100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Filter only ports from that switch
-        in: query
-        name: switchID
-        required: false
-        schema:
-          type: integer
-      - description: Filter only ports from that room
-        in: query
-        name: roomNumber
-        required: false
-        schema:
-          type: integer
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+          $ref: '#/components/schemas/Port'
+          required: []
+        style: deepObject
+        explode: true
       responses:
         200:
           content:
@@ -780,8 +761,15 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 0
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter ports
       tags:
       - port
@@ -796,40 +784,46 @@ paths:
         required: true
       responses:
         200:
-          description: Created
-          headers:
-            Location:
-              description: URI to the newly created port
+          content:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Port'
+          description: The created port
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Create a port
       tags:
       - port
   /port/{port_id}:
-    delete:
-      parameters:
+    parameters:
       - in: path
         name: port_id
         required: true
         schema:
           type: integer
+          example: 0
+    delete:
       responses:
         204:
           description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Delete a port
       tags:
       - port
     get:
-      parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
       responses:
         200:
           content:
@@ -837,18 +831,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Port'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve a port
       tags:
       - port
     put:
-      parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -867,33 +861,34 @@ paths:
       tags:
       - port
   /port/{port_id}/mab/:
-    get:
-      operationId: mab_get
-      parameters:
+    parameters:
       - in: path
         name: port_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
+      operationId: mab_get
       responses:
         200:
           content:
             application/json:
               schema:
                 type: boolean
-          description: True if MAB is enabled
+          description: Whether MAB is enabled on this port
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
-      summary: Check whether MAB is enable on this port or not.
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Check whether MAB is enabled on this port or not.
       tags:
       - port
     put:
-      parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -903,20 +898,27 @@ paths:
       responses:
         204:
           description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Enable/disable MAB on a port
       tags:
       - port
   /port/{port_id}/state/:
-    get:
-      operationId: state_get
-      parameters:
+    parameters:
       - in: path
         name: port_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
+      operationId: state_get
       responses:
         200:
           content:
@@ -924,18 +926,18 @@ paths:
               schema:
                 type: boolean
           description: Success, false if it is shutdown, true otherwise
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve the status of a port.
       tags:
       - port
     put:
-      parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -946,20 +948,27 @@ paths:
       responses:
         204:
           description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Shutdown/enable a port
       tags:
       - port
   /port/{port_id}/vlan/:
-    get:
-      operationId: vlan_get
-      parameters:
+    parameters:
       - in: path
         name: port_id
         required: true
         schema:
           type: integer
+          example: 0
+    get:
+      operationId: vlan_get
       responses:
         200:
           content:
@@ -968,18 +977,18 @@ paths:
                 example: 48
                 type: integer
           description: Success, returns 1 if the port has authentication on
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve the VLAN assigned to the port.
       tags:
       - port
     put:
-      parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -992,41 +1001,23 @@ paths:
       responses:
         204:
           description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Change the VLAN assigned a to port
       tags:
       - port
   /product/:
     get:
       parameters:
-      - description: Limit the number of products returned in the result. Default
-          is 100
-        in: query
-        name: limit
-        required: false
-        schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: The generic search terms (will search in any field)
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
-      - description: Filter by name
-        in: query
-        name: name
-        required: false
-        schema:
-          type: string
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
       responses:
         200:
           content:
@@ -1041,37 +1032,22 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
           description: Invalid input
       summary: Filter products
       tags:
       - product
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Product'
-        description: New values of the product
-        required: true
-      responses:
-        200:
-          description: Created
-        400:
-          description: Invalid input
-      summary: Create product
-      tags:
-      - product
   /product/{product_id}:
-    get:
-      parameters:
+    parameters:
       - description: The id of the product that needs to be fetched.
         in: path
         name: product_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
+    get:
       responses:
         200:
           content:
@@ -1079,60 +1055,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve
       tags:
       - product
-    patch:
-      parameters:
-        - description: id of the product will be updated
-          in: path
-          name: product_id
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProductPatchRequest'
-        description: New values of the product
-        required: true
-      responses:
-        204:
-          description: Updated
-        400:
-          description: Invalid input
-        404:
-          description: Not found
-      summary: Partially update
-      tags:
-        - product
   /room/:
     get:
       parameters:
-      - description: Limit the number of rooms returned in the result. Default is
-          100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+          $ref: '#/components/schemas/Room'
+          required: []
+        style: deepObject
+        explode: true
       responses:
         200:
           content:
@@ -1148,33 +1095,64 @@ paths:
               schema:
                 type: integer
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter rooms
       tags:
       - room
-  /room/{roomNumber}:
-    delete:
-      parameters:
+    post:
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+        description: Room to create
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+          description: The created room
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create a room
+      tags:
+      - room
+  /room/{room_id}:
+    parameters:
       - in: path
-        name: roomNumber
+        description: The unique identifier of this room
+        name: room_id
         required: true
         schema:
           type: integer
+          example: 0
+    delete:
       responses:
         204:
           description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Delete a room
       tags:
       - room
     get:
-      parameters:
-      - in: path
-        name: roomNumber
-        required: true
-        schema:
-          type: integer
       responses:
         200:
           content:
@@ -1182,18 +1160,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Room'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve a room
       tags:
       - room
     put:
-      parameters:
-      - in: path
-        name: roomNumber
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -1207,34 +1185,30 @@ paths:
         204:
           description: Updated
         400:
-          description: Invalid input / no more IP
-      summary: Update/create a room
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update a room
       tags:
       - room
   /switch/:
     get:
       parameters:
-      - description: Limit the number of switches returned in the result. Default
-          is 100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: Search terms
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
+          $ref: '#/components/schemas/Switch'
+          required: []
+        style: deepObject
+        explode: true
       responses:
         200:
           content:
@@ -1249,9 +1223,14 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
-          description: Invalid input
-      summary: Get all switches
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter switches
       tags:
       - switch
     post:
@@ -1265,40 +1244,44 @@ paths:
         required: true
       responses:
         200:
-          description: Created
-          headers:
-            Location:
-              description: URI to the newly created switch
+          content:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Switch'
+          description: The created switch
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Create a switch
       tags:
       - switch
-  /switch/{switchID}:
-    delete:
-      parameters:
+  /switch/{switch_id}:
+    parameters:
       - in: path
-        name: switchID
+        name: switch_id
         required: true
         schema:
           type: integer
+          example: 0
+    delete:
       responses:
         204:
           description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Delete a switch
       tags:
       - switch
     get:
-      parameters:
-      - in: path
-        name: switchID
-        required: true
-        schema:
-          type: integer
       responses:
         200:
           content:
@@ -1306,18 +1289,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Switch'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve a switch
       tags:
       - switch
     put:
-      parameters:
-      - in: path
-        name: switchID
-        required: true
-        schema:
-          type: integer
       requestBody:
         content:
           application/json:
@@ -1329,42 +1312,30 @@ paths:
         204:
           description: Updated
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Update a switch
       tags:
       - switch
   /transaction/:
     get:
       parameters:
-      - description: Limit the number of transactions returned in the result. Default
-          is 100
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
         in: query
-        name: limit
-        required: false
+        name: filter
         schema:
-          default: 100
-          type: integer
-      - description: Skip the first n results
-        in: query
-        name: offset
-        required: false
-        schema:
-          default: 0
-          type: integer
-      - description: The generic search terms (will search in any field)
-        in: query
-        name: terms
-        required: false
-        schema:
-          type: string
-      - description: Filter by account id (either as source or destination)
-        in: query
-        name: account
-        required: false
-        schema:
-          type: integer
+          $ref: '#/components/schemas/AbstractTransaction'
+          required: []
+        style: deepObject
+        explode: true
       responses:
         '200':
           content:
@@ -1379,8 +1350,15 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 0
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Filter transactions
       tags:
       - transaction
@@ -1390,31 +1368,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransactionPatchRequest'
+              $ref: '#/components/schemas/AbstractTransaction'
         description: Transaction to create
         required: true
       responses:
         200:
-          description: Created
-          headers:
-            Location:
-              description: URI to the newly created transaction
+          content:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/Transaction'
+          description: The created transaction
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Create a transaction
       tags:
       - transaction
   /transaction/{transaction_id}/upload/:
-    post:
-      parameters:
-      - description: The unique identifier of the transaction that needs to be fetched
+    parameters:
+      - description: The unique identifier of the transaction
         in: path
         name: transaction_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
+    post:
       requestBody:
         content:
           application/octet-stream:
@@ -1422,26 +1406,29 @@ paths:
               type: string
               format: binary
       responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Transaction'
+        204:
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Add an attachment to a transaction
       tags:
       - transaction
   /transaction/{transaction_id}:
-    get:
-      parameters:
+    parameters:
       - description: The unique identifier of the transaction that needs to be fetched
         in: path
         name: transaction_id
         required: true
         schema:
-          type: string
+          type: integer
+          example: 0
+    get:
       responses:
         200:
           content:
@@ -1449,36 +1436,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/Transaction'
           description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve
       tags:
       - transaction
-    patch:
-      parameters:
-      - description: transaction_id of the transaction that will be updated
-        in: path
-        name: transaction_id
-        required: true
-        schema:
-          type: string
+    put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransactionPatchRequest'
+              $ref: '#/components/schemas/AbstractTransaction'
         description: New values of the transaction
         required: true
       responses:
         204:
           description: Updated
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
         404:
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Partially update
       tags:
-      - member
+      - transaction
   /bug_report/:
     post:
       parameters: []
@@ -1493,7 +1483,11 @@ paths:
         200:
           description: Created
         400:
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Submit a new bug report
       tags:
       - bug_report
@@ -1511,9 +1505,10 @@ paths:
                     type: array
                 type: object
           description: Success
-        400:
-          description: Invalid input
-
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
   /treasury/caisse:
     get:
       operationId: get_caisse
@@ -1533,8 +1528,10 @@ paths:
                     type: number
                 type: object
           description: Success
-        404:
-          description: Not found
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve
       tags:
       - treasury
@@ -1548,89 +1545,142 @@ paths:
               schema:
                 properties:
                   expected_cav:
-                    description: the excpected balance of MiNET's CAV accunt
+                    description: the expected balance of MiNET's CAV accunt
                     type: number
                     format: double
                 type: object
           description: Success
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
       summary: Retrieve
       tags:
       - treasury
+
 components:
+  parameters:
+    limitParam:
+      description: Limit the number of results returned
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 25
+        type: integer
+    skipParam:
+      description: Skip the first n results
+      in: query
+      name: offset
+      required: false
+      schema:
+        default: 0
+        type: integer
+    searchTermParam:
+      description: The generic search terms (will search in any field)
+      in: query
+      name: terms
+      required: false
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: The user has insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Invalid:
+      description: The request received invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unexpected:
+      description: The request encountered an unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    Account:
-      example:
-        actif: 'true'
-        type: 2
+    AbstractAccount:
+      type: object
       properties:
         actif:
-          description: Account state
-          example: 'true'
+          description: Whether this account is active or not
+          example: true
           type: boolean
+          default: true
         pinned:
-          description: whether this account should be displayed first
-          example: 'true'
+          description: Whether this account should be displayed before others
+          example: true
           type: boolean
+          default: false
         compte_courant:
-          description: whether this account should be used to compute MiNET' CAV balance
-          example: 'true'
+          description: Whether this account depends on MiNET's main account
+          example: true
           type: boolean
-        id:
-          description: ID of the account
-          example: 1
-          type: integer
-        name:
-          description: Name of the account
-          example: MiNET
-          type: string
+          default: false
         type:
-          description: The type of account
-          example: 'adherent'
-          type: integer
+          description: The type of this account
+          oneOf:
+            - $ref: '#/components/schemas/AccountType'
+            - type: integer
+          example: 2
         creation_date:
-          description: The date the account was created
+          description: The date-time at which this account was first created
           format: date-time
           type: string
-        adherent:
-          description: the member this account belongs to
-          readOnly: true
+        member:
+          description: The member this account belongs to
           nullable: true
-          $ref: '#/components/schemas/Member'
-        balance:
-          description: the current balance of this account
-          readOnly: true
-          type: number
-          format: double
-        pending_balance:
-          description: the pending balance of this account
-          readOnly: true
-          type: number
-          format: double
-      required:
-      - type
-      - actif
-      - name
-      type: object
-    AccountPatchRequest:
-      example:
-        actif: 'true'
-        name: MiNET
-        type: 2
-      properties:
-        actif:
-          example: 'true'
-          type: boolean
+          oneOf:
+            - $ref: '#/components/schemas/Member'
+            - type: integer
+          example: 4
         name:
+          description: The name of this account
           example: MiNET
           type: string
-        type:
-          example: 2
+        id:
+          description: The unique identifier of this account
+          example: 1
+          readOnly: true
           type: integer
-      type: object
+        balance:
+          description: The current balance of this account
+          readOnly: true
+          nullable: true
+          type: number
+          format: double
+          example: 332.4
+        pending_balance:
+          description: The pending balance of this account
+          readOnly: true
+          nullable: true
+          type: number
+          format: double
+          example: 321.1
+    Account:
+      allOf:
+        - $ref: '#/components/schemas/AbstractAccount'
+        - required:
+            - id
+            - type
+            - name
+            - balance
+            - pending_balance
     AccountType:
-      example:
-        id: 1
-        name: "Adh\xE9rent"
+      type: object
+      required:
+        - id
+        - name
       properties:
         id:
           example: 1
@@ -1639,361 +1689,368 @@ components:
         name:
           example: "Adh\xE9rent"
           type: string
-      required:
-      - name
+    AbstractTransaction:
       type: object
-    Device:
-      example:
-        connectionType: wired
-        ipAddress: 127.0.0.1
-        ipv6Address: ipv6Address
-        mac: 01-23-45-67-89-AB
-        username: doe_john
       properties:
+        id:
+          description: The unique identifier of this transaction
+          example: 0
+          readOnly: true
+          type: integer
+        name:
+          description: The description of this transaction
+          example: Sample transaction
+          type: string
+        src:
+          description: The source account of this transaction
+          oneOf:
+            - $ref: '#/components/schemas/Account'
+            - type: integer
+          example: 4
+        dst:
+          description: The destination account of this transaction
+          oneOf:
+            - $ref: '#/components/schemas/Account'  
+            - type: integer
+          example: 1
+        timestamp:
+          description: The date-time at which this transaction was executed
+          format: date-time
+          readOnly: true
+          type: string
+        paymentMethod:
+          description: The payment method used for this transaction
+          oneOf:
+            - $ref: "#/components/schemas/PaymentMethod"
+            - type: integer
+        value:
+          description: The unsigned value of this transaction
+          example: 42.0
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          type: number
+        attachments:
+          description: The list of attachments linked with this transaction
+          type: array
+          items:
+            type: string
+          example: [ "3b2f552df763bc9444f9f31a4fd831a3e3ace994" ]
+        author:
+          description: The member who executed this transaction
+          oneOf:
+            - $ref: '#/components/schemas/Member'
+            - type: integer
+          example: 6
+        pending_validation:
+          description: Whether this transaction is awaiting confirmation from a member with higher privileges
+          example: true
+          type: boolean
+          readOnly: true
+          default: false
+    Transaction:
+      allOf:
+        - $ref: '#/components/schemas/AbstractTransaction'
+        - required:
+            - id
+            - name
+            - src
+            - dst
+            - paymentMethod
+            - value
+    PaymentMethod:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: The unique identifier of this payment method
+          example: 0
+          readOnly: true
+          type: integer
+        name:
+          description: The friendly name of this payment method
+          example: Carte bancaire
+          type: string
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - selling_price
+      properties:
+        id:
+          description: The unique identifier of this product
+          example: 0
+          readOnly: true
+          type: integer
+        buying_price:
+          description: The buying price of this product
+          example: 42.3
+          type: number
+          format: double
+        selling_price:
+          description: The selling price of this product
+          example: 43.2
+          type: number
+          format: double
+        name:
+          description: The friendly name of this product
+          example: "C\xE2ble 5m"
+          type: string
+    AbstractDevice:
+      type: object
+      properties:
+        id:
+          description: The unique identifier of this device
+          example: 0
+          readOnly: true
+          type: integer
         connectionType:
+          description: The connection type of this device
           enum:
           - wired
           - wireless
           type: string
-        ipAddress:
+        ipv4Address:
+          description: The ipv4 address assigned to this device
           example: 127.0.0.1
+          nullable: true
+          format: ipv4
           type: string
         ipv6Address:
+          description: The ipv6 address assigned to this device
+          example: ::1
+          nullable: true
+          format: ipv6
           type: string
         mac:
+          description: The MAC address of this device
           example: 01-23-45-67-89-AB
+          format: mac
           type: string
-        username:
-          example: doe_john
-          type: string
-      required:
-      - connectionType
-      - mac
+        member:
+          description: The member this device belongs to
+          oneOf:
+            - $ref: '#/components/schemas/Member'
+            - type: integer
+          example: 4
+    Device:
+      allOf:
+        - $ref: '#/components/schemas/AbstractDevice'
+        - required:
+            - id
+            - connectionType
+            - ipv4Address
+            - ipv6Address
+            - mac
+    AbstractMember:
       type: object
+      properties:
+        id:
+          description: The unique identifier of this member
+          example: 0
+          readOnly: true
+          type: integer
+        username:
+          description: The username of this member
+          example: michel_j
+          type: string
+        associationMode:
+          description: The date-time at which the association mode expires
+          format: date-time
+          readOnly: true
+          type: string
+        comment:
+          description: The optional comment for this member
+          nullable: true
+          type: string
+          example: Aime bien les bananes
+        departureDate:
+          description: The date-time at which the subscription of this member expires
+          format: date-time
+          type: string
+        email:
+          description: The email address of this member
+          example: jean-michel.martin@example.com
+          type: string
+          format: email
+        firstName:
+          description: The first name of this member
+          example: Jean-Michel
+          type: string
+        lastName:
+          description: The last name of this member
+          example: Martin
+          type: string
+        room:
+          description: The room this member lives in
+          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/Room'
+            - type: integer
+          example: 4
     Member:
-      example:
-        associationMode: '2000-01-23T04:56:07.000+00:00'
-        comment: comment
-        departureDate: '2000-01-23T04:56:07.000+00:00'
-        email: john.doe@gmail.com
-        firstName: John
-        lastName: Doe
-        roomNumber: 5012
-        username: doe_john
-      properties:
-        associationMode:
-          format: date-time
-          type: string
-        comment:
-          type: string
-        departureDate:
-          format: date-time
-          type: string
-        email:
-          example: john.doe@gmail.com
-          type: string
-        firstName:
-          example: John
-          type: string
-        lastName:
-          example: Doe
-          type: string
-        roomNumber:
-          example: 5012
-          format: int32
-          type: integer
-        username:
-          example: doe_john
-          type: string
-      required:
-      - email
-      - firstName
-      - lastName
-      - username
-      type: object
-    MemberPatchRequest:
-      example:
-        associationMode: '2000-01-23T04:56:07.000+00:00'
-        comment: comment
-        departureDate: '2000-01-23T04:56:07.000+00:00'
-        email: john.doe@gmail.com
-        firstName: John
-        lastName: Doe
-        roomNumber: 5012
-        username: doe_john
-      properties:
-        associationMode:
-          format: date-time
-          type: string
-        comment:
-          type: string
-        departureDate:
-          format: date-time
-          type: string
-        email:
-          example: john.doe@gmail.com
-          type: string
-        firstName:
-          example: John
-          type: string
-        lastName:
-          example: Doe
-          type: string
-        roomNumber:
-          example: 5012
-          format: int32
-          type: integer
-        username:
-          example: doe_john
-          type: string
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractMember'
+        - required:
+            - id
+            - username
+            - email
+            - firstName
+            - lastName
     MembershipRequest:
-      example:
-        duration: 365
-        start: '2000-01-23T04:56:07.000+00:00'
+      type: object
+      required:
+        - duration
+        - paymentMethod
+        - firstTime
       properties:
         duration:
-          description: Duration in days
+          description: The duration in days this membership is for
           example: 365
           type: integer
         paymentMethod:
-          enum:
-          - cash
-          - card
-          - bank_cheque
-          type: string
-      required:
-      - duration
+          description: The payment method used to pay the membership fee
+          oneOf:
+            - $ref: '#/components/schemas/PaymentMethod'
+            - type: integer
+          example: 4
+        firstTime:
+          description: Whether or not this membership request is the member's first
+          default: true
+          type: boolean
+          example: false
+    Room:
       type: object
-    PaymentMethod:
-      example:
-        id: 1
-        name: Carte bancaire
+      required:
+        - id
+        - description
+        - roomNumber
+        - vlan
       properties:
         id:
-          example: 1
+          description: The unique identifier of this room
+          example: 0
           readOnly: true
           type: integer
-        name:
-          example: Carte bancaire
-          type: string
-      required:
-      - name
-      type: object
-    Port:
-      example:
-        portNumber: 1/0/4
-        roomNumber: 5110
-        switchID: 6
-      properties:
-        id:
-          example: 1
-          type: integer
-        portNumber:
-          example: 1/0/4
-          type: string
-        roomNumber:
-          example: 5110
-          type: integer
-        switchID:
-          example: 6
-          type: integer
-      required:
-      - portNumber
-      type: object
-    Product:
-      example:
-        buying_price: 99
-        id: 1
-        name: "C\xE2ble 5m"
-        selling_price: 99
-      properties:
-        buying_price:
-          description: Buying price of the product (in cents)
-          example: 99
-          type: integer
-        id:
-          description: ID of the product
-          example: 1
-          type: integer
-        name:
-          description: Name of the product
-          example: "C\xE2ble 5m"
-          type: string
-        selling_price:
-          description: Buying price of the product (in cents)
-          example: 99
-          type: integer
-      required:
-      - buying_price
-      - selling_price
-      - name
-      type: object
-    ProductPatchRequest:
-      example:
-        name: 'Cable'
-        buying_price: 99
-        selling_price: 99
-      properties:
-        name:
-          example: 'Cable'
-          type: string
-        buying_price:
-          example: 99
-          type: integer
-        selling_price:
-          example: 99
-          type: integer
-      type: object
-    Room:
-      example:
-        description: Chambre 5110
-        roomNumber: 5110
-        vlan: 45
-      properties:
         description:
+          description: The friendly description of this room
           example: Chambre 5110
+          nullable: true
           type: string
         roomNumber:
+          description: The room number according to the Maisel
           example: 5110
           type: integer
         vlan:
-          example: 45
+          description: The main vlan assigned to this room
           type: integer
-      required:
-      - roomNumber
+          example: 41
+    Port:
       type: object
-    Switch:
-      example:
-        community: ghWgpQvHRkrYuqpMLWYkstS3
-        description: Switch U5
-        ip: 192.168.102.211
+      required:
+        - id
+        - portNumber
+        - room
+        - switch
       properties:
+        id:
+          description: The unique identifier of this port
+          example: 0
+          readOnly: true
+          type: integer
+        portNumber:
+          description: The friendly (Cisco) number of this port
+          nullable: true
+          example: 1/0/4
+          type: string
+        room:
+          description: The room this port is in
+          oneOf:
+            - $ref: '#/components/schemas/Room'
+            - type: integer
+          example: 4
+        switch:
+          description: The switch this port is a member of
+          oneOf:
+            - $ref: '#/components/schemas/Switch'
+            - type: integer
+          example: 4
+    Switch:
+      type: object
+      required:
+        - id
+        - description
+        - community
+        - ip
+      properties:
+        id:
+          description: The unique identifier of this switch
+          example: 0
+          readOnly: true
+          type: integer
+        description:
+          description: The friendly name of this switch
+          example: Switch U5
+          type: string
         community:
+          description: The community string used for SNMP access to this switch
           example: ghWgpQvHRkrYuqpMLWYkstS3
           format: password
           type: string
-        description:
-          example: Switch U5
-          type: string
-        id:
-          example: 1
-          type: integer
         ip:
+          description: The IPv4 address of this switch
           example: 192.168.102.211
           type: string
-      required:
-      - community
-      - ip
-      type: object
-    Transaction:
-      properties:
-        id:
-          example: 0
-          format: int32
-          readOnly: true
-          type: integer
-        name:
-          example: Transaction test
-          type: string
-        src:
-          readOnly: true
-          $ref: '#/components/schemas/Account'
-        dst:
-          readOnly: true
-          allOf:
-            - $ref: '#/components/schemas/Account'  
-        timestamp:
-          example: '2000-01-23T04:56:07.000+00:00'
-          format: date-time
-          readOnly: true
-          type: string
-        paymentMethod:
-          readOnly: true
-          $ref: "#/components/schemas/PaymentMethod"
-        value:
-          example: 42.0
-          format: double
-          type: number
-        attachments:
-          type: string
-        author:
-          readOnly: true
-          $ref: '#/components/schemas/Member'
-        pending_validation:
-          type: boolean
-      required:
-      - value
-      - src
-      - dst
-      - name
-      - paymentMethod
-      type: object
-    TransactionPatchRequest:
-      properties:
-        name:
-          example: Transaction test
-          type: string
-        value:
-          example: 42.0
-          format: double
-          type: number
-        attachments:
-          type: string
-        src:
-          example: 0
-          format: int32
-          type: integer
-          writeOnly: true
-        dst:
-          example: 0
-          format: int32
-          type: integer
-          writeOnly: true
-        paymentMethod:
-          example: 0
-          format: int32
-          type: integer
-          writeOnly: true
-        caisse:
-          example: direct
-          enum: [to, from, direct]
-          type: string
-          writeOnly: true
-      type: object
     BugReport:
+      type: object
+      required:
+        - title
+        - description
+        - labels
       properties:
         title:
+          description: The title of this bug report
           type: string
+          example: Broken API calls
         description:
+          description: The description of this bug report
           type: string
+          example: All API calls are broken
         labels:
+          description: The list of labels for this bug report
           type: array
           items:
             type: string
-      required:
-      - title
-      - description
-      type: object
+          example: [ "backend", "api" ]
     Statistics:
+      type: object
       properties:
         active_accounts:
+          description: The count of active accounts
           type: integer
+          example: 5
+          readOnly: true
+    Error:
       type: object
-
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
   securitySchemes:
     OAuth2:
       type: oauth2
       flows:
         implicit:
           authorizationUrl: /oauth2/authorize
-          tokenUrl: /oauth2/token
           scopes:
             profile: The user's basic information, including groups they are a part of
-            account:read: Read account information
-            devices:read: Read device information
-            devices:write: Write device information
-            devices:search: Search devices
 
 security:
 - OAuth2: [profile]
