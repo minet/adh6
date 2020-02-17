@@ -21,3 +21,4 @@ export * from './room';
 export * from './statistics';
 export * from './transaction';
 export * from './vendor';
+export * from './vlan';

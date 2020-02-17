@@ -2071,6 +2071,33 @@ components:
           description: The IPv4 address of this switch
           example: 192.168.102.211
           type: string
+    Vlan:
+      type: object
+      required:
+        - id
+        - number
+        - ipv4Network
+        - ipv6Network
+      properties:
+        id:
+          description: The unique identifier of this vlan
+          example: 0
+          readOnly: true
+          type: integer
+        number:
+          description: The number of this VLAN
+          minimum: 1
+          maximum: 2048
+          type: integer
+          example: 41
+        ipv4Network:
+          description: The IPv4 network range for this VLAN
+          type: string
+          example: "157.159.41.0/24"
+        ipv6Network:
+          description: The IPv5 network range for this VLAN
+          type: string
+          example: "2001:660:3203:401::/64"
     BugReport:
       type: object
       required:

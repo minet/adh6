@@ -37,3 +37,4 @@ from src.entity.statistics import Statistics
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.entity.vendor import Vendor
+from src.entity.vlan import Vlan
