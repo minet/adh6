@@ -1514,8 +1514,9 @@ paths:
         400:
           description: Invalid input
 
-  /treasury/caisse/:
+  /treasury/caisse:
     get:
+      operationId: get_caisse
       responses:
         200:
           content:
@@ -1539,6 +1540,7 @@ paths:
       - treasury
   /treasury/bank:
     get:
+      operationId: get_bank
       responses:
         200:
           content:

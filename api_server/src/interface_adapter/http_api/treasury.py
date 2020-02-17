@@ -18,27 +18,9 @@ class TreasuryHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def caisse_search(self, ctx):
-        """ Get the status of the caisse. """
-        LOG.debug("http_treasury_caisse_search_called", extra=log_extra(ctx))
-        f, c = self.treasury_manager.get_caisse(ctx)
-        return {'fond': f, 'coffre': c}, 200
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def bank_search(self, ctx):
-        """ Get the status of the caisse. """
-        LOG.debug("http_treasury_caisse_search_called", extra=log_extra(ctx))
-        balance = self.account_manager.get_cav_balance(ctx)
-        return {'balance': balance}, 200
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def bank_get(self, ctx):
-        """ Get the status of the caisse. """
-        LOG.debug("http_treasury_caisse_search_called", extra=log_extra(ctx))
+    def get_bank(self, ctx):
+        """ Get the status of MiNET's CAV account. """
+        LOG.debug("http_treasury_get_bank_called", extra=log_extra(ctx))
         balance = self.account_manager.get_cav_balance(ctx)
         return {'expected_cav': balance}, 200
 
@@ -57,8 +39,8 @@ class TreasuryHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def caisse_get(self, ctx):
+    def get_caisse(self, ctx):
         """ Get the status of the caisse. """
-        LOG.debug("http_treasury_caisse_get_called", extra=log_extra(ctx))
+        LOG.debug("http_treasury_get_caisse_called", extra=log_extra(ctx))
         fond, coffre = self.treasury_manager.get_caisse(ctx)
         return {fond: fond, coffre: coffre}, 200
