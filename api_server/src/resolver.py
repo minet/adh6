@@ -23,8 +23,10 @@ class ADHResolver(Resolver):
 
         # Path prefix is the first element of the URL. For instance for "/device/{MAC}/vlan/{VLAN}/" it would be
         # "device".
-        path_prefix = re.search(r'^/(.*?)/', operation.path).group(1)
-
+        if re.match(r'^/(.*?)/', operation.path):
+            path_prefix = re.search(r'^/(.*?)/', operation.path).group(1)
+        else:
+            path_prefix = re.search(r'^/(.+)', operation.path).group(1)
         # If an operation ID is specified, we override the behavior by this function and use the operationID as
         # function name.
         if operation.operation_id is not None:
