@@ -33,7 +33,7 @@ class OAuthManager:
 
         def save_token(token, request):
             if request.user:
-                username = request.user.username
+                username = request.user.login
             else:
                 username = None
             client = request.client
