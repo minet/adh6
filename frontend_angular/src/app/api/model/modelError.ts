@@ -10,9 +10,7 @@
  * Do not edit the class manually.
  */
 
-export interface Statistics { 
-    /**
-     * The count of active accounts
-     */
-    readonly activeAccounts?: number;
+export interface ModelError { 
+    code: string;
+    message: string;
 }

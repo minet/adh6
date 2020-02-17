@@ -4,15 +4,12 @@ import { HttpClient } from '@angular/common/http';
 
 
 import { AccountService } from './api/account.service';
-import { AccountTypeService } from './api/accountType.service';
-import { BugReportService } from './api/bugReport.service';
-import { DefaultService } from './api/default.service';
 import { DeviceService } from './api/device.service';
 import { MemberService } from './api/member.service';
 import { MembershipService } from './api/membership.service';
-import { PaymentMethodService } from './api/paymentMethod.service';
+import { MiscService } from './api/misc.service';
+import { Oauth2Service } from './api/oauth2.service';
 import { PortService } from './api/port.service';
-import { ProductService } from './api/product.service';
 import { RoomService } from './api/room.service';
 import { SwitchService } from './api/switch.service';
 import { TransactionService } from './api/transaction.service';
@@ -24,15 +21,12 @@ import { TreasuryService } from './api/treasury.service';
   exports:      [],
   providers: [
     AccountService,
-    AccountTypeService,
-    BugReportService,
-    DefaultService,
     DeviceService,
     MemberService,
     MembershipService,
-    PaymentMethodService,
+    MiscService,
+    Oauth2Service,
     PortService,
-    ProductService,
     RoomService,
     SwitchService,
     TransactionService,
