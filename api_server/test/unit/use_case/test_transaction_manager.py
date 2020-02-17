@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.constants import CTX_ADMIN
+from src.constants import CTX_LOGIN
 from src.entity.transaction import Transaction
 from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -154,7 +154,7 @@ class TestCreate:
         mock_transaction_repository.create_transaction.assert_called_once_with(ctx, src=req.src, dst=req.dst,
                                                                                name=req.name, value=req.value,
                                                                                paymentMethod=req.paymentMethod,
-                                                                               author=ctx.get(CTX_ADMIN).login,
+                                                                               author=ctx.get(CTX_LOGIN),
                                                                                attachments=None)
 
     def test_same_account(self,
