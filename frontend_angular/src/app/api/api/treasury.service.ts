@@ -62,10 +62,10 @@ export class TreasuryService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public treasuryBankGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2003>;
-    public treasuryBankGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2003>>;
-    public treasuryBankGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2003>>;
-    public treasuryBankGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getBank(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2003>;
+    public getBank(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2003>>;
+    public getBank(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2003>>;
+    public getBank(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -106,10 +106,10 @@ export class TreasuryService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public treasuryCaisseGet(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
-    public treasuryCaisseGet(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
-    public treasuryCaisseGet(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
-    public treasuryCaisseGet(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getCaisse(observe?: 'body', reportProgress?: boolean): Observable<InlineResponse2002>;
+    public getCaisse(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InlineResponse2002>>;
+    public getCaisse(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InlineResponse2002>>;
+    public getCaisse(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -134,7 +134,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/treasury/caisse/`,
+        return this.httpClient.request<InlineResponse2002>('get',`${this.basePath}/treasury/caisse`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
