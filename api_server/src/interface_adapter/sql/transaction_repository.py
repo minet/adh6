@@ -8,6 +8,7 @@ from typing import List
 from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity.admin import Admin
 from src.entity.transaction import Transaction
 from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, MemberNotFoundError, AdminNotFoundError
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
