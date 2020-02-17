@@ -2,19 +2,19 @@
 """
 Contain all the http http_api functions.
 """
-from connexion import NoContent
 from dataclasses import asdict
 
+from connexion import NoContent
+
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.member import Member
 from src.exceptions import MemberNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import FullMutationRequest, PartialMutationRequest, MemberManager
 from src.util.context import log_extra
-from src.util.int_or_none import int_or_none
 from src.util.log import LOG
 
 
@@ -38,7 +38,7 @@ class MemberHandler:
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            result = list(map(_map_member_to_http_response, result))
+            result = list(map(serialize_response, result))
             return result, 200, headers  # 200 OK
 
         except UserInputError as e:
@@ -57,7 +57,7 @@ class MemberHandler:
         """ Get a specific member. """
         LOG.debug("http_member_get_called", extra=log_extra(ctx, username=username))
         try:
-            return _map_member_to_http_response(self.member_manager.get_by_username(ctx, username)), 200  # 200 OK
+            return serialize_response(self.member_manager.get_by_username(ctx, username)), 200  # 200 OK
 
         except MemberNotFoundError:
             return NoContent, 404  # 404 Not Found
@@ -153,22 +153,6 @@ class MemberHandler:
             return self.member_manager.get_logs(ctx, username, dhcp=dhcp), 200
         except MemberNotFoundError:
             return NoContent, 404
-
-
-
-def _map_member_to_http_response(member: Member) -> dict:
-    fields = {
-        'email': member.email,
-        'firstName': member.first_name,
-        'lastName': member.last_name,
-        'username': member.username,
-        'departureDate': member.departure_date,
-        'comment': member.comment,
-        'associationMode': member.association_mode,
-        'roomNumber': int_or_none(member.room_number),
-    }
-
-    return {k: v for k, v in fields.items() if v is not None}
 
 
 def _map_http_request_to_partial_mutation_request(body) -> PartialMutationRequest:

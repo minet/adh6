@@ -3,11 +3,11 @@ import requests
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.device import DeviceType, Device
 from src.exceptions import DeviceNotFoundError, NoMoreIPAvailableException
 from src.exceptions import UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.device_manager import MutationRequest, DeviceManager
@@ -40,7 +40,7 @@ class DeviceHandler:
             "X-Total-Count": count,
             "access-control-expose-headers": "X-Total-Count"
         }
-        return list(map(_map_device_to_http_response, result)), 200, headers
+        return list(map(serialize_response, result)), 200, headers
 
     @with_context
     @require_sql
@@ -85,7 +85,7 @@ class DeviceHandler:
         """ Return the device specified by the macAddress """
         LOG.debug("http_device_get_called", extra=log_extra(ctx, mac=mac_address))
         try:
-            return _map_device_to_http_response(self.device_manager.get_by_mac_address(ctx, mac_address)), 200  # 200 OK
+            return serialize_response(self.device_manager.get_by_mac_address(ctx, mac_address)), 200  # 200 OK
 
         except DeviceNotFoundError:
             return NoContent, 404  # 404 Not Found
@@ -116,18 +116,3 @@ class DeviceHandler:
 
         else:
             return NoContent, 404
-
-
-def _map_device_to_http_response(device: Device) -> dict:
-    con_types = {
-        DeviceType.Wired: 'wired',
-        DeviceType.Wireless: 'wireless',
-    }
-    fields = {
-        'mac': device.mac_address,
-        'ipAddress': device.ip_v4_address,
-        'ipv6Address': device.ip_v6_address,
-        'connectionType': con_types.get(device.connection_type),
-        'username': device.owner_username,
-    }
-    return {k: v for k, v in fields.items() if v is not None}

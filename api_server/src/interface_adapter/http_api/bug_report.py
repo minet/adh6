@@ -1,16 +1,8 @@
 # coding=utf-8
-from dataclasses import asdict
 
-from connexion import NoContent
 from gitlab.v4.objects import ProjectIssue
 
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.transaction import Transaction
-from src.exceptions import UserInputError, TransactionNotFoundError
-from src.interface_adapter.http_api.account import _map_account_to_http_response
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.payment_method import _map_payment_method_to_http_response
-from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.bug_report_manager import BugReportManager

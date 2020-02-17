@@ -2,17 +2,16 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.port import Port
 from src.exceptions import PortNotFoundError, UserInputError, SwitchNotFoundError
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin, auth_super_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
 from src.use_case.port_manager import MutationRequest, PortManager
 from src.use_case.switch_manager import SwitchManager
 from src.util.context import log_extra
-from src.util.int_or_none import int_or_none
 from src.util.log import LOG
 
 
@@ -39,7 +38,7 @@ class PortHandler:
                 'access-control-expose-headers': 'X-Total-Count',
                 'X-Total-Count': str(count)
             }
-            return list(map(_map_port_to_http_response, result)), 200, headers
+            return list(map(serialize_response, result)), 200, headers
 
         except UserInputError as e:
             return bad_request(e), 400
@@ -75,7 +74,7 @@ class PortHandler:
 
         try:
             result = self.port_manager.get_by_id(ctx, port_id=port_id)
-            return _map_port_to_http_response(result), 200
+            return serialize_response(result), 200
         except PortNotFoundError:
             return NoContent, 404
 
@@ -181,13 +180,3 @@ class PortHandler:
     @auth_regular_admin
     def mab_put(self, ctx, port_id, mab):
         return NoContent, 501
-
-
-def _map_port_to_http_response(port: Port) -> dict:
-    fields = {
-        'id': int_or_none(port.id),
-        'portNumber': port.port_number,
-        'roomNumber': int_or_none(port.room_number),
-        'switchID': int_or_none(port.switch_info.switch_id),
-    }
-    return {k: v for k, v in fields.items() if v is not None}
