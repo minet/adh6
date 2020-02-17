@@ -19,7 +19,7 @@ servers:
 paths:
   /health:
     get:
-      summary: Retrieves the health of the API server
+      summary: Retrieve the health of the API server
       description: >
         This endpoint allows for better monitoring of the state of the API.
         **TODO**: Improve the amount of information returned
@@ -30,6 +30,8 @@ paths:
         503:
           description: Database is down.
       security: []
+      tags:
+      - misc
   /oauth2/authorize:
     summary: Performs OAuth2 authorization
     description: >
@@ -87,12 +89,16 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - oauth2
       security: []
     post: 
       operationId: authorize_post
       responses:
         '200':
           description: OK
+      tags:
+      - oauth2
       security: []
   /oauth2/profile:
     get: 
@@ -104,6 +110,8 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - oauth2
       security: []
   /oauth2/.well-known/openid-configuration:
     get:
@@ -116,10 +124,12 @@ paths:
       responses:
         '200':
           description: OK
+      tags:
+      - oauth2
       security: []
   /stats:
     get:
-      summary: Retrieves global ADH6 statistics and trivia
+      summary: Retrieve global ADH6 statistics and trivia
       description: >
         This endpoint returns useful insights, statistics and data.
         It *may* be used for monitoring, although its main purpose is to be displayed as part of a dashboard.
@@ -137,6 +147,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
+      tags:
+      - misc
   /account/:
     get:
       parameters:
@@ -181,7 +193,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractAccount'
-        description: New values of the account
+        description: The account to create
         required: true
       responses:
         200:
@@ -196,7 +208,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Create account
+      summary: Create an account
       tags:
       - account
   /account/{account_id}:
@@ -224,16 +236,16 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve an account
       tags:
       - account
-    patch:
+    put:
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractAccount'
-        description: New values of the account
+        description: The new values for this account
         required: true
       responses:
         204:
@@ -246,7 +258,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Partially update
+      summary: Udate an account
       tags:
       - account
   /account_type/:
@@ -274,7 +286,7 @@ paths:
           description: Invalid input
       summary: Filter account types
       tags:
-      - account_type
+      - account
   /account_type/{account_type_id}:
     parameters:
       - in: path
@@ -301,7 +313,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account type
       tags:
-      - account_type
+      - account
   /device/:
     get:
       parameters:
@@ -336,6 +348,31 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter devices
+      tags:
+      - device
+    post:
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbstractDevice'
+        description: The device to create
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: The created device
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create device
       tags:
       - device
   /device/{device_id}:
@@ -387,7 +424,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractDevice'
-        description: Device to update
+        description: The new values for this device
         required: true
       responses:
         201:
@@ -406,14 +443,14 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Update/create a device
+      summary: Update a device
       tags:
       - device
   /device/{device_id}/vendor:
     get:
       operationId: vendor_get
       parameters:
-      - description: The unique identifier of the device that will be looked up
+      - description: The unique identifier of the device
         in: path
         name: device_id
         required: true
@@ -478,6 +515,31 @@ paths:
       summary: Filter members
       tags:
       - member
+    post:
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbstractMember'
+        description: The member to create
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+          description: The created account
+        400:
+          $ref: '#/components/responses/Invalid'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create a member
+      tags:
+      - member
   /member/{member_id}:
     parameters:
       - description: The unique identifier of the member
@@ -499,7 +561,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Delete
+      summary: Delete a member
       tags:
       - member
     get:
@@ -518,7 +580,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve a member
       tags:
       - member
     patch:
@@ -527,7 +589,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractMember'
-        description: New values of the member
+        description: The new values for thid member
         required: true
       responses:
         204:
@@ -540,7 +602,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Partially update
+      summary: Partially update a member
       tags:
       - member
     put:
@@ -549,7 +611,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Member'
-        description: New values of the member
+        description: The new values for this member
         required: true
       responses:
         201:
@@ -562,7 +624,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Update/create
+      summary: Update a member
       tags:
       - member
   /member/{member_id}/logs/:
@@ -595,11 +657,9 @@ paths:
           $ref: '#/components/responses/Invalid'
         401:
           $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Get the most recent logs
+      summary: Retrieve the most recent logs of a member
       tags:
       - member
   /member/{member_id}/membership/:
@@ -614,7 +674,7 @@ paths:
           example: 0
       - description: Just a random string to ensure that membership creation is idempotent
           (very important since double submission may result to the member being charged
-          two times). I recommand using a long random string for that.
+          two times). I recommend using a long random string for that.
         in: header
         name: X-Idempotency-Key
         schema:
@@ -645,7 +705,7 @@ paths:
   /member/{member_id}/password/:
     put:
       parameters:
-      - description: The unique identifier of the member that will be updated
+      - description: The unique identifier of the member
         in: path
         name: member_id
         required: true
@@ -677,7 +737,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Update password
+      summary: Update the password of a member
       tags:
       - member
   /payment_method/:
@@ -705,7 +765,7 @@ paths:
           description: Invalid input
       summary: Filter payment methods
       tags:
-      - payment_method
+      - transaction
   /payment_method/{payment_method_id}:
     parameters:
       - in: path
@@ -732,7 +792,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
       tags:
-      - payment_method
+      - transaction
   /port/:
     get:
       parameters:
@@ -761,7 +821,7 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-                example: 0
+                example: 25
         400:
           $ref: '#/components/responses/Invalid'
         401:
@@ -780,7 +840,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Port'
-        description: Port to create
+        description: The port to create
         required: true
       responses:
         200:
@@ -848,7 +908,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Port'
-        description: Port to update
+        description: The new values for this port
         required: true
       responses:
         204:
@@ -885,7 +945,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Check whether MAB is enabled on this port or not.
+      summary: Retrieve whether MAB is enabled on this port
       tags:
       - port
     put:
@@ -906,7 +966,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Enable/disable MAB on a port
+      summary: Update the state of MAB on a port
       tags:
       - port
   /port/{port_id}/state/:
@@ -925,7 +985,7 @@ paths:
             application/json:
               schema:
                 type: boolean
-          description: Success, false if it is shutdown, true otherwise
+          description: Whether the port is active
         400:
           $ref: '#/components/responses/Invalid'
         401:
@@ -934,7 +994,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the status of a port.
+      summary: Retrieve the state of a port
       tags:
       - port
     put:
@@ -943,7 +1003,7 @@ paths:
           application/json:
             schema:
               type: boolean
-        description: True to open, False to shutdown
+        description: The new state of the port
         required: true
       responses:
         204:
@@ -956,7 +1016,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Shutdown/enable a port
+      summary: Update the state of a port
       tags:
       - port
   /port/{port_id}/vlan/:
@@ -976,7 +1036,7 @@ paths:
               schema:
                 example: 48
                 type: integer
-          description: Success, returns 1 if the port has authentication on
+          description: The VLAN assigned to this port
         400:
           $ref: '#/components/responses/Invalid'
         401:
@@ -985,7 +1045,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the VLAN assigned to the port.
+      summary: Retrieve the VLAN assigned to a port
       tags:
       - port
     put:
@@ -994,9 +1054,9 @@ paths:
           application/json:
             schema:
               example: 48
+              nullable: true
               type: integer
-        description: VLAN to assign. Set it to 1 if you want to enable authentication
-          on the port.
+        description: The VLAN to assign. Set to `null` to simply restore to the default VLAN
         required: true
       responses:
         204:
@@ -1009,7 +1069,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Change the VLAN assigned a to port
+      summary: Update the VLAN assigned to a port
       tags:
       - port
   /product/:
@@ -1037,7 +1097,7 @@ paths:
           description: Invalid input
       summary: Filter products
       tags:
-      - product
+      - treasury
   /product/{product_id}:
     parameters:
       - description: The id of the product that needs to be fetched.
@@ -1063,9 +1123,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve a product
       tags:
-      - product
+      - treasury
   /room/:
     get:
       parameters:
@@ -1094,6 +1154,7 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+                example: 25
         400:
           $ref: '#/components/responses/Invalid'
         401:
@@ -1110,7 +1171,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Room'
-        description: Room to create
+        description: The room to create
         required: true
       responses:
         200:
@@ -1177,7 +1238,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Room'
-        description: Room to update
+        description: The new values for this room
         required: true
       responses:
         201:
@@ -1240,7 +1301,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Switch'
-        description: Switch to create
+        description: The switch to create
         required: true
       responses:
         200:
@@ -1306,7 +1367,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Switch'
-        description: Switch to update
+        description: The new values for this switch
         required: true
       responses:
         204:
@@ -1333,7 +1394,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractTransaction'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1369,7 +1429,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractTransaction'
-        description: Transaction to create
+        description: The transaction to create
         required: true
       responses:
         200:
@@ -1416,7 +1476,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Add an attachment to a transaction
+      summary: Upload an attachment to a transaction
       tags:
       - transaction
   /transaction/{transaction_id}:
@@ -1444,7 +1504,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve a transaction
       tags:
       - transaction
     put:
@@ -1453,7 +1513,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractTransaction'
-        description: New values of the transaction
+        description: The new values for this transaction
         required: true
       responses:
         204:
@@ -1466,7 +1526,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Partially update
+      summary: Update a transaction
       tags:
       - transaction
   /bug_report/:
@@ -1477,10 +1537,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/BugReport'
-        description: BugReport to create
+        description: The bug report to create
         required: true
       responses:
-        200:
+        204:
           description: Created
         400:
           $ref: '#/components/responses/Invalid'
@@ -1488,9 +1548,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Submit a new bug report
+      summary: Create a new bug report
       tags:
-      - bug_report
+      - misc
     get:
       operationId: get_labels
       responses:
@@ -1509,6 +1569,9 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the available Gitlab labels
+      tags:
+      - misc
   /treasury/caisse:
     get:
       operationId: get_caisse
@@ -1532,7 +1595,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve the state of the caisse
       tags:
       - treasury
   /treasury/bank:
@@ -1554,7 +1617,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve
+      summary: Retrieve the expected state of MiNET's bank accounts
       tags:
       - treasury
 
@@ -2068,4 +2131,13 @@ tags:
   name: switch
 - description: Operations on ports
   name: port
-
+- description: Operations on accounts
+  name: account
+- description: Operations on transactions
+  name: transaction
+- description: Operations on the treasury
+  name: treasury
+- description: Miscellaneous endpoints
+  name: misc
+- description: OAuth2-related endpoints
+  name: oauth2
