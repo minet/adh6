@@ -46,7 +46,7 @@ class TestSearch:
         assert [sample_account] == result
         assert 1 == count
         mock_account_repository.search_account_by.assert_called_once_with(ctx, limit=42, offset=2, account_id=None,
-                                                                          terms='abc')
+                                                                          terms='abc', pinned=None)
 
     def test_offset_negative(self,
                              ctx,
