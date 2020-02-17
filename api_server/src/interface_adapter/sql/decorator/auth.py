@@ -10,6 +10,7 @@ from flask import current_app
 from sqlalchemy.orm.exc import NoResultFound
 
 from src.constants import CTX_SQL_SESSION
+from src.entity.admin import Admin
 from src.exceptions import AdminNotFoundError
 from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
 from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
@@ -77,7 +78,7 @@ def auth_regular_admin(f):
             # User is not in the right group and we are not testing, do not allow.
             return NoContent, 401
 
-        ctx = build_context(ctx=ctx, login=admin.login)
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
         return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
     return wrapper
@@ -91,7 +92,7 @@ def auth_super_admin(f):
     @wraps(f)
     def wrapper(cls, ctx, *args, **kwargs):
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, login=admin.login)
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
         return f(cls, ctx, *args, **kwargs)
 
     # def wrapper(cls, ctx, *args, user, token_info, **kwargs):
