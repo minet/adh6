@@ -38,6 +38,12 @@ class RoomHandler:
 
     @with_context
     @require_sql
+    @auth_regular_admin
+    def post(self, ctx, body):
+        pass
+
+    @with_context
+    @require_sql
     @auth_super_admin
     def put(self, ctx, room_number, body):
         """ Update/create a room in the database """

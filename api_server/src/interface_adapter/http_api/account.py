@@ -80,7 +80,7 @@ class AccountHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def patch(self, ctx, account_id, body):
+    def put(self, ctx, account_id, body):
         """ Partially update an account from the database """
         LOG.debug("http_account_patch_called", extra=log_extra(ctx, account_id=account_id, request=body))
         try:

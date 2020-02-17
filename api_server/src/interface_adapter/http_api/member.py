@@ -47,6 +47,12 @@ class MemberHandler:
     @with_context
     @require_sql
     @auth_regular_admin
+    def post(self, ctx, body):
+        pass
+
+    @with_context
+    @require_sql
+    @auth_regular_admin
     def get(self, ctx, username):
         """ Get a specific member. """
         LOG.debug("http_member_get_called", extra=log_extra(ctx, username=username))

@@ -45,6 +45,12 @@ class DeviceHandler:
     @with_context
     @require_sql
     @auth_regular_admin
+    def post(self, ctx, body):
+        pass
+
+    @with_context
+    @require_sql
+    @auth_regular_admin
     def put(self, ctx, mac_address, body):
         """ Put (update or create) a new device in the database """
         LOG.debug("http_device_put_called", extra=log_extra(ctx, mac=mac_address, request=body))
