@@ -1622,7 +1622,7 @@ components:
           example: true
           type: boolean
           default: false
-        compte_courant:
+        compteCourant:
           description: Whether this account depends on MiNET's main account
           example: true
           type: boolean
@@ -1633,7 +1633,7 @@ components:
             - $ref: '#/components/schemas/AccountType'
             - type: integer
           example: 2
-        creation_date:
+        creationDate:
           description: The date-time at which this account was first created
           format: date-time
           type: string
@@ -1660,7 +1660,7 @@ components:
           type: number
           format: double
           example: 332.4
-        pending_balance:
+        pendingBalance:
           description: The pending balance of this account
           readOnly: true
           nullable: true
@@ -1675,7 +1675,7 @@ components:
             - type
             - name
             - balance
-            - pending_balance
+            - pendingBalance
     AccountType:
       type: object
       required:
@@ -1742,7 +1742,7 @@ components:
             - $ref: '#/components/schemas/Member'
             - type: integer
           example: 6
-        pending_validation:
+        pendingValidation:
           description: Whether this transaction is awaiting confirmation from a member with higher privileges
           example: true
           type: boolean
@@ -1778,19 +1778,19 @@ components:
       required:
         - id
         - name
-        - selling_price
+        - sellingPrice
       properties:
         id:
           description: The unique identifier of this product
           example: 0
           readOnly: true
           type: integer
-        buying_price:
+        buyingPrice:
           description: The buying price of this product
           example: 42.3
           type: number
           format: double
-        selling_price:
+        sellingPrice:
           description: The selling price of this product
           example: 43.2
           type: number
@@ -2028,7 +2028,7 @@ components:
     Statistics:
       type: object
       properties:
-        active_accounts:
+        activeAccounts:
           description: The count of active accounts
           type: integer
           example: 5
