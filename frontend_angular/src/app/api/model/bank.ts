@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-export interface Statistics { 
+export interface Bank { 
     /**
-     * The count of active accounts
+     * the expected balance of MiNET's CAV accunt
      */
-    readonly activeAccounts?: number;
+    expectedCav?: number;
 }

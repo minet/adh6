@@ -2,9 +2,8 @@ import {Component, OnInit} from '@angular/core';
 
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import {TreasuryService} from '../api';
-
 import {first, map} from 'rxjs/operators';
+import {TreasuryService} from '../api';
 
 @Component({
   selector: 'app-treasury',

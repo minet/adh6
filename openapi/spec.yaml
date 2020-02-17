@@ -467,6 +467,7 @@ paths:
                     example: Cisco Systems, Inc
                     type: string
                 type: object
+                title: vendor
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1564,6 +1565,7 @@ paths:
                       type: string
                     type: array
                 type: object
+                title: labels
           description: Success
         401:
           $ref: '#/components/responses/Unauthorized'
@@ -1590,6 +1592,7 @@ paths:
                     example: 1
                     type: number
                 type: object
+                title: caisse
           description: Success
         401:
           $ref: '#/components/responses/Unauthorized'
@@ -1612,6 +1615,7 @@ paths:
                     type: number
                     format: double
                 type: object
+                title: bank
           description: Success
         401:
           $ref: '#/components/responses/Unauthorized'
