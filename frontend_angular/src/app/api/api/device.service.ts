@@ -289,10 +289,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public devicePost(body: AbstractDevice, observe?: 'body', reportProgress?: boolean): Observable<Device>;
-    public devicePost(body: AbstractDevice, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Device>>;
-    public devicePost(body: AbstractDevice, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Device>>;
-    public devicePost(body: AbstractDevice, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public devicePost(body: Device, observe?: 'body', reportProgress?: boolean): Observable<Device>;
+    public devicePost(body: Device, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Device>>;
+    public devicePost(body: Device, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Device>>;
+    public devicePost(body: Device, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling devicePost.');

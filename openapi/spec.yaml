@@ -192,7 +192,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractAccount'
+              $ref: '#/components/schemas/Account'
         description: The account to create
         required: true
       responses:
@@ -356,7 +356,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractDevice'
+              $ref: '#/components/schemas/Device'
         description: The device to create
         required: true
       responses:
@@ -522,7 +522,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMember'
+              $ref: '#/components/schemas/Member'
         description: The member to create
         required: true
       responses:
@@ -804,7 +804,7 @@ paths:
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/Port'
+          $ref: '#/components/schemas/AbstractPort'
           required: []
         style: deepObject
         explode: true
@@ -908,7 +908,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Port'
+              $ref: '#/components/schemas/AbstractPort'
         description: The new values for this port
         required: true
       responses:
@@ -1137,7 +1137,7 @@ paths:
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/Room'
+          $ref: '#/components/schemas/AbstractRoom'
           required: []
         style: deepObject
         explode: true
@@ -1238,7 +1238,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Room'
+              $ref: '#/components/schemas/AbstractRoom'
         description: The new values for this room
         required: true
       responses:
@@ -1267,7 +1267,7 @@ paths:
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/Switch'
+          $ref: '#/components/schemas/AbstractSwitch'
           required: []
         style: deepObject
         explode: true
@@ -1367,7 +1367,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Switch'
+              $ref: '#/components/schemas/AbstractSwitch'
         description: The new values for this switch
         required: true
       responses:
@@ -1429,7 +1429,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractTransaction'
+              $ref: '#/components/schemas/Transaction'
         description: The transaction to create
         required: true
       responses:
@@ -1815,6 +1815,13 @@ components:
           type: boolean
           readOnly: true
           default: false
+        caisse:
+          description: Whether to use the caisse or not
+          enum:
+            - to
+            - from
+            - direct
+          writeOnly: true
     Transaction:
       allOf:
         - $ref: '#/components/schemas/AbstractTransaction'
@@ -1922,7 +1929,7 @@ components:
           description: The login of this administrator
           example: PowerfulPotato
           type: string
-        role:
+        roles:
           description: The list of roles of this administrator
           example: [ "ADH6_USER", "ADH6_ADMIN" ]
           type: array
@@ -2005,13 +2012,8 @@ components:
           default: true
           type: boolean
           example: false
-    Room:
+    AbstractRoom:
       type: object
-      required:
-        - id
-        - description
-        - roomNumber
-        - vlan
       properties:
         id:
           description: The unique identifier of this room
@@ -2031,13 +2033,16 @@ components:
           description: The main vlan assigned to this room
           type: integer
           example: 41
-    Port:
+    Room:
+      allOf:
+        - $ref: '#/components/schemas/AbstractRoom'
+        - required:
+            - id
+            - description
+            - roomNumber
+            - vlan
+    AbstractPort:
       type: object
-      required:
-        - id
-        - portNumber
-        - room
-        - switch
       properties:
         id:
           description: The unique identifier of this port
@@ -2048,6 +2053,10 @@ components:
           description: The friendly (Cisco) number of this port
           nullable: true
           example: 1/0/4
+          type: string
+        oid:
+          description: The oid of this port for SNMP access
+          example: 10104
           type: string
         room:
           description: The room this port is in
@@ -2061,13 +2070,17 @@ components:
             - $ref: '#/components/schemas/Switch'
             - type: integer
           example: 4
-    Switch:
+    Port:
+      allOf:
+        - $ref: '#/components/schemas/AbstractPort'
+        - required:
+            - id
+            - portNumber
+            - oid
+            - room
+            - switch
+    AbstractSwitch:
       type: object
-      required:
-        - id
-        - description
-        - community
-        - ip
       properties:
         id:
           description: The unique identifier of this switch
@@ -2087,6 +2100,14 @@ components:
           description: The IPv4 address of this switch
           example: 192.168.102.211
           type: string
+    Switch:
+      allOf:
+        - $ref: '#/components/schemas/AbstractSwitch'
+        - required:
+            - id
+            - description
+            - community
+            - ip
     Vlan:
       type: object
       required:

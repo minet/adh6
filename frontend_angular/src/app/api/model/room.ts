@@ -9,22 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { AbstractRoom } from './abstractRoom';
 
-export interface Room { 
-    /**
-     * The unique identifier of this room
-     */
-    readonly id: number;
-    /**
-     * The friendly description of this room
-     */
-    description: string;
-    /**
-     * The room number according to the Maisel
-     */
-    roomNumber: number;
-    /**
-     * The main vlan assigned to this room
-     */
-    vlan: number;
+export interface Room extends AbstractRoom { 
 }

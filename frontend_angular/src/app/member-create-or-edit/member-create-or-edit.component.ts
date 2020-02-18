@@ -2,13 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import {MemberService} from '../api';
-import {Member} from '../api';
+import {AbstractMember, Member, MemberService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, flatMap} from 'rxjs/operators';
-import {EMPTY, Observable, of} from 'rxjs';
-import {Utils} from '../utils';
-import {MemberPatchRequest} from '../api';
+import {EMPTY, of} from 'rxjs';
 
 
 @Component({
@@ -21,7 +18,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
   disabled = true;
   create = false;
   memberEdit: FormGroup;
-  private originalUsername;
+  member_id: number;
 
   constructor(
     public memberService: MemberService,
@@ -65,52 +62,30 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.disabled = true;
     const v = this.memberEdit.value;
 
-    // If you create a user, then use the username from the formGroup.
-    // If you update a user, since the admin might have modified their username, you better use the original one (the one loaded at
-    // initialization of the page).
-    let requestUsername = v.username;
-    if (!this.create) {
-      requestUsername = this.originalUsername;
-    }
-
     of(this.create)
       .pipe(
-        flatMap((create) => {
-          if (create) {
-            // We don't want to override with PUT so we check if the member exist.
-            return Utils.hasReturned404(this.memberService.memberUsernameGet(v.username));
-          }
-          // If we try to modify, OK.
-          return of(true);
-        }),
-        flatMap((canCreate) => {
-          if (!canCreate) {
-            return EMPTY;
-          }
-          return of(null);
-        }),
         flatMap(() => {
           if (!this.create) {
-            const req: MemberPatchRequest = {
+            const abstractMember: AbstractMember = {
               email: v.email,
               firstName: v.firstName,
               lastName: v.lastName,
               username: v.username,
             };
             if (v.roomNumber) {
-              req.roomNumber = v.roomNumber;
+              abstractMember.room = v.roomNumber;
             }
-            return this.memberService.memberUsernamePatch(req, requestUsername, 'response');
+            return this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'response');
           } else {
-            const req: Member = {
+            const req: AbstractMember = {
               email: v.email,
               firstName: v.firstName,
               lastName: v.lastName,
               username: v.username,
-              roomNumber: (v.roomNumber == null ? 0 : v.roomNumber),
+              room: v.roomNumber,
               departureDate: new Date(),
             };
-            return this.memberService.memberUsernamePut(req, requestUsername, 'response');
+            return this.memberService.memberPost(req, 'response');
           }
         }),
         first(),
@@ -129,7 +104,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
 
   memberUsernameDelete() {
     this.disabled = true;
-    this.memberService.memberUsernameDelete(this.originalUsername, 'response')
+    this.memberService.memberMemberIdDelete(this.member_id, 'response')
       .pipe(
         first(),
         finalize(() => this.disabled = false),
@@ -144,8 +119,8 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.route.paramMap
       .pipe(
         flatMap((params: ParamMap) => {
-          if (params.has('username')) {
-            return of(params.get('username'));
+          if (params.has('member_id')) {
+            return of(params.get('member_id'));
           } else {
             // If username is not provided, we assume this is a create request
             this.disabled = false;
@@ -153,11 +128,11 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             return EMPTY;
           }
         }),
-        flatMap((username) => this.memberService.memberUsernameGet(username)),
+        flatMap((member_id) => this.memberService.memberMemberIdGet(+member_id)),
         first(),
       )
       .subscribe((member: Member) => {
-        this.originalUsername = member.username;
+        this.member_id = member.id;
         this.memberEdit.patchValue(member);
         this.disabled = false;
       });

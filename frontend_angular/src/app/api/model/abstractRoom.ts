@@ -10,13 +10,21 @@
  * Do not edit the class manually.
  */
 
-export interface Admin { 
+export interface AbstractRoom { 
     /**
-     * The login of this administrator
+     * The unique identifier of this room
      */
-    login: string;
+    readonly id?: number;
     /**
-     * The list of roles of this administrator
+     * The friendly description of this room
      */
-    roles: Array<string>;
+    description?: string;
+    /**
+     * The room number according to the Maisel
+     */
+    roomNumber?: number;
+    /**
+     * The main vlan assigned to this room
+     */
+    vlan?: number;
 }

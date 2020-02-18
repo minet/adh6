@@ -242,10 +242,10 @@ export class TransactionService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public transactionPost(body: AbstractTransaction, observe?: 'body', reportProgress?: boolean): Observable<Transaction>;
-    public transactionPost(body: AbstractTransaction, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Transaction>>;
-    public transactionPost(body: AbstractTransaction, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Transaction>>;
-    public transactionPost(body: AbstractTransaction, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionPost(body: Transaction, observe?: 'body', reportProgress?: boolean): Observable<Transaction>;
+    public transactionPost(body: Transaction, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Transaction>>;
+    public transactionPost(body: Transaction, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Transaction>>;
+    public transactionPost(body: Transaction, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling transactionPost.');

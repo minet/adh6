@@ -2,19 +2,11 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 
 import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 
-import {AccountService, MemberService} from '../api';
-
-import {DeviceService} from '../api';
-
-import {RoomService} from '../api';
-
-import {SwitchService} from '../api';
-
-import {PortService} from '../api';
-import {Port} from '../api';
+import {AccountService, DeviceService, MemberService, Port, PortService, RoomService, SwitchService} from '../api';
 import {Router} from '@angular/router';
+import {Member} from '../api/model/member';
 
 class QueryParams {
   highlight: string;
@@ -69,6 +61,10 @@ export class GlobalSearchComponent implements OnInit {
   ) {
   }
 
+  private static capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
   search(terms: string) {
     this.searchTerm$.next(terms);
   }
@@ -96,7 +92,7 @@ export class GlobalSearchComponent implements OnInit {
           mergeMap((array) => from(array)),
           map((obj) => new SearchResult(
             'user',
-            `${this.capitalizeFirstLetter(obj.firstName)} ${obj.lastName.toUpperCase()}`,
+            `${GlobalSearchComponent.capitalizeFirstLetter(obj.firstName)} ${obj.lastName.toUpperCase()}`,
             ['/member/view', obj.username]
           )),
         );
@@ -106,16 +102,16 @@ export class GlobalSearchComponent implements OnInit {
           map((obj) => new SearchResult(
             'account',
             obj.name,
-            ['/account/view','' + obj.id]
+            ['/account/view', '' + obj.id]
           )),
         );
 
-        const device$ = this.deviceService.deviceGet(LIMIT, undefined, undefined, terms).pipe(
+        const device$ = this.deviceService.deviceGet(LIMIT, undefined, undefined).pipe(
           mergeMap((array) => from(array)),
           map((obj) => new SearchResult(
             'device',
             obj.mac,
-            ['/member/view/', obj.username],
+            ['/member/view/', (obj.member as Member).username],
             {'highlight': obj.mac}
           )),
         );
@@ -129,13 +125,13 @@ export class GlobalSearchComponent implements OnInit {
           map((obj) => new SearchResult('switch', obj.description, ['/switch/view', obj.id.toString()])),
         );
 
-        const port$ = this.portService.portGet(LIMIT, undefined, undefined, undefined, terms).pipe(
+        const port$ = this.portService.portGet(LIMIT, undefined, terms).pipe(
           mergeMap((array: Array<Port>) => from(array)),
           map((obj: Port) =>
             new SearchResult(
               'port',
-              `Switch ${obj.switchID} ${obj.portNumber}`,
-              ['/switch/view', obj.switchID.toString(), 'port', obj.id.toString()]
+              `Switch ${obj._switch} ${obj.portNumber}`,
+              ['/switch/view', obj._switch.toString(), 'port', obj.id.toString()]
             )),
         );
 
@@ -162,12 +158,8 @@ export class GlobalSearchComponent implements OnInit {
 
   typeaheadOnSelect(e: TypeaheadMatch) {
     this.router.navigate(e.item.link);
-    this.searchBox = "";
+    this.searchBox = '';
     this.searchInput.nativeElement.blur();
-  }
-
-  private capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
 }

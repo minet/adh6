@@ -17,6 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
+import { AbstractPort } from '../model/abstractPort';
 import { Port } from '../model/port';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -114,10 +115,10 @@ export class PortService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: Port, observe?: 'body', reportProgress?: boolean): Observable<Array<Port>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: Port, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Port>>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: Port, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Port>>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: Port, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, observe?: 'body', reportProgress?: boolean): Observable<Array<Port>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Port>>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Port>>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
 
@@ -337,10 +338,10 @@ export class PortService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public portPortIdPut(body: Port, portId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public portPortIdPut(body: Port, portId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdPut(body: Port, portId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdPut(body: Port, portId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public portPortIdPut(body: AbstractPort, portId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling portPortIdPut.');

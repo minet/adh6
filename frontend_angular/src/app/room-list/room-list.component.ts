@@ -2,8 +2,7 @@ import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {RoomService} from '../api';
-import {Room} from '../api';
+import {Room, RoomService} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';
@@ -37,7 +36,7 @@ export class RoomListComponent extends SearchPage implements OnInit {
 
   private fetchRoom(terms: string, page: number) {
     const n = +PagingConf.item_count;
-    return this.roomService.roomGet(n, (page - 1) * n, terms, 'response')
+    return this.roomService.roomGet(n, (page - 1) * n, terms, undefined, 'response')
       .pipe(
         map((response) => <RoomListResult>{
           room: response.body,

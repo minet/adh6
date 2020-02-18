@@ -1,15 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import { AccountService } from '../api';
-import { Account } from '../api';
-import { NotificationsService } from 'angular2-notifications';
-import { Observable } from "rxjs";
-import { switchMap, takeWhile } from 'rxjs/operators';
-import { AccountType } from '../api';
-import { AccountTypeService } from '../api';
-import { AccountPatchRequest } from '../api';
+import {AbstractAccount, Account, AccountService, AccountType} from '../api';
+import {NotificationsService} from 'angular2-notifications';
+import {Observable} from 'rxjs';
+import {switchMap, takeWhile} from 'rxjs/operators';
 
 @Component({
   selector: 'app-account-edit',
@@ -29,7 +25,6 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    public accountTypeService: AccountTypeService,
     private router: Router,
     private notif: NotificationsService,
   ) {
@@ -51,13 +46,13 @@ export class AccountEditComponent implements OnInit, OnDestroy {
 
     console.log(v);
 
-    const accountPatch: AccountPatchRequest = {
+    const accountPatch: AbstractAccount = {
       name: v.name,
       actif: v.actif,
       type: parseInt(v.type),
     };
 
-    this.accountService.accountAccountIdPatch(accountPatch, this.account.id, 'response')
+    this.accountService.accountAccountIdPut(accountPatch, this.account.id, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/account/view', this.account.id]);
@@ -68,11 +63,11 @@ export class AccountEditComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.accountTypes$ = this.accountTypeService.accountTypeGet();
+    this.accountTypes$ = this.accountService.accountTypeGet();
 
     this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.accountService.accountAccountIdGet(params.get('accountID'))),
+        switchMap((params: ParamMap) => this.accountService.accountAccountIdGet(+params.get('account_id'))),
         takeWhile(() => this.alive),
       )
       .subscribe((data: Account) => {

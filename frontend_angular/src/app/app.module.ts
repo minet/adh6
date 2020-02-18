@@ -2,13 +2,13 @@ import {BrowserModule} from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AppComponent} from './app.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {AppRoutingModule} from './app-routing.module';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
 import {MemberListComponent} from './member-list/member-list.component';
 import {MemberViewComponent} from './member-view/member-view.component';
-import {ApiModule} from './api';
+import {ApiModule, BASE_PATH} from './api';
 import {RoomListComponent} from './room-list/room-list.component';
 import {RoomDetailsComponent} from './room-details/room-details.component';
 import {RoomEditComponent} from './room-edit/room-edit.component';
@@ -30,39 +30,35 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
 import {LoginComponent} from './login/login.component';
 import {NgxPaginationModule} from 'ngx-pagination';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {AuthInterceptor} from './http-interceptor/auth-interceptor';
 import {NotifInterceptor} from './http-interceptor/notif-interceptor';
 import {MemberPasswordEditComponent} from './member-password-edit/member-password-edit.component';
-import {TreasuryComponent} from "./treasury/treasury.component";
+import {TreasuryComponent} from './treasury/treasury.component';
 import {ClickOutsideDirective, TransactionNewComponent} from './transaction-new/transaction-new.component';
-import {BASE_PATH} from './api';
 import {environment} from '../environments/environment';
-import { AccountCreateComponent } from './account-create/account-create.component';
-import { AccountViewComponent } from './account-view/account-view.component';
-import { AccountEditComponent } from './account-edit/account-edit.component';
-import { ProductCreateComponent } from './product-create/product-create.component';
-import { ProductViewComponent } from './product-view/product-view.component';
-import { ProductListComponent } from './product-list/product-list.component';
-import { ProductEditComponent } from './product-edit/product-edit.component';
-import { ModalModule } from 'ngx-bootstrap/modal';
+import {AccountCreateComponent} from './account-create/account-create.component';
+import {AccountViewComponent} from './account-view/account-view.component';
+import {AccountEditComponent} from './account-edit/account-edit.component';
+import {ProductListComponent} from './product-list/product-list.component';
+import {ModalModule} from 'ngx-bootstrap/modal';
 import {CustomPaginationComponent} from './custom-pagination.component';
-import { TransactionListComponent } from './transaction-list/transaction-list.component';
-import { ButtonsModule } from 'ngx-bootstrap/buttons';
-import { ObjectFilterPipe } from './ObjectFilter.pipe';
-import { MemberDeviceListComponent } from './member-device-list/member-device-list.component';
-import { AccountListComponent } from './account-list/account-list.component';
-import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
-import { AuthorizeComponent } from './authorize/authorize.component';
+import {TransactionListComponent} from './transaction-list/transaction-list.component';
+import {ButtonsModule} from 'ngx-bootstrap/buttons';
+import {ObjectFilterPipe} from './ObjectFilter.pipe';
+import {MemberDeviceListComponent} from './member-device-list/member-device-list.component';
+import {AccountListComponent} from './account-list/account-list.component';
+import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
+import {AuthorizeComponent} from './authorize/authorize.component';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
 import { PortailComponent } from './portail/portail.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
-export function storageFactory() : OAuthStorage {
-  return localStorage
+export function storageFactory(): OAuthStorage {
+  return localStorage;
 }
 
 @NgModule({
@@ -96,10 +92,7 @@ export function storageFactory() : OAuthStorage {
     TransactionNewComponent,
     AccountViewComponent,
     AccountEditComponent,
-    ProductCreateComponent,
-    ProductViewComponent,
     ProductListComponent,
-    ProductEditComponent,
     ClickOutsideDirective,
     CustomPaginationComponent,
     TransactionListComponent,
@@ -148,7 +141,7 @@ export function storageFactory() : OAuthStorage {
     },
     {provide: LOCALE_ID, useValue: 'en-US'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
-    { provide: OAuthStorage, useFactory: storageFactory },
+    {provide: OAuthStorage, useFactory: storageFactory},
   ],
   bootstrap: [AppComponent]
 })

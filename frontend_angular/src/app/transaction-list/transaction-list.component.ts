@@ -1,10 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SearchPage} from '../search-page';
 import {Observable} from 'rxjs';
-import {MemberService, Transaction, TransactionService} from '../api';
+import {Transaction, TransactionService} from '../api';
 import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';
 import {IconDefinition} from '@fortawesome/free-solid-svg-icons';
+import {AbstractTransaction} from '../api/model/abstractTransaction';
 
 
 export interface TransactionListResult {
@@ -14,7 +15,7 @@ export interface TransactionListResult {
   items_per_page?: number;
 }
 
-class Action {
+class Action {
   name: string;
   buttonText: string;
   buttonIcon: IconDefinition;
@@ -28,8 +29,8 @@ class Action {
 })
 export class TransactionListComponent extends SearchPage implements OnInit {
   @Input() asAccount: number;
-  @Output() onAction: EventEmitter<{name: string, transaction: Transaction}> = new EventEmitter<{name; string, transaction: Transaction}>();
-  @Input() refresh: EventEmitter<{action: string}>;
+  @Output() onAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter<{ name; string, transaction: Transaction }>();
+  @Input() refresh: EventEmitter<{ action: string }>;
 
   @Input() actions: Array<Action>;
 
@@ -57,7 +58,16 @@ export class TransactionListComponent extends SearchPage implements OnInit {
 
   private fetchTransaction(terms: string, page: number): Observable<TransactionListResult> {
     const n = +PagingConf.item_count;
-    return this.transactionService.transactionGet(n, (page - 1) * n, terms, this.asAccount, 'response')
+    let abstractTransaction: AbstractTransaction;
+    if (this.asAccount) {
+      abstractTransaction = {
+        src: this.asAccount,
+        dst: this.asAccount
+      };
+    } else {
+      abstractTransaction = undefined;
+    }
+    return this.transactionService.transactionGet(n, (page - 1) * n, terms, abstractTransaction, 'response')
       .pipe(
         map((response) => {
           return <TransactionListResult>{

@@ -19,7 +19,7 @@
           <dd class="col-md-10">{{ device.ipv6Address }}</dd>
 
           <dt class="col-md-2">Fabriquant</dt>
-          <dd class="col-md-10"><app-mac-vendor mac="{{ device.mac }}"></app-mac-vendor></dd>
+          <dd class="col-md-10"><app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor></dd>
         </dl>
 
         <a (click)="deviceDelete(device.mac)">

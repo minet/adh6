@@ -24,10 +24,7 @@ import {AccountCreateComponent} from './account-create/account-create.component'
 import {TransactionNewComponent} from './transaction-new/transaction-new.component';
 import {AccountViewComponent} from './account-view/account-view.component';
 import {AccountEditComponent} from './account-edit/account-edit.component';
-import {ProductViewComponent} from './product-view/product-view.component';
-import {ProductCreateComponent} from './product-create/product-create.component';
 import {ProductListComponent} from './product-list/product-list.component';
-import {ProductEditComponent} from './product-edit/product-edit.component';
 import {AccountListComponent} from './account-list/account-list.component';
 import {AuthorizeComponent} from './authorize/authorize.component';
 import {PortailComponent} from './portail/portail.component';
@@ -48,9 +45,9 @@ const routes: Routes = [
     children: [
       {path: 'search', component: MemberListComponent},
       {path: 'add', component: MemberCreateOrEditComponent},
-      {path: 'view/:username', component: MemberViewComponent},
-      {path: 'edit/:username', component: MemberCreateOrEditComponent},
-      {path: 'password/:username', component: MemberPasswordEditComponent},
+      {path: 'view/:member_id', component: MemberViewComponent},
+      {path: 'edit/:member_id', component: MemberCreateOrEditComponent},
+      {path: 'password/:member_id', component: MemberPasswordEditComponent},
     ],
   },
   {
@@ -59,8 +56,8 @@ const routes: Routes = [
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: RoomListComponent},
       {path: 'add', component: RoomNewComponent},
-      {path: 'view/:roomNumber', component: RoomDetailsComponent},
-      {path: 'edit/:roomNumber', component: RoomEditComponent},
+      {path: 'view/:room_id', component: RoomDetailsComponent},
+      {path: 'edit/:room_id', component: RoomEditComponent},
     ],
   },
   {
@@ -76,11 +73,11 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: SwitchListComponent},
-      {path: 'view/:switchID', component: SwitchDetailsComponent},
-      {path: 'edit/:switchID', component: SwitchEditComponent},
+      {path: 'view/:switch_id', component: SwitchDetailsComponent},
+      {path: 'edit/:switch_id', component: SwitchEditComponent},
       {path: 'add', component: SwitchNewComponent},
-      {path: 'view/:switchID/port/:portID', component: PortDetailsComponent},
-      {path: 'add/:switchID/port', component: PortNewComponent},
+      {path: 'view/:switch_id/port/:port_id', component: PortDetailsComponent},
+      {path: 'add/:switch_id/port', component: PortNewComponent},
     ],
   },
   {
@@ -102,8 +99,8 @@ const routes: Routes = [
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: AccountListComponent},
       {path: 'add', component: AccountCreateComponent},
-      {path: 'view/:accountID', component: AccountViewComponent},
-      {path: 'edit/:accountID', component: AccountEditComponent},
+      {path: 'view/:account_id', component: AccountViewComponent},
+      {path: 'edit/:account_id', component: AccountEditComponent},
     ]
   },
   {
@@ -111,7 +108,7 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'add', pathMatch: 'full'},
       {path: 'add', component: TransactionNewComponent},
-      {path: 'add/:accountID', component: TransactionNewComponent}
+      {path: 'add/:account_id', component: TransactionNewComponent}
     ]
   },
   {
@@ -119,9 +116,6 @@ const routes: Routes = [
     children: [
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: ProductListComponent},
-      {path: 'add', component: ProductCreateComponent},
-      {path: 'view/:productID', component: ProductViewComponent},
-      {path: 'edit/:productID', component: ProductEditComponent},
     ]
   }
 ];

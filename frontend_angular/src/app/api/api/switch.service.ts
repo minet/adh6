@@ -17,6 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
+import { AbstractSwitch } from '../model/abstractSwitch';
 import { ModelSwitch } from '../model/modelSwitch';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -65,10 +66,10 @@ export class SwitchService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: ModelSwitch, observe?: 'body', reportProgress?: boolean): Observable<Array<ModelSwitch>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: ModelSwitch, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<ModelSwitch>>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: ModelSwitch, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<ModelSwitch>>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: ModelSwitch, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: AbstractSwitch, observe?: 'body', reportProgress?: boolean): Observable<Array<ModelSwitch>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: AbstractSwitch, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<ModelSwitch>>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: AbstractSwitch, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<ModelSwitch>>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: AbstractSwitch, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
 
@@ -283,10 +284,10 @@ export class SwitchService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public switchSwitchIdPut(body: ModelSwitch, switchId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public switchSwitchIdPut(body: ModelSwitch, switchId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public switchSwitchIdPut(body: ModelSwitch, switchId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public switchSwitchIdPut(body: ModelSwitch, switchId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling switchSwitchIdPut.');

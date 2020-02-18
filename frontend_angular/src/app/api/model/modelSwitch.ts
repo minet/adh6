@@ -9,22 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { AbstractSwitch } from './abstractSwitch';
 
-export interface ModelSwitch { 
-    /**
-     * The unique identifier of this switch
-     */
-    readonly id: number;
-    /**
-     * The friendly name of this switch
-     */
-    description: string;
-    /**
-     * The community string used for SNMP access to this switch
-     */
-    community: string;
-    /**
-     * The IPv4 address of this switch
-     */
-    ip: string;
+export interface ModelSwitch extends AbstractSwitch { 
 }

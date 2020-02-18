@@ -1,14 +1,13 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
-import {authConfig, authBypass} from './config/auth.config';
+import {authBypass, authConfig} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
-import {filter, first, map, takeWhile} from 'rxjs/operators';
-import { faBug } from '@fortawesome/free-solid-svg-icons';
+import {filter, first, map} from 'rxjs/operators';
+import {faBug} from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BugReportService} from './api';
+import {BugReport, MiscService} from './api';
 import {NotificationsService} from 'angular2-notifications';
-import {BugReport} from './api/model/bugReport';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private _service: NotificationsService,
-    private bugReportSevice: BugReportService,
+    private miscService: MiscService,
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
@@ -83,11 +82,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onSubmitBug() {
     const bugReport: BugReport = {
-      'title': this.submitBugForm.value.bugTitle,
-      'description': this.submitBugForm.value.bugDescription,
+      title: this.submitBugForm.value.bugTitle,
+      description: this.submitBugForm.value.bugDescription,
+      labels: [],
     };
 
-    this.bugReportSevice.bugReportPost(bugReport)
+    this.miscService.bugReportPost(bugReport)
       .subscribe((res) => {
         this.bugReportModal.hide();
         this.submitBugForm.reset();

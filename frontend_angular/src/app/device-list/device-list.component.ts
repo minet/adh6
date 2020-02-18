@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {map} from 'rxjs/operators';
 
-import {DeviceService} from '../api';
-import {Device} from '../api';
+import {Device, DeviceService} from '../api';
 
 import {PagingConf} from '../paging.config';
 import {Observable} from 'rxjs';
@@ -36,7 +35,7 @@ export class DeviceListComponent extends SearchPage implements OnInit {
 
   private fetchDevices(term: string, page: number) {
     const n: number = +PagingConf.item_count;
-    return this.deviceService.deviceGet(n, (page - 1) * n, undefined, term, 'response')
+    return this.deviceService.deviceGet(n, (page - 1) * n, term, undefined, 'response')
       .pipe(
         map(response => <DeviceListResult>{
           devices: response.body,

@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
 
-import {Account, AccountService, PaymentMethod, PaymentMethodService, TransactionPatchRequest, TransactionService} from '../api';
+import {Account, AccountService, PaymentMethod, Transaction, TransactionService} from '../api';
 
 import {SearchPage} from '../search-page';
 import {NotificationsService} from 'angular2-notifications';
@@ -24,31 +24,24 @@ export interface AccountListResult {
 })
 export class TransactionNewComponent extends SearchPage implements OnInit {
   transactionDetails: FormGroup;
-  private alive = true;
   displaySrc = false;
   displayDst = false;
-
   faExchangeAlt = faExchangeAlt;
   actions = [
     {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp},
     {name: 'reverse', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faTrash}
   ];
   cashPaymentMethodID;
-
   paymentMethods$: Observable<Array<PaymentMethod>>;
-
   srcSearchResult$: Observable<Array<Account>>;
   dstSearchResult$: Observable<Array<Account>>;
-
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
-
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
-
+  private alive = true;
 
   constructor(private fb: FormBuilder,
               public transactionService: TransactionService,
-              public paymentMethodService: PaymentMethodService,
               private accountService: AccountService,
               private _service: NotificationsService,
               private route: ActivatedRoute) {
@@ -101,7 +94,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   }
 
   setSelectedAccount(account, src) {
-    if (src == true) {
+    if (src === true) {
       this.srcSearchResult$ = undefined;
       this.selectedSrcAccount = account;
     } else {
@@ -113,7 +106,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   }
 
   isFormInvalid() {
-    return this.selectedSrcAccount == undefined || this.selectedDstAccount == undefined;
+    return this.selectedSrcAccount === undefined || this.selectedDstAccount === undefined;
   }
 
   createForm() {
@@ -131,14 +124,14 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     super.ngOnInit();
 
     this.route.params.pipe(
-      map(params => params['accountID']),
+      map(params => params['account_id']),
       filter(id => id),
       switchMap(id => this.accountService.accountAccountIdGet(id))
     ).subscribe(
       account => this.setSelectedAccount(account, true)
     );
 
-    this.paymentMethods$ = this.paymentMethodService.paymentMethodGet();
+    this.paymentMethods$ = this.transactionService.paymentMethodGet();
     const that = this;
     this.paymentMethods$.subscribe(
       pm => pm.forEach(function (value) {
@@ -151,8 +144,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
 
   onSubmit() {
     const v = this.transactionDetails.value;
-    const varTransaction: TransactionPatchRequest = {
-      attachments: '',
+    const varTransaction: Transaction = {
+      attachments: [],
       dst: this.selectedDstAccount.id,
       name: v.name,
       src: this.selectedSrcAccount.id,

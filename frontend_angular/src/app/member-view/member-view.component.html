@@ -47,9 +47,9 @@
       <tr>
         <td class="profile-field">Chambre</td>
         <td class="pb-2">
-          <a [routerLink]='["/room/view/", member.roomNumber]'>
-            <button [disabled]="member.roomNumber == null" class="btn btn-primary">
-              {{ member.roomNumber || "Aucune" }}
+          <a [routerLink]='["/room/view/", member.room.roomNumber]'>
+            <button [disabled]="member.room.roomNumber == null" class="btn btn-primary">
+              {{ member.room || "Aucune" }}
             </button>
           </a>
         </td>
@@ -76,7 +76,7 @@
       </div>
 
       <div class="col-md-6">
-        <button [routerLink]="['../../../account/view/', member.accountID ]" class="w-100 btn btn-primary mb-3">
+        <button [routerLink]="['../../../account/view/', member.account_id ]" class="w-100 btn btn-primary mb-3">
           Historique des transactions
         </button>
       </div>
@@ -127,7 +127,7 @@
           <label>Payer par (montant : {{ amountToPay }} €)</label>
           <select class="w-100 form-control" formControlName="paidBy"
                   type="text">
-            <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.payment_method_id }}">{{ pm.name }}</option>
+            <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
           </select>
         </div>
         <div class="form-group">
