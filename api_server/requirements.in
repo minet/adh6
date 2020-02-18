@@ -27,3 +27,8 @@ requests
 
 # Easily create requirements.txt
 pip-tools
+
+python-gitlab
+Flask-Migrate
+flask-script
+authlib
