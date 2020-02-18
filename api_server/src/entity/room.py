@@ -32,52 +32,39 @@ class Room(object):
     """
     swagger_types = {
         'id': 'int',
-        'connection_type': 'str',
-        'ipv4_address': 'str',
-        'ipv6_address': 'str',
-        'mac': 'str',
-        'member': 'Object'
+        'description': 'str',
+        'room_number': 'int',
+        'vlan': 'int'
     }
     if hasattr(AbstractRoom, "swagger_types"):
         swagger_types.update(AbstractRoom.swagger_types)
 
     attribute_map = {
         'id': 'id',
-        'connection_type': 'connectionType',
-        'ipv4_address': 'ipv4Address',
-        'ipv6_address': 'ipv6Address',
-        'mac': 'mac',
-        'member': 'member'
+        'description': 'description',
+        'room_number': 'roomNumber',
+        'vlan': 'vlan'
     }
     if hasattr(AbstractRoom, "attribute_map"):
         attribute_map.update(AbstractRoom.attribute_map)
 
-    def __init__(self, id=None, connection_type=None, ipv4_address=None, ipv6_address=None, mac=None, member=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, description=None, room_number=None, vlan=None, *args, **kwargs):  # noqa: E501
         """Room - a model defined in Swagger"""  # noqa: E501
         self._id = None
-        self._connection_type = None
-        self._ipv4_address = None
-        self._ipv6_address = None
-        self._mac = None
-        self._member = None
+        self._description = None
+        self._room_number = None
+        self._vlan = None
         self.discriminator = None
         self.id = id
-        if connection_type is not None:
-            self.connection_type = connection_type
-        if ipv4_address is not None:
-            self.ipv4_address = ipv4_address
-        if ipv6_address is not None:
-            self.ipv6_address = ipv6_address
-        if mac is not None:
-            self.mac = mac
-        if member is not None:
-            self.member = member
+        self.description = description
+        self.room_number = room_number
+        self.vlan = vlan
 
     @property
     def id(self):
         """Gets the id of this Room.  # noqa: E501
 
-        The unique identifier of this device  # noqa: E501
+        The unique identifier of this room  # noqa: E501
 
         :return: The id of this Room.  # noqa: E501
         :rtype: int
@@ -88,7 +75,7 @@ class Room(object):
     def id(self, id):
         """Sets the id of this Room.
 
-        The unique identifier of this device  # noqa: E501
+        The unique identifier of this room  # noqa: E501
 
         :param id: The id of this Room.  # noqa: E501
         :type: int
@@ -99,125 +86,79 @@ class Room(object):
         self._id = id
 
     @property
-    def connection_type(self):
-        """Gets the connection_type of this Room.  # noqa: E501
+    def description(self):
+        """Gets the description of this Room.  # noqa: E501
 
-        The connection type of this device  # noqa: E501
+        The friendly description of this room  # noqa: E501
 
-        :return: The connection_type of this Room.  # noqa: E501
+        :return: The description of this Room.  # noqa: E501
         :rtype: str
         """
-        return self._connection_type
+        return self._description
 
-    @connection_type.setter
-    def connection_type(self, connection_type):
-        """Sets the connection_type of this Room.
+    @description.setter
+    def description(self, description):
+        """Sets the description of this Room.
 
-        The connection type of this device  # noqa: E501
+        The friendly description of this room  # noqa: E501
 
-        :param connection_type: The connection_type of this Room.  # noqa: E501
+        :param description: The description of this Room.  # noqa: E501
         :type: str
         """
-        allowed_values = ["wired", "wireless"]  # noqa: E501
-        if connection_type not in allowed_values:
-            raise ValueError(
-                "Invalid value for `connection_type` ({0}), must be one of {1}"  # noqa: E501
-                .format(connection_type, allowed_values)
-            )
+        if description is None:
+            raise ValueError("Invalid value for `description`, must not be `None`")  # noqa: E501
 
-        self._connection_type = connection_type
+        self._description = description
 
     @property
-    def ipv4_address(self):
-        """Gets the ipv4_address of this Room.  # noqa: E501
+    def room_number(self):
+        """Gets the room_number of this Room.  # noqa: E501
 
-        The ipv4 address assigned to this device  # noqa: E501
+        The room number according to the Maisel  # noqa: E501
 
-        :return: The ipv4_address of this Room.  # noqa: E501
-        :rtype: str
+        :return: The room_number of this Room.  # noqa: E501
+        :rtype: int
         """
-        return self._ipv4_address
+        return self._room_number
 
-    @ipv4_address.setter
-    def ipv4_address(self, ipv4_address):
-        """Sets the ipv4_address of this Room.
+    @room_number.setter
+    def room_number(self, room_number):
+        """Sets the room_number of this Room.
 
-        The ipv4 address assigned to this device  # noqa: E501
+        The room number according to the Maisel  # noqa: E501
 
-        :param ipv4_address: The ipv4_address of this Room.  # noqa: E501
-        :type: str
+        :param room_number: The room_number of this Room.  # noqa: E501
+        :type: int
         """
+        if room_number is None:
+            raise ValueError("Invalid value for `room_number`, must not be `None`")  # noqa: E501
 
-        self._ipv4_address = ipv4_address
+        self._room_number = room_number
 
     @property
-    def ipv6_address(self):
-        """Gets the ipv6_address of this Room.  # noqa: E501
+    def vlan(self):
+        """Gets the vlan of this Room.  # noqa: E501
 
-        The ipv6 address assigned to this device  # noqa: E501
+        The main vlan assigned to this room  # noqa: E501
 
-        :return: The ipv6_address of this Room.  # noqa: E501
-        :rtype: str
+        :return: The vlan of this Room.  # noqa: E501
+        :rtype: int
         """
-        return self._ipv6_address
+        return self._vlan
 
-    @ipv6_address.setter
-    def ipv6_address(self, ipv6_address):
-        """Sets the ipv6_address of this Room.
+    @vlan.setter
+    def vlan(self, vlan):
+        """Sets the vlan of this Room.
 
-        The ipv6 address assigned to this device  # noqa: E501
+        The main vlan assigned to this room  # noqa: E501
 
-        :param ipv6_address: The ipv6_address of this Room.  # noqa: E501
-        :type: str
+        :param vlan: The vlan of this Room.  # noqa: E501
+        :type: int
         """
+        if vlan is None:
+            raise ValueError("Invalid value for `vlan`, must not be `None`")  # noqa: E501
 
-        self._ipv6_address = ipv6_address
-
-    @property
-    def mac(self):
-        """Gets the mac of this Room.  # noqa: E501
-
-        The MAC address of this device  # noqa: E501
-
-        :return: The mac of this Room.  # noqa: E501
-        :rtype: str
-        """
-        return self._mac
-
-    @mac.setter
-    def mac(self, mac):
-        """Sets the mac of this Room.
-
-        The MAC address of this device  # noqa: E501
-
-        :param mac: The mac of this Room.  # noqa: E501
-        :type: str
-        """
-
-        self._mac = mac
-
-    @property
-    def member(self):
-        """Gets the member of this Room.  # noqa: E501
-
-        The member this device belongs to  # noqa: E501
-
-        :return: The member of this Room.  # noqa: E501
-        :rtype: Object
-        """
-        return self._member
-
-    @member.setter
-    def member(self, member):
-        """Sets the member of this Room.
-
-        The member this device belongs to  # noqa: E501
-
-        :param member: The member of this Room.  # noqa: E501
-        :type: Object
-        """
-
-        self._member = member
+        self._vlan = vlan
 
     def to_dict(self):
         """Returns the model properties as a dict"""
