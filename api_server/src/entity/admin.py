@@ -30,22 +30,21 @@ class Admin(object):
     """
     swagger_types = {
         'login': 'str',
-        'role': 'list[str]'
+        'roles': 'list[str]'
     }
 
     attribute_map = {
         'login': 'login',
-        'role': 'role'
+        'roles': 'roles'
     }
 
-    def __init__(self, login=None, role=None):  # noqa: E501
+    def __init__(self, login=None, roles=None):  # noqa: E501
         """Admin - a model defined in Swagger"""  # noqa: E501
         self._login = None
-        self._role = None
+        self._roles = None
         self.discriminator = None
         self.login = login
-        if role is not None:
-            self.role = role
+        self.roles = roles
 
     @property
     def login(self):
@@ -73,27 +72,29 @@ class Admin(object):
         self._login = login
 
     @property
-    def role(self):
-        """Gets the role of this Admin.  # noqa: E501
+    def roles(self):
+        """Gets the roles of this Admin.  # noqa: E501
 
         The list of roles of this administrator  # noqa: E501
 
-        :return: The role of this Admin.  # noqa: E501
+        :return: The roles of this Admin.  # noqa: E501
         :rtype: list[str]
         """
-        return self._role
+        return self._roles
 
-    @role.setter
-    def role(self, role):
-        """Sets the role of this Admin.
+    @roles.setter
+    def roles(self, roles):
+        """Sets the roles of this Admin.
 
         The list of roles of this administrator  # noqa: E501
 
-        :param role: The role of this Admin.  # noqa: E501
+        :param roles: The roles of this Admin.  # noqa: E501
         :type: list[str]
         """
+        if roles is None:
+            raise ValueError("Invalid value for `roles`, must not be `None`")  # noqa: E501
 
-        self._role = role
+        self._roles = roles
 
     def to_dict(self):
         """Returns the model properties as a dict"""

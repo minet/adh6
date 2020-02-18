@@ -3,6 +3,7 @@ import requests
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import AbstractDevice
 from src.exceptions import DeviceNotFoundError, NoMoreIPAvailableException
 from src.exceptions import UserInputError
 from src.interface_adapter.http_api.decorator.with_context import with_context
@@ -10,7 +11,7 @@ from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
-from src.use_case.device_manager import MutationRequest, DeviceManager
+from src.use_case.device_manager import DeviceManager
 from src.util.context import log_extra
 from src.util.log import LOG
 
@@ -58,13 +59,7 @@ class DeviceHandler:
         try:
             created = self.device_manager.update_or_create(ctx,
                                                            mac_address=mac_address,
-                                                           req=MutationRequest(
-                                                               owner_username=body.get('username'),
-                                                               mac_address=body.get('mac'),
-                                                               connection_type=body.get('connection_type'),
-                                                               ip_v4_address=body.get('ip_address'),
-                                                               ip_v6_address=body.get('ipv6_address'),
-                                                           ),
+                                                           dev=AbstractDevice(**body),
                                                            )
 
             if created:

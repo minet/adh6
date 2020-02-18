@@ -78,7 +78,7 @@ def auth_regular_admin(f):
             # User is not in the right group and we are not testing, do not allow.
             return NoContent, 401
 
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
         return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
     return wrapper
@@ -92,7 +92,7 @@ def auth_super_admin(f):
     @wraps(f)
     def wrapper(cls, ctx, *args, **kwargs):
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
         return f(cls, ctx, *args, **kwargs)
 
     # def wrapper(cls, ctx, *args, user, token_info, **kwargs):

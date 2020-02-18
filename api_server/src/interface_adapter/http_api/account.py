@@ -32,7 +32,7 @@ class AccountHandler:
                                                                 pinned=None,
                                                                 terms=terms))
         try:
-            result, count = self.account_manager.search(ctx, account_id=None, terms=terms, pinned=None)
+            result, count = self.account_manager.search(ctx, account_id=None, terms=terms, pinned=pinned)
             headers = {
                 "X-Total-Count": count,
                 'access-control-expose-headers': 'X-Total-Count'

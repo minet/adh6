@@ -2,19 +2,17 @@ import datetime
 
 from pytest import fixture
 
+from src.entity.account import Account
 from src.entity.admin import Admin
-from src.entity.device import Device, DeviceType
+from src.entity.device import Device
 from src.entity.member import Member
 from src.entity.payment_method import PaymentMethod
-from src.entity.port import Port, SwitchInfo
+from src.entity.port import Port
+from src.entity.product import Product
 from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
-from src.entity.account import Account
-from src.entity.product import Product
-from src.entity.account_type import AccountType
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.use_case.member_manager import FullMutationRequest
 from src.util.context import build_context
 
 
@@ -67,7 +65,7 @@ def sample_device():
     return Device(
         mac_address='FF-FF-FF-FF-FF-FF',
         owner_username=TEST_USERNAME,
-        connection_type=DeviceType.Wired,
+        connection_type='wired',
         ip_v4_address='127.0.0.1',
         ip_v6_address='127.0.0.1',
     )
@@ -76,23 +74,20 @@ def sample_device():
 @fixture
 def sample_room():
     return Room(
-        room_number='1234',
+        room_number=1234,
         description='Test room.',
-        vlan_number='42',
+        vlan=41,
     )
 
 
 @fixture
-def sample_port():
+def sample_port(sample_room, sample_switch):
     return Port(
         id="1",
         port_number="test number",
-        room_number="1234",
-        switch_info=SwitchInfo(
-            switch_id="1",
-            rcom=42,
-            oid="1.2.3"
-        ),
+        room=sample_room,
+        switch=sample_switch,
+        oid=10101,
     )
 
 
@@ -100,7 +95,7 @@ def sample_port():
 def sample_switch():
     return Switch(
         id='1',
-        ip_v4='127.0.0.1',
+        ip='127.0.0.1',
         description='description',
         community='community',
     )
@@ -109,7 +104,7 @@ def sample_switch():
 @fixture
 def sample_payment_method():
     return PaymentMethod(
-        payment_method_id=0,
+        id=0,
         name='liquide'
     )
 
@@ -144,7 +139,7 @@ def sample_transaction(sample_admin):
         attachments='',
         timestamp='',
         paymentMethod=PaymentMethod(
-            payment_method_id=0,
+            id=0,
             name='liquide'
         ),
         author=sample_admin)
@@ -171,5 +166,5 @@ def sample_product():
         name='loutre',
         selling_price=9999,
         buying_price=999,
-        product_id=1
+        id=1
     )

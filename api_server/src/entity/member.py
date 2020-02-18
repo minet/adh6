@@ -83,7 +83,6 @@ class Member(object):
         self.last_name = last_name
         if room is not None:
             self.room = room
-        AbstractMember.__init__(self, *args, **kwargs)
 
     @property
     def id(self):
