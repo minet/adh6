@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {Account, AccountService, AccountType, AccountTypeService} from '../api';
+import {Account, AccountService, AccountType} from '../api';
 import {SearchPage} from '../search-page';
 import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';
+import {AbstractAccount} from '../api/model/abstractAccount';
 
 class AccountListResponse {
   accounts?: Array<Account>;
@@ -26,15 +27,14 @@ export class AccountListComponent extends SearchPage implements OnInit {
   accountTypes: Array<AccountType>;
   specificSearch = false;
 
-  constructor(public accountService: AccountService,
-              public accountTypeService: AccountTypeService) {
+  constructor(public accountService: AccountService) {
     super();
   }
 
   ngOnInit() {
     this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
 
-    this.accountTypeService.accountTypeGet()
+    this.accountService.accountTypeGet()
       .subscribe(
         data => {
           this.accountTypes = data;
@@ -44,9 +44,13 @@ export class AccountListComponent extends SearchPage implements OnInit {
 
   private fetchAccounts(terms: string, page: number) {
     const n = +PagingConf.item_count;
-    if (terms !== '') this.specificSearch = true;
-    else this.specificSearch = false;
-    return this.accountService.accountGet(n, (page - 1) * n, terms, undefined, undefined, this.pinned, 'response')
+    this.specificSearch = (terms !== '');
+
+    const abstractAccount: AbstractAccount = {
+      pinned: this.pinned
+    };
+
+    return this.accountService.accountGet(n, (page - 1) * n, terms, abstractAccount, 'response')
       .pipe(
         // switch to new search observable each time the term changes
         map((response) => <AccountListResponse>{

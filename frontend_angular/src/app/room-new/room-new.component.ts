@@ -3,8 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 
 
-import {RoomService} from '../api';
-import {Room} from '../api';
+import {Room, RoomService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 
@@ -47,17 +46,11 @@ export class RoomNewComponent implements OnInit, OnDestroy {
       description: v.description
     };
 
-    this.roomService.roomRoomNumberGet(v.roomNumber, 'response')
+    this.roomService.roomPost(room)
       .pipe(takeWhile(() => this.alive))
-      .subscribe(() => {
-        this.notif.error('Room already exists');
-      }, () => {
-        this.roomService.roomRoomNumberPut(room, v.roomNumber)
-          .pipe(takeWhile(() => this.alive))
-          .subscribe((res) => {
-            this.router.navigate(['/room/view', v.roomNumber]);
-            this.notif.success(res.status + ': Success');
-          });
+      .subscribe((res) => {
+        this.router.navigate(['/room/view', v.roomNumber]);
+        this.notif.success('Success');
       });
     this.disabled = false;
   }

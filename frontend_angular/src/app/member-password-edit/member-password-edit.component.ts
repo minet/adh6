@@ -7,11 +7,15 @@ import {Observable} from 'rxjs';
 import {MemberService} from '../api';
 
 function passwordConfirming(c: AbstractControl): any {
-  if (!c || !c.value) { return; }
+  if (!c || !c.value) {
+    return;
+  }
   const pwd = c.value['password'];
   const cpwd = c.value['password_confirm'];
 
-  if (!pwd || !cpwd) { return; }
+  if (!pwd || !cpwd) {
+    return;
+  }
   if (pwd !== cpwd) {
     return {invalid: true};
   }
@@ -51,34 +55,34 @@ export class MemberPasswordEditComponent implements OnInit {
 
 
   changePassword(): void {
-    this.getUsername()
+    this.getMemberId()
       .pipe(
         first(),
-        switchMap(username => this.updatePasswordOfUser(username)),
+        switchMap(member_id => this.updatePasswordOfUser(member_id)),
         finalize(() => this.disabled = false)
       )
       .subscribe((_) => {
       });
   }
 
-  private updatePasswordOfUser(username: string) {
-    return this.memberService.memberUsernamePasswordPut(
+  private updatePasswordOfUser(member_id: string) {
+    return this.memberService.memberMemberIdPasswordPut(
       {password: this.memberPassword.value.password},
-      username,
+      +member_id,
       'response')
       .pipe(
         first(),
         tap((response) => {
-          this.router.navigate(['member/view', username]);
+          this.router.navigate(['member/view', +member_id]);
           this.notif.success(response.status + ': Success');
         }),
       );
 
   }
 
-  private getUsername(): Observable<string> {
+  private getMemberId(): Observable<string> {
     return this.route.paramMap.pipe(
-      map(params => params.get('username')),
+      map(params => params.get('member_id')),
       first(),
     );
   }

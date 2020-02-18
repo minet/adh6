@@ -2,12 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {RoomService} from '../api';
-import {PortService} from '../api';
-import {Room} from '../api';
-import {Port} from '../api';
-import {Member} from '../api';
-import {MemberService} from '../api';
+import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 
@@ -23,7 +18,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   room$: Observable<Room>;
   ports$: Observable<Array<Port>>;
   members$: Observable<Array<Member>>;
-  roomNumber: number;
+  room_id: number;
   roomForm: FormGroup;
   EmmenagerForm: FormGroup;
   public isEmmenager = false;
@@ -47,7 +42,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   createForm() {
     this.ngOnInit();
     this.roomForm = this.fb.group({
-      roomNumberNew: [this.roomNumber, [Validators.min(1000), Validators.max(9999), Validators.required]],
+      roomNumberNew: ['', [Validators.min(1000), Validators.max(9999), Validators.required]],
     });
     this.EmmenagerForm = this.fb.group({
       username: ['', [Validators.minLength(7), Validators.maxLength(8), Validators.required]],
@@ -68,39 +63,39 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   }
 
   refreshInfo() {
-    this.room$ = this.roomService.roomRoomNumberGet(this.roomNumber);
-    this.ports$ = this.portService.portGet(undefined, undefined, undefined, this.roomNumber);
-    this.members$ = this.memberService.memberGet(undefined, undefined, undefined, this.roomNumber);
+    this.room$ = this.roomService.roomRoomIdGet(this.room_id);
+    this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{room: this.room_id});
+    this.members$ = this.memberService.memberGet(undefined, undefined, '', <AbstractMember>{room: this.room_id});
   }
 
   onSubmitComeInRoom() {
     const v = this.EmmenagerForm.value;
-    this.memberService.memberUsernameGet(v.username)
+    this.memberService.memberGet(1, 0, v.username)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((user) => {
-        user['roomNumber'] = this.roomNumber;
-        this.memberService.memberUsernamePut(user, v.username, 'response')
+      .subscribe((member_list) => {
+        const member: Member = member_list[0];
+        member.room = this.room_id;
+        this.memberService.memberMemberIdPut(member, member.id, 'response')
           .pipe(takeWhile(() => this.alive))
           .subscribe((response) => {
             this.refreshInfo();
             this.notif.success(response.status + ': Success');
             this.onEmmenager();
           });
-      }, (user) => {
+      }, (member) => {
         this.notif.error('Member ' + v.username + ' does not exists');
       });
   }
 
   onSubmitMoveRoom(username) {
     const v = this.roomForm.value;
-    const room: Room = {
-      roomNumber: v.roomNumberNew
-    };
-    this.memberService.memberUsernameGet(username)
+
+    this.memberService.memberGet(1, 0, username)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((user) => {
-        user['roomNumber'] = v.roomNumberNew;
-        this.memberService.memberUsernamePut(user, username, 'response')
+      .subscribe((member_list) => {
+        const member: Member = member_list[0];
+        member.room = v.roomNumberNew;
+        this.memberService.memberMemberIdPut(member, member.id, 'response')
           .pipe(takeWhile(() => this.alive))
           .subscribe((response) => {
             this.refreshInfo();
@@ -112,12 +107,12 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   }
 
   onRemoveFromRoom(username) {
-    this.memberService.memberUsernameGet(username)
+    this.memberService.memberGet(1, 0, username)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((user) => {
-        delete user['roomNumber'];
-        this.memberService.memberUsernamePut(user, username, 'response')
-
+      .subscribe((member_list) => {
+        const member: Member = member_list[0];
+        member.room = null;
+        this.memberService.memberMemberIdPut(member, member.id, 'response')
           .pipe(takeWhile(() => this.alive))
           .subscribe((response) => {
             this.refreshInfo();
@@ -127,8 +122,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   }
 
   onDelete() {
-    const v = this.roomNumber;
-    this.roomService.roomRoomNumberDelete(v, 'response')
+    this.roomService.roomRoomIdDelete(this.room_id, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['room']);
@@ -139,7 +133,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.sub = this.route.params.subscribe(params => {
-      this.roomNumber = +params['roomNumber'];
+      this.room_id = +params['room_id'];
       this.refreshInfo();
     });
   }

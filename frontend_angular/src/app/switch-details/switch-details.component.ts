@@ -1,16 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 
-import {ModelSwitch} from '../api';
-import {SwitchService} from '../api';
-
-import {PortService} from '../api';
-import {Port} from '../api';
+import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../api';
 
 import {SearchPage} from '../search-page';
-import {BehaviorSubject} from 'rxjs';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';
@@ -31,7 +26,7 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
 
   switch$: Observable<ModelSwitch>;
   result$: Observable<PortListResult>;
-  switchID: number;
+  switch_id: number;
   page_number = 1;
   item_count = 1;
   items_per_page: number = +PagingConf.item_count;
@@ -46,12 +41,22 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
     this.searchTerms.next(term);
   }
 
+  ngOnInit() {
+    super.ngOnInit();
+    this.sub = this.route.params.subscribe(params => {
+      this.switch_id = +params['switch_id'];
+      this.switch$ = this.switchService.switchSwitchIdGet(this.switch_id);
+      this.result$ = this.getSearchResult((terms, page) => this.fetchPorts(terms, page));
+    });
+    // this.refreshPorts(1);
+  }
+
   private fetchPorts(terms: string, page: number): Observable<PortListResult> {
     const n = +PagingConf.item_count;
-    return this.portService.portGet(n, (page - 1) * n, this.switchID, undefined, terms, 'response')
+    return this.portService.portGet(n, (page - 1) * n, '', <AbstractPort>{switch: this.switch_id}, 'response')
       .pipe(
         map((response) => {
-          return <PortListResult> {
+          return <PortListResult>{
             ports: response.body,
             item_count: +response.headers.get('x-total-count'),
             current_page: page,
@@ -59,16 +64,6 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
           };
         }),
       );
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
-    this.sub = this.route.params.subscribe(params => {
-      this.switchID = +params['switchID'];
-      this.switch$ = this.switchService.switchSwitchIDGet(this.switchID);
-      this.result$ = this.getSearchResult((terms, page) => this.fetchPorts(terms, page));
-    });
-    // this.refreshPorts(1);
   }
 
 }

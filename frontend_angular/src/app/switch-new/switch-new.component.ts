@@ -3,8 +3,7 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NotificationsService} from 'angular2-notifications';
-import {SwitchService} from '../api';
-import {ModelSwitch} from '../api';
+import {ModelSwitch, SwitchService} from '../api';
 import {takeWhile} from 'rxjs/operators';
 
 @Component({
@@ -48,7 +47,7 @@ export class SwitchNewComponent implements OnInit {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.router.navigate(['/switch/search']);
-        this.notif.success(res.status + ': Success');
+        this.notif.success('Success');
       });
   }
 

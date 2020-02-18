@@ -1,7 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {DeviceService} from '../api';
 import {first, map} from 'rxjs/operators';
-import {Utils} from '../utils';
 
 @Component({
   selector: 'app-mac-vendor',
@@ -10,10 +9,9 @@ import {Utils} from '../utils';
 })
 export class MacVendorComponent implements OnInit, OnDestroy {
 
-  @Input() mac: string;
-
-  private alive = true;
+  @Input() device_id: number;
   vendor = '';
+  private alive = true;
 
   constructor(
     public deviceService: DeviceService
@@ -21,7 +19,7 @@ export class MacVendorComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.deviceService.vendorGet(Utils.sanitizeMac(this.mac).substr(0, 8))
+    this.deviceService.vendorGet(this.device_id)
       .pipe(
         map((data) => data.vendorname),
         first(),

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {combineLatest, Observable} from 'rxjs';
 import {map, share, switchMap} from 'rxjs/operators';
-import {Account, AccountService, Transaction, TransactionService} from '../api';
+import {AbstractTransaction, Account, AccountService, Transaction, TransactionService} from '../api';
 import {ActivatedRoute} from '@angular/router';
 import {PagingConf} from '../paging.config';
 
@@ -36,7 +36,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
   ngOnInit() {
     // id of the account
     this.id$ = this.route.params.pipe(
-      map(params => params['accountID'])
+      map(params => params['account_id'])
     );
 
     // stream, which will emit the account id every time the page needs to be refreshed
@@ -45,7 +45,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
         map(([x]) => x),
       );
     this.account$ = refresh$.pipe(
-      switchMap(id => this.accountService.accountAccountIdGet(''+id)),
+      switchMap(id => this.accountService.accountAccountIdGet(id)),
       share()
     );
 
@@ -55,10 +55,20 @@ export class AccountViewComponent extends SearchPage implements OnInit {
     );
   }
 
+  goBack() {
+    window.history.back();
+  }
+
   private fetchTransaction(account: number, page: number): Observable<TransactionListResult> {
     console.log(account);
     const n = +PagingConf.item_count;
-    return this.transactionService.transactionGet(n, (page - 1) * n, undefined, account, 'response')
+
+    const abstractTransaction: AbstractTransaction = {
+      src: account,
+      dst: account
+    };
+
+    return this.transactionService.transactionGet(n, (page - 1) * n, '', abstractTransaction, 'response')
       .pipe(
         map((response) => {
           return <TransactionListResult>{
@@ -70,9 +80,5 @@ export class AccountViewComponent extends SearchPage implements OnInit {
         }),
       );
 
-  }
-
-  goBack() {
-    window.history.back();
   }
 }

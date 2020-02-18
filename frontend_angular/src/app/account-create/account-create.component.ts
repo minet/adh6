@@ -1,13 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Account } from '../api';
-import { AccountService } from '../api';
-import { takeWhile } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NotificationsService } from 'angular2-notifications';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Account, AccountService, AccountType} from '../api';
+import {takeWhile} from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NotificationsService} from 'angular2-notifications';
 import {Observable} from 'rxjs';
-import { AccountType } from '../api';
-import { AccountTypeService } from '../api';
 
 @Component({
   selector: 'app-account-create',
@@ -29,7 +26,6 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private notif: NotificationsService,
-    public accountTypeService: AccountTypeService,
   ) {
     this.createForm();
   }
@@ -55,14 +51,14 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe(res => {
         this.router.navigate(['/treasury']);
-        this.notif.success(res.status + ': Success');
+        this.notif.success('Success');
       });
 
     this.disabled = false;
   }
 
   ngOnInit() {
-    this.accountTypes$ = this.accountTypeService.accountTypeGet();
+    this.accountTypes$ = this.accountService.accountTypeGet();
   }
 
   ngOnDestroy() {

@@ -10,13 +10,21 @@
  * Do not edit the class manually.
  */
 
-export interface Admin { 
+export interface AbstractSwitch { 
     /**
-     * The login of this administrator
+     * The unique identifier of this switch
      */
-    login: string;
+    readonly id?: number;
     /**
-     * The list of roles of this administrator
+     * The friendly name of this switch
      */
-    roles: Array<string>;
+    description?: string;
+    /**
+     * The community string used for SNMP access to this switch
+     */
+    community?: string;
+    /**
+     * The IPv4 address of this switch
+     */
+    ip?: string;
 }

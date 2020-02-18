@@ -240,10 +240,10 @@ export class AccountService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public accountPost(body: AbstractAccount, observe?: 'body', reportProgress?: boolean): Observable<Account>;
-    public accountPost(body: AbstractAccount, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Account>>;
-    public accountPost(body: AbstractAccount, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Account>>;
-    public accountPost(body: AbstractAccount, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountPost(body: Account, observe?: 'body', reportProgress?: boolean): Observable<Account>;
+    public accountPost(body: Account, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Account>>;
+    public accountPost(body: Account, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Account>>;
+    public accountPost(body: Account, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling accountPost.');

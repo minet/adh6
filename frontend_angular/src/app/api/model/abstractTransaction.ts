@@ -54,4 +54,8 @@ export interface AbstractTransaction {
      * Whether this transaction is awaiting confirmation from a member with higher privileges
      */
     readonly pendingValidation?: boolean;
+    /**
+     * Whether to use the caisse or not
+     */
+    caisse?: string;
 }

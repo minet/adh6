@@ -17,6 +17,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
+import { AbstractRoom } from '../model/abstractRoom';
 import { Room } from '../model/room';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -65,10 +66,10 @@ export class RoomService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: Room, observe?: 'body', reportProgress?: boolean): Observable<Array<Room>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: Room, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: Room, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: Room, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'body', reportProgress?: boolean): Observable<Array<Room>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
 
@@ -283,10 +284,10 @@ export class RoomService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public roomRoomIdPut(body: Room, roomId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public roomRoomIdPut(body: Room, roomId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public roomRoomIdPut(body: Room, roomId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public roomRoomIdPut(body: Room, roomId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling roomRoomIdPut.');

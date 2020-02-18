@@ -466,10 +466,10 @@ export class MemberService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public memberPost(body: AbstractMember, observe?: 'body', reportProgress?: boolean): Observable<Member>;
-    public memberPost(body: AbstractMember, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Member>>;
-    public memberPost(body: AbstractMember, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Member>>;
-    public memberPost(body: AbstractMember, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public memberPost(body: Member, observe?: 'body', reportProgress?: boolean): Observable<Member>;
+    public memberPost(body: Member, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Member>>;
+    public memberPost(body: Member, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Member>>;
+    public memberPost(body: Member, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling memberPost.');

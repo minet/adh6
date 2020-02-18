@@ -2,8 +2,7 @@ import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {PortService} from '../api';
-import {Port} from '../api';
+import {Port, PortService} from '../api';
 import {PagingConf} from '../paging.config';
 
 import {map} from 'rxjs/operators';
@@ -36,7 +35,7 @@ export class PortListComponent extends SearchPage implements OnInit {
 
   private fetchPort(terms: string, page: number): Observable<PortListResult> {
     const n = +PagingConf.item_count;
-    return this.portService.portGet(n, (page - 1) * n, undefined, undefined, terms, 'response')
+    return this.portService.portGet(n, (page - 1) * n, terms, undefined, 'response')
       .pipe(
         map((response) => {
           return <PortListResult>{

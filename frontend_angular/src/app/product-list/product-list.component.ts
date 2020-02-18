@@ -1,12 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-import {ProductService} from '../api';
+import {Product, TreasuryService} from '../api';
 import {PagingConf} from '../paging.config';
 import {SearchPage} from '../search-page';
 import {map} from 'rxjs/operators';
-import {Product} from '../api';
 
 export interface ProductListResult {
   products: Array<Product>;
@@ -23,7 +22,7 @@ export interface ProductListResult {
 export class ProductListComponent extends SearchPage implements OnInit {
   result$: Observable<ProductListResult>;
 
-  constructor(public productService: ProductService) {
+  constructor(public treasuryService: TreasuryService) {
     super();
   }
 
@@ -34,7 +33,7 @@ export class ProductListComponent extends SearchPage implements OnInit {
 
   private fetchProducts(terms: string, page: number): Observable<ProductListResult> {
       const n = +PagingConf.item_count;
-      return this.productService.productGet(n, (page - 1) * n, terms, undefined, 'response')
+      return this.treasuryService.productGet(n, (page - 1) * n, terms, 'response')
         .pipe(
           map((response) => {
             return <ProductListResult> {

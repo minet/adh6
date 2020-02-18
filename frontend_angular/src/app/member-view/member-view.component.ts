@@ -1,17 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BehaviorSubject, of} from 'rxjs';
-import {MemberService} from '../api';
-import {DeviceService} from '../api';
-import {Member} from '../api';
-import {Device} from '../api';
+import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
+import {AbstractDevice, Device, DeviceService, Member, MemberService, PaymentMethod, TransactionService} from '../api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
-import {catchError, finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import {combineLatest, timer, Observable} from 'rxjs';
+import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
 import {Utils} from '../utils';
-import { PaymentMethod } from '../api';
-import { PaymentMethodService } from '../api';
 
 @Component({
   selector: 'app-member-details',
@@ -20,32 +14,31 @@ import { PaymentMethodService } from '../api';
 })
 
 export class MemberViewComponent implements OnInit, OnDestroy {
+
   submitDisabled = false;
   date = new Date;
   getDhcp = false;
-
-
   member$: Observable<Member>;
   paymentMethods$: Observable<Array<PaymentMethod>>;
   all_devices$: Observable<Device[]>;
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
-
   cotisation = false;
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
-  private username$: Observable<string>;
+  private member_id$: Observable<number>;
   private commentForm: FormGroup;
   private deviceForm: FormGroup;
   private subscriptionForm: FormGroup;
   private selectedDevice: string;
-  private options = {year: "numeric", month: "long", day: "numeric"};
-  private amountToPay: number = 0;
+  private options = {year: 'numeric', month: 'long', day: 'numeric'};
+  private amountToPay = 0;
   private content: string;  // for log formatting
+  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
 
   constructor(
     public memberService: MemberService,
     public deviceService: DeviceService,
-    public paymentMethodService: PaymentMethodService,
+    public transactionService: TransactionService,
     private route: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
@@ -55,9 +48,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // username of the owner of the profile
-    this.username$ = this.route.params.pipe(
-      map(params => params['username'])
+    this.member_id$ = this.route.params.pipe(
+      map(params => params['member_id'])
     );
 
     this.macHighlighted$ = this.route.queryParams.pipe(
@@ -65,31 +57,31 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     );
 
     // stream, which will emit the username every time the profile needs to be refreshed
-    const refresh$ = combineLatest([this.username$, this.refreshInfoOrder$])
+    const refresh$ = combineLatest([this.member_id$, this.refreshInfoOrder$])
       .pipe(
         map(([x]) => x),
       );
 
     this.member$ = refresh$.pipe(
-      switchMap(username => this.memberService.memberUsernameGet(username)),
+      switchMap(member_id => this.memberService.memberMemberIdGet(member_id)),
       tap((user) => this.commentForm.setValue({comment: (user.comment === undefined) ? '' : user.comment})),
       share(),
     );
 
     this.all_devices$ = refresh$.pipe(
-      switchMap(username => this.deviceService.deviceGet(undefined, undefined, username)),
+      switchMap(member_id => this.deviceService.deviceGet(undefined, undefined, '', <AbstractDevice>{member: member_id})),
       share(),
     );
 
-    this.log$ = this.username$.pipe(
+    this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberUsernameLogsGet(str, this.getDhcp))
+          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp))
         );
       }) // refresh every 10 secs
     );
 
-    this.paymentMethods$ = this.paymentMethodService.paymentMethodGet();
+    this.paymentMethods$ = this.transactionService.paymentMethodGet();
   }
 
   ngOnDestroy() {
@@ -105,15 +97,15 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
   refreshLog(): void {
     // stream, which will emit the username every time the profile needs to be refreshed
-    const refresh$ = combineLatest([this.username$, this.refreshInfoOrder$])
+    const refresh$ = combineLatest([this.member_id$, this.refreshInfoOrder$])
       .pipe(
         map(([x]) => x),
       );
 
-    this.log$ = this.username$.pipe(
+    this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberUsernameLogsGet(str, this.getDhcp))
+          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp))
         );
       }) // refresh every 10 secs
     );
@@ -137,7 +129,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       checkCable5: [false],
       checkAdapter: [false],
       paidBy: ['0', [Validators.required]],
-    })
+    });
   }
 
   submitComment(): void {
@@ -149,7 +141,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         user.comment = newComment;
         return user;
       }),
-      flatMap(user => this.memberService.memberUsernamePut(user, user.username)),
+      flatMap(user => this.memberService.memberMemberIdPut(user, user.id)),
       map(() => {
         this.refreshInfo();
         return null;
@@ -181,9 +173,9 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
 
-  addDevice(username?: string, alreadyExists?: boolean) {
-    if (username === undefined) {
-      return this.username$
+  addDevice(member_id?: number, alreadyExists?: boolean) {
+    if (member_id === undefined) {
+      return this.member_id$
         .pipe(
           flatMap((usr) => this.addDevice(usr))
         );
@@ -191,40 +183,28 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
     const v = this.deviceForm.value;
     const mac = Utils.sanitizeMac(v.mac);
-    if (alreadyExists === undefined) {
-      return this.deviceService.deviceMacAddressGet(mac).pipe(
-        map(() => true),
-        catchError(() => of(false)),
-        flatMap((exists) => this.addDevice(username, exists)),
-      );
-    }
 
-    const device: Device = {
+    const device: AbstractDevice = {
       mac: mac,
       connectionType: v.connectionType,
-      username: username
+      member: member_id
     };
 
     // Make an observable that will return True if the device already exists
-    if (!alreadyExists) {
-      // If the device does not then create it, and refresh the info
-      return this.deviceService.deviceMacAddressPut(device, mac)
-        .pipe(
-          flatMap(() => {
-            this.refreshInfo();
-            return this.all_devices$;
-          }),
-          map(() => null)
-        );
-    } else {
-      this.notif.error('Device already exists');
-      return of(null);
-    }
+    // If the device does not then create it, and refresh the info
+    return this.deviceService.devicePost(device)
+      .pipe(
+        flatMap(() => {
+          this.refreshInfo();
+          return this.all_devices$;
+        }),
+        map(() => null)
+      );
   }
 
-  deviceDelete(mac: string): void {
+  deviceDelete(device_id: number): void {
     this.submitDisabled = true;
-    this.deviceService.deviceMacAddressDelete(mac)
+    this.deviceService.deviceDeviceIdDelete(device_id)
       .pipe(
         first(),
         flatMap(() => {
@@ -249,18 +229,14 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       return this.content.replace(new RegExp('Login OK:', 'gi'), match => {
         return '<font color="green">' + match + '</font>';
       });
-    }
-    else if (this.content.includes('Login incorrect')) {
+    } else if (this.content.includes('Login incorrect')) {
       return this.content.replace(new RegExp('Login incorrect', 'gi'), match => {
         return '<font color="red">' + match + '</font>';
       });
-    }
-    else {
+    } else {
       return this.content;
     }
   }
-
-
 
 
   toggleDeviceDetails(device: Device): void {
@@ -279,19 +255,17 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.date = new Date();
     this.date.setMonth(this.date.getMonth() + monthsToAdd);
 
-    return this.date.toLocaleDateString("fr-FR", this.options);
+    return this.date.toLocaleDateString('fr-FR', this.options);
   }
-
-  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
 
   updateAmount() {
     this.amountToPay = 0;
     this.amountToPay = this.amountToPay + this.subscriptionPrices[this.subscriptionForm.value.renewal];
 
-    if (this.subscriptionForm.value.checkCable3 == true) {
+    if (this.subscriptionForm.value.checkCable3 === true) {
       this.amountToPay = this.amountToPay + 3;
     }
-    if (this.subscriptionForm.value.checkCable5 == true) {
+    if (this.subscriptionForm.value.checkCable5 === true) {
       this.amountToPay = this.amountToPay + 5;
     }
     if (this.subscriptionForm.value.checkAdapter === true) {

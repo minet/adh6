@@ -9,24 +9,9 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { AbstractPort } from './abstractPort';
 import { ModelSwitch } from './modelSwitch';
 import { Room } from './room';
 
-export interface Port { 
-    /**
-     * The unique identifier of this port
-     */
-    readonly id: number;
-    /**
-     * The friendly (Cisco) number of this port
-     */
-    portNumber: string;
-    /**
-     * The room this port is in
-     */
-    room: Room | number;
-    /**
-     * The switch this port is a member of
-     */
-    _switch: ModelSwitch | number;
+export interface Port extends AbstractPort { 
 }

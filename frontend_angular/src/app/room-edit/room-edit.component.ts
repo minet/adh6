@@ -3,8 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 
-import {RoomService} from '../api';
-import {Room} from '../api';
+import {Room, RoomService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {switchMap, takeWhile} from 'rxjs/operators';
 
@@ -49,11 +48,11 @@ export class RoomEditComponent implements OnInit, OnDestroy {
       vlan: v.vlan,
       description: v.description
     };
-    this.roomService.roomRoomNumberPut(room, v.roomNumber, 'response')
+    this.roomService.roomRoomIdPut(room, v.id, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/room/view', v.roomNumber]);
-        this.notif.success(response.status + ': Success');
+        this.notif.success('Success');
       });
     this.disabled = false;
   }
@@ -61,7 +60,7 @@ export class RoomEditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.roomService.roomRoomNumberGet(+params.get('roomNumber'))),
+        switchMap((params: ParamMap) => this.roomService.roomRoomIdGet(+params.get('room_id'))),
         takeWhile(() => this.alive),
       )
       .subscribe((room: Room) => {
