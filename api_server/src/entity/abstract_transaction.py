@@ -38,7 +38,8 @@ class AbstractTransaction(object):
         'value': 'float',
         'attachments': 'list[str]',
         'author': 'Object',
-        'pending_validation': 'bool'
+        'pending_validation': 'bool',
+        'caisse': 'str'
     }
 
     attribute_map = {
@@ -51,10 +52,11 @@ class AbstractTransaction(object):
         'value': 'value',
         'attachments': 'attachments',
         'author': 'author',
-        'pending_validation': 'pendingValidation'
+        'pending_validation': 'pendingValidation',
+        'caisse': 'caisse'
     }
 
-    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=False):  # noqa: E501
+    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=False, caisse=None):  # noqa: E501
         """AbstractTransaction - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
@@ -66,6 +68,7 @@ class AbstractTransaction(object):
         self._attachments = None
         self._author = None
         self._pending_validation = None
+        self._caisse = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -87,6 +90,8 @@ class AbstractTransaction(object):
             self.author = author
         if pending_validation is not None:
             self.pending_validation = pending_validation
+        if caisse is not None:
+            self.caisse = caisse
 
     @property
     def id(self):
@@ -317,6 +322,29 @@ class AbstractTransaction(object):
         """
 
         self._pending_validation = pending_validation
+
+    @property
+    def caisse(self):
+        """Gets the caisse of this AbstractTransaction.  # noqa: E501
+
+        Whether to use the caisse or not  # noqa: E501
+
+        :return: The caisse of this AbstractTransaction.  # noqa: E501
+        :rtype: str
+        """
+        return self._caisse
+
+    @caisse.setter
+    def caisse(self, caisse):
+        """Sets the caisse of this AbstractTransaction.
+
+        Whether to use the caisse or not  # noqa: E501
+
+        :param caisse: The caisse of this AbstractTransaction.  # noqa: E501
+        :type: str
+        """
+
+        self._caisse = caisse
 
     def to_dict(self):
         """Returns the model properties as a dict"""
