@@ -33,7 +33,7 @@ class OAuthManager:
 
         def save_token(token, request):
             if request.user:
-                username = request.user.login
+                username = request.user.username
             else:
                 username = None
             client = request.client
@@ -53,7 +53,7 @@ class OAuthManager:
         token = self.oauth_repository.get_token(ctx, access_token=access_token)
         return {
             'id': token.user.login,
-            'given_name': token.user.nom,
+            'given_name': token.user.prenom + ' ' + token.user.nom,
             'sub': token.user.login,
             'scope': token.scope
         }

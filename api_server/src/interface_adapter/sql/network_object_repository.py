@@ -4,11 +4,12 @@ Implements everything related to actions on the SQL database.
 This deals with all the network objects (except the member's devices).
 """
 from datetime import datetime
-from sqlalchemy import or_
 from typing import List
 
+from sqlalchemy import or_
+
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.port import Port, SwitchInfo
+from src.entity.port import Port
 from src.entity.switch import Switch
 from src.entity.vlan import Vlan
 from src.exceptions import SwitchNotFoundError, PortNotFoundError, VLANNotFoundError, RoomNotFoundError
@@ -243,8 +244,8 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
 def _map_vlan_sql_to_entity(r: VlanSQL) -> Vlan:
     return Vlan(
         number=str(r.numero),
-        ip_v4_range=r.adresses,
-        ip_v6_range=r.adressesv6,
+        ipv4_network=r.adresses,
+        ipv6_network=r.adressesv6,
     )
 
 
@@ -252,7 +253,7 @@ def _map_switch_sql_to_entity(r: SwitchSQL) -> Switch:
     return Switch(
         id=str(r.id),
         description=r.description,
-        ip_v4=r.ip,
+        ip=r.ip,
         community=r.communaute,
     )
 
@@ -261,10 +262,7 @@ def _map_port_sql_to_entity(r: PortSQL) -> Port:
     return Port(
         id=str(r.id),
         port_number=r.numero,
-        room_number=str(r.chambre.numero),
-        switch_info=SwitchInfo(
-            switch_id=str(r.switch.id),
-            rcom=r.rcom,
-            oid=r.oid,
-        ),
+        room=r.chambre,
+        switch=r.switch,
+        oid=r.oid,
     )

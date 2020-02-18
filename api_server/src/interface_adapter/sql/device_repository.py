@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.device import Device, DeviceType
+from src.entity.device import Device
 from src.interface_adapter.sql.model.models import Adherent
 from src.interface_adapter.sql.util.device_helper import get_all_devices, update_wired_device, \
     update_wireless_device, delete_wired_device, create_wireless_device, delete_wireless_device, create_wired_device
@@ -68,7 +68,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
             raise DeviceAlreadyExist()
 
         # If the user do not change the connection type, we just need to update...
-        if connection_type == DeviceType.Wired:
+        if connection_type == 'wired':
             create_wired_device(
                 ctx,
                 s=s,
@@ -98,7 +98,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
 
         # If the user do not change the connection type, we just need to update...
         if device.type == connection_type:
-            if connection_type == DeviceType.Wired:
+            if connection_type == 'wired':
                 update_wired_device(
                     ctx,
                     s=s,
@@ -121,7 +121,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
         # If the user change the connection type, we have to move the Device row from one table to another
         # (Wired table to Wireless table or the other way around)
         # To do that, we first delete the device and then re-create it in the other table.
-        if device.type == DeviceType.Wired:
+        if device.type == 'wired':
             delete_wired_device(
                 ctx,
                 s=s,
@@ -157,7 +157,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
         if not device:
             raise DeviceNotFoundError(mac_address)
 
-        if device.type == DeviceType.Wired:
+        if device.type == 'wired':
             delete_wired_device(ctx, s, mac_address)
         else:
             delete_wireless_device(ctx, s, mac_address)
@@ -187,9 +187,9 @@ def _map_device_sql_to_entity(d) -> Device:
     """
     Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
     """
-    t = DeviceType.Wired
+    t = 'wired'
     if d.type == 'wireless':
-        t = DeviceType.Wireless
+        t = 'wireless'
     return Device(
         mac_address=d.mac,
         owner_username=d.login,

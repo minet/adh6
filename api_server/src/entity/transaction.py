@@ -87,7 +87,6 @@ class Transaction(object):
             self.author = author
         if pending_validation is not None:
             self.pending_validation = pending_validation
-        AbstractTransaction.__init__(self, *args, **kwargs)
 
     @property
     def id(self):

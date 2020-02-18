@@ -148,7 +148,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         Search a member.
         """
         s = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_member_repository_search_member_by_called", extra=log_extra(ctx))
+        LOG.debug("sql_member_repository_search_member_by_called", extra=log_extra(ctx, room_number=room_number, username=username, member_id=member_id))
         q = s.query(Adherent)
 
         if username:
@@ -197,6 +197,7 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         room_number = str(adh.chambre.numero)
 
     return Member(
+        id=adh.id,
         username=adh.login,
         email=adh.mail,
         first_name=adh.prenom,
@@ -204,7 +205,7 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         departure_date=departure_date,
         comment=adh.commentaires,
         association_mode=association_mode,
-        room_number=room_number,
+        room=room_number,
     )
 
 

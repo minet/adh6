@@ -2,7 +2,7 @@
 from pytest import fixture, raises
 from unittest.mock import MagicMock
 
-from src.entity.device import Device, DeviceType
+from src.entity.device import Device
 from src.entity.member import Member
 from src.entity.room import Room
 from src.exceptions import InvalidMACAddress, MissingRequiredField, InvalidIPv6, InvalidIPv4, MemberNotFoundError
@@ -79,7 +79,7 @@ class TestUpdateOrCreate:
         created = device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
                                                   req=MutationRequest(
                                                       owner_username=TEST_USERNAME,
-                                                      connection_type=DeviceType.Wired,
+                                                      connection_type='wired',
                                                       mac_address=TEST_MAC_ADDRESS1,
                                                       ip_v4_address=None,
                                                       ip_v6_address=None,
@@ -90,7 +90,7 @@ class TestUpdateOrCreate:
         assert created is True
         mock_device_repository.create_device.assert_called_once_with(ctx, mac_address=TEST_MAC_ADDRESS1,
                                                                      owner_username=TEST_USERNAME,
-                                                                     connection_type=DeviceType.Wired,
+                                                                     connection_type='wired',
                                                                      ip_v4_address=ipv4,
                                                                      ip_v6_address=ipv6)
 
@@ -124,7 +124,7 @@ class TestUpdateOrCreate:
                                             req=MutationRequest(
                                                 mac_address=TEST_MAC_ADDRESS1,
                                                 owner_username=TEST_USERNAME,
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 ip_v4_address=None,
                                                 ip_v6_address='invalid ip',
                                             ),
@@ -163,7 +163,7 @@ class TestUpdateOrCreate:
                                             req=MutationRequest(
                                                 mac_address=TEST_MAC_ADDRESS1,
                                                 owner_username=TEST_USERNAME,
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 ip_v4_address='invalid ip',
                                                 ip_v6_address='dd24:ccd0:e024:7b8e:efe6:dffa:210d:d100',
                                             ),
@@ -202,7 +202,7 @@ class TestUpdateOrCreate:
                                             req=MutationRequest(
                                                 mac_address='invalid mac',
                                                 owner_username=TEST_USERNAME,
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 ip_v4_address=None,
                                                 ip_v6_address=None,
                                             ),
@@ -231,7 +231,7 @@ class TestUpdateOrCreate:
                                                   mac_address=sample_device.mac_address,
                                                   req=MutationRequest(
                                                       owner_username=TEST_USERNAME,
-                                                      connection_type=DeviceType.Wireless,
+                                                      connection_type='wireless',
                                                       mac_address=sample_device.mac_address,
                                                       ip_v4_address=None,
                                                       ip_v6_address=None,
@@ -243,7 +243,7 @@ class TestUpdateOrCreate:
         mock_device_repository.update_device.assert_called_once_with(ctx, sample_device.mac_address,
                                                                      mac_address=sample_device.mac_address,
                                                                      owner_username=TEST_USERNAME,
-                                                                     connection_type=DeviceType.Wireless,
+                                                                     connection_type='wireless',
                                                                      ip_v4_address=None,
                                                                      ip_v6_address=None)
 
@@ -269,7 +269,7 @@ class TestUpdateOrCreate:
         created = device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
                                                   req=MutationRequest(
                                                       owner_username=TEST_USERNAME,
-                                                      connection_type=DeviceType.Wired,
+                                                      connection_type='wired',
                                                       mac_address=TEST_MAC_ADDRESS1,
                                                       ip_v4_address=None,
                                                       ip_v6_address=None,
@@ -280,7 +280,7 @@ class TestUpdateOrCreate:
         assert created is True
         mock_device_repository.create_device.assert_called_once_with(ctx, mac_address=TEST_MAC_ADDRESS1,
                                                                      owner_username=TEST_USERNAME,
-                                                                     connection_type=DeviceType.Wired,
+                                                                     connection_type='wired',
                                                                      ip_v4_address=None,
                                                                      ip_v6_address=None)
 
@@ -297,7 +297,7 @@ class TestUpdateOrCreate:
             device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
                                             req=MutationRequest(
                                                 owner_username='',
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 mac_address=TEST_MAC_ADDRESS1,
                                                 ip_v4_address=None,
                                                 ip_v6_address=None,
@@ -321,7 +321,7 @@ class TestUpdateOrCreate:
             device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
                                             req=MutationRequest(
                                                 owner_username='hello__',
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 mac_address=TEST_MAC_ADDRESS1,
                                                 ip_v4_address=None,
                                                 ip_v6_address=None,
@@ -385,7 +385,7 @@ class TestUpdateOrCreate:
                                             mac_address=sample_device.mac_address,
                                             req=MutationRequest(
                                                 owner_username=TEST_USERNAME,
-                                                connection_type=DeviceType.Wired,
+                                                connection_type='wired',
                                                 mac_address=TEST_MAC_ADDRESS1,
                                                 ip_v4_address=None,
                                                 ip_v6_address=None,

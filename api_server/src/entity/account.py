@@ -88,7 +88,6 @@ class Account(object):
         self.id = id
         self.balance = balance
         self.pending_balance = pending_balance
-        AbstractAccount.__init__(self, *args, **kwargs)
 
     @property
     def actif(self):

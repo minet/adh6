@@ -68,7 +68,6 @@ class Device(object):
         self.mac = mac
         if member is not None:
             self.member = member
-        AbstractDevice.__init__(self, *args, **kwargs)
 
     @property
     def id(self):
