@@ -5,56 +5,59 @@
 #    pip-compile
 #
 alembic==1.4.0            # via flask-migrate
-atomicwrites==1.3.0       # via pytest
-attrs==19.1.0             # via pytest
+attrs==19.3.0             # via jsonschema, pytest
 authlib==0.14.1
-certifi==2019.6.16        # via requests
+certifi==2019.11.28       # via requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 click==7.0                # via clickclick, flask, pip-tools
-clickclick==1.2.2         # via connexion
-connexion==2.6.0
-coverage==4.5.3           # via pytest-cov
+clickclick==1.2.2
+git+https://github.com/minet/connexion.git
+coverage==5.0.3           # via pytest-cov
 cryptography==2.8         # via authlib
-elasticsearch==7.0.2
+elasticsearch==7.5.1
 flask-migrate==2.5.2
 flask-script==2.0.6
 flask-sqlalchemy==2.4.1   # via flask-migrate
 flask==1.1.1
 idna==2.8                 # via requests
-importlib-metadata==0.18  # via pluggy, pytest
-inflection==0.3.1         # via connexion
+importlib-metadata==1.5.0  # via jsonschema, pluggy, pytest
+inflection==0.3.1
 itsdangerous==1.1.0       # via flask
-jinja2==2.10.1            # via flask, swagger-ui-bundle
-jsonschema==2.6.0         # via connexion, openapi-spec-validator
+jinja2==2.11.1            # via flask, swagger-ui-bundle
+jsonschema==3.2.0         # via openapi-spec-validator
 mako==1.1.1               # via alembic
 markupsafe==1.1.1         # via jinja2, mako
-more-itertools==7.0.0     # via pytest
-mysqlclient==1.4.2.post1
-openapi-spec-validator==0.2.7  # via connexion
-packaging==19.0           # via pytest
-pip-tools==3.8.0
-pluggy==0.12.0            # via pytest
+more-itertools==8.2.0     # via pytest
+mysqlclient==1.4.6
+openapi-spec-validator==0.2.8
+packaging==20.1           # via pytest
+pip-tools==4.4.1
+pluggy==0.13.1            # via pytest
 ply==3.11                 # via pysmi
-py==1.8.0                 # via pytest
-pyasn1==0.4.5             # via pysnmp
+py==1.8.1                 # via pytest
+pyasn1==0.4.8             # via pysnmp
 pycparser==2.19           # via cffi
-pycryptodomex==3.8.2      # via pysnmp
-pyparsing==2.4.0          # via packaging
+pycryptodomex==3.9.6      # via pysnmp
+pyparsing==2.4.6          # via packaging
+pyrsistent==0.15.7        # via jsonschema
 pysmi==0.3.4              # via pysnmp
-pysnmp==4.4.9
-pytest-cov==2.7.1
-pytest==4.6.3
-python-dateutil==2.8.0
+pysnmp==4.4.12
+pytest-cov==2.8.1
+pytest==5.3.5
+python-dateutil==2.8.1
 python-editor==1.0.4      # via alembic
 python-gitlab==2.0.1
-pyyaml==5.1.1
+pyyaml==5.3
 requests==2.22.0
-six==1.12.0               # via cryptography, openapi-spec-validator, packaging, pip-tools, pytest, python-dateutil
-sqlalchemy==1.3.5
-swagger-ui-bundle==0.0.4
-urllib3==1.25.3           # via elasticsearch, requests
+six==1.14.0               # via cryptography, jsonschema, openapi-spec-validator, packaging, pip-tools, pyrsistent, python-dateutil
+sqlalchemy==1.3.13
+swagger-ui-bundle==0.0.6
+urllib3==1.25.8           # via elasticsearch, requests
 uwsgi==2.0.18
-wcwidth==0.1.7            # via pytest
-werkzeug==0.15.4          # via flask
-zipp==0.5.1               # via importlib-metadata
+wcwidth==0.1.8            # via pytest
+werkzeug==1.0.0           # via flask
+zipp==3.0.0               # via importlib-metadata
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==45.2.0        # via jsonschema

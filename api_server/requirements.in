@@ -4,7 +4,7 @@ pytest-cov
 
 # HTTP API
 Flask
-connexion
+git+https://github.com/minet/connexion.git
 swagger-ui-bundle
 uWSGI
 
