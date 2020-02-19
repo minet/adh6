@@ -1,13 +1,18 @@
 DIR=$(dirname "$0")
-[ -f swagger-codegen-cli.jar ] || wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.16/swagger-codegen-cli-3.0.16.jar -O swagger-codegen-cli.jar
+#[ -f "$DIR/openapi/swagger-codegen-cli.jar" ] || wget https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.16/swagger-codegen-cli-3.0.16.jar -O "$DIR/openapi/swagger-codegen-cli.jar"
+
+function codegencmd() {
+  java -jar "$DIR/openapi/swagger-codegen-cli.jar" generate -i "$DIR/openapi/spec.yaml" $@
+}
 
 function generate_frontend() {
+  GENERATOR_PATH="$DIR/openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/"
   rm -rf "$DIR/frontend_angular/src/app/api"
-  java -jar swagger-codegen-cli.jar generate -i "$DIR/openapi/spec.yaml" -l typescript-angular -o "$DIR/frontend_angular/src/app/api" --additional-properties ngVersion=7
+  codegencmd -l typescript-angular -o "$DIR/frontend_angular/src/app/api" -t "$GENERATOR_PATH" --additional-properties ngVersion=7
 }
 
 function generate_backend() {
-  java -jar swagger-codegen-cli.jar generate -i "$DIR/openapi/spec.yaml" -l python -o "$DIR/tmpsrc/"
+  codegencmd -Dmodels -l python -o "$DIR/tmpsrc/"
 
   diff -ruN api_server/src/entity tmpsrc/swagger_client/models/ > entities.patch
   patch -p0 < entities.patch

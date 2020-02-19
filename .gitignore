@@ -81,6 +81,5 @@ frontend_angular/certs/
 
 # other
 frontend_angular/src/app/api/.keep
-swagger-codegen-cli.jar
 secrets/**
 .env
