@@ -30,6 +30,7 @@ RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
       libpcre3-dev \
       libssl-dev \
       libmariadbclient-dev \
+      git \
       && useradd uwsgi
 
 WORKDIR /adh6/api_server
@@ -46,7 +47,6 @@ RUN chown -R uwsgi:www-data /root/.pysnmp
 COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
 COPY --from=generate_config /tmp/CONFIGURATION.py config/
-
 
 ENV ENVIRONMENT="dev"
 
