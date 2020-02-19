@@ -44,7 +44,7 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
     const account: Account = {
       actif: true,
       name: v.accountName,
-      type: parseInt(v.accountType)
+      accountType: parseInt(v.accountType)
     };
 
     this.accountService.accountPost(account)

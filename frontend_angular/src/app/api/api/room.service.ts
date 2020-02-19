@@ -66,10 +66,10 @@ export class RoomService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'body', reportProgress?: boolean): Observable<Array<Room>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: AbstractRoom, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<Room>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
 
@@ -85,8 +85,13 @@ export class RoomService {
         if (terms !== undefined && terms !== null) {
             queryParameters = queryParameters.set('terms', <any>terms);
         }
-        if (filter !== undefined && filter !== null) {
-            queryParameters = queryParameters.set('filter', <any>filter);
+        if (filter) {
+            for (const key in filter) {
+                if (Object.prototype.hasOwnProperty.call(filter, key)) {
+                  const value = filter[key];
+                  queryParameters = queryParameters.append('filter[' + key + ']', <any>value);
+                }
+            }
         }
 
         let headers = this.defaultHeaders;

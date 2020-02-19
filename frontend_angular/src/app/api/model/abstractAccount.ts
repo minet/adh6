@@ -28,7 +28,7 @@ export interface AbstractAccount {
     /**
      * The type of this account
      */
-    type?: AccountType | number;
+    accountType?: AccountType | number;
     /**
      * The date-time at which this account was first created
      */
