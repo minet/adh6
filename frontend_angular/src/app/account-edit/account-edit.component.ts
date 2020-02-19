@@ -49,7 +49,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     const accountPatch: AbstractAccount = {
       name: v.name,
       actif: v.actif,
-      type: parseInt(v.type),
+      accountType: parseInt(v.type),
     };
 
     this.accountService.accountAccountIdPut(accountPatch, this.account.id, 'response')

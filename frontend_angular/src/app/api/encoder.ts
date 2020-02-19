@@ -8,7 +8,10 @@
 export class CustomHttpUrlEncodingCodec extends HttpUrlEncodingCodec {
     encodeKey(k: string): string {
         k = super.encodeKey(k);
-        return k.replace(/\+/gi, '%2B');
+        k = k.replace(/\+/gi, '%2B');
+        k = k.replace('%5B', '[');
+        k = k.replace('%5D', ']');
+        return k;
     }
     encodeValue(v: string): string {
         v = super.encodeValue(v);
