@@ -34,7 +34,7 @@ class Account(object):
         'actif': 'bool',
         'pinned': 'bool',
         'compte_courant': 'bool',
-        'type': 'Object',
+        'account_type': 'Object',
         'creation_date': 'datetime',
         'member': 'Object',
         'name': 'str',
@@ -49,7 +49,7 @@ class Account(object):
         'actif': 'actif',
         'pinned': 'pinned',
         'compte_courant': 'compteCourant',
-        'type': 'type',
+        'account_type': 'accountType',
         'creation_date': 'creationDate',
         'member': 'member',
         'name': 'name',
@@ -60,12 +60,12 @@ class Account(object):
     if hasattr(AbstractAccount, "attribute_map"):
         attribute_map.update(AbstractAccount.attribute_map)
 
-    def __init__(self, actif=True, pinned=False, compte_courant=False, type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, actif=True, pinned=False, compte_courant=False, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None, *args, **kwargs):  # noqa: E501
         """Account - a model defined in Swagger"""  # noqa: E501
         self._actif = None
         self._pinned = None
         self._compte_courant = None
-        self._type = None
+        self._account_type = None
         self._creation_date = None
         self._member = None
         self._name = None
@@ -79,7 +79,7 @@ class Account(object):
             self.pinned = pinned
         if compte_courant is not None:
             self.compte_courant = compte_courant
-        self.type = type
+        self.account_type = account_type
         if creation_date is not None:
             self.creation_date = creation_date
         if member is not None:
@@ -159,29 +159,29 @@ class Account(object):
         self._compte_courant = compte_courant
 
     @property
-    def type(self):
-        """Gets the type of this Account.  # noqa: E501
+    def account_type(self):
+        """Gets the account_type of this Account.  # noqa: E501
 
-        The type of this account  # noqa: E501
+        The account_type of this account  # noqa: E501
 
-        :return: The type of this Account.  # noqa: E501
+        :return: The account_type of this Account.  # noqa: E501
         :rtype: Object
         """
-        return self._type
+        return self._account_type
 
-    @type.setter
-    def type(self, type):
-        """Sets the type of this Account.
+    @account_type.setter
+    def account_type(self, account_type):
+        """Sets the account_type of this Account.
 
-        The type of this account  # noqa: E501
+        The account_type of this account  # noqa: E501
 
-        :param type: The type of this Account.  # noqa: E501
+        :param account_type: The account_type of this Account.  # noqa: E501
         :type: Object
         """
-        if type is None:
-            raise ValueError("Invalid value for `type`, must not be `None`")  # noqa: E501
+        if account_type is None:
+            raise ValueError("Invalid value for `account_type`, must not be `None`")  # noqa: E501
 
-        self._type = type
+        self._account_type = account_type
 
     @property
     def creation_date(self):
