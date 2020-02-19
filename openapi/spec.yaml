@@ -1694,7 +1694,7 @@ components:
           example: true
           type: boolean
           default: false
-        type:
+        accountType:
           description: The type of this account
           oneOf:
             - $ref: '#/components/schemas/AccountType'
@@ -1739,10 +1739,11 @@ components:
         - $ref: '#/components/schemas/AbstractAccount'
         - required:
             - id
-            - type
+            - accountType
             - name
             - balance
             - pendingBalance
+      type: object
     AccountType:
       type: object
       required:
@@ -1832,6 +1833,7 @@ components:
             - dst
             - paymentMethod
             - value
+      type: object
     PaymentMethod:
       type: object
       required:
@@ -1919,6 +1921,7 @@ components:
             - ipv4Address
             - ipv6Address
             - mac
+      type: object
     Admin:
       type: object
       required:
@@ -1990,6 +1993,7 @@ components:
             - email
             - firstName
             - lastName
+      type: object
     MembershipRequest:
       type: object
       required:
@@ -2041,6 +2045,7 @@ components:
             - description
             - roomNumber
             - vlan
+      type: object
     AbstractPort:
       type: object
       properties:
@@ -2079,6 +2084,7 @@ components:
             - oid
             - room
             - switch
+      type: object
     AbstractSwitch:
       type: object
       properties:
@@ -2108,6 +2114,7 @@ components:
             - description
             - community
             - ip
+      type: object
     Vlan:
       type: object
       required:
