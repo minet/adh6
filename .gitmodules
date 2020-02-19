@@ -1,0 +1,7 @@
+[submodule "openapi/swagger-codegen"]
+	path = openapi/swagger-codegen
+	url = https://github.com/minet/swagger-codegen.git
+	branch = 3.0.0
+[submodule "openapi/swagger-codegen-generators"]
+	path = openapi/swagger-codegen-generators
+	url = https://github.com/minet/swagger-codegen-generators.git
