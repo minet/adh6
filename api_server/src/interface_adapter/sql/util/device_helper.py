@@ -118,7 +118,7 @@ def get_all_devices(s):
 
 def _dev_to_gen(d):
     yield "mac", d.mac,
-    yield "connectionType", d.type,
+    yield "connectionType", d.account_type,
     if d.ip:
         yield "ipAddress", d.ip
     if d.ipv6:

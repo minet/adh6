@@ -4,6 +4,7 @@ from authlib.integrations.flask_client import OAuth
 from authlib.integrations.flask_oauth2 import AuthorizationServer
 from authlib.oauth2.rfc6749 import grants
 
+from src.entity import AbstractMember
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.interface_adapter.sql.model.database import Database as Db
@@ -25,21 +26,24 @@ class OAuthManager:
         self.member_repository = member_repository
         self.oauth = oauth
 
-        self.session = Db.get_db().get_session()
-        self.ctx = build_context(session=self.session)
-
         def query_client(client_id):
-            return self.oauth_repository.get_client(self.ctx, client_id=client_id)
+            s = Db.get_db().get_session()
+            ctx = build_context(session=s)
+            client = self.oauth_repository.get_client(ctx, client_id=client_id)
+            s.close()
+            return client
 
         def save_token(token, request):
+            s = Db.get_db().get_session()
+            ctx = build_context(session=s)
             if request.user:
                 username = request.user.username
             else:
                 username = None
             client = request.client
-            self.oauth_repository.create_token(self.ctx, client_id=client.client_id, username=username, **token)
-            self.session.commit()
-
+            self.oauth_repository.create_token(ctx, client_id=client.client_id, username=username, **token)
+            s.commit()
+            s.close()
         self.authorization = AuthorizationServer(
             query_client=query_client,
             save_token=save_token,
@@ -59,5 +63,5 @@ class OAuthManager:
         }
 
     def create_authorization_response(self, ctx, request=None, grant_user=None):
-        users, _ = self.member_repository.search_member_by(ctx, username=grant_user)
+        users, _ = self.member_repository.search_member_by(ctx, filter_=AbstractMember(username=grant_user))
         return self.authorization.create_authorization_response(request=request, grant_user=users[0])

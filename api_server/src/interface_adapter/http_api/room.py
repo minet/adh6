@@ -20,9 +20,9 @@ class RoomHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
         """ Filter the list of the rooms """
-        LOG.debug("http_room_search_called", extra=log_extra(ctx, terms=terms))
+        LOG.debug("http_room_search_called", extra=log_extra(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_))
         try:
             result, count = self.room_manager.search(ctx, limit=limit, offset=offset, terms=terms)
             result = map(serialize_response, result)

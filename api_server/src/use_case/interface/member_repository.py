@@ -4,6 +4,8 @@ Member repository interface.
 """
 import abc
 
+from src.entity import AbstractMember
+
 
 class MemberRepository(metaclass=abc.ABCMeta):
     """
@@ -11,8 +13,7 @@ class MemberRepository(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def search_member_by(self, ctx, limit=None, offset=None, room_number=None, terms=None, username=None,
-                         member_id=None) -> (
+    def search_member_by(self, ctx, limit=None, offset=None, terms=None, filter_: AbstractMember = None) -> (
             list, int):
         """
         Search members.

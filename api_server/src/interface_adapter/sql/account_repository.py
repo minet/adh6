@@ -8,6 +8,7 @@ from typing import List
 
 from src.constants import CTX_SQL_SESSION
 from src.entity.account import Account
+from src.entity.null import Null
 from src.exceptions import AccountNotFoundError
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Account as SQLAccount, Transaction
@@ -109,13 +110,15 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
     if has_balance:
         (a, balance) = a
     return Account(
+        id=a.id,
         name=a.name,
         actif=a.actif,
-        type=a.type,
+        account_type=a.type,
         creation_date=a.creation_date,
         account_id=a.id,
-        adherent=_map_member_sql_to_entity(a.adherent) if a.adherent else None,
-        balance=balance if has_balance else None,
+        member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
+        balance=balance if has_balance else 0,
+        pending_balance=balance if has_balance else 0,
         compte_courant=a.compte_courant,
         pinned=a.pinned
     )

@@ -7,6 +7,7 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
+from src.entity import AbstractMember
 from src.entity.member import Member
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, UsernameMismatchError, PasswordTooShortError, InvalidEmail, \
@@ -207,7 +208,7 @@ class MemberManager:
         ))
         return result[0]
 
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, room_number=None, terms=None) -> (
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> (
             List[Member], int):
         """
         search member in the database.
@@ -226,13 +227,13 @@ class MemberManager:
         result, count = self.member_repository.search_member_by(ctx,
                                                                 limit=limit,
                                                                 offset=offset,
-                                                                room_number=room_number,
-                                                                terms=terms)
+                                                                terms=terms,
+                                                                filter_=filter_)
 
         # Log action.
         LOG.info('member_search', extra=log_extra(
             ctx,
-            room_number=room_number,
+            filter_=filter_,
             terms=terms,
         ))
         return result, count

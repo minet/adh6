@@ -13,7 +13,9 @@ from typing import List
 
 from config import TEST_CONFIGURATION
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import AbstractMember
 from src.entity.member import Member
+from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, MemberAlreadyExist, MemberNotFoundError
 from src.interface_adapter.sql.model.models import Adherent, Chambre, Adhesion
 from src.interface_adapter.sql.track_modifications import track_modifications
@@ -141,31 +143,30 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             # Actually delete it
             s.delete(member)
 
-    def search_member_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, room_number=None, terms=None,
-                         username=None, member_id=None) -> (
+    def search_member_by(self, ctx, limit=None, offset=None, terms=None, filter_: AbstractMember = None) -> (
             List[Member], int):
         """
         Search a member.
         """
         s = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_member_repository_search_member_by_called", extra=log_extra(ctx, room_number=room_number, username=username, member_id=member_id))
+        LOG.debug("sql_member_repository_search_member_by_called", extra=log_extra(ctx, filter_=filter_))
         q = s.query(Adherent)
 
-        if username:
-            q = q.filter(Adherent.login == username)
+        if filter_.username is not None:
+            q = q.filter(Adherent.login == filter_.username)
 
-        if room_number:
+        if filter_.room is not None:
             try:
                 q2 = s.query(Chambre)
-                q2 = q2.filter(Chambre.numero == room_number)
+                q2 = q2.filter(Chambre.id == filter_.room)
                 result = q2.one()
             except NoResultFound:
                 return [], 0
 
             q = q.filter(Adherent.chambre == result)
 
-        if member_id:
-            q = q.filter(Adherent.id == member_id)
+        if filter_.id is not None:
+            q = q.filter(Adherent.id == filter_.id)
 
         if terms:
             q = q.filter(
@@ -189,23 +190,16 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
-    departure_date = date_to_string(adh.date_de_depart)
-    association_mode = date_to_string(adh.mode_association)
-
-    room_number = None
-    if adh.chambre is not None:
-        room_number = str(adh.chambre.numero)
-
     return Member(
         id=adh.id,
         username=adh.login,
         email=adh.mail,
         first_name=adh.prenom,
         last_name=adh.nom,
-        departure_date=departure_date,
+        departure_date=adh.date_de_depart,
         comment=adh.commentaires,
-        association_mode=association_mode,
-        room=room_number,
+        association_mode=adh.mode_association,
+        room=adh.chambre.id if adh.chambre else Null(),
     )
 
 
