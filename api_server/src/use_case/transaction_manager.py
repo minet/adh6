@@ -1,166 +1,66 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
-import json
-from dataclasses import dataclass, asdict
-from typing import List, Optional
 
-from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT, CTX_ADMIN
-from src.exceptions import IntMustBePositive, MissingRequiredField, \
-    TransactionNotFoundError, UserInputError
-from src.interface_adapter.sql.model.models import Transaction
+from src.entity import AbstractTransaction
+from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
+from src.use_case.base_manager import BaseManager
 from src.use_case.interface.transaction_repository import TransactionRepository
-from src.util.context import log_extra
-from src.util.log import LOG
+from src.use_case.payment_method_manager import PaymentMethodManager
 
 
-@dataclass
-class PartialMutationRequest:
-    """
-    Mutation request for a transaction. This represents the 'diff' that is going to be applied on a transaction object.
-
-    If a field is set to None, field be left untouched.
-    """
-    src: Optional[str] = None
-    dst: Optional[str] = None
-    name: Optional[str] = None
-    value: Optional[int] = None
-    paymentMethod: Optional[str] = None
-    attachments: Optional[str] = None
-
-    def validate(self):
+class CaisseManager(object):
+    def update_caisse(self, ctx, value_modifier, transaction):
         pass
 
 
-@dataclass
-class FullMutationRequest(PartialMutationRequest):
-    """
-    Mutation request for a transaction. This represents the 'diff' that is going to be applied on a transaction object.
-
-    If a field is set to None, field be left untouched.
-    """
-    src: str
-    dst: str
-    name: str
-    value: int
-    paymentMethod: str
-    attachments: Optional[str] = None
-
-    def validate(self):
-        # SOURCE:
-        if self.src is None:
-            raise MissingRequiredField('src')
-
-        # DESTINATION:
-        if self.dst is None:
-            raise MissingRequiredField('dst')
-
-        # NAME:
-        if self.name is None:
-            raise MissingRequiredField('name')
-
-        # VALUE:
-        if self.value is None:
-            raise MissingRequiredField('value')
-
-        # TYPE:
-        if self.paymentMethod is None:
-            raise MissingRequiredField('paymentMethod')
-
-        super().validate()
-
-
-class TransactionManager:
+class TransactionManager(BaseManager):
     """
     Implements all the use cases related to transaction management.
     """
 
     def __init__(self,
                  transaction_repository: TransactionRepository,
+                 payment_method_manager: PaymentMethodManager,
+                 caisse_manager: CaisseManager
                  ):
+        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError)
         self.transaction_repository = transaction_repository
+        self.payment_method_manager = payment_method_manager
+        self.caisse_manager = caisse_manager
 
-    def get_by_id(self, ctx, transaction_id) -> Transaction:
-        """
-        User story: As an admin, I can see the details of a transaction.
+    def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None):
+        if abstract_transaction.src == abstract_transaction.dst:
+            raise ValidationError('the source and destination accounts must not be the same')
+        if abstract_transaction.value <= 0:
+            raise IntMustBePositive()
 
-        :raise TransactionNotFound
-        """
-        result, _ = self.transaction_repository.search_transaction_by(ctx, transaction_id=transaction_id)
-        if not result:
-            raise TransactionNotFoundError(transaction_id)
+        transaction, created = super().update_or_create(ctx, abstract_transaction, transaction_id=transaction_id)
 
-        # Log action.
-        LOG.info('transaction_get_by_id', extra=log_extra(
-            ctx,
-            transaction_id=transaction_id
-        ))
-        return result[0]
+        if created:
+            liquide, _ = self.payment_method_manager.search(ctx, limit=1, terms='Liquide')
+            if abstract_transaction.payment_method == liquide[0].id:
+                if abstract_transaction.caisse == "to":
+                    self.caisse_manager.update_caisse(ctx, value_modifier=abstract_transaction.value,
+                                                      transaction=transaction)
+                elif abstract_transaction.caisse == "from":
+                    self.caisse_manager.update_caisse(ctx, value_modifier=-abstract_transaction.value,
+                                                      transaction=transaction)
 
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, account_id=None, terms=None) -> (
-            List[Transaction], int):
-        """
-        search transactions in the database.
+        return transaction
 
-        :raise IntMustBePositiveException
-        """
-        if limit < 0:
-            raise IntMustBePositive('limit')
-
-        if offset < 0:
-            raise IntMustBePositive('offset')
-
-        result, count = self.transaction_repository.search_transaction_by(ctx,
-                                                                          limit=limit,
-                                                                          offset=offset,
-                                                                          account_id=account_id,
-                                                                          terms=terms)
-
-        # Log action.
-        LOG.info('transaction_search', extra=log_extra(
-            ctx,
-            account_id=account_id,
-            terms=terms,
-        ))
-        return result, count
-
-    def update_or_create(self, ctx, mutation_request: FullMutationRequest) -> bool:
-        """
-        Create/Update a transaction from the database.
-
-        :return: True if the transaction was created, false otherwise.
-
-        :raise IntMustBePositiveException
-        :raise AccountNotFound
-        :raise InvalidAdmin
-        :raise PaymentMethodNotFound
-        :raise MissingRequiredFieldError
-        """
-        # Make sure all the field objects set are valid.
-        mutation_request.validate()
-
-        if mutation_request.value < 0:
-            raise IntMustBePositive('value')
-        if mutation_request.src == mutation_request.dst:
-            raise UserInputError('source and destination accounts must not be the same')
-
-        # Build a dict that will be transformed into a transaction. If a field is not set, consider that it should be
-        # None.
-
-        fields = asdict(mutation_request)
-        fields = {k: v for k, v in fields.items()}
-
-        try:
-            self.transaction_repository.create_transaction(ctx, author=ctx.get(CTX_ADMIN).login, **fields)
-        except Exception:
-            raise
-
-        # Log action
-        LOG.info('transaction_create', extra=log_extra(
-            ctx,
-            mutation=json.dumps(fields, sort_keys=True, default=str)
-        ))
-
-        return True
-
-    def update_partially(self, ctx, mutation_request: PartialMutationRequest) -> None:
+    def partially_update(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None, override=False,
+                         **kwargs):
+        if any(True for _ in filter(lambda e: e is not None, [
+            abstract_transaction.value,
+            abstract_transaction.src,
+            abstract_transaction.dst,
+            abstract_transaction.timestamp,
+            abstract_transaction.payment_method,
+            abstract_transaction.caisse,
+            abstract_transaction.author,
+        ])):
+            raise ValidationError('you are trying to update a transaction with fields that cannot be updated')
         pass
+
+    def delete(self, ctx, *args, **kwargs):
+        raise NotImplemented

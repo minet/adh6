@@ -2,15 +2,16 @@
 import os
 
 import connexion
+from authlib.integrations.flask_client import OAuth
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import CONFIGURATION, TEST_CONFIGURATION
+from src.entity import AbstractAccount
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
-from src.interface_adapter.http_api.account import AccountHandler
 from src.interface_adapter.http_api.account_type import AccountTypeHandler
 from src.interface_adapter.http_api.bug_report import BugReportHandler
-from src.interface_adapter.http_api.treasury import TreasuryHandler
+from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
@@ -22,6 +23,7 @@ from src.interface_adapter.http_api.room import RoomHandler
 from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.switch import SwitchHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
+from src.interface_adapter.http_api.treasury import TreasuryHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
@@ -29,6 +31,10 @@ from src.interface_adapter.sql.caisse_repository import CaisseSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
+# THIS IMPORT IS NEEDED
+# from src.interface_adapter.sql.model.models import *
+#
+from src.interface_adapter.sql.model.models import *
 from src.interface_adapter.sql.money_repository import MoneySQLRepository
 from src.interface_adapter.sql.network_object_repository import NetworkObjectSQLRepository
 from src.interface_adapter.sql.oauth_repository import OAuthSQLRepository
@@ -51,13 +57,7 @@ from src.use_case.port_manager import PortManager
 from src.use_case.product_manager import ProductManager
 from src.use_case.room_manager import RoomManager
 from src.use_case.switch_manager import SwitchManager
-from src.use_case.transaction_manager import TransactionManager
-from authlib.integrations.flask_client import OAuth
-
-# THIS IMPORT IS NEEDED
-# from src.interface_adapter.sql.model.models import *
-#
-from src.interface_adapter.sql.model.models import *
+from src.use_case.transaction_manager import TransactionManager, CaisseManager
 
 
 def init(testing=True, managing=False):
@@ -127,8 +127,11 @@ def init(testing=True, managing=False):
     payment_method_manager = PaymentMethodManager(
         payment_method_repository=payment_method_sql_repository
     )
+    caisse_manager = CaisseManager()
     transaction_manager = TransactionManager(
         transaction_repository=transaction_sql_repository,
+        payment_method_manager=payment_method_manager,
+        caisse_manager=caisse_manager
     )
     account_type_manager = AccountTypeManager(
         account_type_repository=account_type_sql_repository
@@ -147,7 +150,7 @@ def init(testing=True, managing=False):
     # HTTP Handlers:
     health_handler = HealthHandler(health_manager)
     stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
-    transaction_handler = TransactionHandler(transaction_manager, payment_method_manager, member_manager, treasury_manager)
+    transaction_handler = TransactionHandler(transaction_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
     room_handler = RoomHandler(room_manager)
@@ -155,7 +158,7 @@ def init(testing=True, managing=False):
     port_handler = PortHandler(port_manager, switch_manager, switch_network_manager)
     account_type_handler = AccountTypeHandler(account_type_manager)
     payment_method_handler = PaymentMethodHandler(payment_method_manager)
-    account_handler = AccountHandler(account_manager, transaction_manager)
+    account_handler = DefaultHandler(AbstractAccount, Account, account_manager)
     product_handler = ProductHandler(product_manager)
     bug_report_handler = BugReportHandler(bug_report_manager)
     treasury_handler = TreasuryHandler(treasury_manager, account_manager)

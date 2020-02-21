@@ -1,73 +1,23 @@
-from typing import List, Optional
-from dataclasses import dataclass, asdict
-
-from src.entity.account import Account
-from src.entity.account_type import AccountType
-from src.use_case.interface.member_repository import MemberRepository
-from src.use_case.interface.account_repository import AccountRepository
-
-from src.exceptions import AccountNotFoundError, IntMustBePositive, StringMustNotBeEmpty, InvalidDate, \
-    MissingRequiredField
+from dataclasses import asdict
+from typing import List
 
 from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
-from src.util.validator import is_empty, is_date
-
+from src.entity import AbstractAccount
+from src.entity.account import Account
+from src.exceptions import AccountNotFoundError, IntMustBePositive, StringMustNotBeEmpty, MissingRequiredField
+from src.use_case.base_manager import BaseManager
+from src.use_case.interface.account_repository import AccountRepository
+from src.use_case.interface.member_repository import MemberRepository
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
-@dataclass
-class PartialMutationRequest:
-    """
-    Mutation request for an account. This represents the 'diff', that is going to be applied on the account object.
-
-    If a field is set to None, field be left untouched.
-    """
-    name: str = None
-    type: int = None
-    creation_date: Optional[str] = None
-    actif: Optional[bool] = None
-
-    def validate(self):
-        # NAME:
-        if self.name is not None and not is_empty(self.name):
-            raise StringMustNotBeEmpty('name')
-
-        if self.type is not None:
-            raise MissingRequiredField('type')
-
-        # CREATION_DATE:
-        if self.creation_date is not None and not is_date(self.creation_date):
-            raise InvalidDate(self.creation_date)
-
-
-@dataclass
-class FullMutationRequest(PartialMutationRequest):
-    """
-    Mutation request for a an. This represents the 'diff', that is going to be applied on the account object.
-
-    If a field is set to None, field will be cleared in the database.
-    """
-    name: str = None
-    type: int = None
-    creation_date: Optional[str] = None
-    actif: Optional[bool] = None
-
-    def validate(self):
-        # NAME:
-        if self.name is None:
-            raise MissingRequiredField('name')
-
-        if self.type is None:
-            raise MissingRequiredField('type')
-
-
-class AccountManager:
+class AccountManager(BaseManager):
     def __init__(self, member_repository: MemberRepository, account_repository: AccountRepository):
         self.account_repository = account_repository
         self.member_repository = member_repository
 
-    def get_by_id(self, ctx, account_id=None) -> Account:
+    def get_by_id(self, ctx, account_id=None, **kwargs) -> Account:
         """
         Search an account in the database.
         """
@@ -112,7 +62,7 @@ class AccountManager:
         ))
         return result, count
 
-    def update_or_create(self, ctx, req: FullMutationRequest, account_id=None) -> bool:
+    def update_or_create(self, ctx, req: AbstractAccount, account_id=None) -> bool:
         req.validate()
 
         try:

@@ -5,6 +5,7 @@ Treasury repository.
 import abc
 from typing import List
 
+from src.entity import AbstractTransaction
 from src.entity.transaction import Transaction
 
 
@@ -14,7 +15,7 @@ class TransactionRepository(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def search_transaction_by(self, ctx, limit=None, offset=None, account_id=None, transaction_id=None, terms=None) -> \
+    def search_transaction_by(self, ctx, limit=None, offset=None, terms=None, filter_: AbstractTransaction = None) -> \
             (List[Transaction], int):
         """
         Search for a transaction.
@@ -22,8 +23,7 @@ class TransactionRepository(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def create_transaction(self, ctx, src=None, dst=None, name=None, value=None, paymentMethod=None, attachments=None,
-                           author=None):
+    def create_transaction(self, ctx, author=None, abstract_transaction: AbstractTransaction = None):
         """
         Create a transaction.
         """

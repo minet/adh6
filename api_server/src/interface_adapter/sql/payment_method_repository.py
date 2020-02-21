@@ -40,6 +40,6 @@ def _map_payment_method_sql_to_entity(a) -> PaymentMethod:
     """
 
     return PaymentMethod(
-        payment_method_id=a.id,
+        id=a.id,
         name=a.name
     )

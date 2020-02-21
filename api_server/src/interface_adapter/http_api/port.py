@@ -25,14 +25,14 @@ class PortHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, switch_id=None, room_number=None, terms=None):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
         """ Filter the port list according to some criteria """
         LOG.debug("http_port_search_called",
-                  extra=log_extra(ctx, switch_id=switch_id, room_number=room_number, terms=terms))
+                  extra=log_extra(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_))
 
         try:
-            result, count = self.port_manager.search(ctx, limit=limit, offset=offset, switch_id=switch_id,
-                                                     room_number=room_number,
+            result, count = self.port_manager.search(ctx, limit=limit, offset=offset, switch_id=filter_["switch"],
+                                                     room_number=filter_['room'],
                                                      terms=terms)
             headers = {
                 'access-control-expose-headers': 'X-Total-Count',

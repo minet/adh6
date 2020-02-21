@@ -97,7 +97,7 @@ class NotFoundError(UserInputError):
     """
 
     def __init__(self, what, v: str = None):
-        err_msg = filter(bool, [what, v, 'is not found'])
+        err_msg = what + ' ' + str(v) + ' was not found'
         super().__init__(err_msg)
 
 

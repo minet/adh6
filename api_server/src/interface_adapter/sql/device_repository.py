@@ -97,7 +97,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
             return DeviceNotFoundError(device_to_update)
 
         # If the user do not change the connection type, we just need to update...
-        if device.type == connection_type:
+        if device.account_type == connection_type:
             if connection_type == 'wired':
                 update_wired_device(
                     ctx,
@@ -121,7 +121,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
         # If the user change the connection type, we have to move the Device row from one table to another
         # (Wired table to Wireless table or the other way around)
         # To do that, we first delete the device and then re-create it in the other table.
-        if device.type == 'wired':
+        if device.account_type == 'wired':
             delete_wired_device(
                 ctx,
                 s=s,
@@ -157,7 +157,7 @@ class DeviceSQLRepository(DeviceRepository, IPAllocator):
         if not device:
             raise DeviceNotFoundError(mac_address)
 
-        if device.type == 'wired':
+        if device.account_type == 'wired':
             delete_wired_device(ctx, s, mac_address)
         else:
             delete_wireless_device(ctx, s, mac_address)
@@ -188,7 +188,7 @@ def _map_device_sql_to_entity(d) -> Device:
     Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
     """
     t = 'wired'
-    if d.type == 'wireless':
+    if d.account_type == 'wireless':
         t = 'wireless'
     return Device(
         mac_address=d.mac,
