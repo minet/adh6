@@ -57,6 +57,7 @@ import { AccountListComponent } from './account-list/account-list.component';
 import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { AuthorizeComponent } from './authorize/authorize.component';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
+import { PortailComponent } from './portail/portail.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -106,6 +107,7 @@ export function storageFactory() : OAuthStorage {
     MemberDeviceListComponent,
     AccountListComponent,
     AuthorizeComponent,
+    PortailComponent,
   ],
   imports: [
     FontAwesomeModule,
