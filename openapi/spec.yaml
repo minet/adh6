@@ -143,7 +143,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Statistics'
                 type: array
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -179,7 +179,7 @@ paths:
                 example: 25
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -204,7 +204,7 @@ paths:
           description: The created account
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -230,7 +230,7 @@ paths:
           description: The fetched account
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -252,7 +252,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -305,7 +305,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -343,7 +343,7 @@ paths:
                 type: integer
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -368,7 +368,7 @@ paths:
           description: The created device
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -390,7 +390,7 @@ paths:
           description: Deleted
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -409,7 +409,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -437,7 +437,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -471,7 +471,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -509,7 +509,7 @@ paths:
                 type: integer
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -534,7 +534,7 @@ paths:
           description: The created account
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -556,7 +556,7 @@ paths:
           description: Deleted
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -575,7 +575,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -597,7 +597,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -619,7 +619,7 @@ paths:
           description: Created
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -656,7 +656,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -694,7 +694,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -732,7 +732,7 @@ paths:
           description: Modified
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -785,7 +785,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -825,7 +825,7 @@ paths:
                 example: 25
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -852,7 +852,7 @@ paths:
           description: The created port
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -875,7 +875,7 @@ paths:
           description: Deleted
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -894,7 +894,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -940,7 +940,7 @@ paths:
           description: Whether MAB is enabled on this port
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -961,7 +961,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -989,7 +989,7 @@ paths:
           description: Whether the port is active
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1011,7 +1011,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1040,7 +1040,7 @@ paths:
           description: The VLAN assigned to this port
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1064,7 +1064,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1118,7 +1118,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1158,7 +1158,7 @@ paths:
                 example: 25
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1183,7 +1183,7 @@ paths:
           description: The created room
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1205,7 +1205,7 @@ paths:
           description: Deleted
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1224,7 +1224,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1248,7 +1248,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1288,7 +1288,7 @@ paths:
                 example: 25
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1313,7 +1313,7 @@ paths:
           description: The created switch
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1334,7 +1334,7 @@ paths:
           description: Deleted
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1353,7 +1353,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1375,7 +1375,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1414,7 +1414,7 @@ paths:
                 example: 0
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1441,7 +1441,7 @@ paths:
           description: The created transaction
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1471,7 +1471,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1499,7 +1499,7 @@ paths:
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1521,7 +1521,7 @@ paths:
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
@@ -1545,7 +1545,7 @@ paths:
           description: Created
         400:
           $ref: '#/components/responses/Invalid'
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1567,7 +1567,7 @@ paths:
                 type: object
                 title: labels
           description: Success
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1594,7 +1594,7 @@ paths:
                 type: object
                 title: caisse
           description: Success
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -1617,7 +1617,7 @@ paths:
                 type: object
                 title: bank
           description: Success
-        401:
+        403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
@@ -2141,7 +2141,7 @@ components:
         ipv6Network:
           description: The IPv5 network range for this VLAN
           type: string
-          example: "2001:660:3203:401::/64"
+          example: "2001:660:3203:403::/64"
     BugReport:
       type: object
       required:
