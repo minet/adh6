@@ -2,28 +2,30 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.entity.payment_method import PaymentMethod
 from typing import List
-from src.interface_adapter.sql.model.models import PaymentMethod as SQLPaymentMethod
 
-from src.util.context import log_extra
-from src.util.log import LOG
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
+from src.entity.payment_method import PaymentMethod
+from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.interface_adapter.sql.model.models import PaymentMethod as SQLPaymentMethod
+from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 
 
 class PaymentMethodSQLRepository(PaymentMethodRepository):
-    def search_payment_method_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET,
-                                 payment_method_id=None, terms: str = None) -> (List[PaymentMethod], int):
-        LOG.debug("sql_payment_method_repository_search_called", extra=log_extra(ctx))
+
+    @log_call
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: PaymentMethod = None) -> (List[PaymentMethod], int):
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(SQLPaymentMethod)
 
-        if payment_method_id:
-            q = q.filter(SQLPaymentMethod.id == payment_method_id)
+        if filter_.id:
+            q = q.filter(SQLPaymentMethod.id == filter_.id)
         if terms:
             q = q.filter(SQLPaymentMethod.name.contains(terms))
+        if filter_.name:
+            q = q.filter(SQLPaymentMethod.name.contains(filter_.name))
 
         count = q.count()
         q = q.order_by(SQLPaymentMethod.id.asc())
@@ -31,15 +33,14 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         q = q.limit(limit)
         r = q.all()
 
-        return list(map(_map_payment_method_sql_to_entity, r)), count
+        return list(map(_map_account_sql_to_entity, r)), count
 
 
-def _map_payment_method_sql_to_entity(a) -> PaymentMethod:
+def _map_account_sql_to_entity(a) -> PaymentMethod:
     """
-    Map a Payment Method object from SQLAlchemy to a PaymentMethod (from the entity folder/layer).
+    Map an PaymentMethod object from SQLAlchemy to an PaymentMethod (from the entity folder/layer).
     """
-
     return PaymentMethod(
         id=a.id,
-        name=a.name
+        name=a.name,
     )

@@ -3,109 +3,90 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from sqlalchemy import or_
 from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import AbstractRoom
+from src.entity.null import Null
 from src.entity.room import Room
-from src.exceptions import RoomNotFoundError, RoomAlreadyExists, VLANNotFoundError
-from src.interface_adapter.sql.model.models import Adherent, Chambre, Vlan
+from src.exceptions import RoomNotFoundError, VLANNotFoundError
+from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.interface_adapter.sql.model.models import Chambre, Vlan
+from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.room_repository import RoomRepository
-from src.util.context import log_extra
-from src.util.log import LOG
 
 
 class RoomSQLRepository(RoomRepository):
-    def search_room_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, room_number=None, owner_username=None,
-                       terms=None) -> (
-            List[Room], int):
-        LOG.debug("sql_room_repository_search_room_by_called",
-                  extra=log_extra(ctx, username=owner_username, terms=terms))
+
+    @log_call
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractRoom = None) -> (List[Room], int):
         s = ctx.get(CTX_SQL_SESSION)
+
         q = s.query(Chambre)
 
-        if room_number:
-            q = q.filter(Chambre.numero == room_number)
-
+        if filter_.id is not None:
+            q = q.filter(Chambre.id == filter_.id)
         if terms:
-            q = q.filter(or_(
-                Chambre.description.contains(terms),
-            ))
+            q = q.filter(Chambre.description.contains(terms))
+        if filter_.description:
+            q = q.filter(Chambre.description.contains(filter_.description))
+        if filter_.room_number is not None:
+            q = q.filter(Chambre.numero == filter_.room_number)
 
-        if owner_username:
-            q = q.join(Adherent)
-            q = q.filter(Adherent.login == owner_username)
 
         count = q.count()
-        q = q.order_by(Chambre.numero.asc())
         q = q.offset(offset)
+        q = q.order_by(Chambre.numero.asc())
         q = q.limit(limit)
         r = q.all()
-        r = list(map(_map_room_sql_to_entity, r))
-        return r, count
 
-    def update_room(self, ctx, room_to_update, room_number=None, description=None, vlan_number=None) -> None:
-        LOG.debug("sql_room_repository_update_room_called",
-                  extra=log_extra(ctx, room_number=room_number, description=description, vlan_number=vlan_number))
+        return list(map(_map_room_sql_to_entity, r)), count
+
+    @log_call
+    def create(self, ctx, abstract_room: Room) -> object:
         s = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
-        room = s.query(Chambre).filter(Chambre.numero == room_to_update).one_or_none()
-        if room is None:
-            raise RoomNotFoundError(room_to_update)
-
-        vlan = s.query(Vlan).filter(Vlan.numero == vlan_number).one_or_none()
-        if vlan is None:
-            raise VLANNotFoundError(vlan_number)
-
-        room.numero = int(room_number)
-        room.description = description
-        room.updated_at = now
-        room.vlan = vlan
-
-    def create_room(self, ctx, room_number=None, description=None, vlan_number=None) -> None:
-        LOG.debug("sql_room_repository_create_room_called",
-                  extra=log_extra(ctx, room_number=room_number, description=description,
-                                  vlan_number=vlan_number))
-        s = ctx.get(CTX_SQL_SESSION)
-        now = datetime.now()
-
-        result = s.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
-        if result is not None:
-            raise RoomAlreadyExists()
-
-        vlan = s.query(Vlan).filter(Vlan.numero == vlan_number).one_or_none()
-        if vlan is None:
-            raise VLANNotFoundError(vlan_number)
+        vlan = None
+        if abstract_room.vlan is not None:
+            vlan = s.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
+            if not vlan:
+                raise VLANNotFoundError(str(abstract_room.vlan))
 
         room = Chambre(
-            numero=int(room_number),
-            description=description,
+            numero=abstract_room.room_number,
+            description=abstract_room.description,
             created_at=now,
             updated_at=now,
             vlan=vlan,
         )
 
-        s.add(room)
+        with track_modifications(ctx, s, room):
+            s.add(room)
 
-    def delete_room(self, ctx, room_number) -> None:
-        LOG.debug("sql_room_repository_delete_room_called", extra=log_extra(ctx, room_number=room_number))
+        return _map_room_sql_to_entity(room)
+
+    @log_call
+    def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
+        raise NotImplemented
+
+    @log_call
+    def delete(self, ctx, room_id) -> None:
         s = ctx.get(CTX_SQL_SESSION)
 
-        room = s.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
+        room = s.query(Chambre).filter(Chambre.id == room_id).one_or_none()
         if room is None:
-            raise RoomNotFoundError(room_number)
+            raise RoomNotFoundError(room_id)
 
-        s.delete(room)
+        with track_modifications(ctx, s, room):
+            s.delete(room)
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
-    vlan_number = None
-    if r.vlan is not None:
-        vlan_number = str(r.vlan.numero)
-
     return Room(
+        id=r.id,
         room_number=str(r.numero),
         description=r.description,
-        vlan_number=vlan_number
+        vlan_number=str(r.vlan.numero) if r.vlan is not None else Null()
     )
