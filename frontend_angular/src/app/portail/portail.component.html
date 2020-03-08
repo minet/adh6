@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark color-white">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark color-white">
   <a class="navbar-brand" [routerLink]="['dashboard']">
     <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
     {{ title }}
@@ -17,8 +17,9 @@
 A partir de cette page, vous pouvez vous inscrire ou accéder à votre compte pour ajouter des ordinateurs par exemple. Des tutoriaux sont aussi présents pour vous aider à vous connecter sur le site
     <a target="_blank" href="https://minet.net/fr/tutoriels.html">minet.net</a>.
 </h4>
-
-
+<br>
+  
+<div class="container" style="alignment: right; text-align: center">
 <label>
   Login:
 <input type="text" class="form-control">
@@ -30,3 +31,8 @@ A partir de cette page, vous pouvez vous inscrire ou accéder à votre compte po
   Mot de passe:
   <input type="text" class="form-control">
 </label>
+  <br>
+  <button class="w-30 btn btn-primary" (click)="login()">
+    Se connecter
+  </button>
+</div>
