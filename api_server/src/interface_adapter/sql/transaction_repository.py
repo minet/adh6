@@ -13,7 +13,6 @@ from src.entity.transaction import Transaction
 from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, AdminNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
-from src.use_case.decorator.handles import Handles
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Admin as SQLAdmin
 from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Account, PaymentMethod, Adherent
@@ -24,11 +23,9 @@ from src.use_case.interface.transaction_repository import TransactionRepository
 
 class TransactionSQLRepository(TransactionRepository):
 
-    @Handles.SEARCH
     @log_call
-    def search_transaction_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                              filter_: AbstractTransaction = None) \
-            -> (List[Transaction], int):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractTransaction = None) -> (List[Transaction], int):
         s = ctx.get(CTX_SQL_SESSION)
 
         account_source = aliased(Account)
@@ -62,25 +59,19 @@ class TransactionSQLRepository(TransactionRepository):
 
         return list(map(_map_transaction_sql_to_entity, r)), count
 
-    @Handles.CREATE
     @log_call
-    def create_transaction(self, ctx, author=None, abstract_transaction: AbstractTransaction = None):
-        """
-        Create a transaction.
-
-        :raise AccountNotFound
-        """
+    def create(self, ctx, abstract_transaction: AbstractTransaction) -> object:
         s = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
         author_ref = None
-        if author is not None:
+        if abstract_transaction.author is not None:
             author_ref = s.query(Adherent).join(SQLAdmin) \
-                .filter(Adherent.login == author) \
+                .filter(Adherent.login == abstract_transaction.author) \
                 .filter(Adherent.admin is not None).one_or_none()
             if not author_ref:
-                raise AdminNotFoundError(author)
+                raise AdminNotFoundError(abstract_transaction.author)
 
         account_src = None
         if abstract_transaction.src is not None:
@@ -117,10 +108,11 @@ class TransactionSQLRepository(TransactionRepository):
             s.add(transaction)
         return _map_transaction_sql_to_entity(transaction)
 
-    @Handles.UPDATE
-    @log_call
-    def update_transaction(self, ctx, transaction_to_update, override=False):
-        pass
+    def update(self, ctx, abstract_transaction: AbstractTransaction, override=False) -> object:
+        raise NotImplemented
+
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented
 
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:

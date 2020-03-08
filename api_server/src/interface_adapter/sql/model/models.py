@@ -25,7 +25,7 @@ class Vlan(Base):
     updated_at = Column(DateTime)
 
 
-class Chambre(Base):
+class Chambre(Base, RubyHashTrackable):
     __tablename__ = 'chambres'
 
     id = Column(Integer, primary_key=True)
@@ -37,6 +37,18 @@ class Chambre(Base):
     vlan_id = Column(Integer, ForeignKey(Vlan.id))
 
     vlan = relationship(Vlan, foreign_keys=[vlan_id])
+
+    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
+        """
+        Override this method to add the prefix.
+        """
+
+        modif = rubydiff(snap_before, snap_after)
+        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        return modif
+
+    def get_related_member(self):
+        return self
 
 
 class Admin(Base):
