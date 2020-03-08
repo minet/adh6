@@ -8,13 +8,13 @@ from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.serializer import deserialize_request, serialize_response
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
-from src.use_case.base_manager import BaseManager
+from src.use_case.crud_manager import CRUDManager
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
 class DefaultHandler:
-    def __init__(self, entity_class, abstract_entity_class, main_manager: BaseManager):
+    def __init__(self, entity_class, abstract_entity_class, main_manager: CRUDManager):
         self.entity_class = entity_class
         self.abstract_entity_class = abstract_entity_class
         self.main_manager = main_manager
