@@ -1,45 +1,22 @@
 # coding=utf-8
-"""
-Switch repository.
-"""
-import abc
+
 from typing import List
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.switch import Switch
+from src.entity import Switch, AbstractSwitch
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class SwitchRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle switches.
-    """
+class SwitchRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractSwitch = None) -> (List[Switch], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_switches_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, switch_id: str = None,
-                           terms: str = None) -> (
-            List[Switch], int):
-        """
-        Search switches.
-        """
-        pass  # pragma: no cover
+    def create(self, ctx, object_to_create: Switch) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_switch(self, ctx, **fields) -> str:
-        """
-        Create a switch.
-        """
-        pass  # pragma: no cover
+    def update(self, ctx, object_to_update: AbstractSwitch, override=False) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def update_switch(self, ctx, switch_id, **fields) -> None:
-        """
-        Update a switch.
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_switch(self, ctx, switch_id: str) -> None:
-        """
-        Delete a switch.
-        """
-        pass  # pragma: no cover
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

@@ -1,50 +1,22 @@
 # coding=utf-8
-"""
-Member repository interface.
-"""
-import abc
 
-from src.entity import AbstractMember
+from typing import List
+
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import Member, AbstractMember
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class MemberRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to manipulate the members.
-    """
+class MemberRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractMember = None) -> (List[Member], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_member_by(self, ctx, limit=None, offset=None, terms=None, filter_: AbstractMember = None) -> (
-            list, int):
-        """
-        Search members.
-        """
-        pass  # pragma: no cover
+    def create(self, ctx, object_to_create: Member) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_member(self, ctx, **fields) -> None:
-        """
-        Create a member.
+    def update(self, ctx, object_to_update: AbstractMember, override=False) -> object:
+        raise NotImplemented
 
-        :raise MemberAlreadyExist
-        :raise RoomNotFound
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_member(self, ctx, member_to_update, **fields_to_update) -> None:
-        """
-        Update a member.
-
-        :raise MemberNotFound
-        :raise RoomNotFound
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_member(self, ctx, username=None) -> None:
-        """
-        Delete a member.
-
-        :raise MemberNotFound
-        """
-        pass  # pragma: no cover
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

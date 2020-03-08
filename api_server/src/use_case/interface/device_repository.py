@@ -1,51 +1,22 @@
 # coding=utf-8
-"""
-Device repository.
-"""
-import abc
+
 from typing import List
 
-from src.entity.device import Device
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import Device, AbstractDevice
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class DeviceRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle devices.
-    """
+class DeviceRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractDevice = None) -> (List[Device], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_device_by(self, ctx, limit=None, offset=None, mac_address=None, username=None, terms=None) -> \
-            (List[Device], int):
-        """
-        Search for a device.
-        """
-        pass  # pragma: no cover
+    def create(self, ctx, object_to_create: Device) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_device(self, ctx, mac_address=None, owner_username=None, connection_type=None, ip_v4_address=None,
-                      ip_v6_address=None):
-        """
-        Create a device.
+    def update(self, ctx, object_to_update: AbstractDevice, override=False) -> object:
+        raise NotImplemented
 
-        :raise DeviceAlreadyExist
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_device(self, ctx, device_to_update, mac_address=None, owner_username=None, connection_type=None,
-                      ip_v4_address=None, ip_v6_address=None):
-        """
-        Update a device.
-
-        :raise DeviceNotFound
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_device(self, ctx, mac_address=None):
-        """
-        Delete a device.
-
-        :raise DeviceNotFound
-        """
-        pass  # pragma: no cover
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

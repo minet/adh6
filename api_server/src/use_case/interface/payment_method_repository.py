@@ -1,23 +1,22 @@
 # coding=utf-8
-"""
-Payment method repository.
-"""
-import abc
+
 from typing import List
 
-from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
-from src.entity.payment_method import PaymentMethod
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import PaymentMethod
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class PaymentMethodRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle payment methods.
-    """
+class PaymentMethodRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: PaymentMethod = None) -> (List[PaymentMethod], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_payment_method_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET,
-                                 payment_method_id=None, terms: str = None) -> (List[PaymentMethod], int):
-        """
-        Search payment methods.
-        """
-        pass
+    def create(self, ctx, object_to_create: PaymentMethod) -> object:
+        raise NotImplemented
+
+    def update(self, ctx, object_to_update: PaymentMethod, override=False) -> object:
+        raise NotImplemented
+
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented
