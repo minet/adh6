@@ -1,40 +1,22 @@
 # coding=utf-8
-"""
-Account repository.
-"""
-import abc  # pour définir des classes abstraites en python
+
 from typing import List
-from src.entity.account import Account
+
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import Account, AbstractAccount
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class AccountRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle accounts.
-    """
+class AccountRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractAccount = None) -> (List[Account], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_account_by(self, ctx, limit=None, offset=None, account_id=None, terms=None, pinned=None,
-                          compte_courant=None) -> (
-            List[Account], int):
-        """
-        Search for an account.
-        """
-        pass
+    def create(self, ctx, object_to_create: Account) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_account(self, ctx, name=None, type=None, actif=None, creation_date=None, compte_courant=False,
-                       pinned=False):
-        """
-        Create an account.
-        Will raise (one day) AccountAlreadyExist
-        """
-        pass
+    def update(self, ctx, object_to_update: AbstractAccount, override=False) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def update_account(self, ctx, account_id=None, name=None, type=None, actif=None, creation_date=None,
-                       compte_courant=False, pinned=False):
-        """
-        Update an account.
-        Will raise (one day) AccountNotFound
-        """
-        pass
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

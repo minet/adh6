@@ -1,48 +1,22 @@
 # coding=utf-8
-"""
-Product repository.
-"""
-import abc
+
 from typing import List
 
-from src.entity.product import Product
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import Product
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class ProductRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle product.
-    """
+class ProductRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: Product = None) -> (List[Product], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_product_by(self, ctx, limit=None, offset=None, product_id=None, terms=None) -> (List[Product], int):
-        """
-        Search for a product.
-        """
-        pass
+    def create(self, ctx, object_to_create: Product) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_product(self, ctx, name=None, buying_price=None, selling_price=None):
-        """
-        Create a product.
+    def update(self, ctx, object_to_update: Product, override=False) -> object:
+        raise NotImplemented
 
-        :raise ProductAlreadyExist (one day)
-        """
-        pass
-
-    @abc.abstractmethod
-    def update_product(self, ctx, product_id=None, name=None, buying_price=None, selling_price=None ):
-        """
-        Update a product.
-
-        :raise ProductNotFound (one day)
-        """
-        pass
-
-    @abc.abstractmethod
-    def delete_product(self, ctx, name=None):
-        """
-        Delete a product.
-
-        :raise ProductNotFound (one day)
-        """
-        pass
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

@@ -1,39 +1,22 @@
 # coding=utf-8
-"""
-Treasury repository.
-"""
-import abc
+
 from typing import List
 
-from src.entity import AbstractTransaction
-from src.entity.transaction import Transaction
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import Transaction, AbstractTransaction
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class TransactionRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle devices.
-    """
+class TransactionRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractTransaction = None) -> (List[Transaction], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_transaction_by(self, ctx, limit=None, offset=None, terms=None, filter_: AbstractTransaction = None) -> \
-            (List[Transaction], int):
-        """
-        Search for a transaction.
-        """
-        pass  # pragma: no cover
+    def create(self, ctx, object_to_create: Transaction) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_transaction(self, ctx, author=None, abstract_transaction: AbstractTransaction = None):
-        """
-        Create a transaction.
-        """
-        pass  # pragma: no cover
+    def update(self, ctx, object_to_update: AbstractTransaction, override=False) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def update_transaction(self, ctx, transaction_to_update, attachments=None, pending_validation=False):
-        """
-        Update a transaction to add an invoice.
-
-        :raise TransactionNotFound
-        """
-        pass  # pragma: no cover
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented

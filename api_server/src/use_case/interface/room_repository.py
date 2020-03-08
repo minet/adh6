@@ -1,46 +1,22 @@
 # coding=utf-8
-"""
-Room repository.
-"""
-import abc
+
 from typing import List
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.room import Room
+from src.entity import Room, AbstractRoom
+from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class RoomRepository(metaclass=abc.ABCMeta):
-    """
-    Abstract interface to handle rooms.
-    """
+class RoomRepository(CRUDRepository):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractRoom = None) -> (List[Room], int):
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def search_room_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, room_number=None, owner_username=None,
-                       terms=None) -> (
-            List[Room], int):
-        """
-        Search rooms.
-        """
-        pass  # pragma: no cover
+    def create(self, ctx, object_to_create: Room) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def update_room(self, ctx, room_to_update, room_number=None, description=None,
-                    vlan_number=None) -> None:
-        """
-        Update a room.
-        """
-        pass  # pragma: no cover
+    def update(self, ctx, object_to_update: AbstractRoom, override=False) -> object:
+        raise NotImplemented
 
-    @abc.abstractmethod
-    def create_room(self, ctx, room_number=None, description=None, vlan_number=None) -> None:
-        """
-        Create a room.
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def delete_room(self, ctx, room_number) -> None:
-        """
-        Delete a room.
-        """
-        pass  # pragma: no cover
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplemented
