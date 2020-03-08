@@ -3,7 +3,7 @@
 
 from src.entity import AbstractTransaction
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
-from src.use_case.base_manager import BaseManager
+from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
@@ -13,7 +13,7 @@ class CaisseManager(object):
         pass
 
 
-class TransactionManager(BaseManager):
+class TransactionManager(CRUDManager):
     """
     Implements all the use cases related to transaction management.
     """
@@ -32,7 +32,7 @@ class TransactionManager(BaseManager):
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
         if abstract_transaction.value <= 0:
-            raise IntMustBePositive()
+            raise IntMustBePositive('value')
 
         transaction, created = super().update_or_create(ctx, abstract_transaction, transaction_id=transaction_id)
 
@@ -60,7 +60,7 @@ class TransactionManager(BaseManager):
             abstract_transaction.author,
         ])):
             raise ValidationError('you are trying to update a transaction with fields that cannot be updated')
-        pass
+        raise NotImplemented
 
     def delete(self, ctx, *args, **kwargs):
         raise NotImplemented
