@@ -31,6 +31,21 @@ api_gateway/certs/
 api_gateway/config/CONFIGURATION.py
 api_gateway/venv
 
+# API OAUTH2
+api_oauth2/.cache/
+api_oauth2/.coverage
+api_oauth2/.pytest_cache/
+api_oauth2/.swagger-codegen/
+api_oauth2/bin/
+api_oauth2/include/
+api_oauth2/lib/
+api_oauth2/htmlcov/*
+api_oauth2/pip-selfcheck.json
+api_oauth2/certs/
+api_oauth2/config/CONFIGURATION.py
+api_oauth2/venv
+
+
 # FRONTEND (ANGULAR)
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
