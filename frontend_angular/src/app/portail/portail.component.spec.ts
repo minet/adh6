@@ -10,7 +10,7 @@ describe('PortailComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ PortailComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
