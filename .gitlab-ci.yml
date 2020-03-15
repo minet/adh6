@@ -30,7 +30,8 @@ angular_try_build:
   environment:
     name: development
     url: https://adh6-dev.minet.net/
-
+  only:
+    - master
 angular_build_prod:
   stage: build
   image: node:10.16.0-stretch-slim
@@ -50,7 +51,8 @@ angular_build_prod:
   environment:
     name: production
     url: https://adh6.minet.net/
-
+  only:
+    - master
 python_check_for_vuln_deps:
   stage: test
   # <<: *before_test_job # We reference our previous anchor
@@ -59,14 +61,16 @@ python_check_for_vuln_deps:
   - pip install safety
   - safety check -r requirements.txt
   - safety check
-
+  only:
+    - master
 python_unit_test:
   stage: test
   <<: *before_test_job # We reference our previous anchor
   script:
   - cd api_server/
   - pytest test/unit -vv
-
+  only:
+    - master
 python_integration_test:
   stage: test
   <<: *before_test_job # We reference our previous anchor
@@ -75,7 +79,8 @@ python_integration_test:
   - apt update -q
   - apt install -qy sqlite3 libmariadbclient-dev
   - pytest test/integration -vv
-
+  only:
+    - master
 python_coverage:
   stage: test
   <<: *before_test_job # We reference our previous anchor
@@ -87,7 +92,8 @@ python_coverage:
   artifacts:
     paths:
       - api_server/htmlcov/
-
+  only:
+    - master
 deploy_dev:
   stage: deploy
   script:
@@ -113,7 +119,8 @@ deploy_prod_front:
   tags:
     - adh6-prod
     - adh6-frontend
-
+  only:
+    - master
 deploy_prod_backend:
   stage: deploy
   when: manual
