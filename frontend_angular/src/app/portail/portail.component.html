@@ -18,14 +18,34 @@
             </p>
 
 
-            <h2 class="text-center">Pour poursuivre votre aventure, connectez-vous :</h2>
+            <h2 class="text-center">Pour poursuivre votre aventure :</h2>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Vous n'êtes pas adhérent ?
+                    Passez au local !
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+              <div class="col-md-6">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item active" aria-current="page">Adhérent ?
+                    Connectez-vous pour poursuivre votre aventure !</li>
+                  </ol>
+                </nav>
+                <div class="text-center">
+                  <button class="w-100 btn btn-primary " (click)="login()">
+                    Se connecter
+                  </button>
+                </div>
 
+              </div>
 
-            <div class="text-center">
-              <button class="w-100 btn btn-primary " (click)="login()">
-                Se connecter
-              </button>
             </div>
+
 
 
 
