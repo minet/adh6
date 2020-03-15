@@ -4,6 +4,8 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SCOPE_LIST} from '../config/scope.config';
 import * as urlParse from 'url-parse';
+import {OAuthService} from 'angular-oauth2-oidc';
+
 
 class AuthorizationResponse {
   username: string;
@@ -20,7 +22,7 @@ class AuthorizationResponse {
 })
 export class PortailComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private fb: FormBuilder,) {
+  constructor(private oauthService: OAuthService, private route: ActivatedRoute, private fb: FormBuilder,) {
   }
 
   public authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);
@@ -61,6 +63,10 @@ export class PortailComponent implements OnInit {
     form.appendChild(PortailComponent.createHiddenElement('confirm', '1'));
     window.document.body.appendChild(form);
     form.submit();
+  }
+
+  public login() {
+    this.oauthService.initImplicitFlow();
   }
 
 }
