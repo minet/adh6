@@ -1,0 +1,63 @@
+<div class="d-flex align-items-center" >
+  <main role="main" class="container">
+    <div id="content" class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <div class="card-header text-center">
+            <img src="https://minet.net/res/img/minet.png" class="img-fluid"></div>
+          <!--On ajoute 4 boutons de test-->
+          <button class="btn-primary" (click)="afficheExpiration()"> cotisation expirée</button>
+          <br>
+          <button class="btn-primary" (click)="afficheMac()"> adresse mac manquante</button>
+          <br>
+          <button class="btn-primary" (click)="afficheChambre()"> pas de chambre</button>
+          <br>
+          <button class="btn-primary" (click)="afficheAutre()"> autre porblème</button>
+
+          <!--PARTIE COMMUNE-->
+          <div class="card-body">
+            <div class="alert alert-danger text-center" role="alert">
+              Portail captif (page cotisant) en construction ! Suivez le développement <a href="https://gitlab.minet.net/adh6/core/blob/portail_captif/frontend_angular/src/app/portail-cotisant/" class="alert-link">ici</a> !
+            </div>
+          </div>
+          <!--FIN PARTIE COMMUNE-->
+
+          <!--PARTIE COTISATION EXPIREE-->
+          <div class="text-justify" *ngIf="expiration == 1">
+            <div class="text-justify">
+              Votre cotisation a expiré ! Nous vous invitons à passer au local pour recotiser.
+            </div>
+            <br>
+            <div class="col-md-4">
+              rappel des prix :<br>
+              1 mois: 9€<br>
+              2 mois : 18€<br>
+              3 mois : 27€<br>
+              4 mois : 36€<br>
+              5 mois : 45€<br>
+              1 an : 50€
+            </div>
+          </div>
+          <!--PARTIE ADRESSE MAC MANQUANTE-->
+          <div *ngIf="mac == 1">
+            <div class="text-justify">
+              Votre adresse mac n'est pas enregistrée. Veuillez l'ajouter pour vous connecter.
+            </div>
+          </div>
+          <!--PARTIE CHAMBRE MANQUANTE-->
+          <div *ngIf="chambre == 1">
+            <div class="text-justify">
+              Votre numéro de chambre n'est pas renseigné.
+            </div>
+          </div>
+          <!--PARTIE AUTRE PROBLEME-->
+          <div *ngIf="autre == 1">
+            <div class="text-justify">
+              Tiens ? Un problème inconnu ? Venez nous voir au local pour que l'on vous aide.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
