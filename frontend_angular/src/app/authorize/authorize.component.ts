@@ -20,7 +20,7 @@ class AuthorizationResponse {
 })
 export class AuthorizeComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private fb: FormBuilder,) {
+  constructor(private route: ActivatedRoute, private fb: FormBuilder, ) {
   }
 
   public authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);
