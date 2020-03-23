@@ -31,10 +31,11 @@ export class PortailCotisantComponent implements OnInit {
     this.mac = this.route.params.pipe( //on récupère l'adresse mac, le redirect depuis l'URL
       map(params => params['client_mac'])
     );
-    this.redirect = this.route.params.pipe(
+    this.redirect = this.route.params.pipe( //on récupère le redirect
       map(params => params['client_mac'])
     );
     this.chambre = this.fb.group({
+      // tslint:disable-next-line:max-line-length
       'room': [[Validators.required, Validators.minLength(4), Validators.maxLength(4)]], }); //On récupère la chambre de l'adhérent avec une requete API (pas certain)
   }
 
@@ -49,11 +50,11 @@ export class PortailCotisantComponent implements OnInit {
 
   afficheChambre() {
     this.chambre = 1 - this.chambre;
-  }   */
+  }
 
   afficheAutre() {
     this.autre = 1 - this.autre;
-  }
+  } */
 }
 
 
