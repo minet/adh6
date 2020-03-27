@@ -19,7 +19,7 @@
           <!--FIN PARTIE COMMUNE-->
           <!--On ajoute 4 boutons de test-->
 
-          <div>
+         <!-- <div>
             <button class="btn-primary" (click)="afficheExpiration()"> Cotisation expirée</button>
             <br>
             <button class="btn-primary" (click)="afficheMac()"> Adresse MAC manquante</button>
@@ -27,10 +27,10 @@
             <button class="btn-primary" (click)="afficheChambre()"> Chambre manquante</button>
             <br>
             <button class="btn-primary" (click)="afficheAutre()"> Autre problème</button>
-          </div>
+          </div> -->
 
           <!--PARTIE COTISATION EXPIREE-->
-          <div class="text-justify" *ngIf="expiration == 1">
+          <div class="text-justify" *ngIf="expiration == true">
             <div class="text-justify">
               Votre cotisation a expiré ! Nous vous invitons à passer au local pour recotiser.
             </div>
@@ -46,19 +46,19 @@
             </div>
           </div>
           <!--PARTIE ADRESSE MAC MANQUANTE-->
-          <div *ngIf="mac == null"; >
+          <div *ngIf="existMac == false"; >
             <div class="text-justify">
               Votre adresse mac n'est pas enregistrée. Veuillez l'ajouter pour vous connecter.
             </div>
           </div>
           <!--PARTIE CHAMBRE MANQUANTE-->
-          <div *ngIf="chambre == null">
+          <div *ngIf="existRoom == false">
             <div class="text-justify">
               Votre numéro de chambre n'est pas renseigné.
             </div>
           </div>
           <!--PARTIE AUTRE PROBLEME-->
-          <div *ngIf="mac != null && chambre != null ">
+          <div *ngIf="existMac != null && existRoom != null ">
             <div class="text-justify">
               Tiens ? Un problème inconnu ? Venez nous voir au local pour que l'on vous aide.
             </div>

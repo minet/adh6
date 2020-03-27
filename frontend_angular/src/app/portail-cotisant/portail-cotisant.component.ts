@@ -13,10 +13,11 @@ import {AbstractDevice, AbstractMember, Device, DeviceService, Member, MemberSer
 })
 export class PortailCotisantComponent implements OnInit {
 
-  private expiration: string;
+  private expiration: boolean;
   private macDevice: string;
   private adherent: Member;
   private existRoom: boolean;
+  private existMac: boolean;
   private route: ActivatedRoute;
   private device$: Observable<Array<Device>>;
   private mac$: Observable<string>;
@@ -50,6 +51,8 @@ export class PortailCotisantComponent implements OnInit {
       abstractDevice = {
         mac: this.macDevice
       };
+    } else {
+      this.existMac = false;
     }
 
     this.device$ = this.deviceService.deviceGet(1, 0, '', abstractDevice, 'body');
@@ -63,9 +66,10 @@ export class PortailCotisantComponent implements OnInit {
     this.member$ = this.memberService.memberGet(1, 0, '', abstractMember, 'body'); // on récupére l'adhérent qui contient la chambre
 
     this.member$.subscribe(
-      members => this.existRoom = (members.room !== undefined) // on regarde s'il y a une chambre
-    );
-    return this.existRoom; // on retourne le fait qu'il y ait une chambre
+      members => this.existRoom = (members.room !== undefined)), // on regarde s'il y a une chambre
+    this.member$.subscribe(
+      members => this.expiration = (Date.parse(members.departureDate) < Date.now()));
+
     }
 
 
