@@ -72,6 +72,13 @@ export class PortailCotisantComponent implements OnInit {
 
     }
 
+    addMac() {
+      let abstractDevice;
+      abstractDevice = {
+          mac: this.macDevice
+        };
+        this.deviceService.deviceDeviceIdPut(abstractDevice, this.adherent.id);
+    }
 
 
  /* afficheExpiration() {

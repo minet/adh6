@@ -7,7 +7,7 @@
             <img src="https://minet.net/res/img/minet.png" class="img-fluid"></div>
 
           <div>
-            {{ mac }}
+            {{ this.mac$ }}
           </div>
 
           <!--PARTIE COMMUNE-->
@@ -30,7 +30,7 @@
           </div> -->
 
           <!--PARTIE COTISATION EXPIREE-->
-          <div class="text-justify" *ngIf="expiration == true">
+          <div class="text-justify" *ngIf="expiration">
             <div class="text-justify">
               Votre cotisation a expiré ! Nous vous invitons à passer au local pour recotiser.
             </div>
@@ -45,18 +45,23 @@
               1 an : 50€
             </div>
           </div>
+
           <!--PARTIE ADRESSE MAC MANQUANTE-->
-          <div *ngIf="existMac == false"; >
+          <div *ngIf="existMac == false" >
             <div class="text-justify">
               Votre adresse mac n'est pas enregistrée. Veuillez l'ajouter pour vous connecter.
             </div>
+
+            <button class="w-100 btn btn-primary " (click)="addMac()"> Ajouter l'adresse MAC </button>
           </div>
+
           <!--PARTIE CHAMBRE MANQUANTE-->
           <div *ngIf="existRoom == false">
             <div class="text-justify">
               Votre numéro de chambre n'est pas renseigné.
             </div>
           </div>
+
           <!--PARTIE AUTRE PROBLEME-->
           <div *ngIf="existMac != null && existRoom != null ">
             <div class="text-justify">
