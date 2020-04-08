@@ -33,8 +33,14 @@
           <div class="text-justify" *ngIf="expiration">
             <div class="text-justify">
               Votre cotisation a expiré ! Nous vous invitons à passer au local pour recotiser.
+              <br>
+              Vous pouvez également recotiser en ligne !
             </div>
-            <br>
+            <a [routerLink]="['']"> <!-- METTRE URL DE LA PAGE COTISATION -->
+              <button class="w-100 btn btn-primary ">
+                Recotiser
+              </button>
+            </a>
             <div class="col-md-4">
               rappel des prix :<br>
               1 mois: 9€<br>
