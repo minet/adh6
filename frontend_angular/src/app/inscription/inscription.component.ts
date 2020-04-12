@@ -5,6 +5,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SCOPE_LIST} from '../config/scope.config';
 import * as urlParse from 'url-parse';
 import {OAuthService} from 'angular-oauth2-oidc';
+import {falseIfMissing} from 'protractor/built/util';
 
 
 class AuthorizationResponse {
@@ -12,6 +13,7 @@ class AuthorizationResponse {
   scope: string;
   client_name: string;
   return_uri: string;
+
 }
 
 @Component({
@@ -22,7 +24,7 @@ class AuthorizationResponse {
 })
 export class InscriptionComponent implements OnInit {
 
-  constructor(private oauthService: OAuthService, private route: ActivatedRoute, private fb: FormBuilder,) {
+  constructor(private oauthService: OAuthService, private route: ActivatedRoute, private fb: FormBuilder, ) {
   }
 
   public authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);
@@ -56,6 +58,7 @@ export class InscriptionComponent implements OnInit {
       if (value) {
         scope.push(key);
       }
+
     });
 
     const return_uri = urlParse(this.return_uri, true);
