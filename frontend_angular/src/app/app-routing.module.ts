@@ -29,6 +29,7 @@ import {AccountListComponent} from './account-list/account-list.component';
 import {AuthorizeComponent} from './authorize/authorize.component';
 import {PortailComponent} from './portail/portail.component';
 import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
+import {InscriptionComponent} from './inscription/inscription.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -45,6 +46,10 @@ const routes: Routes = [
     data: {
     bypassAuth: true
   }},
+  {path: 'inscription', component: InscriptionComponent,
+    data: {
+    bypassAuth: true
+    }},
   {
     path: 'member',
     children: [
