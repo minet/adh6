@@ -56,6 +56,7 @@ import {NgToggleModule} from '@nth-cloud/ng-toggle';
 import { PortailComponent } from './portail/portail.component';
 import { PortailCotisantComponent } from './portail-cotisant/portail-cotisant.component';
 import { InscriptionComponent } from './inscription/inscription.component';
+import { CotisantRecotisationComponent } from './cotisant-recotisation/cotisant-recotisation.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -105,6 +106,7 @@ export function storageFactory(): OAuthStorage {
     PortailComponent,
     PortailCotisantComponent,
     InscriptionComponent,
+    CotisantRecotisationComponent,
   ],
   imports: [
     FontAwesomeModule,
