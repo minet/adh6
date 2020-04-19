@@ -11,7 +11,6 @@ export class CotisantRecotisationComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.date = Date.now();
   }
 
   public setDate(nb: number) {

@@ -72,4 +72,9 @@ export class InscriptionComponent implements OnInit {
     this.oauthService.initImplicitFlow();
   }
 
+  public setDate(nb: number) {
+    const today = new Date();
+    today.setMonth(today.getMonth() + nb);
+    return today;
+  }
 }
