@@ -5,17 +5,20 @@
         <div class="card">
           <div class="card-header text-center">
             <img src="https://minet.net/res/img/minet.png" class="img-fluid">
+            <div class="alert alert-danger text-center" role="alert">
+              Portail captif (page recotisation) en construction ! Suivez le développement <a href="https://gitlab.minet.net/adh6/core/blob/portail_captif/frontend_angular/src/app/cotisant-recotisation/" class="alert-link">ici</a> !
+            </div>
           </div>
           <form>
             <div class="form-row">
               <div class="form-group offset-md-1">
                 <label for="InputLogin" class="text-center"> Login Minet </label>
-                <input type="text" class="form-control" id="InputLogin" placeholder="METTRE LE PSEUDO ">
+                <input type="text" class="form-control" id="InputLogin" placeholder="{{adherent.username}}">
               </div>
 
               <div class="form-group offset-md-1">
                 <label for="InputChambre" class="text-center"> Numéro de chambre/ Room Number</label>
-                <input type="text" class="form-control w-auto" id="InputChambre" placeholder="NUMERO DE CHAMBRE">
+                <input type="text" class="form-control w-auto" id="InputChambre" placeholder="{{room}}">
               </div>
 
               <div class="form-group offset-md-1">

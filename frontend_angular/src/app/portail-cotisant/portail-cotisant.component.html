@@ -36,7 +36,7 @@
               <br>
               Vous pouvez également recotiser en ligne !
             </div>
-            <a [routerLink]="['']"> <!-- METTRE URL DE LA PAGE COTISATION -->
+            <a [routerLink]="['/recotisation']"> <!-- METTRE URL DE LA PAGE RECOTISATION -->
               <button class="w-100 btn btn-primary ">
                 Recotiser
               </button>
@@ -70,7 +70,7 @@
           </div>
 
           <!--PARTIE AUTRE PROBLEME-->
-          <div *ngIf="existMac != null && existRoom != null ">
+          <div *ngIf="existMac == true && existRoom == true && expiration == false">
             <div class="text-justify">
               Tiens ? Un problème inconnu ? Venez nous voir au local pour que l'on vous aide.
               <br>
