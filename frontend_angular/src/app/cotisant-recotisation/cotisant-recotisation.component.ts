@@ -10,11 +10,10 @@ import {ActivatedRoute, Router} from '@angular/router';
   styleUrls: ['./cotisant-recotisation.component.css']
 })
 export class CotisantRecotisationComponent implements OnInit {
-  date: number;
   private device$: Observable<Array<Device>>;
   private mac$: Observable<string>;
   private member$: Observable<any>;
-  private route = ActivatedRoute;
+  private route: ActivatedRoute;
   private redirect$: Observable<any>;
   private macDevice: string;
   private adherent: Member;
