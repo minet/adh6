@@ -51,5 +51,4 @@ export class CotisantRecotisationComponent implements OnInit {
     today.setMonth(today.getMonth() + nb);
     return today;
   }
-
 }
