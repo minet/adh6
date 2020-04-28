@@ -207,7 +207,7 @@ paths:
         403:
           $ref: '#/components/responses/Unauthorized'
         default:
-          $ref: '#/components/responses/Unexpected'
+         $ref: '#/components/responses/Unexpected'
       summary: Create an account
       tags:
       - account
@@ -2193,14 +2193,10 @@ components:
           authorizationUrl: /oauth2/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
-            device : read
-            device : write
-            room : read
-            room : write
-            member : read
-            member : write
-            switch : read
-            switch : write
+            device : read, write
+            room : read, write
+            member : read, write
+            switch : read, write
 
 security:
 - OAuth2: [profile]
