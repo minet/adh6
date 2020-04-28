@@ -2193,6 +2193,14 @@ components:
           authorizationUrl: /oauth2/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
+            device : read
+            device : write
+            room : read
+            room : write
+            member : read
+            member : write
+            switch : read
+            switch : write
 
 security:
 - OAuth2: [profile]
