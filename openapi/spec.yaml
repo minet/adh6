@@ -2201,7 +2201,8 @@ components:
             account : read, write
             transaction: read, write
             treasury : read, write
-            misc : read, write
+            misc : read
+            misc : write
             
 
 security:
