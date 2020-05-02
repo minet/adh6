@@ -1744,16 +1744,8 @@ components:
             - balance
             - pendingBalance
       type: object
-      flows:
-        scopes:
-          read: permet de consulter un Account
-          write: permet de modifier un Account
     AccountType:
       type: object
-      flows:
-        scope: 
-          read: permet de consulter le type de compte
-          write: permet de modifier le type de compte
       required:
         - id
         - name
@@ -1842,16 +1834,8 @@ components:
             - paymentMethod
             - value
       type: object
-      flows:
-        scopes: 
-          read: consulter une transaction
-          write: modifier une transaction
     PaymentMethod:
       type: object
-      flows:
-        scopes:
-          read: consulter la méthode de paiement
-          write: modifier la méthode de paiement
       required:
         - id
         - name
@@ -1867,9 +1851,6 @@ components:
           type: string
     Product:
       type: object
-      flows:
-        read: permet de consulter le type de produit
-        write: permet de modifier le type de produit
       required:
         - id
         - name
@@ -1941,10 +1922,6 @@ components:
             - ipv6Address
             - mac
       type: object
-      flows:
-        scopes:
-          read: consulter le device
-          write: modifier le device
     Admin:
       type: object
       required:
@@ -2023,9 +2000,6 @@ components:
           write: modifier le membre
     MembershipRequest:
       type: object
-      flows:
-        scopes:
-          read: consulter la demande d'adhésion
       required:
         - duration
         - paymentMethod
@@ -2076,10 +2050,6 @@ components:
             - roomNumber
             - vlan
       type: object
-      flows:
-        scopes:
-          read: consulter la chambre
-          write: modifier la chambre
     AbstractPort:
       type: object
       properties:
@@ -2119,10 +2089,6 @@ components:
             - room
             - switch
       type: object
-      flows:
-        scopes:
-          read: consulter le port
-          write: modifer le port
     AbstractSwitch:
       type: object
       properties:
@@ -2153,16 +2119,8 @@ components:
             - community
             - ip
       type: object
-      flows:
-        scopes:
-          read: consulter le switch
-          write: modifier le switch
     Vlan:
       type: object
-      flows:
-        scopes:
-          read: consulter le VLAN
-          write: modifier le VLAN
       required:
         - id
         - number
@@ -2190,10 +2148,6 @@ components:
           example: "2001:660:3203:403::/64"
     BugReport:
       type: object
-      flows:
-        scopes:
-          read: consulter un bug report
-          write: modifier un bug report
       required:
         - title
         - description
@@ -2215,9 +2169,6 @@ components:
           example: [ "backend", "api" ]
     Statistics:
       type: object
-      flows:
-        scopes:
-          read: consulter les statistiques
       properties:
         activeAccounts:
           description: The count of active accounts
@@ -2246,6 +2197,12 @@ components:
           authorizationUrl: /oauth2/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
+            member_read: consulter un membre
+            member_write: modifier un membre
+            membership_write: ajouter une adhésion
+            device_read: consulter un device
+            device_write: modifier un device
+
             
 
 security:
