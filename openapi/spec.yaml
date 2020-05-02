@@ -2209,6 +2209,17 @@ components:
             membership_write: ajouter une adhésion
             device_read: consulter un device
             device_write: modifier un device
+            room_read: consulter une chambre
+            room_write: modifier une chambre
+            switch_read: consulter un switch
+            switch_write: modifier un switch
+            port_read: consulter un switch
+            port_write: modifier un port
+            account_read: consulter un compte
+            account_write: modifier un compte
+            transaction_read: consulter une transaction
+            transaction_write: ecire une trnasaction
+            treasury_read: consulter la trésorerie
 
             
 
