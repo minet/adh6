@@ -1194,6 +1194,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter rooms
+      security: [room_read]
       tags:
       - room
     post:
@@ -1219,6 +1220,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a room
+      security: [room_write]
       tags:
       - room
   /room/{room_id}:
@@ -1243,6 +1245,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a room
+      security: [room_write]
       tags:
       - room
     get:
@@ -1262,6 +1265,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a room
+      security: [room_read]
       tags:
       - room
     put:
@@ -1286,6 +1290,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a room
+      security: [room_write]
       tags:
       - room
   /switch/:
@@ -1324,6 +1329,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter switches
+      security: [switch_read]
       tags:
       - switch
     post:
@@ -1349,6 +1355,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a switch
+      security: [switch_write]
       tags:
       - switch
   /switch/{switch_id}:
@@ -1372,6 +1379,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a switch
+      security: [switch_write]
       tags:
       - switch
     get:
@@ -1391,6 +1399,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a switch
+      security: [switch_read]
       tags:
       - switch
     put:
@@ -1413,6 +1422,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a switch
+      security: [switch_write]
       tags:
       - switch
   /transaction/:
@@ -1452,6 +1462,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter transactions
+      security: [transaction_read]
       tags:
       - transaction
     post:
@@ -1479,6 +1490,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a transaction
+      security: [transaction_write]
       tags:
       - transaction
   /transaction/{transaction_id}/upload/:
@@ -1509,6 +1521,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Upload an attachment to a transaction
+      security: [transaction_write]
       tags:
       - transaction
   /transaction/{transaction_id}:
@@ -1537,6 +1550,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a transaction
+      security: [transaction_write]
       tags:
       - transaction
     patch:
@@ -1559,6 +1573,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a transaction
+      security: [transaction_write]
       tags:
       - transaction
   /bug_report/:
@@ -1630,6 +1645,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of the caisse
+      security: [treasury_read]
       tags:
       - treasury
   /treasury/bank:
@@ -1653,6 +1669,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the expected state of MiNET's bank accounts
+      security: [treasury_read]
       tags:
       - treasury
 
@@ -2242,7 +2259,7 @@ components:
             account_read: consulter un compte
             account_write: modifier un compte
             transaction_read: consulter une transaction
-            transaction_write: ecire une trnasaction
+            transaction_write: ecire une transaction
             treasury_read: consulter la trésorerie
 
             
