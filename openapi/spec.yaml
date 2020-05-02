@@ -2197,6 +2197,12 @@ components:
             room : read, write
             member : read, write
             switch : read, write
+            port : read, write
+            account : read, write
+            transaction: read, write
+            treasury : read, write
+            misc : read, write
+            
 
 security:
 - OAuth2: [profile]
