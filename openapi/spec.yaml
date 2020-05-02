@@ -341,6 +341,7 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
+      security : [device_read]
         400:
           $ref: '#/components/responses/Invalid'
         403:
@@ -348,6 +349,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter devices
+
       tags:
       - device
     post:
@@ -373,6 +375,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create device
+      security : [device_write]
       tags:
       - device
   /device/{device_id}:
@@ -397,6 +400,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a device
+      security: [device_write]
       tags:
       - device
     get:
@@ -416,6 +420,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a device
+      security: [device_read]
       tags:
       - device
     put:
@@ -444,6 +449,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a device
+      security: [device_write]
       tags:
       - device
   /device/{device_id}/vendor:
@@ -478,6 +484,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
+      security: [device_read]
       tags:
       - device
   /member/:
