@@ -521,6 +521,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter members
+      security: [member_read]
       tags:
       - member
     post:
@@ -546,6 +547,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a member
+      security: [member_write]
       tags:
       - member
   /member/{member_id}:
@@ -570,6 +572,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a member
+      security: [member_write]
       tags:
       - member
     get:
@@ -589,6 +592,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a member
+      security: [member_read]
       tags:
       - member
     patch:
@@ -611,6 +615,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a member
+      security: [member_write]
       tags:
       - member
     put:
@@ -633,6 +638,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a member
+      security: [member_write]
       tags:
       - member
   /member/{member_id}/logs/:
@@ -668,6 +674,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the most recent logs of a member
+      security: [member_read]
       tags:
       - member
   /member/{member_id}/membership/:
@@ -708,6 +715,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Add a membership record for a member
+      security: [member_write]
       tags:
       - membership
   /member/{member_id}/password/:
@@ -746,6 +754,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the password of a member
+      security: [member_write]
       tags:
       - member
   /payment_method/:
@@ -772,6 +781,7 @@ paths:
         400:
           description: Invalid input
       summary: Filter payment methods
+      security: [transaction_read]
       tags:
       - transaction
   /payment_method/{payment_method_id}:
@@ -799,6 +809,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
+      security: [transaction_read]
       tags:
       - transaction
   /port/:
@@ -839,6 +850,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter ports
+      security: [port_write]
       tags:
       - port
     post:
@@ -866,6 +878,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a port
+      security: [port_write]
       tags:
       - port
   /port/{port_id}:
@@ -889,6 +902,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a port
+      security: [port_write]
       tags:
       - port
     get:
@@ -908,6 +922,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a port
+      security: [port_read]
       tags:
       - port
     put:
@@ -926,6 +941,7 @@ paths:
         404:
           description: Not found
       summary: Update a port
+      security: [port_write]
       tags:
       - port
   /port/{port_id}/mab/:
@@ -954,6 +970,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether MAB is enabled on this port
+      security: [port_read]
       tags:
       - port
     put:
@@ -975,6 +992,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of MAB on a port
+      security: [port_write]
       tags:
       - port
   /port/{port_id}/state/:
@@ -1003,6 +1021,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of a port
+      security: [port_read]
       tags:
       - port
     put:
@@ -1025,6 +1044,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of a port
+      security: [port_write]
       tags:
       - port
   /port/{port_id}/vlan/:
@@ -1054,6 +1074,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the VLAN assigned to a port
+      security: [port_read]
       tags:
       - port
     put:
@@ -1078,6 +1099,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the VLAN assigned to a port
+      security: [port_write]
       tags:
       - port
   /product/:
@@ -1104,6 +1126,7 @@ paths:
         400:
           description: Invalid input
       summary: Filter products
+      security: [treasury_read]
       tags:
       - treasury
   /product/{product_id}:
@@ -1132,6 +1155,7 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a product
+      security: [treasury_read]
       tags:
       - treasury
   /room/:
