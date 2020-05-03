@@ -2267,7 +2267,7 @@ components:
             transaction_read: consulter une transaction
             transaction_write: ecire une transaction
             treasury_read: consulter la trésorerie
-
+            treasury_write: modifier la trésorerie
             
 
 security:
