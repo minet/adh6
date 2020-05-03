@@ -347,7 +347,7 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-      security : [device_read]
+     security : [device_read]
         400:
           $ref: '#/components/responses/Invalid'
         403:
