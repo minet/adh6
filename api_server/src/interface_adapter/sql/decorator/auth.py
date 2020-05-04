@@ -11,18 +11,43 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from src.constants import CTX_SQL_SESSION
 from src.entity.admin import Admin
-from src.exceptions import AdminNotFoundError
-from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
+from src.exceptions import AdminNotFoundError, MemberNotFoundError
+# from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
 from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
 from src.util.context import build_context, log_extra
 from src.util.log import LOG
+
+ADH6_USER = "adh6_user"
+ADH6_ADMIN = "adh6_admin"
+
+
+def _find_user(s, username):
+    try:
+        q = s.query(Adherent)
+        q = q.filter(Adherent.login == username)
+        return q.one()
+
+    except NoResultFound:
+        if current_app.config['TESTING']:
+            new_adherent = Adherent(
+                login=TESTING_CLIENT_USER,
+                mail="test@example.com",
+                nom="Test",
+                prenom="test",
+                password="",
+                roles=ADH6_USER
+            )
+            s.add(new_adherent)
+
+            return _find_user(s, username)
+        raise MemberNotFoundError()
 
 
 def _find_admin(s, username):
     """
     Get the specified admin, if it does not exist, create it.
 
-    The SQL table 'Utilisateur' is not the source of truth for all the admins. That means that it is populated just so
+    The SQL table 'Utilisateurs' is not the source of truth for all the admins. That means that it is populated just so
     we can use admin_id for the entries. This table is not used for access control at all!
 
     This means when a new admin connects to ADH, she/he is not in the table yet, and we must create it. Here we also
@@ -91,8 +116,8 @@ def auth_super_admin(f):
 
     @wraps(f)
     def wrapper(cls, ctx, *args, **kwargs):
-        admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
+        user = _find_user(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
+        ctx = build_context(ctx=ctx, user=Adherent(login=user.login, roles=[]))
         return f(cls, ctx, *args, **kwargs)
 
     # def wrapper(cls, ctx, *args, user, token_info, **kwargs):
@@ -106,5 +131,25 @@ def auth_super_admin(f):
     #     admin = _find_admin(ctx.get(CTX_SQL_SESSION), user)
     #     ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
     #     return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
+
+    return wrapper
+
+
+
+
+
+
+def auth(f, ROLES):
+    """
+    Authenticate a user and check his/her roles.
+    WORK IN PROGRESS
+    """
+
+    @wraps(f)
+    def wrapper(cls, ctx, *args, **kwargs):
+        admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
+
+        return f(cls, ctx, *args, **kwargs)
 
     return wrapper
