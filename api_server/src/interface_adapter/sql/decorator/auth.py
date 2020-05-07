@@ -12,7 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from src.constants import CTX_SQL_SESSION
 from src.entity.admin import Admin
 from src.exceptions import AdminNotFoundError, MemberNotFoundError
-# from src.interface_adapter.http_api.auth import TESTING_CLIENT, ADH6_USER
+from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
 from src.util.context import build_context, log_extra
 from src.util.log import LOG
@@ -146,10 +146,20 @@ def auth(f, ROLES):
     """
 
     @wraps(f)
-    def wrapper(cls, ctx, *args, **kwargs):
+    def wrapper(cls, ctx, true=None, *args, **kwargs):
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[ADH6_ADMIN]))
+        user = _find_user(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
+        ctx2 = build_context(ctx2=ctx, user=Adherent(login=user.login, roles=[ADH6_USER]))
+#On regarde le porfil de l'utilisateur et ses roles
+        roles_acquis = admin.roles + user.roles #on construit la liste de ses roles
+        flag = true
+        for i in ROLES:
+            if i not in roles_acquis: #On check s'il a les roles demandés rentrés en paramètre
+                flag = false
 
-        return f(cls, ctx, *args, **kwargs)
-
+        if flag:
+            return f(cls, ctx, *args, **kwargs)
+        else:
+            return "ON A UNE ERREUR D'AUTORISATIO<N"
     return wrapper
