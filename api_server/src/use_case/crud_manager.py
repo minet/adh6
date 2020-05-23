@@ -47,10 +47,13 @@ class CRUDManager:
     @log_call
     @auto_raise
     def update_or_create(self, ctx, obj, **kwargs):
-        if self.name + '_id' not in kwargs:
-            raise ValidationError('Parameter ' + self.name + '_id is required')
+        current_object = None
+        if self.name + '_id' in kwargs:
+            try:
+                current_object = self.get_by_id(ctx, **kwargs)
+            except:
+                raise
 
-        current_object = self.get_by_id(ctx, **kwargs)
         if current_object is None:
             new_object = self.repository.create(ctx, obj)
             return new_object, True
