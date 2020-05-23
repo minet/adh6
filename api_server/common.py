@@ -7,21 +7,16 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import CONFIGURATION, TEST_CONFIGURATION
-from src.entity import AbstractAccount
+from src.entity import AbstractAccount, Room, AbstractSwitch, AbstractRoom
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
-from src.interface_adapter.http_api.account_type import AccountTypeHandler
 from src.interface_adapter.http_api.bug_report import BugReportHandler
 from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
 from src.interface_adapter.http_api.oauth2 import OAuthHandler
-from src.interface_adapter.http_api.payment_method import PaymentMethodHandler
 from src.interface_adapter.http_api.port import PortHandler
-from src.interface_adapter.http_api.product import ProductHandler
-from src.interface_adapter.http_api.room import RoomHandler
 from src.interface_adapter.http_api.stats import StatsHandler
-from src.interface_adapter.http_api.switch import SwitchHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
 from src.interface_adapter.http_api.treasury import TreasuryHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
@@ -100,10 +95,6 @@ def init(testing=True, managing=False):
     )
     device_manager = DeviceManager(
         device_repository=device_sql_repository,
-        member_repository=member_sql_repository,
-        room_repository=room_sql_repository,
-        vlan_repository=network_object_sql_repository,
-        ip_allocator=device_sql_repository,
     )
     member_manager = MemberManager(
         member_repository=member_sql_repository,
@@ -118,7 +109,6 @@ def init(testing=True, managing=False):
     )
     account_manager = AccountManager(
         account_repository=account_sql_repository,
-        member_repository=member_sql_repository,
     )
     product_manager = ProductManager(
         product_repository=product_sql_repository,
@@ -148,18 +138,25 @@ def init(testing=True, managing=False):
     )
 
     # HTTP Handlers:
+    # Default CRUD handlers
+    account_handler = DefaultHandler(Account, AbstractAccount, account_manager)
+    account_type_handler = DefaultHandler(AccountType, AccountType, account_type_manager)
+    payment_method_handler = DefaultHandler(PaymentMethod, PaymentMethod, payment_method_manager)
+    product_handler = DefaultHandler(Product, Product, product_manager)
+    room_handler = DefaultHandler(Room, AbstractRoom, room_manager)
+    switch_handler = DefaultHandler(Switch, AbstractSwitch, switch_manager)
+
+    # Main operations handlers
+    # Other handlers
     health_handler = HealthHandler(health_manager)
     stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
     transaction_handler = TransactionHandler(transaction_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
-    room_handler = RoomHandler(room_manager)
-    switch_handler = SwitchHandler(switch_manager)
+
+
     port_handler = PortHandler(port_manager, switch_manager, switch_network_manager)
-    account_type_handler = AccountTypeHandler(account_type_manager)
-    payment_method_handler = PaymentMethodHandler(payment_method_manager)
-    account_handler = DefaultHandler(AbstractAccount, Account, account_manager)
-    product_handler = ProductHandler(product_manager)
+
     bug_report_handler = BugReportHandler(bug_report_manager)
     treasury_handler = TreasuryHandler(treasury_manager, account_manager)
     oauth_handler = OAuthHandler(oauth_manager)

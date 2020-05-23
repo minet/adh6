@@ -2,13 +2,10 @@
 import requests
 from connexion import NoContent
 
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractDevice
-from src.exceptions import DeviceNotFoundError, NoMoreIPAvailableException
-from src.exceptions import UserInputError
+from src.entity import AbstractDevice, Device
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.util.error import bad_request
-from src.interface_adapter.http_api.util.serializer import serialize_response
+from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.device_manager import DeviceManager
@@ -16,91 +13,15 @@ from src.util.context import log_extra
 from src.util.log import LOG
 
 
-class DeviceHandler:
+class DeviceHandler(DefaultHandler):
     def __init__(self, device_manager: DeviceManager):
+        super().__init__(Device, AbstractDevice, device_manager)
         self.device_manager = device_manager
 
     @with_context
     @require_sql
     @auth_regular_admin
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
-        """ Filter the list of the devices according to some criterias """
-        LOG.debug("http_device_search_called", extra=log_extra(ctx,
-                                                               limit=limit,
-                                                               offset=offset,
-                                                               terms=terms,
-                                                               filter_=filter_))
-
-        try:
-            result, count = self.device_manager.search(ctx, limit, offset, filter_['member'], terms)
-
-        except UserInputError as e:
-            return bad_request(e), 400
-
-        headers = {
-            "X-Total-Count": count,
-            "access-control-expose-headers": "X-Total-Count"
-        }
-        return list(map(serialize_response, result)), 200, headers
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def post(self, ctx, body):
-        pass
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def put(self, ctx, mac_address, body):
-        """ Put (update or create) a new device in the database """
-        LOG.debug("http_device_put_called", extra=log_extra(ctx, mac=mac_address, request=body))
-
-        try:
-            created = self.device_manager.update_or_create(ctx,
-                                                           mac_address=mac_address,
-                                                           dev=AbstractDevice(**body),
-                                                           )
-
-            if created:
-                return NoContent, 201  # 201 Created
-            else:
-                return NoContent, 204  # 204 No Content
-
-        except NoMoreIPAvailableException:
-            return "IP allocation failed.", 503
-
-        except UserInputError as e:
-            return bad_request(e), 400
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def get(self, ctx, mac_address):
-        """ Return the device specified by the macAddress """
-        LOG.debug("http_device_get_called", extra=log_extra(ctx, mac=mac_address))
-        try:
-            return serialize_response(self.device_manager.get_by_mac_address(ctx, mac_address)), 200  # 200 OK
-
-        except DeviceNotFoundError:
-            return NoContent, 404  # 404 Not Found
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
-    def delete(self, ctx, mac_address):
-        """ Delete the specified device from the database """
-        LOG.debug("http_device_delete_called", extra=log_extra(ctx, mac=mac_address))
-        try:
-            self.device_manager.delete(ctx, mac_address)
-            return NoContent, 204
-
-        except DeviceNotFoundError:
-            return NoContent, 404
-
-    @with_context
-    @require_sql
-    @auth_regular_admin
+    @log_call
     def vendor_get(self, ctx, mac_address):
         """ Return the vendor associated with the macAddress """
         r = requests.get('https://macvendors.co/api/vendorname/' + str(mac_address))

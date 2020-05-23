@@ -1,11 +1,8 @@
 # coding=utf-8
-import datetime
 import requests
 import requests.exceptions
 from flask import current_app
-from sqlalchemy.orm.exc import NoResultFound
 
-from src.interface_adapter.sql.model.database import Database as Db
 from src.util.env import is_development_environment
 
 ADH6_USER = "adh6_user"

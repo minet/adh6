@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from src.entity import AbstractTransaction, Transaction
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
@@ -15,5 +16,6 @@ class TransactionHandler(DefaultHandler):
     @with_context
     @require_sql
     @auth_regular_admin
+    @log_call
     def upload_post(self, ctx, body):
         pass
