@@ -25,40 +25,41 @@
             </b></h4>
             <p class="text-justify" style="color: dark" >    L'association MiNET vous propose ce wifi gratuit au niveau du foyer. Afin d'accéder à Internet, acceptez les conditions d'utilisation de ce réseau et connectez vous avec vos identifiants d'école.
             </p>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+              Launch demo modal
+            </button>
+
+            <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    ...
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
 
             <h2 class="text-center">Pour continuer votre aventure :</h2>
-            <div class="row mt-3">
-              <div class="col-md-6">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Vous n'êtes pas adhérent ?
-                      Passez au local !
-                    </li>
-                  </ol>
-                </nav>
-                <a target="_blank" rel="noopener" href="https://i.imgur.com/GNG2x4b.png">
-                  <img src="https://i.imgur.com/GNG2x4b.png" class="img-fluid">
-                </a>
 
 
-              </div>
-              <div class="col-md-6">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Adhérent ?
-                      Connectez-vous pour poursuivre votre aventure !</li>
-                  </ol>
-                </nav>
-                <div class="text-center">
-                  <button class="w-100 btn btn-primary " (click)="login()">
-                    Se connecter
-                  </button>
-                </div>
-
-              </div>
-
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+              <label class="form-check-label" for="defaultCheck1">
+                J'accepte les conditions d'utilisation du wifi.
+              </label>
             </div>
+
 
 
 
