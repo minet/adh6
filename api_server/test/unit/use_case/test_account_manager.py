@@ -5,7 +5,7 @@ from pytest import fixture, raises, mark
 
 from src.entity.account import Account
 from src.exceptions import AccountNotFoundError, MissingRequiredField, IntMustBePositive
-from src.use_case.account_manager import AccountManager, FullMutationRequest
+from src.use_case.account_manager import AccountManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.member_repository import MemberRepository
 
@@ -67,7 +67,7 @@ class TestUpdate:
                         mock_account_repository: AccountRepository,
                         sample_account: Account,
                         account_manager: AccountManager):
-        req = FullMutationRequest(
+        req = Account(
             name='MiNET',
             type=1,
             actif=True,
@@ -85,7 +85,7 @@ class TestUpdate:
                                mock_account_repository: AccountRepository,
                                sample_account: Account,
                                account_manager: AccountManager):
-        req = FullMutationRequest(
+        req = Account(
             name='MiNET',
             type=1,
             actif=True,
@@ -104,7 +104,7 @@ class TestUpdate:
                                     mock_account_repository: AccountRepository,
                                     sample_account: Account,
                                     account_manager: AccountManager):
-        req = FullMutationRequest(
+        req = Account(
             name=None,
             type=1,
             actif=True,
@@ -132,13 +132,13 @@ class TestUpdate:
                                       field: str,
                                       value,
                                       account_manager: AccountManager):
-        req = FullMutationRequest(
+        req = Account(
             name='',
             type=1,
             actif=True,
             creation_date='21/05/2019',
         )
-        req = FullMutationRequest(**{**asdict(req), **{field: value}})
+        req = Account(**{**asdict(req), **{field: value}})
         mock_account_repository.search_account_by = MagicMock(return_value=([sample_account], 1))
         mock_account_repository.update_account = MagicMock()
 
@@ -150,7 +150,7 @@ class TestCreate:
     def test_happy_path(self,
                         ctx, mock_account_repository: AccountRepository, sample_account: Account,
                         account_manager: AccountManager):
-        req = FullMutationRequest(
+        req = Account(
             name='MiNET',
             type=1,
             actif=True,

@@ -1,14 +1,15 @@
-from pytest import fixture, raises
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
 from src.constants import CTX_ADMIN
+from src.entity import AbstractTransaction
 from src.entity.transaction import Transaction
 from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
+from src.use_case.interface.caisse_repository import CaisseRepository
+from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
-from src.use_case.transaction_manager import TransactionManager, FullMutationRequest
-from test.unit.use_case.conftest import TEST_USERNAME
+from src.use_case.transaction_manager import TransactionManager
 
 TEST_TRANSACTION_ID = '1'
 
@@ -138,12 +139,12 @@ class TestCreate:
     def test_happy_path(self,
                         ctx, mock_transaction_repository: TransactionRepository,
                         transaction_manager: TransactionManager):
-        req = FullMutationRequest(
+        req = AbstractTransaction(
             src='1',
             dst='2',
             name='test',
             value=1,
-            paymentMethod='1',
+            payment_method='1',
             attachments=None
 
         )
@@ -153,19 +154,19 @@ class TestCreate:
 
         mock_transaction_repository.create_transaction.assert_called_once_with(ctx, src=req.src, dst=req.dst,
                                                                                name=req.name, value=req.value,
-                                                                               paymentMethod=req.paymentMethod,
+                                                                               paymentMethod=req.payment_method,
                                                                                author=ctx.get(CTX_ADMIN).login,
                                                                                attachments=None)
 
     def test_same_account(self,
                           ctx,
                           transaction_manager: TransactionManager):
-        req = FullMutationRequest(
+        req = AbstractTransaction(
             src='1',
             dst='1',
             name='test',
             value=1,
-            paymentMethod='1',
+            payment_method='1',
             attachments=None
 
         )
@@ -176,10 +177,22 @@ class TestCreate:
 @fixture
 def transaction_manager(mock_transaction_repository, ):
     return TransactionManager(
-        transaction_repository=mock_transaction_repository
+        transaction_repository=mock_transaction_repository,
+        payment_method_manager=mock_payment_method_repository,
+        caisse_manager=mock_caisse_repository
     )
 
 
 @fixture
 def mock_transaction_repository():
     return MagicMock(spec=TransactionRepository)
+
+
+@fixture
+def mock_payment_method_repository():
+    return MagicMock(spec=PaymentMethodRepository)
+
+
+@fixture
+def mock_caisse_repository():
+    return MagicMock(spec=CaisseRepository)

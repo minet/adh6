@@ -1,11 +1,13 @@
 from dataclasses import asdict
-from pytest import fixture, raises, mark
 from unittest.mock import MagicMock
 
+from pytest import fixture, raises, mark
+
+from src.entity import AbstractSwitch
 from src.entity.switch import Switch
 from src.exceptions import SwitchNotFoundError, MissingRequiredField, IntMustBePositive
 from src.use_case.interface.switch_repository import SwitchRepository
-from src.use_case.switch_manager import SwitchManager, MutationRequest
+from src.use_case.switch_manager import SwitchManager
 
 TEST_SWITCH_ID = '1'
 
@@ -63,14 +65,14 @@ class TestUpdate:
                         ctx,
                         mock_switch_repository: SwitchRepository,
                         switch_manager: SwitchManager):
-        req = MutationRequest(
+        req = AbstractSwitch(
             description='desc',
-            ip_v4='157.159.123.123',
+            ip='157.159.123.123',
             community='ip',
         )
         mock_switch_repository.update_switch = MagicMock()
 
-        switch_manager.update(ctx, '2', req)
+        switch_manager.update_or_create(ctx, '2', req)
 
         mock_switch_repository.update_switch.assert_called_once_with(ctx, switch_id='2', **asdict(req))
 
@@ -78,30 +80,30 @@ class TestUpdate:
                               ctx,
                               mock_switch_repository: SwitchRepository,
                               switch_manager: SwitchManager):
-        req = MutationRequest(
+        req = AbstractSwitch(
             description='desc',
-            ip_v4='157.159.123.123',
+            ip='157.159.123.123',
             community='ip',
         )
         mock_switch_repository.update_switch = MagicMock(side_effect=SwitchNotFoundError)
 
         with raises(SwitchNotFoundError):
-            switch_manager.update(ctx, '2', req)
+            switch_manager.update_or_create(ctx, '2', req)
 
     def test_missing_required_field(self,
                                     ctx,
                                     mock_switch_repository: SwitchRepository,
                                     switch_manager: SwitchManager):
-        req = MutationRequest(
+        req = AbstractSwitch(
             description='desc',
-            ip_v4='157.159.123.123',
+            ip='157.159.123.123',
             community='ip',
         )
         req.community = None
         mock_switch_repository.update_switch = MagicMock()
 
         with raises(MissingRequiredField):
-            switch_manager.update(ctx, '2', req)
+            switch_manager.update_or_create(ctx, '2', req)
 
         mock_switch_repository.update_switch.assert_not_called()
 
@@ -117,29 +119,29 @@ class TestUpdate:
                                       field: str,
                                       value,
                                       switch_manager: SwitchManager):
-        req = MutationRequest(
+        req = AbstractSwitch(
             description='desc',
-            ip_v4='157.159.123.123',
+            ip='157.159.123.123',
             community='ip',
         )
-        req = MutationRequest(**{**asdict(req), **{field: value}})
+        req = AbstractSwitch(**{**asdict(req), **{field: value}})
         mock_switch_repository.update_switch = MagicMock()
 
         with raises(ValueError):
-            switch_manager.update(ctx, '2', req)
+            switch_manager.update_or_create(ctx, '2', req)
 
 
 class TestCreate:
     def test_happy_path(self,
                         ctx, mock_switch_repository: SwitchRepository, switch_manager: SwitchManager):
-        req = MutationRequest(
+        req = AbstractSwitch(
             description='desc',
-            ip_v4='157.159.123.123',
+            ip='157.159.123.123',
             community='ip',
         )
         mock_switch_repository.create_switch = MagicMock()
 
-        switch_manager.create(ctx, req)
+        switch_manager.update_or_create(ctx, req)
 
         mock_switch_repository.create_switch.assert_called_once_with(ctx, description=req.description, ip_v4=req.ip_v4,
                                                                      community=req.community)

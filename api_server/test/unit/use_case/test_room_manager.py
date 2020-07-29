@@ -1,12 +1,14 @@
 from dataclasses import asdict
-from pytest import fixture, raises, mark
 from unittest.mock import MagicMock
 
+from pytest import fixture, raises, mark
+
+from src.entity import AbstractRoom
 from src.entity.room import Room
 from src.exceptions import RoomNotFoundError, VLANNotFoundError, RoomNumberMismatchError, MissingRequiredField, \
     IntMustBePositive
 from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.room_manager import RoomManager, MutationRequest
+from src.use_case.room_manager import RoomManager
 
 
 class TestSearch:
@@ -67,29 +69,29 @@ class TestGetByNumber:
 class TestUpdateOrCreate:
     @fixture
     def mutation_request(self):
-        return MutationRequest(
+        return AbstractRoom(
             room_number='1234',
             description='desc',
-            vlan_number='vlan',
+            vlan='vlan',
         )
 
     def test_create_happy_path(self,
                                ctx,
                                mock_room_repository: RoomRepository,
                                sample_room: Room,
-                               mutation_request: MutationRequest,
+                               mutation_request: AbstractRoom,
                                room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([], 0))
         created = room_manager.update_or_create(ctx, sample_room.room_number, mutation_request)
 
         assert created is True
-        mock_room_repository.create_room(ctx, **asdict(mutation_request))
+        mock_room_repository.create(ctx, **asdict(mutation_request))
 
     def test_create_room_number_mismatch(self,
                                          ctx,
                                          mock_room_repository: RoomRepository,
                                          sample_room: Room,
-                                         mutation_request: MutationRequest,
+                                         mutation_request: AbstractRoom,
                                          room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([], 0))
         mutation_request.room_number = 'something different than the other room number'
@@ -99,7 +101,7 @@ class TestUpdateOrCreate:
     def test_create_vlan_not_found(self,
                                    ctx,
                                    mock_room_repository: RoomRepository,
-                                   mutation_request: MutationRequest,
+                                   mutation_request: AbstractRoom,
                                    sample_room: Room,
                                    room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([], 0))
@@ -111,19 +113,19 @@ class TestUpdateOrCreate:
                                ctx,
                                mock_room_repository: RoomRepository,
                                sample_room: Room,
-                               mutation_request: MutationRequest,
+                               mutation_request: AbstractRoom,
                                room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
         created = room_manager.update_or_create(ctx, sample_room.room_number, mutation_request)
 
         assert created is False
-        mock_room_repository.update_room(ctx, sample_room.room_number, **asdict(mutation_request))
+        mock_room_repository.update(ctx, sample_room.room_number, **asdict(mutation_request))
 
     def test_update_vlan_not_found(self,
                                    ctx,
                                    mock_room_repository: RoomRepository,
                                    sample_room: Room,
-                                   mutation_request: MutationRequest,
+                                   mutation_request: AbstractRoom,
                                    room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
         mock_room_repository.update_room = MagicMock(side_effect=VLANNotFoundError)
@@ -132,7 +134,7 @@ class TestUpdateOrCreate:
 
     def test_update_missing_room_number(self,
                                         ctx,
-                                        mutation_request: MutationRequest,
+                                        mutation_request: AbstractRoom,
                                         sample_room: Room,
                                         room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
@@ -153,11 +155,11 @@ class TestUpdateOrCreate:
                                              sample_room: Room,
                                              field: str,
                                              value,
-                                             mutation_request: MutationRequest,
+                                             mutation_request: AbstractRoom,
                                              room_manager: RoomManager):
         mock_room_repository.search_room_by = MagicMock(return_value=([], 0))
 
-        req = MutationRequest(**{**asdict(mutation_request), **{field: value}})
+        req = AbstractRoom(**{**asdict(mutation_request), **{field: value}})
 
         with raises(ValueError):
             room_manager.update_or_create(ctx, sample_room.room_number, req)
