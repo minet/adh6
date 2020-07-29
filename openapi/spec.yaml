@@ -1834,11 +1834,8 @@ components:
             - paymentMethod
             - value
       type: object
-    PaymentMethod:
+    AbstractPaymentMethod:
       type: object
-      required:
-        - id
-        - name
       properties:
         id:
           description: The unique identifier of this payment method
@@ -1849,7 +1846,14 @@ components:
           description: The friendly name of this payment method
           example: Carte bancaire
           type: string
-    Product:
+    PaymentMethod:
+      allOf:
+        - $ref: '#/components/schemas/AbstractPaymentMethod'
+        - required:
+            - id
+            - name
+      type: object
+    AbstractProduct:
       type: object
       required:
         - id
@@ -1875,6 +1879,14 @@ components:
           description: The friendly name of this product
           example: "C\xE2ble 5m"
           type: string
+    Product:
+      allOf:
+        - $ref: '#/components/schemas/AbstractProduct'
+        - required:
+            - id
+            - name
+            - sellingPrice
+      type: object
     AbstractDevice:
       type: object
       properties:
