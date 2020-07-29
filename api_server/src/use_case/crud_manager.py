@@ -1,3 +1,4 @@
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.exceptions import IntMustBePositive, ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.decorator.auto_raise import auto_raise
@@ -15,7 +16,7 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    def search(self, ctx, limit=None, offset=None, terms=None, filter_=None) -> (list, int):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -32,7 +33,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     def get_by_id(self, ctx, **kwargs):
-        if self.name + '_id' not in kwargs:
+        if self.name + '_id' not in kwargs or kwargs[self.name + '_id'] is None:
             raise ValidationError('Parameter ' + self.name + '_id is required')
 
         object_id = kwargs[self.name + '_id']
@@ -48,7 +49,7 @@ class CRUDManager:
     @auto_raise
     def update_or_create(self, ctx, obj, **kwargs):
         current_object = None
-        if self.name + '_id' in kwargs:
+        if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
             try:
                 current_object = self.get_by_id(ctx, **kwargs)
             except:
@@ -63,7 +64,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     def partially_update(self, ctx, obj, override=False, **kwargs):
-        if self.name + '_id' not in kwargs:
+        if self.name + '_id' not in kwargs or kwargs[self.name + '_id'] is None:
             raise ValidationError('Parameter ' + self.name + '_id is required')
 
         object_id = kwargs[self.name + '_id']
@@ -74,7 +75,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     def delete(self, ctx, **kwargs):
-        if self.name + '_id' not in kwargs:
+        if self.name + '_id' not in kwargs or kwargs[self.name + '_id'] is None:
             raise ValidationError('Parameter ' + self.name + '_id is required')
 
         object_id = kwargs[self.name + '_id']

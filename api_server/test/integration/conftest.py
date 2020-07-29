@@ -10,33 +10,38 @@ from test.integration.test_member import prep_db
 
 
 @pytest.fixture
-def wired_device(sample_member1):
+def wired_device(faker, sample_member1):
     yield Device(
-        mac='96-24-F6-D0-48-A7',
-        ip='157.159.42.42',
-        type='wired',
+        id=faker.random_digit_not_null,
+        mac=faker.mac_address,
         adherent=sample_member1,
-        ipv6='e91f:bd71:56d9:13f3:5499:25b:cc84:f7e4'
+        type='wired',
+        ip=faker.ipv4_public(network='157.159.41.0/24'),
+        ipv6=faker.ipv6,
     )
 
 
 @pytest.fixture
-def wired_device2(sample_member3):
+def wired_device2(faker, sample_member3):
     yield Device(
-        mac='96-24-F6-D0-48-A8',
-        ip='157.159.43.43',
-        type='wireless',
+        id=faker.random_digit_not_null,
+        mac=faker.mac_address,
         adherent=sample_member3,
-        ipv6='f91f:bd71:56d9:13f3:5499:25b:cc84:f7e4'
+        type='wired',
+        ip=faker.ipv4_public(network='157.159.41.0/24'),
+        ipv6=faker.ipv6,
     )
 
 
 @pytest.fixture
-def wireless_device(sample_member2):
+def wireless_device(faker, sample_member2):
     yield Device(
-        mac='80-65-F3-FC-44-A9',
-        type='wireless',
+        id=faker.random_digit_not_null,
+        mac=faker.mac_address,
         adherent=sample_member2,
+        type='wireless',
+        ip=faker.ipv4_public(network='157.159.41.0/24'),
+        ipv6=faker.ipv6,
     )
 
 
@@ -120,7 +125,7 @@ def sample_member1(sample_room1):
         login='dubois_j',
         password='a',
         chambre=sample_room1,
-        date_de_depart=datetime.datetime(2005, 7, 14, 12, 30),
+        date_de_depart=datetime.datetime(2005, 7, 14, 12, 30).date(),
     )
 
 
@@ -147,7 +152,7 @@ def sample_member3(sample_room1):
         commentaires='abcdef',
         password='b',
         chambre=sample_room1,
-        date_de_depart=datetime.datetime(2105, 7, 14, 12, 30),
+        date_de_depart=datetime.datetime(2105, 7, 14, 12, 30).date(),
     )
 
 

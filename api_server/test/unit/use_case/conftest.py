@@ -1,7 +1,9 @@
 import datetime
+from unittest.mock import MagicMock
 
 from pytest import fixture
 
+from src.entity import AccountType
 from src.entity.account import Account
 from src.entity.admin import Admin
 from src.entity.device import Device
@@ -13,31 +15,16 @@ from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from src.use_case.account_manager import AccountManager
+from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import build_context
-
 
 @fixture
 def ctx():
     return build_context(
-        admin=Admin(login='test_usr'),
+        admin=Admin(login='test_usr', roles=[]),
         testing=True,
     )
-
-
-TEST_USERNAME = 'test_usr'
-TEST_EMAIL = 'hello@hello.fr'
-TEST_FIRST_NAME = 'Jean'
-TEST_LAST_NAME = 'Dupond'
-TEST_COMMENT = 'This is a comment.'
-TEST_ROOM_NUMBER = '1234'
-TEST_DATE1 = datetime.datetime.fromisoformat('2019-04-21T11:11:46')
-TEST_DATE2 = datetime.datetime.fromisoformat('2000-01-01T00:00:00')
-TEST_LOGS = [
-    'hello',
-    'hi',
-]
-TEST_MAC_ADDRESS1 = 'A0-B1-5A-C1-5F-E3'
-TEST_MAC_ADDRESS2 = '10-0E-9C-19-FF-64'
 
 
 @fixture
@@ -46,45 +33,49 @@ def sample_admin():
         login=TESTING_CLIENT
     )
 
+
 @fixture
-def sample_member():
+def sample_member(faker, sample_room):
     return Member(
-        username=TEST_USERNAME,
-        email=TEST_EMAIL,
-        first_name=TEST_FIRST_NAME,
-        last_name=TEST_LAST_NAME,
-        departure_date=TEST_DATE1.isoformat(),
-        comment=TEST_COMMENT,
-        association_mode=TEST_DATE2.isoformat(),
-        room_number=str(TEST_ROOM_NUMBER),
+        id=faker.random_digit_not_null,
+        username=faker.user_name,
+        email=faker.email,
+        first_name=faker.first_name,
+        last_name=faker.last_name,
+        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        comment=faker.sentence,
+        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
+        room=sample_room,
     )
 
 
 @fixture
-def sample_device():
+def sample_device(faker, sample_member):
     return Device(
-        mac_address='FF-FF-FF-FF-FF-FF',
-        owner_username=TEST_USERNAME,
+        id=faker.random_digit_not_null,
+        mac=faker.mac_address,
+        member=sample_member,
         connection_type='wired',
-        ip_v4_address='127.0.0.1',
-        ip_v6_address='127.0.0.1',
+        ipv4_address=faker.ipv4_public(network='157.159.41.0/24'),
+        ipv6_address=faker.ipv6,
     )
 
 
 @fixture
-def sample_room():
+def sample_room(faker):
     return Room(
-        room_number=1234,
+        id=faker.random_digit_not_null,
+        room_number=faker.numerify(text='####'),
         description='Test room.',
         vlan=41,
     )
 
 
 @fixture
-def sample_port(sample_room, sample_switch):
+def sample_port(faker, sample_room, sample_switch):
     return Port(
-        id="1",
-        port_number="test number",
+        id=faker.random_digit_not_null,
+        port_number=faker.numerify(text='#/#/##'),
         room=sample_room,
         switch=sample_switch,
         oid=10101,
@@ -92,79 +83,96 @@ def sample_port(sample_room, sample_switch):
 
 
 @fixture
-def sample_switch():
+def sample_switch(faker):
     return Switch(
-        id='1',
-        ip='127.0.0.1',
-        description='description',
-        community='community',
+        id=faker.random_digit_not_null,
+        ip=faker.ipv4_private,
+        description=faker.sentence,
+        community=faker.password,
     )
 
 
 @fixture
-def sample_payment_method():
+def sample_payment_method(faker):
     return PaymentMethod(
-        id=0,
-        name='liquide'
+        id=faker.random_digit_not_null,
+        name=faker.word
     )
 
 
 @fixture
-def sample_transaction(sample_admin):
+def sample_account_type(faker):
+    return AccountType(
+        id=faker.random_digit_not_null,
+        name=faker.word
+    )
+
+
+@fixture
+def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
     return Transaction(
-        src=Account(
-            name="Test",
-            type=1,
-            actif=True,
-            creation_date='21/05/2019',
-            account_id=1,
-            adherent=None,
-            balance=None,
-            compte_courant=False,
-            pinned = False
-        ),
-        dst=Account(
-            name="Test2",
-            type=1,
-            actif=True,
-            creation_date='21/05/2019',
-            account_id=2,
-            adherent=None,
-            balance=None,
-            compte_courant=False,
-            pinned=False
-        ),
-        name='description',
-        value='200',
+        src=sample_account1,
+        dst=sample_account2,
+        name=faker.sentence,
+        value=faker.random_int,
         attachments='',
-        timestamp='',
-        paymentMethod=PaymentMethod(
-            id=0,
-            name='liquide'
-        ),
-        author=sample_admin)
+        timestamp=faker.date_this_year,
+        paymentMethod=sample_payment_method,
+        author=sample_admin
+    )
 
 
 @fixture
-def sample_account():
+def sample_account1(faker, sample_member, sample_account_type):
     return Account(
-        name='MiNET',
-        type=1,
-        actif=True,
-        creation_date='21/05/2019',
-        account_id=1,
-        adherent = None,
-        balance=None,
-        compte_courant=False,
-        pinned=False
+        id=faker.random_digit_not_null,
+        name=faker.word,
+        type=sample_account_type,
+        actif=faker.random_choices(elements=(True, False)),
+        creation_date=faker.date_this_year,
+        member=sample_member,
+        balance=0,
+        compte_courant=faker.random_choices(elements=(True, False)),
+        pinned=faker.random_choices(elements=(True, False)),
+        account_type=sample_account_type,
+        pending_balance=faker.random_int
     )
 
 
 @fixture
-def sample_product():
-    return Product(
-        name='loutre',
-        selling_price=9999,
-        buying_price=999,
-        id=1
+def sample_account2(faker, sample_member, sample_account_type):
+    return Account(
+        id=faker.random_digit_not_null,
+        name=faker.word,
+        type=sample_account_type,
+        actif=faker.random_choices(elements=(True, False)),
+        creation_date=faker.date_this_year,
+        member=sample_member,
+        balance=0,
+        compte_courant=faker.random_choices(elements=(True, False)),
+        pinned=faker.random_choices(elements=(True, False)),
+        account_type=sample_account_type,
+        pending_balance=faker.random_int
     )
+
+
+@fixture
+def sample_product(faker):
+    return Product(
+        id=faker.random_digit_not_null,
+        name=faker.word,
+        selling_price=faker.random_int,
+        buying_price=faker.random_int,
+    )
+
+
+@fixture
+def account_manager(mock_account_repository):
+    return AccountManager(
+        account_repository=mock_account_repository
+    )
+
+
+@fixture
+def mock_account_repository():
+    return MagicMock(spec=AccountRepository)

@@ -3,6 +3,7 @@
 Log function call decorator.
 """
 import re
+import sys
 from functools import wraps
 
 import src.entity
@@ -21,18 +22,19 @@ def log_call(f):
         """
         Wrap http_api function.
         """
-        class_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', type(cls).__name__)
-        class_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', class_name).lower()
+        if hasattr(sys, '_called_from_test'):
+            class_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', type(cls).__name__)
+            class_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', class_name).lower()
 
-        log_kwargs = {}
-        for key, value in kwargs.items():
-            if hasattr(src.entity, type(value).__name__):
-                log_kwargs[key] = serialize_response(value)
-            else:
-                log_kwargs[key] = value
+            log_kwargs = {}
+            for key, value in kwargs.items():
+                if hasattr(src.entity, type(value).__name__):
+                    log_kwargs[key] = serialize_response(value)
+                else:
+                    log_kwargs[key] = value
 
-        LOG.debug("http_" + class_name + "_" + f.__name__ + "_called",
-                  extra=log_extra(ctx, **log_kwargs))
+            LOG.debug("http_" + class_name + "_" + f.__name__ + "_called",
+                      extra=log_extra(ctx, **log_kwargs))
         return f(cls, ctx, *args, **kwargs)
 
     return wrapper
