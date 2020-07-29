@@ -37,7 +37,7 @@ class AbstractMember(object):
         'email': 'str',
         'first_name': 'str',
         'last_name': 'str',
-        'room': 'Object'
+        'room': 'OneOfAbstractMemberRoom'
     }
 
     attribute_map = {
@@ -274,7 +274,7 @@ class AbstractMember(object):
         The room this member lives in  # noqa: E501
 
         :return: The room of this AbstractMember.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractMemberRoom
         """
         return self._room
 
@@ -285,7 +285,7 @@ class AbstractMember(object):
         The room this member lives in  # noqa: E501
 
         :param room: The room of this AbstractMember.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractMemberRoom
         """
 
         self._room = room

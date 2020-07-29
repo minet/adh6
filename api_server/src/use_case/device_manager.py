@@ -24,4 +24,4 @@ class DeviceManager(CRUDManager):
         if created:
             pass  # TODO ALLOCATE IP ADDRESSES
 
-        return device
+        return device, created

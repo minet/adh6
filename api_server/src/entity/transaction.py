@@ -64,6 +64,7 @@ class Transaction(object):
 
     def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=False, caisse=None, *args, **kwargs):  # noqa: E501
         """Transaction - a model defined in Swagger"""  # noqa: E501
+        AbstractTransaction.__init__(self, *args, **kwargs)
         self._id = None
         self._name = None
         self._src = None

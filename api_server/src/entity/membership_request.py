@@ -30,7 +30,7 @@ class MembershipRequest(object):
     """
     swagger_types = {
         'duration': 'int',
-        'payment_method': 'Object',
+        'payment_method': 'OneOfMembershipRequestPaymentMethod',
         'first_time': 'bool'
     }
 
@@ -82,7 +82,7 @@ class MembershipRequest(object):
         The payment method used to pay the membership fee  # noqa: E501
 
         :return: The payment_method of this MembershipRequest.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfMembershipRequestPaymentMethod
         """
         return self._payment_method
 
@@ -93,7 +93,7 @@ class MembershipRequest(object):
         The payment method used to pay the membership fee  # noqa: E501
 
         :param payment_method: The payment_method of this MembershipRequest.  # noqa: E501
-        :type: Object
+        :type: OneOfMembershipRequestPaymentMethod
         """
         if payment_method is None:
             raise ValueError("Invalid value for `payment_method`, must not be `None`")  # noqa: E501

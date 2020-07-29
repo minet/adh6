@@ -11,6 +11,7 @@
 """
 
 import pprint
+import re  # noqa: F401
 
 import six
 
@@ -51,6 +52,7 @@ class Port(object):
 
     def __init__(self, id=None, port_number=None, oid=None, room=None, switch=None, *args, **kwargs):  # noqa: E501
         """Port - a model defined in Swagger"""  # noqa: E501
+        AbstractPort.__init__(self, *args, **kwargs)
         self._id = None
         self._port_number = None
         self._oid = None

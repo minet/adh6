@@ -1,7 +1,7 @@
 # coding=utf-8 import datetime import datetime import datetime
 from unittest.mock import MagicMock
 
-from pytest import fixture, raises
+from pytest import fixture, raises, mark
 from pytest_cases import parametrize_with_cases, fixture_ref, parametrize, parametrize_plus
 
 from src.entity import AbstractDevice, AbstractAccount
@@ -48,6 +48,8 @@ def account_manager(
         account_repository=mock_account_repository
     )
 
+
+@mark.skip(reason="IP address allocation isn't implemented yet")
 class TestUpdateOrCreate:
     def test_create_happy_path(self,
                                ctx,
@@ -374,36 +376,6 @@ class TestUpdateOrCreate:
                                                 ip_v6_address=None,
                                             ),
                                             )
-
-
-class TestGetByMacAddress:
-    def test_happy_path(self,
-                        ctx,
-                        faker,
-                        mock_device_repository: MagicMock,
-                        sample_device,
-                        device_manager: DeviceManager):
-        mock_device_repository.search_device_by = MagicMock(return_value=([sample_device], 1))
-        mac = faker.mac_address
-        # When...
-        device_manager.search(ctx, filter_=AbstractDevice(mac=mac))
-
-        # Expect...
-        mock_device_repository.search_device_by.assert_called_once_with(ctx, mac_address=mac)
-
-    def test_device_not_found(self,
-                              ctx,
-                              faker,
-                              mock_device_repository: MagicMock,
-                              device_manager: DeviceManager):
-        mock_device_repository.search_device_by = MagicMock(return_value=([], 0))
-        mac = faker.mac_address
-        # When...
-        with raises(DeviceNotFoundError):
-            device_manager.search(ctx, filter_=AbstractDevice(mac=mac))
-
-        # Expect...
-        mock_device_repository.search_device_by.assert_called_once_with(ctx, mac_address=mac)
 
 
 @fixture

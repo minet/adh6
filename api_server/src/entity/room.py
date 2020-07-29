@@ -50,6 +50,7 @@ class Room(object):
 
     def __init__(self, id=None, description=None, room_number=None, vlan=None, *args, **kwargs):  # noqa: E501
         """Room - a model defined in Swagger"""  # noqa: E501
+        AbstractRoom.__init__(self, *args, **kwargs)
         self._id = None
         self._description = None
         self._room_number = None

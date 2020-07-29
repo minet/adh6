@@ -34,7 +34,7 @@ class AbstractDevice(object):
         'ipv4_address': 'str',
         'ipv6_address': 'str',
         'mac': 'str',
-        'member': 'Object'
+        'member': 'OneOfAbstractDeviceMember'
     }
 
     attribute_map = {
@@ -196,7 +196,7 @@ class AbstractDevice(object):
         The member this device belongs to  # noqa: E501
 
         :return: The member of this AbstractDevice.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractDeviceMember
         """
         return self._member
 
@@ -207,7 +207,7 @@ class AbstractDevice(object):
         The member this device belongs to  # noqa: E501
 
         :param member: The member of this AbstractDevice.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractDeviceMember
         """
 
         self._member = member

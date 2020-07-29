@@ -1748,7 +1748,6 @@ components:
       type: object
       required:
         - id
-        - name
       properties:
         id:
           example: 1
@@ -1855,10 +1854,6 @@ components:
       type: object
     AbstractProduct:
       type: object
-      required:
-        - id
-        - name
-        - sellingPrice
       properties:
         id:
           description: The unique identifier of this product

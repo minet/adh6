@@ -32,8 +32,8 @@ class AbstractPort(object):
         'id': 'int',
         'port_number': 'str',
         'oid': 'str',
-        'room': 'Object',
-        'switch': 'Object'
+        'room': 'OneOfAbstractPortRoom',
+        'switch': 'OneOfAbstractPortSwitch'
     }
 
     attribute_map = {
@@ -139,7 +139,7 @@ class AbstractPort(object):
         The room this port is in  # noqa: E501
 
         :return: The room of this AbstractPort.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractPortRoom
         """
         return self._room
 
@@ -150,7 +150,7 @@ class AbstractPort(object):
         The room this port is in  # noqa: E501
 
         :param room: The room of this AbstractPort.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractPortRoom
         """
 
         self._room = room
@@ -162,7 +162,7 @@ class AbstractPort(object):
         The switch this port is a member of  # noqa: E501
 
         :return: The switch of this AbstractPort.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractPortSwitch
         """
         return self._switch
 
@@ -173,7 +173,7 @@ class AbstractPort(object):
         The switch this port is a member of  # noqa: E501
 
         :param switch: The switch of this AbstractPort.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractPortSwitch
         """
 
         self._switch = switch

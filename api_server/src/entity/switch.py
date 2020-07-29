@@ -50,6 +50,7 @@ class Switch(object):
 
     def __init__(self, id=None, description=None, community=None, ip=None, *args, **kwargs):  # noqa: E501
         """Switch - a model defined in Swagger"""  # noqa: E501
+        AbstractSwitch.__init__(self, *args, **kwargs)
         self._id = None
         self._description = None
         self._community = None

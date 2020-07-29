@@ -54,6 +54,7 @@ class Device(object):
 
     def __init__(self, id=None, connection_type=None, ipv4_address=None, ipv6_address=None, mac=None, member=None, *args, **kwargs):  # noqa: E501
         """Device - a model defined in Swagger"""  # noqa: E501
+        AbstractDevice.__init__(self, *args, **kwargs)
         self._id = None
         self._connection_type = None
         self._ipv4_address = None

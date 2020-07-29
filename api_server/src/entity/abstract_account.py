@@ -32,9 +32,9 @@ class AbstractAccount(object):
         'actif': 'bool',
         'pinned': 'bool',
         'compte_courant': 'bool',
-        'account_type': 'Object',
+        'account_type': 'OneOfAbstractAccountAccountType',
         'creation_date': 'datetime',
-        'member': 'Object',
+        'member': 'OneOfAbstractAccountMember',
         'name': 'str',
         'id': 'int',
         'balance': 'float',
@@ -59,7 +59,7 @@ class AbstractAccount(object):
         self._actif = None
         self._pinned = None
         self._compte_courant = None
-        self._account_type= None
+        self._account_type = None
         self._creation_date = None
         self._member = None
         self._name = None
@@ -161,10 +161,10 @@ class AbstractAccount(object):
     def account_type(self):
         """Gets the account_type of this AbstractAccount.  # noqa: E501
 
-        The account_type of this account  # noqa: E501
+        The type of this account  # noqa: E501
 
         :return: The account_type of this AbstractAccount.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractAccountAccountType
         """
         return self._account_type
 
@@ -172,10 +172,10 @@ class AbstractAccount(object):
     def account_type(self, account_type):
         """Sets the account_type of this AbstractAccount.
 
-        The account_type of this account  # noqa: E501
+        The type of this account  # noqa: E501
 
         :param account_type: The account_type of this AbstractAccount.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractAccountAccountType
         """
 
         self._account_type = account_type
@@ -210,7 +210,7 @@ class AbstractAccount(object):
         The member this account belongs to  # noqa: E501
 
         :return: The member of this AbstractAccount.  # noqa: E501
-        :rtype: Object
+        :rtype: OneOfAbstractAccountMember
         """
         return self._member
 
@@ -221,7 +221,7 @@ class AbstractAccount(object):
         The member this account belongs to  # noqa: E501
 
         :param member: The member of this AbstractAccount.  # noqa: E501
-        :type: Object
+        :type: OneOfAbstractAccountMember
         """
 
         self._member = member

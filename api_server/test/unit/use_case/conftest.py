@@ -15,14 +15,13 @@ from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.use_case.account_manager import AccountManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import build_context
 
 @fixture
-def ctx():
+def ctx(sample_admin):
     return build_context(
-        admin=Admin(login='test_usr', roles=[]),
+        admin=sample_admin,
         testing=True,
     )
 
@@ -30,7 +29,8 @@ def ctx():
 @fixture
 def sample_admin():
     return Admin(
-        login=TESTING_CLIENT
+        login=TESTING_CLIENT,
+        roles=[]
     )
 
 
@@ -111,13 +111,14 @@ def sample_account_type(faker):
 @fixture
 def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
     return Transaction(
+        id=faker.random_digit_not_null,
         src=sample_account1,
         dst=sample_account2,
         name=faker.sentence,
         value=faker.random_int,
         attachments='',
         timestamp=faker.date_this_year,
-        paymentMethod=sample_payment_method,
+        payment_method=sample_payment_method,
         author=sample_admin
     )
 
@@ -127,7 +128,6 @@ def sample_account1(faker, sample_member, sample_account_type):
     return Account(
         id=faker.random_digit_not_null,
         name=faker.word,
-        type=sample_account_type,
         actif=faker.random_choices(elements=(True, False)),
         creation_date=faker.date_this_year,
         member=sample_member,
@@ -144,7 +144,6 @@ def sample_account2(faker, sample_member, sample_account_type):
     return Account(
         id=faker.random_digit_not_null,
         name=faker.word,
-        type=sample_account_type,
         actif=faker.random_choices(elements=(True, False)),
         creation_date=faker.date_this_year,
         member=sample_member,
@@ -162,17 +161,5 @@ def sample_product(faker):
         id=faker.random_digit_not_null,
         name=faker.word,
         selling_price=faker.random_int,
-        buying_price=faker.random_int,
+        buying_price=faker.random_int
     )
-
-
-@fixture
-def account_manager(mock_account_repository):
-    return AccountManager(
-        account_repository=mock_account_repository
-    )
-
-
-@fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)

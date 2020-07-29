@@ -7,11 +7,13 @@ from dataclasses import dataclass, asdict
 from typing import List, Optional
 
 from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
-from src.entity import AbstractMember
+from src.entity import AbstractMember, AbstractDevice
 from src.entity.member import Member
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, UsernameMismatchError, PasswordTooShortError, InvalidEmail, \
     IntMustBePositive, StringMustNotBeEmpty, InvalidDate, MissingRequiredField
+from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.device_repository import DeviceRepository
@@ -114,18 +116,15 @@ class FullMutationRequest(PartialMutationRequest):
         super().validate()
 
 
-class MemberManager:
+class MemberManager(CRUDManager):
     """
     Implements all the use cases related to member management.
     """
 
-    def __init__(self,
-                 member_repository: MemberRepository,
-                 membership_repository: MembershipRepository,
-                 logs_repository: LogsRepository,
-                 money_repository: MoneyRepository,
-                 device_repository: DeviceRepository,
-                 configuration):
+    def __init__(self, member_repository: MemberRepository, membership_repository: MembershipRepository,
+                 logs_repository: LogsRepository, money_repository: MoneyRepository,
+                 device_repository: DeviceRepository, configuration):
+        super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
@@ -173,7 +172,6 @@ class MemberManager:
 
             self.money_repository.add_member_payment_record(ctx, price_in_cents, title, username, payment_method)
             self.membership_repository.create_membership(ctx, username, start, end)
-            self.member_repository.update_member(ctx, username, departure_date=end.isoformat())
 
         except InvalidAdmin:
             LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
@@ -191,23 +189,6 @@ class MemberManager:
             start_date=start.isoformat()
         ))
 
-    def get_by_username(self, ctx, username) -> Member:
-        """
-        User story: As an admin, I can see the profile of a member, so that I can help her/him.
-
-        :raise MemberNotFound
-        """
-        result, _ = self.member_repository.search_member_by(ctx, username=username)
-        if not result:
-            raise MemberNotFoundError(username)
-
-        # Log action.
-        LOG.info('member_get_by_username', extra=log_extra(
-            ctx,
-            username='username'
-        ))
-        return result[0]
-
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> (
             List[Member], int):
         """
@@ -224,11 +205,11 @@ class MemberManager:
         if offset < 0:
             raise IntMustBePositive('offset')
 
-        result, count = self.member_repository.search_member_by(ctx,
-                                                                limit=limit,
-                                                                offset=offset,
-                                                                terms=terms,
-                                                                filter_=filter_)
+        result, count = self.member_repository.search_by(ctx,
+                                                         limit=limit,
+                                                         offset=offset,
+                                                         terms=terms,
+                                                         filter_=filter_)
 
         # Log action.
         LOG.info('member_search', extra=log_extra(
@@ -238,131 +219,8 @@ class MemberManager:
         ))
         return result, count
 
-    def update_or_create(self, ctx, username, mutation_request: FullMutationRequest) -> bool:
-        """
-        Create/Update member from the database.
-
-        User story: As an admin, I can register a new profile, so that I can add a membership with their profile.
-        :return: True if the member was created, false otherwise.
-
-        :raise InvalidEmailError
-        :raise InvalidRoomNumberError
-        :raise MissingRequiredFieldError
-        :raise StringMustNotBeEmptyException
-        :raise UsernameMismatchError
-        """
-        # Make sure all the object fields set are valid.
-        mutation_request.validate()
-
-        # Make sure all the necessary fields are set.
-        member, _ = self.member_repository.search_member_by(ctx, username=username)
-        if member:
-            # [UPDATE] Member already exists, perform a whole update.
-
-            # Create a dict with fields to update. If field is not provided in the mutation request, consider that it
-            # should be None as it is a full update of the member.
-            fields_to_update = asdict(mutation_request)
-            fields_to_update = {k: v for k, v in fields_to_update.items()}
-
-            # This call will never throw a MemberNotFound because we checked for the object existence before.
-            self.member_repository.update_member(ctx, username, **fields_to_update)
-
-            # Log action.
-            LOG.info('member_whole_update', extra=log_extra(
-                ctx,
-                username=username,
-                mutation=json.dumps(fields_to_update, sort_keys=True, default=str),
-            ))
-
-            return False
-        else:
-            # [CREATE] Member does not exist, create it.
-
-            # Build a dict that will be transformed into a member. If a field is not set, consider that it should be
-            # None.
-            if username != mutation_request.username:
-                raise UsernameMismatchError()
-
-            mutation_request.username = username  # Just in case it has not been specified in the body.
-            fields = asdict(mutation_request)
-            fields = {k: v for k, v in fields.items()}
-
-            self.member_repository.create_member(ctx, **fields)
-
-            # Log action
-            LOG.info('member_create', extra=log_extra(
-                ctx,
-                username=username,
-                mutation=json.dumps(fields, sort_keys=True, default=str)
-            ))
-
-            return True
-
-    def update_partially(self, ctx, username, mutation_request: PartialMutationRequest) -> None:
-        """
-        User story: As an admin, I can modify some of the fields of a profile, so that I can update the information of
-        a member.
-
-        :raise MemberNotFound
-        """
-        # Perform all the checks on the validity of the data in the mutation request.
-        mutation_request.validate()
-
-        # Create a dict with all the changed field. If a field is None it will not be put in the dict, and the
-        # field will not be updated.
-        fields_to_update = asdict(mutation_request)
-        fields_to_update = {k: v for k, v in fields_to_update.items() if v is not None}
-
-        self.member_repository.update_member(ctx, username, **fields_to_update)
-
-        # Log action.
-        LOG.info('member_partial_update', extra=log_extra(
-            ctx,
-            username=username,
-            mutation=json.dumps(fields_to_update, sort_keys=True, default=str)
-        ))
-
-    def change_password(self, ctx, username, password) -> None:
-        """
-        User story: As an admin, I can set the password of a user, so that they can connect using their credentials.
-        Change the password of a member.
-
-        BE CAREFUL: do not log the password or store it unhashed.
-
-        :raise PasswordTooShortError
-        :raise MemberNotFound
-        """
-
-        if len(password) <= 6:  # It's a bit low but eh...
-            raise PasswordTooShortError()
-
-        # Overwrite password variable by its hash, now that the checks are done, we don't need the cleartext anymore.
-        # Still, be careful not to log this field!
-        password = ntlm_hash(password)
-
-        self.member_repository.update_member(ctx, username, password=password)
-
-        LOG.info('member_password_update', extra=log_extra(
-            ctx,
-            username=username,
-        ))
-
-    def delete(self, ctx, username) -> None:
-        """
-        User story: As an admin, I can remove a profile, so that their information is not in our system.
-
-        :raise MemberNotFound
-        """
-
-        self.member_repository.delete_member(ctx, username)
-
-        # Log action.
-        LOG.info('member_delete', extra=log_extra(
-            ctx,
-            username=username,
-        ))
-
-    def get_logs(self, ctx, username, dhcp=False) -> List[str]:
+    @log_call
+    def get_logs(self, ctx, member_id, dhcp=False) -> List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -377,24 +235,19 @@ class MemberManager:
         # mac_tbl = list(map(lambda x: x.mac, q.all()))
 
         # Check that the user exists in the system.
-        result, _ = self.member_repository.search_member_by(ctx, username=username)
-        if not result:
-            raise MemberNotFoundError(username)
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(member_id)
+
+        member = member[0]
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_device_by(ctx, username=username)[0]
-            logs = self.logs_repository.get_logs(ctx, username=username, devices=devices, dhcp=dhcp)
-
-            LOG.info('member_get_logs', extra=log_extra(
-                ctx,
-                username=username,
-                #devices=devices,
-                logs=logs,
-            ))
+            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member))[0]
+            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=dhcp)
 
             return logs
 
         except LogFetchError:
-            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=username))
+            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
             return []  # We fail open here.

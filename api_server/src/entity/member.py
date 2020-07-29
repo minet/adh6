@@ -60,6 +60,7 @@ class Member(object):
 
     def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, *args, **kwargs):  # noqa: E501
         """Member - a model defined in Swagger"""  # noqa: E501
+        AbstractMember.__init__(self, *args, **kwargs)
         self._id = None
         self._username = None
         self._association_mode = None

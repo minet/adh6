@@ -13,7 +13,7 @@ function generate_frontend() {
 
 function generate_backend() {
   codegencmd -Dmodels -l python -o "$DIR/tmpsrc/"
-
+  cp -r -n tmpsrc/swagger_client/models/* api_server/src/entity/
   diff -ruN api_server/src/entity tmpsrc/swagger_client/models/ > entities.patch
   patch -p0 < entities.patch
 

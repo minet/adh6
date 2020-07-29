@@ -62,6 +62,7 @@ class Account(object):
 
     def __init__(self, actif=True, pinned=False, compte_courant=False, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None, *args, **kwargs):  # noqa: E501
         """Account - a model defined in Swagger"""  # noqa: E501
+        AbstractAccount.__init__(self, *args, **kwargs)
         self._actif = None
         self._pinned = None
         self._compte_courant = None
@@ -162,7 +163,7 @@ class Account(object):
     def account_type(self):
         """Gets the account_type of this Account.  # noqa: E501
 
-        The account_type of this account  # noqa: E501
+        The type of this account  # noqa: E501
 
         :return: The account_type of this Account.  # noqa: E501
         :rtype: Object
@@ -173,7 +174,7 @@ class Account(object):
     def account_type(self, account_type):
         """Sets the account_type of this Account.
 
-        The account_type of this account  # noqa: E501
+        The type of this account  # noqa: E501
 
         :param account_type: The account_type of this Account.  # noqa: E501
         :type: Object

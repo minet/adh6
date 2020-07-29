@@ -2,53 +2,54 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.constants import CTX_ADMIN
-from src.entity import AbstractTransaction
+from src.entity import AbstractTransaction, PaymentMethod
 from src.entity.transaction import Transaction
 from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
 from src.use_case.interface.caisse_repository import CaisseRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
-from src.use_case.transaction_manager import TransactionManager
-
-TEST_TRANSACTION_ID = '1'
+from src.use_case.payment_method_manager import PaymentMethodManager
+from src.use_case.transaction_manager import TransactionManager, CaisseManager
 
 
 class TestGetByID:
     def test_happy_path(self,
                         ctx,
-                        mock_transaction_repository: TransactionRepository,
-                        sample_transaction: Transaction,
+                        faker,
+                        mock_transaction_repository,
+                        sample_transaction,
                         transaction_manager: TransactionManager):
-        mock_transaction_repository.search_transaction_by = MagicMock(return_value=([sample_transaction], 1))
-        result = transaction_manager.get_by_id(ctx, TEST_TRANSACTION_ID)
+        print(sample_transaction)
+        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
+        result = transaction_manager.get_by_id(ctx, **{"transaction_id": sample_transaction.id})
 
         assert sample_transaction == result
-        mock_transaction_repository.search_transaction_by.assert_called_once()
+        mock_transaction_repository.search_by.assert_called_once()
 
     def test_transaction_not_found(self,
                                    ctx,
+                                   faker,
                                    mock_transaction_repository: TransactionRepository,
                                    transaction_manager: TransactionManager):
-        mock_transaction_repository.search_transaction_by = MagicMock(return_value=([], 0))
+        mock_transaction_repository.search_by = MagicMock(return_value=([], 0))
 
         with raises(TransactionNotFoundError):
-            transaction_manager.get_by_id(ctx, TEST_TRANSACTION_ID)
+            transaction_manager.get_by_id(ctx, **{"transaction_id": faker.random_int})
 
 
 class TestSearch:
     def test_happy_path(self,
                         ctx,
-                        mock_transaction_repository: TransactionRepository,
+                        mock_transaction_repository,
                         sample_transaction: Transaction,
                         transaction_manager: TransactionManager):
-        mock_transaction_repository.search_transaction_by = MagicMock(return_value=([sample_transaction], 1))
+        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
         result, count = transaction_manager.search(ctx, limit=42, offset=2, terms='abc')
 
         assert [sample_transaction] == result
         assert 1 == count
-        mock_transaction_repository.search_transaction_by.assert_called_once_with(ctx, account_id=None, limit=42,
-                                                                                  offset=2, terms='abc')
+        mock_transaction_repository.search_by.assert_called_once_with(ctx, limit=42, offset=2, terms='abc',
+                                                                      filter_=None)
 
     def test_offset_negative(self,
                              ctx,
@@ -63,82 +64,13 @@ class TestSearch:
             transaction_manager.search(ctx, limit=-1)
 
 
-"""
-class TestUpdate:
-    def test_happy_path(self,
-                        ctx,
-                        mock_transaction_repository: TransactionRepository,
-                        transaction_manager: TransactionManager):
-        req = FullMutationRequest(
-            description='desc',
-            ip_v4='157.159.123.123',
-            community='ip',
-        )
-        mock_transaction_repository.update_switch = MagicMock()
-
-        transaction_manager.update(ctx, '2', req)
-
-        mock_transaction_repository.update_switch.assert_called_once_with(ctx, switch_id='2', **asdict(req))
-
-    def test_switch_not_found(self,
-                              ctx,
-                              mock_transaction_repository: TransactionRepository,
-                              transaction_manager: TransactionManager):
-        req = FullMutationRequest(
-            description='desc',
-            ip_v4='157.159.123.123',
-            community='ip',
-        )
-        mock_transaction_repository.update_switch = MagicMock(side_effect=TransactionNotFoundError)
-
-        with raises(TransactionNotFoundError):
-            transaction_manager.update(ctx, '2', req)
-
-    def test_missing_required_field(self,
-                                    ctx,
-                                    mock_transaction_repository: TransactionRepository,
-                                    transaction_manager: TransactionManager):
-        req = FullMutationRequest(
-            description='desc',
-            ip_v4='157.159.123.123',
-            community='ip',
-        )
-        req.community = None
-        mock_transaction_repository.update_switch = MagicMock()
-
-        with raises(MissingRequiredField):
-            transaction_manager.update(ctx, '2', req)
-
-        mock_transaction_repository.update_switch.assert_not_called()
-
-    @mark.parametrize('field,value', [
-        ('ip_v4', None),
-        ('ip_v4', 'not an ipv4 address'),
-        ('description', None),
-        ('community', None),
-    ])
-    def test_invalid_mutation_request(self,
-                                      ctx,
-                                      mock_transaction_repository: TransactionRepository,
-                                      field: str,
-                                      value,
-                                      transaction_manager: TransactionManager):
-        req = FullMutationRequest(
-            description='desc',
-            ip_v4='157.159.123.123',
-            community='ip',
-        )
-        req = FullMutationRequest(**{**asdict(req), **{field: value}})
-        mock_transaction_repository.update_switch = MagicMock()
-
-        with raises(ValueError):
-            transaction_manager.update(ctx, '2', req)"""
-
-
 class TestCreate:
     def test_happy_path(self,
-                        ctx, mock_transaction_repository: TransactionRepository,
+                        ctx, mock_transaction_repository,
                         transaction_manager: TransactionManager):
+        transaction_manager.payment_method_manager.search = MagicMock(
+            return_value=([PaymentMethod(id=0, name="Liquide")], 0))
+
         req = AbstractTransaction(
             src='1',
             dst='2',
@@ -146,17 +78,12 @@ class TestCreate:
             value=1,
             payment_method='1',
             attachments=None
-
         )
         mock_transaction_repository.create_transaction = MagicMock()
 
         transaction_manager.update_or_create(ctx, req)
 
-        mock_transaction_repository.create_transaction.assert_called_once_with(ctx, src=req.src, dst=req.dst,
-                                                                               name=req.name, value=req.value,
-                                                                               paymentMethod=req.payment_method,
-                                                                               author=ctx.get(CTX_ADMIN).login,
-                                                                               attachments=None)
+        mock_transaction_repository.create.assert_called_once_with(ctx, req)
 
     def test_same_account(self,
                           ctx,
@@ -178,9 +105,21 @@ class TestCreate:
 def transaction_manager(mock_transaction_repository, ):
     return TransactionManager(
         transaction_repository=mock_transaction_repository,
-        payment_method_manager=mock_payment_method_repository,
-        caisse_manager=mock_caisse_repository
+        payment_method_manager=mock_payment_method_manager,
+        caisse_manager=mock_caisse_manager
     )
+
+
+@fixture
+def mock_payment_method_manager(mock_payment_method_repository):
+    return PaymentMethodManager(
+        payment_method_repository=mock_payment_method_repository
+    )
+
+
+@fixture
+def mock_caisse_manager(mock_caisse_repository):
+    return CaisseManager()
 
 
 @fixture

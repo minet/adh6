@@ -12,11 +12,11 @@ class AccountTypeManager(CRUDManager):
         self.account_type_repository = account_type_repository
 
     def delete(self, ctx, *args, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def update_or_create(self, ctx, obj, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def partially_update(self, ctx, obj, override=False, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError()
 
