@@ -12,5 +12,5 @@
 
 export interface AccountType { 
     readonly id: number;
-    name: string;
+    name?: string;
 }

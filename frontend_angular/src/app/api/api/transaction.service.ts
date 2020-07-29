@@ -345,24 +345,24 @@ export class TransactionService {
     }
 
     /**
-     * Update a transaction
+     * Partially update a transaction
      * 
      * @param body The new values for this transaction
      * @param transactionId The unique identifier of the transaction that needs to be fetched
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public transactionTransactionIdPut(body: AbstractTransaction, transactionId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public transactionTransactionIdPut(body: AbstractTransaction, transactionId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public transactionTransactionIdPut(body: AbstractTransaction, transactionId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public transactionTransactionIdPut(body: AbstractTransaction, transactionId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling transactionTransactionIdPut.');
+            throw new Error('Required parameter body was null or undefined when calling transactionTransactionIdPatch.');
         }
 
         if (transactionId === null || transactionId === undefined) {
-            throw new Error('Required parameter transactionId was null or undefined when calling transactionTransactionIdPut.');
+            throw new Error('Required parameter transactionId was null or undefined when calling transactionTransactionIdPatch.');
         }
 
         let headers = this.defaultHeaders;
@@ -393,7 +393,7 @@ export class TransactionService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-        return this.httpClient.request<any>('put',`${this.basePath}/transaction/${encodeURIComponent(String(transactionId))}`,
+        return this.httpClient.request<any>('patch',`${this.basePath}/transaction/${encodeURIComponent(String(transactionId))}`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,

@@ -11,6 +11,12 @@
  */
 
 export interface ModelError { 
-    code: string;
+    /**
+     * The error code
+     */
+    code: number;
+    /**
+     * The friendly description of the error
+     */
     message: string;
 }

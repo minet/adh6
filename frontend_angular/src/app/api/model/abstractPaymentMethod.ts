@@ -9,7 +9,14 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AbstractProduct } from './abstractProduct';
 
-export interface Product extends AbstractProduct { 
+export interface AbstractPaymentMethod { 
+    /**
+     * The unique identifier of this payment method
+     */
+    readonly id?: number;
+    /**
+     * The friendly name of this payment method
+     */
+    name?: string;
 }

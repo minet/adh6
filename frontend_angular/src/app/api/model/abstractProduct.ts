@@ -9,7 +9,22 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AbstractProduct } from './abstractProduct';
 
-export interface Product extends AbstractProduct { 
+export interface AbstractProduct { 
+    /**
+     * The unique identifier of this product
+     */
+    readonly id?: number;
+    /**
+     * The buying price of this product
+     */
+    buyingPrice?: number;
+    /**
+     * The selling price of this product
+     */
+    sellingPrice?: number;
+    /**
+     * The friendly name of this product
+     */
+    name?: string;
 }
