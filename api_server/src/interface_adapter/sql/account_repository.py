@@ -90,11 +90,11 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def update(self, ctx, object_to_update: AbstractAccount, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     @log_call
     def delete(self, ctx, object_id) -> None:
-        raise NotImplemented
+        raise NotImplementedError
 
 
 def _map_account_sql_to_entity(a, has_balance=False) -> Account:
@@ -109,7 +109,6 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         actif=a.actif,
         account_type=a.type,
         creation_date=a.creation_date,
-        account_id=a.id,
         member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
         balance=balance if has_balance else 0,
         pending_balance=balance if has_balance else 0,

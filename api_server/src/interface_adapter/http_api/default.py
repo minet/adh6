@@ -2,7 +2,7 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.exceptions import NotFoundError, ValidationError
+from src.exceptions import NotFoundError, ValidationError, UserInputError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.serializer import deserialize_request, serialize_response
@@ -62,27 +62,32 @@ class DefaultHandler:
         try:
             body['id'] = 0  # Set a dummy id to pass the initial validation
             to_create = deserialize_request(body, self.entity_class)
-            created = self.main_manager.update_or_create(ctx, to_create)
+            object, created = self.main_manager.update_or_create(ctx, to_create)
             if created:
-                return serialize_response(created), 200
+                return serialize_response(object), 201
             else:
                 return _error(500, "The server encountered an unexpected error"), 500
         except ValidationError as e:
             return _error(400, str(e)), 400
+        except UserInputError as e:
+            return _error(400, str(e)), 400
+        except Exception as e:
+            LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
+            return _error(500, "The server encountered an unexpected error"), 500
 
     @with_context
     @require_sql
     @auth_regular_admin
     @log_call
     def put(self, ctx, *args, **kwargs):
-        return self._update(ctx, self.main_manager.update_or_create, self.entity_class, *args, **kwargs)
+        return _update(ctx, self.main_manager.update_or_create, self.entity_class, *args, **kwargs)
 
     @with_context
     @require_sql
     @auth_regular_admin
     @log_call
     def patch(self, ctx, *args, **kwargs):
-        return self._update(ctx, self.main_manager.partially_update, self.abstract_entity_class, *args, **kwargs)
+        return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, *args, **kwargs)
 
     @with_context
     @require_sql
@@ -100,18 +105,22 @@ class DefaultHandler:
             LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
             return _error(500, "The server encountered an unexpected error"), 500
 
-    def _update(self, ctx, function, klass, *args, **kwargs):
-        try:
-            body = kwargs.pop('body', None)
-            body['id'] = 0  # Set a dummy id to pass the initial validation
-            to_update = deserialize_request(body, klass)
-            updated = function(ctx, to_update, **kwargs)
-            if updated:
-                return serialize_response(updated), 200
-            else:
-                return _error(500, "The server encountered an unexpected error"), 500
-        except ValidationError as e:
-            return _error(400, str(e)), 400
+
+def _update(ctx, function, klass, *args, **kwargs):
+    try:
+        body = kwargs.pop('body', None)
+        body['id'] = 0  # Set a dummy id to pass the initial validation
+        to_update = deserialize_request(body, klass)
+        updated = function(ctx, to_update, *args, **kwargs)
+        if updated:
+            return serialize_response(updated), 204
+        else:
+            return _error(500, "The server encountered an unexpected error"), 500
+    except ValidationError as e:
+        return _error(400, str(e)), 400
+    except Exception as e:
+        LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
+        return _error(500, "The server encountered an unexpected error"), 500
 
 
 def _error(code, message):

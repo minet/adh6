@@ -42,3 +42,9 @@ from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.entity.vendor import Vendor
 from src.entity.vlan import Vlan
+
+from src.entity.one_of_abstract_device_member import OneOfAbstractDeviceMember
+from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
+from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
+from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
+from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransactionAuthor

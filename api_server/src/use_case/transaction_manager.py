@@ -38,7 +38,7 @@ class TransactionManager(CRUDManager):
 
         if created:
             liquide, _ = self.payment_method_manager.search(ctx, limit=1, terms='Liquide')
-            if abstract_transaction.payment_method == liquide[0].id:
+            if liquide[0] is not None and abstract_transaction.payment_method == liquide[0].id:
                 if abstract_transaction.caisse == "to":
                     self.caisse_manager.update_caisse(ctx, value_modifier=abstract_transaction.value,
                                                       transaction=transaction)
@@ -46,7 +46,7 @@ class TransactionManager(CRUDManager):
                     self.caisse_manager.update_caisse(ctx, value_modifier=-abstract_transaction.value,
                                                       transaction=transaction)
 
-        return transaction
+        return transaction, created
 
     def partially_update(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None, override=False,
                          **kwargs):

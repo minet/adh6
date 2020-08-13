@@ -2,34 +2,33 @@ import logging
 
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from test.integration.resource import logs_contains
-from test.integration.test_room import test_room_put_new_room, test_room_put_update_room, test_room_delete_existant_room
+from test.integration.test_room import test_room_post_new_room, test_room_put_update_room, test_room_delete_existant_room
 
 
 def test_room_log_create_room(api_client, caplog):
     with caplog.at_level(logging.INFO):
-        test_room_put_new_room(api_client)
+        test_room_post_new_room(api_client)
 
     assert logs_contains(caplog,
-                         'room_create',
-                         admin=TESTING_CLIENT,
-                         room_number=5111)
+                         'room_manager_update_or_create',
+                         admin=TESTING_CLIENT)
 
 
-def test_room_log_update_room(api_client, caplog):
+def test_room_log_update_room(api_client, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_room_put_update_room(api_client)
+        test_room_put_update_room(api_client, sample_room1)
 
     assert logs_contains(caplog,
-                         'room_update',
+                         'room_manager_update_or_create',
                          admin=TESTING_CLIENT,
-                         room_number=5110)
+                         room_id=sample_room1.id)
 
 
-def test_room_log_delete_room(api_client, caplog):
+def test_room_log_delete_room(api_client, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_room_delete_existant_room(api_client)
+        test_room_delete_existant_room(api_client, sample_room1)
 
     assert logs_contains(caplog,
-                         'room_delete',
+                         'room_manager_delete',
                          admin=TESTING_CLIENT,
-                         room_number=5110)
+                         room_id=1)

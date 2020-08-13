@@ -12,36 +12,36 @@ from test.integration.test_member import prep_db
 @pytest.fixture
 def wired_device(faker, sample_member1):
     yield Device(
-        id=faker.random_digit_not_null,
-        mac=faker.mac_address,
+        id=faker.random_digit_not_null(),
+        mac=faker.mac_address(),
         adherent=sample_member1,
         type='wired',
-        ip=faker.ipv4_public(network='157.159.41.0/24'),
-        ipv6=faker.ipv6,
+        ip=faker.ipv4_public(),
+        ipv6=faker.ipv6(),
     )
 
 
 @pytest.fixture
-def wired_device2(faker, sample_member3):
+def wired_device2(faker, sample_member1):
     yield Device(
-        id=faker.random_digit_not_null,
-        mac=faker.mac_address,
-        adherent=sample_member3,
+        id=faker.random_digit_not_null(),
+        mac=faker.mac_address(),
+        adherent=sample_member1,
         type='wired',
-        ip=faker.ipv4_public(network='157.159.41.0/24'),
-        ipv6=faker.ipv6,
+        ip=faker.ipv4_public(),
+        ipv6=faker.ipv6(),
     )
 
 
 @pytest.fixture
 def wireless_device(faker, sample_member2):
     yield Device(
-        id=faker.random_digit_not_null,
-        mac=faker.mac_address,
+        id=faker.random_digit_not_null(),
+        mac=faker.mac_address(),
         adherent=sample_member2,
         type='wireless',
-        ip=faker.ipv4_public(network='157.159.41.0/24'),
-        ipv6=faker.ipv6,
+        ip=faker.ipv4_private(),
+        ipv6=faker.ipv6(),
     )
 
 
@@ -101,6 +101,7 @@ def sample_room2(sample_vlan):
 @pytest.fixture
 def sample_admin():
     yield Admin(
+        id=1,
         roles=""
     )
 

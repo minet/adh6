@@ -36,8 +36,8 @@ class RoomSQLRepository(RoomRepository):
 
 
         count = q.count()
-        q = q.offset(offset)
         q = q.order_by(Chambre.numero.asc())
+        q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
 
@@ -52,7 +52,7 @@ class RoomSQLRepository(RoomRepository):
         if abstract_room.vlan is not None:
             vlan = s.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
             if not vlan:
-                raise VLANNotFoundError(str(abstract_room.vlan))
+                raise é(str(abstract_room.vlan))
 
         room = Chambre(
             numero=abstract_room.room_number,
@@ -69,7 +69,7 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     @log_call
     def delete(self, ctx, room_id) -> None:
@@ -86,7 +86,7 @@ class RoomSQLRepository(RoomRepository):
 def _map_room_sql_to_entity(r: Chambre) -> Room:
     return Room(
         id=r.id,
-        room_number=str(r.numero),
+        room_number=r.numero,
         description=r.description,
-        vlan_number=str(r.vlan.numero) if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else Null()
     )

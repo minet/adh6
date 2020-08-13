@@ -5,8 +5,8 @@ from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.database import Database as db
 from test.integration.resource import logs_contains
-from test.integration.test_device import test_device_put_create_wired, test_device_put_create_wireless, \
-    test_device_put_update_wired, test_device_put_update_wireless, test_device_delete_wired, test_device_delete_wireless
+from test.integration.test_device import test_device_put_create_wired, test_device_post_create_wireless, \
+    test_device_patch_update_wired, test_device_patch_update_wireless, test_device_delete_wired, test_device_delete_wireless
 
 
 def prep_db(session,
@@ -47,7 +47,7 @@ def test_device_log_create_wired(api_client, caplog, wired_device_dict):
 
 def test_device_log_create_wireless(api_client, caplog, wireless_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_put_create_wireless(api_client, wireless_device_dict)
+        test_device_post_create_wireless(api_client, wireless_device_dict)
 
     assert logs_contains(caplog,
                          'device_create',
@@ -58,7 +58,7 @@ def test_device_log_create_wireless(api_client, caplog, wireless_device_dict):
 def test_device_log_update_wired(api_client, caplog, wired_device,
                                  wired_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_put_update_wired(api_client, wired_device,
+        test_device_patch_update_wired(api_client, wired_device,
                                      wired_device_dict)
 
     assert logs_contains(caplog,
@@ -70,7 +70,7 @@ def test_device_log_update_wired(api_client, caplog, wired_device,
 def test_device_log_update_wireless(api_client, caplog, wireless_device,
                                     wireless_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_put_update_wireless(api_client, wireless_device,
+        test_device_patch_update_wireless(api_client, wireless_device,
                                         wireless_device_dict)
 
     assert logs_contains(caplog,

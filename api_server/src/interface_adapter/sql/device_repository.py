@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractDevice
+from src.entity import AbstractDevice, Member
 from src.entity.device import Device
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -28,9 +28,16 @@ class DeviceSQLRepository(DeviceRepository):
 
         if filter_.id is not None:
             q = q.filter(SQLDevice.id == filter_.id)
+        if filter_.member is not None:
+            if isinstance(filter_.member, Member):
+                q = q.filter(Adherent.id == filter_.member.id)
+            else:
+                q = q.filter(Adherent.id == filter_.member)
+
         if terms:
             q = q.filter(
                 (SQLDevice.mac.contains(terms)) |
+                (SQLDevice.mac.contains(terms.replace("-", ":"))) |
                 (SQLDevice.ip.contains(terms)) |
                 (SQLDevice.ipv6.contains(terms)) |
                 (Adherent.login.contains(terms))
@@ -41,8 +48,8 @@ class DeviceSQLRepository(DeviceRepository):
             q = q.filter(SQLDevice.type == filter_.connection_type)
 
         count = q.count()
-        q = q.offset(offset)
         q = q.order_by(SQLDevice.created_at.asc())
+        q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
 
@@ -74,19 +81,59 @@ class DeviceSQLRepository(DeviceRepository):
 
         return _map_device_sql_to_entity(device)
 
-    def update(self, ctx, abstract_device: AbstractDevice, override=False) -> object:
-        raise NotImplemented
+    @log_call
+    def update(self, ctx, abstract_device: AbstractDevice, override=False) -> Device:
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(SQLDevice)
+        q = q.filter(SQLDevice.id == abstract_device.id)
+        q = q.join(Adherent, Adherent.id == SQLDevice.adherent_id)
+
+        device = q.one_or_none()
+        if device is None:
+            raise DeviceNotFoundError(str(abstract_device.id))
+
+        new_device = _merge_sql_with_entity(ctx, abstract_device, device, override)
+
+        with track_modifications(ctx, s, new_device):
+            s.update(new_device)
+
+        return _map_device_sql_to_entity(new_device)
 
     @log_call
     def delete(self, ctx, device_id) -> None:
         s = ctx.get(CTX_SQL_SESSION)
 
-        device = s.query(Device).filter(Device.id == device_id).one_or_none()
+        device = s.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+
         if device is None:
             raise DeviceNotFoundError(device_id)
 
         with track_modifications(ctx, s, device):
             s.delete(device)
+
+
+def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:
+    now = datetime.now()
+    device = sql_object
+
+    if entity.mac is not None or override:
+        device.mac = entity.mac
+    if entity.connection_type is not None or override:
+        device.type = entity.connection_type
+    if entity.ipv4_address is not None or override:
+        device.ip = entity.ipv4_address
+    if entity.ipv6_address is not None or override:
+        device.ipv6 = entity.ipv6_address
+    if entity.member is not None:
+        s = ctx.get(CTX_SQL_SESSION)
+        adherent = s.query(Adherent).filter(Adherent.id == entity.member).one_or_none()
+        if not adherent:
+            raise MemberNotFoundError(entity.member)
+        device.adherent = adherent
+
+    device.updated_at = now
+    return device
 
 
 def _map_device_sql_to_entity(d) -> Device:

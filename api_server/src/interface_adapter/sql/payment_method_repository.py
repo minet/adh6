@@ -20,12 +20,13 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
 
         q = s.query(SQLPaymentMethod)
 
-        if filter_.id:
-            q = q.filter(SQLPaymentMethod.id == filter_.id)
+        if filter_ is not None:
+            if filter_.id:
+                q = q.filter(SQLPaymentMethod.id == filter_.id)
+            if filter_.name:
+                q = q.filter(SQLPaymentMethod.name.contains(filter_.name))
         if terms:
             q = q.filter(SQLPaymentMethod.name.contains(terms))
-        if filter_.name:
-            q = q.filter(SQLPaymentMethod.name.contains(filter_.name))
 
         count = q.count()
         q = q.order_by(SQLPaymentMethod.id.asc())

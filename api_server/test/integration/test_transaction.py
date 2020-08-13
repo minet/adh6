@@ -22,7 +22,7 @@ def sample_payment_method():
 @pytest.fixture
 def sample_account1():
     return Account(
-        id='1',
+        id=1,
         name='test1',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 30),
@@ -38,7 +38,7 @@ def sample_account1():
 @pytest.fixture
 def sample_account2():
     return Account(
-        id='2',
+        id=2,
         name='test3',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 31),
@@ -57,7 +57,7 @@ def sample_transaction(sample_member_admin, sample_account1, sample_account2, sa
         src_account=sample_account1,
         dst_account=sample_account2,
         name='description',
-        value='200',
+        value=200,
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
         payment_method=sample_payment_method,
@@ -110,14 +110,15 @@ def test_switch_post_invalid_value(api_client, test_value):
     assert r.status_code == 400
 
 
-def test_transaction_post_valid(api_client):
+def test_transaction_post_valid(api_client, sample_member_admin):
     sample_transaction1 = {
         "src": 1,
         "dst": 2,
         "name": "test",
-        "attachments": "",
+        "attachments": [],
         "value": 400,
-        "paymentMethod": 1
+        "paymentMethod": 1,
+        "author": sample_member_admin.id
     }
 
     # Insert data to the database

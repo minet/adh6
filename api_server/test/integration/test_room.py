@@ -65,9 +65,9 @@ def test_room_filter_all_rooms_limit(api_client):
     assert len(response) == 1
 
 
-def test_room_filter_by_term(api_client):
+def test_room_filter_by_term(api_client, sample_room1):
     r = api_client.get(
-        "{}/room/?terms={}".format(base_url, "voisin"),
+        "{}/room/?terms={}".format(base_url, sample_room1.description),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -75,14 +75,14 @@ def test_room_filter_by_term(api_client):
     assert len(response) == 1
 
 
-def test_room_get_valid_room(api_client):
+def test_room_get_valid_room(api_client, sample_room1):
     r = api_client.get(
-        "{}/room/{}".format(base_url, 5110),
+        "{}/room/{}".format(base_url, sample_room1.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode())
-    assert len(response) == 3
+    assert len(response) == 4
 
 
 def test_room_get_invalid_room(api_client):
@@ -93,14 +93,14 @@ def test_room_get_invalid_room(api_client):
     assert r.status_code == 404
 
 
-def test_room_put_new_room_invalid_vlan(api_client):
+def test_room_post_new_room_invalid_vlan(api_client):
     room = {
         "roomNumber": 5111,
         "vlan": 45,
         "description": "Chambre 5111"
     }
-    r = api_client.put(
-        "{}/room/{}".format(base_url, 5111),
+    r = api_client.post(
+        "{}/room/".format(base_url),
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -108,14 +108,14 @@ def test_room_put_new_room_invalid_vlan(api_client):
     assert r.status_code == 400
 
 
-def test_room_put_new_room(api_client):
+def test_room_post_new_room(api_client):
     room = {
         "roomNumber": 5111,
         "vlan": 42,
         "description": "Chambre 5111"
     }
-    r = api_client.put(
-        "{}/room/{}".format(base_url, 5111),
+    r = api_client.post(
+        "{}/room/".format(base_url),
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -124,14 +124,14 @@ def test_room_put_new_room(api_client):
     assert_room_in_db(room)
 
 
-def test_room_put_update_room(api_client):
+def test_room_put_update_room(api_client, sample_room1):
     room = {
         "roomNumber": 5111,
         "vlan": 42,
         "description": "Chambre 5111"
     }
     r = api_client.put(
-        "{}/room/{}".format(base_url, 5110),
+        "{}/room/{}".format(base_url, sample_room1.id),
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -140,16 +140,16 @@ def test_room_put_update_room(api_client):
     assert_room_in_db(room)
 
 
-def test_room_delete_existant_room(api_client):
+def test_room_delete_existant_room(api_client, sample_room1):
     r = api_client.delete(
-        "{}/room/{}".format(base_url, 5110),
+        "{}/room/{}".format(base_url, sample_room1.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
 
     s = db.get_db().get_session()
     q = s.query(Chambre)
-    q = q.filter(Chambre.numero == 5110)
+    q = q.filter(Chambre.id == sample_room1.id)
     assert q.count() == 0
 
 

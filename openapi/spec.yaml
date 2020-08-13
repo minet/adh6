@@ -446,6 +446,28 @@ paths:
       summary: Update a device
       tags:
       - device
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbstractDevice'
+        description: The new values for this Device
+        required: true
+      responses:
+        204:
+          description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Partially update a device
+      tags:
+      - device
   /device/{device_id}/vendor:
     get:
       operationId: vendor_get
@@ -590,7 +612,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbstractMember'
-        description: The new values for thid member
+        description: The new values for this member
         required: true
       responses:
         204:
@@ -2180,9 +2202,6 @@ components:
           readOnly: true
     Error:
       type: object
-      required:
-        - code
-        - message
       properties:
         code:
           description: The error code

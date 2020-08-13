@@ -68,7 +68,7 @@ class TransactionSQLRepository(TransactionRepository):
         author_ref = None
         if abstract_transaction.author is not None:
             author_ref = s.query(Adherent).join(SQLAdmin) \
-                .filter(Adherent.login == abstract_transaction.author) \
+                .filter(Adherent.id == abstract_transaction.author) \
                 .filter(Adherent.admin is not None).one_or_none()
             if not author_ref:
                 raise AdminNotFoundError(abstract_transaction.author)
@@ -109,10 +109,10 @@ class TransactionSQLRepository(TransactionRepository):
         return _map_transaction_sql_to_entity(transaction)
 
     def update(self, ctx, abstract_transaction: AbstractTransaction, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     def delete(self, ctx, object_id) -> None:
-        raise NotImplemented
+        raise NotImplementedError
 
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:

@@ -98,7 +98,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         return _map_member_sql_to_entity(member)
 
     def update(self, ctx, abstract_member: AbstractMember, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     @log_call
     def delete(self, ctx, member_id) -> None:
