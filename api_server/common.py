@@ -22,7 +22,7 @@ from src.interface_adapter.http_api.treasury import TreasuryHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
-from src.interface_adapter.sql.cashbox_repository import CaisseSQLRepository
+from src.interface_adapter.sql.cashbox_repository import CashboxSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
@@ -42,7 +42,7 @@ from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
 from src.use_case.bug_report_manager import BugReportManager
-from src.use_case.cashbox_manager import TreasuryManager
+from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
 from src.use_case.member_manager import MemberManager
@@ -52,7 +52,7 @@ from src.use_case.port_manager import PortManager
 from src.use_case.product_manager import ProductManager
 from src.use_case.room_manager import RoomManager
 from src.use_case.switch_manager import SwitchManager
-from src.use_case.transaction_manager import TransactionManager, CaisseManager
+from src.use_case.transaction_manager import TransactionManager
 
 
 def init(testing=True, managing=False):
@@ -82,7 +82,7 @@ def init(testing=True, managing=False):
     payment_method_sql_repository = PaymentMethodSQLRepository()
     transaction_sql_repository = TransactionSQLRepository()
     account_type_sql_repository = AccountTypeSQLRepository()
-    caisse_sql_repository = CaisseSQLRepository()
+    cashbox_sql_repository = CashboxSQLRepository()
     oauth_sql_repository = OAuthSQLRepository()
 
     # Managers
@@ -117,18 +117,17 @@ def init(testing=True, managing=False):
     payment_method_manager = PaymentMethodManager(
         payment_method_repository=payment_method_sql_repository
     )
-    caisse_manager = CaisseManager()
+    cashbox_manager = CashboxManager(
+        cashbox_repository=cashbox_sql_repository,
+        transaction_repository=transaction_sql_repository
+    )
     transaction_manager = TransactionManager(
         transaction_repository=transaction_sql_repository,
         payment_method_manager=payment_method_manager,
-        caisse_manager=caisse_manager
+        cashbox_manager=cashbox_manager
     )
     account_type_manager = AccountTypeManager(
         account_type_repository=account_type_sql_repository
-    )
-    treasury_manager = TreasuryManager(
-        caisse_repository=caisse_sql_repository,
-        transaction_repository=transaction_sql_repository
     )
     bug_report_manager = BugReportManager(configuration.GITLAB_CONF, testing=testing)
     oauth_manager = OAuthManager(
@@ -158,7 +157,7 @@ def init(testing=True, managing=False):
     port_handler = PortHandler(port_manager, switch_manager, switch_network_manager)
 
     bug_report_handler = BugReportHandler(bug_report_manager)
-    treasury_handler = TreasuryHandler(treasury_manager, account_manager)
+    treasury_handler = TreasuryHandler(cashbox_manager, account_manager)
     oauth_handler = OAuthHandler(oauth_manager)
 
     # Connexion will use this function to authenticate and fetch the information of the user.

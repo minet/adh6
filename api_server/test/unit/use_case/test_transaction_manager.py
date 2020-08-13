@@ -5,11 +5,11 @@ from pytest import fixture, raises
 from src.entity import AbstractTransaction, PaymentMethod
 from src.entity.transaction import Transaction
 from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
-from src.use_case.interface.cashbox_repository import CaisseRepository
+from src.use_case.interface.cashbox_repository import CashboxRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
-from src.use_case.transaction_manager import TransactionManager, CaisseManager
+from src.use_case.transaction_manager import TransactionManager, CashboxManager
 
 
 class TestGetByID:
@@ -106,7 +106,7 @@ def transaction_manager(mock_transaction_repository, ):
     return TransactionManager(
         transaction_repository=mock_transaction_repository,
         payment_method_manager=mock_payment_method_manager,
-        caisse_manager=mock_caisse_manager
+        cashbox_manager=mock_cashbox_manager
     )
 
 
@@ -118,8 +118,8 @@ def mock_payment_method_manager(mock_payment_method_repository):
 
 
 @fixture
-def mock_caisse_manager(mock_caisse_repository):
-    return CaisseManager()
+def mock_cashbox_manager(mock_cashbox_repository):
+    return CashboxManager(mock_cashbox_repository)
 
 
 @fixture
@@ -133,5 +133,5 @@ def mock_payment_method_repository():
 
 
 @fixture
-def mock_caisse_repository():
-    return MagicMock(spec=CaisseRepository)
+def mock_cashbox_repository():
+    return MagicMock(spec=CashboxRepository)

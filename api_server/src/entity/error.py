@@ -43,8 +43,10 @@ class Error(object):
         self._code = None
         self._message = None
         self.discriminator = None
-        self.code = code
-        self.message = message
+        if code is not None:
+            self.code = code
+        if message is not None:
+            self.message = message
 
     @property
     def code(self):
@@ -66,8 +68,6 @@ class Error(object):
         :param code: The code of this Error.  # noqa: E501
         :type: int
         """
-        if code is None:
-            raise ValueError("Invalid value for `code`, must not be `None`")  # noqa: E501
 
         self._code = code
 
@@ -91,8 +91,6 @@ class Error(object):
         :param message: The message of this Error.  # noqa: E501
         :type: str
         """
-        if message is None:
-            raise ValueError("Invalid value for `message`, must not be `None`")  # noqa: E501
 
         self._message = message
 

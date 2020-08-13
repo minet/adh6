@@ -27,7 +27,7 @@ from src.entity.admin import Admin
 from src.entity.bank import Bank
 from src.entity.body import Body
 from src.entity.bug_report import BugReport
-from src.entity.caisse import Caisse
+from src.entity.cashbox import Cashbox
 from src.entity.device import Device
 from src.entity.error import Error
 from src.entity.labels import Labels

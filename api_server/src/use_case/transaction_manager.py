@@ -9,11 +9,6 @@ from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
 
-class cashboxManager(object):
-    def update_cashbox(self, ctx, value_modifier, transaction):
-        pass
-
-
 class TransactionManager(CRUDManager):
     """
     Implements all the use cases related to transaction management.
