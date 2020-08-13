@@ -93,7 +93,7 @@ export class GlobalSearchComponent implements OnInit {
           map((obj) => new SearchResult(
             'user',
             `${GlobalSearchComponent.capitalizeFirstLetter(obj.firstName)} ${obj.lastName.toUpperCase()}`,
-            ['/member/view', obj.username]
+            ['/member/view', obj.id]
           )),
         );
 
@@ -111,7 +111,7 @@ export class GlobalSearchComponent implements OnInit {
           map((obj) => new SearchResult(
             'device',
             obj.mac,
-            ['/member/view/', (obj.member as Member).username],
+            ['/member/view/', (obj.member as Member).id],
             {'highlight': obj.mac}
           )),
         );

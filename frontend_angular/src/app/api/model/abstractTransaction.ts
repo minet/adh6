@@ -55,7 +55,7 @@ export interface AbstractTransaction {
      */
     readonly pendingValidation?: boolean;
     /**
-     * Whether to use the caisse or not
+     * Whether to use the cashbox or not
      */
-    caisse?: string;
+    cashbox?: string;
 }

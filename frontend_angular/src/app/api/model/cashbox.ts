@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-export interface Caisse { 
+export interface Cashbox { 
     /**
-     * balance in the caisse
+     * balance in the cashbox
      */
     fond?: number;
     /**

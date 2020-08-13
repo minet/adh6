@@ -187,7 +187,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     const device: AbstractDevice = {
       mac: mac,
       connectionType: v.connectionType,
-      member: member_id
+      member: Number(member_id)
     };
 
     // Make an observable that will return True if the device already exists

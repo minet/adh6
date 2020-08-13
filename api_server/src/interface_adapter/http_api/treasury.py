@@ -43,4 +43,4 @@ class TreasuryHandler:
         """ Get the status of the cashbox. """
         LOG.debug("http_treasury_get_cashbox_called", extra=log_extra(ctx))
         fond, coffre = self.cashbox_manager.get_cashbox(ctx)
-        return {fond: fond, coffre: coffre}, 200
+        return {"fond": fond, "coffre": coffre}, 200

@@ -18,7 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { Bank } from '../model/bank';
-import { Caisse } from '../model/caisse';
+import { Cashbox } from '../model/cashbox';
 import { Product } from '../model/product';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -102,15 +102,15 @@ export class TreasuryService {
     }
 
     /**
-     * Retrieve the state of the caisse
+     * Retrieve the state of the cashbox
      * 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getCaisse(observe?: 'body', reportProgress?: boolean): Observable<Caisse>;
-    public getCaisse(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Caisse>>;
-    public getCaisse(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Caisse>>;
-    public getCaisse(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getCashbox(observe?: 'body', reportProgress?: boolean): Observable<Cashbox>;
+    public getCashbox(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Cashbox>>;
+    public getCashbox(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Cashbox>>;
+    public getCashbox(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -135,7 +135,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Caisse>('get',`${this.basePath}/treasury/caisse`,
+        return this.httpClient.request<Cashbox>('get',`${this.basePath}/treasury/cashbox`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

@@ -7,7 +7,7 @@ from typing import List
 
 from sqlalchemy.orm import aliased
 
-from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from src.entity import AbstractTransaction
 from src.entity.transaction import Transaction
 from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, AdminNotFoundError
@@ -65,13 +65,12 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        author_ref = None
-        if abstract_transaction.author is not None:
-            author_ref = s.query(Adherent).join(SQLAdmin) \
-                .filter(Adherent.id == abstract_transaction.author) \
-                .filter(Adherent.admin is not None).one_or_none()
-            if not author_ref:
-                raise AdminNotFoundError(abstract_transaction.author)
+        admin_login = ctx.get(CTX_ADMIN).login
+        author_ref = s.query(Adherent).join(SQLAdmin) \
+            .filter(Adherent.login == admin_login) \
+            .filter(Adherent.admin is not None).one_or_none()
+        if not author_ref:
+            raise AdminNotFoundError(abstract_transaction.author)
 
         account_src = None
         if abstract_transaction.src is not None:

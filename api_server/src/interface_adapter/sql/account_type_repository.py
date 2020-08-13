@@ -20,12 +20,13 @@ class AccountTypeSQLRepository(AccountTypeRepository):
 
         q = s.query(SQLAccountType)
 
-        if filter_.id:
-            q = q.filter(SQLAccountType.id == filter_.id)
+        if filter_:
+            if filter_.id:
+                q = q.filter(SQLAccountType.id == filter_.id)
+            if filter_.name:
+                q = q.filter(SQLAccountType.name.contains(filter_.name))
         if terms:
             q = q.filter(SQLAccountType.name.contains(terms))
-        if filter_.name:
-            q = q.filter(SQLAccountType.name.contains(filter_.name))
 
         count = q.count()
         q = q.order_by(SQLAccountType.id.asc())

@@ -151,10 +151,10 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       src: this.selectedSrcAccount.id,
       paymentMethod: +v.paymentMethod,
       value: v.value,
-      caisse: v.caisse
+      cashbox: v.caisse
     };
-    if (!varTransaction.caisse) {
-      varTransaction.caisse = 'direct';
+    if (!varTransaction.cashbox) {
+      varTransaction.cashbox = 'direct';
     }
     this.transactionService.transactionPost(varTransaction)
       .pipe(takeWhile(() => this.alive))

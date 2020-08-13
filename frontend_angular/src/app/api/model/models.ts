@@ -13,7 +13,7 @@ export * from './admin';
 export * from './bank';
 export * from './body';
 export * from './bugReport';
-export * from './caisse';
+export * from './cashbox';
 export * from './device';
 export * from './labels';
 export * from './member';

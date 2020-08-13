@@ -63,5 +63,5 @@ class OAuthManager:
         }
 
     def create_authorization_response(self, ctx, request=None, grant_user=None):
-        users, _ = self.member_repository.search_member_by(ctx, filter_=AbstractMember(username=grant_user))
+        users, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(username=grant_user))
         return self.authorization.create_authorization_response(request=request, grant_user=users[0])

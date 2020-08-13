@@ -14,9 +14,9 @@ export interface ModelError {
     /**
      * The error code
      */
-    code: number;
+    code?: number;
     /**
      * The friendly description of the error
      */
-    message: string;
+    message?: string;
 }

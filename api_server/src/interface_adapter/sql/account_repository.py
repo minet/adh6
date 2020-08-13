@@ -34,26 +34,27 @@ class AccountSQLRepository(AccountRepository):
         q = q.join(Adherent, Adherent.id == SQLAccount.adherent_id)
         q = q.join(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
-        if filter_.id is not None:
-            q = q.filter(SQLAccount.id == filter_.id)
         if terms:
             q = q.filter(SQLAccount.name.contains(terms))
-        if filter_.name:
-            q = q.filter(SQLAccount.name.contains(filter_.name))
-        if filter_.compte_courant is not None:
-            q = q.filter(SQLAccount.compte_courant == filter_.compte_courant)
-        if filter_.actif is not None:
-            q = q.filter(SQLAccount.actif == filter_.actif)
-        if filter_.pinned is not None:
-            q = q.filter(SQLAccount.pinned == filter_.pinned)
+        if filter_:
+            if filter_.id is not None:
+                q = q.filter(SQLAccount.id == filter_.id)
+            if filter_.name:
+                q = q.filter(SQLAccount.name.contains(filter_.name))
+            if filter_.compte_courant is not None:
+                q = q.filter(SQLAccount.compte_courant == filter_.compte_courant)
+            if filter_.actif is not None:
+                q = q.filter(SQLAccount.actif == filter_.actif)
+            if filter_.pinned is not None:
+                q = q.filter(SQLAccount.pinned == filter_.pinned)
 
         count = q.count()
-        q = q.offset(offset)
         q = q.order_by(SQLAccount.creation_date.asc())
+        q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
 
-        return list(map(_map_account_sql_to_entity, r)), count
+        return list(map(lambda item: _map_account_sql_to_entity(item, True), r)), count
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:
@@ -101,6 +102,7 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
     """
     Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
     """
+    balance = None
     if has_balance:
         (a, balance) = a
     return Account(
@@ -110,8 +112,8 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         account_type=a.type,
         creation_date=a.creation_date,
         member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
-        balance=balance if has_balance else 0,
-        pending_balance=balance if has_balance else 0,
+        balance=balance or 0,
+        pending_balance=balance or 0,
         compte_courant=a.compte_courant,
         pinned=a.pinned
     )
