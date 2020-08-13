@@ -1705,17 +1705,14 @@ components:
           description: Whether this account is active or not
           example: true
           type: boolean
-          default: true
         pinned:
           description: Whether this account should be displayed before others
           example: true
           type: boolean
-          default: false
         compteCourant:
           description: Whether this account depends on MiNET's main account
           example: true
           type: boolean
-          default: false
         accountType:
           description: The type of this account
           oneOf:
@@ -1836,7 +1833,6 @@ components:
           example: true
           type: boolean
           readOnly: true
-          default: false
         cashbox:
           description: Whether to use the cashbox or not
           enum:
@@ -2041,7 +2037,6 @@ components:
           example: 4
         firstTime:
           description: Whether or not this membership request is the member's first
-          default: true
           type: boolean
           example: false
     AbstractRoom:
