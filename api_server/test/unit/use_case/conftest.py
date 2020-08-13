@@ -53,7 +53,7 @@ def sample_member(faker, sample_room):
 def sample_device(faker, sample_member):
     return Device(
         id=faker.random_digit_not_null,
-        mac=faker.mac_address,
+        mac=faker.mac_address().replace(":", "-"),
         member=sample_member,
         connection_type='wired',
         ipv4_address=faker.ipv4_public(network='157.159.41.0/24'),

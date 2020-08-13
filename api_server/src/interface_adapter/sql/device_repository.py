@@ -73,7 +73,9 @@ class DeviceSQLRepository(DeviceRepository):
             updated_at=now,
             last_seen=now,
             type=abstract_device.connection_type,
-            adherent=adherent
+            adherent=adherent,
+            ip=abstract_device.ipv4_address,
+            ipv6=abstract_device.ipv6_address
         )
 
         with track_modifications(ctx, s, device):
@@ -116,7 +118,6 @@ class DeviceSQLRepository(DeviceRepository):
 def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:
     now = datetime.now()
     device = sql_object
-
     if entity.mac is not None or override:
         device.mac = entity.mac
     if entity.connection_type is not None or override:

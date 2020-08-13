@@ -46,7 +46,7 @@ def wireless_device(faker, sample_member2):
 
 
 @pytest.fixture
-def wireless_device_dict():
+def wireless_device_dict(sample_member3):
     '''
     Device that will be inserted/updated when tests are run.
     It is not present in the api_client by default
@@ -55,19 +55,21 @@ def wireless_device_dict():
         'mac': '01-23-45-67-89-AC',
         'connectionType': 'wireless',
         'type': 'wireless',
-        'username': 'dubois_j'
+        'member': sample_member3.id,
+        'ipv4Address': None,
+        'ipv6Address': None
     }
 
 
 @pytest.fixture
-def wired_device_dict():
+def wired_device_dict(sample_member3):
     yield {
         'mac': '01-23-45-67-89-AD',
-        'ipAddress': '127.0.0.1',
+        'ipv4Address': '127.0.0.1',
         'ipv6Address': 'dbb1:39b7:1e8f:1a2a:3737:9721:5d16:166',
         'connectionType': 'wired',
         'type': 'wired',
-        'username': 'dupontje'
+        'member': sample_member3.id,
     }
 
 

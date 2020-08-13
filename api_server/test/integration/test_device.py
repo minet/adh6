@@ -153,32 +153,32 @@ def test_device_post_create_wireless(api_client, wireless_device_dict):
     """ Can create a valid wireless device ? """
     addr = '{}/device/'.format(base_url)
     r = api_client.post(addr,
-                        data=json.dumps(wireless_device_dict),
-                        content_type='application/json',
-                        headers=TEST_HEADERS)
+                       data=json.dumps(wireless_device_dict),
+                       content_type='application/json',
+                       headers=TEST_HEADERS)
     assert r.status_code == 201
     assert_modification_was_created(db.get_db().get_session())
 
 
-def test_device_put_create_wired_without_ip(api_client, wired_device_dict):
+def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
     """
     Can create a valid wired device? Create two devices and check the IP
     """
 
-    del wired_device_dict['ipAddress']
+    del wired_device_dict['ipv4Address']
     del wired_device_dict['ipv6Address']
     r = api_client.post('{}/device/'.format(base_url),
-                        data=json.dumps(wired_device_dict),
-                        content_type='application/json',
-                        headers=TEST_HEADERS)
+                       data=json.dumps(wired_device_dict),
+                       content_type='application/json',
+                       headers=TEST_HEADERS)
     assert r.status_code == 201
     assert_modification_was_created(db.get_db().get_session())
 
     wired_device_dict["mac"] = "AB-CD-EF-01-23-45"
     r = api_client.post('{}/device/'.format(base_url),
-                        data=json.dumps(wired_device_dict),
-                        content_type='application/json',
-                        headers=TEST_HEADERS)
+                       data=json.dumps(wired_device_dict),
+                       content_type='application/json',
+                       headers=TEST_HEADERS)
     assert r.status_code == 201
     assert_modification_was_created(db.get_db().get_session())
 
@@ -191,12 +191,12 @@ def test_device_put_create_wired_without_ip(api_client, wired_device_dict):
     assert dev.ipv6 == 'fe80::3'
 
 
-def test_device_put_create_wired(api_client, wired_device_dict):
+def test_device_post_create_wired(api_client, wired_device_dict):
     ''' Can create a valid wired device ? '''
     r = api_client.post('{}/device/'.format(base_url),
-                        data=json.dumps(wired_device_dict),
-                        content_type='application/json',
-                        headers=TEST_HEADERS)
+                       data=json.dumps(wired_device_dict),
+                       content_type='application/json',
+                       headers=TEST_HEADERS)
     assert r.status_code == 201
     assert_modification_was_created(db.get_db().get_session())
 
@@ -209,7 +209,7 @@ def test_device_put_create_wired(api_client, wired_device_dict):
 
 
 @pytest.mark.parametrize('test_mac', INVALID_MAC)
-def test_device_put_create_invalid_mac_address(api_client,
+def test_device_post_create_invalid_mac_address(api_client,
                                                test_mac,
                                                wired_device_dict):
     ''' Create with invalid mac address '''
@@ -225,10 +225,10 @@ def test_device_put_create_invalid_mac_address(api_client,
 
 @pytest.mark.parametrize('test_ip', INVALID_IPv6)
 def test_device_post_create_invalid_ipv6(api_client, test_ip,
-                                         wired_device_dict):
+                                        wired_device_dict):
     ''' Create with invalid ip address '''
     wired_device_dict['ipv6Address'] = test_ip
-    r = api_client.put(
+    r = api_client.post(
         '{}/device/'.format(base_url),
         data=json.dumps(wired_device_dict),
         content_type='application/json',
@@ -239,9 +239,9 @@ def test_device_post_create_invalid_ipv6(api_client, test_ip,
 
 @pytest.mark.parametrize('test_ip', INVALID_IP)
 def test_device_post_create_invalid_ipv4(api_client, test_ip,
-                                         wired_device_dict):
+                                        wired_device_dict):
     ''' Create with invalid ip address '''
-    wired_device_dict['ipAddress'] = test_ip
+    wired_device_dict['ipv4Address'] = test_ip
     r = api_client.post(
         '{}/device/'.format(base_url),
         data=json.dumps(wired_device_dict),
@@ -251,9 +251,9 @@ def test_device_post_create_invalid_ipv4(api_client, test_ip,
     assert r.status_code == 400
 
 
-def test_device_post_create_invalid_username(api_client, wired_device_dict):
+def test_device_post_create_invalid_member(api_client, wired_device_dict):
     ''' Create with invalid mac address '''
-    wired_device_dict['username'] = 'abcdefgh'
+    wired_device_dict['member'] = 4242
     r = api_client.post(
         '{}/device/'.format(base_url),
         data=json.dumps(wired_device_dict),
@@ -264,7 +264,7 @@ def test_device_post_create_invalid_username(api_client, wired_device_dict):
 
 
 def test_device_patch_update_wireless(api_client, wireless_device,
-                                      wireless_device_dict):
+                                    wireless_device_dict):
     ''' Can update a valid wireless device ? '''
     r = api_client.patch(
         '{}/device/{}'.format(base_url, wireless_device.id),
@@ -287,7 +287,7 @@ def test_device_patch_update_wired(api_client, wired_device, wired_device_dict):
 
 
 def test_device_patch_update_wired_to_wireless(api_client, wired_device,
-                                               wireless_device_dict):
+                                             wireless_device_dict):
     ''' Can update a valid wired device and cast it into a wireless d ? '''
     r = api_client.patch(
         '{}/device/{}'.format(base_url, wired_device.id),
@@ -299,8 +299,8 @@ def test_device_patch_update_wired_to_wireless(api_client, wired_device,
 
 
 def test_device_patch_update_wireless_to_wired(api_client,
-                                               wireless_device,
-                                               wired_device_dict):
+                                             wireless_device,
+                                             wired_device_dict):
     ''' Can update a valid wireless device and cast it into a wired d ? '''
     r = api_client.patch(
         '{}/device/{}'.format(base_url, wireless_device.id),

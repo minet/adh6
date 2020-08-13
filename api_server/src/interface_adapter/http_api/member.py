@@ -7,6 +7,7 @@ from connexion import NoContent
 
 from src.entity import AbstractMember, Member
 from src.exceptions import MemberNotFoundError, UserInputError
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.http_api.util.error import bad_request
@@ -25,6 +26,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @auth_regular_admin
+    @log_call
     def membership_post(self, ctx, username, body):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, username=username, request=body))
@@ -43,10 +45,9 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @auth_regular_admin
+    @log_call
     def password_put(self, ctx, username, body):
         """ Set the password of a member. """
-        # Careful not to log the body here!
-        LOG.debug("http_member_put_password_called", extra=log_extra(ctx, username=username, body=None))
 
         try:
             self.member_manager.change_password(ctx, username, body.get('password'))
@@ -61,10 +62,11 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @auth_regular_admin
-    def logs_search(self, ctx, username, dhcp=False):
+    @log_call
+    def logs_search(self, ctx, member_id, dhcp=False):
         """ Get logs from a member. """
-        LOG.debug("http_member_get_logs_called", extra=log_extra(ctx, username=username, dhcp=dhcp))
+        LOG.debug("http_member_get_logs_called", extra=log_extra(ctx, member_id=member_id, dhcp=dhcp))
         try:
-            return self.member_manager.get_logs(ctx, username, dhcp=dhcp), 200
+            return self.member_manager.get_logs(ctx, member_id, dhcp=dhcp), 200
         except MemberNotFoundError:
             return NoContent, 404

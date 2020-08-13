@@ -13,12 +13,13 @@ from typing import List
 
 from config import TEST_CONFIGURATION
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractMember
+from src.entity import AbstractMember, Room
 from src.entity.member import Member
 from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, MemberAlreadyExist, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Adherent, Chambre, Adhesion
+from src.interface_adapter.sql.room_repository import _map_room_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
@@ -39,14 +40,10 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             q = q.filter(Adherent.login == filter_.username)
 
         if filter_.room is not None:
-            try:
-                q2 = s.query(Chambre)
-                q2 = q2.filter(Chambre.id == filter_.room)
-                result = q2.one()
-            except NoResultFound:
-                return [], 0
-
-            q = q.filter(Adherent.chambre == result)
+            if isinstance(filter_.room, Room):
+                filter_.room = filter_.room.id
+            q = q.join(Chambre, Chambre.id == Adherent.chambre_id)
+            q = q.filter(Adherent.chambre_id == filter_.room)
 
         if filter_.id is not None:
             q = q.filter(Adherent.id == filter_.id)
@@ -68,6 +65,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         return list(map(_map_member_sql_to_entity, r)), count
 
+    @log_call
     def create(self, ctx, abstract_member: Member) -> object:
         s = ctx.get(CTX_SQL_SESSION)
 
@@ -81,15 +79,15 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         member = Adherent(
             nom=abstract_member.last_name,
-            prenom=abstract_member.last_name,
+            prenom=abstract_member.first_name,
             mail=abstract_member.email,
             login=abstract_member.username,
             chambre=room,
             created_at=now,
             updated_at=now,
             commentaires=abstract_member.comment,
-            date_de_depart=abstract_member.departure_date.datetime.now().date(),
-            mode_association=abstract_member.association_mode.datetime.now(),
+            date_de_depart=abstract_member.departure_date or datetime.now().date(),
+            mode_association=abstract_member.association_mode or datetime.now().date(),
         )
 
         with track_modifications(ctx, s, member):
@@ -130,6 +128,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             fin=end
         ))
 
+
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
@@ -143,5 +142,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         departure_date=adh.date_de_depart,
         comment=adh.commentaires,
         association_mode=adh.mode_association,
-        room=adh.chambre.id if adh.chambre else Null(),
+        room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),
     )

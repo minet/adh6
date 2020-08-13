@@ -33,6 +33,7 @@ from src.entity.error import Error
 from src.entity.labels import Labels
 from src.entity.member import Member
 from src.entity.membership_request import MembershipRequest
+from src.entity.one_of_abstract_member_room import OneOfAbstractMemberRoom
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product

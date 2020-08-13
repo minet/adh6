@@ -146,8 +146,6 @@ class Device(object):
         :param ipv4_address: The ipv4_address of this Device.  # noqa: E501
         :type: str
         """
-        if ipv4_address is None:
-            raise ValueError("Invalid value for `ipv4_address`, must not be `None`")  # noqa: E501
 
         self._ipv4_address = ipv4_address
 
@@ -171,8 +169,6 @@ class Device(object):
         :param ipv6_address: The ipv6_address of this Device.  # noqa: E501
         :type: str
         """
-        if ipv6_address is None:
-            raise ValueError("Invalid value for `ipv6_address`, must not be `None`")  # noqa: E501
 
         self._ipv6_address = ipv6_address
 

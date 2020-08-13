@@ -52,7 +52,7 @@ class RoomSQLRepository(RoomRepository):
         if abstract_room.vlan is not None:
             vlan = s.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
             if not vlan:
-                raise é(str(abstract_room.vlan))
+                raise VLANNotFoundError(str(abstract_room.vlan))
 
         room = Chambre(
             numero=abstract_room.room_number,
