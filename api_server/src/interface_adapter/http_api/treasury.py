@@ -4,15 +4,15 @@ from src.interface_adapter.http_api.util.error import bad_request
 from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.account_manager import AccountManager
-from src.use_case.caisse_manager import TreasuryManager
+from src.use_case.cashbox_manager import CashboxManager
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
 class TreasuryHandler:
-    def __init__(self, treasury_manager: TreasuryManager,
+    def __init__(self, cashbox_manager: CashboxManager,
                  account_manager: AccountManager):
-        self.treasury_manager = treasury_manager
+        self.cashbox_manager = cashbox_manager
         self.account_manager = account_manager
 
     @with_context
@@ -39,8 +39,8 @@ class TreasuryHandler:
     @with_context
     @require_sql
     @auth_regular_admin
-    def get_caisse(self, ctx):
-        """ Get the status of the caisse. """
-        LOG.debug("http_treasury_get_caisse_called", extra=log_extra(ctx))
-        fond, coffre = self.treasury_manager.get_caisse(ctx)
+    def get_cashbox(self, ctx):
+        """ Get the status of the cashbox. """
+        LOG.debug("http_treasury_get_cashbox_called", extra=log_extra(ctx))
+        fond, coffre = self.cashbox_manager.get_cashbox(ctx)
         return {fond: fond, coffre: coffre}, 200

@@ -22,7 +22,7 @@ from src.interface_adapter.http_api.treasury import TreasuryHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
-from src.interface_adapter.sql.caisse_repository import CaisseSQLRepository
+from src.interface_adapter.sql.cashbox_repository import CaisseSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
@@ -42,7 +42,7 @@ from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
 from src.use_case.bug_report_manager import BugReportManager
-from src.use_case.caisse_manager import TreasuryManager
+from src.use_case.cashbox_manager import TreasuryManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
 from src.use_case.member_manager import MemberManager

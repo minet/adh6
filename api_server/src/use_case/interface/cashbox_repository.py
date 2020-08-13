@@ -3,25 +3,22 @@
 Treasury repository.
 """
 import abc
-from typing import List
-
-from src.entity.transaction import Transaction
 
 
-class CaisseRepository(metaclass=abc.ABCMeta):
+class CashboxRepository(metaclass=abc.ABCMeta):
     """
-    Abstract interface to handle devices.
+    Abstract interface to handle the cashbox.
     """
 
     @abc.abstractmethod
-    def get_caisse(self, ctx,) -> (int, int):
+    def get_cashbox(self, ctx,) -> (int, int):
         """
         Get the current value
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_caisse(self, ctx, value_modifier=None, transaction=None):
+    def update_cashbox(self, ctx, value_modifier=None, transaction=None):
         """
         Add or remove value
         """

@@ -5,7 +5,7 @@ from pytest import fixture, raises
 from src.entity import AbstractTransaction, PaymentMethod
 from src.entity.transaction import Transaction
 from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
-from src.use_case.interface.caisse_repository import CaisseRepository
+from src.use_case.interface.cashbox_repository import CaisseRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager

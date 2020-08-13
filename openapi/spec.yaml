@@ -1596,9 +1596,9 @@ paths:
       summary: Retrieve the available Gitlab labels
       tags:
       - misc
-  /treasury/caisse:
+  /treasury/cashbox:
     get:
-      operationId: get_caisse
+      operationId: get_cashbox
       responses:
         200:
           content:
@@ -1606,7 +1606,7 @@ paths:
               schema:
                 properties:
                   fond:
-                    description: balance in the caisse
+                    description: balance in the cashbox
                     example: 1
                     type: number
                   coffre:
@@ -1614,13 +1614,13 @@ paths:
                     example: 1
                     type: number
                 type: object
-                title: caisse
+                title: cashbox
           description: Success
         403:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the state of the caisse
+      summary: Retrieve the state of the cashbox
       tags:
       - treasury
   /treasury/bank:
@@ -1837,8 +1837,8 @@ components:
           type: boolean
           readOnly: true
           default: false
-        caisse:
-          description: Whether to use the caisse or not
+        cashbox:
+          description: Whether to use the cashbox or not
           enum:
             - to
             - from
