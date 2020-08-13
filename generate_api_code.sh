@@ -12,15 +12,17 @@ function generate_frontend() {
 }
 
 function generate_backend() {
-  codegencmd -Dmodels -l python -o "$DIR/tmpsrc/"
-  cp -r -n tmpsrc/swagger_client/models/* api_server/src/entity/
-  diff -ruN api_server/src/entity tmpsrc/swagger_client/models/ > entities.patch
-  patch -p0 < entities.patch
+  GENERATOR_PATH="$DIR/openapi/swagger-codegen-generators/src/main/resources/handlebars/python/"
+  codegencmd -Dmodels -l python -t "$GENERATOR_PATH" -o "$DIR/tmpsrc/"
+#  cp -r -n tmpsrc/swagger_client/models/* api_server/src/entity/
+ # diff -ruN api_server/src/entity tmpsrc/swagger_client/models/ > entities.patch
+#  patch -p0 < entities.patch
+  cp -r tmpsrc/swagger_client/models/* api_server/src/entity/
 
   sed -i 's/swagger_client.models/src.entity/' "$DIR/api_server/src/entity/__init__.py"
 
   rm -rf "$DIR/tmpsrc"
-  rm entities.patch
+ # rm entities.patch
 }
 
 while true; do

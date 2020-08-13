@@ -64,11 +64,12 @@ class Device(object):
         self.discriminator = None
         self.id = id
         self.connection_type = connection_type
-        self.ipv4_address = ipv4_address
-        self.ipv6_address = ipv6_address
+        if ipv4_address is not None:
+            self.ipv4_address = ipv4_address
+        if ipv6_address is not None:
+            self.ipv6_address = ipv6_address
         self.mac = mac
-        if member is not None:
-            self.member = member
+        self.member = member
 
     @property
     def id(self):
@@ -217,6 +218,8 @@ class Device(object):
         :param member: The member of this Device.  # noqa: E501
         :type: Object
         """
+        if member is None:
+            raise ValueError("Invalid value for `member`, must not be `None`")  # noqa: E501
 
         self._member = member
 

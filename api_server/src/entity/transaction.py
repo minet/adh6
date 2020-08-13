@@ -62,7 +62,7 @@ class Transaction(object):
     if hasattr(AbstractTransaction, "attribute_map"):
         attribute_map.update(AbstractTransaction.attribute_map)
 
-    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=False, cashbox=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=None, cashbox=None, *args, **kwargs):  # noqa: E501
         """Transaction - a model defined in Swagger"""  # noqa: E501
         AbstractTransaction.__init__(self, *args, **kwargs)
         self._id = None

@@ -40,7 +40,7 @@ class MembershipRequest(object):
         'first_time': 'firstTime'
     }
 
-    def __init__(self, duration=None, payment_method=None, first_time=True):  # noqa: E501
+    def __init__(self, duration=None, payment_method=None, first_time=None):  # noqa: E501
         """MembershipRequest - a model defined in Swagger"""  # noqa: E501
         self._duration = None
         self._payment_method = None

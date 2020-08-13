@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.abstract_product import AbstractProduct
+from src.entity import AbstractProduct
 
 
 class Product(object):

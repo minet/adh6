@@ -54,7 +54,7 @@ class AbstractAccount(object):
         'pending_balance': 'pendingBalance'
     }
 
-    def __init__(self, actif=True, pinned=False, compte_courant=False, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None):  # noqa: E501
+    def __init__(self, actif=None, pinned=None, compte_courant=None, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None):  # noqa: E501
         """AbstractAccount - a model defined in Swagger"""  # noqa: E501
         self._actif = None
         self._pinned = None

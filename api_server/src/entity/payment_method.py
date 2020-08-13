@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.abstract_payment_method import AbstractPaymentMethod
+from src.entity import AbstractPaymentMethod
 
 
 class PaymentMethod(object):

@@ -60,7 +60,7 @@ class Account(object):
     if hasattr(AbstractAccount, "attribute_map"):
         attribute_map.update(AbstractAccount.attribute_map)
 
-    def __init__(self, actif=True, pinned=False, compte_courant=False, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, actif=None, pinned=None, compte_courant=None, account_type=None, creation_date=None, member=None, name=None, id=None, balance=None, pending_balance=None, *args, **kwargs):  # noqa: E501
         """Account - a model defined in Swagger"""  # noqa: E501
         AbstractAccount.__init__(self, *args, **kwargs)
         self._actif = None

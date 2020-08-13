@@ -17,7 +17,9 @@ from __future__ import absolute_import
 from src.entity.abstract_account import AbstractAccount
 from src.entity.abstract_device import AbstractDevice
 from src.entity.abstract_member import AbstractMember
+from src.entity.abstract_payment_method import AbstractPaymentMethod
 from src.entity.abstract_port import AbstractPort
+from src.entity.abstract_product import AbstractProduct
 from src.entity.abstract_room import AbstractRoom
 from src.entity.abstract_switch import AbstractSwitch
 from src.entity.abstract_transaction import AbstractTransaction

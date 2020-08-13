@@ -56,7 +56,7 @@ class AbstractTransaction(object):
         'cashbox': 'cashbox'
     }
 
-    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=False, cashbox=None):  # noqa: E501
+    def __init__(self, id=None, name=None, src=None, dst=None, timestamp=None, payment_method=None, value=None, attachments=None, author=None, pending_validation=None, cashbox=None):  # noqa: E501
         """AbstractTransaction - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._name = None
