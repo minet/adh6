@@ -53,6 +53,8 @@ import {AccountListComponent} from './account-list/account-list.component';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {AuthorizeComponent} from './authorize/authorize.component';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
+import { BackButtonDirective } from './back-button.directive';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -99,6 +101,7 @@ export function storageFactory(): OAuthStorage {
     MemberDeviceListComponent,
     AccountListComponent,
     AuthorizeComponent,
+    BackButtonDirective,
   ],
   imports: [
     FontAwesomeModule,
@@ -124,6 +127,7 @@ export function storageFactory(): OAuthStorage {
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     NgToggleModule,
+    TooltipModule.forRoot(),
   ],
   providers: [
     AppComponent,
