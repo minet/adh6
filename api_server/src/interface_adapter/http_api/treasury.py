@@ -22,7 +22,7 @@ class TreasuryHandler:
         """ Get the status of MiNET's CAV account. """
         LOG.debug("http_treasury_get_bank_called", extra=log_extra(ctx))
         balance = self.account_manager.get_cav_balance(ctx)
-        return {'expected_cav': balance}, 200
+        return {'expectedCav': balance}, 200
 
     @with_context
     @require_sql

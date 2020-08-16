@@ -89,7 +89,7 @@ class ElasticSearchRepository(LogsRepository):
         LOG.info(devices)
         # Add the macs to the "should"
         for d in devices:
-            addr = d.mac_address
+            addr = d.mac
             variations = map(
                 lambda x: {"match_phrase": {"src_mac": x}},
                 get_mac_variations(addr)

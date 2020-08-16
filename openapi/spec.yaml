@@ -1632,7 +1632,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  expected_cav:
+                  expectedCav:
                     description: the expected balance of MiNET's CAV accunt
                     type: number
                     format: double

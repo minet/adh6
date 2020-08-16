@@ -31,7 +31,7 @@ class AccountSQLRepository(AccountRepository):
                         SQLAccount.id: -Transaction.value
                     }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
         q = q.join(AccountType, AccountType.id == SQLAccount.type)
-        q = q.join(Adherent, Adherent.id == SQLAccount.adherent_id)
+        q = q.outerjoin(Adherent, Adherent.id == SQLAccount.adherent_id)
         q = q.join(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if terms:
@@ -47,6 +47,10 @@ class AccountSQLRepository(AccountRepository):
                 q = q.filter(SQLAccount.actif == filter_.actif)
             if filter_.pinned is not None:
                 q = q.filter(SQLAccount.pinned == filter_.pinned)
+            if filter_.account_type is not None:
+                if isinstance(filter_.account_type, AccountType):
+                    filter_.account_type = filter_.account_type.id
+                q = q.filter(SQLAccount.type == filter_.account_type)
 
         count = q.count()
         q = q.order_by(SQLAccount.creation_date.asc())
