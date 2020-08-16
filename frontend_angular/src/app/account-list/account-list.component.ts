@@ -5,6 +5,9 @@ import {SearchPage} from '../search-page';
 import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';
 import {AbstractAccount} from '../api/model/abstractAccount';
+import {AppConstantsService} from '../app-constants.service';
+
+import {faThumbtack} from '@fortawesome/free-solid-svg-icons';
 
 class AccountListResponse {
   accounts?: Array<Account>;
@@ -22,33 +25,52 @@ class AccountListResponse {
 export class AccountListComponent extends SearchPage implements OnInit {
   @Input() filter: any;
   @Input() pinned = false;
+  @Input() cav = false;
+
+  faThumbtack = faThumbtack;
 
   result$: Observable<AccountListResponse>;
   accountTypes: Array<AccountType>;
   specificSearch = false;
+  filterType: string;
 
-  constructor(public accountService: AccountService) {
+  constructor(public accountService: AccountService,
+              public appConstantsService: AppConstantsService) {
     super();
   }
 
-  ngOnInit() {
+  updateTypeFilter(type) {
+    this.filterType = type;
+    this.updateSearch();
+  }
+  updateSearch() {
     this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
+  }
 
-    this.accountService.accountTypeGet()
-      .subscribe(
-        data => {
-          this.accountTypes = data;
-        }
-      );
+  ngOnInit() {
+    this.updateSearch();
+    this.appConstantsService.getAccountTypes().subscribe(
+      data => {
+        this.accountTypes = data;
+      }
+    );
   }
 
   private fetchAccounts(terms: string, page: number) {
     const n = +PagingConf.item_count;
     this.specificSearch = (terms !== '');
 
-    const abstractAccount: AbstractAccount = {
-      pinned: this.pinned
-    };
+    const abstractAccount: AbstractAccount = {};
+
+    if (this.pinned) {
+      abstractAccount.pinned = true;
+    }
+    if (this.cav) {
+      abstractAccount.compteCourant = true;
+    }
+    if (this.filterType != null && this.filterType !== '') {
+      abstractAccount.accountType = Number(this.filterType);
+    }
 
     return this.accountService.accountGet(n, (page - 1) * n, terms, abstractAccount, 'response')
       .pipe(

@@ -1,22 +1,74 @@
 <div *ngIf="(account$ | async) as account">
-  <h2 class="text-left">Liste des écritures du compte {{ account.name }} : {{ account.balance }} €</h2>
-  <br/>
-
-  <div class="row">
-    <div class="col-md-4">
-      <button class="btn btn-primary mb-3 w-100" [routerLink]="['/transaction/add', account.id]">Ajouter une écriture</button>
+  <div class="row mb-2">
+    <div class="col-lg-4">
+      <button class="btn btn-primary mb-3 w-100" appBackButton>Retour</button>
     </div>
-    <div class="col-md-4">
-      <button class="btn btn-primary mb-3 w-100" [routerLink]="['../../../treasury']">Retour</button>
+    <div class="col-lg-8">
+      <h2>{{ account.name }}</h2>
     </div>
   </div>
 
-  <app-transaction-list [asAccount]="account.id"></app-transaction-list>
-
-  <br/><br/>
   <div class="row">
-    <div class="col-md-4">
-      <button class="btn btn-warning mb-3 w-100" [routerLink]="['/account/edit', account.id]">Modifier le compte</button>
+    <div class="col-lg-4">
+      <div class="card shadow" style="position: sticky; top: 10px;">
+        <div class="card-header text-white" [ngClass]="{true:'bg-success', false:'bg-danger'}[account.balance>0]">
+          <h3 class="text-center">{{ account.balance }} €</h3>
+          <p class="text-center"><em>({{ account.pendingBalance }} €)</em></p>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-6">Type</dt>
+            <dd class="col-6">{{ accountTypes[account.accountType-1].name }}</dd>
+
+            <dt class="col-6">Date de création</dt>
+            <dd class="col-6">{{account.creationDate | date:"dd/MM/yyy HH:mm"}}</dd>
+
+            <dt class="col-6">Actif</dt>
+            <dd class="col-6">
+              <div class="btn-group" btnRadioGroup [(ngModel)]="account.actif">
+                <label btnRadio="true" class="btn btn-sm"
+                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.actif]"
+                       tabindex="0" role="button">OUI</label>
+                <label btnRadio="false" class="btn btn-sm"
+                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.actif]"
+                       tabindex="0" role="button">NON</label>
+              </div>
+            </dd>
+
+            <dt class="col-6">Compte courant</dt>
+            <dd class="col-6">
+              <div class="btn-group" btnRadioGroup [(ngModel)]="account.compteCourant">
+                <label btnRadio="true" class="btn btn-sm"
+                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.compteCourant]"
+                       tabindex="0" role="button">OUI</label>
+                <label btnRadio="false" class="btn btn-sm"
+                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.compteCourant]"
+                       tabindex="0" role="button">NON</label>
+              </div>
+            </dd>
+
+            <dt class="col-6">Épinglé</dt>
+            <dd class="col-6">
+              <div class="btn-group" btnRadioGroup [(ngModel)]="account.pinned">
+                <label btnRadio="true" class="btn btn-sm"
+                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.pinned]"
+                       tabindex="0" role="button">OUI</label>
+                <label btnRadio="false" class="btn btn-sm"
+                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.pinned]"
+                       tabindex="0" role="button">NON</label>
+              </div>
+            </dd>
+
+          </dl>
+          <button class="btn btn-warning mt-3 w-100" [routerLink]="['/account/edit', account.id]">Modifier le compte
+          </button>
+          <button class="btn btn-primary mt-3 w-100" [routerLink]="['/transaction/add', account.id]">Ajouter une écriture
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <app-transaction-list [asAccount]="account.id"></app-transaction-list>
     </div>
   </div>
 </div>

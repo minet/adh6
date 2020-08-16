@@ -1,8 +1,26 @@
 <div class="row">
-  <div class="col-md-8">
-    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="form-control mb-3" type="text"/>
+  <div class="col-md-6">
+    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher" class="form-control mb-3" type="text"/>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
+    <div class="input-group mb-3">
+      <select class="custom-select" (change)="updateTypeFilter($event.target.value)">
+        <option value="">Tout type</option>
+        <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
+      </select>
+      <div class="input-group-append">
+        <button type="button" class="btn btn-secondary"
+                (click)="updateSearch()" [(ngModel)]="pinned" btnCheckbox>
+          <fa-icon [icon]="faThumbtack"></fa-icon>
+        </button>
+        <button type="button" class="btn btn-secondary"
+                (click)="updateSearch()" [(ngModel)]="cav" btnCheckbox>
+          CAV
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
     <a [routerLink]="['/account/add']">
       <button class="w-100 btn btn-primary">Nouveau compte</button>
     </a>
@@ -36,7 +54,7 @@
         {{ accountResult.name }}
       </td>
       <td class="align-middle">{{ accountResult.actif  == true ? 'Oui' : 'Non' }}</td>
-      <td class="align-middle">{{ accountTypes[accountResult.type-1].name }}</td>
+      <td class="align-middle">{{ accountTypes[accountResult.accountType-1].name }}</td>
       <td class="align-middle">{{ accountResult.balance }} €</td>
       <ng-template #noBalance><td class="align-middle">-</td></ng-template>
     </tr>

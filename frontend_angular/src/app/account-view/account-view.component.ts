@@ -1,11 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {combineLatest, Observable} from 'rxjs';
 import {map, share, switchMap} from 'rxjs/operators';
-import {AbstractTransaction, Account, AccountService, Transaction, TransactionService} from '../api';
+import {AbstractTransaction, Account, AccountService, AccountType, Transaction, TransactionService} from '../api';
 import {ActivatedRoute} from '@angular/router';
 import {PagingConf} from '../paging.config';
 
 import {SearchPage} from '../search-page';
+import {AppConstantsService} from '../app-constants.service';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -24,11 +25,13 @@ export class AccountViewComponent extends SearchPage implements OnInit {
 
   result$: Observable<TransactionListResult>;
   private id$: Observable<number>;
+  accountTypes: Array<AccountType>;
 
   constructor(
     private accountService: AccountService,
     private transactionService: TransactionService,
     private route: ActivatedRoute,
+    public appConstantsService: AppConstantsService
   ) {
     super();
   }
@@ -39,6 +42,11 @@ export class AccountViewComponent extends SearchPage implements OnInit {
       map(params => params['account_id'])
     );
 
+    this.appConstantsService.getAccountTypes().subscribe(
+      data => {
+        this.accountTypes = data;
+      }
+    );
     // stream, which will emit the account id every time the page needs to be refreshed
     const refresh$ = combineLatest([this.id$])
       .pipe(
