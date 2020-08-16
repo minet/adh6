@@ -37,6 +37,10 @@ class TransactionSQLRepository(TransactionRepository):
 
         if filter_.id is not None:
             q = q.filter(SQLTransaction.id == filter_.id)
+        if filter_.payment_method is not None:
+            if isinstance(filter_.payment_method, PaymentMethod):
+                filter_.payment_method = filter_.payment_method.id
+            q = q.filter(SQLTransaction.type == filter_.payment_method)
         if terms:
             q = q.filter(
                 (SQLTransaction.name.contains(terms))

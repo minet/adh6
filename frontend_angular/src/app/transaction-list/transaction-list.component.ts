@@ -1,11 +1,12 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {SearchPage} from '../search-page';
 import {Observable} from 'rxjs';
-import {Transaction, TransactionService} from '../api';
+import {AccountType, PaymentMethod, Transaction, TransactionService} from '../api';
 import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';
 import {IconDefinition} from '@fortawesome/free-solid-svg-icons';
 import {AbstractTransaction} from '../api/model/abstractTransaction';
+import {AppConstantsService} from '../app-constants.service';
 
 
 export interface TransactionListResult {
@@ -35,14 +36,28 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   @Input() actions: Array<Action>;
 
   result$: Observable<TransactionListResult>;
+  paymentMethods: Array<PaymentMethod>;
 
-  constructor(public transactionService: TransactionService) {
+  filterType: string;
+
+  constructor(public transactionService: TransactionService,
+              public appConstantsService: AppConstantsService) {
     super();
+  }
+
+  updateTypeFilter(type) {
+    this.filterType = type;
+    this.loadData();
   }
 
   ngOnInit() {
     super.ngOnInit();
     this.loadData();
+    this.appConstantsService.getPaymentMethods().subscribe(
+      data => {
+        this.paymentMethods = data;
+      }
+    );
     if (this.refresh) {
       this.refresh.subscribe((e: any) => {
         if (e.action === 'refresh') {
@@ -58,14 +73,16 @@ export class TransactionListComponent extends SearchPage implements OnInit {
 
   private fetchTransaction(terms: string, page: number): Observable<TransactionListResult> {
     const n = +PagingConf.item_count;
-    let abstractTransaction: AbstractTransaction;
+    let abstractTransaction: AbstractTransaction = {};
     if (this.asAccount) {
       abstractTransaction = {
         src: this.asAccount,
         dst: this.asAccount
       };
-    } else {
-      abstractTransaction = undefined;
+    }
+
+    if (this.filterType != null && this.filterType !== '') {
+      abstractTransaction.paymentMethod = Number(this.filterType);
     }
     return this.transactionService.transactionGet(n, (page - 1) * n, terms, abstractTransaction, 'response')
       .pipe(

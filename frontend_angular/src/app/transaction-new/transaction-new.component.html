@@ -12,25 +12,34 @@
         <div class="table-responsive">
           <table class="table table-striped table-bordered">
             <tbody>
-              <tr>
-                <th scope="row">Depuis</th>
-                <td>{{ selectedSrcAccount.name }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Montant</th>
-                <td> {{ transactionDetails.get('value').value }} €</td>
-              </tr>
-              <tr>
-                <th scope="row">Vers</th>
-                <td>{{ selectedDstAccount.name }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Description</th>
-                <td>{{ transactionDetails.get('name').value }}</td>
-              </tr>
+            <tr>
+              <th scope="row">Depuis</th>
+              <td>{{ selectedSrcAccount.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Montant</th>
+              <td>{{ transactionDetails.get('value').value }} €</td>
+            </tr>
+            <tr>
+              <th scope="row">Via</th>
+              <td>{{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Vers</th>
+              <td>{{ selectedDstAccount.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ transactionDetails.get('name').value }}</td>
+            </tr>
             </tbody>
           </table>
-          <button type="button" class="btn btn-primary w-100" (click)="onSubmit(); transactionModal.hide()">Valider</button>
+          <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value != 'direct'">
+            Vous avez déclaré {{transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
+            dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }}, assurez-vous de bien le faire effectivement !
+          </div>
+          <button type="button" class="btn btn-primary w-100" (click)="onSubmit(); transactionModal.hide()">Valider
+          </button>
         </div>
       </div>
     </div>
@@ -49,7 +58,8 @@
           <input type="text" placeholder="Rechercher..." class="w-100 form-control" #srcAccount
                  [value]="selectedSrcAccount != undefined ? selectedSrcAccount.name : ''"
                  (keyup)="srcSearch(srcAccount.value)"/>
-          <input type="hidden" formControlName="srcAccount" [value]="selectedSrcAccount != undefined ? selectedSrcAccount.id : ''">
+          <input type="hidden" formControlName="srcAccount"
+                 [value]="selectedSrcAccount != undefined ? selectedSrcAccount.id : ''">
           <div class="list-group w-100" [hidden]="!displaySrc"
                (clickOutside)="displaySrc = false"
                *ngIf="srcSearchResult$ | async as srcSearchResult">
@@ -80,15 +90,16 @@
       </div>
       <div class="card-body">
         <div class="form-group mb-3">
-          <input type="text" class="form-control" aria-label="Description" placeholder="Description" formControlName="name">
+          <input type="text" class="form-control" aria-label="Description" placeholder="Description"
+                 formControlName="name">
         </div>
         <div class="form-group">
           <label for="paidBy">Payé par :</label>
           <select class="w-100 form-control" formControlName="paymentMethod" id="paidBy">
-            <option *ngFor="let pm of paymentMethods$ | async" [value]="pm.id">{{ pm.name }}</option>
+            <option *ngFor="let pm of paymentMethods" [value]="pm.id">{{ pm.name }}</option>
           </select>
         </div>
-        <div class="form-group" *ngIf="transactionDetails.value.paymentMethod == cashPaymentMethodID">
+        <div class="form-group text-center">
           <div class="btn-group" btnRadioGroup formControlName="caisse">
             <label btnRadio="to" class="btn btn-primary"
                    tabindex="0" role="button">Ajouter caisse</label>
@@ -98,11 +109,12 @@
                    tabindex="2" role="button">Sortir caisse</label>
           </div>
         </div>
-          <div class="input-group input-group-lg">
+        <div class="input-group input-group-lg">
           <div class="input-group-prepend">
             <span class="input-group-text" id="value">€</span>
           </div>
-          <input type="text" class="form-control" aria-label="value" aria-describedby="value" formControlName="value" type="number">
+          <input type="text" class="form-control" aria-label="value" aria-describedby="value" formControlName="value"
+                 type="number">
         </div>
       </div>
     </div>
@@ -114,7 +126,8 @@
           <input type="text" placeholder="Rechercher..." class="w-100 form-control" #dstAccount
                  [value]="selectedDstAccount != undefined ? selectedDstAccount.name : ''"
                  (keyup)="dstSearch(dstAccount.value)"/>
-          <input type="hidden" formControlName="dstAccount" [value]="selectedDstAccount != undefined ? selectedDstAccount.id : ''">
+          <input type="hidden" formControlName="dstAccount"
+                 [value]="selectedDstAccount != undefined ? selectedDstAccount.id : ''">
           <div class="list-group w-100" style="position: absolute; z-index: 42" [hidden]="!displayDst"
                (clickOutside)="displayDst = false"
                *ngIf="dstSearchResult$ | async as dstSearchResult">
@@ -139,12 +152,13 @@
   </div>
 
   <br>
-  <button type="button"(click)="transactionModal.show()" class="btn btn-primary w-100"
-          [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer</button>
+  <button type="button" (click)="transactionModal.show()" class="btn btn-primary w-100"
+          [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer
+  </button>
 
 </form>
 
-  <br>
-  <h3 class="text-left">Transactions récentes</h3>
-  <app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)"
-                        [actions]="actions"></app-transaction-list>
+<br>
+<h3 class="text-left">Transactions récentes</h3>
+<app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)"
+                      [actions]="actions"></app-transaction-list>

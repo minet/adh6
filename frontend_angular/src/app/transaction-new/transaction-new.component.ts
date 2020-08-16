@@ -8,8 +8,9 @@ import {Account, AccountService, PaymentMethod, Transaction, TransactionService}
 
 import {SearchPage} from '../search-page';
 import {NotificationsService} from 'angular2-notifications';
-import {faArrowUp, faExchangeAlt, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faArrowUp, faExchangeAlt, faUndo} from '@fortawesome/free-solid-svg-icons';
 import {ActivatedRoute} from '@angular/router';
+import {AppConstantsService} from '../app-constants.service';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
@@ -29,10 +30,9 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   faExchangeAlt = faExchangeAlt;
   actions = [
     {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp},
-    {name: 'reverse', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faTrash}
+    {name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faUndo}
   ];
-  cashPaymentMethodID;
-  paymentMethods$: Observable<Array<PaymentMethod>>;
+  paymentMethods: Array<PaymentMethod>;
   srcSearchResult$: Observable<Array<Account>>;
   dstSearchResult$: Observable<Array<Account>>;
   selectedSrcAccount: Account;
@@ -43,6 +43,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   constructor(private fb: FormBuilder,
               public transactionService: TransactionService,
               private accountService: AccountService,
+              public appConstantsService: AppConstantsService,
               private _service: NotificationsService,
               private route: ActivatedRoute) {
     super();
@@ -52,12 +53,15 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   useTransaction(event: { name, transaction }) {
     this.transactionDetails.reset();
     let source = true;
-    if (event.name === 'reverse') {
+    if (event.name === 'revert') {
       source = false;
     }
     this.setSelectedAccount(event.transaction.src, source);
     this.setSelectedAccount(event.transaction.dst, !source);
     this.transactionDetails.patchValue(event.transaction);
+    if (event.name === 'revert') {
+      this.transactionDetails.patchValue({'name': 'ANNULATION: ' + event.transaction.name});
+    }
     this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.id});
   }
 
@@ -72,6 +76,16 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
         }),
       );
     });
+  }
+
+  getPaymentMethodNameById(id: number) {
+    for (const pm of this.paymentMethods) {
+      if (pm.id === id) {
+        return pm.name;
+      }
+    }
+
+    return 'Unknown';
   }
 
   dstSearch(terms: string) {
@@ -131,14 +145,10 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       account => this.setSelectedAccount(account, true)
     );
 
-    this.paymentMethods$ = this.transactionService.paymentMethodGet();
-    const that = this;
-    this.paymentMethods$.subscribe(
-      pm => pm.forEach(function (value) {
-        if (value.name === 'Liquide') {
-          that.cashPaymentMethodID = value.id;
-        }
-      }),
+    this.appConstantsService.getPaymentMethods().subscribe(
+      data => {
+        this.paymentMethods = data;
+      }
     );
   }
 
