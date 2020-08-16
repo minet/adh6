@@ -5,19 +5,19 @@
 <div class="card-deck mb-3">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">{{ balance }} €</h5>
-        <p class="card-text text-center">Montant sur le compte courant.</p>
+        <h5 class="card-title text-center" *ngIf="balance$ | async as balance">{{ balance }} €</h5>
+        <p class="card-text text-center">Montant sur le compte courant</p>
       </div>
     </div>
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">{{ fond }} €</h5>
+        <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">{{ cashbox.fond }} €</h5>
         <p class="card-text text-center">Montant dans la caisse</p>
       </div>
     </div>
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-center">- €</h5>
+        <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">{{ cashbox.coffre }} €</h5>
         <p class="card-text text-center">Montant dans le coffre</p>
       </div>
     </div>

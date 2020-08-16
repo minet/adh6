@@ -128,3 +128,10 @@ td.center {
 .capitalize {
   text-transform: capitalize;
 }
+
+@media (max-width: 992px) {
+  .container {
+    width: 100%;
+    max-width: none;
+  }
+}

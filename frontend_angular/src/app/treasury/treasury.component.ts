@@ -2,8 +2,9 @@ import {Component, OnInit} from '@angular/core';
 
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import {first, map} from 'rxjs/operators';
+import {first, map, share} from 'rxjs/operators';
 import {TreasuryService} from '../api';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-treasury',
@@ -11,8 +12,8 @@ import {TreasuryService} from '../api';
   styleUrls: ['./treasury.component.css']
 })
 export class TreasuryComponent implements OnInit {
-  fond = 0;
-  balance = 0;
+  cashbox$: Observable<any>;
+  balance$: Observable<number>;
 
   showFundManagement = false;
   fundManagementForm: FormGroup;
@@ -42,17 +43,21 @@ export class TreasuryComponent implements OnInit {
         first(),
       )
       .subscribe((fond) => {
-        this.fond = fond;
+
       });
 
-    this.treasuryService.getBank()
-      .pipe(
-        map((data) => data.expectedCav),
-        first(),
-      )
-      .subscribe((expectedCav) => {
-        this.balance = expectedCav;
-      });
+    this.cashbox$ = this.treasuryService.getCashbox().pipe(
+      first(),
+      share()
+    );
+
+    this.balance$ = this.treasuryService.getBank().pipe(
+      map(data =>
+        data.expectedCav
+      ),
+      first(),
+      share()
+    );
   }
 
   onSubmit() {
