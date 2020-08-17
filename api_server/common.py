@@ -14,7 +14,6 @@ from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
-from src.interface_adapter.http_api.oauth2 import OAuthHandler
 from src.interface_adapter.http_api.port import PortHandler
 from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
@@ -32,7 +31,6 @@ from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.model.models import *
 from src.interface_adapter.sql.money_repository import MoneySQLRepository
 from src.interface_adapter.sql.network_object_repository import NetworkObjectSQLRepository
-from src.interface_adapter.sql.oauth_repository import OAuthSQLRepository
 from src.interface_adapter.sql.payment_method_repository import PaymentMethodSQLRepository
 from src.interface_adapter.sql.ping_repository import PingSQLRepository
 from src.interface_adapter.sql.product_repository import ProductSQLRepository
@@ -46,7 +44,6 @@ from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.health_manager import HealthManager
 from src.use_case.member_manager import MemberManager
-from src.use_case.oauth_manager import OAuthManager
 from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.port_manager import PortManager
 from src.use_case.product_manager import ProductManager
@@ -83,7 +80,6 @@ def init(testing=True, managing=False):
     transaction_sql_repository = TransactionSQLRepository()
     account_type_sql_repository = AccountTypeSQLRepository()
     cashbox_sql_repository = CashboxSQLRepository()
-    oauth_sql_repository = OAuthSQLRepository()
 
     # Managers
     health_manager = HealthManager(ping_repository)
@@ -130,11 +126,6 @@ def init(testing=True, managing=False):
         account_type_repository=account_type_sql_repository
     )
     bug_report_manager = BugReportManager(configuration.GITLAB_CONF, testing=testing)
-    oauth_manager = OAuthManager(
-        oauth_repository=oauth_sql_repository,
-        member_repository=member_sql_repository,
-        oauth=oauth
-    )
 
     # HTTP Handlers:
     # Default CRUD handlers
@@ -158,7 +149,6 @@ def init(testing=True, managing=False):
 
     bug_report_handler = BugReportHandler(bug_report_manager)
     treasury_handler = TreasuryHandler(cashbox_manager, account_manager)
-    oauth_handler = OAuthHandler(oauth_manager)
 
     # Connexion will use this function to authenticate and fetch the information of the user.
     if os.environ.get('TOKENINFO_FUNC') is None:
@@ -182,7 +172,6 @@ def init(testing=True, managing=False):
                     'product': product_handler,
                     'bug_report': bug_report_handler,
                     'treasury': treasury_handler,
-                    'oauth2': oauth_handler,
                 }),
                 validate_responses=True,
                 strict_validation=True,
@@ -208,14 +197,5 @@ def init(testing=True, managing=False):
 
     db = SQLAlchemy(app.app)
     migrate = Migrate(app.app, db)
-    oauth.init_app(app.app)
-    oauth.register('cas',
-                   client_id='adh6',
-                   client_secret='fs9QZsrkzXyJE6AHnSdH3PFrecH5oF',
-                   CAS_CLIENT_SECRET='fs9QZsrkzXyJE6AHnSdH3PFrecH5oF',
-                   server_metadata_url='https://cas.minet.net/oidc/.well-known/openid-configuration',
-                   client_kwargs={'scope': 'openid profile email'}
-                   )
-    oauth_manager.init_app(app.app)
 
     return app, migrate

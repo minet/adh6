@@ -32,101 +32,6 @@ paths:
       security: []
       tags:
       - misc
-  /oauth2/authorize:
-    summary: Performs OAuth2 authorization
-    description: >
-      This endpoint is the starting point for the full OAuth2 authorization flow.
-      It currently only support the implicit flow, and is OpenID compliant.
-      **TODO**: Move the whole OAuth2 flow to a standalone server.
-    get:
-      operationId: authorize_get
-      parameters:
-        - in: query
-          name: code
-          schema:
-            type: string
-          description: The OAuth+OIDC code
-        - in: query
-          name: return_to
-          schema:
-            type: string
-          description: The URL to return to after successful CAS authentication
-        - in: query
-          name: scope
-          schema:
-            type: string
-          description: The OAuth2 scope
-        - in: query
-          name: response_mode
-          schema:
-            type: string
-          description: The OAuth2 response_mode
-        - in: query
-          name: redirect_uri
-          schema:
-            type: string
-          description: The OAuth2 redirect_uri
-        - in: query
-          name: response_type
-          schema:
-            type: string
-          description: The OAuth2 response_type
-        - in: query
-          name: state
-          schema:
-            type: string
-          description: The OAuth2 state
-        - in: query
-          name: client_id
-          schema:
-            type: string
-          description: The OAuth2 client_id
-        - in: query
-          name: nonce
-          schema:
-            type: string
-          description: The OAuth2 nonce
-      responses:
-        '200':
-          description: OK
-      tags:
-      - oauth2
-      security: []
-    post: 
-      operationId: authorize_post
-      responses:
-        '200':
-          description: OK
-      tags:
-      - oauth2
-      security: []
-  /oauth2/profile:
-    get: 
-      summary: Retrieves an authorized user's profile
-      description: >
-        This endpoint returns the grants following a user's OAuth2 authorization.
-        **TODO**: Move the whole OAuth2 flow to a standalone server.
-      operationId: profile_get
-      responses:
-        '200':
-          description: OK
-      tags:
-      - oauth2
-      security: []
-  /oauth2/.well-known/openid-configuration:
-    get:
-      summary: Retrieves this server's OpenID configuration
-      description: >
-        This endpoint returns a JSON document that complies with the OpenID standard.
-        This allows applications to discover the server's OpenID configuration.
-        **TODO**: Move the whole OAuth2 flow to a standalone server.
-      operationId: oauth2_config
-      responses:
-        '200':
-          description: OK
-      tags:
-      - oauth2
-      security: []
   /stats:
     get:
       summary: Retrieve global ADH6 statistics and trivia
@@ -2210,7 +2115,7 @@ components:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: /oauth2/authorize
+          authorizationUrl: https://cas.minet.net/oidc/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
 
@@ -2238,5 +2143,3 @@ tags:
   name: treasury
 - description: Miscellaneous endpoints
   name: misc
-- description: OAuth2-related endpoints
-  name: oauth2

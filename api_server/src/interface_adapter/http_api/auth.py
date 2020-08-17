@@ -50,5 +50,5 @@ def authenticate_against_sso(access_token):
         return None
     return {
         "uid": infos["id"],
-        "scope": infos['scope'],
+        "scope": ['profile'],
     }
