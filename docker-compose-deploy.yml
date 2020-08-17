@@ -7,7 +7,7 @@ services:
       dockerfile: ./frontend_angular/Dockerfile
       args:
         # SSO URL for getting a token.
-        SSO_OAUTH2: "https://adh6-dev.minet.net/api/oauth2"
+        SSO_OAUTH2: "https://cas.minet.net/oidc"
         # URL of ADH6, the SSO will redirect to that URL after login.
         ADH6_URL: "https://adh6-dev.minet.net/dashboard" # Do not forget the trailing slash!
         BYPASS_AUTH: "false"
@@ -29,7 +29,7 @@ services:
       context: ./
       dockerfile: ./api_server/Dockerfile
       args:
-        OAUTH2_BASE_PATH: "https://adh6-dev.minet.net/api/oauth2"
+        OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
         AUTH_CONSENT_ADDRESS: "https://adh6-dev.minet.net/authorize"
         DATABASE_HOST: ${DATABASE_HOST}
         DATABASE_PORT: ${DATABASE_PORT}
