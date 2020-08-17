@@ -8,7 +8,6 @@ import { DeviceService } from './api/device.service';
 import { MemberService } from './api/member.service';
 import { MembershipService } from './api/membership.service';
 import { MiscService } from './api/misc.service';
-import { Oauth2Service } from './api/oauth2.service';
 import { PortService } from './api/port.service';
 import { RoomService } from './api/room.service';
 import { SwitchService } from './api/switch.service';
@@ -25,7 +24,6 @@ import { TreasuryService } from './api/treasury.service';
     MemberService,
     MembershipService,
     MiscService,
-    Oauth2Service,
     PortService,
     RoomService,
     SwitchService,

@@ -33,7 +33,7 @@ class Bank(object):
     }
 
     attribute_map = {
-        'expected_cav': 'expected_cav'
+        'expected_cav': 'expectedCav'
     }
 
     def __init__(self, expected_cav=None):  # noqa: E501
