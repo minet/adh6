@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from src.entity.abstract_account import AbstractAccount
 from src.entity.abstract_device import AbstractDevice
 from src.entity.abstract_member import AbstractMember
+from src.entity.abstract_membership import AbstractMembership
 from src.entity.abstract_payment_method import AbstractPaymentMethod
 from src.entity.abstract_port import AbstractPort
 from src.entity.abstract_product import AbstractProduct
@@ -34,9 +35,23 @@ from src.entity.device import Device
 from src.entity.error import Error
 from src.entity.labels import Labels
 from src.entity.member import Member
+from src.entity.membership import Membership
 from src.entity.membership_request import MembershipRequest
 from src.entity.one_of_abstract_account_account_type import OneOfAbstractAccountAccountType
+from src.entity.one_of_abstract_account_member import OneOfAbstractAccountMember
+from src.entity.one_of_abstract_device_member import OneOfAbstractDeviceMember
 from src.entity.one_of_abstract_member_room import OneOfAbstractMemberRoom
+from src.entity.one_of_abstract_membership_account import OneOfAbstractMembershipAccount
+from src.entity.one_of_abstract_membership_member import OneOfAbstractMembershipMember
+from src.entity.one_of_abstract_membership_payment_method import OneOfAbstractMembershipPaymentMethod
+from src.entity.one_of_abstract_membership_products import OneOfAbstractMembershipProducts
+from src.entity.one_of_abstract_port_room import OneOfAbstractPortRoom
+from src.entity.one_of_abstract_port_switch import OneOfAbstractPortSwitch
+from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransactionAuthor
+from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
+from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
+from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
+from src.entity.one_of_membership_request_payment_method import OneOfMembershipRequestPaymentMethod
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product
@@ -46,9 +61,3 @@ from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.entity.vendor import Vendor
 from src.entity.vlan import Vlan
-
-from src.entity.one_of_abstract_device_member import OneOfAbstractDeviceMember
-from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
-from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
-from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
-from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransactionAuthor

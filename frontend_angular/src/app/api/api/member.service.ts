@@ -287,7 +287,7 @@ export class MemberService {
     /**
      * Update the password of a member
      * 
-     * @param body New value for the password
+     * @param body The new value for the password, either in plaintext or pre-hashed client-side
      * @param memberId The unique identifier of the member
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

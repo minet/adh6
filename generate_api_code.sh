@@ -13,16 +13,12 @@ function generate_frontend() {
 
 function generate_backend() {
   GENERATOR_PATH="$DIR/openapi/swagger-codegen-generators/src/main/resources/handlebars/python/"
-  codegencmd -Dmodels -l python -t "$GENERATOR_PATH" -o "$DIR/tmpsrc/"
-#  cp -r -n tmpsrc/swagger_client/models/* api_server/src/entity/
- # diff -ruN api_server/src/entity tmpsrc/swagger_client/models/ > entities.patch
-#  patch -p0 < entities.patch
+  codegencmd -l python -t "$GENERATOR_PATH" -o "$DIR/tmpsrc/"
   cp -r tmpsrc/swagger_client/models/* api_server/src/entity/
 
   sed -i 's/swagger_client.models/src.entity/' "$DIR/api_server/src/entity/__init__.py"
 
   rm -rf "$DIR/tmpsrc"
- # rm entities.patch
 }
 
 while true; do
@@ -35,7 +31,7 @@ while true; do
 done
 
 while true; do
-  read -p "Do you wish to patch the backend entities? [y/n]:" yn
+  read -p "Do you wish to regenerate the backend entities? [y/n]:" yn
   case $yn in
       [Yy]* ) generate_backend; break;;
       [Nn]* ) echo "Skipping backend generation"; break;;

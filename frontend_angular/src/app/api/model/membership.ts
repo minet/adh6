@@ -9,14 +9,13 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { AbstractMembership } from './abstractMembership';
+import { Account } from './account';
+import { Member } from './member';
+import { PaymentMethod } from './paymentMethod';
+import { Product } from './product';
 
-export interface Body { 
-    /**
-     * The plaintext password to use
-     */
-    password: string;
-    /**
-     * The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
-     */
-    hashedPassword?: string;
+export interface Membership extends AbstractMembership { 
+}
+export namespace Membership {
 }

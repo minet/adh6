@@ -17,7 +17,8 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { MembershipRequest } from '../model/membershipRequest';
+import { AbstractMembership } from '../model/abstractMembership';
+import { Membership } from '../model/membership';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -58,30 +59,20 @@ export class MembershipService {
     /**
      * Add a membership record for a member
      * 
-     * @param body Membership record, if no start is specified, it will use the current date. Duration is expressed in days. WARNING: DO NOT set the start date to be in the future, it is not implemented for the moment.
-     * @param memberId The unique identifier of the member
-     * @param xIdempotencyKey Just a random string to ensure that membership creation is idempotent (very important since double submission may result to the member being charged two times). I recommend using a long random string for that.
+     * @param body The membership to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public memberMemberIdMembershipPost(body: MembershipRequest, memberId: number, xIdempotencyKey?: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public memberMemberIdMembershipPost(body: MembershipRequest, memberId: number, xIdempotencyKey?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public memberMemberIdMembershipPost(body: MembershipRequest, memberId: number, xIdempotencyKey?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public memberMemberIdMembershipPost(body: MembershipRequest, memberId: number, xIdempotencyKey?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public memberMemberIdMembershipPost(body: AbstractMembership, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public memberMemberIdMembershipPost(body: AbstractMembership, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public memberMemberIdMembershipPost(body: AbstractMembership, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public memberMemberIdMembershipPost(body: AbstractMembership, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling memberMemberIdMembershipPost.');
         }
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipPost.');
-        }
-
-
         let headers = this.defaultHeaders;
-        if (xIdempotencyKey !== undefined && xIdempotencyKey !== null) {
-            headers = headers.set('X-Idempotency-Key', String(xIdempotencyKey));
-        }
 
         // authentication (OAuth2) required
         if (this.configuration.accessToken) {
@@ -110,6 +101,125 @@ export class MembershipService {
         }
 
         return this.httpClient.request<any>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+            {
+                body: body,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve a membership
+     * 
+     * @param memberId The unique identifier of the member
+     * @param uuid The UUID associated with this membership request
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean): Observable<Membership>;
+    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Membership>>;
+    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Membership>>;
+    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipUuidGet.');
+        }
+
+        if (uuid === null || uuid === undefined) {
+            throw new Error('Required parameter uuid was null or undefined when calling memberMemberIdMembershipUuidGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Partially update a membership
+     * 
+     * @param body The new values for this member
+     * @param memberId The unique identifier of the member
+     * @param uuid The UUID associated with this membership request
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+        }
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+        }
+
+        if (uuid === null || uuid === undefined) {
+            throw new Error('Required parameter uuid was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        return this.httpClient.request<any>('patch',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,

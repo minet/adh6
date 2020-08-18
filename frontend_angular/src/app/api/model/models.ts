@@ -1,6 +1,7 @@
 export * from './abstractAccount';
 export * from './abstractDevice';
 export * from './abstractMember';
+export * from './abstractMembership';
 export * from './abstractPaymentMethod';
 export * from './abstractPort';
 export * from './abstractProduct';
@@ -17,6 +18,7 @@ export * from './cashbox';
 export * from './device';
 export * from './labels';
 export * from './member';
+export * from './membership';
 export * from './membershipRequest';
 export * from './modelError';
 export * from './modelSwitch';
