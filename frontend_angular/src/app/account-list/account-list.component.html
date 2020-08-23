@@ -9,12 +9,19 @@
         <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
       </select>
       <div class="input-group-append">
+        <button type="button" class="btn btn-danger"
+                tooltip="Inactif"
+                [value]="this.abstractAccountFilter.actif === false" (click)="updateBooleanFilter('actif', false, null)" btnCheckbox>
+          <fa-icon [icon]="faBan"></fa-icon>
+        </button>
         <button type="button" class="btn btn-secondary"
-                (click)="updateSearch()" [(ngModel)]="pinned" btnCheckbox>
+                tooltip="Épinglé"
+                [value]="this.abstractAccountFilter.pinned === true" (click)="updateBooleanFilter('pinned', true, null)" btnCheckbox>
           <fa-icon [icon]="faThumbtack"></fa-icon>
         </button>
         <button type="button" class="btn btn-secondary"
-                (click)="updateSearch()" [(ngModel)]="cav" btnCheckbox>
+                tooltip="Sur le compte courant"
+                [value]="this.abstractAccountFilter.compteCourant === true" (click)="updateBooleanFilter('compteCourant', true, null)" btnCheckbox>
           CAV
         </button>
       </div>

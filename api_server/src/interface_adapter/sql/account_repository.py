@@ -8,7 +8,7 @@ from typing import List
 from sqlalchemy import func, case, or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractAccount
+from src.entity import AbstractAccount, Member
 from src.entity.account import Account
 from src.entity.null import Null
 from src.exceptions import AccountNotFoundError, MemberNotFoundError
@@ -51,6 +51,10 @@ class AccountSQLRepository(AccountRepository):
                 if isinstance(filter_.account_type, AccountType):
                     filter_.account_type = filter_.account_type.id
                 q = q.filter(SQLAccount.type == filter_.account_type)
+            if filter_.member is not None:
+                if isinstance(filter_.member, Member):
+                    filter_.member = filter_.member.id
+                q = q.filter(SQLAccount.adherent_id == filter_.member)
 
         count = q.count()
         q = q.order_by(SQLAccount.creation_date.asc())
