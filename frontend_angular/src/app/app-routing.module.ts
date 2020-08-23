@@ -27,6 +27,11 @@ import {AccountEditComponent} from './account-edit/account-edit.component';
 import {ProductListComponent} from './product-list/product-list.component';
 import {AccountListComponent} from './account-list/account-list.component';
 import {AuthorizeComponent} from './authorize/authorize.component';
+import {PortailComponent} from './portail/portail.component';
+import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
+import {InscriptionComponent} from './inscription/inscription.component';
+import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
+import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -35,6 +40,26 @@ const routes: Routes = [
     data: {
     bypassAuth: true
   }},
+  {path: 'portail', component: PortailComponent,
+    data: {
+    bypassAuth: true
+  }},
+  {path: 'portailCotisant', component: PortailCotisantComponent,
+    data: {
+    bypassAuth: true
+  }},
+  {path: 'inscription', component: InscriptionComponent,
+    data: {
+    bypassAuth: true
+  }},
+  {path: 'portailfoyer', component: PortailfoyerComponent,
+    data : {
+    bypassAuth: true
+  }},
+  {path: 'recotisation', component: CotisantRecotisationComponent,
+    data: {
+      bypassAuth: true
+    }},
   {
     path: 'member',
     children: [
