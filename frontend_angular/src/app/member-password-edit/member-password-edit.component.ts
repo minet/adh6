@@ -5,6 +5,8 @@ import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {MemberService} from '../api';
+import { md4 } from 'hash-wasm';
+import { encode } from 'iconv-lite';
 
 function passwordConfirming(c: AbstractControl): any {
   if (!c || !c.value) {
@@ -40,7 +42,7 @@ export class MemberPasswordEditComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  ngOnInit() {  
     this.createForm();
   }
 
@@ -55,19 +57,21 @@ export class MemberPasswordEditComponent implements OnInit {
 
 
   changePassword(): void {
+    md4(encode(this.memberPassword.value.password, 'utf-16le')).then((hashedPassword) => {
     this.getMemberId()
       .pipe(
         first(),
-        switchMap(member_id => this.updatePasswordOfUser(member_id)),
+        switchMap(member_id => this.updatePasswordOfUser(member_id, hashedPassword)),
         finalize(() => this.disabled = false)
       )
       .subscribe((_) => {
       });
+    });
   }
 
-  private updatePasswordOfUser(member_id: string) {
+  private updatePasswordOfUser(member_id: string, hashedPasswordVar: string) {
     return this.memberService.memberMemberIdPasswordPut(
-      {password: this.memberPassword.value.password},
+      {hashedPassword: hashedPasswordVar},
       +member_id,
       'response')
       .pipe(

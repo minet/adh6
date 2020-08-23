@@ -1,119 +1,23 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 import datetime
-import json
-
-from dataclasses import dataclass, asdict
-from typing import List, Optional
+from typing import List
 
 from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
 from src.entity import AbstractMember, AbstractDevice
 from src.entity.member import Member
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
-    MemberNotFoundError, UsernameMismatchError, PasswordTooShortError, InvalidEmail, \
-    IntMustBePositive, StringMustNotBeEmpty, InvalidDate, MissingRequiredField
+    MemberNotFoundError, IntMustBePositive
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
+from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
-from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.date import string_to_date
-from src.util.hash import ntlm_hash
 from src.util.log import LOG
-from src.util.validator import is_email, is_empty, is_date
-
-
-@dataclass
-class PartialMutationRequest:
-    """
-    Mutation request for a member. This represents the 'diff', that is going to be applied on the member object.
-
-    If a field is set to None, field be left untouched.
-    """
-    email: Optional[str] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    username: Optional[str] = None
-    comment: Optional[str] = None
-    departure_date: Optional[str] = None
-    association_mode: Optional[str] = None
-    room_number: Optional[str] = None
-
-    def validate(self):
-        # EMAIL:
-        if self.email is not None and not is_email(self.email):
-            raise InvalidEmail(self.email)
-
-        # FIRST_NAME:
-        if self.first_name is not None and is_empty(self.first_name):
-            raise StringMustNotBeEmpty('first_name')
-
-        # LAST_NAME:
-        if self.last_name is not None and is_empty(self.last_name):
-            raise StringMustNotBeEmpty('last_name')
-
-        # USERNAME:
-        if self.username is not None:
-            if len(self.username) > 9 or len(self.username) < 7:
-                raise ValueError('username must be between 7 and 9 characters long')
-
-        # COMMENT:
-        # Nothing to validate...
-
-        # DEPARTURE_DATE:
-        if self.departure_date is not None and not is_date(self.departure_date):
-            raise InvalidDate(self.departure_date)
-
-        # ASSOCIATION_MODE:
-        if self.association_mode is not None and not is_date(self.association_mode):
-            raise InvalidDate(self.departure_date)
-
-        # ROOM_NUMBER:
-        if self.room_number is not None and is_empty(self.room_number):
-            raise StringMustNotBeEmpty('room_number')
-
-
-@dataclass
-class FullMutationRequest(PartialMutationRequest):
-    """
-    Mutation request for a member. This represents the 'diff', that is going to be applied on the member object.
-
-    If a field is set to None, field will be cleared in the database.
-    """
-    email: str
-    first_name: str
-    last_name: str
-    username: str
-    departure_date: str
-    comment: Optional[str]
-    association_mode: Optional[str]
-    room_number: Optional[str]
-
-    def validate(self):
-        # EMAIL:
-        if self.email is None:
-            raise MissingRequiredField('email')
-
-        # FIRST_NAME:
-        if self.first_name is None:
-            raise MissingRequiredField('first_name')
-
-        # LAST_NAME:
-        if self.last_name is None:
-            raise MissingRequiredField('last_name')
-
-        # USERNAME:
-        if self.username is None:
-            raise MissingRequiredField('username')
-
-        # DEPARTURE_DATE:
-        if self.departure_date is None:
-            raise MissingRequiredField('departure_date')
-
-        super().validate()
 
 
 class MemberManager(CRUDManager):
@@ -251,3 +155,14 @@ class MemberManager(CRUDManager):
         except LogFetchError:
             LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
             return []  # We fail open here.
+
+    @log_call
+    def change_password(self, ctx, member_id, password=None, hashedPassword=None):
+        from binascii import hexlify
+        import hashlib
+
+        password = hashedPassword or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
+
+        self.member_repository.update_password(ctx, member_id, password)
+
+        return True

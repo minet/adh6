@@ -46,11 +46,11 @@ class MemberHandler(DefaultHandler):
     @require_sql
     @auth_regular_admin
     @log_call
-    def password_put(self, ctx, username, body):
+    def password_put(self, ctx, member_id, body):
         """ Set the password of a member. """
 
         try:
-            self.member_manager.change_password(ctx, username, body.get('password'))
+            self.member_manager.change_password(ctx, member_id, body.get('password'), body.get("hashedPassword"))
             return NoContent, 204  # 204 No Content
 
         except MemberNotFoundError:

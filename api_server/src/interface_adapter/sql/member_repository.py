@@ -109,6 +109,18 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         with track_modifications(ctx, s, member):
             s.delete(member)
 
+    @log_call
+    def update_password(self, ctx, member_id, hashed_password):
+        s = ctx.get(CTX_SQL_SESSION)
+
+        adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+
+        if adherent is None:
+            raise MemberNotFoundError(member_id)
+
+        with track_modifications(ctx, s, adherent):
+            adherent.password = hashed_password
+
     def create_membership(self, ctx, username, start: datetime, end: datetime) -> None:
         """
         Add a membership record.

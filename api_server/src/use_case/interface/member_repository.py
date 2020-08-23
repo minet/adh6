@@ -20,3 +20,6 @@ class MemberRepository(CRUDRepository):
 
     def delete(self, ctx, object_id) -> None:
         raise NotImplemented
+
+    def update_password(self, ctx, member_id, hashed_password):
+        raise NotImplemented

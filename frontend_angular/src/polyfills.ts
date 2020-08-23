@@ -70,3 +70,9 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
  * Need to import at least one locale-data with intl.
  */
 // import 'intl/locale-data/jsonp/en';
+
+
+/**
+ * This fixes the "Uncaught ReferenceError: global is not defined" error caused at the time by iconv-lite
+ */
+(window as any).global = window;
