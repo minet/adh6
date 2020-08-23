@@ -1,6 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../api';
+import {map, share} from 'rxjs/operators';
 
 @Component({
   selector: 'app-switch-local',
@@ -8,18 +9,19 @@ import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../ap
   styleUrls: ['./switch-local.component.css']
 })
 export class SwitchLocalComponent implements OnInit, OnDestroy {
-
   switch$: Observable<ModelSwitch>;
   ports$: Observable<Array<Port>>;
-  switchID = 1;
 
   constructor(public switchService: SwitchService, public portService: PortService) {
   }
 
   ngOnInit() {
-    this.switchID = 1;
-    this.switch$ = this.switchService.switchSwitchIdGet(this.switchID);
-    this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{switch: this.switchID});
+    this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch local', {}).pipe(
+      map((switchObjArr) => {
+        const switchObj = switchObjArr[0];
+        this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{switch: switchObj.id});
+        return switchObj;
+      }));
   }
 
   ngOnDestroy() {
