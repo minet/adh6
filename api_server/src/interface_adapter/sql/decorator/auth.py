@@ -3,6 +3,7 @@
 Auth decorators.
 """
 import datetime
+from enum import Enum
 from functools import wraps
 
 from connexion import NoContent
@@ -17,30 +18,10 @@ from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
 from src.util.context import build_context, log_extra
 from src.util.log import LOG
 
-ADH6_USER = "adh6_user"
-ADH6_ADMIN = "adh6_admin"
 
-
-def _find_user(s, username):
-    try:
-        q = s.query(Adherent)
-        q = q.filter(Adherent.login == username)
-        return q.one()
-
-    except NoResultFound:
-        if current_app.config['TESTING']:
-            new_adherent = Adherent(
-                login=TESTING_CLIENT_USER,
-                mail="test@example.com",
-                nom="Test",
-                prenom="test",
-                password="",
-                roles=ADH6_USER
-            )
-            s.add(new_adherent)
-
-            return _find_user(s, username)
-        raise MemberNotFoundError()
+class Roles(Enum):
+    ADH6_USER = "adh6_user"
+    ADH6_ADMIN = "adh6_admin"
 
 
 def _find_admin(s, username):
@@ -54,17 +35,24 @@ def _find_admin(s, username):
     assume that the admin is authenticated before this function is called.
 
     """
+
     try:
         q = s.query(Adherent)
-        q = q.join(AdminSQL)
         q = q.filter(Adherent.login == username)
-        q = q.filter(Adherent.admin is not None)
-        return q.one()
+        admin = q.one_or_none()
 
-    except NoResultFound:
+        if admin is not None:
+            return Admin(
+                login=admin.login,
+                roles=admin.admin.roles.split(",")
+            )
+        else:
+            raise AdminNotFoundError(username)
+
+    except AdminNotFoundError:
         if current_app.config['TESTING']:
             new_admin = AdminSQL(
-                roles=""
+                roles="adh6_user,adh6_admin"
             )
             new_adherent = Adherent(
                 login=TESTING_CLIENT,
@@ -78,35 +66,39 @@ def _find_admin(s, username):
             s.add(new_adherent)
 
             return _find_admin(s, username)
-        raise AdminNotFoundError()
+        raise MemberNotFoundError()
 
 
-def auth_regular_admin(f):
+def auth_required(f, roles=None):
     """
-    Authenticate a regular admin.
+    Authenticate a user checking their roles.
     """
 
-    # @wraps(f) # Cannot wrap this function, because connexion needs to know we have the user and token_info...
+    if roles is None:
+        roles = []
+
     def wrapper(cls, ctx, *args, user, token_info, **kwargs):
-        """
-        Wrap http_api function.
-        """
-        LOG.warning('auth_regular_admin_called', extra=log_extra(ctx, token_info=token_info))
+        LOG.warning('auth_required_called', extra=log_extra(ctx, token_info=token_info))
         if not current_app.config["TESTING"] and (user is None or token_info is None):
             LOG.warning('could_not_extract_user_and_token_info_kwargs', extra=log_extra(ctx))
             return NoContent, 401
 
         assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
         admin = _find_admin(ctx.get(CTX_SQL_SESSION), user)
-        roles = admin.admin.roles
-        if not current_app.config["TESTING"] and ADH6_USER not in roles:
-            # User is not in the right group and we are not testing, do not allow.
+        LOG.warning('found_roles', extra=log_extra(ctx, roles=admin.roles))
+        roles_check = all(role.value in admin.roles for role in roles)
+        if not current_app.config["TESTING"] and not roles_check:
+            # User is not in the right group(s) and we are not testing, do not allow.
             return NoContent, 401
 
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[]))
+        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=admin.roles))
         return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
     return wrapper
+
+
+def auth_regular_admin(f):
+    return auth_required(f, [Roles.ADH6_USER])
 
 
 def auth_super_admin(f):
@@ -132,34 +124,4 @@ def auth_super_admin(f):
     #     ctx = build_context(ctx=ctx, admin=Admin(login=admin.login))
     #     return f(cls, ctx, *args, **kwargs)  # Discard the user and token_info.
 
-    return wrapper
-
-
-
-
-
-
-def auth(f, ROLES):
-    """
-    Authenticate a user and check his/her roles.
-    WORK IN PROGRESS
-    """
-
-    @wraps(f)
-    def wrapper(cls, ctx, true=None, *args, **kwargs):
-        admin = _find_admin(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx = build_context(ctx=ctx, admin=Admin(login=admin.login, roles=[ADH6_ADMIN]))
-        user = _find_user(ctx.get(CTX_SQL_SESSION), TESTING_CLIENT)
-        ctx2 = build_context(ctx2=ctx, user=Adherent(login=user.login, roles=[ADH6_USER]))
-#On regarde le porfil de l'utilisateur et ses roles
-        roles_acquis = admin.roles + user.roles #on construit la liste de ses roles
-        flag = true
-        for i in ROLES:
-            if i not in roles_acquis: #On check s'il a les roles demandés rentrés en paramètre
-                flag = false
-
-        if flag:
-            return f(cls, ctx, *args, **kwargs)
-        else:
-            return "ON A UNE ERREUR D'AUTORISATIO<N"
     return wrapper
