@@ -4,9 +4,21 @@ import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
 import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
 
-import {AccountService, DeviceService, MemberService, Port, PortService, RoomService, SwitchService} from '../api';
+import {
+  Account,
+  AccountService,
+  Device,
+  DeviceService,
+  Member,
+  MemberService,
+  ModelSwitch,
+  Port,
+  PortService,
+  Room,
+  RoomService,
+  SwitchService
+} from '../api';
 import {Router} from '@angular/router';
-import {Member} from '../api/model/member';
 
 class QueryParams {
   highlight: string;
@@ -89,8 +101,8 @@ export class GlobalSearchComponent implements OnInit {
         const LIMIT = 20;
 
         const user$ = this.memberService.memberGet(LIMIT, undefined, terms).pipe(
-          mergeMap((array) => from(array)),
-          map((obj) => new SearchResult(
+          mergeMap((array: Array<Member>) => from(array)),
+          map((obj: Member) => new SearchResult(
             'user',
             `${GlobalSearchComponent.capitalizeFirstLetter(obj.firstName)} ${obj.lastName.toUpperCase()}`,
             ['/member/view', '' + obj.id]
@@ -98,8 +110,8 @@ export class GlobalSearchComponent implements OnInit {
         );
 
         const account$ = this.accountService.accountGet(LIMIT, undefined, terms).pipe(
-          mergeMap((array) => from(array)),
-          map((obj) => new SearchResult(
+          mergeMap((array: Array<Account>) => from(array)),
+          map((obj: Account) => new SearchResult(
             'account',
             obj.name,
             ['/account/view', '' + obj.id]
@@ -107,8 +119,8 @@ export class GlobalSearchComponent implements OnInit {
         );
 
         const device$ = this.deviceService.deviceGet(LIMIT, undefined, undefined).pipe(
-          mergeMap((array) => from(array)),
-          map((obj) => new SearchResult(
+          mergeMap((array: Array<Device>) => from(array)),
+          map((obj: Device) => new SearchResult(
             'device',
             obj.mac,
             ['/member/view/', '' + (obj.member as Member).id],
@@ -117,12 +129,12 @@ export class GlobalSearchComponent implements OnInit {
         );
 
         const room$ = this.roomService.roomGet(LIMIT, undefined, terms).pipe(
-          mergeMap((array) => from(array)),
-          map((obj) => new SearchResult('room', obj.description, ['/room/view', obj.roomNumber.toString()])),
+          mergeMap((array: Array<Room>) => from(array)),
+          map((obj: Room) => new SearchResult('room', obj.description, ['/room/view', obj.roomNumber.toString()])),
         );
         const switch$ = this.switchService.switchGet(LIMIT, undefined, terms).pipe(
-          mergeMap((array) => from(array)),
-          map((obj) => new SearchResult('switch', obj.description, ['/switch/view', obj.id.toString()])),
+          mergeMap((array: Array<ModelSwitch>) => from(array)),
+          map((obj: ModelSwitch) => new SearchResult('switch', obj.description, ['/switch/view', obj.id.toString()])),
         );
 
         const port$ = this.portService.portGet(LIMIT, undefined, terms).pipe(

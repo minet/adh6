@@ -25,12 +25,13 @@ class ProductSQLRepository(ProductRepository):
 
         q = s.query(SQLProduct)
 
-        if filter_.id:
-            q = q.filter(SQLProduct.id == filter_.id)
-        if terms:
-            q = q.filter(SQLProduct.name.contains(terms))
-        if filter_.name:
-            q = q.filter(SQLProduct.name.contains(filter_.name))
+        if filter_ is not None:
+            if filter_.id:
+                q = q.filter(SQLProduct.id == filter_.id)
+            if terms:
+                q = q.filter(SQLProduct.name.contains(terms))
+            if filter_.name:
+                q = q.filter(SQLProduct.name.contains(filter_.name))
 
         count = q.count()
         q = q.order_by(SQLProduct.id.asc())

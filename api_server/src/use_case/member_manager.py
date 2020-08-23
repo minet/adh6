@@ -93,36 +93,6 @@ class MemberManager(CRUDManager):
             start_date=start.isoformat()
         ))
 
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> (
-            List[Member], int):
-        """
-        search member in the database.
-
-        user story: as an admin, i want to have a list of members with some filters, so that i can browse and find
-        members.
-
-        :raise intmustbepositiveexception
-        """
-        if limit < 0:
-            raise IntMustBePositive('limit')
-
-        if offset < 0:
-            raise IntMustBePositive('offset')
-
-        result, count = self.member_repository.search_by(ctx,
-                                                         limit=limit,
-                                                         offset=offset,
-                                                         terms=terms,
-                                                         filter_=filter_)
-
-        # Log action.
-        LOG.info('member_search', extra=log_extra(
-            ctx,
-            filter_=filter_,
-            terms=terms,
-        ))
-        return result, count
-
     @log_call
     def get_logs(self, ctx, member_id, dhcp=False) -> List[str]:
         """

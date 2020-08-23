@@ -85,8 +85,8 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.sub = this.route.params.subscribe(params => {
-      this.switchID = +params['switchID'];
-      this.portID = +params['portID'];
+      this.switchID = +params['switch_id'];
+      this.portID = +params['port_id'];
       this.port$ = this.portService.portPortIdGet(this.portID);
     });
 

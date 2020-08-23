@@ -93,9 +93,9 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((response) => {
         if (this.create) {
-          this.router.navigate(['member/password', v.username]);
+          this.router.navigate(['member/password', this.member_id]);
         } else {
-          this.router.navigate(['member/view', v.username]);
+          this.router.navigate(['member/view', this.member_id]);
         }
         this.notif.success(response.status + ': Success');
       });
