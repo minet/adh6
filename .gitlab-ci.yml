@@ -76,17 +76,17 @@ python_integration_test:
   - apt install -qy sqlite3 libmariadbclient-dev
   - pytest test/integration -vv
 
-python_coverage:
-  stage: test
-  <<: *before_test_job # We reference our previous anchor
-  script:
-  - cd api_server/
-  - pip install pytest-cov
-  - pytest -vv --cov=src --cov-report=html --cov-report=term --cov-fail-under=80
-  coverage: '/^TOTAL\s+.*\s+(\d+\.?\d*)%/'
-  artifacts:
-    paths:
-      - api_server/htmlcov/
+#python_coverage:
+#  stage: test
+#  <<: *before_test_job # We reference our previous anchor
+#  script:
+#  - cd api_server/
+#  - pip install pytest-cov
+#  - pytest -vv --cov=src --cov-report=html --cov-report=term --cov-fail-under=80
+#  coverage: '/^TOTAL\s+.*\s+(\d+\.?\d*)%/'
+#  artifacts:
+#    paths:
+#      - api_server/htmlcov/
 
 deploy_dev:
   stage: deploy
