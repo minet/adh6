@@ -1,6 +1,7 @@
 import datetime
 import json
 from dateutil import parser
+from pytest import mark
 
 from config.TEST_CONFIGURATION import PRICES
 from src.interface_adapter.sql.model.database import Database as db
@@ -13,9 +14,9 @@ from test.integration.resource import (
 def prep_db(session,
             sample_member1, sample_member2, sample_member13,
             wired_device, wireless_device,
-            sample_room1, sample_room2, sample_vlan):
+            sample_room1, sample_room12, sample_vlan):
     session.add_all([
-        sample_room1, sample_room2,
+        sample_room1, sample_room12,
         wired_device, wireless_device,
         sample_member1, sample_member2, sample_member13])
     session.commit()
@@ -264,12 +265,12 @@ def test_member_post_member_create(api_client, sample_room1):
     assert_member_in_db(body)
 
 
-def test_member_patch_username(api_client):
+def test_member_patch_username(api_client, sample_member1, sample_room1):
     body = {
         "username": "TESTTEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -279,7 +280,7 @@ def test_member_patch_username(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -287,12 +288,12 @@ def test_member_patch_username(api_client):
     })
 
 
-def test_member_patch_email(api_client):
+def test_member_patch_email(api_client, sample_member1, sample_room1):
     body = {
         "email": "TEST@TEST.FR",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -302,7 +303,7 @@ def test_member_patch_email(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "TEST@TEST.FR",
@@ -310,12 +311,13 @@ def test_member_patch_email(api_client):
     })
 
 
-def test_member_patch_associationmode(api_client):
+@mark.skip(reason="PATCH on member is not the way we should handle this")
+def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
     body = {
         "associationMode": "1996-01-01T00:00:00",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -325,7 +327,7 @@ def test_member_patch_associationmode(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -333,12 +335,12 @@ def test_member_patch_associationmode(api_client):
     })
 
 
-def test_member_patch_departuredate(api_client):
+def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
     body = {
         "departureDate": "1996-01-01",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -348,7 +350,7 @@ def test_member_patch_departuredate(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": "1996-01-01",
         "email": "j.dubois@free.fr",
@@ -356,12 +358,12 @@ def test_member_patch_departuredate(api_client):
     })
 
 
-def test_member_patch_comment(api_client):
+def test_member_patch_comment(api_client, sample_member1, sample_room1):
     body = {
         "comment": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -371,7 +373,7 @@ def test_member_patch_comment(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": "TEST",
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -379,12 +381,12 @@ def test_member_patch_comment(api_client):
     })
 
 
-def test_member_patch_roomnumber(api_client):
+def test_member_patch_room(api_client, sample_member1, sample_room2):
     body = {
-        "roomNumber": 4592,
+        "room": sample_room2.id,
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -394,7 +396,7 @@ def test_member_patch_roomnumber(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 4592,
+        "room": sample_room2.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -402,12 +404,12 @@ def test_member_patch_roomnumber(api_client):
     })
 
 
-def test_member_patch_lastname(api_client):
+def test_member_patch_lastname(api_client, sample_member1, sample_room1):
     body = {
         "lastName": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -417,7 +419,7 @@ def test_member_patch_lastname(api_client):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "TEST",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -425,12 +427,12 @@ def test_member_patch_lastname(api_client):
     })
 
 
-def test_member_patch_firstname(api_client):
+def test_member_patch_firstname(api_client, sample_member1, sample_room1):
     body = {
         "firstName": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, "dubois_j"),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -440,7 +442,7 @@ def test_member_patch_firstname(api_client):
     assert_member_in_db({
         "firstName": "TEST",
         "lastName": "Dubois",
-        "roomNumber": 5110,
+        "room": sample_room1.id,
         "comment": None,
         "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
         "email": "j.dubois@free.fr",
@@ -448,18 +450,18 @@ def test_member_patch_firstname(api_client):
     })
 
 
-def test_member_put_member_update(api_client):
+def test_member_put_member_update(api_client, sample_member1, sample_room1):
     body = {
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "roomNumber": 4592,
+        "room": sample_room1.id,
         "comment": "comment",
         "departureDate": "2000-01-23T04:56:07.000+00:00",
         "email": "john.doe@gmail.com",
         "username": "dubois_j"
     }
     res = api_client.put(
-        '{}/member/{}'.format(base_url, body["username"]),
+        '{}/member/{}'.format(base_url, sample_member1.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -470,6 +472,7 @@ def test_member_put_member_update(api_client):
     assert_member_in_db(body)
 
 
+@mark.skip(reason="Membership management is not implemented")
 def test_member_post_add_membership_not_found(api_client):
     body = {
         "duration": list(PRICES.keys())[0],
@@ -484,6 +487,7 @@ def test_member_post_add_membership_not_found(api_client):
     assert result.status_code == 404
 
 
+@mark.skip(reason="Membership management is not implemented")
 def test_member_post_add_membership_undefined_price(api_client):
     '''
     Add a membership record for a duration that does not exist in the price
@@ -502,6 +506,7 @@ def test_member_post_add_membership_undefined_price(api_client):
     assert result.status_code == 400
 
 
+@mark.skip(reason="Membership management is not implemented")
 def test_member_post_add_membership_ok(api_client):
     body = {
         "duration": 360,

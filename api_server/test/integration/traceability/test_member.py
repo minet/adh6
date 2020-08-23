@@ -1,5 +1,7 @@
 import logging
 
+from pytest import mark
+
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from test.integration.resource import logs_contains
 from test.integration.test_member import test_member_post_member_create, test_member_put_member_update, \
@@ -18,15 +20,15 @@ def test_member_log_create(api_client, sample_room1, caplog):
     )
 
 
-def test_member_log_update(api_client, caplog):
+def test_member_log_update(api_client, sample_member1, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_member_put_member_update(api_client)
+        test_member_put_member_update(api_client, sample_member1, sample_room1)
 
     assert logs_contains(
         caplog,
-        'member_whole_update',
+        'member_manager_update',
         admin=TESTING_CLIENT,
-        username='dubois_j',
+        member_id=sample_member1.id,
     )
 
 
@@ -42,6 +44,7 @@ def test_member_log_delete(api_client, sample_member1, caplog):
     )
 
 
+@mark.skip(reason="Not implemented")
 def test_member_log_add_membership(api_client, caplog):
     with caplog.at_level(logging.INFO):
         test_member_post_add_membership_ok(api_client)

@@ -50,7 +50,7 @@ class RoomSQLRepository(RoomRepository):
 
         vlan = None
         if abstract_room.vlan is not None:
-            vlan = s.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
+            vlan = s.query(Vlan).filter(Vlan.id == abstract_room.vlan).one_or_none()
             if not vlan:
                 raise VLANNotFoundError(str(abstract_room.vlan))
 
@@ -69,7 +69,18 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
-        raise NotImplementedError
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(Chambre)
+        q = q.filter(Chambre.id == abstract_room.id)
+        q = q.join(Vlan, Vlan.id == Chambre.vlan_id)
+
+        room = q.one_or_none()
+        if room is None:
+            raise RoomNotFoundError(str(abstract_room.id))
+        new_chambre = _merge_sql_with_entity(ctx, abstract_room, room, override)
+
+        return _map_room_sql_to_entity(new_chambre)
 
     @log_call
     def delete(self, ctx, room_id) -> None:
@@ -81,6 +92,24 @@ class RoomSQLRepository(RoomRepository):
 
         with track_modifications(ctx, s, room):
             s.delete(room)
+
+
+def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
+    now = datetime.now()
+    chambre = sql_object
+    if entity.description is not None or override:
+        chambre.description = entity.description
+    if entity.room_number is not None or override:
+        chambre.numero = entity.room_number
+    if entity.vlan is not None:
+        s = ctx.get(CTX_SQL_SESSION)
+        vlan = s.query(Vlan).filter(Vlan.id == entity.vlan).one_or_none()
+        if not vlan:
+            raise VLANNotFoundError(str(entity.vlan))
+        chambre.vlan = vlan
+
+    chambre.updated_at = now
+    return chambre
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:

@@ -60,9 +60,9 @@ def test_device_log_update_wired(api_client, caplog, wired_device,
                                      wired_device_dict)
 
     assert logs_contains(caplog,
-                         'device_manager_update',
+                         'device_manager_partially_update',
                          admin=TESTING_CLIENT,
-                         mac='96-24-F6-D0-48-A7')
+                         device_id=wired_device.id)
 
 
 def test_device_log_update_wireless(api_client, caplog, wireless_device,
@@ -72,9 +72,9 @@ def test_device_log_update_wireless(api_client, caplog, wireless_device,
                                         wireless_device_dict)
 
     assert logs_contains(caplog,
-                         'device_manager_update',
+                         'device_manager_partially_update',
                          admin=TESTING_CLIENT,
-                         mac='80-65-F3-FC-44-A9')
+                         device_id=wireless_device.id)
 
 
 def test_device_log_delete_wired(api_client, caplog, wired_device,

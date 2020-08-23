@@ -37,8 +37,8 @@ def assert_port_in_db(body):
     q = q.filter(Port.numero == body["portNumber"])
     p = q.one()
     assert body["portNumber"] == p.numero
-    assert body["roomNumber"] == p.chambre.numero
-    assert body["switchID"] == p.switch.id
+    assert body["room"] == p.chambre.id
+    assert body["switch"] == p.switch.id
 
 
 def test_port_get_filter_all(api_client):
@@ -200,8 +200,9 @@ def test_port_put_update_port_invalid_switch(api_client,
                                              sample_port1):
     portNumber = "1/2/3"
     body = {
-        "roomNumber": 5110,
-        "switchID": 999,
+        "room": 5110,
+        "switch": 999,
+        "oid": "10101",
         "portNumber": portNumber
     }
 
@@ -211,14 +212,15 @@ def test_port_put_update_port_invalid_switch(api_client,
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_port_put_update_port(api_client, sample_switch1, sample_port1):
     portNumber = "1/2/3"
     body = {
-        "roomNumber": 5110,
-        "switchID": sample_switch1.id,
+        "room": sample_port1.chambre.id,
+        "oid": "10101",
+        "switch": sample_switch1.id,
         "portNumber": portNumber
     }
 
@@ -238,8 +240,9 @@ def test_port_put_update_non_existant_port(api_client,
                                            sample_switch1):
     portNumber = "1/2/3"
     body = {
-        "roomNumber": 5110,
-        "switchID": sample_switch1.id,
+        "room": 5110,
+        "oid": "10101",
+        "switch": sample_switch1.id,
         "portNumber": portNumber
     }
 

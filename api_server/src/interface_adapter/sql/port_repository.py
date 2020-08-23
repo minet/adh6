@@ -89,7 +89,19 @@ class PortSQLRepository(PortRepository):
 
     @log_call
     def update(self, ctx, object_to_update: AbstractPort, override=False) -> object:
-        raise NotImplementedError
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(SQLPort)
+        q = q.filter(SQLPort.id == object_to_update.id)
+        q = q.join(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
+
+        port = q.one_or_none()
+        if port is None:
+            raise PortNotFoundError(str(object_to_update.id))
+        new_port = _merge_sql_with_entity(ctx, object_to_update, port, override)
+
+        return _map_port_sql_to_entity(new_port)
 
     @log_call
     def delete(self, ctx, object_id) -> None:
@@ -101,6 +113,30 @@ class PortSQLRepository(PortRepository):
 
         s.delete(port)
         s.flush()
+
+
+def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
+    now = datetime.now()
+    port = sql_object
+    if entity.oid is not None or override:
+        port.oid = entity.oid
+    if entity.port_number is not None or override:
+        port.numero = entity.port_number
+    if entity.room is not None:
+        s = ctx.get(CTX_SQL_SESSION)
+        room = s.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
+        if not room:
+            raise RoomNotFoundError(entity.room)
+        port.chambre = room
+    if entity.switch is not None:
+        s = ctx.get(CTX_SQL_SESSION)
+        switch = s.query(SQLSwitch).filter(SQLSwitch.id == entity.switch).one_or_none()
+        if not switch:
+            raise SwitchNotFoundError(entity.switch)
+        port.switch = switch
+
+    port.updated_at = now
+    return port
 
 
 def _map_port_sql_to_entity(a: SQLPort) -> Port:

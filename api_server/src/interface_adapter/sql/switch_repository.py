@@ -66,7 +66,17 @@ class SwitchSQLRepository(SwitchRepository):
 
     @log_call
     def update(self, ctx, object_to_update: AbstractSwitch, override=False) -> object:
-        raise NotImplementedError
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(SQLSwitch)
+        q = q.filter(SQLSwitch.id == object_to_update.id)
+
+        switch = q.one_or_none()
+        if switch is None:
+            raise SwitchNotFoundError(str(object_to_update.id))
+        new_switch = _merge_sql_with_entity(ctx, object_to_update, switch, override)
+
+        return _map_switch_sql_to_entity(new_switch)
 
     @log_call
     def delete(self, ctx, object_id) -> None:
@@ -78,6 +88,20 @@ class SwitchSQLRepository(SwitchRepository):
 
         s.delete(switch)
         s.flush()
+
+
+def _merge_sql_with_entity(ctx, entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
+    now = datetime.now()
+    switch = sql_object
+    if entity.ip is not None or override:
+        switch.ip = entity.ip
+    if entity.community is not None or override:
+        switch.communaute = entity.community
+    if entity.description is not None:
+        switch.description = entity.description
+
+    switch.updated_at = now
+    return switch
 
 
 def _map_switch_sql_to_entity(a: SQLSwitch) -> Switch:

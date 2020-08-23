@@ -114,7 +114,6 @@ class TestSearch:
 
 class TestUpdateOrCreate:
 
-    @mark.xfail(raises=NotImplementedError)
     def test_happy_path_create(self,
                                ctx,
                                faker,
@@ -130,7 +129,6 @@ class TestUpdateOrCreate:
         assert result is True
         mock_repo.create.assert_called_once_with(ctx, mock_object)
 
-    @mark.xfail(raises=NotImplementedError)
     def test_happy_path_update(self,
                                ctx,
                                faker,
@@ -148,7 +146,6 @@ class TestUpdateOrCreate:
         assert result is False
         mock_repo.update.assert_called_once_with(ctx, mock_object, override=True)
 
-    @mark.xfail(raises=NotImplementedError)
     def test_happy_path_update_non_existing(self,
                                ctx,
                                faker,
@@ -168,7 +165,6 @@ class TestUpdateOrCreate:
 
 class TestPartiallyUpdate:
 
-    @mark.xfail(raises=NotImplementedError)
     def test_happy_path(self,
                         ctx,
                         faker,
@@ -179,15 +175,15 @@ class TestPartiallyUpdate:
         mock_id = mock_object.id
 
         # When...
-        object = mock_manager.partially_update(ctx, mock_object, **{mock_manager.name + "_id": mock_id})
+        object, result = mock_manager.partially_update(ctx, mock_object, **{mock_manager.name + "_id": mock_id})
 
         # Expect...
         assert mock_object == object
+        assert result == False
         mock_repo.update.assert_called_once_with(ctx, mock_object, override=False)
 
 
 class TestDelete:
-    @mark.xfail(raises=NotImplementedError)
     def test_happy_path(self,
                         ctx,
                         faker,
@@ -200,7 +196,6 @@ class TestDelete:
         # Expect...
         mock_repo.delete.assert_called_once_with(ctx, id)
 
-    @mark.xfail(raises=NotImplementedError)
     def test_object_not_found(self,
                               ctx,
                               faker,

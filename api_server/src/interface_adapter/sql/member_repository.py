@@ -96,7 +96,20 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         return _map_member_sql_to_entity(member)
 
     def update(self, ctx, abstract_member: AbstractMember, override=False) -> object:
-        raise NotImplementedError
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(Adherent)
+        q = q.filter(Adherent.id == abstract_member.id)
+        q = q.join(Chambre, Chambre.id == Adherent.chambre_id)
+
+        adherent = q.one_or_none()
+        if adherent is None:
+            raise MemberNotFoundError(str(abstract_member.id))
+
+        with track_modifications(ctx, s, adherent):
+            new_adherent = _merge_sql_with_entity(ctx, abstract_member, adherent, override)
+
+        return _map_member_sql_to_entity(new_adherent)
 
     @log_call
     def delete(self, ctx, member_id) -> None:
@@ -139,6 +152,34 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             depart=start,
             fin=end
         ))
+
+
+def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
+    now = datetime.now()
+    adherent = sql_object
+    if entity.email is not None or override:
+        adherent.mail = entity.email
+    if entity.comment is not None or override:
+        adherent.commentaires = entity.comment
+    if entity.username is not None or override:
+        adherent.login = entity.username
+    if entity.first_name is not None or override:
+        adherent.prenom = entity.first_name
+    if entity.last_name is not None or override:
+        adherent.nom = entity.last_name
+    if entity.association_mode is not None or override:
+        adherent.mode_association = entity.association_mode
+    if entity.departure_date is not None or override:
+        adherent.date_de_depart = entity.departure_date
+    if entity.room is not None:
+        s = ctx.get(CTX_SQL_SESSION)
+        room = s.query(Chambre).filter(Chambre.id == entity.room).one_or_none()
+        if not room:
+            raise RoomNotFoundError(entity.room)
+        adherent.chambre = room
+
+    adherent.updated_at = now
+    return adherent
 
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:

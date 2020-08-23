@@ -95,10 +95,8 @@ class DeviceSQLRepository(DeviceRepository):
         if device is None:
             raise DeviceNotFoundError(str(abstract_device.id))
 
-        new_device = _merge_sql_with_entity(ctx, abstract_device, device, override)
-
-        with track_modifications(ctx, s, new_device):
-            s.update(new_device)
+        with track_modifications(ctx, s, device):
+            new_device = _merge_sql_with_entity(ctx, abstract_device, device, override)
 
         return _map_device_sql_to_entity(new_device)
 

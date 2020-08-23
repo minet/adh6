@@ -140,7 +140,8 @@ class PortNotFoundError(NotFoundError):
 
 class VLANNotFoundError(NotFoundError):
     def __init__(self, v=None):
-        super().__init__('VLAN', v)
+        v = v or '?'
+        super().__init__('VLAN', f'id={v}')
 
 
 class PaymentMethodNotFoundError(NotFoundError):

@@ -58,14 +58,28 @@ def sample_member(faker, sample_room):
 
 
 @fixture
+def sample_member_no_room(faker, sample_room):
+    return Member(
+        id=faker.random_digit_not_null,
+        username=faker.user_name,
+        email=faker.email,
+        first_name=faker.first_name,
+        last_name=faker.last_name,
+        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        comment=faker.sentence,
+        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
+        room=None,
+    )
+
+@fixture
 def sample_device(faker, sample_member):
     return Device(
         id=faker.random_digit_not_null,
         mac=faker.mac_address().replace(":", "-"),
         member=sample_member,
         connection_type='wired',
-        ipv4_address=faker.ipv4_public(network='157.159.41.0/24'),
-        ipv6_address=faker.ipv6,
+        ipv4_address=faker.ipv4(address_class='157.159.41.0/24'),
+        ipv6_address=faker.ipv6(),
     )
 
 

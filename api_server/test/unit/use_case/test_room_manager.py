@@ -31,7 +31,6 @@ class TestUpdateOrCreate:
         with raises(VLANNotFoundError):
             room_manager.update_or_create(ctx, mutation_request)
 
-    @mark.skip(reason="VLAN management isn't implemented yet")
     def test_update_vlan_not_found(self,
                                    ctx,
                                    mock_room_repository: RoomRepository,
@@ -39,7 +38,7 @@ class TestUpdateOrCreate:
                                    mutation_request: AbstractRoom,
                                    room_manager: RoomManager):
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
-        mock_room_repository.create = MagicMock(side_effect=VLANNotFoundError)
+        mock_room_repository.update = MagicMock(side_effect=VLANNotFoundError)
         with raises(VLANNotFoundError):
             room_manager.update_or_create(ctx, mutation_request, **{"room_id": sample_room.id})
 

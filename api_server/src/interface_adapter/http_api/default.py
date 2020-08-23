@@ -111,13 +111,15 @@ def _update(ctx, function, klass, *args, **kwargs):
         body = kwargs.pop('body', None)
         body['id'] = 0  # Set a dummy id to pass the initial validation
         to_update = deserialize_request(body, klass)
-        updated = function(ctx, to_update, *args, **kwargs)
-        if updated:
-            return serialize_response(updated), 204
+        the_object, created = function(ctx, to_update, *args, **kwargs)
+        if the_object:
+            return serialize_response(the_object), 201 if created else 204
         else:
             return _error(500, "The server encountered an unexpected error"), 500
     except ValidationError as e:
         return _error(400, str(e)), 400
+    except NotFoundError as e:
+        return _error(404, str(e)), 404
     except Exception as e:
         LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
         return _error(500, "The server encountered an unexpected error"), 500

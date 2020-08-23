@@ -13,7 +13,7 @@ def assert_room_in_db(body):
     q = s.query(Chambre)
     q = q.filter(body["roomNumber"] == Chambre.numero)
     c = q.one()
-    assert body["vlan"] == c.vlan.numero
+    assert body["vlan"] == c.vlan.id
     assert body["description"] == c.description
 
 
@@ -108,11 +108,11 @@ def test_room_post_new_room_invalid_vlan(api_client):
     assert r.status_code == 400
 
 
-def test_room_post_new_room(api_client):
+def test_room_post_new_room(api_client, sample_room1):
     room = {
         "roomNumber": 5111,
-        "vlan": 42,
-        "description": "Chambre 5111"
+        "vlan": sample_room1.vlan.id,
+        "description": "Chambre 5111",
     }
     r = api_client.post(
         "{}/room/".format(base_url),
@@ -126,8 +126,8 @@ def test_room_post_new_room(api_client):
 
 def test_room_put_update_room(api_client, sample_room1):
     room = {
+        "vlan": sample_room1.vlan_id,
         "roomNumber": 5111,
-        "vlan": 42,
         "description": "Chambre 5111"
     }
     r = api_client.put(

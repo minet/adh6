@@ -49,7 +49,6 @@ def account_manager(
     )
 
 
-@mark.skip(reason="IP address allocation isn't implemented yet")
 class TestUpdateOrCreate:
     def test_create_happy_path(self,
                                ctx,
@@ -62,8 +61,6 @@ class TestUpdateOrCreate:
                                sample_room: Room,
                                sample_device: AbstractDevice,
                                device_manager: DeviceManager):
-        ipv4 = '192.0.0.1'
-        ipv6 = 'fe80::1'
         # Given...
 
         # That the owner exists:
@@ -74,8 +71,6 @@ class TestUpdateOrCreate:
 
         # That the owner has a room (needed to get the ip range to allocate the IP):
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
-        mock_ip_allocator.allocate_ip_v4 = MagicMock(return_value=ipv4)
-        mock_ip_allocator.allocate_ip_v6 = MagicMock(return_value=ipv6)
 
         # When...
         device = device_manager.update_or_create(ctx, sample_device)
@@ -90,13 +85,10 @@ class TestUpdateOrCreate:
                            mock_device_repository: MagicMock,
                            mock_member_repository: MagicMock,
                            mock_room_repository: MagicMock,
-                           mock_ip_allocator: MagicMock,
                            sample_member: Member,
                            sample_room: Room,
                            sample_device: AbstractDevice,
                            device_manager: DeviceManager):
-        ipv4 = '192.0.0.1'
-        ipv6 = 'fe80::1'
         # Given...
 
         # That the owner exists:
@@ -107,15 +99,17 @@ class TestUpdateOrCreate:
 
         # That the owner has a room (needed to get the ip range to allocate the IP):
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
-        mock_ip_allocator.allocate_ip_v4 = MagicMock(return_value=ipv4)
-        mock_ip_allocator.allocate_ip_v6 = MagicMock(return_value=ipv6)
 
         # When...
         with raises(InvalidIPv6):
-            device_manager.update_or_create(ctx, sample_device)
+            device_manager.update_or_create(ctx,
+                                            AbstractDevice(
+                                                ipv6_address='this is not a valid ipv6',
+                                            ),
+                                            device_id=sample_device.id)
 
         # Expect...
-        mock_device_repository.create_device.assert_not_called()
+        mock_device_repository.create.assert_not_called()
 
     def test_invalid_ip_v4(self,
                            ctx,
@@ -123,32 +117,31 @@ class TestUpdateOrCreate:
                            mock_device_repository: MagicMock,
                            mock_member_repository: MagicMock,
                            mock_room_repository: MagicMock,
-                           mock_ip_allocator: MagicMock,
                            sample_member: Member,
                            sample_room: Room,
                            sample_device: AbstractDevice,
                            device_manager: DeviceManager):
-        ipv4 = '192.0.0.1'
-        ipv6 = 'fe80::1'
         # Given...
 
         # That the owner exists:
-        mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
 
         # That the device does not exist in the DB:
-        mock_device_repository.search_device_by = MagicMock(return_value=([], 0))
+        mock_device_repository.search_by = MagicMock(return_value=([], 0))
 
         # That the owner has a room (needed to get the ip range to allocate the IP):
-        mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
-        mock_ip_allocator.allocate_ip_v4 = MagicMock(return_value=ipv4)
-        mock_ip_allocator.allocate_ip_v6 = MagicMock(return_value=ipv6)
+        mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
 
         # When...
         with raises(InvalidIPv4):
-            device_manager.update_or_create(ctx, sample_device)
+            device_manager.update_or_create(ctx,
+                                            AbstractDevice(
+                                                ipv4_address='this is not a valid ipv4',
+                                            ),
+                                            device_id=sample_device.id)
 
         # Expect...
-        mock_device_repository.create_device.assert_not_called()
+        mock_device_repository.create.assert_not_called()
 
     def test_invalid_mac(self,
                          ctx,
@@ -156,12 +149,10 @@ class TestUpdateOrCreate:
                          mock_device_repository: MagicMock,
                          mock_member_repository: MagicMock,
                          mock_room_repository: MagicMock,
-                         mock_ip_allocator: MagicMock,
                          sample_member: Member,
                          sample_room: Room,
+                         sample_device,
                          device_manager: DeviceManager):
-        ipv4 = '192.0.0.1'
-        ipv6 = 'fe80::1'
         # Given...
 
         # That the owner exists:
@@ -172,23 +163,17 @@ class TestUpdateOrCreate:
 
         # That the owner has a room (needed to get the ip range to allocate the IP):
         mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
-        mock_ip_allocator.allocate_ip_v4 = MagicMock(return_value=ipv4)
-        mock_ip_allocator.allocate_ip_v6 = MagicMock(return_value=ipv6)
 
         # When...
         with raises(InvalidMACAddress):
-            device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                            req=MutationRequest(
-                                                mac_address='invalid mac',
-                                                owner_username=faker.user_name,
-                                                connection_type='wired',
-                                                ip_v4_address=None,
-                                                ip_v6_address=None,
+            device_manager.update_or_create(ctx,
+                                            AbstractDevice(
+                                                mac='this is not a valid mac',
                                             ),
-                                            )
+                                            device_id=sample_device.id)
 
         # Expect...
-        mock_device_repository.create_device.assert_not_called()
+        mock_device_repository.create.assert_not_called()
 
     def test_update_happy_path(self,
                                ctx,
@@ -201,31 +186,22 @@ class TestUpdateOrCreate:
         # Given...
 
         # That the owner exists:
-        mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
 
         # That the device exists in the DB:
-        mock_device_repository.search_device_by = MagicMock(return_value=([sample_device], 1))
+        mock_device_repository.search_by = MagicMock(return_value=([sample_device], 1))
+
+        dev = AbstractDevice(
+            mac="01-23-45-67-89-AB",
+        )
 
         # When...
-        created = device_manager.update_or_create(ctx,
-                                                  mac_address=sample_device.mac_address,
-                                                  req=MutationRequest(
-                                                      owner_username=faker.user_name,
-                                                      connection_type='wireless',
-                                                      mac_address=sample_device.mac_address,
-                                                      ip_v4_address=None,
-                                                      ip_v6_address=None,
-                                                  ),
-                                                  )
+        device, created = device_manager.update_or_create(ctx, dev, device_id=sample_device.id)
 
         # Expect...
         assert created is False
-        mock_device_repository.update_device.assert_called_once_with(ctx, sample_device.mac_address,
-                                                                     mac_address=sample_device.mac_address,
-                                                                     owner_username=faker.user_name,
-                                                                     connection_type='wireless',
-                                                                     ip_v4_address=None,
-                                                                     ip_v6_address=None)
+        dev.id = sample_device.id
+        mock_device_repository.update.assert_called_once_with(ctx, dev, override=True)
 
     def test_create_no_room(self,
                             ctx,
@@ -233,165 +209,127 @@ class TestUpdateOrCreate:
                             mock_device_repository: MagicMock,
                             mock_member_repository: MagicMock,
                             mock_room_repository: MagicMock,
-                            sample_member: Member,
+                            sample_member_no_room: Member,
                             device_manager: DeviceManager):
         # Given...
 
         # That the owner has no a room.
-        mock_room_repository.search_room_by = MagicMock(return_value=([], 0))
+        mock_room_repository.search_by = MagicMock(return_value=([], 0))
 
         # That the owner exists:
-        mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member_no_room], 1))
 
         # That the device does not exist in the DB:
-        mock_device_repository.search_device_by = MagicMock(return_value=([], 0))
+        mock_device_repository.search_by = MagicMock(return_value=([], 0))
+
+        dev = AbstractDevice(
+            connection_type='wired',
+            ipv4_address=None,
+            ipv6_address=None,
+            mac='01-23-45-67-89-0A',
+            member=sample_member_no_room.id,
+        )
 
         # When...
-        created = device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                                  req=MutationRequest(
-                                                      owner_username=faker.user_name,
-                                                      connection_type='wired',
-                                                      mac_address=TEST_MAC_ADDRESS1,
-                                                      ip_v4_address=None,
-                                                      ip_v6_address=None,
-                                                  ),
-                                                  )
+        device, created = device_manager.update_or_create(ctx, dev)
 
         # Expect...
         assert created is True
-        mock_device_repository.create_device.assert_called_once_with(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                                                     owner_username=faker.user_name,
-                                                                     connection_type='wired',
-                                                                     ip_v4_address=None,
-                                                                     ip_v6_address=None)
+        mock_device_repository.create.assert_called_once_with(ctx, dev)
 
-    def test_empty_owner_username(self,
-                                  ctx,
-                                  faker,
-                                  mock_member_repository: MagicMock,
-                                  mock_device_repository: MagicMock,
-                                  device_manager: DeviceManager):
+    @mark.skip(reason="Should we implement the relations logic in the managers ?")
+    def test_bad_member(self,
+                        ctx,
+                        faker,
+                        mock_member_repository: MagicMock,
+                        mock_device_repository: MagicMock,
+                        sample_device,
+                        device_manager: DeviceManager):
         # Given...
-        mock_member_repository.search_member_by = MagicMock(return_value=([], 0))
-
-        # When...Unnamed
-        with raises(MissingRequiredField):
-            device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                            req=MutationRequest(
-                                                owner_username='',
-                                                connection_type='wired',
-                                                mac_address=TEST_MAC_ADDRESS1,
-                                                ip_v4_address=None,
-                                                ip_v6_address=None,
-                                            ),
-                                            )
-
-        # Expect...
-        mock_device_repository.create_device.assert_not_called()
-        mock_device_repository.update_device.assert_not_called()
-
-    def test_bad_username(self,
-                          ctx,
-                          faker,
-                          mock_member_repository: MagicMock,
-                          mock_device_repository: MagicMock,
-                          device_manager: DeviceManager):
-        # Given...
-        mock_member_repository.search_member_by = MagicMock(return_value=([], 0))
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+        mock_device_repository.search_by = MagicMock(return_value=([sample_device], 0))
 
         # When...
         with raises(MemberNotFoundError):
-            device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                            req=MutationRequest(
-                                                owner_username='hello__',
-                                                connection_type='wired',
-                                                mac_address=TEST_MAC_ADDRESS1,
-                                                ip_v4_address=None,
-                                                ip_v6_address=None,
+            device_manager.update_or_create(ctx,
+                                            AbstractDevice(
+                                                member=4242,
                                             ),
-                                            )
+                                            device_id=sample_device.id)
 
         # Expect...
-        mock_device_repository.create_device.assert_not_called()
-        mock_device_repository.update_device.assert_not_called()
+        mock_device_repository.create.assert_not_called()
+        mock_device_repository.update.assert_not_called()
 
     def test_invalid_device_type(self,
                                  ctx,
                                  faker,
                                  mock_member_repository: MagicMock,
                                  mock_device_repository: MagicMock,
+                                 sample_device,
                                  device_manager: DeviceManager):
         # Given...
         mock_member_repository.search_member_by = MagicMock(return_value=([], 0))
 
         # When...Unnamed
         with raises(ValueError):
-            device_manager.update_or_create(ctx, mac_address=TEST_MAC_ADDRESS1,
-                                            req=MutationRequest(
-                                                owner_username='abcdefgh',
-                                                connection_type='invalid',
-                                                mac_address=TEST_MAC_ADDRESS1,
-                                                ip_v4_address=None,
-                                                ip_v6_address=None,
-                                            ),
-                                            )
-
-        # Expect...
-        mock_device_repository.create_device.assert_not_called()
-        mock_device_repository.update_device.assert_not_called()
-
-    def test_allocation_failed(self,
-                               ctx,
-                               faker,
-                               mock_device_repository: MagicMock,
-                               mock_member_repository: MagicMock,
-                               mock_room_repository: MagicMock,
-                               sample_member: Member,
-                               sample_device: Device,
-                               sample_room: Room,
-                               mock_ip_allocator: MagicMock,
-                               device_manager: DeviceManager):
-        # Given...
-
-        mock_ip_allocator.allocate_ip_v4 = MagicMock(side_effect=NoMoreIPAvailableException)
-
-        # That the owner exists:
-        mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
-
-        # That the device exists in the DB:
-        mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
-
-        # That the device exists in the DB:
-        mock_device_repository.search_device_by = MagicMock(return_value=([sample_device], 1))
-
-        # When...
-        with raises(NoMoreIPAvailableException):
             device_manager.update_or_create(ctx,
-                                            mac_address=sample_device.mac_address,
-                                            req=MutationRequest(
-                                                owner_username=faker.user_name,
-                                                connection_type='wired',
-                                                mac_address=TEST_MAC_ADDRESS1,
-                                                ip_v4_address=None,
-                                                ip_v6_address=None,
+                                            AbstractDevice(
+                                                connection_type='invalid',
                                             ),
-                                            )
+                                            device_id=sample_device.id)
 
+            # Expect...
+            mock_device_repository.create.assert_not_called()
+            mock_device_repository.update.assert_not_called()
+
+        @mark.skip(reason="IP address allocation isn't implemented yet")
+        def test_allocation_failed(self,
+                                   ctx,
+                                   faker,
+                                   mock_device_repository: MagicMock,
+                                   mock_member_repository: MagicMock,
+                                   mock_room_repository: MagicMock,
+                                   sample_member: Member,
+                                   sample_device: Device,
+                                   sample_room: Room,
+                                   mock_ip_allocator: MagicMock,
+                                   device_manager: DeviceManager):
+            # Given...
+
+            # That the owner exists:
+            mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
+
+            # That the device exists in the DB:
+            mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
+
+            # That the device exists in the DB:
+            mock_device_repository.search_device_by = MagicMock(return_value=([sample_device], 1))
+
+            # When...
+            with raises(NoMoreIPAvailableException):
+                device_manager.update_or_create(ctx,
+                                                mac_address=sample_device.mac_address,
+                                                req=MutationRequest(
+                                                    owner_username=faker.user_name,
+                                                    connection_type='wired',
+                                                    mac_address=TEST_MAC_ADDRESS1,
+                                                    ip_v4_address=None,
+                                                    ip_v6_address=None,
+                                                ),
+                                                )
 
 @fixture
 def mock_vlan_repository():
     return MagicMock(spec=VLANRepository)
 
-
 @fixture
 def mock_ip_allocator():
     return MagicMock(spec=IPAllocator)
 
-
 @fixture
 def mock_member_repository():
     return MagicMock(spec=MemberRepository)
-
 
 @fixture
 def mock_room_repository():

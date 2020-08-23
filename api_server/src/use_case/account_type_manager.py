@@ -11,12 +11,3 @@ class AccountTypeManager(CRUDManager):
         super().__init__('account_type', account_type_repository, AccountType, AccountTypeNotFoundError)
         self.account_type_repository = account_type_repository
 
-    def delete(self, ctx, *args, **kwargs):
-        raise NotImplementedError()
-
-    def update_or_create(self, ctx, obj, **kwargs):
-        raise NotImplementedError()
-
-    def partially_update(self, ctx, obj, override=False, **kwargs):
-        raise NotImplementedError()
-
