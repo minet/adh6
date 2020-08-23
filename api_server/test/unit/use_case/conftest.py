@@ -18,6 +18,14 @@ from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import build_context
 
+def pytest_configure(config):
+    import sys
+    sys._called_from_unit_test = True
+
+def pytest_unconfigure(config):
+    import sys  # This was missing from the manual
+    del sys._called_from_unit_test
+
 @fixture
 def ctx(sample_admin):
     return build_context(
