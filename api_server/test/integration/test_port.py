@@ -73,7 +73,7 @@ def test_port_get_filter_all_with_limit(api_client):
 
 def test_port_get_filter_by_switchid(api_client, sample_switch2):
     r = api_client.get(
-        "{}/port/?switchID={}".format(base_url, sample_switch2.id),
+        "{}/port/?filter[switch]={}".format(base_url, sample_switch2.id),
         headers=TEST_HEADERS
     )
     assert r.status_code == 200
@@ -82,9 +82,9 @@ def test_port_get_filter_by_switchid(api_client, sample_switch2):
     assert len(switches) == 1
 
 
-def test_port_get_filter_by_roomnumber_with_results(api_client):
+def test_port_get_filter_by_room_with_results(api_client, sample_port1):
     r = api_client.get(
-        "{}/port/?roomNumber={}".format(base_url, 0),
+        "{}/port/?filter[room]={}".format(base_url, sample_port1.chambre.id),
         headers=TEST_HEADERS,
     )
 
@@ -94,9 +94,9 @@ def test_port_get_filter_by_roomnumber_with_results(api_client):
     assert len(switches) == 2
 
 
-def test_port_get_filter_by_roomnumber_without_result(api_client):
+def test_port_get_filter_by_room_without_result(api_client):
     r = api_client.get(
-        "{}/port/?roomNumber={}".format(base_url, 42),
+        "{}/port/?filter[room]={}".format(base_url, 4242),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -127,11 +127,12 @@ def test_port_get_filter_by_term_numero(api_client):
     assert len(switches) == 1
 
 
-def test_port_post_create_port_invalid_switchID(api_client, sample_switch1):
+def test_port_post_create_port_invalid_switch(api_client, sample_switch1, sample_room1):
     body = {
-        "roomNumber": 5110,
-        "switchID": 999,
-        "portNumber": "1/0/4"
+        "room": sample_room1.id,
+        "switch": 4242,
+        "portNumber": "1/0/4",
+        "oid": "10104"
     }
 
     r = api_client.post(
@@ -143,11 +144,12 @@ def test_port_post_create_port_invalid_switchID(api_client, sample_switch1):
     assert r.status_code == 400
 
 
-def test_port_post_create_port(api_client, sample_switch1):
+def test_port_post_create_port_invalid_room(api_client, sample_switch1, sample_room1):
     body = {
-        "roomNumber": 5110,
-        "switchID": sample_switch1.id,
-        "portNumber": "1/0/4"
+        "room": 4242,
+        "switch": sample_switch1.id,
+        "portNumber": "1/0/4",
+        "oid": "10104"
     }
 
     r = api_client.post(
@@ -156,8 +158,24 @@ def test_port_post_create_port(api_client, sample_switch1):
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 200
-    assert 'Location' in r.headers
+    assert r.status_code == 400
+
+
+def test_port_post_create_port(api_client, sample_switch1, sample_room1):
+    body = {
+        "room": sample_room1.id,
+        "switch": sample_switch1.id,
+        "portNumber": "1/0/4",
+        "oid": "10104"
+    }
+
+    r = api_client.post(
+        "{}/port/".format(base_url),
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 201
 
 
 def test_port_get_existant_port(api_client, sample_switch1, sample_port1):

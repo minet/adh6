@@ -73,8 +73,6 @@ def test_switch_post_valid(api_client):
         headers=TEST_HEADERS
     )
     assert r.status_code == 201
-    assert 'Location' in r.headers
-    assert r.headers['Location'] == 'http://localhost/switch/2'
     assert_switch_in_db(sample_switch1)
 
 

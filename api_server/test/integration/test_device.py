@@ -187,8 +187,8 @@ def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
     q = q.filter(Device.type == "wired")
     q = q.filter(Device.mac == wired_device_dict["mac"])
     dev = q.one()
-    assert dev.ip == "192.168.42.3"
-    assert dev.ipv6 == 'fe80::3'
+    assert dev.ip == None
+    assert dev.ipv6 == None
 
 
 def test_device_post_create_wired(api_client, wired_device_dict):

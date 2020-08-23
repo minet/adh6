@@ -1,6 +1,5 @@
 # coding=utf-8 import datetime import datetime import datetime
 import datetime
-from dataclasses import asdict
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -9,15 +8,14 @@ from pytest import fixture, raises, mark
 from config import TEST_CONFIGURATION
 from src.entity import AbstractMember
 from src.entity.member import Member
-from src.exceptions import LogFetchError, NoPriceAssignedToThatDuration, MemberNotFoundError, UsernameMismatchError, \
-    PasswordTooShortError, IntMustBePositive, MissingRequiredField, UnknownPaymentMethod, InvalidAdmin
+from src.exceptions import LogFetchError, NoPriceAssignedToThatDuration, MemberNotFoundError, IntMustBePositive, \
+    UnknownPaymentMethod, InvalidAdmin
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
-from src.use_case.member_manager import MemberManager, FullMutationRequest, PartialMutationRequest
-from src.util.hash import ntlm_hash
+from src.use_case.member_manager import MemberManager
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),
@@ -206,7 +204,7 @@ class TestCreateOrUpdate:
     def test_create_happy_path(self, ctx,
                                mock_member_repository: MagicMock,
                                sample_member,
-                               sample_mutation_request: FullMutationRequest,
+                               sample_mutation_request: AbstractMember,
                                member_manager: MemberManager):
         # Given that there is not user in the DB (user will be created).
         mock_member_repository.search_by = MagicMock(return_value=([], 0))
@@ -219,7 +217,7 @@ class TestCreateOrUpdate:
 
     def test_update_happy_path(self, ctx,
                                mock_member_repository: MagicMock,
-                               sample_mutation_request: FullMutationRequest,
+                               sample_mutation_request: AbstractMember,
                                sample_member: Member,
                                member_manager: MemberManager):
         # Given that there is a user in the DB (user will be updated).
@@ -245,7 +243,7 @@ class TestUpdatePartially:
                         sample_member,
                         member_manager: MemberManager):
         updated_comment = 'Updated comment.'
-        req = PartialMutationRequest(comment=updated_comment)
+        req = AbstractMember(comment=updated_comment)
 
         # When...
         member_manager.partially_update(ctx, req, member_id=sample_member.id)

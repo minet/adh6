@@ -32,12 +32,12 @@ def api_client(sample_port1, sample_port2, sample_room1):
         yield c
 
 
-def test_port_log_create_port(api_client, sample_switch1, caplog):
+def test_port_log_create_port(api_client, sample_switch1, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_port_post_create_port(api_client, sample_switch1)
+        test_port_post_create_port(api_client, sample_switch1, sample_room1)
 
     assert logs_contains(caplog,
-                         'port_create',
+                         'port_manager_update_or_create',
                          admin=TESTING_CLIENT)
 
 
@@ -47,7 +47,7 @@ def test_port_log_update_port(api_client, sample_switch1,
         test_port_put_update_port(api_client, sample_switch1, sample_port1)
 
     assert logs_contains(caplog,
-                         'port_update',
+                         'port_manager_update_or_create',
                          admin=TESTING_CLIENT)
 
 
@@ -57,6 +57,6 @@ def test_port_log_delete_port(api_client, sample_switch1,
         test_port_delete_port(api_client, sample_switch1, sample_port1)
 
     assert logs_contains(caplog,
-                         'port_delete',
+                         'port_manager_delete',
                          admin=TESTING_CLIENT,
                          port_id=sample_port1.id)

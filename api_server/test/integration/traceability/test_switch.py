@@ -5,6 +5,7 @@ import pytest
 from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import Switch
 from test.integration.resource import logs_contains
 from test.integration.test_switch import test_switch_post_valid, test_switch_update_existant_switch, \
     test_switch_delete_existant_switch
@@ -40,7 +41,7 @@ def test_switch_log_create(api_client, caplog):
         test_switch_post_valid(api_client)
 
     log = 'TestingClient created a switch'
-    assert logs_contains(caplog, 'switch_create',
+    assert logs_contains(caplog, 'switch_manager_update_or_create',
                          admin=TESTING_CLIENT)
 
 
@@ -48,7 +49,7 @@ def test_switch_log_update(api_client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_update_existant_switch(api_client)
 
-    assert logs_contains(caplog, 'switch_update',
+    assert logs_contains(caplog, 'switch_manager_update',
                          admin=TESTING_CLIENT,
                          switch_id=1)
 
@@ -57,6 +58,6 @@ def test_switch_log_delete(api_client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_delete_existant_switch(api_client)
 
-    assert logs_contains(caplog, 'switch_delete',
+    assert logs_contains(caplog, 'switch_manager_delete',
                          admin=TESTING_CLIENT,
                          switch_id=1)

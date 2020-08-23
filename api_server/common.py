@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import CONFIGURATION, TEST_CONFIGURATION
-from src.entity import AbstractAccount, Room, AbstractSwitch, AbstractRoom
+import src.entity
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
 from src.interface_adapter.http_api.bug_report import BugReportHandler
 from src.interface_adapter.http_api.default import DefaultHandler
@@ -25,16 +25,17 @@ from src.interface_adapter.sql.cashbox_repository import CashboxSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
-# THIS IMPORT IS NEEDED
+# THIS IMPORT IS NEEDED FOR sqlalchemy migrations management
 # from src.interface_adapter.sql.model.models import *
 #
 from src.interface_adapter.sql.model.models import *
 from src.interface_adapter.sql.money_repository import MoneySQLRepository
-from src.interface_adapter.sql.network_object_repository import NetworkObjectSQLRepository
 from src.interface_adapter.sql.payment_method_repository import PaymentMethodSQLRepository
 from src.interface_adapter.sql.ping_repository import PingSQLRepository
+from src.interface_adapter.sql.port_repository import PortSQLRepository
 from src.interface_adapter.sql.product_repository import ProductSQLRepository
 from src.interface_adapter.sql.room_repository import RoomSQLRepository
+from src.interface_adapter.sql.switch_repository import SwitchSQLRepository
 from src.interface_adapter.sql.transaction_repository import TransactionSQLRepository
 from src.resolver import ADHResolver
 from src.use_case.account_manager import AccountManager
@@ -68,7 +69,8 @@ def init(testing=True, managing=False):
     # Repositories:
     ping_repository = PingSQLRepository()
     member_sql_repository = MemberSQLRepository()
-    network_object_sql_repository = NetworkObjectSQLRepository()
+    port_sql_repostitory = PortSQLRepository()
+    switch_sql_repostitory = SwitchSQLRepository()
     device_sql_repository = DeviceSQLRepository()
     room_sql_repository = RoomSQLRepository()
     elk_repository = ElasticSearchRepository(configuration)
@@ -84,10 +86,10 @@ def init(testing=True, managing=False):
     # Managers
     health_manager = HealthManager(ping_repository)
     switch_manager = SwitchManager(
-        switch_repository=network_object_sql_repository,
+        switch_repository=switch_sql_repostitory,
     )
     port_manager = PortManager(
-        port_repository=network_object_sql_repository,
+        port_repository=port_sql_repostitory,
     )
     device_manager = DeviceManager(
         device_repository=device_sql_repository,
@@ -129,12 +131,12 @@ def init(testing=True, managing=False):
 
     # HTTP Handlers:
     # Default CRUD handlers
-    account_handler = DefaultHandler(Account, AbstractAccount, account_manager)
-    account_type_handler = DefaultHandler(AccountType, AccountType, account_type_manager)
-    payment_method_handler = DefaultHandler(PaymentMethod, PaymentMethod, payment_method_manager)
-    product_handler = DefaultHandler(Product, Product, product_manager)
-    room_handler = DefaultHandler(Room, AbstractRoom, room_manager)
-    switch_handler = DefaultHandler(Switch, AbstractSwitch, switch_manager)
+    account_handler = DefaultHandler(src.entity.Account, src.entity.AbstractAccount, account_manager)
+    account_type_handler = DefaultHandler(src.entity.AccountType, src.entity.AccountType, account_type_manager)
+    payment_method_handler = DefaultHandler(src.entity.PaymentMethod, src.entity.AbstractPaymentMethod, payment_method_manager)
+    product_handler = DefaultHandler(src.entity.Product, src.entity.AbstractProduct, product_manager)
+    room_handler = DefaultHandler(src.entity.Room, src.entity.AbstractRoom, room_manager)
+    switch_handler = DefaultHandler(src.entity.Switch, src.entity.AbstractSwitch, switch_manager)
 
     # Main operations handlers
     # Other handlers

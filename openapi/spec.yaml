@@ -2175,6 +2175,7 @@ components:
           description: The IPv4 address of this switch
           example: 192.168.102.211
           type: string
+          format: ipv4
     Switch:
       allOf:
         - $ref: '#/components/schemas/AbstractSwitch'
