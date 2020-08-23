@@ -38,7 +38,7 @@ def assert_port_in_db(body):
     p = q.one()
     assert body["portNumber"] == p.numero
     assert body["room"] == p.chambre.id
-    assert body["switch"] == p.switch.id
+    assert body["switchObj"] == p.switch.id
 
 
 def test_port_get_filter_all(api_client):
@@ -73,7 +73,7 @@ def test_port_get_filter_all_with_limit(api_client):
 
 def test_port_get_filter_by_switchid(api_client, sample_switch2):
     r = api_client.get(
-        "{}/port/?filter[switch]={}".format(base_url, sample_switch2.id),
+        "{}/port/?filter[switchObj]={}".format(base_url, sample_switch2.id),
         headers=TEST_HEADERS
     )
     assert r.status_code == 200
@@ -130,7 +130,7 @@ def test_port_get_filter_by_term_numero(api_client):
 def test_port_post_create_port_invalid_switch(api_client, sample_switch1, sample_room1):
     body = {
         "room": sample_room1.id,
-        "switch": 4242,
+        "switchObj": 4242,
         "portNumber": "1/0/4",
         "oid": "10104"
     }
@@ -147,7 +147,7 @@ def test_port_post_create_port_invalid_switch(api_client, sample_switch1, sample
 def test_port_post_create_port_invalid_room(api_client, sample_switch1, sample_room1):
     body = {
         "room": 4242,
-        "switch": sample_switch1.id,
+        "switchObj": sample_switch1.id,
         "portNumber": "1/0/4",
         "oid": "10104"
     }
@@ -164,7 +164,7 @@ def test_port_post_create_port_invalid_room(api_client, sample_switch1, sample_r
 def test_port_post_create_port(api_client, sample_switch1, sample_room1):
     body = {
         "room": sample_room1.id,
-        "switch": sample_switch1.id,
+        "switchObj": sample_switch1.id,
         "portNumber": "1/0/4",
         "oid": "10104"
     }
@@ -201,7 +201,7 @@ def test_port_put_update_port_invalid_switch(api_client,
     portNumber = "1/2/3"
     body = {
         "room": 5110,
-        "switch": 999,
+        "switchObj": 999,
         "oid": "10101",
         "portNumber": portNumber
     }
@@ -220,7 +220,7 @@ def test_port_put_update_port(api_client, sample_switch1, sample_port1):
     body = {
         "room": sample_port1.chambre.id,
         "oid": "10101",
-        "switch": sample_switch1.id,
+        "switchObj": sample_switch1.id,
         "portNumber": portNumber
     }
 
@@ -242,7 +242,7 @@ def test_port_put_update_non_existant_port(api_client,
     body = {
         "room": 5110,
         "oid": "10101",
-        "switch": sample_switch1.id,
+        "switchObj": sample_switch1.id,
         "portNumber": portNumber
     }
 

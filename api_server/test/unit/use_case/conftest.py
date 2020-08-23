@@ -99,7 +99,7 @@ def sample_port(faker, sample_room, sample_switch):
         id=faker.random_digit_not_null,
         port_number=faker.numerify(text='#/#/##'),
         room=sample_room,
-        switch=sample_switch,
+        switch_obj=sample_switch,
         oid=10101,
     )
 

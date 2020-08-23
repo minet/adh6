@@ -117,30 +117,28 @@
     <h3 id="port">Ports</h3>
     <ul>
       <li *ngFor="let portRes of ports$ | async">
-        <div *ngIf="portRes.roomNumber == this.roomNumber">
-          <strong
-          >Switch {{ portRes.switchID }} port {{ portRes.portNumber }}</strong
-          >
-          <br/><br/>
-          <div class="row">
-            <div class="col-md-3 mb-3">
-              <button class="w-100 btn btn-success" (click)="etat()">Etat</button>
-            </div>
-            <div class="col-md-3 mb-3">
-              <button class="w-100 btn btn-primary" (click)="auth()">Authentification</button>
-            </div>
-            <div class="col-md-3 mb-3">
-              <a
-                [routerLink]="[
+        <strong
+        >Switch {{ portRes.switchObj.description }} port {{ portRes.portNumber }}</strong
+        >
+        <br/><br/>
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <button class="w-100 btn btn-success" (click)="etat()">Etat</button>
+          </div>
+          <div class="col-md-3 mb-3">
+            <button class="w-100 btn btn-primary" (click)="auth()">Authentification</button>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a
+              [routerLink]="[
                   '/switch/view',
-                  portRes.switchID,
+                  portRes.switchObj.id,
                   'port',
                   portRes.id
                 ]"
-              >
-                <button class="w-100 btn btn-primary">Configurer</button>
-              </a>
-            </div>
+            >
+              <button class="w-100 btn btn-primary">Configurer</button>
+            </a>
           </div>
         </div>
       </li>

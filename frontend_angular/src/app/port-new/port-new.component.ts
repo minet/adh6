@@ -42,7 +42,7 @@ export class PortNewComponent implements OnInit {
       id: v.id,
       portNumber: v.portNumber,
       room: v.roomNumber,
-      _switch: this.switch_id
+      switchObj: this.switch_id
     };
     this.portService.portPost(port)
       .pipe(takeWhile(() => this.alive))

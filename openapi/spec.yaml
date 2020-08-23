@@ -2138,7 +2138,7 @@ components:
             - $ref: '#/components/schemas/Room'
             - type: integer
           example: 4
-        switch:
+        switchObj:
           description: The switch this port is a member of
           oneOf:
             - $ref: '#/components/schemas/Switch'
@@ -2152,7 +2152,7 @@ components:
             - portNumber
             - oid
             - room
-            - switch
+            - switchObj
       type: object
     AbstractSwitch:
       type: object

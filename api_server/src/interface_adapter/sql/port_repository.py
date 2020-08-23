@@ -42,10 +42,10 @@ class PortSQLRepository(PortRepository):
                 if isinstance(filter_.room, Room):
                     filter_.room = filter_.room.id
                 q = q.filter(SQLPort.chambre_id == filter_.room)
-            if filter_.switch is not None:
-                if isinstance(filter_.switch, Switch):
-                    filter_.switch = filter_.switch.id
-                q = q.filter(SQLPort.switch_id == filter_.switch)
+            if filter_.switch_obj is not None:
+                if isinstance(filter_.switch_obj, Switch):
+                    filter_.switch_obj = filter_.switch_obj.id
+                q = q.filter(SQLPort.switch_id == filter_.switch_obj)
 
         count = q.count()
         q = q.order_by(SQLPort.created_at.asc())
@@ -68,10 +68,10 @@ class PortSQLRepository(PortRepository):
                 raise RoomNotFoundError(abstract_port.room)
 
         switch = None
-        if abstract_port.switch is not None:
-            switch = s.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch).one_or_none()
+        if abstract_port.switch_obj is not None:
+            switch = s.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch_obj).one_or_none()
             if not switch:
-                raise SwitchNotFoundError(abstract_port.switch)
+                raise SwitchNotFoundError(abstract_port.switch_obj)
 
         port = SQLPort(
             numero=abstract_port.port_number,
@@ -128,11 +128,11 @@ def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, overr
         if not room:
             raise RoomNotFoundError(entity.room)
         port.chambre = room
-    if entity.switch is not None:
+    if entity.switch_obj is not None:
         s = ctx.get(CTX_SQL_SESSION)
-        switch = s.query(SQLSwitch).filter(SQLSwitch.id == entity.switch).one_or_none()
+        switch = s.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
         if not switch:
-            raise SwitchNotFoundError(entity.switch)
+            raise SwitchNotFoundError(entity.switch_obj)
         port.switch = switch
 
     port.updated_at = now
@@ -148,5 +148,5 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         port_number=a.numero,
         oid=a.oid,
         room=_map_room_sql_to_entity(a.chambre),
-        switch=_map_switch_sql_to_entity(a.switch)
+        switch_obj=_map_switch_sql_to_entity(a.switch)
     )

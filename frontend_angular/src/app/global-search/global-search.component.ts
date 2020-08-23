@@ -127,12 +127,14 @@ export class GlobalSearchComponent implements OnInit {
 
         const port$ = this.portService.portGet(LIMIT, undefined, terms).pipe(
           mergeMap((array: Array<Port>) => from(array)),
-          map((obj: Port) =>
-            new SearchResult(
+          map((obj: Port) => {
+            const the_switch: ModelSwitch = obj.switchObj as ModelSwitch;
+            return new SearchResult(
               'port',
-              `Switch ${obj._switch} ${obj.portNumber}`,
-              ['/switch/view', obj._switch.toString(), 'port', obj.id.toString()]
-            )),
+              `Switch ${the_switch.description} ${obj.portNumber}`,
+              ['/switch/view', the_switch.id.toString(), 'port', obj.id.toString()]
+            );
+          }),
         );
 
         return concat(user$, account$, device$, room$, switch$, port$);

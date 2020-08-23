@@ -35,7 +35,7 @@ class Port(object):
         'port_number': 'str',
         'oid': 'str',
         'room': 'Object',
-        'switch': 'Object'
+        'switch_obj': 'Object'
     }
     if hasattr(AbstractPort, "swagger_types"):
         swagger_types.update(AbstractPort.swagger_types)
@@ -45,25 +45,25 @@ class Port(object):
         'port_number': 'portNumber',
         'oid': 'oid',
         'room': 'room',
-        'switch': 'switch'
+        'switch_obj': 'switchObj'
     }
     if hasattr(AbstractPort, "attribute_map"):
         attribute_map.update(AbstractPort.attribute_map)
 
-    def __init__(self, id=None, port_number=None, oid=None, room=None, switch=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, port_number=None, oid=None, room=None, switch_obj=None, *args, **kwargs):  # noqa: E501
         """Port - a model defined in Swagger"""  # noqa: E501
         AbstractPort.__init__(self, *args, **kwargs)
         self._id = None
         self._port_number = None
         self._oid = None
         self._room = None
-        self._switch = None
+        self._switch_obj = None
         self.discriminator = None
         self.id = id
         self.port_number = port_number
         self.oid = oid
         self.room = room
-        self.switch = switch
+        self.switch_obj = switch_obj
 
     @property
     def id(self):
@@ -166,29 +166,29 @@ class Port(object):
         self._room = room
 
     @property
-    def switch(self):
-        """Gets the switch of this Port.  # noqa: E501
+    def switch_obj(self):
+        """Gets the switch_obj of this Port.  # noqa: E501
 
         The switch this port is a member of  # noqa: E501
 
-        :return: The switch of this Port.  # noqa: E501
+        :return: The switch_obj of this Port.  # noqa: E501
         :rtype: Object
         """
-        return self._switch
+        return self._switch_obj
 
-    @switch.setter
-    def switch(self, switch):
-        """Sets the switch of this Port.
+    @switch_obj.setter
+    def switch_obj(self, switch_obj):
+        """Sets the switch_obj of this Port.
 
         The switch this port is a member of  # noqa: E501
 
-        :param switch: The switch of this Port.  # noqa: E501
+        :param switch_obj: The switch_obj of this Port.  # noqa: E501
         :type: Object
         """
-        if switch is None:
-            raise ValueError("Invalid value for `switch`, must not be `None`")  # noqa: E501
+        if switch_obj is None:
+            raise ValueError("Invalid value for `switch_obj`, must not be `None`")  # noqa: E501
 
-        self._switch = switch
+        self._switch_obj = switch_obj
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -33,7 +33,7 @@ class AbstractPort(object):
         'port_number': 'str',
         'oid': 'str',
         'room': 'OneOfAbstractPortRoom',
-        'switch': 'OneOfAbstractPortSwitch'
+        'switch_obj': 'OneOfAbstractPortSwitchObj'
     }
 
     attribute_map = {
@@ -41,16 +41,16 @@ class AbstractPort(object):
         'port_number': 'portNumber',
         'oid': 'oid',
         'room': 'room',
-        'switch': 'switch'
+        'switch_obj': 'switchObj'
     }
 
-    def __init__(self, id=None, port_number=None, oid=None, room=None, switch=None):  # noqa: E501
+    def __init__(self, id=None, port_number=None, oid=None, room=None, switch_obj=None):  # noqa: E501
         """AbstractPort - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._port_number = None
         self._oid = None
         self._room = None
-        self._switch = None
+        self._switch_obj = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -60,8 +60,8 @@ class AbstractPort(object):
             self.oid = oid
         if room is not None:
             self.room = room
-        if switch is not None:
-            self.switch = switch
+        if switch_obj is not None:
+            self.switch_obj = switch_obj
 
     @property
     def id(self):
@@ -156,27 +156,27 @@ class AbstractPort(object):
         self._room = room
 
     @property
-    def switch(self):
-        """Gets the switch of this AbstractPort.  # noqa: E501
+    def switch_obj(self):
+        """Gets the switch_obj of this AbstractPort.  # noqa: E501
 
         The switch this port is a member of  # noqa: E501
 
-        :return: The switch of this AbstractPort.  # noqa: E501
-        :rtype: OneOfAbstractPortSwitch
+        :return: The switch_obj of this AbstractPort.  # noqa: E501
+        :rtype: OneOfAbstractPortSwitchObj
         """
-        return self._switch
+        return self._switch_obj
 
-    @switch.setter
-    def switch(self, switch):
-        """Sets the switch of this AbstractPort.
+    @switch_obj.setter
+    def switch_obj(self, switch_obj):
+        """Sets the switch_obj of this AbstractPort.
 
         The switch this port is a member of  # noqa: E501
 
-        :param switch: The switch of this AbstractPort.  # noqa: E501
-        :type: OneOfAbstractPortSwitch
+        :param switch_obj: The switch_obj of this AbstractPort.  # noqa: E501
+        :type: OneOfAbstractPortSwitchObj
         """
 
-        self._switch = switch
+        self._switch_obj = switch_obj
 
     def to_dict(self):
         """Returns the model properties as a dict"""
