@@ -43,7 +43,8 @@ class Body(object):
         self._password = None
         self._hashed_password = None
         self.discriminator = None
-        self.password = password
+        if password is not None:
+            self.password = password
         if hashed_password is not None:
             self.hashed_password = hashed_password
 
@@ -67,8 +68,6 @@ class Body(object):
         :param password: The password of this Body.  # noqa: E501
         :type: str
         """
-        if password is None:
-            raise ValueError("Invalid value for `password`, must not be `None`")  # noqa: E501
 
         self._password = password
 

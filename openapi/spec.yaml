@@ -591,6 +591,14 @@ paths:
       tags:
       - member
   /member/{member_id}/membership/:
+    parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
     post:
       requestBody:
         content:
@@ -696,8 +704,6 @@ paths:
                   type: string
                   format: md4
                   description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
-              required:
-              - password
               type: object
         description: The new value for the password, either in plaintext or pre-hashed client-side
         required: true

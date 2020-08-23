@@ -14,7 +14,7 @@ export interface Body {
     /**
      * The plaintext password to use
      */
-    password: string;
+    password?: string;
     /**
      * The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
      */
