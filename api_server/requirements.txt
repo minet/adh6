@@ -6,34 +6,36 @@
 #
 alembic==1.4.2            # via flask-migrate
 attrs==19.3.0             # via jsonschema, pytest
-authlib==0.14.3
+authlib==0.14.3           # via -r requirements.in
 certifi==2020.4.5.1       # via elasticsearch, requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 click==7.1.2              # via clickclick, flask, pip-tools
-clickclick==1.2.2
-git+https://github.com/minet/connexion.git
+clickclick==1.2.2         # via connexion
+git+https://github.com/minet/connexion.git  # via -r requirements.in
 coverage==5.1             # via pytest-cov
 cryptography==2.9.2       # via authlib
-elasticsearch==7.7.0
-faker==4.1.0
-flask-migrate==2.5.3
-flask-script==2.0.6
+decopatch==1.4.8          # via pytest-cases
+elasticsearch==7.7.0      # via -r requirements.in
+faker==4.1.0              # via -r requirements.in
+flask-migrate==2.5.3      # via -r requirements.in
+flask-script==2.0.6       # via -r requirements.in
 flask-sqlalchemy==2.4.1   # via flask-migrate
-flask==1.1.2
+flask==1.1.2              # via -r requirements.in, connexion, flask-migrate, flask-script, flask-sqlalchemy
 idna==2.9                 # via requests
 importlib-metadata==1.6.0  # via jsonschema, pluggy, pytest
-inflection==0.4.0
+inflection==0.4.0         # via connexion
 itsdangerous==1.1.0       # via flask
 jinja2==2.11.2            # via flask, swagger-ui-bundle
-jsonschema==3.2.0         # via openapi-spec-validator
+jsonschema==3.2.0         # via connexion, openapi-spec-validator
+makefun==1.9.3            # via decopatch, pytest-cases
 mako==1.1.2               # via alembic
 markupsafe==1.1.1         # via jinja2, mako
 more-itertools==8.3.0     # via pytest
-mysqlclient==1.4.6
-openapi-spec-validator==0.2.8
+mysqlclient==1.4.6        # via -r requirements.in
+openapi-spec-validator==0.2.8  # via connexion
 packaging==20.4           # via pytest
-pip-tools==5.1.2
+pip-tools==5.1.2          # via -r requirements.in
 pluggy==0.13.1            # via pytest
 ply==3.11                 # via pysmi
 py==1.8.1                 # via pytest
@@ -43,20 +45,21 @@ pycryptodomex==3.9.7      # via pysnmp
 pyparsing==2.4.7          # via packaging
 pyrsistent==0.16.0        # via jsonschema
 pysmi==0.3.4              # via pysnmp
-pysnmp==4.4.12
-pytest-cov==2.9.0
-pytest==5.4.2
-python-dateutil==2.8.1
+pysnmp==4.4.12            # via -r requirements.in
+pytest-cases==2.2.1       # via -r requirements.in
+pytest-cov==2.9.0         # via -r requirements.in
+pytest==5.4.2             # via -r requirements.in, pytest-cov
+python-dateutil==2.8.1    # via -r requirements.in, alembic, faker
 python-editor==1.0.4      # via alembic
-python-gitlab==2.2.0
-pyyaml==5.3.1
-requests==2.23.0
-six==1.15.0               # via cryptography, jsonschema, openapi-spec-validator, packaging, pip-tools, pyrsistent, python-dateutil
-sqlalchemy==1.3.17
-swagger-ui-bundle==0.0.6
+python-gitlab==2.2.0      # via -r requirements.in
+pyyaml==5.3.1             # via -r requirements.in, clickclick, connexion, openapi-spec-validator
+requests==2.23.0          # via -r requirements.in, connexion, python-gitlab
+six==1.15.0               # via cryptography, jsonschema, makefun, openapi-spec-validator, packaging, pip-tools, pyrsistent, python-dateutil
+sqlalchemy==1.3.17        # via -r requirements.in, alembic, flask-sqlalchemy
+swagger-ui-bundle==0.0.6  # via -r requirements.in
 text-unidecode==1.3       # via faker
 urllib3==1.25.9           # via elasticsearch, requests
-uwsgi==2.0.18
+uwsgi==2.0.18             # via -r requirements.in
 wcwidth==0.1.9            # via pytest
 werkzeug==1.0.1           # via flask
 zipp==3.1.0               # via importlib-metadata

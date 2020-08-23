@@ -29,12 +29,14 @@
     "angular2-notifications": "^2.0.0",
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.5",
+    "hash-wasm": "^3.7.2",
+    "iconv-lite": "^0.6.2",
     "ngx-bootstrap": "^4.1.1",
     "ngx-pagination": "^3.2.1",
     "rxjs": "^6.5.2",
     "tslib": "^1.9.0",
-    "zone.js": "~0.8.26",
-    "url-parse": "latest"
+    "url-parse": "latest",
+    "zone.js": "~0.8.26"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.13.0",
