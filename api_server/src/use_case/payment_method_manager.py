@@ -9,3 +9,6 @@ class PaymentMethodManager(CRUDManager):
     def __init__(self, payment_method_repository: PaymentMethodRepository):
         super().__init__('payment_method', payment_method_repository, AbstractPaymentMethod, PaymentMethodNotFoundError)
         self.payment_method_repository = payment_method_repository
+
+    def search_access_control_function(self, ctx, roles, f, args, kwargs):
+        return args, kwargs, True

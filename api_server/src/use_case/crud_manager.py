@@ -8,22 +8,23 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 class CRUDManager:
 
-    def __init__(self, name, repository: CRUDRepository, abstract_entity, not_found_exception, owner_check=None):
+    def __init__(self, name, repository: CRUDRepository, abstract_entity, not_found_exception, owner_check=None,
+                 overriding_roles=None):
+        if overriding_roles is None:
+            overriding_roles = [Roles.ADH6_ADMIN]
         self.name = name
         self.repository = repository
         self.abstract_entity = abstract_entity
         self.not_found_exception = not_found_exception
         self.owner_check = owner_check
+        self.overriding_roles = overriding_roles
 
     # The default behavior is to assume the user does not have the required permissions
     def default_access_control_function(self, ctx, roles, f, args, kwargs):
         return args, kwargs, False
 
-    def _owns_object_control_function(self, ctx, roles, f, args, kwargs):
-        return self.owns_object_control_function(ctx, roles, f, args, kwargs)
-
-    def owns_object_control_function(self, ctx, roles, f, args, kwargs):
-        if Roles.ADH6_ADMIN.value not in roles:
+    def owns_object_access_control_function(self, ctx, roles, f, args, kwargs):
+        if not any(role.value in roles for role in self.overriding_roles):
             admin = ctx.get(CTX_ADMIN)
             if kwargs["filter_"] is None:
                 kwargs["filter_"] = self.abstract_entity()
@@ -34,7 +35,10 @@ class CRUDManager:
         return args, kwargs, True
 
     def _create_access_control_function(self, ctx, roles, f, args, kwargs):
-        if Roles.ADH6_ADMIN.value not in roles:
+        return self.create_access_control_function(ctx, roles, f, args, kwargs)
+
+    def create_access_control_function(self, ctx, roles, f, args, kwargs):
+        if not any(role.value in roles for role in self.overriding_roles):
             admin = ctx.get(CTX_ADMIN)
             if self.owner_check is not None:
                 self.owner_check(args[0], admin.id)
@@ -42,11 +46,17 @@ class CRUDManager:
             return args, kwargs, False
         return args, kwargs, True
 
-    def create_access_control_function(self, ctx, roles, f, args, kwargs):
-        return self._create_access_control_function(ctx, roles, f, args, kwargs)
+    def _partially_update_access_control_function(self, ctx, roles, f, args, kwargs):
+        return self.partially_update_access_control_function(ctx, roles, f, args, kwargs)
 
     def partially_update_access_control_function(self, ctx, roles, f, args, kwargs):
-        return self.default_access_control_function(ctx, roles, f, args, kwargs)
+        return self.owns_object_access_control_function(ctx, roles, f, args, kwargs)
+
+    def _search_access_control_function(self, ctx, roles, f, args, kwargs):
+        return self.search_access_control_function(ctx, roles, f, args, kwargs)
+
+    def search_access_control_function(self, ctx, roles, f, args, kwargs):
+        return self.owns_object_access_control_function(ctx, roles, f, args, kwargs)
 
     def _delete_access_control_function(self, ctx, roles, f, args, kwargs):
         return self.delete_access_control_function(ctx, roles, f, args, kwargs)
@@ -68,7 +78,7 @@ class CRUDManager:
                             terms=terms,
                             filter_=filter_)
 
-    @auth_required(roles=[Roles.ADH6_USER], access_control_function=_owns_object_control_function)
+    @auth_required(roles=[Roles.ADH6_USER], access_control_function=_search_access_control_function)
     def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
         return self.repository.search_by(ctx, limit=limit,
                                          offset=offset,
@@ -109,7 +119,7 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    @auth_required(roles=[Roles.ADH6_USER], access_control_function=_owns_object_control_function)
+    @auth_required(roles=[Roles.ADH6_USER], access_control_function=_partially_update_access_control_function)
     def partially_update(self, ctx, obj, override=False, **kwargs):
         if self.name + '_id' not in kwargs or kwargs[self.name + '_id'] is None:
             raise ValidationError('Parameter ' + self.name + '_id is required')

@@ -11,3 +11,5 @@ class AccountTypeManager(CRUDManager):
         super().__init__('account_type', account_type_repository, AccountType, AccountTypeNotFoundError)
         self.account_type_repository = account_type_repository
 
+    def search_access_control_function(self, ctx, roles, f, args, kwargs):
+        return args, kwargs, True

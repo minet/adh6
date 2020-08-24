@@ -25,6 +25,7 @@ from src.util.log import LOG
 class Roles(Enum):
     ADH6_USER = "adh6_user"
     ADH6_ADMIN = "adh6_admin"
+    ADH6_TRESO = "adh6_treso"
 
 
 def _find_admin(s, username):
@@ -70,13 +71,16 @@ def _find_admin(s, username):
         raise MemberNotFoundError()
 
 
-def auth_required(roles=None, access_control_function=lambda cls, ctx, roles, f, a, kw: (a, kw, True)):
+def auth_required(roles=None, overriding_roles=None,
+                  access_control_function=lambda cls, ctx, roles, f, a, kw: (a, kw, True)):
     """
     Authenticate a user checking their roles.
     """
 
     if roles is None:
         roles = []
+    if overriding_roles is None:
+        overriding_roles = []
 
     def decorator(f):
 

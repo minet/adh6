@@ -5,6 +5,7 @@ from src.entity import AbstractTransaction
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
+from src.use_case.decorator.auth import Roles
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
@@ -19,7 +20,8 @@ class TransactionManager(CRUDManager):
                  payment_method_manager: PaymentMethodManager,
                  cashbox_manager: CashboxManager
                  ):
-        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError)
+        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError,
+                         overriding_roles=[Roles.ADH6_TRESO])
         self.transaction_repository = transaction_repository
         self.payment_method_manager = payment_method_manager
         self.cashbox_manager = cashbox_manager
@@ -35,10 +37,10 @@ class TransactionManager(CRUDManager):
         if created:
             if abstract_transaction.cashbox == "to":
                 self.cashbox_manager.update_cashbox(ctx, value_modifier=abstract_transaction.value,
-                                                  transaction=transaction)
+                                                    transaction=transaction)
             elif abstract_transaction.cashbox == "from":
                 self.cashbox_manager.update_cashbox(ctx, value_modifier=-abstract_transaction.value,
-                                                  transaction=transaction)
+                                                    transaction=transaction)
 
         return transaction, created
 
