@@ -1,12 +1,18 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
 from src.entity import AbstractDevice
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4
-from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.interface.device_repository import DeviceRepository
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
+
+
+@auto_raise
+def _owner_check(filter_: AbstractDevice, admin_id):
+    if filter_.member is not None and filter_.member != admin_id:
+        raise UnauthorizedError("You may only read or write to your own devices")
+    filter_.member = admin_id
 
 
 class DeviceManager(CRUDManager):
@@ -17,11 +23,11 @@ class DeviceManager(CRUDManager):
     def __init__(self,
                  device_repository: DeviceRepository,
                  ):
-        super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError)
+        super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError, _owner_check)
         self.device_repository = device_repository
 
     @auto_raise
-    def delete_access_control_function(self, ctx, f, args, kwargs):
+    def delete_access_control_function(self, ctx, roles, f, args, kwargs):
         admin = ctx.get(CTX_ADMIN)
         if 'device_id' in kwargs:
             device, count = self.repository.search_by(ctx, filter_=AbstractDevice(id=kwargs['device_id']))

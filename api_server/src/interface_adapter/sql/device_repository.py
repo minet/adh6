@@ -81,6 +81,7 @@ class DeviceSQLRepository(DeviceRepository):
 
         with track_modifications(ctx, s, device):
             s.add(device)
+            s.flush()
 
         return _map_device_sql_to_entity(device)
 

@@ -11,6 +11,6 @@
  */
 
 export interface AccountType { 
-    readonly id: number;
+    readonly id?: number;
     name?: string;
 }

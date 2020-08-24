@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {Device} from '../api';
+import {Device, DeviceService} from '../api';
 
 @Component({
   selector: 'app-member-device-list',
@@ -29,7 +29,7 @@ export class MemberDeviceListComponent implements OnInit {
     return this.selectedDevice === device.mac;
   }
 
-  constructor() {
+  constructor(public deviceService: DeviceService) {
   }
 
   ngOnInit() {

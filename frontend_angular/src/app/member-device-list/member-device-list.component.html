@@ -22,7 +22,7 @@
           <dd class="col-md-10"><app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor></dd>
         </dl>
 
-        <a (click)="deviceDelete(device.mac)">
+        <a (click)="deviceDelete(device.id)">
           <button class="btn btn-danger">Supprimer</button>
         </a>
 

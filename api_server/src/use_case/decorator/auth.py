@@ -70,7 +70,7 @@ def _find_admin(s, username):
         raise MemberNotFoundError()
 
 
-def auth_required(roles=None, access_control_function=lambda cls, ctx, f, a, kw: (a, kw, True)):
+def auth_required(roles=None, access_control_function=lambda cls, ctx, roles, f, a, kw: (a, kw, True)):
     """
     Authenticate a user checking their roles.
     """
@@ -104,7 +104,7 @@ def auth_required(roles=None, access_control_function=lambda cls, ctx, f, a, kw:
 
             ctx = build_context(ctx=ctx, admin=adherent)
 
-            new_args, new_kwargs, status = access_control_function(cls, ctx, f, args, kwargs)
+            new_args, new_kwargs, status = access_control_function(cls, ctx, admin_roles, f, args, kwargs)
 
             status = status or Roles.ADH6_ADMIN.value in admin_roles or current_app.config["TESTING"]
             if not status:

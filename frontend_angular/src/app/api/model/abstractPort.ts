@@ -1,6 +1,6 @@
 /**
  * ADH6 API
- * This is the specification for **MiNET**'s ADH6 plaform. Its aim is to manage our users, devices and treasury.
+ * This is the specification for **MiNET**'s ADH6 plaform. Its aim is to manage our users, devices and treasury. 
  *
  * OpenAPI spec version: 2.0.0
  * Contact: equipe@minet.net
@@ -12,7 +12,7 @@
 import { ModelSwitch } from './modelSwitch';
 import { Room } from './room';
 
-export interface AbstractPort {
+export interface AbstractPort { 
     /**
      * The unique identifier of this port
      */

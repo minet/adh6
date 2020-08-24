@@ -3,11 +3,9 @@
 import datetime
 from typing import List
 
-from src.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
 from src.entity import AbstractMember, AbstractDevice
-from src.entity.member import Member
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
-    MemberNotFoundError, IntMustBePositive
+    MemberNotFoundError, IntMustBePositive, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auth import auth_required, Roles
@@ -22,6 +20,13 @@ from src.util.date import string_to_date
 from src.util.log import LOG
 
 
+@auto_raise
+def _owner_check(filter_: AbstractMember, admin_id):
+    if filter_.id is not None and filter_.id != admin_id:
+        raise UnauthorizedError("You may only read or write to your own profile")
+    filter_.id = admin_id
+
+
 class MemberManager(CRUDManager):
     """
     Implements all the use cases related to member management.
@@ -30,7 +35,7 @@ class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository, membership_repository: MembershipRepository,
                  logs_repository: LogsRepository, money_repository: MoneyRepository,
                  device_repository: DeviceRepository, configuration):
-        super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
+        super().__init__("member", member_repository, AbstractMember, MemberNotFoundError, _owner_check)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository

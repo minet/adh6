@@ -29,14 +29,12 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
         admin = ctx.get(CTX_ADMIN)
         member = obj.get_related_member()
 
-        admin_id = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one().id
-
         m = Modification(
             adherent_id=member.id,
             action=diff,
             created_at=now,
             updated_at=now,
-            utilisateur_id=admin_id,
+            utilisateur_id=admin.id,
         )
         session.add(m)
 

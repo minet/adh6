@@ -1811,8 +1811,6 @@ components:
       type: object
     AccountType:
       type: object
-      required:
-        - id
       properties:
         id:
           example: 1
