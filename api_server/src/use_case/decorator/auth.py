@@ -45,7 +45,8 @@ def _find_admin(s, username):
         adherent = q.one_or_none()
 
         if adherent is not None:
-            return _map_member_sql_to_entity(adherent), adherent.admin.roles.split(",")
+            roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
+            return _map_member_sql_to_entity(adherent), roles
         else:
             raise AdminNotFoundError(username)
 
@@ -105,7 +106,8 @@ def auth_required(roles=None, access_control_function=lambda cls, ctx, f, a, kw:
 
             new_args, new_kwargs, status = access_control_function(cls, ctx, f, args, kwargs)
 
-            if not status or Roles.ADH6_ADMIN.value not in admin_roles:
+            status = status or Roles.ADH6_ADMIN.value in admin_roles or current_app.config["TESTING"]
+            if not status:
                 raise UnauthorizedError("You do not have enough permissions for this specific request")
 
             return f(cls, ctx, *new_args, **new_kwargs)  # Discard the user and token_info.

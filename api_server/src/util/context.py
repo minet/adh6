@@ -33,7 +33,7 @@ def log_extra(context: MappingProxyType, **extra_fields):
 
     infos = {
         'request_uuid': context.get(CTX_REQUEST_ID),
-        'admin': admin_login,
+        'user': admin_login,
         'testing': str(context.get(CTX_TESTING) or False),
         'url': context.get(CTX_REQUEST_URL)
     }

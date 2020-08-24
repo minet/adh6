@@ -42,7 +42,7 @@ def test_switch_log_create(api_client, caplog):
 
     log = 'TestingClient created a switch'
     assert logs_contains(caplog, 'switch_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_switch_log_update(api_client, caplog):
@@ -50,7 +50,7 @@ def test_switch_log_update(api_client, caplog):
         test_switch_update_existant_switch(api_client)
 
     assert logs_contains(caplog, 'switch_manager_update',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          switch_id=1)
 
 
@@ -59,5 +59,5 @@ def test_switch_log_delete(api_client, caplog):
         test_switch_delete_existant_switch(api_client)
 
     assert logs_contains(caplog, 'switch_manager_delete',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          switch_id=1)

@@ -26,13 +26,18 @@ class DeviceSQLRepository(DeviceRepository):
         q = s.query(SQLDevice)
         q = q.join(Adherent, Adherent.id == SQLDevice.adherent_id)
 
-        if filter_.id is not None:
-            q = q.filter(SQLDevice.id == filter_.id)
-        if filter_.member is not None:
-            if isinstance(filter_.member, Member):
-                q = q.filter(Adherent.id == filter_.member.id)
-            else:
-                q = q.filter(Adherent.id == filter_.member)
+        if filter_ is not None:
+            if filter_.id is not None:
+                q = q.filter(SQLDevice.id == filter_.id)
+            if filter_.member is not None:
+                if isinstance(filter_.member, Member):
+                    q = q.filter(Adherent.id == filter_.member.id)
+                else:
+                    q = q.filter(Adherent.id == filter_.member)
+            if filter_.mac:
+                q = q.filter(SQLDevice.mac == filter_.mac)
+            if filter_.connection_type:
+                q = q.filter(SQLDevice.type == filter_.connection_type)
 
         if terms:
             q = q.filter(
@@ -42,10 +47,6 @@ class DeviceSQLRepository(DeviceRepository):
                 (SQLDevice.ipv6.contains(terms)) |
                 (Adherent.login.contains(terms))
             )
-        if filter_.mac:
-            q = q.filter(SQLDevice.mac == filter_.mac)
-        if filter_.connection_type:
-            q = q.filter(SQLDevice.type == filter_.connection_type)
 
         count = q.count()
         q = q.order_by(SQLDevice.created_at.asc())

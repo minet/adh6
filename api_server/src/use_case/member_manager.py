@@ -10,6 +10,8 @@ from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, No
     MemberNotFoundError, IntMustBePositive
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
+from src.use_case.decorator.auth import auth_required, Roles
+from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
@@ -94,6 +96,8 @@ class MemberManager(CRUDManager):
         ))
 
     @log_call
+    @auto_raise
+    @auth_required(roles=[Roles.ADH6_ADMIN])
     def get_logs(self, ctx, member_id, dhcp=False) -> List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection

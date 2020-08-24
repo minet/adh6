@@ -26,8 +26,9 @@ class DeviceManager(CRUDManager):
         if 'device_id' in kwargs:
             device, count = self.repository.search_by(ctx, filter_=AbstractDevice(id=kwargs['device_id']))
             if count >= 1:
-                if device[0].member.id != admin.id:
-                    return args, kwargs, False
+                if device[0].member.id == admin.id:
+                    return args, kwargs, True
+        return args, kwargs, False
 
     def update_or_create(self, ctx, abstract_device: AbstractDevice, device_id=None):
 

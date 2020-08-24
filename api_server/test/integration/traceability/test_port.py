@@ -38,7 +38,7 @@ def test_port_log_create_port(api_client, sample_switch1, sample_room1, caplog):
 
     assert logs_contains(caplog,
                          'port_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_port_log_update_port(api_client, sample_switch1,
@@ -48,7 +48,7 @@ def test_port_log_update_port(api_client, sample_switch1,
 
     assert logs_contains(caplog,
                          'port_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_port_log_delete_port(api_client, sample_switch1,
@@ -58,5 +58,5 @@ def test_port_log_delete_port(api_client, sample_switch1,
 
     assert logs_contains(caplog,
                          'port_manager_delete',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          port_id=sample_port1.id)

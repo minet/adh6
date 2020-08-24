@@ -11,7 +11,7 @@ def test_room_log_create_room(api_client, sample_room1, caplog):
 
     assert logs_contains(caplog,
                          'room_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_room_log_update_room(api_client, sample_room1, caplog):
@@ -20,7 +20,7 @@ def test_room_log_update_room(api_client, sample_room1, caplog):
 
     assert logs_contains(caplog,
                          'room_manager_update_or_create',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          room_id=sample_room1.id)
 
 
@@ -30,5 +30,5 @@ def test_room_log_delete_room(api_client, sample_room1, caplog):
 
     assert logs_contains(caplog,
                          'room_manager_delete',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          room_id=1)

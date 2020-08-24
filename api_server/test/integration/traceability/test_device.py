@@ -41,7 +41,7 @@ def test_device_log_create_wired(api_client, caplog, wired_device_dict):
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_device_log_create_wireless(api_client, caplog, wireless_device_dict):
@@ -50,7 +50,7 @@ def test_device_log_create_wireless(api_client, caplog, wireless_device_dict):
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
-                         admin=TESTING_CLIENT)
+                         user=TESTING_CLIENT)
 
 
 def test_device_log_update_wired(api_client, caplog, wired_device,
@@ -61,7 +61,7 @@ def test_device_log_update_wired(api_client, caplog, wired_device,
 
     assert logs_contains(caplog,
                          'device_manager_partially_update',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          device_id=wired_device.id)
 
 
@@ -73,7 +73,7 @@ def test_device_log_update_wireless(api_client, caplog, wireless_device,
 
     assert logs_contains(caplog,
                          'device_manager_partially_update',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          device_id=wireless_device.id)
 
 
@@ -84,7 +84,7 @@ def test_device_log_delete_wired(api_client, caplog, wired_device,
 
     assert logs_contains(caplog,
                          'device_manager_delete',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          device_id=wired_device.id)
 
 
@@ -95,5 +95,5 @@ def test_device_log_delete_wireless(api_client, caplog, wireless_device,
 
     assert logs_contains(caplog,
                          'device_manager_delete',
-                         admin=TESTING_CLIENT,
+                         user=TESTING_CLIENT,
                          device_id=wireless_device.id)
