@@ -92,6 +92,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         with track_modifications(ctx, s, member):
             s.add(member)
+        s.flush()
 
         return _map_member_sql_to_entity(member)
 

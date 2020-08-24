@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 from pytest import fixture, raises, mark
 
 from config import TEST_CONFIGURATION
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractMember
 from src.entity.member import Member
 from src.exceptions import LogFetchError, NoPriceAssignedToThatDuration, MemberNotFoundError, IntMustBePositive, \
@@ -145,7 +146,10 @@ class TestGetByID:
 
         # Expect...
         assert sample_member == result
-        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id))
+        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
+                                                                 limit=DEFAULT_LIMIT,
+                                                                 offset=DEFAULT_OFFSET,
+                                                                 terms=None)
 
     def test_not_found(self, ctx,
                        sample_member,
@@ -159,7 +163,10 @@ class TestGetByID:
             member_manager.get_by_id(ctx, member_id=sample_member.id)
 
         # Expect...
-        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id))
+        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
+                                                                 limit=DEFAULT_LIMIT,
+                                                                 offset=DEFAULT_OFFSET,
+                                                                 terms=None)
 
 
 class TestSearch:

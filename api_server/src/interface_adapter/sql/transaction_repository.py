@@ -109,6 +109,8 @@ class TransactionSQLRepository(TransactionRepository):
 
         with track_modifications(ctx, s, transaction):
             s.add(transaction)
+        s.flush()
+
         return _map_transaction_sql_to_entity(transaction)
 
     def update(self, ctx, abstract_transaction: AbstractTransaction, override=False) -> object:

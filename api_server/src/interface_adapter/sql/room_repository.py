@@ -64,6 +64,7 @@ class RoomSQLRepository(RoomRepository):
 
         with track_modifications(ctx, s, room):
             s.add(room)
+        s.flush()
 
         return _map_room_sql_to_entity(room)
 
