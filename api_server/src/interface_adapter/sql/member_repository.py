@@ -35,6 +35,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
                   filter_: AbstractMember = None) -> (List[Member], int):
         s = ctx.get(CTX_SQL_SESSION)
         q = s.query(Adherent)
+        q = q.outerjoin(Chambre, Chambre.id == Adherent.chambre_id)
 
         if filter_.username is not None:
             q = q.filter(Adherent.login == filter_.username)
@@ -42,7 +43,6 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         if filter_.room is not None:
             if isinstance(filter_.room, Room):
                 filter_.room = filter_.room.id
-            q = q.join(Chambre, Chambre.id == Adherent.chambre_id)
             q = q.filter(Adherent.chambre_id == filter_.room)
 
         if filter_.id is not None:
