@@ -27,9 +27,9 @@ def pytest_unconfigure(config):
     del sys._called_from_unit_test
 
 @fixture
-def ctx(sample_admin):
+def ctx(sample_member):
     return build_context(
-        admin=sample_admin,
+        admin=sample_member,
         testing=True,
     )
 

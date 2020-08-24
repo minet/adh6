@@ -211,3 +211,13 @@ class NetworkManagerReadError(RuntimeError):
     Thrown whenever a network manager fails to read values from a remote device
     """
     pass
+
+
+class UnauthorizedError(PermissionError):
+    def __init__(self, msg='Unauthorized'):
+        super().__init__(msg)
+
+
+class UnauthenticatedError(PermissionError):
+    def __init__(self, msg='Authentication required.'):
+        super().__init__(msg)

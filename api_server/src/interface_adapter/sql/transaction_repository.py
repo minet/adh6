@@ -69,9 +69,9 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_login = ctx.get(CTX_ADMIN).login
+        admin_id = ctx.get(CTX_ADMIN).id
         author_ref = s.query(Adherent).join(SQLAdmin) \
-            .filter(Adherent.login == admin_login) \
+            .filter(Adherent.id == admin_id) \
             .filter(Adherent.admin is not None).one_or_none()
         if not author_ref:
             raise AdminNotFoundError(abstract_transaction.author)

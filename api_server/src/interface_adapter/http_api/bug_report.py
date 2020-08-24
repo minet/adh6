@@ -3,7 +3,6 @@
 from gitlab.v4.objects import ProjectIssue
 
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.bug_report_manager import BugReportManager
 from src.util.context import log_extra
@@ -16,7 +15,6 @@ class BugReportHandler:
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def post(self, ctx, body):
         """ Add a new issue to the gitlab project """
         LOG.debug("http_bug_report_post_called", extra=log_extra(ctx, request=body))
@@ -27,7 +25,6 @@ class BugReportHandler:
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def get_labels(self, ctx):
         """ List available labels from the gitlab project """
         LOG.debug("http_bug_report_get_labels_called", extra=log_extra(ctx))

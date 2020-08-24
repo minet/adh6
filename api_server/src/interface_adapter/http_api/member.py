@@ -11,7 +11,6 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.http_api.util.error import bad_request
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
 from src.util.context import log_extra
@@ -25,7 +24,6 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def membership_post(self, ctx, username, body):
         """ Add a membership record in the database """
@@ -44,7 +42,6 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def password_put(self, ctx, member_id, body):
         """ Set the password of a member. """
@@ -61,7 +58,6 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def logs_search(self, ctx, member_id, dhcp=False):
         """ Get logs from a member. """

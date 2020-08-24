@@ -1,7 +1,6 @@
 # coding=utf-8
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import bad_request
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.account_manager import AccountManager
 from src.use_case.cashbox_manager import CashboxManager
@@ -17,7 +16,6 @@ class TreasuryHandler:
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def get_bank(self, ctx):
         """ Get the status of MiNET's CAV account. """
         LOG.debug("http_treasury_get_bank_called", extra=log_extra(ctx))
@@ -26,19 +24,16 @@ class TreasuryHandler:
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def post(self, ctx, body):
         return bad_request(), 400  # 400 Bad Request
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def put(self, ctx, transaction_id, body):
         pass
 
     @with_context
     @require_sql
-    @auth_regular_admin
     def get_cashbox(self, ctx):
         """ Get the status of the cashbox. """
         LOG.debug("http_treasury_get_cashbox_called", extra=log_extra(ctx))

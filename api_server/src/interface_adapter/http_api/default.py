@@ -2,11 +2,10 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.exceptions import NotFoundError, ValidationError, UserInputError
+from src.exceptions import NotFoundError, ValidationError, UserInputError, UnauthorizedError, UnauthenticatedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.serializer import deserialize_request, serialize_response
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.crud_manager import CRUDManager
 from src.util.context import log_extra
@@ -21,12 +20,12 @@ class DefaultHandler:
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
         try:
             filter_ = deserialize_request(filter_, self.abstract_entity_class)
-            result, total_count = self.main_manager.search(ctx, limit, offset, terms, filter_)
+            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
+                                                           filter_=filter_)
             headers = {
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
@@ -35,13 +34,16 @@ class DefaultHandler:
             return result, 200, headers
         except ValidationError as e:
             return _error(400, str(e)), 400
+        except UnauthenticatedError as e:
+            return _error(401, str(e)), 401
+        except UnauthorizedError as e:
+            return _error(403, str(e)), 403
         except Exception as e:
             LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
             return _error(500, "The server encountered an unexpected error"), 500
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def get(self, ctx, **kwargs):
         try:
@@ -50,13 +52,16 @@ class DefaultHandler:
             return _error(404, str(e)), 404
         except ValidationError as e:
             return _error(400, str(e)), 400
+        except UnauthenticatedError as e:
+            return _error(401, str(e)), 401
+        except UnauthorizedError as e:
+            return _error(403, str(e)), 403
         except Exception as e:
             LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
             return _error(500, "The server encountered an unexpected error"), 500
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def post(self, ctx, body):
         try:
@@ -71,27 +76,28 @@ class DefaultHandler:
             return _error(400, str(e)), 400
         except UserInputError as e:
             return _error(400, str(e)), 400
+        except UnauthenticatedError as e:
+            return _error(401, str(e)), 401
+        except UnauthorizedError as e:
+            return _error(403, str(e)), 403
         except Exception as e:
             LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
             return _error(500, "The server encountered an unexpected error"), 500
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def put(self, ctx, *args, **kwargs):
         return _update(ctx, self.main_manager.update_or_create, self.entity_class, *args, **kwargs)
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def patch(self, ctx, *args, **kwargs):
         return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, *args, **kwargs)
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def delete(self, ctx, *args, **kwargs):
         try:
@@ -101,6 +107,10 @@ class DefaultHandler:
             return _error(404, str(e)), 404
         except ValidationError as e:
             return _error(400, str(e)), 400
+        except UnauthenticatedError as e:
+            return _error(401, str(e)), 401
+        except UnauthorizedError as e:
+            return _error(403, str(e)), 403
         except Exception as e:
             LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
             return _error(500, "The server encountered an unexpected error"), 500
@@ -120,6 +130,10 @@ def _update(ctx, function, klass, *args, **kwargs):
         return _error(400, str(e)), 400
     except NotFoundError as e:
         return _error(404, str(e)), 404
+    except UnauthenticatedError as e:
+        return _error(401, str(e)), 401
+    except UnauthorizedError as e:
+        return _error(403, str(e)), 403
     except Exception as e:
         LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
         return _error(500, "The server encountered an unexpected error"), 500

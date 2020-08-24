@@ -6,7 +6,6 @@ from src.exceptions import PortNotFoundError, SwitchNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
 from src.use_case.port_manager import PortManager
@@ -25,7 +24,6 @@ class PortHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def state_get(self, ctx, port_id):
         """ Get the state of a port """
@@ -42,14 +40,12 @@ class PortHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def state_put(self, ctx, port_id, state):
         return NoContent, 501
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def vlan_get(self, ctx, port_id):
         LOG.debug("http_port_vlan_get_called", extra=log_extra(ctx, port_id=port_id))
@@ -66,14 +62,12 @@ class PortHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def vlan_put(self, ctx, port_id, vlan):
         return NoContent, 501
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def mab_get(self, ctx, port_id):
         LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
@@ -90,7 +84,6 @@ class PortHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def mab_put(self, ctx, port_id, mab):
         return NoContent, 501

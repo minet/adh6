@@ -7,7 +7,6 @@ from src.exceptions import InvalidMACAddress
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
-from src.interface_adapter.sql.decorator.auth import auth_regular_admin
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.device_manager import DeviceManager
 from src.util.context import log_extra
@@ -22,7 +21,6 @@ class DeviceHandler(DefaultHandler):
 
     @with_context
     @require_sql
-    @auth_regular_admin
     @log_call
     def vendor_get(self, ctx, mac_address=None):
         """ Return the vendor associated with the macAddress """

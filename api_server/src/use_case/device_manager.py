@@ -1,8 +1,10 @@
 # coding=utf-8
-
+from src.constants import CTX_ADMIN
 from src.entity import AbstractDevice
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
+from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.interface.device_repository import DeviceRepository
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
@@ -17,6 +19,15 @@ class DeviceManager(CRUDManager):
                  ):
         super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError)
         self.device_repository = device_repository
+
+    @auto_raise
+    def delete_access_control_function(self, ctx, f, args, kwargs):
+        admin = ctx.get(CTX_ADMIN)
+        if 'device_id' in kwargs:
+            device, count = self.repository.search_by(ctx, filter_=AbstractDevice(id=kwargs['device_id']))
+            if count >= 1:
+                if device[0].member.id != admin.id:
+                    return args, kwargs, False
 
     def update_or_create(self, ctx, abstract_device: AbstractDevice, device_id=None):
 

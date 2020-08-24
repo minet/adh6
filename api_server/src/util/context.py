@@ -29,7 +29,7 @@ def build_context(ctx: MappingProxyType = None, session=None, admin=None, testin
 def log_extra(context: MappingProxyType, **extra_fields):
     admin_login = None
     if context.get(CTX_ADMIN):
-        admin_login = context.get(CTX_ADMIN).login
+        admin_login = context.get(CTX_ADMIN).username
 
     infos = {
         'request_uuid': context.get(CTX_REQUEST_ID),
