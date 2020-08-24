@@ -16,8 +16,8 @@ export class CotisantRecotisationComponent implements OnInit {
   private route: ActivatedRoute;
   private redirect$: Observable<any>;
   private macDevice: string;
-  private adherent: Member;
-  private room: Room;
+  adherent: Member;
+  room: Room;
   constructor(public deviceService: DeviceService,
               public memberService: MemberService,
               ) { }

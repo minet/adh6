@@ -13,14 +13,14 @@ import {AbstractDevice, AbstractMember, Device, DeviceService, Member, MemberSer
 })
 export class PortailCotisantComponent implements OnInit {
 
-  private expiration: boolean;
+  expiration: boolean;
   private macDevice: string;
   private adherent: Member;
-  private existRoom: boolean;
-  private existMac: boolean;
+  existRoom: boolean;
+  existMac: boolean;
   private route: ActivatedRoute;
   private device$: Observable<Array<Device>>;
-  private mac$: Observable<string>;
+  mac$: Observable<string>;
   private redirect$: Observable<any>;
   private member$: Observable<any>;
 
