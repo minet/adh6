@@ -78,6 +78,7 @@ class Adherent(Base, RubyHashTrackable):
         server_default=text("'2011-04-30 17:50:17'")
     )
     access_token = Column(String(255))
+    ldap_login = Column(String(255))
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 

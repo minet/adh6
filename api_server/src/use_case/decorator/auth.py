@@ -42,7 +42,7 @@ def _find_admin(s, username):
 
     try:
         q = s.query(Adherent)
-        q = q.filter(Adherent.login == username)
+        q = q.filter((Adherent.login == username) | (Adherent.ldap_login == username))
         adherent = q.one_or_none()
 
         if adherent is not None:
