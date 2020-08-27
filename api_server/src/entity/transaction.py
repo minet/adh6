@@ -15,6 +15,8 @@ import re  # noqa: F401
 
 import six
 
+from src.entity.decorator.entity_property import entity_property
+
 from src.entity import AbstractTransaction
 
 
@@ -94,7 +96,7 @@ class Transaction(object):
         if cashbox is not None:
             self.cashbox = cashbox
 
-    @property
+    @entity_property
     def id(self):
         """Gets the id of this Transaction.  # noqa: E501
 
@@ -119,7 +121,7 @@ class Transaction(object):
 
         self._id = id
 
-    @property
+    @entity_property
     def name(self):
         """Gets the name of this Transaction.  # noqa: E501
 
@@ -144,7 +146,7 @@ class Transaction(object):
 
         self._name = name
 
-    @property
+    @entity_property
     def src(self):
         """Gets the src of this Transaction.  # noqa: E501
 
@@ -169,7 +171,7 @@ class Transaction(object):
 
         self._src = src
 
-    @property
+    @entity_property
     def dst(self):
         """Gets the dst of this Transaction.  # noqa: E501
 
@@ -194,7 +196,7 @@ class Transaction(object):
 
         self._dst = dst
 
-    @property
+    @entity_property
     def timestamp(self):
         """Gets the timestamp of this Transaction.  # noqa: E501
 
@@ -217,7 +219,7 @@ class Transaction(object):
 
         self._timestamp = timestamp
 
-    @property
+    @entity_property
     def payment_method(self):
         """Gets the payment_method of this Transaction.  # noqa: E501
 
@@ -242,7 +244,7 @@ class Transaction(object):
 
         self._payment_method = payment_method
 
-    @property
+    @entity_property
     def value(self):
         """Gets the value of this Transaction.  # noqa: E501
 
@@ -267,7 +269,7 @@ class Transaction(object):
 
         self._value = value
 
-    @property
+    @entity_property
     def attachments(self):
         """Gets the attachments of this Transaction.  # noqa: E501
 
@@ -290,7 +292,7 @@ class Transaction(object):
 
         self._attachments = attachments
 
-    @property
+    @entity_property
     def author(self):
         """Gets the author of this Transaction.  # noqa: E501
 
@@ -313,7 +315,7 @@ class Transaction(object):
 
         self._author = author
 
-    @property
+    @entity_property
     def pending_validation(self):
         """Gets the pending_validation of this Transaction.  # noqa: E501
 
@@ -336,7 +338,7 @@ class Transaction(object):
 
         self._pending_validation = pending_validation
 
-    @property
+    @entity_property
     def cashbox(self):
         """Gets the cashbox of this Transaction.  # noqa: E501
 

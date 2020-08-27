@@ -15,6 +15,8 @@ import re  # noqa: F401
 
 import six
 
+from src.entity.decorator.entity_property import entity_property
+
 from src.entity import AbstractMembership
 
 
@@ -88,7 +90,7 @@ class Membership(object):
         if updated_at is not None:
             self.updated_at = updated_at
 
-    @property
+    @entity_property
     def uuid(self):
         """Gets the uuid of this Membership.  # noqa: E501
 
@@ -113,7 +115,7 @@ class Membership(object):
 
         self._uuid = uuid
 
-    @property
+    @entity_property
     def duration(self):
         """Gets the duration of this Membership.  # noqa: E501
 
@@ -144,7 +146,7 @@ class Membership(object):
 
         self._duration = duration
 
-    @property
+    @entity_property
     def products(self):
         """Gets the products of this Membership.  # noqa: E501
 
@@ -169,7 +171,7 @@ class Membership(object):
 
         self._products = products
 
-    @property
+    @entity_property
     def first_time(self):
         """Gets the first_time of this Membership.  # noqa: E501
 
@@ -192,7 +194,7 @@ class Membership(object):
 
         self._first_time = first_time
 
-    @property
+    @entity_property
     def payment_method(self):
         """Gets the payment_method of this Membership.  # noqa: E501
 
@@ -217,7 +219,7 @@ class Membership(object):
 
         self._payment_method = payment_method
 
-    @property
+    @entity_property
     def account(self):
         """Gets the account of this Membership.  # noqa: E501
 
@@ -242,7 +244,7 @@ class Membership(object):
 
         self._account = account
 
-    @property
+    @entity_property
     def member(self):
         """Gets the member of this Membership.  # noqa: E501
 
@@ -267,7 +269,7 @@ class Membership(object):
 
         self._member = member
 
-    @property
+    @entity_property
     def status(self):
         """Gets the status of this Membership.  # noqa: E501
 
@@ -298,7 +300,7 @@ class Membership(object):
 
         self._status = status
 
-    @property
+    @entity_property
     def created_at(self):
         """Gets the created_at of this Membership.  # noqa: E501
 
@@ -321,7 +323,7 @@ class Membership(object):
 
         self._created_at = created_at
 
-    @property
+    @entity_property
     def updated_at(self):
         """Gets the updated_at of this Membership.  # noqa: E501
 

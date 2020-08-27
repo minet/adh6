@@ -15,6 +15,8 @@ import re  # noqa: F401
 
 import six
 
+from src.entity.decorator.entity_property import entity_property
+
 from src.entity import AbstractPaymentMethod
 
 
@@ -63,7 +65,7 @@ class PaymentMethod(object):
             self.dynamic_fee = dynamic_fee
         self.name = name
 
-    @property
+    @entity_property
     def id(self):
         """Gets the id of this PaymentMethod.  # noqa: E501
 
@@ -88,7 +90,7 @@ class PaymentMethod(object):
 
         self._id = id
 
-    @property
+    @entity_property
     def static_fee(self):
         """Gets the static_fee of this PaymentMethod.  # noqa: E501
 
@@ -111,7 +113,7 @@ class PaymentMethod(object):
 
         self._static_fee = static_fee
 
-    @property
+    @entity_property
     def dynamic_fee(self):
         """Gets the dynamic_fee of this PaymentMethod.  # noqa: E501
 
@@ -134,7 +136,7 @@ class PaymentMethod(object):
 
         self._dynamic_fee = dynamic_fee
 
-    @property
+    @entity_property
     def name(self):
         """Gets the name of this PaymentMethod.  # noqa: E501
 

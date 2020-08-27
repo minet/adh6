@@ -15,6 +15,8 @@ import re  # noqa: F401
 
 import six
 
+from src.entity.decorator.entity_property import entity_property
+
 from src.entity import AbstractMember
 
 
@@ -85,7 +87,7 @@ class Member(object):
         if room is not None:
             self.room = room
 
-    @property
+    @entity_property
     def id(self):
         """Gets the id of this Member.  # noqa: E501
 
@@ -110,7 +112,7 @@ class Member(object):
 
         self._id = id
 
-    @property
+    @entity_property
     def username(self):
         """Gets the username of this Member.  # noqa: E501
 
@@ -135,7 +137,7 @@ class Member(object):
 
         self._username = username
 
-    @property
+    @entity_property
     def association_mode(self):
         """Gets the association_mode of this Member.  # noqa: E501
 
@@ -158,7 +160,7 @@ class Member(object):
 
         self._association_mode = association_mode
 
-    @property
+    @entity_property
     def comment(self):
         """Gets the comment of this Member.  # noqa: E501
 
@@ -181,7 +183,7 @@ class Member(object):
 
         self._comment = comment
 
-    @property
+    @entity_property
     def departure_date(self):
         """Gets the departure_date of this Member.  # noqa: E501
 
@@ -204,7 +206,7 @@ class Member(object):
 
         self._departure_date = departure_date
 
-    @property
+    @entity_property
     def email(self):
         """Gets the email of this Member.  # noqa: E501
 
@@ -229,7 +231,7 @@ class Member(object):
 
         self._email = email
 
-    @property
+    @entity_property
     def first_name(self):
         """Gets the first_name of this Member.  # noqa: E501
 
@@ -254,7 +256,7 @@ class Member(object):
 
         self._first_name = first_name
 
-    @property
+    @entity_property
     def last_name(self):
         """Gets the last_name of this Member.  # noqa: E501
 
@@ -279,7 +281,7 @@ class Member(object):
 
         self._last_name = last_name
 
-    @property
+    @entity_property
     def room(self):
         """Gets the room of this Member.  # noqa: E501
 
