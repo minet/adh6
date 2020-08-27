@@ -16,6 +16,14 @@ export interface AbstractPaymentMethod {
      */
     readonly id?: number;
     /**
+     * The static fee for this payment method in euros
+     */
+    staticFee?: number;
+    /**
+     * The dynamic fee for this payment method as a percentage
+     */
+    dynamicFee?: number;
+    /**
      * The friendly name of this payment method
      */
     name?: string;

@@ -32,6 +32,8 @@ class PaymentMethod(object):
     """
     swagger_types = {
         'id': 'int',
+        'static_fee': 'float',
+        'dynamic_fee': 'float',
         'name': 'str'
     }
     if hasattr(AbstractPaymentMethod, "swagger_types"):
@@ -39,18 +41,26 @@ class PaymentMethod(object):
 
     attribute_map = {
         'id': 'id',
+        'static_fee': 'staticFee',
+        'dynamic_fee': 'dynamicFee',
         'name': 'name'
     }
     if hasattr(AbstractPaymentMethod, "attribute_map"):
         attribute_map.update(AbstractPaymentMethod.attribute_map)
 
-    def __init__(self, id=None, name=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, static_fee=None, dynamic_fee=None, name=None, *args, **kwargs):  # noqa: E501
         """PaymentMethod - a model defined in Swagger"""  # noqa: E501
         AbstractPaymentMethod.__init__(self, *args, **kwargs)
         self._id = None
+        self._static_fee = None
+        self._dynamic_fee = None
         self._name = None
         self.discriminator = None
         self.id = id
+        if static_fee is not None:
+            self.static_fee = static_fee
+        if dynamic_fee is not None:
+            self.dynamic_fee = dynamic_fee
         self.name = name
 
     @property
@@ -77,6 +87,52 @@ class PaymentMethod(object):
             raise ValueError("Invalid value for `id`, must not be `None`")  # noqa: E501
 
         self._id = id
+
+    @property
+    def static_fee(self):
+        """Gets the static_fee of this PaymentMethod.  # noqa: E501
+
+        The static fee for this payment method in euros  # noqa: E501
+
+        :return: The static_fee of this PaymentMethod.  # noqa: E501
+        :rtype: float
+        """
+        return self._static_fee
+
+    @static_fee.setter
+    def static_fee(self, static_fee):
+        """Sets the static_fee of this PaymentMethod.
+
+        The static fee for this payment method in euros  # noqa: E501
+
+        :param static_fee: The static_fee of this PaymentMethod.  # noqa: E501
+        :type: float
+        """
+
+        self._static_fee = static_fee
+
+    @property
+    def dynamic_fee(self):
+        """Gets the dynamic_fee of this PaymentMethod.  # noqa: E501
+
+        The dynamic fee for this payment method as a percentage  # noqa: E501
+
+        :return: The dynamic_fee of this PaymentMethod.  # noqa: E501
+        :rtype: float
+        """
+        return self._dynamic_fee
+
+    @dynamic_fee.setter
+    def dynamic_fee(self, dynamic_fee):
+        """Sets the dynamic_fee of this PaymentMethod.
+
+        The dynamic fee for this payment method as a percentage  # noqa: E501
+
+        :param dynamic_fee: The dynamic_fee of this PaymentMethod.  # noqa: E501
+        :type: float
+        """
+
+        self._dynamic_fee = dynamic_fee
 
     @property
     def name(self):

@@ -1903,6 +1903,16 @@ components:
           example: 0
           readOnly: true
           type: integer
+        staticFee:
+          description: The static fee for this payment method in euros
+          example: 0.25
+          type: number
+        dynamicFee:
+          description: The dynamic fee for this payment method as a percentage
+          example: 0.05
+          minimum: 0
+          maximum: 1
+          type: number
         name:
           description: The friendly name of this payment method
           example: Carte bancaire
