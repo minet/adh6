@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class AbstractPort(object):
@@ -65,7 +65,7 @@ class AbstractPort(object):
         if switch_obj is not None:
             self.switch_obj = switch_obj
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this AbstractPort.  # noqa: E501
 
@@ -88,7 +88,7 @@ class AbstractPort(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def port_number(self):
         """Gets the port_number of this AbstractPort.  # noqa: E501
 
@@ -111,7 +111,7 @@ class AbstractPort(object):
 
         self._port_number = port_number
 
-    @entity_property
+    @property
     def oid(self):
         """Gets the oid of this AbstractPort.  # noqa: E501
 
@@ -134,7 +134,7 @@ class AbstractPort(object):
 
         self._oid = oid
 
-    @entity_property
+    @property
     def room(self):
         """Gets the room of this AbstractPort.  # noqa: E501
 
@@ -157,7 +157,7 @@ class AbstractPort(object):
 
         self._room = room
 
-    @entity_property
+    @property
     def switch_obj(self):
         """Gets the switch_obj of this AbstractPort.  # noqa: E501
 

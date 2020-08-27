@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Statistics(object):
@@ -45,7 +45,7 @@ class Statistics(object):
         if active_accounts is not None:
             self.active_accounts = active_accounts
 
-    @entity_property
+    @property
     def active_accounts(self):
         """Gets the active_accounts of this Statistics.  # noqa: E501
 

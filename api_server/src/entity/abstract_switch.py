@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class AbstractSwitch(object):
@@ -60,7 +60,7 @@ class AbstractSwitch(object):
         if ip is not None:
             self.ip = ip
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this AbstractSwitch.  # noqa: E501
 
@@ -83,7 +83,7 @@ class AbstractSwitch(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def description(self):
         """Gets the description of this AbstractSwitch.  # noqa: E501
 
@@ -106,7 +106,7 @@ class AbstractSwitch(object):
 
         self._description = description
 
-    @entity_property
+    @property
     def community(self):
         """Gets the community of this AbstractSwitch.  # noqa: E501
 
@@ -129,7 +129,7 @@ class AbstractSwitch(object):
 
         self._community = community
 
-    @entity_property
+    @property
     def ip(self):
         """Gets the ip of this AbstractSwitch.  # noqa: E501
 

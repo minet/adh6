@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Admin(object):
@@ -48,7 +48,7 @@ class Admin(object):
         self.login = login
         self.roles = roles
 
-    @entity_property
+    @property
     def login(self):
         """Gets the login of this Admin.  # noqa: E501
 
@@ -73,7 +73,7 @@ class Admin(object):
 
         self._login = login
 
-    @entity_property
+    @property
     def roles(self):
         """Gets the roles of this Admin.  # noqa: E501
 

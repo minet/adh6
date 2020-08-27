@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Body(object):
@@ -50,7 +50,7 @@ class Body(object):
         if hashed_password is not None:
             self.hashed_password = hashed_password
 
-    @entity_property
+    @property
     def password(self):
         """Gets the password of this Body.  # noqa: E501
 
@@ -73,7 +73,7 @@ class Body(object):
 
         self._password = password
 
-    @entity_property
+    @property
     def hashed_password(self):
         """Gets the hashed_password of this Body.  # noqa: E501
 

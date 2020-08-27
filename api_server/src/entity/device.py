@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 from src.entity import AbstractDevice
 
@@ -73,7 +73,7 @@ class Device(object):
         self.mac = mac
         self.member = member
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this Device.  # noqa: E501
 
@@ -98,7 +98,7 @@ class Device(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def connection_type(self):
         """Gets the connection_type of this Device.  # noqa: E501
 
@@ -129,7 +129,7 @@ class Device(object):
 
         self._connection_type = connection_type
 
-    @entity_property
+    @property
     def ipv4_address(self):
         """Gets the ipv4_address of this Device.  # noqa: E501
 
@@ -152,7 +152,7 @@ class Device(object):
 
         self._ipv4_address = ipv4_address
 
-    @entity_property
+    @property
     def ipv6_address(self):
         """Gets the ipv6_address of this Device.  # noqa: E501
 
@@ -175,7 +175,7 @@ class Device(object):
 
         self._ipv6_address = ipv6_address
 
-    @entity_property
+    @property
     def mac(self):
         """Gets the mac of this Device.  # noqa: E501
 
@@ -200,7 +200,7 @@ class Device(object):
 
         self._mac = mac
 
-    @entity_property
+    @property
     def member(self):
         """Gets the member of this Device.  # noqa: E501
 

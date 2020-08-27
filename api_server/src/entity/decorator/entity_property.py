@@ -4,6 +4,7 @@ from src.entity.util.logic import BinaryExpression
 
 
 class entity_property(property):
+
     def __eq__(self, other):
         return BinaryExpression(self, other, operator=operator.eq)
 

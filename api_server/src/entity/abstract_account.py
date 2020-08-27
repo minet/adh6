@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class AbstractAccount(object):
@@ -90,7 +90,7 @@ class AbstractAccount(object):
         if pending_balance is not None:
             self.pending_balance = pending_balance
 
-    @entity_property
+    @property
     def actif(self):
         """Gets the actif of this AbstractAccount.  # noqa: E501
 
@@ -113,7 +113,7 @@ class AbstractAccount(object):
 
         self._actif = actif
 
-    @entity_property
+    @property
     def pinned(self):
         """Gets the pinned of this AbstractAccount.  # noqa: E501
 
@@ -136,7 +136,7 @@ class AbstractAccount(object):
 
         self._pinned = pinned
 
-    @entity_property
+    @property
     def compte_courant(self):
         """Gets the compte_courant of this AbstractAccount.  # noqa: E501
 
@@ -159,7 +159,7 @@ class AbstractAccount(object):
 
         self._compte_courant = compte_courant
 
-    @entity_property
+    @property
     def account_type(self):
         """Gets the account_type of this AbstractAccount.  # noqa: E501
 
@@ -182,7 +182,7 @@ class AbstractAccount(object):
 
         self._account_type = account_type
 
-    @entity_property
+    @property
     def creation_date(self):
         """Gets the creation_date of this AbstractAccount.  # noqa: E501
 
@@ -205,7 +205,7 @@ class AbstractAccount(object):
 
         self._creation_date = creation_date
 
-    @entity_property
+    @property
     def member(self):
         """Gets the member of this AbstractAccount.  # noqa: E501
 
@@ -228,7 +228,7 @@ class AbstractAccount(object):
 
         self._member = member
 
-    @entity_property
+    @property
     def name(self):
         """Gets the name of this AbstractAccount.  # noqa: E501
 
@@ -251,7 +251,7 @@ class AbstractAccount(object):
 
         self._name = name
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this AbstractAccount.  # noqa: E501
 
@@ -274,7 +274,7 @@ class AbstractAccount(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def balance(self):
         """Gets the balance of this AbstractAccount.  # noqa: E501
 
@@ -297,7 +297,7 @@ class AbstractAccount(object):
 
         self._balance = balance
 
-    @entity_property
+    @property
     def pending_balance(self):
         """Gets the pending_balance of this AbstractAccount.  # noqa: E501
 

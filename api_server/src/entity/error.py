@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Error(object):
@@ -50,7 +50,7 @@ class Error(object):
         if message is not None:
             self.message = message
 
-    @entity_property
+    @property
     def code(self):
         """Gets the code of this Error.  # noqa: E501
 
@@ -73,7 +73,7 @@ class Error(object):
 
         self._code = code
 
-    @entity_property
+    @property
     def message(self):
         """Gets the message of this Error.  # noqa: E501
 

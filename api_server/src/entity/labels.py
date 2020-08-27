@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Labels(object):
@@ -45,7 +45,7 @@ class Labels(object):
         if labels is not None:
             self.labels = labels
 
-    @entity_property
+    @property
     def labels(self):
         """Gets the labels of this Labels.  # noqa: E501
 

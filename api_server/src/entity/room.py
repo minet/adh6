@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 from src.entity import AbstractRoom
 
@@ -63,7 +63,7 @@ class Room(object):
         self.room_number = room_number
         self.vlan = vlan
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this Room.  # noqa: E501
 
@@ -88,7 +88,7 @@ class Room(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def description(self):
         """Gets the description of this Room.  # noqa: E501
 
@@ -113,7 +113,7 @@ class Room(object):
 
         self._description = description
 
-    @entity_property
+    @property
     def room_number(self):
         """Gets the room_number of this Room.  # noqa: E501
 
@@ -138,7 +138,7 @@ class Room(object):
 
         self._room_number = room_number
 
-    @entity_property
+    @property
     def vlan(self):
         """Gets the vlan of this Room.  # noqa: E501
 

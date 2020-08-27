@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 from src.entity import AbstractProduct
 
@@ -64,7 +64,7 @@ class Product(object):
         self.selling_price = selling_price
         self.name = name
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this Product.  # noqa: E501
 
@@ -89,7 +89,7 @@ class Product(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def buying_price(self):
         """Gets the buying_price of this Product.  # noqa: E501
 
@@ -112,7 +112,7 @@ class Product(object):
 
         self._buying_price = buying_price
 
-    @entity_property
+    @property
     def selling_price(self):
         """Gets the selling_price of this Product.  # noqa: E501
 
@@ -137,7 +137,7 @@ class Product(object):
 
         self._selling_price = selling_price
 
-    @entity_property
+    @property
     def name(self):
         """Gets the name of this Product.  # noqa: E501
 

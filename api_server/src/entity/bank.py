@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Bank(object):
@@ -45,7 +45,7 @@ class Bank(object):
         if expected_cav is not None:
             self.expected_cav = expected_cav
 
-    @entity_property
+    @property
     def expected_cav(self):
         """Gets the expected_cav of this Bank.  # noqa: E501
 

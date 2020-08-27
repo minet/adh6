@@ -1,6 +1,3 @@
-from src.entity.decorator.entity_property import entity_property
-
-
 class Expression:
 
     def __init__(self, *terms):
@@ -9,7 +6,7 @@ class Expression:
     def __call__(self, obj):
         values = []
         for term in self._terms:
-            if isinstance(term, entity_property):
+            if isinstance(term, property):
                 values.append(term.__get__(obj))
             elif isinstance(term, Expression):
                 values.append(term(obj))

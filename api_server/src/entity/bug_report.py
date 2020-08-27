@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class BugReport(object):
@@ -52,7 +52,7 @@ class BugReport(object):
         self.description = description
         self.labels = labels
 
-    @entity_property
+    @property
     def title(self):
         """Gets the title of this BugReport.  # noqa: E501
 
@@ -77,7 +77,7 @@ class BugReport(object):
 
         self._title = title
 
-    @entity_property
+    @property
     def description(self):
         """Gets the description of this BugReport.  # noqa: E501
 
@@ -102,7 +102,7 @@ class BugReport(object):
 
         self._description = description
 
-    @entity_property
+    @property
     def labels(self):
         """Gets the labels of this BugReport.  # noqa: E501
 

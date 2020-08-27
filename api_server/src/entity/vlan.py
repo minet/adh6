@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Vlan(object):
@@ -56,7 +56,7 @@ class Vlan(object):
         self.ipv4_network = ipv4_network
         self.ipv6_network = ipv6_network
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this Vlan.  # noqa: E501
 
@@ -81,7 +81,7 @@ class Vlan(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def number(self):
         """Gets the number of this Vlan.  # noqa: E501
 
@@ -106,7 +106,7 @@ class Vlan(object):
 
         self._number = number
 
-    @entity_property
+    @property
     def ipv4_network(self):
         """Gets the ipv4_network of this Vlan.  # noqa: E501
 
@@ -131,7 +131,7 @@ class Vlan(object):
 
         self._ipv4_network = ipv4_network
 
-    @entity_property
+    @property
     def ipv6_network(self):
         """Gets the ipv6_network of this Vlan.  # noqa: E501
 

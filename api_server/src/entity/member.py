@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 from src.entity import AbstractMember
 
@@ -87,7 +87,7 @@ class Member(object):
         if room is not None:
             self.room = room
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this Member.  # noqa: E501
 
@@ -112,7 +112,7 @@ class Member(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def username(self):
         """Gets the username of this Member.  # noqa: E501
 
@@ -137,7 +137,7 @@ class Member(object):
 
         self._username = username
 
-    @entity_property
+    @property
     def association_mode(self):
         """Gets the association_mode of this Member.  # noqa: E501
 
@@ -160,7 +160,7 @@ class Member(object):
 
         self._association_mode = association_mode
 
-    @entity_property
+    @property
     def comment(self):
         """Gets the comment of this Member.  # noqa: E501
 
@@ -183,7 +183,7 @@ class Member(object):
 
         self._comment = comment
 
-    @entity_property
+    @property
     def departure_date(self):
         """Gets the departure_date of this Member.  # noqa: E501
 
@@ -206,7 +206,7 @@ class Member(object):
 
         self._departure_date = departure_date
 
-    @entity_property
+    @property
     def email(self):
         """Gets the email of this Member.  # noqa: E501
 
@@ -231,7 +231,7 @@ class Member(object):
 
         self._email = email
 
-    @entity_property
+    @property
     def first_name(self):
         """Gets the first_name of this Member.  # noqa: E501
 
@@ -256,7 +256,7 @@ class Member(object):
 
         self._first_name = first_name
 
-    @entity_property
+    @property
     def last_name(self):
         """Gets the last_name of this Member.  # noqa: E501
 
@@ -281,7 +281,7 @@ class Member(object):
 
         self._last_name = last_name
 
-    @entity_property
+    @property
     def room(self):
         """Gets the room of this Member.  # noqa: E501
 

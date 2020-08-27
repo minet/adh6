@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Cashbox(object):
@@ -50,7 +50,7 @@ class Cashbox(object):
         if coffre is not None:
             self.coffre = coffre
 
-    @entity_property
+    @property
     def fond(self):
         """Gets the fond of this Cashbox.  # noqa: E501
 
@@ -73,7 +73,7 @@ class Cashbox(object):
 
         self._fond = fond
 
-    @entity_property
+    @property
     def coffre(self):
         """Gets the coffre of this Cashbox.  # noqa: E501
 

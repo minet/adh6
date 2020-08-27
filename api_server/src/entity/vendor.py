@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class Vendor(object):
@@ -45,7 +45,7 @@ class Vendor(object):
         if vendorname is not None:
             self.vendorname = vendorname
 
-    @entity_property
+    @property
     def vendorname(self):
         """Gets the vendorname of this Vendor.  # noqa: E501
 

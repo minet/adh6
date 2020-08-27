@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class MembershipRequest(object):
@@ -52,7 +52,7 @@ class MembershipRequest(object):
         self.payment_method = payment_method
         self.first_time = first_time
 
-    @entity_property
+    @property
     def duration(self):
         """Gets the duration of this MembershipRequest.  # noqa: E501
 
@@ -77,7 +77,7 @@ class MembershipRequest(object):
 
         self._duration = duration
 
-    @entity_property
+    @property
     def payment_method(self):
         """Gets the payment_method of this MembershipRequest.  # noqa: E501
 
@@ -102,7 +102,7 @@ class MembershipRequest(object):
 
         self._payment_method = payment_method
 
-    @entity_property
+    @property
     def first_time(self):
         """Gets the first_time of this MembershipRequest.  # noqa: E501
 

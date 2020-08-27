@@ -15,7 +15,7 @@ import re  # noqa: F401
 
 import six
 
-from src.entity.decorator.entity_property import entity_property
+from src.entity.decorator.entity_property import entity_property as property
 
 
 class AbstractMember(object):
@@ -85,7 +85,7 @@ class AbstractMember(object):
         if room is not None:
             self.room = room
 
-    @entity_property
+    @property
     def id(self):
         """Gets the id of this AbstractMember.  # noqa: E501
 
@@ -108,7 +108,7 @@ class AbstractMember(object):
 
         self._id = id
 
-    @entity_property
+    @property
     def username(self):
         """Gets the username of this AbstractMember.  # noqa: E501
 
@@ -131,7 +131,7 @@ class AbstractMember(object):
 
         self._username = username
 
-    @entity_property
+    @property
     def association_mode(self):
         """Gets the association_mode of this AbstractMember.  # noqa: E501
 
@@ -154,7 +154,7 @@ class AbstractMember(object):
 
         self._association_mode = association_mode
 
-    @entity_property
+    @property
     def comment(self):
         """Gets the comment of this AbstractMember.  # noqa: E501
 
@@ -177,7 +177,7 @@ class AbstractMember(object):
 
         self._comment = comment
 
-    @entity_property
+    @property
     def departure_date(self):
         """Gets the departure_date of this AbstractMember.  # noqa: E501
 
@@ -200,7 +200,7 @@ class AbstractMember(object):
 
         self._departure_date = departure_date
 
-    @entity_property
+    @property
     def email(self):
         """Gets the email of this AbstractMember.  # noqa: E501
 
@@ -223,7 +223,7 @@ class AbstractMember(object):
 
         self._email = email
 
-    @entity_property
+    @property
     def first_name(self):
         """Gets the first_name of this AbstractMember.  # noqa: E501
 
@@ -246,7 +246,7 @@ class AbstractMember(object):
 
         self._first_name = first_name
 
-    @entity_property
+    @property
     def last_name(self):
         """Gets the last_name of this AbstractMember.  # noqa: E501
 
@@ -269,7 +269,7 @@ class AbstractMember(object):
 
         self._last_name = last_name
 
-    @entity_property
+    @property
     def room(self):
         """Gets the room of this AbstractMember.  # noqa: E501
 
