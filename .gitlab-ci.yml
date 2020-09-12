@@ -30,6 +30,8 @@ angular_try_build:
   environment:
     name: development
     url: https://adh6-dev.minet.net/
+  only:
+    - master
 
 angular_build_prod:
   stage: build
@@ -50,6 +52,8 @@ angular_build_prod:
   environment:
     name: production
     url: https://adh6.minet.net/
+  only:
+    - production
 
 python_check_for_vuln_deps:
   stage: test
@@ -101,6 +105,8 @@ deploy_dev:
     url: https://adh6-dev.minet.net/
   tags:
     - dev
+  only:
+    - master
 
 deploy_prod_front:
   stage: deploy
@@ -113,6 +119,8 @@ deploy_prod_front:
   tags:
     - adh6-prod
     - adh6-frontend
+  only:
+    - production
 
 deploy_prod_backend:
   stage: deploy
@@ -131,7 +139,7 @@ deploy_prod_backend:
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
     - sudo systemctl start emperor.uwsgi.service
   only:
-    - master
+    - production
   environment:
     name: production
     url: https://adh6.minet.net/
