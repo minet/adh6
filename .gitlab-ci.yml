@@ -120,7 +120,7 @@ deploy_prod_backend:
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
-    - sudo pip3 install -r ./requirements.txt
+    - sudo -E pip3 install -r ./requirements.txt
   script:
     - /usr/local/bin/mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
