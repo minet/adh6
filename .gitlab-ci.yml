@@ -130,7 +130,7 @@ deploy_prod_backend:
     - cd api_server/
     - sudo -E pip3 install -r ./requirements.txt
   script:
-    - /usr/local/bin/mibdump.py CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+    - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
     - python3 manage.py db upgrade
