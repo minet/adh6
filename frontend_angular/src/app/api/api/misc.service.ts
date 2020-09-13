@@ -18,6 +18,7 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { BugReport } from '../model/bugReport';
+import { InlineResponse200 } from '../model/inlineResponse200';
 import { Labels } from '../model/labels';
 import { Statistics } from '../model/statistics';
 
@@ -188,6 +189,52 @@ export class MiscService {
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('get',`${this.basePath}/health`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Introspection endpoint
+     * This endpoint returns information about the currently logged-in user, such as their roles. 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public profile(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<InlineResponse200>;
+    public profile(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<InlineResponse200>>;
+    public profile(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<InlineResponse200>>;
+    public profile(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<InlineResponse200>('get',`${this.basePath}/profile`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

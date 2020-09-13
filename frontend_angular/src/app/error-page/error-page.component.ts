@@ -8,6 +8,9 @@ import {ErrorPageService} from '../error-page.service';
   styleUrls: ['./error-page.component.css']
 })
 export class ErrorPageComponent implements OnInit {
+  HANDLED_ERRORS = [
+    403, 500, 404
+  ];
   error: any;
   constructor(private errorPageService: ErrorPageService) { }
 

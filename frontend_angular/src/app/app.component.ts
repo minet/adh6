@@ -33,10 +33,15 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private _service: NotificationsService,
     private miscService: MiscService,
-    private errorPageService: ErrorPageService
+    private errorPageService: ErrorPageService,
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
+    this.miscService.profile().subscribe(
+      (profile) => {
+        console.log(profile);
+      });
+
     router.events.subscribe(event => {
       if (event instanceof RoutesRecognized) {
         this.hasError.next(false);

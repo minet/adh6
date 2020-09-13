@@ -1,10 +1,10 @@
 # coding=utf-8
 from types import MappingProxyType
 
-from src.constants import CTX_SQL_SESSION, CTX_ADMIN, CTX_TESTING, CTX_REQUEST_ID, CTX_REQUEST_URL
+from src.constants import CTX_SQL_SESSION, CTX_ADMIN, CTX_TESTING, CTX_REQUEST_ID, CTX_REQUEST_URL, CTX_ROLES
 
 
-def build_context(ctx: MappingProxyType = None, session=None, admin=None, testing=None, request_id=None, url=None):
+def build_context(ctx: MappingProxyType = None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None):
     """
 
     :rtype:
@@ -12,6 +12,7 @@ def build_context(ctx: MappingProxyType = None, session=None, admin=None, testin
     new_fields = {
         CTX_SQL_SESSION: session,
         CTX_ADMIN: admin,
+        CTX_ROLES: roles,
         CTX_TESTING: testing,
         CTX_REQUEST_ID: request_id,
         CTX_REQUEST_URL: url
@@ -35,7 +36,8 @@ def log_extra(context: MappingProxyType, **extra_fields):
         'request_uuid': context.get(CTX_REQUEST_ID),
         'user': admin_login,
         'testing': str(context.get(CTX_TESTING) or False),
-        'url': context.get(CTX_REQUEST_URL)
+        'url': context.get(CTX_REQUEST_URL),
+        'roles': context.get(CTX_ROLES),
     }
     return {
         'extra': {**infos, **extra_fields},

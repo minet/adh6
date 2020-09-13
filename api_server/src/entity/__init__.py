@@ -33,6 +33,7 @@ from src.entity.bug_report import BugReport
 from src.entity.cashbox import Cashbox
 from src.entity.device import Device
 from src.entity.error import Error
+from src.entity.inline_response200 import InlineResponse200
 from src.entity.labels import Labels
 from src.entity.member import Member
 from src.entity.membership import Membership

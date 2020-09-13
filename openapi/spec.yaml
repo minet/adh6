@@ -54,6 +54,27 @@ paths:
           $ref: '#/components/responses/Unexpected'
       tags:
       - misc
+  /profile:
+    get:
+      summary: Introspection endpoint
+      description: >
+        This endpoint returns information about the currently logged-in user, such as their roles.
+      operationId: profile
+      responses:
+        200:
+          description: The statistics of ADH6
+          content:
+            application/json:
+              schema:
+                properties:
+                  admin:
+                    $ref: '#/components/schemas/Admin'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      tags:
+      - misc
   /account/:
     get:
       parameters:
@@ -2012,7 +2033,7 @@ components:
           type: string
         roles:
           description: The list of roles of this administrator
-          example: [ "ADH6_USER", "ADH6_ADMIN" ]
+          example: [ "adh6_user", "adh6_admin" ]
           type: array
           items:
             type: string

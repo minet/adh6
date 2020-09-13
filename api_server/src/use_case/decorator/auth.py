@@ -106,7 +106,7 @@ def auth_required(roles=None, overriding_roles=None,
                 # User is not in the right group(s) and we are not testing, do not allow.
                 raise UnauthorizedError("You do not have enough permissions to access this")
 
-            ctx = build_context(ctx=ctx, admin=adherent)
+            ctx = build_context(ctx=ctx, admin=adherent, roles=admin_roles)
 
             new_args, new_kwargs, status = access_control_function(cls, ctx, admin_roles, f, args, kwargs)
 

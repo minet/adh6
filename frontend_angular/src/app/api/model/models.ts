@@ -16,6 +16,7 @@ export * from './body';
 export * from './bugReport';
 export * from './cashbox';
 export * from './device';
+export * from './inlineResponse200';
 export * from './labels';
 export * from './member';
 export * from './membership';

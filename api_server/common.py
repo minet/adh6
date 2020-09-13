@@ -15,6 +15,7 @@ from src.interface_adapter.http_api.device import DeviceHandler
 from src.interface_adapter.http_api.health import HealthHandler
 from src.interface_adapter.http_api.member import MemberHandler
 from src.interface_adapter.http_api.port import PortHandler
+from src.interface_adapter.http_api.profile import ProfileHandler
 from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
 from src.interface_adapter.http_api.treasury import TreasuryHandler
@@ -142,6 +143,7 @@ def init(testing=True, managing=False):
     # Other handlers
     health_handler = HealthHandler(health_manager)
     stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
+    profile_handler = ProfileHandler(member_manager)
     transaction_handler = TransactionHandler(transaction_manager)
     member_handler = MemberHandler(member_manager)
     device_handler = DeviceHandler(device_manager)
@@ -162,6 +164,7 @@ def init(testing=True, managing=False):
                 resolver=ADHResolver({
                     'health': health_handler,
                     'stats': stats_handler,
+                    'profile': profile_handler,
                     'transaction': transaction_handler,
                     'member': member_handler,
                     'device': device_handler,
