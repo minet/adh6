@@ -65,11 +65,12 @@ export class SwitchService {
      * @param filter Filters by various properties
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<ModelSwitch>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<ModelSwitch>>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<ModelSwitch>>>;
-    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<ModelSwitch>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<ModelSwitch>>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<ModelSwitch>>>;
+    public switchGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -117,6 +118,7 @@ export class SwitchService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<ModelSwitch>>('get',`${this.basePath}/switch/`,
             {
                 params: queryParameters,
@@ -134,11 +136,12 @@ export class SwitchService {
      * @param body The switch to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public switchPost(body: ModelSwitch, observe?: 'body', reportProgress?: boolean): Observable<ModelSwitch>;
-    public switchPost(body: ModelSwitch, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<ModelSwitch>>;
-    public switchPost(body: ModelSwitch, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<ModelSwitch>>;
-    public switchPost(body: ModelSwitch, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchPost(body: ModelSwitch, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<ModelSwitch>;
+    public switchPost(body: ModelSwitch, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<ModelSwitch>>;
+    public switchPost(body: ModelSwitch, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<ModelSwitch>>;
+    public switchPost(body: ModelSwitch, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling switchPost.');
@@ -172,6 +175,7 @@ export class SwitchService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<ModelSwitch>('post',`${this.basePath}/switch/`,
             {
                 body: body,
@@ -189,11 +193,12 @@ export class SwitchService {
      * @param switchId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public switchSwitchIdDelete(switchId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public switchSwitchIdDelete(switchId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public switchSwitchIdDelete(switchId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public switchSwitchIdDelete(switchId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchSwitchIdDelete(switchId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public switchSwitchIdDelete(switchId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public switchSwitchIdDelete(switchId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public switchSwitchIdDelete(switchId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (switchId === null || switchId === undefined) {
             throw new Error('Required parameter switchId was null or undefined when calling switchSwitchIdDelete.');
@@ -222,6 +227,7 @@ export class SwitchService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('delete',`${this.basePath}/switch/${encodeURIComponent(String(switchId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -238,11 +244,12 @@ export class SwitchService {
      * @param switchId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public switchSwitchIdGet(switchId: number, observe?: 'body', reportProgress?: boolean): Observable<ModelSwitch>;
-    public switchSwitchIdGet(switchId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<ModelSwitch>>;
-    public switchSwitchIdGet(switchId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<ModelSwitch>>;
-    public switchSwitchIdGet(switchId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchSwitchIdGet(switchId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<ModelSwitch>;
+    public switchSwitchIdGet(switchId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<ModelSwitch>>;
+    public switchSwitchIdGet(switchId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<ModelSwitch>>;
+    public switchSwitchIdGet(switchId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (switchId === null || switchId === undefined) {
             throw new Error('Required parameter switchId was null or undefined when calling switchSwitchIdGet.');
@@ -271,6 +278,7 @@ export class SwitchService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<ModelSwitch>('get',`${this.basePath}/switch/${encodeURIComponent(String(switchId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -288,11 +296,12 @@ export class SwitchService {
      * @param switchId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public switchSwitchIdPut(body: AbstractSwitch, switchId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling switchSwitchIdPut.');
@@ -330,6 +339,7 @@ export class SwitchService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('put',`${this.basePath}/switch/${encodeURIComponent(String(switchId))}`,
             {
                 body: body,

@@ -65,11 +65,12 @@ export class RoomService {
      * @param filter Filters by various properties
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<Room>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Room>>>;
-    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Room>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Room>>>;
+    public roomGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -117,6 +118,7 @@ export class RoomService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Room>>('get',`${this.basePath}/room/`,
             {
                 params: queryParameters,
@@ -134,11 +136,12 @@ export class RoomService {
      * @param body The room to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public roomPost(body: Room, observe?: 'body', reportProgress?: boolean): Observable<Room>;
-    public roomPost(body: Room, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Room>>;
-    public roomPost(body: Room, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Room>>;
-    public roomPost(body: Room, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomPost(body: Room, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Room>;
+    public roomPost(body: Room, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Room>>;
+    public roomPost(body: Room, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Room>>;
+    public roomPost(body: Room, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling roomPost.');
@@ -172,6 +175,7 @@ export class RoomService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Room>('post',`${this.basePath}/room/`,
             {
                 body: body,
@@ -189,11 +193,12 @@ export class RoomService {
      * @param roomId The unique identifier of this room
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public roomRoomIdDelete(roomId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public roomRoomIdDelete(roomId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public roomRoomIdDelete(roomId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public roomRoomIdDelete(roomId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomRoomIdDelete(roomId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public roomRoomIdDelete(roomId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public roomRoomIdDelete(roomId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public roomRoomIdDelete(roomId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (roomId === null || roomId === undefined) {
             throw new Error('Required parameter roomId was null or undefined when calling roomRoomIdDelete.');
@@ -222,6 +227,7 @@ export class RoomService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('delete',`${this.basePath}/room/${encodeURIComponent(String(roomId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -238,11 +244,12 @@ export class RoomService {
      * @param roomId The unique identifier of this room
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public roomRoomIdGet(roomId: number, observe?: 'body', reportProgress?: boolean): Observable<Room>;
-    public roomRoomIdGet(roomId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Room>>;
-    public roomRoomIdGet(roomId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Room>>;
-    public roomRoomIdGet(roomId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomRoomIdGet(roomId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Room>;
+    public roomRoomIdGet(roomId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Room>>;
+    public roomRoomIdGet(roomId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Room>>;
+    public roomRoomIdGet(roomId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (roomId === null || roomId === undefined) {
             throw new Error('Required parameter roomId was null or undefined when calling roomRoomIdGet.');
@@ -271,6 +278,7 @@ export class RoomService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Room>('get',`${this.basePath}/room/${encodeURIComponent(String(roomId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -288,11 +296,12 @@ export class RoomService {
      * @param roomId The unique identifier of this room
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public roomRoomIdPut(body: AbstractRoom, roomId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling roomRoomIdPut.');
@@ -330,6 +339,7 @@ export class RoomService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('put',`${this.basePath}/room/${encodeURIComponent(String(roomId))}`,
             {
                 body: body,

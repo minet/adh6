@@ -32,7 +32,7 @@ export class NotifInterceptor implements HttpInterceptor {
           } else {
             err = response.error;
           }
-          if (req.method === 'GET') {
+          if (req.method === 'GET' && req.headers.get('x-critical-error') === 'true') {
             this.errorPageService.show(err);
           } else {
             this.notif.error(err.code + ' on ' + req.url + ': ' + err.message);

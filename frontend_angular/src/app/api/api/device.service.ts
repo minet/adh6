@@ -63,11 +63,12 @@ export class DeviceService {
      * @param deviceId The unique identifier of the device
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public deviceDeviceIdDelete(deviceId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public deviceDeviceIdDelete(deviceId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public deviceDeviceIdDelete(deviceId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public deviceDeviceIdDelete(deviceId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deviceDeviceIdDelete(deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public deviceDeviceIdDelete(deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public deviceDeviceIdDelete(deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public deviceDeviceIdDelete(deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (deviceId === null || deviceId === undefined) {
             throw new Error('Required parameter deviceId was null or undefined when calling deviceDeviceIdDelete.');
@@ -96,6 +97,7 @@ export class DeviceService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('delete',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -112,11 +114,12 @@ export class DeviceService {
      * @param deviceId The unique identifier of the device
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public deviceDeviceIdGet(deviceId: number, observe?: 'body', reportProgress?: boolean): Observable<Device>;
-    public deviceDeviceIdGet(deviceId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Device>>;
-    public deviceDeviceIdGet(deviceId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Device>>;
-    public deviceDeviceIdGet(deviceId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deviceDeviceIdGet(deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Device>;
+    public deviceDeviceIdGet(deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Device>>;
+    public deviceDeviceIdGet(deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Device>>;
+    public deviceDeviceIdGet(deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (deviceId === null || deviceId === undefined) {
             throw new Error('Required parameter deviceId was null or undefined when calling deviceDeviceIdGet.');
@@ -145,6 +148,7 @@ export class DeviceService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Device>('get',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -162,11 +166,12 @@ export class DeviceService {
      * @param deviceId The unique identifier of the device
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public deviceDeviceIdPatch(body: AbstractDevice, deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling deviceDeviceIdPatch.');
@@ -204,6 +209,7 @@ export class DeviceService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('patch',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}`,
             {
                 body: body,
@@ -222,11 +228,12 @@ export class DeviceService {
      * @param deviceId The unique identifier of the device
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'body', reportProgress?: boolean): Observable<Device>;
-    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Device>>;
-    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Device>>;
-    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Device>;
+    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Device>>;
+    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Device>>;
+    public deviceDeviceIdPut(body: AbstractDevice, deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling deviceDeviceIdPut.');
@@ -264,6 +271,7 @@ export class DeviceService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Device>('put',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}`,
             {
                 body: body,
@@ -284,11 +292,12 @@ export class DeviceService {
      * @param filter Filters by various properties
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<Device>>;
-    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Device>>>;
-    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Device>>>;
-    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Device>>;
+    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -336,6 +345,7 @@ export class DeviceService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Device>>('get',`${this.basePath}/device/`,
             {
                 params: queryParameters,
@@ -353,11 +363,12 @@ export class DeviceService {
      * @param body The device to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public devicePost(body: Device, observe?: 'body', reportProgress?: boolean): Observable<Device>;
-    public devicePost(body: Device, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Device>>;
-    public devicePost(body: Device, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Device>>;
-    public devicePost(body: Device, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public devicePost(body: Device, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Device>;
+    public devicePost(body: Device, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Device>>;
+    public devicePost(body: Device, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Device>>;
+    public devicePost(body: Device, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling devicePost.');
@@ -391,6 +402,7 @@ export class DeviceService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Device>('post',`${this.basePath}/device/`,
             {
                 body: body,
@@ -408,11 +420,12 @@ export class DeviceService {
      * @param deviceId The unique identifier of the device
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public vendorGet(deviceId: number, observe?: 'body', reportProgress?: boolean): Observable<Vendor>;
-    public vendorGet(deviceId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Vendor>>;
-    public vendorGet(deviceId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Vendor>>;
-    public vendorGet(deviceId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public vendorGet(deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Vendor>;
+    public vendorGet(deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Vendor>>;
+    public vendorGet(deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Vendor>>;
+    public vendorGet(deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (deviceId === null || deviceId === undefined) {
             throw new Error('Required parameter deviceId was null or undefined when calling vendorGet.');
@@ -441,6 +454,7 @@ export class DeviceService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Vendor>('get',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}/vendor`,
             {
                 withCredentials: this.configuration.withCredentials,

@@ -63,11 +63,12 @@ export class AccountService {
      * @param accountId The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountAccountIdGet(accountId: number, observe?: 'body', reportProgress?: boolean): Observable<Account>;
-    public accountAccountIdGet(accountId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Account>>;
-    public accountAccountIdGet(accountId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Account>>;
-    public accountAccountIdGet(accountId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountAccountIdGet(accountId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Account>;
+    public accountAccountIdGet(accountId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Account>>;
+    public accountAccountIdGet(accountId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Account>>;
+    public accountAccountIdGet(accountId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (accountId === null || accountId === undefined) {
             throw new Error('Required parameter accountId was null or undefined when calling accountAccountIdGet.');
@@ -96,6 +97,7 @@ export class AccountService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Account>('get',`${this.basePath}/account/${encodeURIComponent(String(accountId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -113,11 +115,12 @@ export class AccountService {
      * @param accountId The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling accountAccountIdPut.');
@@ -155,6 +158,7 @@ export class AccountService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('put',`${this.basePath}/account/${encodeURIComponent(String(accountId))}`,
             {
                 body: body,
@@ -175,11 +179,12 @@ export class AccountService {
      * @param filter Filters by various properties
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<Account>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Account>>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Account>>>;
-    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Account>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Account>>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Account>>>;
+    public accountGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -227,6 +232,7 @@ export class AccountService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Account>>('get',`${this.basePath}/account/`,
             {
                 params: queryParameters,
@@ -244,11 +250,12 @@ export class AccountService {
      * @param body The account to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountPost(body: Account, observe?: 'body', reportProgress?: boolean): Observable<Account>;
-    public accountPost(body: Account, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Account>>;
-    public accountPost(body: Account, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Account>>;
-    public accountPost(body: Account, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountPost(body: Account, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Account>;
+    public accountPost(body: Account, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Account>>;
+    public accountPost(body: Account, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Account>>;
+    public accountPost(body: Account, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling accountPost.');
@@ -282,6 +289,7 @@ export class AccountService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Account>('post',`${this.basePath}/account/`,
             {
                 body: body,
@@ -299,11 +307,12 @@ export class AccountService {
      * @param accountTypeId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'body', reportProgress?: boolean): Observable<AccountType>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<AccountType>>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<AccountType>>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<AccountType>;
+    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<AccountType>>;
+    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<AccountType>>;
+    public accountTypeAccountTypeIdGet(accountTypeId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (accountTypeId === null || accountTypeId === undefined) {
             throw new Error('Required parameter accountTypeId was null or undefined when calling accountTypeAccountTypeIdGet.');
@@ -332,6 +341,7 @@ export class AccountService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<AccountType>('get',`${this.basePath}/account_type/${encodeURIComponent(String(accountTypeId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -350,11 +360,12 @@ export class AccountService {
      * @param terms The generic search terms (will search in any field)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean): Observable<Array<AccountType>>;
-    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<AccountType>>>;
-    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<AccountType>>>;
-    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<AccountType>>;
+    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<AccountType>>>;
+    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<AccountType>>>;
+    public accountTypeGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -393,6 +404,7 @@ export class AccountService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<AccountType>>('get',`${this.basePath}/account_type/`,
             {
                 params: queryParameters,

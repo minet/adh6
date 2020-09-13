@@ -62,11 +62,12 @@ export class TreasuryService {
      * 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public getBank(observe?: 'body', reportProgress?: boolean): Observable<Bank>;
-    public getBank(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Bank>>;
-    public getBank(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Bank>>;
-    public getBank(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getBank(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Bank>;
+    public getBank(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Bank>>;
+    public getBank(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Bank>>;
+    public getBank(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -91,6 +92,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Bank>('get',`${this.basePath}/treasury/bank`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -106,11 +108,12 @@ export class TreasuryService {
      * 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public getCashbox(observe?: 'body', reportProgress?: boolean): Observable<Cashbox>;
-    public getCashbox(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Cashbox>>;
-    public getCashbox(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Cashbox>>;
-    public getCashbox(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getCashbox(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Cashbox>;
+    public getCashbox(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Cashbox>>;
+    public getCashbox(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Cashbox>>;
+    public getCashbox(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -135,6 +138,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Cashbox>('get',`${this.basePath}/treasury/cashbox`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -153,11 +157,12 @@ export class TreasuryService {
      * @param terms The generic search terms (will search in any field)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean): Observable<Array<Product>>;
-    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Product>>>;
-    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Product>>>;
-    public productGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Product>>;
+    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Product>>>;
+    public productGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Product>>>;
+    public productGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -196,6 +201,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Product>>('get',`${this.basePath}/product/`,
             {
                 params: queryParameters,
@@ -213,11 +219,12 @@ export class TreasuryService {
      * @param productId The id of the product that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public productProductIdGet(productId: number, observe?: 'body', reportProgress?: boolean): Observable<Product>;
-    public productProductIdGet(productId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Product>>;
-    public productProductIdGet(productId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Product>>;
-    public productProductIdGet(productId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public productProductIdGet(productId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Product>;
+    public productProductIdGet(productId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Product>>;
+    public productProductIdGet(productId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Product>>;
+    public productProductIdGet(productId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (productId === null || productId === undefined) {
             throw new Error('Required parameter productId was null or undefined when calling productProductIdGet.');
@@ -246,6 +253,7 @@ export class TreasuryService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Product>('get',`${this.basePath}/product/${encodeURIComponent(String(productId))}`,
             {
                 withCredentials: this.configuration.withCredentials,

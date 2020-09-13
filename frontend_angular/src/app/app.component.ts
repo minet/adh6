@@ -23,7 +23,6 @@ export class AppComponent implements OnInit, OnDestroy {
   currentPageAuthBypass = false;
 
   hasError: Subject<boolean> = this.errorPageService.hasError;
-  errorMessage: Subject<string> = this.errorPageService.errorMessage;
 
   @ViewChild('bugReportModal') bugReportModal;
 

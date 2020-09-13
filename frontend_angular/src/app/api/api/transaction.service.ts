@@ -65,11 +65,12 @@ export class TransactionService {
      * @param terms The generic search terms (will search in any field)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean): Observable<Array<PaymentMethod>>;
-    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<PaymentMethod>>>;
-    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<PaymentMethod>>>;
-    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<PaymentMethod>>;
+    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<PaymentMethod>>>;
+    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<PaymentMethod>>>;
+    public paymentMethodGet(limit?: number, offset?: number, terms?: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -108,6 +109,7 @@ export class TransactionService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<PaymentMethod>>('get',`${this.basePath}/payment_method/`,
             {
                 params: queryParameters,
@@ -125,11 +127,12 @@ export class TransactionService {
      * @param paymentMethodId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'body', reportProgress?: boolean): Observable<PaymentMethod>;
-    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<PaymentMethod>>;
-    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<PaymentMethod>>;
-    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<PaymentMethod>;
+    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<PaymentMethod>>;
+    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<PaymentMethod>>;
+    public paymentMethodPaymentMethodIdGet(paymentMethodId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (paymentMethodId === null || paymentMethodId === undefined) {
             throw new Error('Required parameter paymentMethodId was null or undefined when calling paymentMethodPaymentMethodIdGet.');
@@ -158,6 +161,7 @@ export class TransactionService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<PaymentMethod>('get',`${this.basePath}/payment_method/${encodeURIComponent(String(paymentMethodId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -177,11 +181,12 @@ export class TransactionService {
      * @param filter Filters by various properties
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean): Observable<Array<Transaction>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Transaction>>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Transaction>>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Transaction>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Transaction>>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Transaction>>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
 
@@ -229,6 +234,7 @@ export class TransactionService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Transaction>>('get',`${this.basePath}/transaction/`,
             {
                 params: queryParameters,
@@ -246,11 +252,12 @@ export class TransactionService {
      * @param body The transaction to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public transactionPost(body: Transaction, observe?: 'body', reportProgress?: boolean): Observable<Transaction>;
-    public transactionPost(body: Transaction, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Transaction>>;
-    public transactionPost(body: Transaction, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Transaction>>;
-    public transactionPost(body: Transaction, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionPost(body: Transaction, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Transaction>;
+    public transactionPost(body: Transaction, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Transaction>>;
+    public transactionPost(body: Transaction, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Transaction>>;
+    public transactionPost(body: Transaction, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling transactionPost.');
@@ -284,6 +291,7 @@ export class TransactionService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Transaction>('post',`${this.basePath}/transaction/`,
             {
                 body: body,
@@ -301,11 +309,12 @@ export class TransactionService {
      * @param transactionId The unique identifier of the transaction that needs to be fetched
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public transactionTransactionIdGet(transactionId: number, observe?: 'body', reportProgress?: boolean): Observable<Transaction>;
-    public transactionTransactionIdGet(transactionId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Transaction>>;
-    public transactionTransactionIdGet(transactionId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Transaction>>;
-    public transactionTransactionIdGet(transactionId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionTransactionIdGet(transactionId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Transaction>;
+    public transactionTransactionIdGet(transactionId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Transaction>>;
+    public transactionTransactionIdGet(transactionId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Transaction>>;
+    public transactionTransactionIdGet(transactionId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (transactionId === null || transactionId === undefined) {
             throw new Error('Required parameter transactionId was null or undefined when calling transactionTransactionIdGet.');
@@ -334,6 +343,7 @@ export class TransactionService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Transaction>('get',`${this.basePath}/transaction/${encodeURIComponent(String(transactionId))}`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -351,11 +361,12 @@ export class TransactionService {
      * @param transactionId The unique identifier of the transaction that needs to be fetched
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public transactionTransactionIdPatch(body: AbstractTransaction, transactionId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling transactionTransactionIdPatch.');
@@ -393,6 +404,7 @@ export class TransactionService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('patch',`${this.basePath}/transaction/${encodeURIComponent(String(transactionId))}`,
             {
                 body: body,
@@ -411,11 +423,12 @@ export class TransactionService {
      * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public transactionTransactionIdUploadPost(transactionId: number, body?: Object, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (transactionId === null || transactionId === undefined) {
             throw new Error('Required parameter transactionId was null or undefined when calling transactionTransactionIdUploadPost.');
@@ -450,6 +463,7 @@ export class TransactionService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('post',`${this.basePath}/transaction/${encodeURIComponent(String(transactionId))}/upload/`,
             {
                 body: body,

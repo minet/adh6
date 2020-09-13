@@ -76,7 +76,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp))
+          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp, 'body', false, false))
         );
       }) // refresh every 10 secs
     );

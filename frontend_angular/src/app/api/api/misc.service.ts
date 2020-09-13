@@ -63,11 +63,12 @@ export class MiscService {
      * @param body The bug report to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public bugReportPost(body: BugReport, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public bugReportPost(body: BugReport, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public bugReportPost(body: BugReport, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public bugReportPost(body: BugReport, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public bugReportPost(body: BugReport, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public bugReportPost(body: BugReport, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public bugReportPost(body: BugReport, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public bugReportPost(body: BugReport, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling bugReportPost.');
@@ -101,6 +102,7 @@ export class MiscService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('post',`${this.basePath}/bug_report/`,
             {
                 body: body,
@@ -117,11 +119,12 @@ export class MiscService {
      * 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public getLabels(observe?: 'body', reportProgress?: boolean): Observable<Labels>;
-    public getLabels(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Labels>>;
-    public getLabels(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Labels>>;
-    public getLabels(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getLabels(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Labels>;
+    public getLabels(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Labels>>;
+    public getLabels(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Labels>>;
+    public getLabels(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -146,6 +149,7 @@ export class MiscService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Labels>('get',`${this.basePath}/bug_report/`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -161,11 +165,12 @@ export class MiscService {
      * This endpoint allows for better monitoring of the state of the API. **TODO**: Improve the amount of information returned 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public health(observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public health(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public health(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public health(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public health(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public health(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public health(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public health(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -181,6 +186,7 @@ export class MiscService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<any>('get',`${this.basePath}/health`,
             {
                 withCredentials: this.configuration.withCredentials,
@@ -196,11 +202,12 @@ export class MiscService {
      * This endpoint returns useful insights, statistics and data. It *may* be used for monitoring, although its main purpose is to be displayed as part of a dashboard. 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public stats(observe?: 'body', reportProgress?: boolean): Observable<Array<Statistics>>;
-    public stats(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Statistics>>>;
-    public stats(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Statistics>>>;
-    public stats(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public stats(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Statistics>>;
+    public stats(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Statistics>>>;
+    public stats(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Statistics>>>;
+    public stats(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
 
@@ -225,6 +232,7 @@ export class MiscService {
         const consumes: string[] = [
         ];
 
+        headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<Array<Statistics>>('get',`${this.basePath}/stats`,
             {
                 withCredentials: this.configuration.withCredentials,
