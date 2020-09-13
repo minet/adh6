@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   hasError: Subject<boolean> = this.errorPageService.hasError;
 
-  @ViewChild('bugReportModal') bugReportModal;
+  @ViewChild('bugReportModal', {static: false}) bugReportModal;
 
   constructor(
     private fb: FormBuilder,

@@ -139,7 +139,7 @@ export function storageFactory(): OAuthStorage {
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     NgToggleModule,
-    TooltipModule.forRoot(),
+    TooltipModule.forRoot()
   ],
   providers: [
     AppComponent,
