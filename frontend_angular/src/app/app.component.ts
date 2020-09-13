@@ -8,6 +8,8 @@ import {faBug} from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BugReport, MiscService} from './api';
 import {NotificationsService} from 'angular2-notifications';
+import {Subject} from 'rxjs';
+import {ErrorPageService} from './error-page.service';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +22,9 @@ export class AppComponent implements OnInit, OnDestroy {
   submitBugForm: FormGroup;
   currentPageAuthBypass = false;
 
+  hasError: Subject<boolean> = this.errorPageService.hasError;
+  errorMessage: Subject<string> = this.errorPageService.errorMessage;
+
   @ViewChild('bugReportModal') bugReportModal;
 
   constructor(
@@ -29,11 +34,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private _service: NotificationsService,
     private miscService: MiscService,
+    private errorPageService: ErrorPageService
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
     router.events.subscribe(event => {
       if (event instanceof RoutesRecognized) {
+        this.hasError.next(false);
         const r = event.state.root.firstChild;
         this.currentPageAuthBypass = !!r.data['bypassAuth'];
       }

@@ -60,6 +60,7 @@ import { PortailCotisantComponent } from './portail-cotisant/portail-cotisant.co
 import { InscriptionComponent } from './inscription/inscription.component';
 import { CotisantRecotisationComponent } from './cotisant-recotisation/cotisant-recotisation.component';
 import { PortailfoyerComponent } from './portailfoyer/portailfoyer.component';
+import { ErrorPageComponent } from './error-page/error-page.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -112,6 +113,7 @@ export function storageFactory(): OAuthStorage {
     InscriptionComponent,
     CotisantRecotisationComponent,
     PortailfoyerComponent,
+    ErrorPageComponent,
   ],
   imports: [
     FontAwesomeModule,

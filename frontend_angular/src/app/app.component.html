@@ -32,7 +32,10 @@
   </div>
 </div>
 <div class="container mb-3">
-  <router-outlet></router-outlet>
+  <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
+  <ng-template #elseRouter>
+    <router-outlet></router-outlet>
+  </ng-template>
 </div>
 
 <button id="reportBug" type="button" class="btn btn-primary" (click)="bugReportModal.show()"><fa-icon [icon]="faBug"></fa-icon></button>

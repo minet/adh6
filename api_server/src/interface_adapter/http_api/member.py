@@ -65,7 +65,9 @@ class MemberHandler(DefaultHandler):
         try:
             return self.member_manager.get_logs(ctx, member_id, dhcp=dhcp), 200
         except MemberNotFoundError:
-            return NoContent,
+            return NoContent, 404
+        except:
+            return NoContent, 500
 
     def membership_get(self, ctx, member_id, uuid):
         pass
