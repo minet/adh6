@@ -27,7 +27,7 @@ import {GlobalSearchComponent} from './global-search/global-search.component';
 import {NavbarComponent} from './navbar/navbar.component';
 import {NotificationAnimationType, SimpleNotificationsModule} from 'angular2-notifications';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
+import {AuthConfig, OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
 import {LoginComponent} from './login/login.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
@@ -63,6 +63,7 @@ import { PortailfoyerComponent } from './portailfoyer/portailfoyer.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import {Ability, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
+import {authConfig} from './config/auth.config';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -159,6 +160,7 @@ export function storageFactory(): OAuthStorage {
     {provide: LOCALE_ID, useValue: 'en-US'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
     {provide: OAuthStorage, useFactory: storageFactory},
+    { provide: AuthConfig, useValue: authConfig },
     { provide: Ability, useValue: new Ability() },
     { provide: PureAbility, useExisting: Ability }
   ],

@@ -5,9 +5,11 @@ export const authConfig: AuthConfig = {
   clientId: 'adh6',
   scope: 'openid profile offline_access roles',
   issuer: '${SSO_OAUTH2}',
-  oidc: false,
+  tokenEndpoint: '${SSO_OAUTH2}/accessToken',
+  oidc: true,
+  dummyClientSecret: 'thisisneededforApereoCAS',
   responseType: 'code',
-  showDebugInformation: true,
+  showDebugInformation: false,
 };
 
 export const authBypass = ${BYPASS_AUTH};
