@@ -7,6 +7,8 @@ export const authConfig: AuthConfig = {
   clientId: 'adh6',
   scope: 'profile',
   oidc: false,
+  responseType: 'code',
+  showDebugInformation: true,
 };
 
 export const authBypass = false;

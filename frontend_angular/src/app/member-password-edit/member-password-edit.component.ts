@@ -6,7 +6,6 @@ import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {MemberService} from '../api';
 import { md4 } from 'hash-wasm';
-import { encode } from 'iconv-lite';
 
 function passwordConfirming(c: AbstractControl): any {
   if (!c || !c.value) {
@@ -30,9 +29,6 @@ function passwordConfirming(c: AbstractControl): any {
 })
 export class MemberPasswordEditComponent implements OnInit {
 
-  disabled = false;
-  memberPassword: FormGroup;
-
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -42,7 +38,22 @@ export class MemberPasswordEditComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {  
+  disabled = false;
+  memberPassword: FormGroup;
+
+  /*
+  Taken from https://stackoverflow.com/a/37597001
+   */
+  strEncodeUTF16(str) {
+    const buf = new ArrayBuffer(str.length * 2);
+    const bufView = new Uint16Array(buf);
+    for (let i = 0, strLen = str.length; i < strLen; i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return bufView;
+  }
+
+  ngOnInit() {
     this.createForm();
   }
 
@@ -57,7 +68,7 @@ export class MemberPasswordEditComponent implements OnInit {
 
 
   changePassword(): void {
-    md4(encode(this.memberPassword.value.password, 'utf-16le')).then((hashedPassword) => {
+    md4(this.strEncodeUTF16(this.memberPassword.value.password)).then((hashedPassword) => {
     this.getMemberId()
       .pipe(
         first(),

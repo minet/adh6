@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {JwksValidationHandler, OAuthService} from 'angular-oauth2-oidc';
+import { OAuthService} from 'angular-oauth2-oidc';
 import {authBypass, authConfig} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   hasError: Subject<boolean> = this.errorPageService.hasError;
 
-  @ViewChild('bugReportModal', {static: false}) bugReportModal;
+  @ViewChild('bugReportModal') bugReportModal;
 
   constructor(
     private fb: FormBuilder,
@@ -119,7 +119,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private configureWithNewConfigApi() {
     this.oauthService.configure(authConfig);
-    this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+    //this.oauthService.tokenValidationHandler = new JwksValidationHandler();
 
     this.oauthService.loadDiscoveryDocumentAndTryLogin({
       onTokenReceived: (info) => {

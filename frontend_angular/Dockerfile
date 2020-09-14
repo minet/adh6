@@ -56,5 +56,5 @@ RUN rm ./src/app/config/auth.config.template.ts
 
 USER angular
 # We use /bin/sh to be able to use ENV vars...
-CMD ["/bin/sh", "-c", "ng serve --host 0.0.0.0 --disable-host-check"]
+CMD ["/bin/sh", "-c", "ng serve --watch --host 0.0.0.0 --disable-host-check"]
 

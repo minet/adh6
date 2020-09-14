@@ -57,7 +57,7 @@ export class SearchResult {
 })
 export class GlobalSearchComponent implements OnInit {
   searchBox: string;
-  @ViewChild('searchInput', {static: false}) searchInput: ElementRef;
+  @ViewChild('searchInput') searchInput: ElementRef;
 
   searchResult$: Observable<Array<SearchResult>>;
   private searchTerm$ = new Subject<string>();

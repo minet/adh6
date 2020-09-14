@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   public login() {
-    this.oauthService.initImplicitFlow();
+    this.oauthService.initCodeFlow();
   }
 
   public logoff() {

@@ -61,6 +61,8 @@ import { InscriptionComponent } from './inscription/inscription.component';
 import { CotisantRecotisationComponent } from './cotisant-recotisation/cotisant-recotisation.component';
 import { PortailfoyerComponent } from './portailfoyer/portailfoyer.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
+import {Ability, PureAbility} from '@casl/ability';
+import {AbilityModule} from '@casl/angular';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -139,7 +141,8 @@ export function storageFactory(): OAuthStorage {
     ButtonsModule.forRoot(),
     TypeaheadModule.forRoot(),
     NgToggleModule,
-    TooltipModule.forRoot()
+    TooltipModule.forRoot(),
+    AbilityModule
   ],
   providers: [
     AppComponent,
@@ -156,6 +159,8 @@ export function storageFactory(): OAuthStorage {
     {provide: LOCALE_ID, useValue: 'en-US'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
     {provide: OAuthStorage, useFactory: storageFactory},
+    { provide: Ability, useValue: new Ability() },
+    { provide: PureAbility, useExisting: Ability }
   ],
   bootstrap: [AppComponent]
 })
