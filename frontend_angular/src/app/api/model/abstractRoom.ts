@@ -11,6 +11,7 @@
  */
 
 export interface AbstractRoom { 
+    __typename?: string;
     /**
      * The unique identifier of this room
      */

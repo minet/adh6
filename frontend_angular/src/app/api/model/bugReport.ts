@@ -11,6 +11,7 @@
  */
 
 export interface BugReport { 
+    __typename?: string;
     /**
      * The title of this bug report
      */

@@ -12,4 +12,5 @@
 import { AbstractSwitch } from './abstractSwitch';
 
 export interface ModelSwitch extends AbstractSwitch { 
+    __typename?: string;
 }

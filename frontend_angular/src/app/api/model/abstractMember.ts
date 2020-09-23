@@ -12,6 +12,7 @@
 import { Room } from './room';
 
 export interface AbstractMember { 
+    __typename?: string;
     /**
      * The unique identifier of this member
      */

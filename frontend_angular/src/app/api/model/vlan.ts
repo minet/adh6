@@ -11,6 +11,7 @@
  */
 
 export interface Vlan { 
+    __typename?: string;
     /**
      * The unique identifier of this vlan
      */

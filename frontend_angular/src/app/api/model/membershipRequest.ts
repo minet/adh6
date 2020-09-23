@@ -12,6 +12,7 @@
 import { PaymentMethod } from './paymentMethod';
 
 export interface MembershipRequest { 
+    __typename?: string;
     /**
      * The duration in days this membership is for
      */

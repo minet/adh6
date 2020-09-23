@@ -11,6 +11,7 @@
  */
 
 export interface AbstractPaymentMethod { 
+    __typename?: string;
     /**
      * The unique identifier of this payment method
      */

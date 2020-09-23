@@ -13,6 +13,7 @@ import { ModelSwitch } from './modelSwitch';
 import { Room } from './room';
 
 export interface AbstractPort { 
+    __typename?: string;
     /**
      * The unique identifier of this port
      */

@@ -9,12 +9,18 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { Member } from './member';
 
 export interface Admin { 
+    __typename?: string;
     /**
      * The login of this administrator
      */
     login: string;
+    /**
+     * The member associated with this admin
+     */
+    member?: Member | number;
     /**
      * The list of roles of this administrator
      */

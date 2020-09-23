@@ -11,5 +11,6 @@
  */
 
 export interface Vendor { 
+    __typename?: string;
     vendorname?: string;
 }

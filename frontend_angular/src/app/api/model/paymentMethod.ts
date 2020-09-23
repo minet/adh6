@@ -12,4 +12,5 @@
 import { AbstractPaymentMethod } from './abstractPaymentMethod';
 
 export interface PaymentMethod extends AbstractPaymentMethod { 
+    __typename?: string;
 }

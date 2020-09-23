@@ -15,4 +15,5 @@ import { Member } from './member';
 import { PaymentMethod } from './paymentMethod';
 
 export interface Transaction extends AbstractTransaction { 
+    __typename?: string;
 }

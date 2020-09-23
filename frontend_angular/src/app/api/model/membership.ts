@@ -16,6 +16,7 @@ import { PaymentMethod } from './paymentMethod';
 import { Product } from './product';
 
 export interface Membership extends AbstractMembership { 
+    __typename?: string;
 }
 export namespace Membership {
 }

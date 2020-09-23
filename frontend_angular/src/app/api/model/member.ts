@@ -13,4 +13,5 @@ import { AbstractMember } from './abstractMember';
 import { Room } from './room';
 
 export interface Member extends AbstractMember { 
+    __typename?: string;
 }

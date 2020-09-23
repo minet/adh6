@@ -14,4 +14,5 @@ import { AccountType } from './accountType';
 import { Member } from './member';
 
 export interface Account extends AbstractAccount { 
+    __typename?: string;
 }

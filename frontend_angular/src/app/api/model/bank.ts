@@ -11,6 +11,7 @@
  */
 
 export interface Bank { 
+    __typename?: string;
     /**
      * the expected balance of MiNET's CAV accunt
      */

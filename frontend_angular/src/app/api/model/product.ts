@@ -12,4 +12,5 @@
 import { AbstractProduct } from './abstractProduct';
 
 export interface Product extends AbstractProduct { 
+    __typename?: string;
 }

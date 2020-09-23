@@ -14,6 +14,7 @@ import { Member } from './member';
 import { PaymentMethod } from './paymentMethod';
 
 export interface AbstractTransaction { 
+    __typename?: string;
     /**
      * The unique identifier of this transaction
      */

@@ -11,6 +11,7 @@
  */
 
 export interface AbstractSwitch { 
+    __typename?: string;
     /**
      * The unique identifier of this switch
      */

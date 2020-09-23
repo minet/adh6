@@ -12,4 +12,5 @@
 import { AbstractRoom } from './abstractRoom';
 
 export interface Room extends AbstractRoom { 
+    __typename?: string;
 }

@@ -12,6 +12,7 @@
 import { Member } from './member';
 
 export interface AbstractDevice { 
+    __typename?: string;
     /**
      * The unique identifier of this device
      */

@@ -11,6 +11,7 @@
  */
 
 export interface ModelError { 
+    __typename?: string;
     /**
      * The error code
      */

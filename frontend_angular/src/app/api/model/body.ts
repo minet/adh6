@@ -11,6 +11,7 @@
  */
 
 export interface Body { 
+    __typename?: string;
     /**
      * The plaintext password to use
      */

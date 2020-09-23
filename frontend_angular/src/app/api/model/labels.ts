@@ -11,5 +11,6 @@
  */
 
 export interface Labels { 
+    __typename?: string;
     labels?: Array<string>;
 }

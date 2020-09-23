@@ -11,6 +11,7 @@
  */
 
 export interface AccountType { 
+    __typename?: string;
     readonly id?: number;
     name?: string;
 }

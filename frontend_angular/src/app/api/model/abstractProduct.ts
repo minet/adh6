@@ -11,6 +11,7 @@
  */
 
 export interface AbstractProduct { 
+    __typename?: string;
     /**
      * The unique identifier of this product
      */

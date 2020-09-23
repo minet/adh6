@@ -12,5 +12,6 @@
 import { Admin } from './admin';
 
 export interface InlineResponse200 { 
+    __typename?: string;
     admin?: Admin;
 }

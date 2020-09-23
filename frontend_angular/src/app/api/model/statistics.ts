@@ -11,6 +11,7 @@
  */
 
 export interface Statistics { 
+    __typename?: string;
     /**
      * The count of active accounts
      */

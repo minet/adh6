@@ -15,6 +15,7 @@ import { PaymentMethod } from './paymentMethod';
 import { Product } from './product';
 
 export interface AbstractMembership { 
+    __typename?: string;
     /**
      * The UUID associated with this membership request
      */

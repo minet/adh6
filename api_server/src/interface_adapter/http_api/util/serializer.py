@@ -66,7 +66,7 @@ def serialize_response(obj):
         obj_dict = {obj.attribute_map[attr]: getattr(obj, attr)
                     for attr, _ in six.iteritems(obj.swagger_types)
                     if getattr(obj, attr) is not None}
-
+        obj_dict['__typename'] = type(obj).__name__
     return {key: serialize_response(val)
             for key, val in six.iteritems(obj_dict)}
 

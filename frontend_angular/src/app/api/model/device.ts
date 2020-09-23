@@ -13,6 +13,7 @@ import { AbstractDevice } from './abstractDevice';
 import { Member } from './member';
 
 export interface Device extends AbstractDevice { 
+    __typename?: string;
 }
 export namespace Device {
 }

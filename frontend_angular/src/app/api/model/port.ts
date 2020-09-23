@@ -14,4 +14,5 @@ import { ModelSwitch } from './modelSwitch';
 import { Room } from './room';
 
 export interface Port extends AbstractPort { 
+    __typename?: string;
 }
