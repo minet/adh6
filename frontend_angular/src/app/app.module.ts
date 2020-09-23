@@ -64,6 +64,7 @@ import {ErrorPageComponent} from './error-page/error-page.component';
 import {Ability, AbilityClass, detectSubjectType, InferSubjects, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
+import { DeviceNewComponent } from './device-new/device-new.component';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -123,6 +124,7 @@ export function storageFactory(): OAuthStorage {
     CotisantRecotisationComponent,
     PortailfoyerComponent,
     ErrorPageComponent,
+    DeviceNewComponent,
   ],
   imports: [
     FontAwesomeModule,

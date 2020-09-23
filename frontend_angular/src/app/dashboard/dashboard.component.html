@@ -1,18 +1,63 @@
 <div class="dashboard">
+  <img class="w-25" src="../assets/minet_dark.png">
   <h1 *ngIf="name">Bonjour {{ name }}</h1>
-  <img class="w-50" src="../assets/minet_dark.png">
+  <ng-template *ngIf="'manage' | able: 'all'; else simpleDashboard">
+    <img class="w-50" src="../assets/minet_dark.png">
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <a [routerLink]="['/member/add']">
+          <button class="btn btn-primary w-100 mb-3">Nouvelle inscription</button>
+        </a>
+      </div>
+      <div class="col-md-6">
+        <a [routerLink]="['/naina']">
+          <button class="btn btn-primary w-100 mb-3">Créer un compte NainA</button>
+        </a>
+      </div>
+      <app-global-search></app-global-search>
+    </div>
+  </ng-template>
+  <ng-template #simpleDashboard let-change>
+    <div class="card">
+      <div class="card-body">
+        <h4>Votre abonnement est actif jusqu'au {{ member.departureDate | date:'dd/MM/y' }}</h4>
+        <hr>
+        <p>Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b></p>
+        <p>Addresse mail : <code>{{ member.email }}</code></p>
+      </div>
+    </div>
 
-  <div class="row mt-3">
-    <div class="col-md-6">
-      <a [routerLink]="['/member/add']">
-        <button class="btn btn-primary w-100 mb-3">Nouvelle inscription</button>
-      </a>
+    <div class="alert alert-warning mt-4">
+      <h4>Un problème ?</h4>
+      <ol class="text-left">
+        <li>Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', 'fr') }}">les tutoriels</a> ?</li>
+        <li>Envoyez-nous <a class="alert-link" href="{{ localize_link('tickets', 'fr') }}">un ticket</a></li>
+        <li>Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', 'fr') }}">une des permanences</a> !</li>
+      </ol>
     </div>
-    <div class="col-md-6">
-      <a [routerLink]="['/naina']">
-        <button class="btn btn-primary w-100 mb-3">Créer un compte NainA</button>
-      </a>
+
+    <h3>Mes appareils</h3>
+    <div class="card">
+      <div class="card-body">
+        <app-device-new [member_id]="member.id"
+                        (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()"></app-device-new>
+        <hr>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <h4 class="table-title my-0">Filaire</h4>
+            <app-member-device-list #wiredList
+                                    [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
+            ></app-member-device-list>
+          </div>
+
+          <div class="col-md-6">
+            <h4 class="table-title my-0">Wifi</h4>
+            <app-member-device-list #wirelessList
+                                    [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
+            ></app-member-device-list>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <app-global-search></app-global-search>
+  </ng-template>
 </div>

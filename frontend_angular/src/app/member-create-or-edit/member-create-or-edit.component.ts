@@ -77,7 +77,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             }
             return this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'response');
           } else {
-            const req: AbstractMember = {
+            const req: Member = {
               email: v.email,
               firstName: v.firstName,
               lastName: v.lastName,

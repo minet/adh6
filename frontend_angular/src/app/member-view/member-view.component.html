@@ -4,7 +4,6 @@
     class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
   </div>
 </div>
-
 <div *ngIf="(member$ | async) as member" class="row">
   <!-- Left column -->
   <div class="col-md-3">
@@ -144,15 +143,13 @@
     <br>
     <h4 class="table-title my-0">Filaire</h4>
     <app-member-device-list [deviceDelete]="deviceDelete"
-                            [devices]="all_devices$"
-                            [filter]="{connectionType: 'wired'}"
+                            [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
                             [macHighlighted]="macHighlighted$"></app-member-device-list>
 
     <br>
     <h4 class="table-title my-0">Wifi</h4>
     <app-member-device-list [deviceDelete]="deviceDelete"
-                            [devices]="all_devices$"
-                            [filter]="{connectionType: 'wireless'}"
+                            [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
                             [macHighlighted]="macHighlighted$"></app-member-device-list>
 
 

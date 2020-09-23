@@ -20,7 +20,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   getDhcp = false;
   member$: Observable<Member>;
   paymentMethods$: Observable<Array<PaymentMethod>>;
-  all_devices$: Observable<Device[]>;
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
   cotisation = false;
@@ -65,11 +64,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.member$ = refresh$.pipe(
       switchMap(member_id => this.memberService.memberMemberIdGet(member_id)),
       tap((user) => this.commentForm.setValue({comment: (user.comment === undefined) ? '' : user.comment})),
-      share(),
-    );
-
-    this.all_devices$ = refresh$.pipe(
-      switchMap(member_id => this.deviceService.deviceGet(undefined, undefined, '', <AbstractDevice>{member: member_id})),
       share(),
     );
 
@@ -196,7 +190,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       .pipe(
         flatMap(() => {
           this.refreshInfo();
-          return this.all_devices$;
+          return null; // @TODO return the device ?
         }),
         map(() => null)
       );
@@ -209,7 +203,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         first(),
         flatMap(() => {
           this.refreshInfo();
-          return this.all_devices$;
+          return null; // @TODO return the device ?
         }),
         first(),
         finalize(() => this.submitDisabled = false)
