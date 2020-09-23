@@ -2031,6 +2031,12 @@ components:
           description: The login of this administrator
           example: PowerfulPotato
           type: string
+        member:
+          description: The member associated with this admin
+          oneOf:
+            - $ref: '#/components/schemas/Member'
+            - type: integer
+          example: 4
         roles:
           description: The list of roles of this administrator
           example: [ "adh6_user", "adh6_admin" ]

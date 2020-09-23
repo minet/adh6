@@ -32,20 +32,25 @@ class Admin(object):
     """
     swagger_types = {
         'login': 'str',
+        'member': 'OneOfAdminMember',
         'roles': 'list[str]'
     }
 
     attribute_map = {
         'login': 'login',
+        'member': 'member',
         'roles': 'roles'
     }
 
-    def __init__(self, login=None, roles=None):  # noqa: E501
+    def __init__(self, login=None, member=None, roles=None):  # noqa: E501
         """Admin - a model defined in Swagger"""  # noqa: E501
         self._login = None
+        self._member = None
         self._roles = None
         self.discriminator = None
         self.login = login
+        if member is not None:
+            self.member = member
         self.roles = roles
 
     @property
@@ -72,6 +77,29 @@ class Admin(object):
             raise ValueError("Invalid value for `login`, must not be `None`")  # noqa: E501
 
         self._login = login
+
+    @property
+    def member(self):
+        """Gets the member of this Admin.  # noqa: E501
+
+        The member associated with this admin  # noqa: E501
+
+        :return: The member of this Admin.  # noqa: E501
+        :rtype: OneOfAdminMember
+        """
+        return self._member
+
+    @member.setter
+    def member(self, member):
+        """Sets the member of this Admin.
+
+        The member associated with this admin  # noqa: E501
+
+        :param member: The member of this Admin.  # noqa: E501
+        :type: OneOfAdminMember
+        """
+
+        self._member = member
 
     @property
     def roles(self):

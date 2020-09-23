@@ -1,5 +1,6 @@
 from src.constants import CTX_ADMIN, CTX_ROLES
 from src.interface_adapter.http_api.decorator.with_context import with_context
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.decorator.auth import auth_required
 from src.use_case.member_manager import MemberManager
@@ -21,5 +22,6 @@ class ProfileHandler:
 
         return {'admin': {
             'login': admin.username,
+            'member': serialize_response(admin),
             'roles': roles
         }}, 200

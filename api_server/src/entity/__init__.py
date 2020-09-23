@@ -52,6 +52,7 @@ from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransacti
 from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
 from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
 from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
+from src.entity.one_of_admin_member import OneOfAdminMember
 from src.entity.one_of_membership_request_payment_method import OneOfMembershipRequestPaymentMethod
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
