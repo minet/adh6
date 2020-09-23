@@ -8,7 +8,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
 import {MemberListComponent} from './member-list/member-list.component';
 import {MemberViewComponent} from './member-view/member-view.component';
-import {ApiModule, BASE_PATH} from './api';
+import {ApiModule, BASE_PATH, Member} from './api';
 import {RoomListComponent} from './room-list/room-list.component';
 import {RoomDetailsComponent} from './room-details/room-details.component';
 import {RoomEditComponent} from './room-edit/room-edit.component';
@@ -53,19 +53,25 @@ import {AccountListComponent} from './account-list/account-list.component';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {AuthorizeComponent} from './authorize/authorize.component';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { BackButtonDirective } from './back-button.directive';
-import { PortailComponent } from './portail/portail.component';
-import { PortailCotisantComponent } from './portail-cotisant/portail-cotisant.component';
-import { InscriptionComponent } from './inscription/inscription.component';
-import { CotisantRecotisationComponent } from './cotisant-recotisation/cotisant-recotisation.component';
-import { PortailfoyerComponent } from './portailfoyer/portailfoyer.component';
-import { ErrorPageComponent } from './error-page/error-page.component';
-import {Ability, PureAbility} from '@casl/ability';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
+import {BackButtonDirective} from './back-button.directive';
+import {PortailComponent} from './portail/portail.component';
+import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
+import {InscriptionComponent} from './inscription/inscription.component';
+import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
+import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
+import {ErrorPageComponent} from './error-page/error-page.component';
+import {Ability, AbilityClass, detectSubjectType, InferSubjects, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
+
+type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
+type Subjects = InferSubjects<Member> | 'all';
+
+export type AppAbility = Ability<[Actions, Subjects]>;
+export const AppAbility = Ability as AbilityClass<AppAbility>;
 
 export function storageFactory(): OAuthStorage {
   return localStorage;
@@ -160,9 +166,20 @@ export function storageFactory(): OAuthStorage {
     {provide: LOCALE_ID, useValue: 'en-US'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
     {provide: OAuthStorage, useFactory: storageFactory},
-    { provide: AuthConfig, useValue: authConfig },
-    { provide: Ability, useValue: new Ability() },
-    { provide: PureAbility, useExisting: Ability }
+    {provide: AuthConfig, useValue: authConfig},
+    {
+      provide: AppAbility, useValue: new AppAbility(undefined, {
+        detectSubjectType: function (subject) {
+
+          if (subject && typeof subject === 'object' && subject.__typename) {
+            return subject.__typename;
+          }
+
+          return detectSubjectType(subject);
+        }
+      })
+    },
+    {provide: PureAbility, useExisting: AppAbility},
   ],
   bootstrap: [AppComponent]
 })

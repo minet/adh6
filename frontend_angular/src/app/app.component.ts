@@ -6,10 +6,12 @@ import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
 import {faBug} from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BugReport, MiscService} from './api';
+import {BugReport, Member, MiscService} from './api';
 import {NotificationsService} from 'angular2-notifications';
 import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
+import {Ability, AbilityBuilder} from '@casl/ability';
+import {JsonFormatter} from 'tslint/lib/formatters';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private _service: NotificationsService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
+    private ability: Ability
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
@@ -113,18 +116,38 @@ export class AppComponent implements OnInit, OnDestroy {
     return stateComponent ? stateComponent.name : '';
   }
 
+  loadProfileAndSetupAbilities() {
+    if (this.oauthService.hasValidAccessToken()) {
+      this.miscService.profile().subscribe(
+        (profile) => {
+          const roles = profile.admin.roles;
+          localStorage.setItem('roles', roles.join(','));
+          localStorage.setItem('admin_member', JSON.stringify(profile.admin.member as Member));
+
+          const { can, rules } = new AbilityBuilder();
+
+          if (roles.indexOf('adh6_admin') !== -1) {
+            can('manage', 'all');
+          } else {
+            can('manage', 'Member', { id: (profile.admin.member as Member).id });
+            can('read', 'all');
+          }
+
+          // @ts-ignore
+          this.ability.update(rules);
+        });
+    }
+  }
+
   private configureWithNewConfigApi() {
     this.oauthService.events
       .pipe(filter(e => e.type === 'token_received'))
       .subscribe(_ => {
         this.oauthService.loadUserProfile();
-        this.miscService.profile().subscribe(
-          (profile) => {
-            localStorage.setItem('roles', profile.admin.roles.join(','));
-            console.log(profile);
-          });
+        this.loadProfileAndSetupAbilities();
       });
     this.oauthService.loadDiscoveryDocumentAndTryLogin();
+    this.loadProfileAndSetupAbilities();
   }
 
 }
