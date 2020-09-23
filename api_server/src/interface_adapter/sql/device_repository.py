@@ -3,17 +3,24 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
+from enum import Enum
 from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractDevice, Member
 from src.entity.device import Device
+from src.entity.null import Null
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.device_repository import DeviceRepository
+
+
+class DeviceType(Enum):
+    wired = 0
+    wireless = 1
 
 
 class DeviceSQLRepository(DeviceRepository):
@@ -37,7 +44,7 @@ class DeviceSQLRepository(DeviceRepository):
             if filter_.mac:
                 q = q.filter(SQLDevice.mac == filter_.mac)
             if filter_.connection_type:
-                q = q.filter(SQLDevice.type == filter_.connection_type)
+                q = q.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
 
         if terms:
             q = q.filter(
@@ -73,7 +80,7 @@ class DeviceSQLRepository(DeviceRepository):
             created_at=now,
             updated_at=now,
             last_seen=now,
-            type=abstract_device.connection_type,
+            type=DeviceType[abstract_device.connection_type].value,
             adherent=adherent,
             ip=abstract_device.ipv4_address,
             ipv6=abstract_device.ipv6_address
@@ -121,7 +128,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
     if entity.mac is not None or override:
         device.mac = entity.mac
     if entity.connection_type is not None or override:
-        device.type = entity.connection_type
+        device.type = DeviceType[entity.connection_type].value
     if entity.ipv4_address is not None or override:
         device.ip = entity.ipv4_address
     if entity.ipv6_address is not None or override:
@@ -145,7 +152,7 @@ def _map_device_sql_to_entity(d) -> Device:
         id=d.id,
         mac=d.mac,
         member=_map_member_sql_to_entity(d.adherent),
-        connection_type=d.type,
-        ipv4_address=d.ip,
-        ipv6_address=d.ipv6,
+        connection_type=DeviceType(d.type).name,
+        ipv4_address=d.ip if d.ip != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
     )
