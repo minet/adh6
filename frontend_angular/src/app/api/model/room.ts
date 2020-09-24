@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import { AbstractRoom } from './abstractRoom';
+import { Vlan } from './vlan';
 
 export interface Room extends AbstractRoom { 
     __typename?: string;

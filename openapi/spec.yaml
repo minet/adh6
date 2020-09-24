@@ -2089,6 +2089,17 @@ components:
             - $ref: '#/components/schemas/Room'
             - type: integer
           example: 4
+        ip:
+          description: The public ipv4 address assigned to this member
+          example: 157.159.192.144
+          nullable: true
+          format: ipv4
+          type: string
+        subnet:
+          description: The private ipv4 network assigned to this member
+          example: 10.42.8.240/28
+          nullable: true
+          type: string
     Member:
       allOf:
         - $ref: '#/components/schemas/AbstractMember'

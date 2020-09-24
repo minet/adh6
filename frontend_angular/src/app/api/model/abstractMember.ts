@@ -49,4 +49,12 @@ export interface AbstractMember {
      * The room this member lives in
      */
     room?: Room | number;
+    /**
+     * The public ipv4 address assigned to this member
+     */
+    ip?: string;
+    /**
+     * The private ipv4 network assigned to this member
+     */
+    subnet?: string;
 }

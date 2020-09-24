@@ -39,7 +39,9 @@ class AbstractMember(object):
         'email': 'str',
         'first_name': 'str',
         'last_name': 'str',
-        'room': 'OneOfAbstractMemberRoom'
+        'room': 'OneOfAbstractMemberRoom',
+        'ip': 'str',
+        'subnet': 'str'
     }
 
     attribute_map = {
@@ -51,10 +53,12 @@ class AbstractMember(object):
         'email': 'email',
         'first_name': 'firstName',
         'last_name': 'lastName',
-        'room': 'room'
+        'room': 'room',
+        'ip': 'ip',
+        'subnet': 'subnet'
     }
 
-    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None):  # noqa: E501
+    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None):  # noqa: E501
         """AbstractMember - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._username = None
@@ -65,6 +69,8 @@ class AbstractMember(object):
         self._first_name = None
         self._last_name = None
         self._room = None
+        self._ip = None
+        self._subnet = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -84,6 +90,10 @@ class AbstractMember(object):
             self.last_name = last_name
         if room is not None:
             self.room = room
+        if ip is not None:
+            self.ip = ip
+        if subnet is not None:
+            self.subnet = subnet
 
     @property
     def id(self):
@@ -291,6 +301,52 @@ class AbstractMember(object):
         """
 
         self._room = room
+
+    @property
+    def ip(self):
+        """Gets the ip of this AbstractMember.  # noqa: E501
+
+        The public ipv4 address assigned to this member  # noqa: E501
+
+        :return: The ip of this AbstractMember.  # noqa: E501
+        :rtype: str
+        """
+        return self._ip
+
+    @ip.setter
+    def ip(self, ip):
+        """Sets the ip of this AbstractMember.
+
+        The public ipv4 address assigned to this member  # noqa: E501
+
+        :param ip: The ip of this AbstractMember.  # noqa: E501
+        :type: str
+        """
+
+        self._ip = ip
+
+    @property
+    def subnet(self):
+        """Gets the subnet of this AbstractMember.  # noqa: E501
+
+        The private ipv4 network assigned to this member  # noqa: E501
+
+        :return: The subnet of this AbstractMember.  # noqa: E501
+        :rtype: str
+        """
+        return self._subnet
+
+    @subnet.setter
+    def subnet(self, subnet):
+        """Sets the subnet of this AbstractMember.
+
+        The private ipv4 network assigned to this member  # noqa: E501
+
+        :param subnet: The subnet of this AbstractMember.  # noqa: E501
+        :type: str
+        """
+
+        self._subnet = subnet
 
     def to_dict(self):
         """Returns the model properties as a dict"""

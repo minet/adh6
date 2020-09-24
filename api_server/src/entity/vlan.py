@@ -135,7 +135,7 @@ class Vlan(object):
     def ipv6_network(self):
         """Gets the ipv6_network of this Vlan.  # noqa: E501
 
-        The IPv5 network range for this VLAN  # noqa: E501
+        The IPv6 network range for this VLAN  # noqa: E501
 
         :return: The ipv6_network of this Vlan.  # noqa: E501
         :rtype: str
@@ -146,7 +146,7 @@ class Vlan(object):
     def ipv6_network(self, ipv6_network):
         """Sets the ipv6_network of this Vlan.
 
-        The IPv5 network range for this VLAN  # noqa: E501
+        The IPv6 network range for this VLAN  # noqa: E501
 
         :param ipv6_network: The ipv6_network of this Vlan.  # noqa: E501
         :type: str

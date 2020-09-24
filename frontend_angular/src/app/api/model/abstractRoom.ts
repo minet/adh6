@@ -9,6 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { Vlan } from './vlan';
 
 export interface AbstractRoom { 
     __typename?: string;
@@ -27,5 +28,5 @@ export interface AbstractRoom {
     /**
      * The main vlan assigned to this room
      */
-    vlan?: number;
+    vlan?: Vlan | number;
 }

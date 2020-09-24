@@ -25,7 +25,7 @@ export interface Vlan {
      */
     ipv4Network: string;
     /**
-     * The IPv5 network range for this VLAN
+     * The IPv6 network range for this VLAN
      */
     ipv6Network: string;
 }
