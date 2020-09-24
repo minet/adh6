@@ -13,11 +13,14 @@ export class DashboardComponent implements OnInit {
   localize_link = localize_link;
 
   date = new Date();
+  isDepartureDateFuture = false;
   member: Member = JSON.parse(localStorage.getItem('admin_member'));
   constructor(private oauthService: OAuthService) {
   }
 
   ngOnInit() {
+    this.isDepartureDateFuture = new Date() < new Date(this.member.departureDate);
+    console.log(this.member.departureDate);
   }
 
   public get name() {

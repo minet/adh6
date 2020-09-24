@@ -20,19 +20,31 @@
   <ng-template #simpleDashboard let-change>
     <div class="card">
       <div class="card-body">
-        <h4>Votre abonnement est actif jusqu'au {{ member.departureDate | date:'dd/MM/y' }}</h4>
+        <h4 *ngIf="isDepartureDateFuture, else invalidDate">Votre abonnement est actif jusqu'au {{ member.departureDate | date:'dd/MM/y' }}</h4>
+        <ng-template #invalidDate><h4 class="text-danger">Votre abonnement a expiré le {{ member.departureDate | date:'dd/MM/y' }}</h4></ng-template>
         <hr>
-        <p>Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b></p>
         <p>Addresse mail : <code>{{ member.email }}</code></p>
+        <p *ngIf="member.room != null; else noRoom">Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b>
+        </p>
+        <ng-template #noRoom><p class="text-danger">Vous n'avez pas de chambre attribuée</p></ng-template>
+        <ng-container *ngIf="member.ip != null && member.subnet != null">
+          <hr>
+          <p>Votre adresse IPv4 publique est : <code>{{ member.ip }}</code></p>
+          <p>Votre adresse sous-réseau IPv4 privé est : <code>{{ member.subnet }}</code></p>
+        </ng-container>
       </div>
     </div>
 
     <div class="alert alert-warning mt-4">
       <h4>Un problème ?</h4>
       <ol class="text-left">
-        <li>Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', 'fr') }}">les tutoriels</a> ?</li>
+        <li>Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', 'fr') }}">les tutoriels</a>
+          ?
+        </li>
         <li>Envoyez-nous <a class="alert-link" href="{{ localize_link('tickets', 'fr') }}">un ticket</a></li>
-        <li>Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', 'fr') }}">une des permanences</a> !</li>
+        <li>Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', 'fr') }}">une
+          des permanences</a> !
+        </li>
       </ol>
     </div>
 
