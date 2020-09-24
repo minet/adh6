@@ -3,6 +3,7 @@ import pytest
 
 from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
     Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
@@ -15,7 +16,7 @@ def wired_device(faker, sample_member1):
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
         adherent=sample_member1,
-        type='wired',
+        type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
     )
@@ -27,7 +28,7 @@ def wired_device2(faker, sample_member1):
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
         adherent=sample_member1,
-        type='wired',
+        type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
     )
@@ -39,7 +40,7 @@ def wireless_device(faker, sample_member2):
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
         adherent=sample_member2,
-        type='wireless',
+        type=DeviceType.wireless.value,
         ip=faker.ipv4_private(),
         ipv6=faker.ipv6(),
     )

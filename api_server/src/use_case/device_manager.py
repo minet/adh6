@@ -1,14 +1,12 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
 from src.entity import AbstractDevice, Device
-from src.entity.validators.member_validators import is_member_active, has_member_subnet
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IPAllocator
-from src.util.log import LOG
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 
@@ -60,6 +58,7 @@ class DeviceManager(CRUDManager):
 
     @log_call
     def allocate_ip_addresses(self, ctx, device: Device):
+        from src.entity.validators.member_validators import is_member_active, has_member_subnet
         if is_member_active(device.member):
             if device.ipv4_address is None:
                 if device.connection_type == "wired":

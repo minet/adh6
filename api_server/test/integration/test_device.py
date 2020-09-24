@@ -4,6 +4,7 @@ import pytest
 from pytest_cases import fixture_ref, parametrize_plus
 
 from config.TEST_CONFIGURATION import DATABASE
+from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import Device
 from .conftest import sample_member1, sample_member2, sample_member3
@@ -18,7 +19,7 @@ def custom_device(sample_member1):
         id=42,
         mac='96-24-F6-D0-48-A7',
         adherent=sample_member1,
-        type='wired',
+        type=DeviceType.wired.value,
         ip='157.159.1.1',
         ipv6='::1',
     )
@@ -132,7 +133,7 @@ def test_device_filter_hit_limit(api_client, sample_member1):
         dev = Device(
             adherent=sample_member1,
             mac='00-00-00-00-' + suffix[:2] + "-" + suffix[2:],
-            type='wired',
+            type=DeviceType.wired.value,
             ip="127.0.0.1",
             ipv6="::1",
         )
@@ -184,11 +185,11 @@ def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
 
     s = db.get_db().get_session()
     q = s.query(Device)
-    q = q.filter(Device.type == "wired")
+    q = q.filter(Device.type == DeviceType.wired.value)
     q = q.filter(Device.mac == wired_device_dict["mac"])
     dev = q.one()
-    assert dev.ip == None
-    assert dev.ipv6 == None
+    assert dev.ip == '192.168.42.12'
+    assert dev.ipv6 == 'fe80::c'
 
 
 def test_device_post_create_wired(api_client, wired_device_dict):
@@ -202,7 +203,7 @@ def test_device_post_create_wired(api_client, wired_device_dict):
 
     s = db.get_db().get_session()
     q = s.query(Device)
-    q = q.filter(Device.type == "wired")
+    q = q.filter(Device.type == DeviceType.wired.value)
     q = q.filter(Device.mac == wired_device_dict["mac"])
     dev = q.one()
     assert dev.ip == "127.0.0.1"

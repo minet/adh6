@@ -115,7 +115,7 @@ class Caisse(Base, RubyHashTrackable):
     date = Column(DateTime)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
+    linked_transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """

@@ -1,4 +1,5 @@
 # coding=utf-8 import datetime import datetime import datetime
+from unittest import mock
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises, mark
@@ -31,21 +32,8 @@ def device_manager(
         mock_device_repository: DeviceRepository,
 ):
     return DeviceManager(
-        device_repository=mock_device_repository
-    )
-
-
-@fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)
-
-
-@fixture
-def account_manager(
-        mock_account_repository: AccountRepository,
-):
-    return AccountManager(
-        account_repository=mock_account_repository
+        device_repository=mock_device_repository,
+        ip_allocator=mock_ip_allocator
     )
 
 
@@ -61,6 +49,7 @@ class TestUpdateOrCreate:
                                sample_room: Room,
                                sample_device: AbstractDevice,
                                device_manager: DeviceManager):
+        import src.entity.validators.member_validators
         # Given...
 
         # That the owner exists:
@@ -73,7 +62,8 @@ class TestUpdateOrCreate:
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
 
         # When...
-        device = device_manager.update_or_create(ctx, sample_device)
+        with mock.patch('src.entity.validators.member_validators.is_member_active', return_value=True):
+            device = device_manager.update_or_create(ctx, sample_device)
 
         # Expect...
         assert device is not None
@@ -231,7 +221,8 @@ class TestUpdateOrCreate:
         )
 
         # When...
-        device, created = device_manager.update_or_create(ctx, dev)
+        with mock.patch('src.entity.validators.member_validators.is_member_active', return_value=False):
+            device, created = device_manager.update_or_create(ctx, dev)
 
         # Expect...
         assert created is True
@@ -319,17 +310,21 @@ class TestUpdateOrCreate:
                                                 ),
                                                 )
 
+
 @fixture
 def mock_vlan_repository():
     return MagicMock(spec=VLANRepository)
+
 
 @fixture
 def mock_ip_allocator():
     return MagicMock(spec=IPAllocator)
 
+
 @fixture
 def mock_member_repository():
     return MagicMock(spec=MemberRepository)
+
 
 @fixture
 def mock_room_repository():

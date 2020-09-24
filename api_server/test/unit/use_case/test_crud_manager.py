@@ -32,7 +32,6 @@ from test.unit.use_case.conftest import sample_account1, sample_device, sample_s
                   [
                       (SwitchRepository, SwitchManager, AbstractSwitch, fixture_ref(sample_switch)),
                       (PortRepository, PortManager, AbstractPort, fixture_ref(sample_port)),
-                      (DeviceRepository, DeviceManager, AbstractDevice, fixture_ref(sample_device)),
                       (RoomRepository, RoomManager, AbstractRoom, fixture_ref(sample_room)),
                       (AccountRepository, AccountManager, AbstractAccount, fixture_ref(sample_account1)),
                       (ProductRepository, ProductManager, AbstractProduct, fixture_ref(sample_product)),
@@ -43,7 +42,7 @@ from test.unit.use_case.conftest import sample_account1, sample_device, sample_s
 
                   ],
                   ids=[
-                      "switch", "port", "device", "room", "account", "product", "payment_method", "account_type"
+                      "switch", "port", "room", "account", "product", "payment_method", "account_type"
                   ])
 def manager(repository_class, manager_class, abstract_class, mock_object):
     mock_repo = MagicMock(spec=repository_class)

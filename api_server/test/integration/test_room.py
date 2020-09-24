@@ -82,7 +82,7 @@ def test_room_get_valid_room(api_client, sample_room1):
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode())
-    assert len(response) == 4
+    assert len(response) == 5
 
 
 def test_room_get_invalid_room(api_client):
