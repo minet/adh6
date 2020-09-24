@@ -189,6 +189,7 @@ class Device(Base, RubyHashTrackable):
     def get_related_member(self):
         return self.adherent
 
+
 class Routeur(Base, RubyHashTrackable):
     __tablename__ = 'routeurs'
 
@@ -218,6 +219,7 @@ class Routeur(Base, RubyHashTrackable):
     def get_related_member(self):
         return self.adherent
 
+
 class Switch(Base):
     __tablename__ = 'switches'
 
@@ -243,6 +245,7 @@ class Port(Base):
 
     switch = relationship(Switch, foreign_keys=[switch_id])
     chambre = relationship(Chambre, foreign_keys=[chambre_id])
+
 
 class Adhesion(Base):
     __tablename__ = 'adhesions'
@@ -346,6 +349,7 @@ class Transaction(Base, RubyHashTrackable):
     def get_related_member(self):
         return self
 
+
 class Utilisateur(Base):
     __tablename__ = 'utilisateurs'
 
@@ -358,3 +362,14 @@ class Utilisateur(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     access_token = Column(String(255))
+
+
+class MailTemplates(Base):
+    __tablename__ = 'mail_templates'
+
+    id = Column(Integer, primary_key=True)
+    description = Column(String(255))
+    sujet = Column(String(255))
+    template = Column(Text)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)

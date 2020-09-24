@@ -176,11 +176,11 @@ def upgrade():
     sa.Column('date', sa.DateTime(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.Column('transaction', sa.Integer(), nullable=True),
+    sa.Column('linked_transaction', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['transaction'], ['transactions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_caisse_transaction'), 'caisse', ['transaction'], unique=False)
+    op.create_index(op.f('ix_caisse_linked_transaction'), 'caisse', ['linked_transaction'], unique=False)
     op.create_table('devices',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('mac', sa.String(length=255), nullable=True),
