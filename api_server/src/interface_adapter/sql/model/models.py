@@ -78,6 +78,8 @@ class Adherent(Base, RubyHashTrackable):
         server_default=text("'2011-04-30 17:50:17'")
     )
     access_token = Column(String(255))
+    subnet = Column(String(255))
+    ip = Column(String(255))
     ldap_login = Column(String(255))
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
@@ -166,7 +168,8 @@ class Device(Base, RubyHashTrackable):
     updated_at = Column(DateTime)
     last_seen = Column(DateTime)
     ipv6 = Column(String(255))
-    type = Column(String(255))
+    type = Column(Integer)
+    mab = Column(Boolean(), nullable=False, default=False, server_default='0')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -186,6 +189,34 @@ class Device(Base, RubyHashTrackable):
     def get_related_member(self):
         return self.adherent
 
+class Routeur(Base, RubyHashTrackable):
+    __tablename__ = 'routeurs'
+
+    id = Column(Integer, primary_key=True)
+    mac = Column(String(255))
+    ip = Column(String(255))
+    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
+    adherent = relationship(Adherent)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
+        """
+        Override this method to add the prefix.
+        """
+        modif = rubydiff(snap_before, snap_after)
+        if snap_after is None:
+            proper_mac = snap_before.get('mac').upper().replace(":", "-")
+            return (
+                "---\n"
+                "device: Suppression du périphérique {}\n".format(proper_mac)
+            )
+
+        modif = 'device: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        return modif
+
+    def get_related_member(self):
+        return self.adherent
 
 class Switch(Base):
     __tablename__ = 'switches'
@@ -315,36 +346,15 @@ class Transaction(Base, RubyHashTrackable):
     def get_related_member(self):
         return self
 
-
-class OAuth2Client(Base, OAuth2ClientMixin):
-    __tablename__ = 'oauth2_client'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
-    user = relationship('Adherent')
-    bypass_consent = Column(Boolean(), nullable=False)
-
-
-class OAuth2AuthorizationCode(Base, OAuth2AuthorizationCodeMixin):
-    __tablename__ = 'oauth2_code'
+class Utilisateur(Base):
+    __tablename__ = 'utilisateurs'
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
-    user = relationship('Adherent')
-
-
-class OAuth2Token(Base, OAuth2TokenMixin):
-    __tablename__ = 'oauth2_token'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(
-        Integer, ForeignKey('adherents.id', ondelete='CASCADE'))
-    user = relationship('Adherent')
-
-    def is_refresh_token_active(self):
-        if self.revoked:
-            return False
-        expires_at = self.issued_at + self.expires_in * 2
-        return expires_at >= time.time()
+    nom = Column(String(255))
+    access = Column(Integer)
+    email = Column(String(255))
+    login = Column(String(255))
+    password_hash = Column(String(255))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+    access_token = Column(String(255))

@@ -34,10 +34,10 @@ class AccountTypeSQLRepository(AccountTypeRepository):
         q = q.limit(limit)
         r = q.all()
 
-        return list(map(_map_account_sql_to_entity, r)), count
+        return list(map(_map_account_type_sql_to_entity, r)), count
 
 
-def _map_account_sql_to_entity(a) -> AccountType:
+def _map_account_type_sql_to_entity(a) -> AccountType:
     """
     Map an AccountType object from SQLAlchemy to an AccountType (from the entity folder/layer).
     """

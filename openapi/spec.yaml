@@ -2150,8 +2150,10 @@ components:
           type: integer
         vlan:
           description: The main vlan assigned to this room
-          type: integer
-          example: 41
+          oneOf:
+            - $ref: '#/components/schemas/Vlan'
+            - type: integer
+          example: 4
     Room:
       allOf:
         - $ref: '#/components/schemas/AbstractRoom'
@@ -2254,10 +2256,12 @@ components:
           description: The IPv4 network range for this VLAN
           type: string
           example: "157.159.41.0/24"
+          nullable: true
         ipv6Network:
-          description: The IPv5 network range for this VLAN
+          description: The IPv6 network range for this VLAN
           type: string
           example: "2001:660:3203:403::/64"
+          nullable: true
     BugReport:
       type: object
       required:

@@ -9,6 +9,7 @@ from typing import List
 from sqlalchemy import or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity.null import Null
 from src.entity.port import Port
 from src.entity.switch import Switch
 from src.entity.vlan import Vlan
@@ -243,9 +244,10 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
 
 def _map_vlan_sql_to_entity(r: VlanSQL) -> Vlan:
     return Vlan(
-        number=str(r.numero),
-        ipv4_network=r.adresses,
-        ipv6_network=r.adressesv6,
+        id=r.id,
+        number=r.numero,
+        ipv4_network=r.adresses or Null(),
+        ipv6_network=r.adressesv6 or Null(),
     )
 
 

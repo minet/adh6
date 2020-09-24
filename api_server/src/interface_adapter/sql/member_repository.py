@@ -48,6 +48,9 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         if filter_.id is not None:
             q = q.filter(Adherent.id == filter_.id)
 
+        if filter_.ip is not None:
+            q = q.filter(Adherent.ip == filter_.ip)
+
         if terms:
             q = q.filter(
                 (Adherent.nom.contains(terms)) |
@@ -172,6 +175,10 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
         adherent.mode_association = entity.association_mode
     if entity.departure_date is not None or override:
         adherent.date_de_depart = entity.departure_date
+    if entity.ip is not None or override:
+        adherent.ip = entity.ip
+    if entity.subnet is not None or override:
+        adherent.subnet = entity.subnet
     if entity.room is not None:
         s = ctx.get(CTX_SQL_SESSION)
         room = s.query(Chambre).filter(Chambre.id == entity.room).one_or_none()
@@ -196,5 +203,7 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         departure_date=adh.date_de_depart,
         comment=adh.commentaires,
         association_mode=adh.mode_association,
+        ip=adh.ip,
+        subnet=adh.subnet,
         room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),
     )

@@ -190,7 +190,7 @@ def upgrade():
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('last_seen', sa.DateTime(), nullable=True),
     sa.Column('ipv6', sa.String(length=255), nullable=True),
-    sa.Column('type', sa.String(length=255), nullable=True),
+    sa.Column('type', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['adherent_id'], ['adherents.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

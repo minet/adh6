@@ -13,6 +13,7 @@ from src.entity.account import Account
 from src.entity.null import Null
 from src.exceptions import AccountNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.interface_adapter.sql.account_type_repository import _map_account_type_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Account as SQLAccount, Transaction, AccountType, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
@@ -117,7 +118,7 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         id=a.id,
         name=a.name,
         actif=a.actif,
-        account_type=a.type,
+        account_type=_map_account_type_sql_to_entity(a.account_type),
         creation_date=a.creation_date,
         member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
         balance=balance or 0,
