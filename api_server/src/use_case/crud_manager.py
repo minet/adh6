@@ -50,7 +50,7 @@ class CRUDManager:
         return self.partially_update_access_control_function(ctx, roles, f, args, kwargs)
 
     def partially_update_access_control_function(self, ctx, roles, f, args, kwargs):
-        return self.owns_object_access_control_function(ctx, roles, f, args, kwargs)
+        return self.create_access_control_function(ctx, roles, f, args, kwargs)
 
     def _search_access_control_function(self, ctx, roles, f, args, kwargs):
         return self.search_access_control_function(ctx, roles, f, args, kwargs)
@@ -115,7 +115,8 @@ class CRUDManager:
             new_object = self.repository.create(ctx, obj)
             return new_object, True
         else:
-            return self.partially_update(ctx, obj, override=True, **kwargs)
+            obj.id = current_object.id
+            return self.repository.update(ctx, obj, override=True), False
 
     @log_call
     @auto_raise

@@ -16,6 +16,7 @@ from src.interface_adapter.sql.member_repository import _map_member_sql_to_entit
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.device_repository import DeviceRepository
+from src.util.log import LOG
 
 
 class DeviceType(Enum):
@@ -25,12 +26,9 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
 
-    @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractDevice = None) -> (List[Device], int):
-        s = ctx.get(CTX_SQL_SESSION)
-
-        q = s.query(SQLDevice)
+    def _search(self, ctx, s, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                filter_: AbstractDevice = None, query=None):
+        q = query or s.query(SQLDevice)
         q = q.join(Adherent, Adherent.id == SQLDevice.adherent_id)
 
         if filter_ is not None:
@@ -61,6 +59,13 @@ class DeviceSQLRepository(DeviceRepository):
         q = q.limit(limit)
         r = q.all()
 
+        return r, count
+
+    @log_call
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                  filter_: AbstractDevice = None) -> (List[Device], int):
+        s = ctx.get(CTX_SQL_SESSION)
+        r, count = self._search(ctx, s, limit, offset, terms, filter_)
         return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
@@ -121,13 +126,30 @@ class DeviceSQLRepository(DeviceRepository):
         with track_modifications(ctx, s, device):
             s.delete(device)
 
+    def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> (List[str], int):
+        s = ctx.get(CTX_SQL_SESSION)
+        if type == "ipv4":
+            q = s.query(SQLDevice.ip)
+            q = q.filter((SQLDevice.ip != None) &
+                         (SQLDevice.ip != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
+                         )
+        elif type == "ipv6":
+            q = s.query(SQLDevice.ipv6)
+            q = q.filter((SQLDevice.ipv6 != None) &
+                         (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
+                         )
+        r, count = self._search(ctx, s, filter_=filter_, query=q)
+
+        return list(map(lambda x: x[0], r)), count
+
 
 def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:
     now = datetime.now()
     device = sql_object
+
     if entity.mac is not None or override:
         device.mac = entity.mac
-    if entity.connection_type is not None or override:
+    if entity.connection_type is not None:
         device.type = DeviceType[entity.connection_type].value
     if entity.ipv4_address is not None or override:
         device.ip = entity.ipv4_address
@@ -139,7 +161,6 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
         if not adherent:
             raise MemberNotFoundError(entity.member)
         device.adherent = adherent
-
     device.updated_at = now
     return device
 

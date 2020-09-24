@@ -24,6 +24,7 @@ from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
 from src.interface_adapter.sql.cashbox_repository import CashboxSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
+from src.interface_adapter.sql.ip_allocator import IPSQLAllocator
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.model.database import Database
 # THIS IMPORT IS NEEDED FOR sqlalchemy migrations management
@@ -83,6 +84,7 @@ def init(testing=True, managing=False):
     transaction_sql_repository = TransactionSQLRepository()
     account_type_sql_repository = AccountTypeSQLRepository()
     cashbox_sql_repository = CashboxSQLRepository()
+    ip_sql_allocator = IPSQLAllocator()
 
     # Managers
     health_manager = HealthManager(ping_repository)
@@ -94,6 +96,7 @@ def init(testing=True, managing=False):
     )
     device_manager = DeviceManager(
         device_repository=device_sql_repository,
+        ip_allocator=ip_sql_allocator
     )
     member_manager = MemberManager(
         member_repository=member_sql_repository,

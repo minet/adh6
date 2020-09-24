@@ -1,10 +1,14 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice
+from src.entity import AbstractDevice, Device
+from src.entity.validators.member_validators import is_member_active, has_member_subnet
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.interface.device_repository import DeviceRepository
+from src.use_case.interface.ip_allocator import IPAllocator
+from src.util.log import LOG
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 
@@ -22,9 +26,11 @@ class DeviceManager(CRUDManager):
 
     def __init__(self,
                  device_repository: DeviceRepository,
+                 ip_allocator: IPAllocator,
                  ):
         super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError, _owner_check)
         self.device_repository = device_repository
+        self.ip_allocator = ip_allocator
 
     @auto_raise
     def delete_access_control_function(self, ctx, roles, f, args, kwargs):
@@ -47,6 +53,40 @@ class DeviceManager(CRUDManager):
         device, created = super().update_or_create(ctx, abstract_device, device_id=device_id)
 
         if created:
-            pass  # TODO ALLOCATE IP ADDRESSES
+            self.allocate_ip_addresses(ctx, device)
+        # TODO ALLOCATE IP ADDRESSES
 
         return device, created
+
+    @log_call
+    def allocate_ip_addresses(self, ctx, device: Device):
+        if is_member_active(device.member):
+            if device.ipv4_address is None:
+                if device.connection_type == "wired":
+                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
+                        connection_type=device.connection_type
+                    ))
+
+                    self.partially_update(ctx, AbstractDevice(
+                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, device.member.room.vlan.ipv4_network,
+                                                                      taken_ips, should_skip_reserved=True)
+                    ), device_id=device.id, override=False)
+                elif device.connection_type == "wireless" and has_member_subnet(device.member):
+                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
+                        member=device.member,
+                        connection_type=device.connection_type
+                    ))
+
+                    self.partially_update(ctx, AbstractDevice(
+                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, device.member.subnet, taken_ips)
+                    ), device_id=device.id, override=False)
+            if device.ipv6_address is None:
+                if device.connection_type == "wired":
+                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv6', AbstractDevice(
+                        connection_type=device.connection_type
+                    ))
+
+                    self.partially_update(ctx, AbstractDevice(
+                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, device.member.room.vlan.ipv6_network,
+                                                                      taken_ips, should_skip_reserved=True)
+                    ), device_id=device.id, override=False)

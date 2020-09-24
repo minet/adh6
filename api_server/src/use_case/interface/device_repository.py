@@ -20,3 +20,6 @@ class DeviceRepository(CRUDRepository):
 
     def delete(self, ctx, object_id) -> None:
         raise NotImplemented
+
+    def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> (List[str], int):
+        raise NotImplemented
