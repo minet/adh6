@@ -35,7 +35,7 @@ export class NotifInterceptor implements HttpInterceptor {
             err = response.error;
           }
           if (err.code === 401) {
-            //this.oauthService.logOut();
+            this.oauthService.logOut();
           } else {
             if (req.method === 'GET' && req.headers.get('x-critical-error') === 'true') {
               this.errorPageService.show(err);
