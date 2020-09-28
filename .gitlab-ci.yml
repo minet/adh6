@@ -112,7 +112,7 @@ deploy_prod_front:
   stage: deploy
   when: manual
   script:
-    - cp -r frontend_angular/dist/* /var/www/
+    - cp -r frontend_angular/dist/adh6/* /var/www/
   environment:
     name: production
     url: https://adh6.minet.net/
