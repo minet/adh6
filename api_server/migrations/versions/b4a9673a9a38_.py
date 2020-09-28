@@ -177,7 +177,7 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('linked_transaction', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['transaction'], ['transactions.id'], ),
+    sa.ForeignKeyConstraint(['linked_transaction'], ['transactions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_caisse_linked_transaction'), 'caisse', ['linked_transaction'], unique=False)
