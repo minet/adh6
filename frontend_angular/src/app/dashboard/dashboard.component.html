@@ -1,6 +1,6 @@
 <div class="dashboard">
   <img class="w-25" src="../assets/minet_dark.png">
-  <h1 *ngIf="name">Bonjour {{ name }}</h1>
+  <h1 *ngIf="name" i18n="dashboard hello|Greets the user on the dashboard">Bonjour {{ name }}</h1>
   <ng-template *ngIf="'manage' | able: 'all'; else simpleDashboard">
     <img class="w-50" src="../assets/minet_dark.png">
     <div class="row mt-3">
@@ -20,35 +20,35 @@
   <ng-template #simpleDashboard let-change>
     <div class="card">
       <div class="card-body">
-        <h4 *ngIf="isDepartureDateFuture, else invalidDate">Votre abonnement est actif jusqu'au {{ member.departureDate | date:'dd/MM/y' }}</h4>
-        <ng-template #invalidDate><h4 class="text-danger">Votre abonnement a expiré le {{ member.departureDate | date:'dd/MM/y' }}</h4></ng-template>
+        <h4 *ngIf="isDepartureDateFuture, else invalidDate" i18n="dashboard active subscription|Describes until when a subscription is active">Votre abonnement est actif jusqu'au {{ member.departureDate | date }}</h4>
+        <ng-template #invalidDate><h4 class="text-danger" i18n="dashboard expired subscription|Describes when a subscription has expired">Votre abonnement a expiré le {{ member.departureDate | date }}</h4></ng-template>
         <hr>
-        <p>Addresse mail : <code>{{ member.email }}</code></p>
-        <p *ngIf="member.room != null; else noRoom">Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b>
+        <p i18n="dashboard email address|Shows a user their email address">Addresse mail : <code>{{ member.email }}</code></p>
+        <p *ngIf="member.room != null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b>
         </p>
-        <ng-template #noRoom><p class="text-danger">Vous n'avez pas de chambre attribuée</p></ng-template>
+        <ng-template #noRoom><p class="text-danger" i18n="dashboard no room|Tells a user they have no room">Vous n'avez pas de chambre attribuée</p></ng-template>
         <ng-container *ngIf="member.ip != null && member.subnet != null">
           <hr>
-          <p>Votre adresse IPv4 publique est : <code>{{ member.ip }}</code></p>
-          <p>Votre adresse sous-réseau IPv4 privé est : <code>{{ member.subnet }}</code></p>
+          <p i18n="dashboard public ipv4|Shows a user their public IPv4">Votre adresse IPv4 publique est : <code>{{ member.ip }}</code></p>
+          <p i18n="dashboard private subnetv4|Shows a user their private IPv4 subnet">Votre sous-réseau IPv4 privé est : <code>{{ member.subnet }}</code></p>
         </ng-container>
       </div>
     </div>
 
     <div class="alert alert-warning mt-4">
-      <h4>Un problème ?</h4>
+      <h4 i18n="dashboard help problem|Is the user encountering any issue ?">Un problème ?</h4>
       <ol class="text-left">
-        <li>Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', 'fr') }}">les tutoriels</a>
+        <li i18n="dashboard help tutorials|Has the user taken a look at the tutorials ?">Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', 'fr') }}">les tutoriels</a>
           ?
         </li>
-        <li>Envoyez-nous <a class="alert-link" href="{{ localize_link('tickets', 'fr') }}">un ticket</a></li>
-        <li>Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', 'fr') }}">une
+        <li i18n="dashboard help tickets|The user may send a ticket">Envoyez-nous <a class="alert-link" href="{{ localize_link('tickets', 'fr') }}">un ticket</a></li>
+        <li i18n="dashboard help helpdesk|The user may come see us directly">Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', 'fr') }}">une
           des permanences</a> !
         </li>
       </ol>
     </div>
 
-    <h3>Mes appareils</h3>
+    <h3 i18n="own devices">Mes appareils</h3>
     <div class="card">
       <div class="card-body">
         <app-device-new [member_id]="member.id"
@@ -56,14 +56,14 @@
         <hr>
         <div class="row mt-3">
           <div class="col-md-6">
-            <h4 class="table-title my-0">Filaire</h4>
+            <h4 class="table-title my-0" i18n="wired">Filaire</h4>
             <app-member-device-list #wiredList
                                     [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
             ></app-member-device-list>
           </div>
 
           <div class="col-md-6">
-            <h4 class="table-title my-0">Wifi</h4>
+            <h4 class="table-title my-0" i18n="wireless">Wifi</h4>
             <app-member-device-list #wirelessList
                                     [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
             ></app-member-device-list>

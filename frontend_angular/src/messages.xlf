@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="cf671d5b29a22225774e335a5cf781636a4be1c5" datatype="html">
+        <source>Votre abonnement est actif jusqu&apos;au <x id="INTERPOLATION" equiv-text="{{ member.departureDate | date }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">23</context>
+        </context-group>
+        <note priority="1" from="description">Describes until when a subscription is active</note>
+        <note priority="1" from="meaning">dashboard active subscription</note>
+      </trans-unit>
+      <trans-unit id="9bd78cbabac8cd172bddf01b46fbc602b6e8709a" datatype="html">
+        <source>Votre abonnement a expiré le <x id="INTERPOLATION" equiv-text="{{ member.departureDate | date }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">24</context>
+        </context-group>
+        <note priority="1" from="description">Describes when a subscription has expired</note>
+        <note priority="1" from="meaning">dashboard expired subscription</note>
+      </trans-unit>
+      <trans-unit id="84b073e3c94196334980e2a0fe31dba72f6662e0" datatype="html">
+        <source>Addresse mail : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ member.email }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user their email address</note>
+        <note priority="1" from="meaning">dashboard email address</note>
+      </trans-unit>
+      <trans-unit id="71c420648306b1b669bd10723ae0a01f70ce411a" datatype="html">
+        <source>Vous êtes incrit dans la chambre <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;"/><x id="INTERPOLATION" equiv-text="{{ member.room.description}}"/><x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt;"/>
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user the room they are in</note>
+        <note priority="1" from="meaning">dashboard room description</note>
+      </trans-unit>
+      <trans-unit id="53c8a0dafbf4b94e9898a17814d4d5ac62250597" datatype="html">
+        <source>Vous n&apos;avez pas de chambre attribuée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+        <note priority="1" from="description">Tells a user they have no room</note>
+        <note priority="1" from="meaning">dashboard no room</note>
+      </trans-unit>
+      <trans-unit id="d351c21de81b3ed8f9cee5daaf6de7f1d39ca247" datatype="html">
+        <source>Votre adresse IPv4 publique est : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ member.ip }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user their public IPv4</note>
+        <note priority="1" from="meaning">dashboard public ipv4</note>
+      </trans-unit>
+      <trans-unit id="af82ad54afd539e8bde1699b212e40b7a8cbdcb2" datatype="html">
+        <source>Votre sous-réseau IPv4 privé est : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;"/><x id="INTERPOLATION" equiv-text="{{ member.subnet }}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
+        <note priority="1" from="meaning">dashboard private subnetv4</note>
+      </trans-unit>
+      <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
+        <source>Un problème ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">39</context>
+        </context-group>
+        <note priority="1" from="description">Is the user encountering any issue ?</note>
+        <note priority="1" from="meaning">dashboard help problem</note>
+      </trans-unit>
+      <trans-unit id="ff1afb849ee11ff94ea6071b931dce6328e2729e" datatype="html">
+        <source>Avez-vous bien regardé <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>les tutoriels<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
+          ?
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+        <note priority="1" from="description">Has the user taken a look at the tutorials ?</note>
+        <note priority="1" from="meaning">dashboard help tutorials</note>
+      </trans-unit>
+      <trans-unit id="c5379721848895e438e4d4776a1eaf3b12e14fd0" datatype="html">
+        <source>Envoyez-nous <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>un ticket<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">44</context>
+        </context-group>
+        <note priority="1" from="description">The user may send a ticket</note>
+        <note priority="1" from="meaning">dashboard help tickets</note>
+      </trans-unit>
+      <trans-unit id="82b9f7504a025564ce628c942dc9e3f791450518" datatype="html">
+        <source>Éventuellement, passez au local pendant <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>une
+          des permanences<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/> !
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+        <note priority="1" from="description">The user may come see us directly</note>
+        <note priority="1" from="meaning">dashboard help helpdesk</note>
+      </trans-unit>
+      <trans-unit id="6914414e915dca837863d28d2f0cfb3840b51e5d" datatype="html">
+        <source>Mes appareils</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+        <note priority="1" from="description">own devices</note>
+      </trans-unit>
+      <trans-unit id="2fbce8d709b19bfbc5668bee33f0d6ed3b25eb41" datatype="html">
+        <source>Filaire</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">59</context>
+        </context-group>
+        <note priority="1" from="description">wired</note>
+      </trans-unit>
+      <trans-unit id="13bc7d89421d02f9fbec535402d8e8d22042db41" datatype="html">
+        <source>Wifi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">66</context>
+        </context-group>
+        <note priority="1" from="description">wireless</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -21,7 +21,7 @@ export const LINKS_LIST = {
 export function localize_link(linkName, lang) {
   const link = LINKS_LIST[linkName];
   if (link.localized) {
-    link.url = link.url.replace('{{lang}}', lang[lang]);
+    link.url = link.url.replace('{{lang}}', link.lang[lang]);
   }
   return link.url;
 }
