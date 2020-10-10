@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark color-white" *ngIf="'manage' | can: 'all'">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark color-white">
   <a class="navbar-brand" [routerLink]="['dashboard']">
     <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
     {{ titre }}
@@ -10,18 +10,27 @@
 
   <div class="collapse navbar-collapse justify-content-end" [ngClass]="{ 'show': navBarStatus }">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
+      <li class="nav-item dropdown" dropdown>
+        <a class="nav-link dropdown-toggle" dropdownToggle i18n="@@language">
+          Langue
+        </a>
+        <div class="dropdown-menu" *dropdownMenu>
+          <a class="dropdown-item" href="/fr">Français</a>
+          <a class="dropdown-item" href="/en">English</a>
+        </div>
+      </li>
+      <li class="nav-item" *ngIf="'manage' | able: 'all'; ">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['member/add']">Inscription</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item" *ngIf="'manage' | able: 'transaction'; ">
         <a class="nav-item nav-link" [routerLinkActive]="['active']"
            [routerLink]="['transaction/add']">Transaction</a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item" *ngIf="'manage' | able: 'switch_local'; ">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['switch_local']">Switch Local</a>
       </li>
 
-      <li class="nav-item dropdown" dropdown>
+      <li class="nav-item dropdown" dropdown *ngIf="'manage' | able: 'all'; ">
         <a class="nav-link" dropdownToggle href="#" (click)="false" id="navbarAdhDropdown"
            role="button" aria-controls="navbarAdhDropdown" aria-haspopup="true" aria-expanded="false">Gestion
           adhérents</a>
@@ -39,7 +48,7 @@
                                   [routerLink]="['port/search']">Ports</a></li>
         </ul>
       </li>
-      <li class="nav-item dropdown" dropdown>
+      <li class="nav-item dropdown" dropdown  *ngIf="'manage' | able: 'treasury'; ">
         <a class="nav-link" dropdownToggle href="#" (click)="false"
            id="navbarTrezDropdown"
            role="button" aria-controls="navbarTrezDropdown" aria-haspopup="true"
@@ -56,12 +65,12 @@
       </li>
 
     </ul>
-    <form class="form-inline">
+    <form class="form-inline" *ngIf="'manage' | able: 'all'; ">
       <app-global-search></app-global-search>
     </form>
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-item nav-link" (click)="logout()" style="cursor: pointer;">Déconnexion</a>
+        <a class="nav-item nav-link" (click)="logout()" style="cursor: pointer;" i18n="@@disconnect">Déconnexion</a>
       </li>
     </ul>
   </div>

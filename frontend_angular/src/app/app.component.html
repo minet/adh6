@@ -1,6 +1,6 @@
 <title>{{ titre }}</title>
 <div *ngIf="isAuthenticated() || !needsAuth(); else elseBlock">
-<app-navbar *ngIf="isAuthenticated()"></app-navbar>
+<app-navbar></app-navbar>
 <br/>
 <div class="modal fade" bsModal #bugReportModal="bs-modal"
      tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">

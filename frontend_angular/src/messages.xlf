@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+  <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="9736ef380d8faac18965bd2790d1415479c1f6fa" datatype="html">
+        <source>Bonjour <x id="INTERPOLATION" equiv-text="{{ name }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+        <note priority="1" from="description">Greets the user on the dashboard</note>
+        <note priority="1" from="meaning">dashboard hello</note>
+      </trans-unit>
       <trans-unit id="cf671d5b29a22225774e335a5cf781636a4be1c5" datatype="html">
         <source>Votre abonnement est actif jusqu&apos;au <x id="INTERPOLATION" equiv-text="{{ member.departureDate | date }}"/></source>
         <context-group purpose="location">
@@ -114,21 +123,77 @@
         </context-group>
         <note priority="1" from="description">own devices</note>
       </trans-unit>
-      <trans-unit id="2fbce8d709b19bfbc5668bee33f0d6ed3b25eb41" datatype="html">
+      <trans-unit id="wired" datatype="html">
         <source>Filaire</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">59</context>
         </context-group>
-        <note priority="1" from="description">wired</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/device-new/device-new.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
       </trans-unit>
-      <trans-unit id="13bc7d89421d02f9fbec535402d8e8d22042db41" datatype="html">
+      <trans-unit id="wireless" datatype="html">
         <source>Wifi</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">66</context>
         </context-group>
-        <note priority="1" from="description">wireless</note>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/device-new/device-new.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="language" datatype="html">
+        <source>
+          Langue
+        </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/navbar/navbar.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="disconnect" datatype="html">
+        <source>Déconnexion</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/navbar/navbar.component.html</context>
+          <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2525e831872a53492e823d4474ac79ae21cb631e" datatype="html">
+        <source>Aucun appareil enregistré</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-device-list/member-device-list.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+        <note priority="1" from="description">Tells the user they have no registered devices</note>
+        <note priority="1" from="meaning">device list none</note>
+      </trans-unit>
+      <trans-unit id="ecf466477425b002a06b7d95fe773c54f9c9464b" datatype="html">
+        <source>Fabriquant</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-device-list/member-device-list.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+        <note priority="1" from="description">device list manufacturer</note>
+      </trans-unit>
+      <trans-unit id="delete" datatype="html">
+        <source>Supprimer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-device-list/member-device-list.component.html</context>
+          <context context-type="linenumber">50</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="f4d5d028253cd49edb5d896d23f5a667a050e9d7" datatype="html">
+        <source>Ajouter l&apos;appareil
+    </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/device-new/device-new.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <note priority="1" from="description">Add a new device</note>
+        <note priority="1" from="meaning">device new add</note>
       </trans-unit>
     </body>
   </file>

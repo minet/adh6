@@ -15,6 +15,7 @@ export class NavbarComponent implements OnInit {
   navBarStatus = false;
 
   constructor(private oauthService: OAuthService,
+              private appComponent: AppComponent,
               private appcomponent: AppComponent) {
   }
 
@@ -24,6 +25,10 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  isAuthenticated() {
+    return this.appComponent.isAuthenticated();
   }
 
   toggleNavbar() {

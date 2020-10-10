@@ -6,8 +6,8 @@
     <div class="from-group col-md-4">
       <select class="w-100 form-control mb-3" formControlName="connectionType"
               type="text">
-        <option value="wired">Filaire</option>
-        <option value="wireless">Wi-Fi</option>
+        <option value="wired" i18n="@@wired">Filaire</option>
+        <option value="wireless" i18n="@@wireless">Wi-Fi</option>
       </select>
     </div>
   </div>
@@ -15,7 +15,7 @@
   <div class="form-group">
     <button [disabled]="deviceForm.status == 'INVALID'"
             class="w-100 btn btn-primary mb-3"
-            type="submit">Ajouter l'appareil
+            type="submit" i18n="device new add|Add a new device">Ajouter l'appareil
     </button>
   </div>
 </form>
