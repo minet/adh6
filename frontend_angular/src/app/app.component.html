@@ -1,47 +1,52 @@
 <title>{{ titre }}</title>
-<div *ngIf="isAuthenticated() || !needsAuth(); else elseBlock">
 <app-navbar></app-navbar>
-<br/>
-<div class="modal fade" bsModal #bugReportModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 id="bug-report-modal-name" class="modal-title pull-left">Signaler un bug</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="bugReportModal.hide()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="submitBugForm" (ngSubmit)="onSubmitBug()" novalidate>
-          <label class="sr-only" for="bugTitle">Title</label>
-          <div class="input-group mb-2">
-            <div class="input-group-prepend">
-              <div class="input-group-text">Titre</div>
+<div *ngIf="isAuthenticated() || !needsAuth(); else elseBlock">
+  <div class="modal fade" bsModal #bugReportModal="bs-modal"
+       tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 id="bug-report-modal-name" class="modal-title pull-left">Signaler un bug</h4>
+          <button type="button" class="close pull-right" aria-label="Close" (click)="bugReportModal.hide()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="submitBugForm" (ngSubmit)="onSubmitBug()" novalidate>
+            <label class="sr-only" for="bugTitle">Title</label>
+            <div class="input-group mb-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Titre</div>
+              </div>
+              <input formControlName="bugTitle" type="text" class="form-control" id="bugTitle"
+                     value="{{ getCurrentComponent() }} : ">
             </div>
-            <input formControlName="bugTitle" type="text" class="form-control" id="bugTitle" value="{{ getCurrentComponent() }} : ">
-          </div>
-          <label class="sr-only" for="bugDescription">Description</label>
-          <div class="form-group">
-            <textarea formControlName="bugDescription" class="form-control" id="bugDescription" rows="3" placeholder="Description"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Envoyer</button>
-        </form>
+            <label class="sr-only" for="bugDescription">Description</label>
+            <div class="form-group">
+              <textarea formControlName="bugDescription" class="form-control" id="bugDescription" rows="3"
+                        placeholder="Description"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="container mb-3">
-  <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
-  <ng-template #elseRouter>
-    <router-outlet></router-outlet>
-  </ng-template>
-</div>
+  <div class="container mb-3 mt-2">
+    <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
+    <ng-template #elseRouter>
+      <router-outlet></router-outlet>
+    </ng-template>
+  </div>
 
-<button id="reportBug" type="button" class="btn btn-primary" (click)="bugReportModal.show()"><fa-icon [icon]="faBug"></fa-icon></button>
-<simple-notifications></simple-notifications>
+  <button id="reportBug" type="button" class="btn btn-primary" (click)="bugReportModal.show()">
+    <fa-icon [icon]="faBug"></fa-icon>
+  </button>
+  <simple-notifications></simple-notifications>
 
 </div>
 <ng-template #elseBlock>
-  <app-login></app-login>
+  <div class="container mb-3 mt-2">
+    <app-portail></app-portail>
+  </div>
 </ng-template>

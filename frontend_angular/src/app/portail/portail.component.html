@@ -1,75 +1,58 @@
-<div class="d-flex align-items-center" >
-  <main role="main" class="container">
-    <div id="content" class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card">
-          <nav id="navbar-example2" class="navbar navbar-light bg-light">
-            <a class="navbar-brand" href="#">Langue :</a>
-            <ul class="nav nav-pills">
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Choisissez votre langue : </a>
-                <div class="dropdown-menu">
-                  <a class="dropdown-item" href="#one">Français.</a>
-                  <a class="dropdown-item" href="#two">English.</a>
-                </div>
-              </li>
-            </ul>
-          </nav>
-          <div class="card-header text-center">
-            <img src="https://minet.net/res/img/minet.png" class="img-fluid"></div>
-          <div class="card-body">
-            <div class="alert alert-danger text-center" role="alert">
-              Portail captif en construction ! Suivez le développement <a href="https://gitlab.minet.net/adh6/core/blob/portail_captif/frontend_angular/src/app/portail/" class="alert-link">ici</a> !
-            </div>
-            <h4 class="text-justify" style="color: dark" >  <b>Bienvenue sur le campus de Télécom SudParis et Institut Mines-Télécom Buisnness school !
-            </b></h4>
-            <p class="text-justify" style="color: dark" >    Afin de surfer sur Internet, vous devez préalablement vous inscrire à MiNET, l'association étudiante qui gère les connexions à Internet des 700 chambres et studios du campus.
-
-              A partir de cette page, vous pouvez vous inscrire ou accéder à votre compte pour ajouter des ordinateurs par exemple. Des tutoriaux sont aussi présents pour vous aider à vous connecter sur le site
-              <a class="text-primary" target="_blank" href="https://minet.net/fr/tutoriels.html">minet.net</a>.
+<div id="content">
+  <img src="https://minet.net/res/img/minet.png" class="mr-auto ml-auto mb-3 w-25 row">
+  <div class="row">
+    <div class="col-lg m-2 alert alert-info" role="alert">
+      <h4 class="alert-heading" i18n="portail about">À propos de ce site</h4>
+      <hr>
+      <p i18n="portail about desc">Vous êtes sur <a href="//github.com/minet/adh6">ADH6</a>, la toute nouvelle
+        plateforme de gestion de MiNET.
+        Cette application est en version <b>beta</b> et il est donc possible que vous rencontriez des
+        dysfonctionnements.
+      </p>
+      <p i18n="portail about contact">
+        Si vous rencontrez le moindre problème lié à cette nouvelle interface, ou si vous avez des remarques à faire
+        concernant la lisibilité, l'accessibilité ou autre chose, n'hésitez pas à nous le signaler !
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card col-lg m-2">
+      <div class="p-3 h-100 d-flex flex-column align-items-end">
+        <div class="w-100 align-self-start flex-column">
+          <h4 class="text-justify" i18n="portail manage account">Gérer mon compte MiNET</h4>
+          <hr>
+        </div>
+        <div class="w-100 mt-auto mb-auto">
+          <div class="text-center w-100">
+            <p class="text-justify" i18n="portail manage account desc">
+              Pour voir l'état de votre cotisation et ajouter ou supprimer des appareils, connectez-vous à votre
+              compte MiNET.
             </p>
-
-
-            <h2 class="text-center">Pour continuer votre aventure :</h2>
-            <div class="row mt-3">
-              <div class="col-md-6">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Vous n'êtes pas adhérent ?
-                      Passez au local !
-                    </li>
-                  </ol>
-                </nav>
-                <a target="_blank" rel="noopener" href="https://i.imgur.com/GNG2x4b.png">
-                  <img src="https://i.imgur.com/GNG2x4b.png" class="img-fluid">
-                </a>
-
-
-              </div>
-              <div class="col-md-6">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" aria-current="page">Adhérent ?
-                      Connectez-vous pour poursuivre votre aventure !</li>
-                  </ol>
-                </nav>
-                <div class="text-center">
-                  <button class="w-100 btn btn-primary " (click)="login()">
-                    Se connecter
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
-
-
-
-
+            <button class="w-100 btn btn-primary" i18n="portail connection" (click)="login()">Se connecter</button>
           </div>
         </div>
       </div>
     </div>
-  </main>
+    <div class="card col-lg m-2">
+      <div class="card-body text-center">
+        <h4 class="text-justify" i18n="portail create account">Créer mon compte MiNET</h4>
+        <hr>
+        <p class="text-justify" i18n="portail create account desc">
+          Afin de naviguer sur Internet, vous devez préalablement vous
+          inscrire à MiNET, l&apos;association étudiante qui gère le réseau interne des 800 chambres et studios
+          du campus.
+        </p>
+        <hr>
+        <p class="text-justify" i18n="portail create account options">
+          Pour créer votre compte, vous pouvez :
+        </p>
+        <ul class="text-left">
+          <li i18n="portail create account online">Utiliser <a href="//payment.minet.net/">le système en ligne</a></li>
+          <li i18n="portail create account physical" class="text-muted"><s>Venir directement au local MiNET dans le
+            Foyer associatif</s></li>
+        </ul>
+        <img src="../assets/plan_foyer.png" class="w-75 mr-auto ml-auto">
+      </div>
+    </div>
+  </div>
 </div>

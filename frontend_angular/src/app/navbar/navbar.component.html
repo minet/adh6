@@ -10,15 +10,6 @@
 
   <div class="collapse navbar-collapse justify-content-end" [ngClass]="{ 'show': navBarStatus }">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item dropdown" dropdown>
-        <a class="nav-link dropdown-toggle" dropdownToggle i18n="@@language">
-          Langue
-        </a>
-        <div class="dropdown-menu" *dropdownMenu>
-          <a class="dropdown-item" href="/fr">Français</a>
-          <a class="dropdown-item" href="/en">English</a>
-        </div>
-      </li>
       <li class="nav-item" *ngIf="'manage' | able: 'all'; ">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['member/add']">Inscription</a>
       </li>
@@ -69,7 +60,16 @@
       <app-global-search></app-global-search>
     </form>
     <ul class="navbar-nav">
-      <li class="nav-item">
+      <li class="nav-item dropdown" dropdown>
+        <a class="nav-link dropdown-toggle" role="button" dropdownToggle i18n="@@language">
+          Langue
+        </a>
+        <div class="dropdown-menu" *dropdownMenu>
+          <a class="dropdown-item" href="/fr">Français</a>
+          <a class="dropdown-item" href="/en">English</a>
+        </div>
+      </li>
+      <li class="nav-item" *ngIf="isAuthenticated()">
         <a class="nav-item nav-link" (click)="logout()" style="cursor: pointer;" i18n="@@disconnect">Déconnexion</a>
       </li>
     </ul>

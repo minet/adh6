@@ -66,7 +66,7 @@ export class PortailComponent implements OnInit {
   }
 
   public login() {
-    this.oauthService.initImplicitFlow();
+    this.oauthService.initCodeFlow();
   }
 
 }

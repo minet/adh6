@@ -17,7 +17,7 @@
         "sourceLocale": "fr",
         "locales": {
           "en": {
-            "translation": "src/locale/messages.en.xlf",
+            "translation": "src/locale/messages.en.xlf"
           }
         }
       },
@@ -25,7 +25,64 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "localize": ["en", "fr"],
+            "localize": [
+              "en",
+              "fr"
+            ],
+            "aot": true,
+            "outputPath": "dist/adh6",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "src/tsconfig.app.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "./node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/bootstrap-minet.min.css",
+              "./node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
+              "src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ]
+            }
+          }
+        },
+        "build-en": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "localize": [
+              "en"
+            ],
             "aot": true,
             "outputPath": "dist/adh6",
             "index": "src/index.html",
@@ -77,14 +134,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "adh6:build",
+            "browserTarget": "adh6:build-en",
             "port": 8443,
             "host": "0.0.0.0",
             "ssl": true
           },
           "configurations": {
             "production": {
-              "browserTarget": "adh6:build:production"
+              "browserTarget": "adh6:build-en:production"
             }
           }
         },
