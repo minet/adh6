@@ -13,10 +13,20 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "fr",
+        "locales": {
+          "en": {
+            "translation": "src/locale/messages.en.xlf",
+            "baseHref": "en"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "localize": ["en"],
             "aot": true,
             "outputPath": "dist/adh6",
             "index": "src/index.html",
@@ -69,9 +79,9 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "browserTarget": "adh6:build",
-             "port": 8443,
-             "host": "0.0.0.0",
-             "ssl": true
+            "port": 8443,
+            "host": "0.0.0.0",
+            "ssl": true
           },
           "configurations": {
             "production": {
@@ -131,6 +141,7 @@
           }
         }
       }
-    }},
+    }
+  },
   "defaultProject": "adh6"
 }

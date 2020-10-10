@@ -64,7 +64,8 @@ import {ErrorPageComponent} from './error-page/error-page.component';
 import {Ability, AbilityClass, detectSubjectType, InferSubjects, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
-import { DeviceNewComponent } from './device-new/device-new.component';
+import { DeviceNewComponent } from './device-new/device-new.component'
+import '@angular/common/locales/global/fr';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -165,7 +166,7 @@ export function storageFactory(): OAuthStorage {
       useClass: NotifInterceptor,
       multi: true
     },
-    {provide: LOCALE_ID, useValue: 'en-US'},
+    {provide: LOCALE_ID, useValue: 'fr-FR'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
     {provide: OAuthStorage, useFactory: storageFactory},
     {provide: AuthConfig, useValue: authConfig},
