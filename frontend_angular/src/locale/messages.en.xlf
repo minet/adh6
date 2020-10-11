@@ -141,7 +141,7 @@
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
           ?
         </source>
-        <target>Have you taken a look at<x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>the tutorials<x
+        <target>Have you taken a look at <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>the tutorials<x
           id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>?
         </target>
         <context-group purpose="location">
@@ -155,7 +155,7 @@
         <source>Envoyez-nous<x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>un ticket
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
         </source>
-        <target>Reach out to us with<x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>a ticket
+        <target>Reach out to us with <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>a ticket
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
         </target>
         <context-group purpose="location">
@@ -171,7 +171,7 @@
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
           !
         </source>
-        <target>If you prefer to, come see us during<x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>the opening
+        <target>If you prefer to, come see us during <x id="START_LINK" ctype="x-a" equiv-text="&lt;a&gt;"/>the opening
           hours
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;"/>
           !
