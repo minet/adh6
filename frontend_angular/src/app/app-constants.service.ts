@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
-import {AccountService, AccountType, PaymentMethod, TransactionService} from './api';
+import {AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService} from './api';
 import {Observable, of} from 'rxjs';
 import {first, map, share} from 'rxjs/operators';
+import {AbilityBuilder} from '@casl/ability';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,48 @@ export class AppConstantsService {
   private paymentMethods: Array<PaymentMethod>;
   private paymentMethodsObservable: Observable<any>;
 
+  private currentMember: Member;
+  private currentMemberObservable: Observable<any>;
+
   constructor(public accountService: AccountService,
-              public transactionService: TransactionService) {
+              public transactionService: TransactionService,
+              public miscService: MiscService) {
+  }
+
+  getCurrentMember() {
+    if (this.currentMember) {
+      // if `data` is available just return it as `Observable`
+      return of(this.currentMember);
+    } else if (this.currentMemberObservable) {
+      // if `this.observable` is set then the request is in progress
+      // return the `Observable` for the ongoing request
+      return this.currentMemberObservable;
+    } else {
+      this.currentMemberObservable = this.miscService.profile().pipe(
+        map(profile => {
+          const roles = profile.admin.roles;
+          localStorage.setItem('roles', roles.join(','));
+          localStorage.setItem('admin_member', JSON.stringify(profile.admin.member as Member));
+
+          const { can, rules } = new AbilityBuilder();
+
+          if (roles.indexOf('adh6_admin') !== -1) {
+            can('manage', 'all');
+          } else {
+            can('manage', 'Member', { id: (profile.admin.member as Member).id });
+            can('read', 'all');
+          }
+
+          // @ts-ignore
+          this.ability.update(rules);
+
+          this.currentMember = localStorage.get('admin_member');
+          return this.currentMember;
+        }),
+        share()
+      );
+      return this.currentMemberObservable;
+    }
   }
 
   getPaymentMethods() {

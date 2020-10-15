@@ -12,6 +12,7 @@ import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
 import {Ability, AbilityBuilder} from '@casl/ability';
 import {JsonFormatter} from 'tslint/lib/formatters';
+import {AppConstantsService} from './app-constants.service';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +37,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private _service: NotificationsService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
-    private ability: Ability
+    private ability: Ability,
+    private appConstantsService: AppConstantsService
   ) {
     this.configureWithNewConfigApi();
     this.createForm();
@@ -118,24 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loadProfileAndSetupAbilities() {
     if (this.oauthService.hasValidAccessToken()) {
-      this.miscService.profile().subscribe(
-        (profile) => {
-          const roles = profile.admin.roles;
-          localStorage.setItem('roles', roles.join(','));
-          localStorage.setItem('admin_member', JSON.stringify(profile.admin.member as Member));
-
-          const { can, rules } = new AbilityBuilder();
-
-          if (roles.indexOf('adh6_admin') !== -1) {
-            can('manage', 'all');
-          } else {
-            can('manage', 'Member', { id: (profile.admin.member as Member).id });
-            can('read', 'all');
-          }
-
-          // @ts-ignore
-          this.ability.update(rules);
-        });
+      this.appConstantsService.getCurrentMember();
     }
   }
 
