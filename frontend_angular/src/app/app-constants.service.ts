@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService} from './api';
 import {Observable, of} from 'rxjs';
 import {first, map, share} from 'rxjs/operators';
-import {AbilityBuilder} from '@casl/ability';
+import {Ability, AbilityBuilder} from '@casl/ability';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,7 @@ export class AppConstantsService {
 
   constructor(public accountService: AccountService,
               public transactionService: TransactionService,
+              private ability: Ability,
               public miscService: MiscService) {
   }
 
@@ -50,7 +51,7 @@ export class AppConstantsService {
           // @ts-ignore
           this.ability.update(rules);
 
-          this.currentMember = localStorage.get('admin_member');
+          this.currentMember = JSON.parse(localStorage.getItem('admin_member'));
           return this.currentMember;
         }),
         share()

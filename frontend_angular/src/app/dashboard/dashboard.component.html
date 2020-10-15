@@ -18,7 +18,7 @@
     </div>
   </ng-template>
   <ng-template #simpleDashboard let-change>
-    <ng-template *ngIf="member$ | async as member">
+    <ng-container *ngIf="member$ | async as member">
     <div class="card">
       <div class="card-body">
         <h4 *ngIf="isDepartureDateFuture, else invalidDate" i18n="dashboard active subscription|Describes until when a subscription is active">Votre abonnement est actif jusqu'au {{ member.departureDate | date }}</h4>
@@ -72,6 +72,6 @@
         </div>
       </div>
     </div>
-    </ng-template>
+    </ng-container>
   </ng-template>
 </div>

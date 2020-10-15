@@ -138,7 +138,7 @@ const routes: Routes = [
       {path: 'search', component: ProductListComponent},
     ]
   },
-  {path: '*', redirectTo: '/dashboard'},
+  {path: '**', redirectTo: '/dashboard'},
 ];
 
 @NgModule({
