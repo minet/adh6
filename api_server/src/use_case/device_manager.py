@@ -1,7 +1,8 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
 from src.entity import AbstractDevice, Device
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
+    DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
@@ -48,13 +49,19 @@ class DeviceManager(CRUDManager):
             raise InvalidIPv4(abstract_device.ipv4_address)
         if abstract_device.ipv6_address is not None and not is_ip_v6(abstract_device.ipv6_address):
             raise InvalidIPv6(abstract_device.ipv6_address)
-        device, created = super().update_or_create(ctx, abstract_device, device_id=device_id)
 
-        if created:
-            self.allocate_ip_addresses(ctx, device)
-        # TODO ALLOCATE IP ADDRESSES
+        result, count = self.device_repository.search_by(ctx, filter_=AbstractDevice(mac=abstract_device.mac))
+        if count != 0 and device_id is None:
+            raise DeviceAlreadyExists()
+        elif count >= 20:
+            raise DevicesLimitReached()
+        else:
+            device, created = super().update_or_create(ctx, abstract_device, device_id=device_id)
 
-        return device, created
+            if created:
+                self.allocate_ip_addresses(ctx, device)
+
+            return device, created
 
     @log_call
     def allocate_ip_addresses(self, ctx, device: Device):

@@ -184,11 +184,16 @@ class RoomAlreadyExists(AlreadyExistsError):
         super().__init__(what)
 
 
-class DeviceAlreadyExist(AlreadyExistsError):
+class DeviceAlreadyExists(AlreadyExistsError):
     def __init__(self, what='device'):
         super().__init__(what)
 
     # OTHER KIND OF ERRORS.
+
+
+class DevicesLimitReached(UserInputError):
+    def __init__(self):
+        super().__init__(f'maximum number of devices reached')
 
 
 class UnknownPaymentMethod(UserInputError):
