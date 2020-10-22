@@ -1,5 +1,5 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {LOCALE_ID, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AppComponent} from './app.component';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -66,6 +66,7 @@ import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
 import { DeviceNewComponent } from './device-new/device-new.component'
 import '@angular/common/locales/global/fr';
+import '@angular/common/locales/global/en';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -166,7 +167,6 @@ export function storageFactory(): OAuthStorage {
       useClass: NotifInterceptor,
       multi: true
     },
-    {provide: LOCALE_ID, useValue: 'fr-FR'},
     {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
     {provide: OAuthStorage, useFactory: storageFactory},
     {provide: AuthConfig, useValue: authConfig},
