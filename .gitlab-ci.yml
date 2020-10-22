@@ -27,6 +27,10 @@ angular_try_build:
     - cp src/app/config/auth.config.ts{.example,}
     - rm src/app/config/auth.config.template.ts
     - ng build --prod
+  artifacts:
+    paths:
+    - frontend_angular/dist/
+    expire_in: 1 day
   environment:
     name: development
     url: https://adh6-dev.minet.net/
@@ -95,6 +99,7 @@ python_integration_test:
 deploy_dev:
   stage: deploy
   script:
+    - cp -r frontend_angular/dist/adh6/* /var/www/
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
     - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
@@ -131,6 +136,7 @@ deploy_prod_backend:
     - sudo -E pip3 install -r ./requirements.txt
   script:
     - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+    - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
     - python3 manage.py db upgrade

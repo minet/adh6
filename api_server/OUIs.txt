@@ -1,0 +1,1 @@
+this file is purposefuly empty, it should be populated when deploying.	the format is AA-BB-CC\tVendor Name Corp.

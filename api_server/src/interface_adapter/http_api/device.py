@@ -3,10 +3,11 @@ import requests
 from connexion import NoContent
 
 from src.entity import AbstractDevice, Device
-from src.exceptions import InvalidMACAddress, DeviceNotFoundError
+from src.exceptions import InvalidMACAddress, DeviceNotFoundError, ValidationError, UnauthenticatedError, \
+    UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.default import DefaultHandler
+from src.interface_adapter.http_api.default import DefaultHandler, _error
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.device_manager import DeviceManager
 from src.util.context import log_extra
@@ -24,19 +25,13 @@ class DeviceHandler(DefaultHandler):
     @log_call
     def vendor_get(self, ctx, device_id=None):
         """ Return the vendor associated with the given device """
-        device = None
         try:
-            device = self.device_manager.get_by_id(ctx, device_id=device_id)
-        except DeviceNotFoundError:
-            return {
-                'code': 404,
-                'message': "Device not found"
-            }
-
-        r = requests.get('https://macvendors.co/api/vendorname/' + str(device.mac))
-
-        if r.status_code == 200:
-            return {"vendorname": r.text}, 200
-
-        else:
-            return NoContent, 404
+            return self.device_manager.get_mac_vendor(ctx, device_id=device_id), 200
+        except DeviceNotFoundError as e:
+            return _error(404, str(e)), 404
+        except ValidationError as e:
+            return _error(400, str(e)), 400
+        except UnauthenticatedError as e:
+            return _error(401, str(e)), 401
+        except UnauthorizedError as e:
+            return _error(403, str(e)), 403

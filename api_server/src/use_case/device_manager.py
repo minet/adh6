@@ -30,6 +30,31 @@ class DeviceManager(CRUDManager):
         super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError, _owner_check)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
+        self.oui_repository = {}
+        self.load_mac_oui_dict()
+
+    def load_mac_oui_dict(self):
+        with open('OUIs.txt', 'r') as f:
+            line = f.readline()
+            while line != "":
+                oui, company = line.split('\t')
+                self.oui_repository[oui] = company
+                line = f.readline()
+
+    @auto_raise
+    def get_mac_vendor(self, ctx, device_id=None):
+        devices, count = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=device_id))
+
+        if count == 0:
+            raise DeviceNotFoundError(str(device_id))
+        else:
+            mac_address = devices[0].mac[:8].replace(":", "-")
+            if mac_address not in self.oui_repository:
+                vendor = "-"
+            else:
+                vendor = self.oui_repository[mac_address]
+
+            return {"vendorname": vendor}
 
     @auto_raise
     def delete_access_control_function(self, ctx, roles, f, args, kwargs):

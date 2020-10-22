@@ -31,6 +31,7 @@ RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
       libssl-dev \
       libmariadbclient-dev \
       git \
+      wget \
       && useradd uwsgi
 
 WORKDIR /adh6/api_server
@@ -44,6 +45,10 @@ COPY api_server/mibs.zip ./
 RUN mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
 RUN chmod 755 /root
 RUN chown -R uwsgi:www-data /root/.pysnmp
+
+# Download the latest OUI list from the IEEE
+RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
+
 # Copy source files
 COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
