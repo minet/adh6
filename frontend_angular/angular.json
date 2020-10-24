@@ -17,7 +17,7 @@
         "sourceLocale": "fr",
         "locales": {
           "en": {
-            "translation": "src/locale/messages.en.xlf"
+            "translation": "src/i18n/messages.en.xlf"
           }
         }
       },
@@ -74,6 +74,13 @@
                   "maximumWarning": "6kb"
                 }
               ]
+            },
+            "en": {
+              "aot": true,
+              "outputPath": "dist/adh6-en",
+              "i18nFile": "src/i18n/messages.en.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "en"
             }
           }
         },
@@ -142,6 +149,9 @@
           "configurations": {
             "production": {
               "browserTarget": "adh6:build-en:production"
+            },
+            "en": {
+              "browserTarget": "adh6:build:en"
             }
           }
         },
@@ -193,6 +203,21 @@
           "configurations": {
             "production": {
               "devServerTarget": "adh6:serve:production"
+            }
+          }
+        },
+        "xliffmerge": {
+          "builder": "@ngx-i18nsupport/tooling:xliffmerge",
+          "options": {
+            "xliffmergeOptions": {
+              "i18nFormat": "xlf",
+              "srcDir": "src/i18n",
+              "genDir": "src/i18n",
+              "defaultLanguage": "fr",
+              "languages": [
+                "fr",
+                "en"
+              ]
             }
           }
         }
