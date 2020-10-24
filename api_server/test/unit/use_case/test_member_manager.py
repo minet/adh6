@@ -32,7 +32,8 @@ INVALID_MUTATION_REQ_ARGS = [
     ('invalid_departure_date', {'departure_date': 'this is not a date'}),
 ]
 
-FAKE_LOGS = "blah blah blah logging logs"
+FAKE_LOGS_OBJ = [1, "blah blah blah logging logs"]
+FAKE_LOGS = "1 blah blah blah logging logs"
 
 
 class TestNewMembership:
@@ -303,10 +304,10 @@ class TestGetLogs:
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
 
         # When...
-        result = member_manager.get_logs(ctx, sample_member.username)
+        result = member_manager.get_logs(ctx, sample_member.id)
 
         # Expect...
-        assert FAKE_LOGS == result
+        assert [FAKE_LOGS] == result
         devices = mock_device_repository.search_by(ctx, username=sample_member.username)
         mock_logs_repository.get_logs.assert_called_once_with(ctx, devices=devices.__getitem__(),
                                                               username=sample_member.username, dhcp=False)
@@ -388,7 +389,7 @@ def mock_membership_repository():
 @fixture
 def mock_logs_repository():
     r = MagicMock(spec=LogsRepository)
-    r.get_logs = MagicMock(return_value=FAKE_LOGS)
+    r.get_logs = MagicMock(return_value=[FAKE_LOGS_OBJ])
     return r
 
 

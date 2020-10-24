@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {OAuthService} from 'angular-oauth2-oidc';
-import {Member} from '../api';
+import {Member, MemberService, MemberStatus} from '../api';
 import {LINKS_LIST, localize_link} from '../config/links.config';
 import { LOCALE_ID, Inject } from '@angular/core';
 import {AppConstantsService} from '../app-constants.service';
@@ -18,15 +18,18 @@ export class DashboardComponent implements OnInit {
   date = new Date();
   isDepartureDateFuture = false;
   member$: Observable<Member> = this.appConstantsService.getCurrentMember();
+  statuses$: Observable<MemberStatus[]>;
 
   constructor(private oauthService: OAuthService,
               private appConstantsService: AppConstantsService,
+              private memberService: MemberService,
               @Inject(LOCALE_ID) public locale: string) {
   }
 
   ngOnInit() {
     this.member$.subscribe(member => {
       this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
+      this.statuses$ = this.memberService.memberMemberIdStatusesGet(member.id, 'body', false, false);
     });
   }
 

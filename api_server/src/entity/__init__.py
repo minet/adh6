@@ -36,6 +36,7 @@ from src.entity.error import Error
 from src.entity.inline_response200 import InlineResponse200
 from src.entity.labels import Labels
 from src.entity.member import Member
+from src.entity.member_status import MemberStatus
 from src.entity.membership import Membership
 from src.entity.membership_request import MembershipRequest
 from src.entity.one_of_abstract_account_account_type import OneOfAbstractAccountAccountType

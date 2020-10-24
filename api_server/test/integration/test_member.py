@@ -547,4 +547,4 @@ def test_member_get_logs(api_client, sample_member1):
         headers=TEST_HEADERS,
     )
     assert result.status_code == 200
-    assert json.loads(result.data.decode('utf-8')) == ["test_log"]
+    assert json.loads(result.data.decode('utf-8')) == ["1 test_log"]

@@ -19,6 +19,7 @@ export * from './device';
 export * from './inlineResponse200';
 export * from './labels';
 export * from './member';
+export * from './memberStatus';
 export * from './membership';
 export * from './membershipRequest';
 export * from './modelError';

@@ -611,6 +611,34 @@ paths:
       summary: Retrieve the most recent logs of a member
       tags:
       - member
+  /member/{member_id}/statuses/:
+    get:
+      parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MemberStatus'
+                type: array
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieves some common status updates concerning a member
+      tags:
+      - member
   /member/{member_id}/membership/:
     parameters:
       - description: The unique identifier of the member
@@ -1677,6 +1705,32 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
+    MemberStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - LOGIN_INCORRECT_WRONG_USER
+            - LOGIN_INCORRECT_WRONG_MAC
+            - LOGIN_INCORRECT_WRONG_PASSWORD
+            - LOGIN_INCORRECT_SSL_ERROR
+            - LOGIN_DEVICE_ERROR
+          description: >
+            The status id :
+             * `LOGIN_INCORRECT_WRONG_USER` - Some MAC address tried logging in with the wrong username
+             * `LOGIN_INCORRECT_WRONG_MAC` - The user tried logging in with a MAC address not registered or belonging to another user
+             * `LOGIN_INCORRECT_WRONG_PASSWORD` - The user tried logging in with the correct MAC address/username combo but an incorrect password
+             * `LOGIN_INCORRECT_SSL_ERROR` - The user has enabled certificate verification OR another SSL error occurred (invalid time sync...)
+             * `LOGIN_DEVICE_ERROR` - A device could not be authentified, the other statuses might provide more details
+        comment:
+          type: string
+          description: Additionnal data regarding this status
+          example: Occurred for MAC address 00-11-22-33-44-55
+        lastTimestamp:
+          type: string
+          format: date-time
+          description: When this status was last reported
     AbstractMembership:
       type: object
       properties:

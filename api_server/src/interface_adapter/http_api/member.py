@@ -9,8 +9,9 @@ from src.entity import AbstractMember, Member
 from src.exceptions import MemberNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.default import DefaultHandler
+from src.interface_adapter.http_api.default import DefaultHandler, _error
 from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
 from src.util.context import log_extra
@@ -61,13 +62,23 @@ class MemberHandler(DefaultHandler):
     @log_call
     def logs_search(self, ctx, member_id, dhcp=False):
         """ Get logs from a member. """
-        LOG.debug("http_member_get_logs_called", extra=log_extra(ctx, member_id=member_id, dhcp=dhcp))
         try:
             return self.member_manager.get_logs(ctx, member_id, dhcp=dhcp), 200
         except MemberNotFoundError:
             return NoContent, 404
         except:
             return NoContent, 500
+
+    @with_context
+    @require_sql
+    @log_call
+    def statuses_search(self, ctx, member_id):
+        try:
+            return serialize_response(self.member_manager.get_statuses(ctx, member_id)), 200
+        except MemberNotFoundError as e:
+            return _error(404, str(e)), 404
+        except Exception as e:
+            return _error(500, str(e)), 500
 
     def membership_get(self, ctx, member_id, uuid):
         pass

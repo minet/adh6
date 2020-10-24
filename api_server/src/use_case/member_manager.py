@@ -3,7 +3,8 @@
 import datetime
 from typing import List
 
-from src.entity import AbstractMember, AbstractDevice
+from src.constants import CTX_ADMIN
+from src.entity import AbstractMember, AbstractDevice, MemberStatus
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -18,6 +19,7 @@ from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.date import string_to_date
 from src.util.log import LOG
+import re
 
 
 @auto_raise
@@ -129,7 +131,96 @@ class MemberManager(CRUDManager):
             devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member))[0]
             logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=dhcp)
 
-            return logs
+            return list(map(
+                lambda x: "{} {}".format(x[0], x[1]),
+                logs
+            ))
+
+        except LogFetchError:
+            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
+            return []  # We fail open here.
+
+    def _self_object_access_control_function(self, ctx, roles, f, args, kwargs):
+        if not any(role.value in roles for role in self.overriding_roles):
+            admin = ctx.get(CTX_ADMIN)
+            if self.owner_check is not None:
+                self.owner_check(AbstractMember(id=args[0]), admin.id)
+                return args, kwargs, True
+            return args, kwargs, False
+        return args, kwargs, True
+
+    @log_call
+    @auto_raise
+    @auth_required(roles=[Roles.ADH6_USER], access_control_function=_self_object_access_control_function)
+    def get_statuses(self, ctx, member_id) -> List[MemberStatus]:
+        # Check that the user exists in the system.
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(member_id)
+
+        member = member[0]
+
+        # Do the actual log fetching.
+        try:
+            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member))[0]
+            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=False)
+            device_to_statuses = {}
+            last_ok_login_mac = {}
+
+            def add_to_statuses(status, timestamp, mac):
+                if mac not in device_to_statuses:
+                    device_to_statuses[mac] = {}
+                if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
+                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp,
+                                                                     comment=mac)
+
+            prev_log = ["", ""]
+            for log in logs:
+                if "Login OK" in log[1]:
+                    match = re.search(r'.*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*', log[1])
+                    if match is not None:
+                        login, mac = match.group(1), match.group(2).upper()
+                        if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
+                            last_ok_login_mac[mac] = log[0]
+                if "EAP sub-module failed" in prev_log[1] \
+                        and "mschap: MS-CHAP2-Response is incorrect" in log[1] \
+                        and (prev_log[0] - log[0]).total_seconds() < 1:
+                    match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*', prev_log[1])
+                    login, mac = match.group(1), match.group(2).upper()
+                    if login != member.username:
+                        add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
+                    else:
+                        add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
+                if 'rlm_python' in log[1]:
+                    match = re.search(r'.*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)', log[1])
+                    if match is not None:
+                        login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
+                        if 'MAC not found and not association period' in reason:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
+                        if 'Adherent not found' in reason:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
+                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
+                    # @TODO a read access denied means the user is validating the certificate
+                    # @TODO a read/write protocol version is ???
+                    # @TODO a write unknown CA means the user is validating the certificate
+                    # @TODO a write decryption failed is ???
+                    # @TODO a read internal error is most likely not user-related
+                    # @TODO a write unexpected_message is ???
+                    match = re.search(
+                        r'.*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
+                        log[1])
+                    if match is not None:
+                        login, mac = match.group(1), match.group(2).upper()
+                        add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
+                prev_log = log
+
+            all_statuses = []
+            for mac, statuses in device_to_statuses.items():
+                for status, object in statuses.items():
+                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
+                        continue
+                    all_statuses.append(object)
+            return all_statuses
 
         except LogFetchError:
             LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))

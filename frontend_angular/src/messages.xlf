@@ -171,7 +171,7 @@
         <note priority="1" from="meaning">device list none</note>
       </trans-unit>
       <trans-unit id="ecf466477425b002a06b7d95fe773c54f9c9464b" datatype="html">
-        <source>Fabriquant</source>
+        <source>Fabricant</source>
         <context-group purpose="location">
           <context context-type="sourcefile">app/member-device-list/member-device-list.component.html</context>
           <context context-type="linenumber">29</context>

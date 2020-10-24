@@ -6,6 +6,7 @@ Logs repository.
 
 import re
 
+import dateutil.parser
 from elasticsearch import Elasticsearch
 
 from src.constants import CTX_TESTING, LOG_DEFAULT_LIMIT
@@ -41,7 +42,7 @@ class ElasticSearchRepository(LogsRepository):
             raise LogFetchError('no elk host configured')
 
         if ctx.get(CTX_TESTING):  # Do not actually query elasticsearch if testing...
-            return ["test_log"]
+            return [[1, "test_log"]]
 
         # Prepare the elasticsearch query...
         if not dhcp:
@@ -109,13 +110,14 @@ class ElasticSearchRepository(LogsRepository):
 
         if not dhcp:
             for r in res:
-                msg = re.sub('(?<=incorrect) \(.*(failed|incorrect)\)', '', r["_source"]["message"])
-                msg = re.sub('\(from client .* (cli |tunnel)', '', msg)
-                msg = re.sub('\) ', '', msg)
-                msg = re.sub(' {0}P', ' P', msg)
-                r["_source"]["message"] = msg
+                #msg = re.sub('(?<=incorrect) \(.*(failed|incorrect)\)', '', r["_source"]["message"])
+                #msg = re.sub('\(from client .* (cli |tunnel)', '', r["_source"]["message"])
+                #msg = re.sub('\) ', '', msg)
+                #msg = re.sub(' {0}P', ' P', msg)
+                #r["_source"]["message"] = r["_source"]["message"]
+                pass
 
         return list(map(
-            lambda x: "{} {}".format(x["_source"]["@timestamp"], x["_source"]["message"]),
+            lambda x: [dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]],
             res
         ))
