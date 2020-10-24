@@ -3,6 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Device, DeviceService, Member, Port} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
+import { LOCALE_ID, Inject } from '@angular/core';
+import {LINKS_LIST, localize_link} from '../config/links.config';
 
 @Component({
   selector: 'app-device-new',
@@ -11,6 +13,7 @@ import {takeWhile} from 'rxjs/operators';
 })
 export class DeviceNewComponent implements OnInit {
   deviceForm: FormGroup;
+  localize_link = localize_link;
   private alive = true;
 
   @Input() member_id: number;
@@ -20,7 +23,7 @@ export class DeviceNewComponent implements OnInit {
     private fb: FormBuilder,
     private deviceService: DeviceService,
     private notif: NotificationsService,
-  ) {
+    @Inject(LOCALE_ID) public locale: string) {
     this.createForm();
   }
 

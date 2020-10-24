@@ -22,7 +22,7 @@ class AuthorizationResponse {
 })
 export class PortailComponent implements OnInit {
 
-  constructor(private oauthService: OAuthService, private route: ActivatedRoute, private fb: FormBuilder,) {
+  constructor(public oauthService: OAuthService, private route: ActivatedRoute, private fb: FormBuilder,) {
   }
 
   public authorization$: BehaviorSubject<AuthorizationResponse> = new BehaviorSubject<AuthorizationResponse>(null);

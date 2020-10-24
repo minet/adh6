@@ -28,7 +28,7 @@
               Pour voir l'état de votre cotisation et ajouter ou supprimer des appareils, connectez-vous à votre
               compte MiNET.
             </p>
-            <button class="w-100 btn btn-primary" i18n="portail connection" (click)="login()">Se connecter</button>
+            <button class="w-100 btn btn-primary" i18n="portail connection" (click)="login()" [disabled]="!(oauthService.discoveryDocumentLoaded$ | async)">Se connecter</button>
           </div>
         </div>
       </div>
