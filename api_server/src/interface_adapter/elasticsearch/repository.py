@@ -87,7 +87,6 @@ class ElasticSearchRepository(LogsRepository):
                 "from": 0,
             }
 
-        LOG.info(devices)
         # Add the macs to the "should"
         for d in devices:
             addr = d.mac
@@ -105,8 +104,6 @@ class ElasticSearchRepository(LogsRepository):
 
         LOG.info('About to query ElasticSearch')
         res = self.es.search(index="", body=query)['hits']['hits']
-
-        LOG.info(res)
 
         if not dhcp:
             for r in res:
