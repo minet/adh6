@@ -6,7 +6,7 @@ Implements everything related to actions on the SQL database.
 import socket
 import json
 
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.parser import parse
 from sqlalchemy.orm.exc import NoResultFound
 from typing import List
@@ -202,7 +202,7 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         last_name=adh.nom,
         departure_date=adh.date_de_depart,
         comment=adh.commentaires,
-        association_mode=adh.mode_association,
+        association_mode=adh.mode_association.astimezone(timezone.utc),
         ip=adh.ip,
         subnet=adh.subnet,
         room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),
