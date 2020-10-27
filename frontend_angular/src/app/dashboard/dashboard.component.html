@@ -1,6 +1,6 @@
 <div class="dashboard">
   <img class="w-25" src="../assets/minet_dark.png">
-  <h1 *ngIf="name" i18n="dashboard hello|Greets the user on the dashboard">Bonjour {{ name }}</h1>
+  <h1 *ngIf="name" i18n="dashboard hello|Greets the user on the dashboard" class="mb-3">Bonjour {{ name }}</h1>
   <ng-template *ngIf="'manage' | able: 'all'; else simpleDashboard">
     <img class="w-50" src="../assets/minet_dark.png">
     <div class="row mt-3">
@@ -19,7 +19,7 @@
   </ng-template>
   <ng-template #simpleDashboard let-change>
     <ng-container *ngIf="member$ | async as member">
-    <div class="card">
+    <div class="card mb-3">
       <div class="card-body">
         <h4 *ngIf="isDepartureDateFuture, else invalidDate" i18n="dashboard active subscription|Describes until when a subscription is active">Votre abonnement est actif jusqu'au {{ member.departureDate | date }}</h4>
         <ng-template #invalidDate><h4 class="text-danger" i18n="dashboard expired subscription|Describes when a subscription has expired">Votre abonnement a expiré le {{ member.departureDate | date }}</h4></ng-template>
@@ -35,6 +35,30 @@
         </ng-container>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h4 i18n="dashboard account manage">Gérer mon compte</h4>
+        <hr>
+        <div class="btn-group">
+          <a href="//payment.minet.net" role="button" class="btn btn-primary" i18n="dashboard account renew">
+            Renouveler mon abonnement
+          </a>
+          <a [routerLink]="['/member/password/', member.id ]" role="button" class="btn btn-danger" i18n="dashboard account password change">
+            Changer mon mot de passe
+          </a>
+        </div>
+      </div>
+    </div>
+    <ng-container *ngIf="isAssociationMode">
+      <div class="alert alert-info mt-4">
+        <h4 i18n="dashboard association-mode">Association automatique</h4>
+        <p class="text-left" i18n="dashboard association-mode desc">
+          Vous êtes actuellement en mode association automatique, jusqu'au {{member.associationMode | date: 'shortDate'}} à {{member.associationMode | date: 'shortTime'}}.
+          Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
+        </p>
+      </div>
+    </ng-container>
     <ng-container *ngIf="statuses$ | async as statuses">
       <div class="alert alert-danger mt-4" *ngIf="statuses.length > 0">
         <h4 i18n="dashboard auto troubleshoot">Dépannage automatique</h4>
@@ -62,9 +86,10 @@
       </ol>
     </div>
 
-    <h3 i18n="own devices">Mes appareils</h3>
     <div class="card">
       <div class="card-body">
+        <h4 i18n="own devices">Mes appareils</h4>
+        <hr>
         <app-device-new [member_id]="member.id"
                         (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()"></app-device-new>
         <hr>

@@ -17,6 +17,7 @@ export class DashboardComponent implements OnInit {
 
   date = new Date();
   isDepartureDateFuture = false;
+  isAssociationMode = false;
   member$: Observable<Member> = this.appConstantsService.getCurrentMember();
   statuses$: Observable<MemberStatus[]>;
 
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.member$.subscribe(member => {
       this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
+      this.isAssociationMode = new Date() < new Date(member.associationMode);
       this.statuses$ = this.memberService.memberMemberIdStatusesGet(member.id, 'body', false, false);
     });
   }

@@ -75,49 +75,83 @@
         </context-group>
         <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
         <note priority="1" from="meaning">dashboard private subnetv4</note>
-      </trans-unit><trans-unit id="d003fbf09f4e7ba5c0db64d37c3a182c37820006" datatype="html">
-        <source>Dépannage automatique</source><target state="final">Dépannage automatique</target>
+      </trans-unit><trans-unit id="53440c790d092e4caa04792d180eb376e9332db8" datatype="html">
+        <source>Gérer mon compte</source><target state="final">Gérer mon compte</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">40</context>
+          <context context-type="linenumber">41</context>
         </context-group>
-        <note priority="1" from="description">dashboard auto troubleshoot</note>
-      </trans-unit><trans-unit id="bcd41c5944e7e2f1b6ae1ac69343beede9b7837a" datatype="html">
-        <source>Mot de passe incorrect pour l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Mot de passe incorrect pour l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">43</context>
-        </context-group>
-        <note priority="1" from="description">login incorrect wrong password</note>
-      </trans-unit><trans-unit id="ec8cabd2b7d010ecdf686cce9714fd5b74cad322" datatype="html">
-        <source>Vous avez essayé de vous connecter avec l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, mais cet appareil n'est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Vous avez essayé de vous connecter avec l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, mais cet appareil n'est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
+        <note priority="1" from="description">dashboard account manage</note>
+      </trans-unit><trans-unit id="6353a8ebca0cda7947ae6d83be1279684677d25b" datatype="html">
+        <source>
+            Renouveler mon abonnement
+          </source><target state="final">
+            Renouveler mon abonnement
+          </target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">44</context>
         </context-group>
+        <note priority="1" from="description">dashboard account renew</note>
+      </trans-unit><trans-unit id="092c61149380a1cb39846e0d571951b5aabecbea" datatype="html">
+        <source>
+            Changer mon mot de passe
+          </source><target state="final">
+            Changer mon mot de passe
+          </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">47</context>
+        </context-group>
+        <note priority="1" from="description">dashboard account password change</note>
+      </trans-unit><trans-unit id="fb983aa3c4971c42089bad7faadfc633c4b5d3bd" datatype="html">
+        <source>Association automatique</source><target state="final">Association automatique</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <note priority="1" from="description">dashboard association-mode</note>
+      </trans-unit><trans-unit id="dfa0f83070e77da09141bcfd075eefba948612bb" datatype="html">
+        <source>
+          Vous êtes actuellement en mode association automatique, jusqu'au <x id="INTERPOLATION" equiv-text="{{member.associationMode | date: 'shortDate'}}"/> à <x id="INTERPOLATION_1" equiv-text="{{member.associationMode | date: 'shortTime'}}"/>.
+          Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
+        </source><target state="final">
+          Vous êtes actuellement en mode association automatique, jusqu'au <x id="INTERPOLATION" equiv-text="{{member.associationMode | date: 'shortDate'}}"/> à <x id="INTERPOLATION_1" equiv-text="{{member.associationMode | date: 'shortTime'}}"/>.
+          Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
+        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">56</context>
+        </context-group>
+        <note priority="1" from="description">dashboard association-mode desc</note>
+      </trans-unit><trans-unit id="d003fbf09f4e7ba5c0db64d37c3a182c37820006" datatype="html">
+        <source>Dépannage automatique</source><target state="final">Dépannage automatique</target>
+        
+        <note priority="1" from="description">dashboard auto troubleshoot</note>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">64</context></context-group></trans-unit><trans-unit id="bcd41c5944e7e2f1b6ae1ac69343beede9b7837a" datatype="html">
+        <source>Mot de passe incorrect pour l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Mot de passe incorrect pour l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
+        
+        <note priority="1" from="description">login incorrect wrong password</note>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">67</context></context-group></trans-unit><trans-unit id="ec8cabd2b7d010ecdf686cce9714fd5b74cad322" datatype="html">
+        <source>Vous avez essayé de vous connecter avec l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, mais cet appareil n'est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Vous avez essayé de vous connecter avec l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, mais cet appareil n'est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
+        
         <note priority="1" from="description">login incorrect wrong mac</note>
-      </trans-unit><trans-unit id="79730843ce84ff2d93311f32f53e4d1a12ea29c4" datatype="html">
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">68</context></context-group></trans-unit><trans-unit id="79730843ce84ff2d93311f32f53e4d1a12ea29c4" datatype="html">
         <source>Vous avez essayé de vous connecter avec votre appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> mais depuis un autre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Vous avez essayé de vous connecter avec votre appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> mais depuis un autre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">45</context>
-        </context-group>
+        
         <note priority="1" from="description">login incorrect wrong user</note>
-      </trans-unit><trans-unit id="d084f1e45345196bce7ef7153becbea2a2db4d01" datatype="html">
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">69</context></context-group></trans-unit><trans-unit id="d084f1e45345196bce7ef7153becbea2a2db4d01" datatype="html">
         <source>L'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> est mal configuré, vérifiez la configuration via les tutoriels, en particulier la présence de MSCHAPv2 et la non-validation du certificat (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">L'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> est mal configuré, vérifiez la configuration via les tutoriels, en particulier la présence de MSCHAPv2 et la non-validation du certificat (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">46</context>
-        </context-group>
+        
         <note priority="1" from="description">login incorrect ssl error</note>
-      </trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">70</context></context-group></trans-unit>
       
       <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
         <source>Un problème ?</source><target state="final">Un problème ?</target>
         
         <note priority="1" from="description">Is the user encountering any issue ?</note>
         <note priority="1" from="meaning">dashboard help problem</note>
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">53</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">77</context></context-group></trans-unit>
       <trans-unit id="ff1afb849ee11ff94ea6071b931dce6328e2729e" datatype="html">
         <source>Avez-vous bien regardé <x id="START_LINK" ctype="x-a" equiv-text="&lt;a>"/>les tutoriels<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/>
           ?
@@ -127,13 +161,13 @@
         
         <note priority="1" from="description">Has the user taken a look at the tutorials ?</note>
         <note priority="1" from="meaning">dashboard help tutorials</note>
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">55</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">79</context></context-group></trans-unit>
       <trans-unit id="c5379721848895e438e4d4776a1eaf3b12e14fd0" datatype="html">
         <source>Envoyez-nous <x id="START_LINK" ctype="x-a" equiv-text="&lt;a>"/>un ticket<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/></source><target state="final">Envoyez-nous <x id="START_LINK" ctype="x-a" equiv-text="&lt;a>"/>un ticket<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/></target>
         
         <note priority="1" from="description">The user may send a ticket</note>
         <note priority="1" from="meaning">dashboard help tickets</note>
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">58</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">82</context></context-group></trans-unit>
       <trans-unit id="82b9f7504a025564ce628c942dc9e3f791450518" datatype="html">
         <source>Éventuellement, passez au local pendant <x id="START_LINK" ctype="x-a" equiv-text="&lt;a>"/>une
           des permanences<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a>"/> !
@@ -143,22 +177,22 @@
         
         <note priority="1" from="description">The user may come see us directly</note>
         <note priority="1" from="meaning">dashboard help helpdesk</note>
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">59</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">83</context></context-group></trans-unit>
       <trans-unit id="6914414e915dca837863d28d2f0cfb3840b51e5d" datatype="html">
         <source>Mes appareils</source><target state="final">Mes appareils</target>
         
         <note priority="1" from="description">own devices</note>
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">65</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">91</context></context-group></trans-unit>
       <trans-unit id="wired" datatype="html">
         <source>Filaire</source><target state="final">Filaire</target>
         
         
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">73</context></context-group><context-group purpose="location"><context context-type="sourcefile">app/device-new/device-new.component.html</context><context context-type="linenumber">9</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">98</context></context-group><context-group purpose="location"><context context-type="sourcefile">app/device-new/device-new.component.html</context><context context-type="linenumber">9</context></context-group></trans-unit>
       <trans-unit id="wireless" datatype="html">
         <source>Wifi</source><target state="final">Wifi</target>
         
         
-      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">80</context></context-group><context-group purpose="location"><context context-type="sourcefile">app/device-new/device-new.component.html</context><context context-type="linenumber">10</context></context-group></trans-unit>
+      <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">105</context></context-group><context-group purpose="location"><context context-type="sourcefile">app/device-new/device-new.component.html</context><context context-type="linenumber">10</context></context-group></trans-unit>
       <trans-unit id="language" datatype="html">
         <source>
           Langue
@@ -175,6 +209,44 @@
         <context-group purpose="location">
           <context context-type="sourcefile">app/navbar/navbar.component.html</context>
           <context context-type="linenumber">73</context>
+        </context-group>
+      </trans-unit><trans-unit id="7e53308554a4dd536132ff233f0af5f227192a16" datatype="html">
+        <source>Nouveau mot de passe</source><target state="final">Nouveau mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+        <note priority="1" from="description">member new password</note>
+      </trans-unit><trans-unit id="edaa0b4dcbb0410f567dd722309f1f7a156bf556" datatype="html">
+        <source>Le mot de passe doit contenir au moins 8 caractères.</source><target state="final">Le mot de passe doit contenir au moins 8 caractères.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+        <note priority="1" from="description">member password height</note>
+      </trans-unit><trans-unit id="d7f3ba7ce44ecc25e37d1d55a5d7f6bbf5e750fd" datatype="html">
+        <source>Confirmer le mot de passe</source><target state="final">Confirmer le mot de passe</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <note priority="1" from="description">member confirm password</note>
+      </trans-unit><trans-unit id="b2d347241b7360b7851a6a27df0d0df9cdcbf67b" datatype="html">
+        <source>Les mots de passe ne correspondent pas.</source><target state="final">Les mots de passe ne correspondent pas.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+        <note priority="1" from="description">member password different</note>
+      </trans-unit><trans-unit id="validate" datatype="html">
+        <source>
+    Valider
+  </source><target state="final">
+    Valider
+  </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">19</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2525e831872a53492e823d4474ac79ae21cb631e" datatype="html">
