@@ -8,7 +8,7 @@ from src.use_case.interface.account_repository import AccountRepository
 @auto_raise
 def _owner_check(filter_: AbstractAccount, admin_id):
     if filter_.member is not None and filter_.member != admin_id:
-        raise UnauthorizedError("You may only read or write to your own devices")
+        raise UnauthorizedError("You may only read or write to your own accounts")
     filter_.member = admin_id
 
 
