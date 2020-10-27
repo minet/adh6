@@ -90,7 +90,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             updated_at=now,
             commentaires=abstract_member.comment,
             date_de_depart=abstract_member.departure_date or datetime.now().date(),
-            mode_association=abstract_member.association_mode or datetime.now().date(),
+            mode_association=abstract_member.association_mode or datetime.now(),
         )
 
         with track_modifications(ctx, s, member):
@@ -202,7 +202,7 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         last_name=adh.nom,
         departure_date=adh.date_de_depart,
         comment=adh.commentaires,
-        association_mode=adh.mode_association.astimezone(timezone.utc),
+        association_mode=adh.mode_association.astimezone(timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
         room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),

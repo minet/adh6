@@ -314,7 +314,7 @@ def test_member_patch_email(api_client, sample_member1, sample_room1):
 @mark.skip(reason="PATCH on member is not the way we should handle this")
 def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
     body = {
-        "associationMode": "1996-01-01T00:00:00",
+        "associationMode": "1996-01-01T00:00:00Z",
     }
     res = api_client.patch(
         '{}/member/{}'.format(base_url, sample_member1.id),
