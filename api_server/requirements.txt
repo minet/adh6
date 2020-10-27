@@ -14,7 +14,7 @@ click==7.1.2              # via clickclick, flask, pip-tools
 clickclick==1.2.2         # via connexion
 git+https://github.com/minet/connexion.git  # via -r requirements.in
 coverage==5.1             # via pytest-cov
-cryptography==2.9.2       # via authlib
+cryptography==3.2         # via authlib
 decopatch==1.4.8          # via pytest-cases
 elasticsearch==7.7.0      # via -r requirements.in
 faker==4.1.0              # via -r requirements.in
@@ -23,7 +23,6 @@ flask-script==2.0.6       # via -r requirements.in
 flask-sqlalchemy==2.4.1   # via flask-migrate
 flask==1.1.2              # via -r requirements.in, connexion, flask-migrate, flask-script, flask-sqlalchemy
 idna==2.9                 # via requests
-importlib-metadata==1.6.0  # via jsonschema, pluggy, pytest
 inflection==0.4.0         # via connexion
 itsdangerous==1.1.0       # via flask
 jinja2==2.11.2            # via flask, swagger-ui-bundle
@@ -62,7 +61,6 @@ urllib3==1.25.9           # via elasticsearch, requests
 uwsgi==2.0.18             # via -r requirements.in
 wcwidth==0.1.9            # via pytest
 werkzeug==1.0.1           # via flask
-zipp==3.1.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
