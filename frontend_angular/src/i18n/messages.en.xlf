@@ -84,7 +84,7 @@
         <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
         <note priority="1" from="meaning">dashboard private subnetv4</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">34</context></context-group></trans-unit><trans-unit id="53440c790d092e4caa04792d180eb376e9332db8" datatype="html">
-        <source>Gérer mon compte</source><target state="final">Manager my account</target>
+        <source>Gérer mon compte</source><target state="final">Manage my account</target>
         <context-group purpose="location">
           <context context-type="sourcefile">app/dashboard/dashboard.component.html</context>
           <context context-type="linenumber">41</context>
@@ -134,23 +134,23 @@
         <note priority="1" from="description">dashboard association-mode desc</note>
       </trans-unit><trans-unit id="d003fbf09f4e7ba5c0db64d37c3a182c37820006" datatype="html">
         <source>Dépannage automatique</source><target state="final">Auto troubleshoot</target>
-        
+
         <note priority="1" from="description">dashboard auto troubleshoot</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">64</context></context-group></trans-unit><trans-unit id="bcd41c5944e7e2f1b6ae1ac69343beede9b7837a" datatype="html">
         <source>Mot de passe incorrect pour l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Incorrect password for device <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION"/><x id="CLOSE_TAG_CODE" ctype="x-code"/> (<x id="INTERPOLATION_1"/>)</target>
-        
+
         <note priority="1" from="description">login incorrect wrong password</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">67</context></context-group></trans-unit><trans-unit id="ec8cabd2b7d010ecdf686cce9714fd5b74cad322" datatype="html">
         <source>Vous avez essayé de vous connecter avec l'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/>, mais cet appareil n'est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">You have tried connecting with device <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION"/><x id="CLOSE_TAG_CODE" ctype="x-code"/>, but this device has not been added to your account (<x id="INTERPOLATION_1"/>)</target>
-        
+
         <note priority="1" from="description">login incorrect wrong mac</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">68</context></context-group></trans-unit><trans-unit id="79730843ce84ff2d93311f32f53e4d1a12ea29c4" datatype="html">
         <source>Vous avez essayé de vous connecter avec votre appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> mais depuis un autre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">You have tried connecting with device <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION"/><x id="CLOSE_TAG_CODE" ctype="x-code"/> but from another account (<x id="INTERPOLATION_1"/>)</target>
-        
+
         <note priority="1" from="description">login incorrect wrong user</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">69</context></context-group></trans-unit><trans-unit id="d084f1e45345196bce7ef7153becbea2a2db4d01" datatype="html">
         <source>L'appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION" equiv-text="{{status.comment}}"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code>"/> est mal configuré, vérifiez la configuration via les tutoriels, en particulier la présence de MSCHAPv2 et la non-validation du certificat (<x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: 'short'}}"/>)</source><target state="final">Device <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code>"/><x id="INTERPOLATION"/><x id="CLOSE_TAG_CODE" ctype="x-code"/> is configured incorrectly, please check the configuration with the tutorials and most of all pay attention to the use of MSCHAPv2 and do not choose to validate the certificate (<x id="INTERPOLATION_1"/>)</target>
-        
+
         <note priority="1" from="description">login incorrect ssl error</note>
       <context-group purpose="location"><context context-type="sourcefile">app/dashboard/dashboard.component.html</context><context context-type="linenumber">70</context></context-group></trans-unit>
       <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
