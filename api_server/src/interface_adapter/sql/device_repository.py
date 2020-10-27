@@ -56,7 +56,8 @@ class DeviceSQLRepository(DeviceRepository):
         count = q.count()
         q = q.order_by(SQLDevice.created_at.asc())
         q = q.offset(offset)
-        q = q.limit(limit)
+        if limit > 0:
+            q = q.limit(limit)
         r = q.all()
 
         return r, count
@@ -138,7 +139,7 @@ class DeviceSQLRepository(DeviceRepository):
             q = q.filter((SQLDevice.ipv6 != None) &
                          (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
                          )
-        r, count = self._search(ctx, s, filter_=filter_, query=q)
+        r, count = self._search(ctx, s, filter_=filter_, query=q, limit=0)
 
         return list(map(lambda x: x[0], r)), count
 
