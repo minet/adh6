@@ -34,3 +34,5 @@ python-gitlab
 Flask-Migrate
 flask-script
 authlib
+
+cryptography==3.2.1
