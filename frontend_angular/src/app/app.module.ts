@@ -8,7 +8,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
 import {MemberListComponent} from './member-list/member-list.component';
 import {MemberViewComponent} from './member-view/member-view.component';
-import {ApiModule, BASE_PATH, Member, Transaction} from './api';
+import {ApiModule, BASE_PATH, Device, Member, Room, Transaction, Account} from './api';
 import {RoomListComponent} from './room-list/room-list.component';
 import {RoomDetailsComponent} from './room-details/room-details.component';
 import {RoomEditComponent} from './room-edit/room-edit.component';
@@ -67,11 +67,13 @@ import {authConfig} from './config/auth.config';
 import { DeviceNewComponent } from './device-new/device-new.component'
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
+import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
+import {Ng9OdometerModule} from 'ng9-odometer';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | 'all';
+type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | 'all';
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
@@ -127,6 +129,7 @@ export function storageFactory(): OAuthStorage {
     PortailfoyerComponent,
     ErrorPageComponent,
     DeviceNewComponent,
+    AutoTroubleshootComponent,
   ],
   imports: [
     FontAwesomeModule,
@@ -153,7 +156,8 @@ export function storageFactory(): OAuthStorage {
     TypeaheadModule.forRoot(),
     NgToggleModule,
     TooltipModule.forRoot(),
-    AbilityModule
+    AbilityModule,
+    Ng9OdometerModule.forRoot()
   ],
   providers: [
     AppComponent,

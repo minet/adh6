@@ -1,31 +1,19 @@
-# coding=utf-8
-"""
-Auth decorators.
-"""
-import datetime
 import sys
-from enum import Enum
 from functools import wraps
 
 import connexion
-from connexion import NoContent
 from flask import current_app
-from sqlalchemy.orm.exc import NoResultFound
 
 from src.constants import CTX_SQL_SESSION
-from src.entity.admin import Admin
-from src.exceptions import AdminNotFoundError, MemberNotFoundError, UnauthorizedError, UnauthenticatedError
+from src.entity import Admin
+from src.entity.roles import Roles
+from src.entity.util.logic import Expression
+from src.exceptions import UnauthenticatedError, MemberNotFoundError, AdminNotFoundError, UnauthorizedError
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
-from src.util.context import build_context, log_extra
+from src.util.context import log_extra, build_context
 from src.util.log import LOG
-
-
-class Roles(Enum):
-    ADH6_USER = "adh6_user"
-    ADH6_ADMIN = "adh6_admin"
-    ADH6_TRESO = "adh6_treso"
 
 
 def _find_admin(s, username):
@@ -71,21 +59,32 @@ def _find_admin(s, username):
         raise MemberNotFoundError()
 
 
-def auth_required(roles=None, overriding_roles=None,
-                  access_control_function=lambda cls, ctx, roles, f, a, kw: (a, kw, True)):
-    """
-    Authenticate a user checking their roles.
-    """
+class SecurityDefinition(dict):
+    def __init__(self, item=None, collection=None):
+        dict.__init__(self, item=item, collection=collection)
+        self.item = item
+        self.collection = collection
 
-    if roles is None:
-        roles = []
-    if overriding_roles is None:
-        overriding_roles = []
 
+def defines_security(security_definition):
+    def decorator(Cls):
+        setattr(Cls, "_" + "security_definition", security_definition)
+        return Cls
+    return decorator
+
+
+def merge_obj_to_dict(d, obj):
+    for attr_name in dir(obj):
+        attr = obj.__getattribute__(attr_name)
+        if not hasattr(attr, "__self__") and attr is not None and not hasattr(object, attr_name):
+            d[obj.__class__.__name__ + "." + attr_name] = obj.__getattribute__(attr_name)
+    return d
+
+
+def uses_security(action, is_collection=False):
     def decorator(f):
-
         @wraps(f)
-        def auth_wrapper(cls, ctx, *args, **kwargs):
+        def wrapper(cls, ctx, *args, **kwargs):
             if hasattr(sys, "_called_from_unit_test"):
                 return f(cls, ctx, *args, **kwargs)
 
@@ -101,21 +100,30 @@ def auth_required(roles=None, overriding_roles=None,
             adherent, admin_roles = _find_admin(ctx.get(CTX_SQL_SESSION), user)
             LOG.warning('found_roles', extra=log_extra(ctx, roles=admin_roles))
 
-            roles_check = all(role.value in admin_roles for role in roles)
-            if not current_app.config["TESTING"] and not roles_check:
-                # User is not in the right group(s) and we are not testing, do not allow.
+            if not hasattr(cls, '_security_definition'):
+                raise UnauthorizedError("You do not have enough permissions to access this")
+
+            security_definition = getattr(cls, '_security_definition')
+
+            obj = kwargs["filter_"] if "filter_" in kwargs else None
+            arguments = {}
+            arguments = merge_obj_to_dict(arguments, obj)
+            arguments = merge_obj_to_dict(arguments, Admin(login=user, member=adherent.id, roles=admin_roles))
+            arguments['Roles'] = admin_roles
+
+            authorized = False
+
+            if is_collection:
+                authorized = security_definition.collection[action](arguments)
+            else:
+                authorized = security_definition.item[action](arguments)
+
+            if not authorized:
                 raise UnauthorizedError("You do not have enough permissions to access this")
 
             ctx = build_context(ctx=ctx, admin=adherent, roles=admin_roles)
+            return f(cls, ctx, *args, **kwargs)
 
-            new_args, new_kwargs, status = access_control_function(cls, ctx, admin_roles, f, args, kwargs)
-
-            status = status or Roles.ADH6_ADMIN.value in admin_roles or current_app.config["TESTING"]
-            if not status:
-                raise UnauthorizedError("You do not have enough permissions for this specific request")
-
-            return f(cls, ctx, *new_args, **new_kwargs)  # Discard the user and token_info.
-
-        return auth_wrapper
+        return wrapper
 
     return decorator

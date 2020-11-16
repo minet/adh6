@@ -51,6 +51,7 @@ from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.port_manager import PortManager
 from src.use_case.product_manager import ProductManager
 from src.use_case.room_manager import RoomManager
+from src.use_case.stats_manager import StatsManager
 from src.use_case.switch_manager import SwitchManager
 from src.use_case.transaction_manager import TransactionManager
 
@@ -132,6 +133,7 @@ def init(testing=True, managing=False):
         account_type_repository=account_type_sql_repository
     )
     bug_report_manager = BugReportManager(configuration.GITLAB_CONF, testing=testing)
+    stats_manager = StatsManager(logs_repository=elk_repository)
 
     # HTTP Handlers:
     # Default CRUD handlers
@@ -145,7 +147,7 @@ def init(testing=True, managing=False):
     # Main operations handlers
     # Other handlers
     health_handler = HealthHandler(health_manager)
-    stats_handler = StatsHandler(transaction_manager, device_manager, member_manager)
+    stats_handler = StatsHandler(transaction_manager, device_manager, member_manager, stats_manager)
     profile_handler = ProfileHandler(member_manager)
     transaction_handler = TransactionHandler(transaction_manager)
     member_handler = MemberHandler(member_manager)

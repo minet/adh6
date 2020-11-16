@@ -20,7 +20,7 @@ import {AppConstantsService} from './app-constants.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  titre = 'ADH6';
+  titre = 'MiNET - ADH6';
   faBug = faBug;
   submitBugForm: FormGroup;
   currentPageAuthBypass = false;

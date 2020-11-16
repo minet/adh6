@@ -25,4 +25,12 @@
   background-color: #a9edff;
 } */
 
+::ng-deep .dropdown-menu {
+  min-width: 100% !important;
+}
+
+::ng-deep typeahead-container {
+  width: 100% !important;
+}
+
 

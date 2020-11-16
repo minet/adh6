@@ -11,6 +11,10 @@ class LogsRepository(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
+    def get_global_stats(self, ctx):
+        pass
+
+    @abc.abstractmethod
     def get_logs(self, ctx, username=None, devices=None, dhcp=None):
         """
         Get all the logs concerning the provided username and MAC addresses.

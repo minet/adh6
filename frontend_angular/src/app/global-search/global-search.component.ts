@@ -100,7 +100,7 @@ export class GlobalSearchComponent implements OnInit {
 
         const LIMIT = 20;
 
-        const user$ = this.memberService.memberGet(LIMIT, undefined, terms).pipe(
+        const user$ = this.memberService.memberGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Member>) => from(array)),
           map((obj: Member) => new SearchResult(
             'user',
@@ -109,7 +109,7 @@ export class GlobalSearchComponent implements OnInit {
           )),
         );
 
-        const account$ = this.accountService.accountGet(LIMIT, undefined, terms).pipe(
+        const account$ = this.accountService.accountGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Account>) => from(array)),
           map((obj: Account) => new SearchResult(
             'account',
@@ -118,7 +118,7 @@ export class GlobalSearchComponent implements OnInit {
           )),
         );
 
-        const device$ = this.deviceService.deviceGet(LIMIT, undefined, undefined).pipe(
+        const device$ = this.deviceService.deviceGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Device>) => from(array)),
           map((obj: Device) => new SearchResult(
             'device',
@@ -128,16 +128,16 @@ export class GlobalSearchComponent implements OnInit {
           )),
         );
 
-        const room$ = this.roomService.roomGet(LIMIT, undefined, terms).pipe(
+        const room$ = this.roomService.roomGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Room>) => from(array)),
           map((obj: Room) => new SearchResult('room', obj.description, ['/room/view', obj.roomNumber.toString()])),
         );
-        const switch$ = this.switchService.switchGet(LIMIT, undefined, terms).pipe(
+        const switch$ = this.switchService.switchGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<ModelSwitch>) => from(array)),
           map((obj: ModelSwitch) => new SearchResult('switch', obj.description, ['/switch/view', obj.id.toString()])),
         );
 
-        const port$ = this.portService.portGet(LIMIT, undefined, terms).pipe(
+        const port$ = this.portService.portGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Port>) => from(array)),
           map((obj: Port) => {
             const the_switch: ModelSwitch = obj.switchObj as ModelSwitch;

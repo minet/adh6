@@ -28,6 +28,37 @@ class ElasticSearchRepository(LogsRepository):
         LOG.debug('ELK_HOSTS:' + str(self.config.ELK_HOSTS))
         self.es = Elasticsearch(self.config.ELK_HOSTS)
 
+    def get_global_stats(self, ctx):
+        query = {
+                "query": {
+                "range": {
+                  "@timestamp": {
+                    "gte": "now-1h",
+                    "lt": "now"
+                  }
+                }
+              },
+              "size":0,
+               "aggs":{
+                  "unique_macs":{
+                     "cardinality":{
+                        "field":"common_mac.keyword"
+                     }
+                  },
+                  "unique_ips":{
+                     "cardinality":{
+                        "field":"src_ip.keyword"
+                     }
+                  },
+                  "unique_users":{
+                     "cardinality":{
+                        "field":"radius_user.keyword"
+                     }
+                  }
+               }
+            }
+        return self.es.search(index="", body=query)["aggregations"]
+
     def get_logs(self, ctx, limit=LOG_DEFAULT_LIMIT, username=None, devices=None, dhcp=False):
         """
         Get the logs related to the username and to the devices.

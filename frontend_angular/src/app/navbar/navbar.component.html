@@ -13,7 +13,7 @@
       <li class="nav-item" *ngIf="'manage' | able: 'all'; ">
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['member/add']">Inscription</a>
       </li>
-      <li class="nav-item" *ngIf="'manage' | able: 'transaction'; ">
+      <li class="nav-item" *ngIf="'manage' | able: 'Transaction'; ">
         <a class="nav-item nav-link" [routerLinkActive]="['active']"
            [routerLink]="['transaction/add']">Transaction</a>
       </li>
@@ -21,21 +21,27 @@
         <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['switch_local']">Switch Local</a>
       </li>
 
-      <li class="nav-item dropdown" dropdown *ngIf="'manage' | able: 'all'; ">
+      <li class="nav-item dropdown" dropdown *ngIf="
+        ('manage' | able: 'Member') ||
+        ('manage' | able: 'Room') ||
+        ('manage' | able: 'Device') ||
+        ('manage' | able: 'Switch') ||
+        ('manage' | able: 'Port')
+      ">
         <a class="nav-link" dropdownToggle href="#" (click)="false" id="navbarAdhDropdown"
            role="button" aria-controls="navbarAdhDropdown" aria-haspopup="true" aria-expanded="false">Gestion
           adhérents</a>
         <ul class="dropdown-menu" *dropdownMenu aria-labelledby="navbarAdhDropdown">
-          <li class="menuitem"><a class="dropdown-item"
+          <li class="menuitem" *ngIf="'manage' | able: 'Member';"><a class="dropdown-item"
                                   [routerLink]="['member/search']">Adhérents</a></li>
-          <li class="menuitem"><a class="dropdown-item"
+          <li class="menuitem" *ngIf="'manage' | able: 'Room';"><a class="dropdown-item"
                                   [routerLink]="['room/search']">Chambres</a></li>
-          <li class="menuitem"><a class="dropdown-item"
+          <li class="menuitem" *ngIf="'manage' | able: 'Device';"><a class="dropdown-item"
                                   [routerLink]="['device/search']">Appareils</a></li>
-          <li class="divider dropdown-divider"></li>
-          <li class="menuitem"><a class="dropdown-item"
+          <li class="divider dropdown-divider" *ngIf="('manage' | able: 'Switch') || ('manage' | able: 'Port')"></li>
+          <li class="menuitem" *ngIf="'manage' | able: 'Switch';"><a class="dropdown-item"
                                   [routerLink]="['switch/search']">Switches</a></li>
-          <li class="menuitem"><a class="dropdown-item"
+          <li class="menuitem" *ngIf="'manage' | able: 'Port';"><a class="dropdown-item"
                                   [routerLink]="['port/search']">Ports</a></li>
         </ul>
       </li>

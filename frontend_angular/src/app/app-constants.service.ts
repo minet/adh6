@@ -42,10 +42,18 @@ export class AppConstantsService {
           const { can, rules } = new AbilityBuilder();
 
           if (roles.indexOf('adh6_admin') !== -1) {
-            can('manage', 'all');
-          } else {
-            can('manage', 'Member', { id: (profile.admin.member as Member).id });
-            can('read', 'all');
+            can('manage', 'Member');
+            can('manage', 'Device');
+            can('manage', 'Room');
+            can('manage', 'search');
+          }
+          if (roles.indexOf('adh6_treso') !== -1) {
+            can('manage', 'treasury');
+            can('manage', 'Transaction');
+          }
+          else {
+            can('read', 'Member', { id: (profile.admin.member as Member).id });
+            can('manage', 'Device', { member: (profile.admin.member as Member).id });
           }
 
           // @ts-ignore
