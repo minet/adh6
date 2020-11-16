@@ -105,7 +105,7 @@ def test_room_post_new_room_invalid_vlan(api_client):
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_room_post_new_room(api_client, sample_room1):

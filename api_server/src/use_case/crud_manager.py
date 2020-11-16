@@ -85,8 +85,7 @@ class CRUDManager:
         if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
             object_id = kwargs[self.name + '_id']
 
-            result, _ = self._search(ctx,
-                                     filter_=self.abstract_entity(id=object_id))
+            result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=object_id))
             if not result:
                 raise self.not_found_exception(object_id)
             current_object = next(iter(result), None)
@@ -109,8 +108,8 @@ class CRUDManager:
         if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
             object_id = kwargs[self.name + '_id']
 
-            result, _ = self._search(ctx,
-                                     filter_=self.abstract_entity(id=object_id))
+            result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=object_id))
+
             if not result:
                 raise self.not_found_exception(object_id)
             current_object = next(iter(result), None)

@@ -240,7 +240,7 @@ def test_member_post_member_create_unknown_room(api_client):
         content_type='application/json',
         headers=TEST_HEADERS
     )
-    assert 400 == res.status_code
+    assert 404 == res.status_code
 
 
 def test_member_post_member_create(api_client, sample_room1):

@@ -261,7 +261,7 @@ def test_device_post_create_invalid_member(api_client, wired_device_dict):
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_device_patch_update_wireless(api_client, wireless_device,

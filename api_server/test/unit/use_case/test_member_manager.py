@@ -254,6 +254,7 @@ class TestUpdatePartially:
         req = AbstractMember(comment=updated_comment)
 
         # When...
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
         member_manager.partially_update(ctx, req, member_id=sample_member.id)
 
         # Expect...
@@ -263,6 +264,7 @@ class TestUpdatePartially:
                        mock_member_repository: MagicMock,
                        sample_member,
                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
         mock_member_repository.update = MagicMock(side_effect=MemberNotFoundError)
 
         # When...
@@ -276,6 +278,7 @@ class TestDelete:
                         sample_member,
                         member_manager: MemberManager):
         # When...
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
         member_manager.delete(ctx, member_id=sample_member.id)
 
         # Expect...
@@ -286,6 +289,7 @@ class TestDelete:
                        sample_member,
                        member_manager: MemberManager):
         # Given...
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
         mock_member_repository.delete = MagicMock(side_effect=MemberNotFoundError)
 
         # When...

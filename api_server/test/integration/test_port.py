@@ -141,7 +141,7 @@ def test_port_post_create_port_invalid_switch(api_client, sample_switch1, sample
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_port_post_create_port_invalid_room(api_client, sample_switch1, sample_room1):
@@ -158,7 +158,7 @@ def test_port_post_create_port_invalid_room(api_client, sample_switch1, sample_r
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 400
+    assert r.status_code == 404
 
 
 def test_port_post_create_port(api_client, sample_switch1, sample_room1):

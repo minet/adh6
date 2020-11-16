@@ -100,26 +100,26 @@ def uses_security(action, is_collection=False):
             adherent, admin_roles = _find_admin(ctx.get(CTX_SQL_SESSION), user)
             LOG.warning('found_roles', extra=log_extra(ctx, roles=admin_roles))
 
-            if not hasattr(cls, '_security_definition'):
+            if not hasattr(cls, '_security_definition') and not current_app.config["TESTING"]:
                 raise UnauthorizedError("You do not have enough permissions to access this")
+            elif not current_app.config["TESTING"]:
+                security_definition = getattr(cls, '_security_definition')
 
-            security_definition = getattr(cls, '_security_definition')
+                obj = kwargs["filter_"] if "filter_" in kwargs else None
+                arguments = {}
+                arguments = merge_obj_to_dict(arguments, obj)
+                arguments = merge_obj_to_dict(arguments, Admin(login=user, member=adherent.id, roles=admin_roles))
+                arguments['Roles'] = admin_roles
 
-            obj = kwargs["filter_"] if "filter_" in kwargs else None
-            arguments = {}
-            arguments = merge_obj_to_dict(arguments, obj)
-            arguments = merge_obj_to_dict(arguments, Admin(login=user, member=adherent.id, roles=admin_roles))
-            arguments['Roles'] = admin_roles
+                authorized = False
 
-            authorized = False
+                if is_collection:
+                    authorized = security_definition.collection[action](arguments)
+                else:
+                    authorized = security_definition.item[action](arguments)
 
-            if is_collection:
-                authorized = security_definition.collection[action](arguments)
-            else:
-                authorized = security_definition.item[action](arguments)
-
-            if not authorized:
-                raise UnauthorizedError("You do not have enough permissions to access this")
+                if not authorized:
+                    raise UnauthorizedError("You do not have enough permissions to access this")
 
             ctx = build_context(ctx=ctx, admin=adherent, roles=admin_roles)
             return f(cls, ctx, *args, **kwargs)
