@@ -1,23 +1,29 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice, Device
+from src.entity import AbstractDevice, Device, Member, Admin
+from src.entity.roles import Roles
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
     DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
+from src.use_case.decorator.security import SecurityDefinition, defines_security
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IPAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 
-@auto_raise
-def _owner_check(filter_: AbstractDevice, admin_id):
-    if filter_.member is not None and filter_.member != admin_id:
-        raise UnauthorizedError("You may only read or write to your own devices")
-    filter_.member = admin_id
-
-
+@defines_security(SecurityDefinition(
+    item={
+        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
+        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
+        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN
+    },
+    collection={
+        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
+        "create": (Device.member == Admin.member) | Roles.ADH6_ADMIN
+    }
+))
 class DeviceManager(CRUDManager):
     """
     Implements all the use cases related to device management.
@@ -27,7 +33,7 @@ class DeviceManager(CRUDManager):
                  device_repository: DeviceRepository,
                  ip_allocator: IPAllocator,
                  ):
-        super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError, _owner_check)
+        super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
         self.oui_repository = {}

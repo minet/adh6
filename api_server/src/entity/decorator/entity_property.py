@@ -1,6 +1,6 @@
 import operator
 
-from src.entity.util.logic import BinaryExpression
+from src.entity.util.logic import BinaryExpression, Expression, NestedPropertyExpression
 
 
 class entity_property(property):
@@ -22,3 +22,6 @@ class entity_property(property):
 
     def __ge__(self, other):
         return BinaryExpression(self, other, operator=operator.ge)
+
+    def __getattr__(self, item):
+        return NestedPropertyExpression(self, item)

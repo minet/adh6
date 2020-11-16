@@ -10,7 +10,7 @@ from src.exceptions import MemberNotFoundError, UserInputError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler, _error
-from src.interface_adapter.http_api.util.error import bad_request
+from src.interface_adapter.http_api.util.error import bad_request, handle_error
 from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
@@ -34,12 +34,8 @@ class MemberHandler(DefaultHandler):
             self.member_manager.new_membership(ctx, username, body.get('duration'), body.get('payment_method'),
                                                start_str=body.get('start'))
             return NoContent, 200  # 200 OK
-
-        except MemberNotFoundError:
-            return NoContent, 404  # 404 Not Found
-
-        except UserInputError as e:
-            return bad_request(e), 400  # 400 Bad Request
+        except Exception as e:
+            return handle_error(e)
 
     @with_context
     @require_sql
@@ -50,12 +46,8 @@ class MemberHandler(DefaultHandler):
         try:
             self.member_manager.change_password(ctx, member_id, body.get('password'), body.get("hashedPassword"))
             return NoContent, 204  # 204 No Content
-
-        except MemberNotFoundError:
-            return NoContent, 404  # 404 Not Found
-
-        except UserInputError as e:
-            return bad_request(e), 400  # 400 Bad Request
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
@@ -64,10 +56,8 @@ class MemberHandler(DefaultHandler):
         """ Get logs from a member. """
         try:
             return self.member_manager.get_logs(ctx, member_id, dhcp=dhcp), 200
-        except MemberNotFoundError:
-            return NoContent, 404
-        except:
-            return NoContent, 500
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
@@ -75,10 +65,8 @@ class MemberHandler(DefaultHandler):
     def statuses_search(self, ctx, member_id):
         try:
             return serialize_response(self.member_manager.get_statuses(ctx, member_id)), 200
-        except MemberNotFoundError as e:
-            return _error(404, str(e)), 404
         except Exception as e:
-            return _error(500, str(e)), 500
+            return handle_error(ctx, e)
 
     def membership_get(self, ctx, member_id, uuid):
         pass

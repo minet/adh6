@@ -3,13 +3,16 @@ class Expression:
     def __init__(self, *terms):
         self._terms = terms
 
-    def __call__(self, obj):
+    def __call__(self, arguments):
         values = []
         for term in self._terms:
+
             if isinstance(term, property):
-                values.append(term.__get__(obj))
+                if term.fget.__qualname__ not in arguments:
+                    return False
+                values.append(arguments[term.fget.__qualname__])
             elif isinstance(term, Expression):
-                values.append(term(obj))
+                values.append(term(arguments))
             else:
                 values.append(term)
 
@@ -24,6 +27,31 @@ class Expression:
     def _operate(self, *values):
         raise NotImplemented
 
+    def __repr__(self):
+        ret = ""
+        for term in self._terms:
+            if isinstance(term, property):
+                ret += term.fget.__qualname__
+            elif isinstance(term, Expression):
+                ret += str(term)
+            else:
+                ret += term
+        return ret
+
+
+class NestedPropertyExpression(Expression):
+    def __init__(self, obj, prop):
+        super().__init__()
+        self.object = obj
+        self.property = prop
+
+    def __call__(self, arguments):
+        if self.object.fget.__qualname__ not in arguments:
+            return False
+        if not hasattr(self.object.fget.__qualname__, self.property):
+            return False
+        return getattr(arguments[self.object.fget.__qualname__], self.property)
+
 
 class BinaryExpression(Expression):
     def __init__(self, left, right, operator=None):
@@ -34,4 +62,13 @@ class BinaryExpression(Expression):
         if self._operator is None:  # Assume we're working with a simple boolean and then
             return left and right
 
-        return self._operator(left, right)
+        result = False
+        try:
+            result = self._operator(left, right)
+        except ValueError:
+            result = False
+
+        return result
+
+    def __repr__(self):
+        return "(" + str(self._terms[0]) + str(self._operator) + str(self._terms[1]) + ")"

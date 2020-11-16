@@ -1,15 +1,24 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
 
-from src.entity import AbstractTransaction
+from src.entity import AbstractTransaction, Admin
+from src.entity.roles import Roles
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.decorator.auth import Roles
+from src.use_case.decorator.security import SecurityDefinition, defines_security
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
 
+@defines_security(SecurityDefinition(
+    item={
+        "read": Roles.ADH6_ADMIN
+    },
+    collection={
+        "read": Roles.ADH6_ADMIN
+    }
+))
 class TransactionManager(CRUDManager):
     """
     Implements all the use cases related to transaction management.
@@ -20,8 +29,7 @@ class TransactionManager(CRUDManager):
                  payment_method_manager: PaymentMethodManager,
                  cashbox_manager: CashboxManager
                  ):
-        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError,
-                         overriding_roles=[Roles.ADH6_TRESO])
+        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError)
         self.transaction_repository = transaction_repository
         self.payment_method_manager = payment_method_manager
         self.cashbox_manager = cashbox_manager

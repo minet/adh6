@@ -5,7 +5,6 @@ from src.entity.null import Null
 
 
 def is_member_active(member: Member):
-    print(member.departure_date)
     return member.departure_date is not None and member.departure_date > datetime.now().date() and not isinstance(
         member.room,
         Null)
