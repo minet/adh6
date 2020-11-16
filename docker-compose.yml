@@ -9,7 +9,7 @@ services:
         # SSO URL for getting a token.
         SSO_OAUTH2: "https://cas.minet.net/oidc"
         # URL of ADH6, the SSO will redirect to that URL after login.
-        ADH6_URL: "https://localhost/dashboard" # Do not forget the trailing slash!
+        ADH6_URL: "https://adh6-local.minet.net/dashboard" # Do not forget the trailing slash!
         BYPASS_AUTH: "false"
     expose:
       - "8443" # app does not start as root here
@@ -31,7 +31,7 @@ services:
       args:
         # The API will make a request to this URL to verify the authetication token.
         OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
-        AUTH_CONSENT_ADDRESS: "https://localhost/authorize"
+        AUTH_CONSENT_ADDRESS: "https://adh6-local.minet.net/authorize"
         DATABASE_HOST: ${DATABASE_HOST}
         DATABASE_PORT: ${DATABASE_PORT}
         DATABASE_USERNAME: ${DATABASE_USERNAME}
