@@ -48,7 +48,7 @@ class NestedPropertyExpression(Expression):
     def __call__(self, arguments):
         if self.object.fget.__qualname__ not in arguments:
             return False
-        if not hasattr(self.object.fget.__qualname__, self.property):
+        if not hasattr(arguments[self.object.fget.__qualname__], self.property):
             return False
         return getattr(arguments[self.object.fget.__qualname__], self.property)
 
