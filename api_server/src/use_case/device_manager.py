@@ -47,6 +47,7 @@ class DeviceManager(CRUDManager):
                 self.oui_repository[oui] = company
                 line = f.readline()
 
+    @log_call
     @auto_raise
     def get_mac_vendor(self, ctx, device_id=None):
         devices, count = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=device_id))
@@ -72,6 +73,8 @@ class DeviceManager(CRUDManager):
                     return args, kwargs, True
         return args, kwargs, False
 
+    @log_call
+    @auto_raise
     def update_or_create(self, ctx, abstract_device: AbstractDevice, device_id=None):
 
         if abstract_device.mac is not None and not is_mac_address(abstract_device.mac):
@@ -95,6 +98,7 @@ class DeviceManager(CRUDManager):
             return device, created
 
     @log_call
+    @auto_raise
     def allocate_ip_addresses(self, ctx, device: Device):
         from src.entity.validators.member_validators import is_member_active, has_member_subnet
         if is_member_active(device.member):
