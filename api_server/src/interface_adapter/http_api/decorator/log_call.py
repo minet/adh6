@@ -41,7 +41,7 @@ def log_call(f):
                     log_args.append(arg)
 
             log_kwargs["__args"] = log_args
-            LOG.debug(class_name + "_" + f.__name__ + "_called",
+            LOG.info(class_name + "_" + f.__name__ + "_called",
                       extra=log_extra(ctx, **log_kwargs))
         return f(cls, ctx, *args, **kwargs)
 
