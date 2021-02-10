@@ -35,4 +35,4 @@ Flask-Migrate
 flask-script
 authlib
 
-cryptography==3.3.1
+cryptography==3.3.2
