@@ -4,66 +4,163 @@
 #
 #    pip-compile
 #
-alembic==1.4.3            # via flask-migrate
-attrs==20.3.0             # via jsonschema, pytest
-authlib==0.15.2           # via -r requirements.in
-certifi==2020.12.5        # via elasticsearch, requests
-cffi==1.14.4              # via cryptography
-chardet==4.0.0            # via requests
-click==7.1.2              # via clickclick, flask, pip-tools
-clickclick==20.10.2       # via connexion
-git+https://github.com/minet/connexion.git  # via -r requirements.in
-coverage==5.3.1           # via pytest-cov
-cryptography==3.3.1       # via -r requirements.in, authlib
-decopatch==1.4.8          # via pytest-cases
-elasticsearch==7.10.1     # via -r requirements.in
-faker==5.4.0              # via -r requirements.in
-flask-migrate==2.5.3      # via -r requirements.in
-flask-script==2.0.6       # via -r requirements.in
-flask-sqlalchemy==2.4.4   # via flask-migrate
-flask==1.1.2              # via -r requirements.in, connexion, flask-migrate, flask-script, flask-sqlalchemy
-idna==2.10                # via requests
-importlib-metadata==3.3.0  # via jsonschema, pluggy, pytest
-inflection==0.5.1         # via connexion
-iniconfig==1.1.1          # via pytest
-itsdangerous==1.1.0       # via flask
-jinja2==2.11.2            # via flask, swagger-ui-bundle
-jsonschema==3.2.0         # via connexion, openapi-spec-validator
-makefun==1.9.5            # via decopatch, pytest-cases
-mako==1.1.3               # via alembic
-markupsafe==1.1.1         # via jinja2, mako
-mysqlclient==2.0.3        # via -r requirements.in
-openapi-spec-validator==0.2.9  # via connexion
-packaging==20.8           # via pytest
-pip-tools==5.5.0          # via -r requirements.in
-pluggy==0.13.1            # via pytest
-ply==3.11                 # via pysmi
-py==1.10.0                # via pytest
-pyasn1==0.4.8             # via pysnmp
-pycparser==2.20           # via cffi
-pycryptodomex==3.9.9      # via pysnmp
-pyparsing==2.4.7          # via packaging
-pyrsistent==0.17.3        # via jsonschema
-pysmi==0.3.4              # via pysnmp
-pysnmp==4.4.12            # via -r requirements.in
-pytest-cases==3.1.1       # via -r requirements.in
-pytest-cov==2.10.1        # via -r requirements.in
-pytest==6.2.1             # via -r requirements.in, pytest-cov
-python-dateutil==2.8.1    # via -r requirements.in, alembic, faker
-python-editor==1.0.4      # via alembic
-python-gitlab==2.5.0      # via -r requirements.in
-pyyaml==5.3.1             # via -r requirements.in, clickclick, connexion, openapi-spec-validator
-requests==2.25.1          # via -r requirements.in, connexion, python-gitlab
-six==1.15.0               # via cryptography, jsonschema, openapi-spec-validator, python-dateutil
-sqlalchemy==1.3.22        # via -r requirements.in, alembic, flask-sqlalchemy
-swagger-ui-bundle==0.0.8  # via -r requirements.in
-text-unidecode==1.3       # via faker
-toml==0.10.2              # via pytest
-typing-extensions==3.7.4.3  # via importlib-metadata
-urllib3==1.26.2           # via elasticsearch, requests
-uwsgi==2.0.19.1           # via -r requirements.in
-werkzeug==1.0.1           # via flask
-zipp==3.4.0               # via importlib-metadata
+alembic==1.4.3
+    # via flask-migrate
+attrs==20.3.0
+    # via
+    #   jsonschema
+    #   pytest
+authlib==0.15.2
+    # via -r requirements.in
+certifi==2020.12.5
+    # via
+    #   elasticsearch
+    #   requests
+cffi==1.14.4
+    # via cryptography
+chardet==4.0.0
+    # via requests
+click==7.1.2
+    # via
+    #   clickclick
+    #   flask
+    #   pip-tools
+clickclick==20.10.2
+    # via connexion
+git+https://github.com/minet/connexion.git
+    # via -r requirements.in
+coverage==5.3.1
+    # via pytest-cov
+cryptography==3.3.1
+    # via
+    #   -r requirements.in
+    #   authlib
+decopatch==1.4.8
+    # via pytest-cases
+elasticsearch==7.10.1
+    # via -r requirements.in
+faker==5.4.0
+    # via -r requirements.in
+flask-migrate==2.5.3
+    # via -r requirements.in
+flask-script==2.0.6
+    # via -r requirements.in
+flask-sqlalchemy==2.4.4
+    # via flask-migrate
+flask==1.1.2
+    # via
+    #   -r requirements.in
+    #   connexion
+    #   flask-migrate
+    #   flask-script
+    #   flask-sqlalchemy
+idna==2.10
+    # via requests
+inflection==0.5.1
+    # via connexion
+iniconfig==1.1.1
+    # via pytest
+itsdangerous==1.1.0
+    # via flask
+jinja2==2.11.2
+    # via
+    #   flask
+    #   swagger-ui-bundle
+jsonschema==3.2.0
+    # via
+    #   connexion
+    #   openapi-spec-validator
+makefun==1.9.5
+    # via
+    #   decopatch
+    #   pytest-cases
+mako==1.1.3
+    # via alembic
+markupsafe==1.1.1
+    # via
+    #   jinja2
+    #   mako
+mysqlclient==2.0.3
+    # via -r requirements.in
+openapi-spec-validator==0.2.9
+    # via connexion
+packaging==20.8
+    # via pytest
+pip-tools==5.5.0
+    # via -r requirements.in
+pluggy==0.13.1
+    # via pytest
+ply==3.11
+    # via pysmi
+py==1.10.0
+    # via pytest
+pyasn1==0.4.8
+    # via pysnmp
+pycparser==2.20
+    # via cffi
+pycryptodomex==3.9.9
+    # via pysnmp
+pyparsing==2.4.7
+    # via packaging
+pyrsistent==0.17.3
+    # via jsonschema
+pysmi==0.3.4
+    # via pysnmp
+pysnmp==4.4.12
+    # via -r requirements.in
+pytest-cases==3.1.1
+    # via -r requirements.in
+pytest-cov==2.10.1
+    # via -r requirements.in
+pytest==6.2.1
+    # via
+    #   -r requirements.in
+    #   pytest-cov
+python-dateutil==2.8.1
+    # via
+    #   -r requirements.in
+    #   alembic
+    #   faker
+python-editor==1.0.4
+    # via alembic
+python-gitlab==2.5.0
+    # via -r requirements.in
+pyyaml==5.3.1
+    # via
+    #   -r requirements.in
+    #   clickclick
+    #   connexion
+    #   openapi-spec-validator
+requests==2.25.1
+    # via
+    #   -r requirements.in
+    #   connexion
+    #   python-gitlab
+six==1.15.0
+    # via
+    #   cryptography
+    #   jsonschema
+    #   openapi-spec-validator
+    #   python-dateutil
+sqlalchemy==1.3.22
+    # via
+    #   -r requirements.in
+    #   alembic
+    #   flask-sqlalchemy
+swagger-ui-bundle==0.0.8
+    # via -r requirements.in
+text-unidecode==1.3
+    # via faker
+toml==0.10.2
+    # via pytest
+urllib3==1.26.3
+    # via
+    #   elasticsearch
+    #   requests
+uwsgi==2.0.19.1
+    # via -r requirements.in
+werkzeug==1.0.1
+    # via flask
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
