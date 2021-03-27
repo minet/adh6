@@ -23,6 +23,8 @@ class Vlan(Base):
     adressesv6 = Column(String(255))
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    excluded_addr = Column(String(255))
+    excluded_addrv6 = Column(String(255))
 
 
 class Chambre(Base, RubyHashTrackable):
