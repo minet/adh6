@@ -1,7 +1,8 @@
 import gitlab
-from gitlab.v4.objects import ProjectIssue
+from gitlab.v4.objects import ProjectIssue, GitlabAuthenticationError
 
 from src.exceptions import MissingRequiredField
+from src.util.log import logger
 
 
 class BugReportManager:
@@ -13,13 +14,21 @@ class BugReportManager:
         self.testing = testing
 
         if not self.testing:
-            self.gl = gitlab.Gitlab('https://gitlab.minet.net', private_token=gitlab_conf['access_token'])
-            self.gl.auth()
-            self.project = self.gl.projects.get(223)
+            try:
+                self.gl = gitlab.Gitlab('https://gitlab.minet.net', private_token=gitlab_conf['access_token'])
+                self.gl.auth()
+                self.project = self.gl.projects.get(223)
+            except GitlabAuthenticationError:
+                logger.error("Could not authenticate against MiNET's Gitlab server, bug reporting will not be available.")
+                self.gl = None
+                self.project = None
 
     def create_issue(self, ctx, title="", description="", labels=None) -> ProjectIssue:
         if self.testing:
             return None
+
+        if self.gl is None or self.project is None:
+            raise RuntimeError("Gitlab initialisation failed, bug reporting is unavailable.")
 
         if labels is None:
             labels = []
@@ -35,4 +44,8 @@ class BugReportManager:
     def get_labels(self, ctx) -> list:
         if self.testing:
             return []
+
+        if self.gl is None or self.project is None:
+            raise RuntimeError("Gitlab initialisation failed, bug reporting is unavailable.")
+
         return self.project.labels.list()

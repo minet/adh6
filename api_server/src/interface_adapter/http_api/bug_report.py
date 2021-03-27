@@ -3,6 +3,7 @@
 from gitlab.v4.objects import ProjectIssue
 
 from src.interface_adapter.http_api.decorator.with_context import with_context
+from src.interface_adapter.http_api.util.error import handle_error
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.bug_report_manager import BugReportManager
 from src.util.context import log_extra
@@ -19,9 +20,12 @@ class BugReportHandler:
         """ Add a new issue to the gitlab project """
         LOG.debug("http_bug_report_post_called", extra=log_extra(ctx, request=body))
 
-        issue = self.bug_report_manager.create_issue(ctx, title=body.get("title"), description=body.get("description"),
-                                                     labels=body.get("labels"))
-        return _map_project_issue_to_http_response(issue), 200
+        try:
+            issue = self.bug_report_manager.create_issue(ctx, title=body.get("title"), description=body.get("description"),
+                                                         labels=body.get("labels"))
+            return _map_project_issue_to_http_response(issue), 200
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
