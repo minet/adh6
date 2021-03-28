@@ -1,10 +1,11 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
-
+from src.constants import CTX_ROLES
 from src.entity import AbstractTransaction, Admin
 from src.entity.roles import Roles
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
@@ -15,10 +16,13 @@ from src.use_case.payment_method_manager import PaymentMethodManager
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN
+        "read": Roles.ADH6_ADMIN,
+        "update": Roles.ADH6_TRESO,
+        "delete": Roles.ADH6_TRESO
     },
     collection={
-        "read": Roles.ADH6_ADMIN
+        "read": Roles.ADH6_ADMIN,
+        "create": Roles.ADH6_ADMIN,
     }
 ))
 class TransactionManager(CRUDManager):
@@ -43,6 +47,15 @@ class TransactionManager(CRUDManager):
             raise ValidationError('the source and destination accounts must not be the same')
         if abstract_transaction.value <= 0:
             raise IntMustBePositive('value')
+
+        @uses_security("create", is_collection=True)
+        def _force_invalid(cls, ctx, obj):
+            roles = ctx.get(CTX_ROLES)
+            if Roles.ADH6_TRESO.value not in roles:
+                obj.pending_validation = True
+            else:
+                obj.pending_validation = False
+        _force_invalid(self, ctx, abstract_transaction)
 
         transaction, created = super().update_or_create(ctx, abstract_transaction, transaction_id=transaction_id)
 

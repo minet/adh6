@@ -33,7 +33,7 @@ class AccountSQLRepository(AccountRepository):
                     }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
         q = q.join(AccountType, AccountType.id == SQLAccount.type)
         q = q.outerjoin(Adherent, Adherent.id == SQLAccount.adherent_id)
-        q = q.join(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
+        q = q.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if terms:
             q = q.filter(SQLAccount.name.contains(terms))
