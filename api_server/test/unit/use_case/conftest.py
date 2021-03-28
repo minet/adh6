@@ -146,6 +146,21 @@ def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
 
 
 @fixture
+def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2):
+    return Transaction(
+        id=faker.random_digit_not_null,
+        src=sample_account1,
+        dst=sample_account2,
+        name=faker.sentence,
+        value=faker.random_int,
+        attachments='',
+        timestamp=faker.date_this_year,
+        payment_method=sample_payment_method,
+        author=sample_admin,
+        pending_validation=True
+    )
+
+@fixture
 def sample_account1(faker, sample_member, sample_account_type):
     return Account(
         id=faker.random_digit_not_null,

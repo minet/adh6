@@ -101,6 +101,47 @@ class TestCreate:
             transaction_manager.update_or_create(ctx, req)
 
 
+class TestDelete:
+    def test_happy_path(self,
+                        ctx,
+                        mock_transaction_repository,
+                        sample_transaction_pending: Transaction,
+                        transaction_manager: TransactionManager):
+        # When...
+        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction_pending], 1))
+        transaction_manager.delete(ctx, **{"transaction_id": sample_transaction_pending.id})
+
+        # Expect...
+        mock_transaction_repository.delete.assert_called_once_with(ctx, sample_transaction_pending.id)
+
+    def test_cannot_delete_nonpending_path(self,
+                        ctx,
+                        mock_transaction_repository,
+                        sample_transaction: Transaction,
+                        transaction_manager: TransactionManager):
+        # When...
+        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
+        with raises(UserInputError):
+            transaction_manager.delete(ctx, **{"transaction_id": sample_transaction.id})
+
+
+    def test_object_not_found(self,
+                        ctx,
+                        mock_transaction_repository,
+                        sample_transaction: Transaction,
+                        transaction_manager: TransactionManager):
+        # Given
+        mock_transaction_repository.search_by = MagicMock(return_value=([], 0))
+        mock_transaction_repository.delete = MagicMock(side_effect=UserInputError)
+
+        # When...
+        with raises(UserInputError):
+            transaction_manager.delete(ctx, **{"transaction_id": 0})
+
+        # Expect...
+        #mock_repo.delete.assert_called_once_with(ctx, id)
+
+
 @fixture
 def transaction_manager(mock_transaction_repository, ):
     return TransactionManager(

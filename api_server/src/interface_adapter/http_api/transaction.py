@@ -17,3 +17,4 @@ class TransactionHandler(DefaultHandler):
     @log_call
     def upload_post(self, ctx, body):
         pass
+

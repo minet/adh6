@@ -8,15 +8,15 @@ from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import Transaction, PaymentMethod, Account, AccountType
 from test.integration.conftest import sample_member1
-from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
+from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url, assert_modification_was_created
 
 
 @pytest.fixture
 def sample_payment_method():
     return PaymentMethod(
-            id=1,
-            name='liquide'
-        )
+        id=1,
+        name='liquide'
+    )
 
 
 @pytest.fixture
@@ -54,6 +54,7 @@ def sample_account2():
 @pytest.fixture
 def sample_transaction(sample_member_admin, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
+        id=91,
         src_account=sample_account1,
         dst_account=sample_account2,
         name='description',
@@ -65,18 +66,34 @@ def sample_transaction(sample_member_admin, sample_account1, sample_account2, sa
         pending_validation=False)
 
 
-def prep_db(session, sample_transaction):
+@pytest.fixture
+def sample_transaction_pending(sample_member_admin, sample_account1, sample_account2, sample_payment_method):
+    return Transaction(
+        id=92,
+        src_account=sample_account1,
+        dst_account=sample_account2,
+        name='description 2',
+        value=230,
+        attachments='',
+        timestamp=datetime.datetime(2005, 7, 14, 12, 31),
+        payment_method=sample_payment_method,
+        author=sample_member_admin,
+        pending_validation=True)
+
+
+def prep_db(session, sample_transaction, sample_transaction_pending):
     """ Insert the test objects in the Db """
     session.add(sample_transaction)
+    session.add(sample_transaction_pending)
     session.commit()
 
 
 @pytest.fixture
-def api_client(sample_transaction):
+def api_client(sample_transaction, sample_transaction_pending):
     from .context import app
     with app.app.test_client() as c:
         db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(), sample_transaction)
+        prep_db(db.get_db().get_session(), sample_transaction, sample_transaction_pending)
         yield c
 
 
@@ -158,12 +175,34 @@ def test_transaction_get_all(api_client):
     assert r.status_code == 200
     t = json.loads(r.data.decode('utf-8'))
     assert t
-    assert len(t) == 1
+    assert len(t) == 2
 
 
-def test_transaction_get_existant_transaction(api_client):
+def test_transaction_delete_pending(api_client, sample_transaction_pending):
+    r = api_client.delete(
+        '{}/transaction/{}'.format(base_url, sample_transaction_pending.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+
+    s = db.get_db().get_session()
+    q = s.query(Transaction)
+    q = q.filter(Transaction.pending_validation == True)
+    q = q.filter(Transaction.name == "description 2")
+    assert not s.query(q.exists()).scalar(), "Object not actually deleted"
+
+
+def test_device_delete_nonpending(api_client, sample_transaction):
+    r = api_client.delete(
+        '{}/transaction/{}'.format(base_url, sample_transaction.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_transaction_get_existant_transaction(api_client, sample_transaction):
     r = api_client.get(
-        "{}/transaction/{}".format(base_url, 1),
+        "{}/transaction/{}".format(base_url, sample_transaction.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -187,7 +226,7 @@ def test_transaction_filter_by_term_desc(api_client):
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert result
-    assert len(result) == 1
+    assert len(result) == 2
 
 
 def test_transaction_filter_by_term_nonexistant(api_client):
@@ -199,4 +238,3 @@ def test_transaction_filter_by_term_nonexistant(api_client):
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert not result
-

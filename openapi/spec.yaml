@@ -1557,6 +1557,21 @@ paths:
       summary: Partially update a transaction
       tags:
       - transaction
+    delete:
+      responses:
+        204:
+          description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Delete a transaction (MUST only be possible when pendingValidation is true)
+      tags:
+      - transaction
   /bug_report/:
     post:
       parameters: []

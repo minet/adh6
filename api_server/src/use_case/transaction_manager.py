@@ -4,8 +4,10 @@
 from src.entity import AbstractTransaction, Admin
 from src.entity.roles import Roles
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
+from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
+from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
@@ -34,6 +36,8 @@ class TransactionManager(CRUDManager):
         self.payment_method_manager = payment_method_manager
         self.cashbox_manager = cashbox_manager
 
+    @log_call
+    @auto_raise
     def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None):
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
@@ -52,6 +56,8 @@ class TransactionManager(CRUDManager):
 
         return transaction, created
 
+    @log_call
+    @auto_raise
     def partially_update(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None, override=False,
                          **kwargs):
         if any(True for _ in filter(lambda e: e is not None, [
@@ -66,5 +72,10 @@ class TransactionManager(CRUDManager):
             raise ValidationError('you are trying to update a transaction with fields that cannot be updated')
         raise NotImplemented
 
-    def delete(self, ctx, *args, **kwargs):
-        raise NotImplemented
+    @log_call
+    @auto_raise
+    def delete(self, ctx, transaction_id=None, **kwargs):
+        transaction: AbstractTransaction = self.get_by_id(ctx, transaction_id=transaction_id)
+        if not transaction.pending_validation:
+            raise ValidationError("you are trying to delete a transaction that is already validated")
+        return super().delete(ctx, transaction_id=transaction_id)

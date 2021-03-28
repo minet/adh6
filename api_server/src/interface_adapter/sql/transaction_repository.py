@@ -10,7 +10,8 @@ from sqlalchemy.orm import aliased
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from src.entity import AbstractTransaction
 from src.entity.transaction import Transaction
-from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, AdminNotFoundError
+from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, AdminNotFoundError, \
+    TransactionNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
@@ -44,6 +45,10 @@ class TransactionSQLRepository(TransactionRepository):
         if terms:
             q = q.filter(
                 (SQLTransaction.name.contains(terms))
+            )
+        if filter_.pending_validation is not None:
+            q = q.filter(
+                (SQLTransaction.pending_validation == filter_.pending_validation)
             )
         if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
             q = q.filter(
@@ -116,8 +121,17 @@ class TransactionSQLRepository(TransactionRepository):
     def update(self, ctx, abstract_transaction: AbstractTransaction, override=False) -> object:
         raise NotImplementedError
 
+    @log_call
     def delete(self, ctx, object_id) -> None:
-        raise NotImplementedError
+        s = ctx.get(CTX_SQL_SESSION)
+
+        transaction = s.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
+
+        if transaction is None:
+            raise TransactionNotFoundError(object_id)
+
+        with track_modifications(ctx, s, transaction):
+            s.delete(transaction)
 
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
@@ -133,5 +147,6 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         value=t.value,
         payment_method=_map_payment_method_sql_to_entity(t.payment_method),
         attachments=[],
-        author=_map_member_sql_to_entity(t.author)
+        author=_map_member_sql_to_entity(t.author),
+        pending_validation=t.pending_validation
     )
