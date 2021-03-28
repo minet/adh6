@@ -11,6 +11,7 @@ from src.entity.member import Member
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product
+from src.entity.roles import Roles
 from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
@@ -31,6 +32,7 @@ def ctx(sample_member):
     return build_context(
         admin=sample_member,
         testing=True,
+        roles=[Roles.ADH6_USER, Roles.ADH6_ADMIN, Roles.ADH6_SUPER_ADMIN, Roles.ADH6_TRESO]
     )
 
 
