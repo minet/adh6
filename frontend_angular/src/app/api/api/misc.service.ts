@@ -20,7 +20,6 @@ import { Observable }                                        from 'rxjs';
 import { BugReport } from '../model/bugReport';
 import { InlineResponse200 } from '../model/inlineResponse200';
 import { Labels } from '../model/labels';
-import { Statistics } from '../model/statistics';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -251,9 +250,9 @@ export class MiscService {
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public stats(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Statistics>>;
-    public stats(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Statistics>>>;
-    public stats(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Statistics>>>;
+    public stats(observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public stats(observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public stats(observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
     public stats(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
@@ -280,7 +279,7 @@ export class MiscService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Array<Statistics>>('get',`${this.basePath}/stats`,
+        return this.httpClient.request<any>('get',`${this.basePath}/stats`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

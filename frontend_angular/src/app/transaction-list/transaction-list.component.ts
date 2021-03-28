@@ -7,7 +7,7 @@ import {map} from 'rxjs/operators';
 import {IconDefinition} from '@fortawesome/free-solid-svg-icons';
 import {AbstractTransaction} from '../api/model/abstractTransaction';
 import {AppConstantsService} from '../app-constants.service';
-
+import {faClock} from '@fortawesome/free-solid-svg-icons';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -21,6 +21,7 @@ class Action {
   buttonText: string;
   buttonIcon: IconDefinition;
   class: string;
+  condition: any;
 }
 
 @Component({
@@ -34,6 +35,8 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   @Input() refresh: EventEmitter<{ action: string }>;
 
   @Input() actions: Array<Action>;
+
+  faClock = faClock;
 
   result$: Observable<TransactionListResult>;
   paymentMethods: Array<PaymentMethod>;

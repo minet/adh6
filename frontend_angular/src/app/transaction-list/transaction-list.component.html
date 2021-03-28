@@ -28,8 +28,10 @@
   <tr
     *ngFor="let transactionResult of result.transactions | paginate: { id: 'paginationControlsTemplate',
     itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
-    [ngClass]="asAccount ? ((transactionResult.dst.id==this.asAccount)?'table-success':'table-danger') : ''">
+    [ngClass]="{'table-success' : asAccount && transactionResult.dst.id==this.asAccount, 'table-danger' : asAccount && transactionResult.dst.id!=this.asAccount,
+    'text-muted': transactionResult.pendingValidation}">
     <td class="text-center align-middle" tooltip="{{ transactionResult.timestamp | date:'dd/MM/yyy HH:mm' }}">
+      <fa-icon *ngIf="transactionResult.pendingValidation" [icon]="faClock"></fa-icon>
       <h6 class="mb-0">{{ transactionResult.timestamp | date:"dd/MM" }}</h6>
       <small>{{ transactionResult.timestamp | date:"yyy" }}</small>
     </td>
@@ -42,12 +44,14 @@
     <td class="align-middle" tooltip="{{ transactionResult.author?.username }}">{{ transactionResult.paymentMethod.name }}</td>
     <td *ngIf="actions" class="text-right align-middle">
       <div class="btn-group" role="group" aria-label="actions">
+        <div *ngFor="let action of actions">
       <button type="button"
-              *ngFor="let action of actions"
               class="btn {{ action.class }}"
               (click)="onAction.emit({name: action.name, transaction: transactionResult})"
+              *ngIf="action.condition(transactionResult)"
 	      placement="bottom" tooltip="{{action.name}}">
         <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon></button>
+        </div>
       </div>
     </td>
   </tr>
