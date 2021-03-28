@@ -99,7 +99,6 @@ python_integration_test:
 deploy_dev:
   stage: deploy
   script:
-    - cp -r frontend_angular/dist/adh6/* /var/www/
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
     - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
