@@ -1507,6 +1507,31 @@ paths:
       summary: Upload an attachment to a transaction
       tags:
       - transaction
+  /transaction/{transaction_id}/validate:
+    parameters:
+      - description: The unique identifier of the transaction
+        in: path
+        name: transaction_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: validate
+      responses:
+        204:
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Validate a pending transaction
+      tags:
+      - transaction
   /transaction/{transaction_id}:
     parameters:
       - description: The unique identifier of the transaction that needs to be fetched

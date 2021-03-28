@@ -122,6 +122,20 @@ class TransactionSQLRepository(TransactionRepository):
         raise NotImplementedError
 
     @log_call
+    def validate(self, ctx, transaction_id) -> None:
+        s = ctx.get(CTX_SQL_SESSION)
+
+        q = s.query(SQLTransaction)
+        q = q.filter(SQLTransaction.id == transaction_id)
+
+        transaction = q.one_or_none()
+        if transaction is None:
+            raise TransactionNotFoundError(str(transaction_id))
+
+        with track_modifications(ctx, s, transaction):
+            transaction.pending_validation = False
+
+    @log_call
     def delete(self, ctx, object_id) -> None:
         s = ctx.get(CTX_SQL_SESSION)
 

@@ -18,5 +18,8 @@ class TransactionRepository(CRUDRepository):
     def update(self, ctx, object_to_update: AbstractTransaction, override=False) -> object:
         raise NotImplemented
 
+    def validate(self, ctx, transaction_id) -> None:
+        raise NotImplemented
+
     def delete(self, ctx, object_id) -> None:
         raise NotImplemented

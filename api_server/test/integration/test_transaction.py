@@ -178,6 +178,27 @@ def test_transaction_get_all(api_client):
     assert len(t) == 2
 
 
+def test_transaction_validate_pending(api_client, sample_transaction_pending):
+    r = api_client.get(
+        '{}/transaction/{}/validate'.format(base_url, sample_transaction_pending.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+    s = db.get_db().get_session()
+    q = s.query(Transaction)
+    q = q.filter(Transaction.name == sample_transaction_pending.name)
+    sw = q.one()
+    assert sw.pending_validation == False, "Transaction was not actually validated"
+
+
+def test_device_validate_nonpending(api_client, sample_transaction):
+    r = api_client.get(
+        '{}/transaction/{}/validate'.format(base_url, sample_transaction.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
 def test_transaction_delete_pending(api_client, sample_transaction_pending):
     r = api_client.delete(
         '{}/transaction/{}'.format(base_url, sample_transaction_pending.id),

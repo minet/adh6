@@ -8,7 +8,7 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
@@ -74,8 +74,22 @@ class TransactionManager(CRUDManager):
 
     @log_call
     @auto_raise
+    def validate(self, ctx, transaction_id=None, **kwargs):
+        transaction: AbstractTransaction = self.get_by_id(ctx, transaction_id=transaction_id)
+        if not transaction.pending_validation:
+            raise ValidationError("you are trying to validate a transaction that is already validated")
+
+        @uses_security("update", is_collection=False)
+        def _validate(cls, ctx, transaction_id):
+            self.transaction_repository.validate(ctx, transaction_id)
+
+        return _validate(self, ctx, transaction_id)
+
+    @log_call
+    @auto_raise
     def delete(self, ctx, transaction_id=None, **kwargs):
         transaction: AbstractTransaction = self.get_by_id(ctx, transaction_id=transaction_id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to delete a transaction that is already validated")
+
         return super().delete(ctx, transaction_id=transaction_id)
