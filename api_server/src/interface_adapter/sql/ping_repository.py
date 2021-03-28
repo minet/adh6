@@ -12,11 +12,11 @@ class PingSQLRepository(PingRepository):
 
         s = ctx.get(CTX_SQL_SESSION)
         try:
-            result = s.execute('SELECT 42').fetchall()
+            result = s.execute('SELECT 42 AS result').fetchall()
             if 1 != len(result):
                 return False
 
-            return [('42', 42)] == result[0].items()
+            return [(42,)] == result
 
         except SQLAlchemyError:
             return False
