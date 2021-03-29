@@ -53,8 +53,6 @@ class TransactionManager(CRUDManager):
             roles = ctx.get(CTX_ROLES)
             if Roles.ADH6_TRESO.value not in roles:
                 obj.pending_validation = True
-            else:
-                obj.pending_validation = False
         _force_invalid(self, ctx, abstract_transaction)
 
         transaction, created = super().update_or_create(ctx, abstract_transaction, transaction_id=transaction_id)

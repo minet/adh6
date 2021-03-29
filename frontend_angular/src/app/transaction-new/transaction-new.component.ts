@@ -8,7 +8,7 @@ import {Account, AccountService, PaymentMethod, Transaction, TransactionService}
 
 import {SearchPage} from '../search-page';
 import {NotificationsService} from 'angular2-notifications';
-import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock} from '@fortawesome/free-solid-svg-icons';
 import {ActivatedRoute} from '@angular/router';
 import {AppConstantsService} from '../app-constants.service';
 
@@ -29,6 +29,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   displayDst = false;
   reverting = false;
   faExchangeAlt = faExchangeAlt;
+  faClock = faClock;
   actions = [
     {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp, condition: (transaction) => !transaction.pendingValidation},
     {name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faUndo, condition: (transaction) => !transaction.pendingValidation},
@@ -151,7 +152,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       srcAccount: [''],
       dstAccount: [''],
       paymentMethod: ['', Validators.required],
-      caisse: 'direct',
+      caisse: ['direct'],
+      pending_validation: [false],
     });
   }
 
@@ -182,7 +184,8 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       src: this.selectedSrcAccount.id,
       paymentMethod: +v.paymentMethod,
       value: +v.value,
-      cashbox: v.caisse
+      cashbox: v.caisse,
+      pendingValidation: v.pending_validation
     };
     if (!varTransaction.cashbox) {
       varTransaction.cashbox = 'direct';

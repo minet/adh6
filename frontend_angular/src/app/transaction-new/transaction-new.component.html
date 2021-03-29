@@ -89,7 +89,14 @@
         </button>
       </div>
       <div class="card-body">
-        <div class="form-group mb-3">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button type="button" class="btn btn-outline-secondary"
+                    tooltip="À valider"
+                    formControlName="pending_validation" btnCheckbox>
+              <fa-icon [icon]="faClock"></fa-icon>
+            </button>
+          </div>
           <input type="text" class="form-control" aria-label="Description" placeholder="Description"
                  formControlName="name">
         </div>

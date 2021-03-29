@@ -1989,7 +1989,6 @@ components:
           description: Whether this transaction is awaiting confirmation from a member with higher privileges
           example: true
           type: boolean
-          readOnly: true
         cashbox:
           description: Whether to use the cashbox or not
           enum:
