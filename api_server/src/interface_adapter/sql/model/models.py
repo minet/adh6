@@ -108,30 +108,6 @@ class Adherent(Base, RubyHashTrackable):
         return self
 
 
-class Caisse(Base, RubyHashTrackable):
-    __tablename__ = 'caisse'
-
-    id = Column(Integer, primary_key=True)
-    fond = Column(Numeric(10, 2))
-    coffre = Column(Numeric(10, 2))
-    date = Column(DateTime)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    linked_transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
-
-    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
-        """
-        Override this method to add the prefix.
-        """
-
-        modif = rubydiff(snap_before, snap_after)
-        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
-        return modif
-
-    def get_related_member(self):
-        return self
-
-
 class Inscription(Base):
     __tablename__ = 'inscriptions'
 
@@ -338,6 +314,31 @@ class Transaction(Base, RubyHashTrackable):
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
     payment_method = relationship('PaymentMethod')
+
+    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
+        """
+        Override this method to add the prefix.
+        """
+
+        modif = rubydiff(snap_before, snap_after)
+        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        return modif
+
+    def get_related_member(self):
+        return self
+
+
+class Caisse(Base, RubyHashTrackable):
+    __tablename__ = 'caisse'
+
+    id = Column(Integer, primary_key=True)
+    fond = Column(Numeric(10, 2))
+    coffre = Column(Numeric(10, 2))
+    date = Column(DateTime)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+    linked_transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
+    transaction = relationship(Transaction)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """

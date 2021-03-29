@@ -35,7 +35,7 @@
             </tbody>
           </table>
           <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value != 'direct'">
-            Vous avez déclaré {{transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
+            Vous avez déclaré {{ transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
             dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }}, assurez-vous de bien le faire effectivement !
           </div>
           <button type="button" class="btn btn-primary w-100" (click)="onSubmit(); transactionModal.hide()">Valider
@@ -73,9 +73,9 @@
           </div>
           <hr>
           <div *ngIf="selectedSrcAccount != undefined">
-            <p><span class="font-weight-bold">Actif :</span> {{ selectedSrcAccount.actif}}</p>
+            <p><span class="font-weight-bold">Actif :</span> {{ selectedSrcAccount.actif }}</p>
             <p><span class="font-weight-bold">
-              Solde :</span> {{ selectedSrcAccount.balance}}</p>
+              Solde :</span> {{ selectedSrcAccount.balance }}</p>
           </div>
         </div>
       </div>
@@ -107,6 +107,9 @@
                    tabindex="1" role="button">Sans caisse</label>
             <label btnRadio="from" class="btn btn-primary"
                    tabindex="2" role="button">Sortir caisse</label>
+          </div>
+          <div class="alert alert-warning" *ngIf="reverting">
+            <small>Attention à bien inverser l'opération dans la caisse en cas d'annulation d'une transaction liquide passée !</small>
           </div>
         </div>
         <div class="input-group input-group-lg">
@@ -141,9 +144,9 @@
           </div>
           <hr>
           <div *ngIf="selectedDstAccount != undefined">
-            <p><span class="font-weight-bold">Actif :</span> {{ selectedDstAccount.actif}}</p>
+            <p><span class="font-weight-bold">Actif :</span> {{ selectedDstAccount.actif }}</p>
             <p><span class="font-weight-bold">
-              Solde :</span> {{ selectedDstAccount.balance}}</p>
+              Solde :</span> {{ selectedDstAccount.balance }}</p>
           </div>
         </div>
       </div>

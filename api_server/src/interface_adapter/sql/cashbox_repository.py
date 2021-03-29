@@ -32,7 +32,7 @@ class CashboxSQLRepository(CashboxRepository):
             date=now,
             created_at=now,
             updated_at=now,
-            transaction=transaction
+            linked_transaction=transaction.id if transaction is not None else None
         )
 
         with track_modifications(ctx, s, cashbox_update):

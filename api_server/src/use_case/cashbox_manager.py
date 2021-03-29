@@ -10,7 +10,8 @@ from src.util.log import LOG
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN
+        "read": Roles.ADH6_ADMIN,
+        "update": Roles.ADH6_ADMIN | Roles.ADH6_TRESO
     },
     collection={
         "read": Roles.ADH6_ADMIN

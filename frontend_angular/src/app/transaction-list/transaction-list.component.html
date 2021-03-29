@@ -46,7 +46,7 @@
       <div class="btn-group" role="group" aria-label="actions">
         <div *ngFor="let action of actions">
       <button type="button"
-              class="btn {{ action.class }}"
+              class="btn btn-sm ml-1 {{ action.class }}"
               (click)="onAction.emit({name: action.name, transaction: transactionResult})"
               *ngIf="action.condition(transactionResult)"
 	      placement="bottom" tooltip="{{action.name}}">

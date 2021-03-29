@@ -8,7 +8,7 @@ import {Account, AccountService, PaymentMethod, Transaction, TransactionService}
 
 import {SearchPage} from '../search-page';
 import {NotificationsService} from 'angular2-notifications';
-import {faArrowUp, faExchangeAlt, faUndo, faCheck} from '@fortawesome/free-solid-svg-icons';
+import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {ActivatedRoute} from '@angular/router';
 import {AppConstantsService} from '../app-constants.service';
 
@@ -27,11 +27,13 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   transactionDetails: FormGroup;
   displaySrc = false;
   displayDst = false;
+  reverting = false;
   faExchangeAlt = faExchangeAlt;
   actions = [
     {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp, condition: (transaction) => !transaction.pendingValidation},
     {name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faUndo, condition: (transaction) => !transaction.pendingValidation},
-    {name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'btn-success', buttonIcon: faCheck, condition: (transaction) => transaction.pendingValidation}
+    {name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'btn-success', buttonIcon: faCheck, condition: (transaction) => transaction.pendingValidation},
+    {name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'btn-danger', buttonIcon: faTrash, condition: (transaction) => transaction.pendingValidation}
   ];
   paymentMethods: Array<PaymentMethod>;
   srcSearchResult$: Observable<Array<Account>>;
@@ -59,11 +61,21 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
           this._service.success('Ok!', 'Transaction validée avec succès !');
           this.refreshTransactions.next({action: 'refresh'});
         });
+    } else if (event.name === 'delete') {
+      this.transactionService.transactionTransactionIdDelete(event.transaction.id)
+        .pipe(takeWhile(() => this.alive))
+        .subscribe((res) => {
+          this._service.success('Ok!', 'Transaction supprimée avec succès !');
+          this.refreshTransactions.next({action: 'refresh'});
+        });
     }
     this.transactionDetails.reset();
     let source = true;
     if (event.name === 'revert') {
       source = false;
+      this.reverting = true;
+    } else {
+      this.reverting = false;
     }
     this.setSelectedAccount(event.transaction.src, source);
     this.setSelectedAccount(event.transaction.dst, !source);
