@@ -84,3 +84,5 @@ services:
       MYSQL_PASSWORD: "adh6_pass" # Please change this password on prod'.
     expose:
       - "3306"
+    ports:
+      - "3306:3306"
