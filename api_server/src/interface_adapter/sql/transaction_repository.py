@@ -15,7 +15,6 @@ from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, Adm
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.model.models import Admin as SQLAdmin
 from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Account, PaymentMethod, Adherent
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
@@ -74,10 +73,8 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_id = ctx.get(CTX_ADMIN).id
-        author_ref = s.query(Adherent).join(SQLAdmin) \
-            .filter(Adherent.id == admin_id) \
-            .filter(Adherent.admin is not None).one_or_none()
+        member_id = ctx.get(CTX_ADMIN).id
+        author_ref = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if not author_ref:
             raise AdminNotFoundError(abstract_transaction.author)
 

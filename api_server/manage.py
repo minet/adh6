@@ -7,7 +7,7 @@ from faker import Faker
 
 from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.model.models import Adherent, AccountType, PaymentMethod, Vlan, Switch, Port, Chambre, \
-    Admin, Caisse, Account, Device
+    Caisse, Account, Device
 
 application, migrate = init(testing=False, managing=True)
 
@@ -112,11 +112,6 @@ def fake(login):
             chambre=chambres[n - 1]
         ))
 
-    admin = Admin(
-        roles="adh6_user,adh6_admin,adh6_treso,adh6_superadmin"
-    )
-    s.add(admin)
-
     adherent = Adherent(
         nom=fake.last_name_nonbinary(),
         prenom=fake.first_name_nonbinary(),
@@ -124,7 +119,7 @@ def fake(login):
         login=login,
         password="",
         chambre=chambres[2],
-        admin=admin
+        roles="adh6_user,adh6_admin,adh6_treso,adh6_superadmin"
     )
     s.add(adherent)
     s.add(

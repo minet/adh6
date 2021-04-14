@@ -31,40 +31,40 @@ class InlineResponse200(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'admin': 'Admin'
+        'member': 'Member'
     }
 
     attribute_map = {
-        'admin': 'admin'
+        'member': 'member'
     }
 
-    def __init__(self, admin=None):  # noqa: E501
+    def __init__(self, member=None):  # noqa: E501
         """InlineResponse200 - a model defined in Swagger"""  # noqa: E501
-        self._admin = None
+        self._member = None
         self.discriminator = None
-        if admin is not None:
-            self.admin = admin
+        if member is not None:
+            self.member = member
 
     @property
-    def admin(self):
-        """Gets the admin of this InlineResponse200.  # noqa: E501
+    def member(self):
+        """Gets the member of this InlineResponse200.  # noqa: E501
 
 
-        :return: The admin of this InlineResponse200.  # noqa: E501
-        :rtype: Admin
+        :return: The member of this InlineResponse200.  # noqa: E501
+        :rtype: Member
         """
-        return self._admin
+        return self._member
 
-    @admin.setter
-    def admin(self, admin):
-        """Sets the admin of this InlineResponse200.
+    @member.setter
+    def member(self, member):
+        """Sets the member of this InlineResponse200.
 
 
-        :param admin: The admin of this InlineResponse200.  # noqa: E501
-        :type: Admin
+        :param member: The member of this InlineResponse200.  # noqa: E501
+        :type: Member
         """
 
-        self._admin = admin
+        self._member = member
 
     def to_dict(self):
         """Returns the model properties as a dict"""

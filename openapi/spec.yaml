@@ -56,17 +56,17 @@ paths:
     get:
       summary: Introspection endpoint
       description: >
-        This endpoint returns information about the currently logged-in user, such as their roles.
+        This endpoint returns information about the currently logged-in user
       operationId: profile
       responses:
         200:
-          description: The statistics of ADH6
+          description: The current member
           content:
             application/json:
               schema:
                 properties:
-                  admin:
-                    $ref: '#/components/schemas/Admin'
+                  member:
+                    $ref: '#/components/schemas/Member'
         403:
           $ref: '#/components/responses/Unauthorized'
         default:
@@ -2112,28 +2112,6 @@ components:
             - mac
             - member
       type: object
-    Admin:
-      type: object
-      required:
-        - login
-        - roles
-      properties:
-        login:
-          description: The login of this administrator
-          example: PowerfulPotato
-          type: string
-        member:
-          description: The member associated with this admin
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
-          example: 4
-        roles:
-          description: The list of roles of this administrator
-          example: [ "adh6_user", "adh6_admin" ]
-          type: array
-          items:
-            type: string
     AbstractMember:
       type: object
       properties:
@@ -2191,6 +2169,12 @@ components:
           example: 10.42.8.240/28
           nullable: true
           type: string
+        roles:
+          description: The list of roles for this member
+          example: [ "adh6_user", "adh6_admin" ]
+          type: array
+          items:
+            type: string
     Member:
       allOf:
         - $ref: '#/components/schemas/AbstractMember'

@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from datetime import datetime
 
 from src.constants import CTX_ADMIN
-from src.interface_adapter.sql.model.models import Modification, Admin, Adherent
+from src.interface_adapter.sql.model.models import Modification, Adherent
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 
 

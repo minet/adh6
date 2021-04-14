@@ -53,13 +53,6 @@ class Chambre(Base, RubyHashTrackable):
         return self
 
 
-class Admin(Base):
-    __tablename__ = 'admins'
-
-    id = Column(Integer, primary_key=True)
-    roles = Column(String(255))
-
-
 class Adherent(Base, RubyHashTrackable):
     __tablename__ = 'adherents'
 
@@ -84,9 +77,8 @@ class Adherent(Base, RubyHashTrackable):
     ip = Column(String(255))
     ldap_login = Column(String(255))
 
-    admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
+    roles = Column(String(255))
 
-    admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])
 
     def take_snapshot(self) -> dict:

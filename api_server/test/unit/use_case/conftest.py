@@ -5,7 +5,6 @@ from pytest import fixture
 
 from src.entity import AccountType
 from src.entity.account import Account
-from src.entity.admin import Admin
 from src.entity.device import Device
 from src.entity.member import Member
 from src.entity.payment_method import PaymentMethod
@@ -19,13 +18,16 @@ from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import build_context
 
+
 def pytest_configure(config):
     import sys
     sys._called_from_unit_test = True
 
+
 def pytest_unconfigure(config):
     import sys  # This was missing from the manual
     del sys._called_from_unit_test
+
 
 @fixture
 def ctx(sample_member):
@@ -33,14 +35,6 @@ def ctx(sample_member):
         admin=sample_member,
         testing=True,
         roles=[Roles.ADH6_USER, Roles.ADH6_ADMIN, Roles.ADH6_SUPER_ADMIN, Roles.ADH6_TRESO]
-    )
-
-
-@fixture
-def sample_admin():
-    return Admin(
-        login=TESTING_CLIENT,
-        roles=[]
     )
 
 
@@ -56,6 +50,7 @@ def sample_member(faker, sample_room):
         comment=faker.sentence,
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
         room=sample_room,
+        roles="adh6_user"
     )
 
 
@@ -133,7 +128,7 @@ def sample_account_type(faker):
 
 
 @fixture
-def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
+def sample_transaction(faker, sample_member, sample_account1, sample_account2):
     return Transaction(
         id=faker.random_digit_not_null,
         src=sample_account1,
@@ -143,12 +138,12 @@ def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
         attachments='',
         timestamp=faker.date_this_year,
         payment_method=sample_payment_method,
-        author=sample_admin
+        author=sample_member
     )
 
 
 @fixture
-def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2):
+def sample_transaction_pending(faker, sample_member, sample_account1, sample_account2):
     return Transaction(
         id=faker.random_digit_not_null,
         src=sample_account1,
@@ -158,7 +153,7 @@ def sample_transaction_pending(faker, sample_admin, sample_account1, sample_acco
         attachments='',
         timestamp=faker.date_this_year,
         payment_method=sample_payment_method,
-        author=sample_admin,
+        author=sample_member,
         pending_validation=True
     )
 

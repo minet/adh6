@@ -1,17 +1,19 @@
+import operator
 import sys
 from functools import wraps
+from typing import List
 
 import connexion
 from flask import current_app
 
 from src.constants import CTX_SQL_SESSION
-from src.entity import Admin
+from src.entity.decorator.entity_property import entity_property
 from src.entity.roles import Roles
-from src.entity.util.logic import Expression
+from src.entity.util.logic import Expression, NestedPropertyExpression, BinaryExpression, TrueExpression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, AdminNotFoundError, UnauthorizedError
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.model.models import Admin as AdminSQL, Adherent
+from src.interface_adapter.sql.model.models import Adherent
 from src.util.context import log_extra, build_context
 from src.util.log import LOG
 
@@ -34,25 +36,21 @@ def _find_admin(s, username):
         adherent = q.one_or_none()
 
         if adherent is not None:
-            roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
+            roles = [Roles.ADH6_USER.value] if adherent.roles is None else adherent.roles.split(",")
             return _map_member_sql_to_entity(adherent), roles
         else:
             raise AdminNotFoundError(username)
 
     except AdminNotFoundError:
         if current_app.config['TESTING']:
-            new_admin = AdminSQL(
-                roles="adh6_user,adh6_admin"
-            )
             new_adherent = Adherent(
                 login=TESTING_CLIENT,
                 mail="test@example.com",
                 nom="Test",
                 prenom="test",
                 password="",
-                admin=new_admin
+                roles="adh6_user,adh6_admin"
             )
-            s.add(new_admin)
             s.add(new_adherent)
 
             return _find_admin(s, username)
@@ -108,9 +106,12 @@ def uses_security(action, is_collection=False):
                 obj = kwargs["filter_"] if "filter_" in kwargs else None
                 arguments = {}
                 arguments = merge_obj_to_dict(arguments, obj)
-                arguments = merge_obj_to_dict(arguments, Admin(login=user, member=adherent.id, roles=admin_roles))
+                arguments['Owner'] = adherent
+                # Let's keep the roles separated from the Owner, in case we want to fetch them from somewhere other
+                # than SQL (LDAP for instance)
                 arguments['Roles'] = admin_roles
 
+                # KEEP THIS LINE, this is safeguard
                 authorized = False
 
                 if is_collection:
@@ -127,3 +128,19 @@ def uses_security(action, is_collection=False):
         return wrapper
 
     return decorator
+
+
+class OwnsExpression(Expression):
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, arguments):
+        the_member = arguments['Owner']
+        return the_member.id
+
+
+def owns(*props: List[property]):
+    expression = TrueExpression()
+    for prop in props:
+        expression &= BinaryExpression(prop, OwnsExpression(), operator=operator.eq)
+    return expression

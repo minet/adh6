@@ -43,7 +43,8 @@ class Member(object):
         'last_name': 'str',
         'room': 'Object',
         'ip': 'str',
-        'subnet': 'str'
+        'subnet': 'str',
+        'roles': 'list[str]'
     }
     if hasattr(AbstractMember, "swagger_types"):
         swagger_types.update(AbstractMember.swagger_types)
@@ -59,12 +60,13 @@ class Member(object):
         'last_name': 'lastName',
         'room': 'room',
         'ip': 'ip',
-        'subnet': 'subnet'
+        'subnet': 'subnet',
+        'roles': 'roles'
     }
     if hasattr(AbstractMember, "attribute_map"):
         attribute_map.update(AbstractMember.attribute_map)
 
-    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None, roles=None, *args, **kwargs):  # noqa: E501
         """Member - a model defined in Swagger"""  # noqa: E501
         AbstractMember.__init__(self, *args, **kwargs)
         self._id = None
@@ -78,6 +80,7 @@ class Member(object):
         self._room = None
         self._ip = None
         self._subnet = None
+        self._roles = None
         self.discriminator = None
         self.id = id
         self.username = username
@@ -96,6 +99,8 @@ class Member(object):
             self.ip = ip
         if subnet is not None:
             self.subnet = subnet
+        if roles is not None:
+            self.roles = roles
 
     @property
     def id(self):
@@ -359,6 +364,29 @@ class Member(object):
         """
 
         self._subnet = subnet
+
+    @property
+    def roles(self):
+        """Gets the roles of this Member.  # noqa: E501
+
+        The list of roles for this member  # noqa: E501
+
+        :return: The roles of this Member.  # noqa: E501
+        :rtype: list[str]
+        """
+        return self._roles
+
+    @roles.setter
+    def roles(self, roles):
+        """Sets the roles of this Member.
+
+        The list of roles for this member  # noqa: E501
+
+        :param roles: The roles of this Member.  # noqa: E501
+        :type: list[str]
+        """
+
+        self._roles = roles
 
     def to_dict(self):
         """Returns the model properties as a dict"""

@@ -6,7 +6,7 @@ from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
-    Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
+    Adherent, Chambre, Vlan, Device, Switch, Port)
 from test.integration.test_member import prep_db
 
 
@@ -102,21 +102,14 @@ def sample_room2(sample_vlan):
 
 
 @pytest.fixture
-def sample_admin():
-    yield Admin(
-        id=1,
-        roles=""
-    )
-
-@pytest.fixture
-def sample_member_admin(sample_admin):
+def sample_member_admin():
     yield Adherent(
                 login=TESTING_CLIENT,
                 mail="test@example.com",
                 nom="Test",
                 prenom="test",
                 password="",
-                admin=sample_admin
+                roles="adh6_user,adh6_admin"
             )
 
 
@@ -130,6 +123,7 @@ def sample_member1(sample_room1):
         password='a',
         chambre=sample_room1,
         date_de_depart=datetime.datetime(2005, 7, 14, 12, 30).date(),
+        roles="adh6_user"
     )
 
 
@@ -143,6 +137,7 @@ def sample_member2(sample_room1):
         commentaires='Desauthent pour routeur',
         password='a',
         chambre=sample_room1,
+        roles="adh6_user"
     )
 
 
@@ -157,6 +152,7 @@ def sample_member3(sample_room1):
         password='b',
         chambre=sample_room1,
         date_de_depart=datetime.datetime(2105, 7, 14, 12, 30).date(),
+        roles="adh6_user"
     )
 
 
@@ -170,6 +166,7 @@ def sample_member13(sample_room2):
         login='dupond_r',
         commentaires='a',
         password='a',
+        roles="adh6_user"
     )
 
 

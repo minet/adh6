@@ -1,13 +1,13 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice, Device, Member, Admin
+from src.entity import AbstractDevice, Device, Member
 from src.entity.roles import Roles
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
     DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, owns
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IPAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
@@ -15,13 +15,13 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": owns(AbstractDevice.member) | owns(Device.member) | Roles.ADH6_ADMIN,
+        "update": owns(Device.member) | owns(AbstractDevice.member) | Roles.ADH6_ADMIN,
+        "delete": owns(Device.member) | owns(AbstractDevice.member) | Roles.ADH6_ADMIN
     },
     collection={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Device.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": owns(AbstractDevice.member) | owns(Device.member) | Roles.ADH6_ADMIN,
+        "create": owns(Device.member) | Roles.ADH6_ADMIN
     }
 ))
 class DeviceManager(CRUDManager):

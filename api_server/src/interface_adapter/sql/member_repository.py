@@ -206,4 +206,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         ip=adh.ip,
         subnet=adh.subnet,
         room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),
+        roles=[] if adh.roles is None else adh.roles.split(",")
     )

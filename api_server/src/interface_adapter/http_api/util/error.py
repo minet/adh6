@@ -18,6 +18,8 @@ def _error(code, message):
 def handle_error(ctx, e: Exception):
     if isinstance(e, ValidationError):
         return _error(400, str(e)), 400
+    if isinstance(e, ValueError):
+        return _error(400, str(e)), 400
     elif isinstance(e, NotFoundError):
         return _error(404, str(e)), 404
     elif isinstance(e, UnauthenticatedError):

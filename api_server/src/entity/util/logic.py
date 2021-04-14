@@ -72,3 +72,14 @@ class BinaryExpression(Expression):
 
     def __repr__(self):
         return "(" + str(self._terms[0]) + str(self._operator) + str(self._terms[1]) + ")"
+
+
+class TrueExpression(Expression):
+    def __init__(self):
+        super().__init__()
+
+    def _operate(self, *values):
+        return True
+
+    def __repr__(self):
+        return "(true)"

@@ -41,7 +41,8 @@ class AbstractMember(object):
         'last_name': 'str',
         'room': 'OneOfAbstractMemberRoom',
         'ip': 'str',
-        'subnet': 'str'
+        'subnet': 'str',
+        'roles': 'list[str]'
     }
 
     attribute_map = {
@@ -55,10 +56,11 @@ class AbstractMember(object):
         'last_name': 'lastName',
         'room': 'room',
         'ip': 'ip',
-        'subnet': 'subnet'
+        'subnet': 'subnet',
+        'roles': 'roles'
     }
 
-    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None):  # noqa: E501
+    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None, roles=None):  # noqa: E501
         """AbstractMember - a model defined in Swagger"""  # noqa: E501
         self._id = None
         self._username = None
@@ -71,6 +73,7 @@ class AbstractMember(object):
         self._room = None
         self._ip = None
         self._subnet = None
+        self._roles = None
         self.discriminator = None
         if id is not None:
             self.id = id
@@ -94,6 +97,8 @@ class AbstractMember(object):
             self.ip = ip
         if subnet is not None:
             self.subnet = subnet
+        if roles is not None:
+            self.roles = roles
 
     @property
     def id(self):
@@ -347,6 +352,29 @@ class AbstractMember(object):
         """
 
         self._subnet = subnet
+
+    @property
+    def roles(self):
+        """Gets the roles of this AbstractMember.  # noqa: E501
+
+        The list of roles for this member  # noqa: E501
+
+        :return: The roles of this AbstractMember.  # noqa: E501
+        :rtype: list[str]
+        """
+        return self._roles
+
+    @roles.setter
+    def roles(self, roles):
+        """Sets the roles of this AbstractMember.
+
+        The list of roles for this member  # noqa: E501
+
+        :param roles: The roles of this AbstractMember.  # noqa: E501
+        :type: list[str]
+        """
+
+        self._roles = roles
 
     def to_dict(self):
         """Returns the model properties as a dict"""

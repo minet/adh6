@@ -4,14 +4,14 @@ import datetime
 from typing import List
 
 from src.constants import CTX_ADMIN, CTX_ROLES
-from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin
+from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member
 from src.entity.roles import Roles
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security, owns
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
@@ -25,13 +25,13 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "read": owns(Member.id) | Roles.ADH6_ADMIN,
         "admin": Roles.ADH6_ADMIN,
         "profile": Roles.ADH6_USER,
-        "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "password": owns(Member.id) | Roles.ADH6_ADMIN
     },
     collection={
-        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "read": owns(Member.id) | Roles.ADH6_ADMIN
     }
 ))
 class MemberManager(CRUDManager):

@@ -18,11 +18,7 @@ class ProfileHandler:
     @log_call
     def profile(self, ctx):
         try:
-            admin, roles = self.member_manager.get_profile(ctx)
-            return {'admin': {
-                'login': admin.username,
-                'member': serialize_response(admin),
-                'roles': roles
-            }}, 200
+            member, roles = self.member_manager.get_profile(ctx)
+            return {'member': serialize_response(member)}, 200
         except Exception as e:
             return handle_error(ctx, e)
