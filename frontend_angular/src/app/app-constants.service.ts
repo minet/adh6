@@ -35,9 +35,9 @@ export class AppConstantsService {
     } else {
       this.currentMemberObservable = this.miscService.profile().pipe(
         map(profile => {
-          const roles = profile.admin.roles;
+          const roles = profile.member.roles;
           localStorage.setItem('roles', roles.join(','));
-          localStorage.setItem('admin_member', JSON.stringify(profile.admin.member as Member));
+          localStorage.setItem('admin_member', JSON.stringify(profile.member as Member));
 
           const { can, rules } = new AbilityBuilder();
 
@@ -50,10 +50,14 @@ export class AppConstantsService {
           if (roles.indexOf('adh6_treso') !== -1) {
             can('manage', 'treasury');
             can('manage', 'Transaction');
-          }
-          else {
-            can('read', 'Member', { id: (profile.admin.member as Member).id });
-            can('manage', 'Device', { member: (profile.admin.member as Member).id });
+          } else {
+            can('read', 'Member', { id: (profile.member as Member).id });
+
+            // Device
+            can('create', 'Device', { member: (profile.member as Member).id });
+            can('read', 'Device', { member: (profile.member as Member).id });
+            can('update', 'Device', { member: (profile.member as Member).id });
+            can('delete', 'Device', { member: (profile.member as Member).id });
           }
 
           // @ts-ignore

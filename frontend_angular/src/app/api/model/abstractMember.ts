@@ -57,4 +57,8 @@ export interface AbstractMember {
      * The private ipv4 network assigned to this member
      */
     subnet?: string;
+    /**
+     * The list of roles for this member
+     */
+    roles?: Array<string>;
 }

@@ -9,9 +9,9 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Admin } from './admin';
+import { Member } from './member';
 
 export interface InlineResponse200 { 
     __typename?: string;
-    admin?: Admin;
+    member?: Member;
 }
