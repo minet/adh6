@@ -58,13 +58,6 @@ greenlet==1.0.0
     # via sqlalchemy
 idna==2.10
     # via requests
-importlib-metadata==3.9.0
-    # via
-    #   jsonschema
-    #   pep517
-    #   pluggy
-    #   pytest
-    #   sqlalchemy
 inflection==0.5.1
     # via connexion
 iniconfig==1.1.1
@@ -175,9 +168,7 @@ toml==0.10.2
     # via
     #   pep517
     #   pytest
-typing-extensions==3.7.4.3
-    # via importlib-metadata
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   elasticsearch
     #   requests
@@ -185,10 +176,6 @@ uwsgi==2.0.19.1
     # via -r requirements.in
 werkzeug==1.0.1
     # via flask
-zipp==3.4.1
-    # via
-    #   importlib-metadata
-    #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
