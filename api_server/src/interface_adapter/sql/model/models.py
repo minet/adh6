@@ -86,6 +86,11 @@ class Adherent(Base, RubyHashTrackable):
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
+    signedminet = Column(Boolean, nullable=False)
+    datesignedminet = Column(DateTime, nullable=True)
+    signedhosting = Column(Boolean, nullable=False)
+    datesignedhosting = Column(DateTime, nullable=True)
+
     admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])
 
