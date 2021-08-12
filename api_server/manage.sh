@@ -4,5 +4,5 @@ source ../.env.local
 cat config/CONFIGURATION.template.py | envsubst > config/CONFIGURATION.py
 set +a
 
-python3.7 manage.py $@
+python manage.py $@
 git checkout config/CONFIGURATION.py
