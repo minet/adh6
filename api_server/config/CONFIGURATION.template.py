@@ -74,12 +74,12 @@ PRICES = {
     3 * 31: 27,
     4 * 31: 36,
     5 * 31: 45,
-    360: 50,
+    365: 50,
 }
 
 DURATION_STRING = {
     1: '1 jour',
-    360: '1 an',
+    365: '1 an',
 }
 
 # IPs and ports for Elasticsearch nodes

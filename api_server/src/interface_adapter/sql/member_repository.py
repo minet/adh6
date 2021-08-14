@@ -138,7 +138,8 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         with track_modifications(ctx, s, adherent):
             adherent.password = hashed_password
 
-    def create_membership(self, ctx, username, start: datetime, end: datetime) -> None:
+    @log_call
+    def create_membership(self, ctx, member_id: int, start: datetime, duration: int) -> None:
         """
         Add a membership record.
 

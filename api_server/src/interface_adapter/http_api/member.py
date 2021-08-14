@@ -5,13 +5,13 @@ Contain all the http http_api functions.
 
 from connexion import NoContent
 
-from src.entity import AbstractMember, Member
-from src.exceptions import MemberNotFoundError, UserInputError
+from src.entity import AbstractMember, Member, Membership
+from src.exceptions import ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler, _error
 from src.interface_adapter.http_api.util.error import bad_request, handle_error
-from src.interface_adapter.http_api.util.serializer import serialize_response
+from src.interface_adapter.http_api.util.serializer import serialize_response, deserialize_request
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
 from src.util.context import log_extra
@@ -26,13 +26,15 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_post(self, ctx, username, body):
+    def membership_post(self, ctx, member_id: int, body):
         """ Add a membership record in the database """
-        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, username=username, request=body))
+        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, member_id=member_id, request=body))
 
         try:
-            self.member_manager.new_membership(ctx, username, body.get('duration'), body.get('payment_method'),
-                                               start_str=body.get('start'))
+            body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
+            to_create: Membership = deserialize_request(body, Membership)
+
+            self.member_manager.new_membership(ctx, member_id, to_create.duration, to_create.payment_method)
             return NoContent, 200  # 200 OK
         except Exception as e:
             return handle_error(e)

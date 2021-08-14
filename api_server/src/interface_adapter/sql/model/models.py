@@ -1,13 +1,12 @@
 # coding: utf-8
-import enum
-import uuid
-
 from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean
 from sqlalchemy import Date, DateTime, Integer, \
     Numeric, Text, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import CHAR, Enum
+
+from src.constants import MembershipStatus, MembershipDuration
 
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 from src.interface_adapter.sql.util.rubydiff import rubydiff
@@ -383,29 +382,6 @@ class MailTemplates(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-
-class MembershipStatus(enum.Enum):
-    INITIAL = "INITIAL"
-    PENDING_RULES = "PENDING_RULES"
-    PENDING_PAYMENT_INITIAL = "PENDING_PAYMENT_INITIAL"
-    PENDING_PAYMENT = "PENDING_PAYMENT"
-    PENDING_PAYMENT_VALIDATION = "PENDING_PAYMENT_VALIDATION"
-    COMPLETE = "COMPLETE"
-    CANCELLED = "CANCELLED"
-    ABORTED = "ABORTED"
-
-
-class MembershipDuration(enum.IntEnum):
-    NONE = 0
-    ONE_MONTH = 30
-    TWO_MONTH = 60
-    THREE_MONTH = 90
-    FOUR_MONTH = 120
-    FIVE_MONTH = 150
-    SIX_MONTH = 180
-    ONE_YEAR = 365
-
-
 class Membership(Base):
     __tablename__ = "membership"
 
@@ -416,7 +392,7 @@ class Membership(Base):
     first_time = Column(Boolean, default=False, nullable=False)
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
     payment_method_id = Column(Integer, ForeignKey(PaymentMethod.id), nullable=True)
-    products_id = Column(String(255), nullable=True)
+    products = Column(String(255), nullable=True)
     status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
     update_at = Column(DateTime)
 

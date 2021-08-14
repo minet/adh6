@@ -1,10 +1,10 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 import datetime
-from typing import List
+from typing import List, Union
 
 from src.constants import CTX_ADMIN, CTX_ROLES
-from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin
+from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod
 from src.entity.roles import Roles
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, UnauthorizedError
@@ -59,16 +59,15 @@ class MemberManager(CRUDManager):
 
         return admin, roles
 
-    def new_membership(self, ctx, username, duration, payment_method, start_str=None) -> None:
+    def new_membership(self, ctx, member_id: int, duration: int, payment_method: Union[int, PaymentMethod]) -> None:
         """
         Core use case of ADH. Registers a membership.
 
         User story: As an admin, I can create a new membership record, so that a member can have internet access.
         :param payment_method:
         :param ctx: context
-        :param username: username
+        :param member_id: member_id
         :param duration: duration of the membership in days
-        :param start_str: optional start date of the membership
 
         :raise IntMustBePositiveException
         :raise NoPriceAssignedToThatDurationException
@@ -76,9 +75,6 @@ class MemberManager(CRUDManager):
         :raise InvalidAdmin
         :raise UnknownPaymentMethod
         """
-        if start_str is None:
-            return self.new_membership(ctx, username, duration, payment_method,
-                                       start_str=datetime.datetime.now().isoformat())
 
         if duration < 0:
             raise IntMustBePositive('duration')
@@ -87,8 +83,7 @@ class MemberManager(CRUDManager):
             LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=duration))
             raise NoPriceAssignedToThatDuration(duration)
 
-        start = string_to_date(start_str)
-        end = start + datetime.timedelta(days=duration)
+        start = datetime.datetime.now().isoformat()
 
         # TODO check price.
         try:
@@ -98,7 +93,7 @@ class MemberManager(CRUDManager):
             title = f'Internet - {duration_str}'
 
             self.money_repository.add_member_payment_record(ctx, price_in_cents, title, username, payment_method)
-            self.membership_repository.create_membership(ctx, username, start, end)
+            self.membership_repository.create_membership(ctx, username, start, duration)
 
         except InvalidAdmin:
             LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
@@ -238,7 +233,7 @@ class MemberManager(CRUDManager):
         return _get_statuses(self, ctx, filter_=member)
 
     @log_call
-    def change_password(self, ctx, member_id, password=None, hashedPassword=None):
+    def change_password(self, ctx, member_id, password=None, hashed_password=None):
         # Check that the user exists in the system.
         member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
         if not member:
@@ -251,7 +246,7 @@ class MemberManager(CRUDManager):
             from binascii import hexlify
             import hashlib
 
-            pw = hashedPassword or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
+            pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
             self.member_repository.update_password(ctx, member_id, pw)
 
