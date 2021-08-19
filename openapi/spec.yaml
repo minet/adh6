@@ -997,6 +997,34 @@ paths:
       summary: Update the state of MAB on a port
       tags:
       - port
+  /port/{port_id}/alias/:
+    parameters:
+      - in: path
+        name: port_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: alias_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Whether MAB is enabled on this port
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve whether MAB is enabled on this port
+      tags:
+      - port
   /port/{port_id}/state/:
     parameters:
       - in: path

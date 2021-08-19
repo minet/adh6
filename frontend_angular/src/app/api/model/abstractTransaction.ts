@@ -54,7 +54,7 @@ export interface AbstractTransaction {
     /**
      * Whether this transaction is awaiting confirmation from a member with higher privileges
      */
-    readonly pendingValidation?: boolean;
+    pendingValidation?: boolean;
     /**
      * Whether to use the cashbox or not
      */

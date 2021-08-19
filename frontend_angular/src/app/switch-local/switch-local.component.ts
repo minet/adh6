@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../api';
 import {map, share} from 'rxjs/operators';

@@ -33,7 +33,7 @@ def set_SNMP_value(community, ip, MIB, obj, oid, value):
                CommunityData(community),
                UdpTransportTarget((ip, 161)),
                ContextData(),
-               ObjectType(ObjectIdentity(MIB, obj, oid))
+               ObjectType(ObjectIdentity(MIB, obj, oid), value)
                ))
     if errorIndication:
         raise NetworkManagerReadError("SNMP read error:" + str(errorIndication))

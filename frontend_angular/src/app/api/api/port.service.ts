@@ -64,6 +64,57 @@ export class PortService {
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
+    public aliasGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public aliasGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public aliasGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public aliasGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (portId === null || portId === undefined) {
+            throw new Error('Required parameter portId was null or undefined when calling aliasGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/alias/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve whether MAB is enabled on this port
+     * 
+     * @param portId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
     public mabGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
     public mabGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
     public mabGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
