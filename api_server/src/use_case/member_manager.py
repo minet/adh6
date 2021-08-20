@@ -66,19 +66,19 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("read", is_collection=True)
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership=None) -> (list, int):
+    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership=None) -> (list, int):
         if limit < 0:
             raise IntMustBePositive('limit')
 
         if offset < 0:
             raise IntMustBePositive('offset')
 
-        return self._search(ctx, limit=limit,
+        return self._membership_search(ctx, limit=limit,
                             offset=offset,
                             terms=terms,
                             filter_=filter_)
 
-    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
+    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
         return self.membership_repository.membership_search_by(ctx, limit=limit,
                                          offset=offset,
                                          terms=terms,
@@ -287,25 +287,3 @@ class MemberManager(CRUDManager):
             return True
 
         return _change_password(self, ctx, filter_=member)
-
-    @log_call
-    @auto_raise
-    @uses_security("read", is_collection=False)
-    def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
-        # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
-        if not member:
-            raise MemberNotFoundError(str(member_id))
-
-        return str(self.member_repository.get_charter(ctx, member_id, charter_id))
-
-    @log_call
-    @auto_raise
-    @uses_security("create", is_collection=False)
-    def put_charter(self, ctx, member_id: int, charter_id: int):
-        # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
-        if not member:
-            raise MemberNotFoundError(str(member_id))
-
-        self.member_repository.update_charter(ctx, member_id, charter_id)
