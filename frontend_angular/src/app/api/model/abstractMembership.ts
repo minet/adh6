@@ -58,8 +58,9 @@ export interface AbstractMembership {
     updatedAt?: Date;
 }
 export namespace AbstractMembership {
-    export type DurationEnum = 30 | 60 | 90 | 120 | 150 | 180 | 360;
+    export type DurationEnum = 0 | 30 | 60 | 90 | 120 | 150 | 180 | 360;
     export const DurationEnum = {
+        NUMBER_0: 0 as DurationEnum,
         NUMBER_30: 30 as DurationEnum,
         NUMBER_60: 60 as DurationEnum,
         NUMBER_90: 90 as DurationEnum,

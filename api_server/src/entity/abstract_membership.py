@@ -133,7 +133,7 @@ class AbstractMembership(object):
         :param duration: The duration of this AbstractMembership.  # noqa: E501
         :type: int
         """
-        allowed_values = [30, 60, 90, 120, 150, 180, 360]  # noqa: E501
+        allowed_values = [0, 30, 60, 90, 120, 150, 180, 360]  # noqa: E501
         if duration not in allowed_values:
             raise ValueError(
                 "Invalid value for `duration` ({0}), must be one of {1}"  # noqa: E501

@@ -57,6 +57,85 @@ export class MembershipService {
 
 
     /**
+     * Filter members
+     * 
+     * @param memberId The unique identifier of the member
+     * @param limit Limit the number of results returned
+     * @param offset Skip the first n results
+     * @param terms The generic search terms (will search in any field)
+     * @param filter Filters by various properties
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public memberMemberIdMembershipGet(memberId: number, limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Membership>>;
+    public memberMemberIdMembershipGet(memberId: number, limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Membership>>>;
+    public memberMemberIdMembershipGet(memberId: number, limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Membership>>>;
+    public memberMemberIdMembershipGet(memberId: number, limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipGet.');
+        }
+
+
+
+
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (limit !== undefined && limit !== null) {
+            queryParameters = queryParameters.set('limit', <any>limit);
+        }
+        if (offset !== undefined && offset !== null) {
+            queryParameters = queryParameters.set('offset', <any>offset);
+        }
+        if (terms !== undefined && terms !== null) {
+            queryParameters = queryParameters.set('terms', <any>terms);
+        }
+        if (filter) {
+            for (const key in filter) {
+                if (Object.prototype.hasOwnProperty.call(filter, key)) {
+                  const value = filter[key];
+                  queryParameters = queryParameters.append('filter[' + key + ']', <any>value);
+                }
+            }
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<Array<Membership>>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Add a membership record for a member
      * 
      * @param body The membership to create

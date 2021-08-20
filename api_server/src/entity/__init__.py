@@ -38,7 +38,6 @@ from src.entity.labels import Labels
 from src.entity.member import Member
 from src.entity.member_status import MemberStatus
 from src.entity.membership import Membership
-from src.entity.membership_request import MembershipRequest
 from src.entity.one_of_abstract_account_account_type import OneOfAbstractAccountAccountType
 from src.entity.one_of_abstract_account_member import OneOfAbstractAccountMember
 from src.entity.one_of_abstract_device_member import OneOfAbstractDeviceMember
@@ -55,7 +54,6 @@ from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionD
 from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
 from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
 from src.entity.one_of_admin_member import OneOfAdminMember
-from src.entity.one_of_membership_request_payment_method import OneOfMembershipRequestPaymentMethod
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product
