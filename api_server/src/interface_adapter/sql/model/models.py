@@ -385,8 +385,8 @@ class MailTemplates(Base):
 class Membership(Base):
     __tablename__ = "membership"
 
-    uuid = Column(CHAR(32), primary_key=True)
-    account_id = Column(Integer, ForeignKey(Account.id), nullable=False)
+    uuid = Column(CHAR(36), primary_key=True)
+    account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
     create_at = Column(DateTime)
     duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
     first_time = Column(Boolean, default=False, nullable=False)
