@@ -1,14 +1,16 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 import datetime
-from typing import List, Union
+from typing import List, Union, Optional
 
-from src.constants import CTX_ADMIN, CTX_ROLES
-from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod
+from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
+    AbstractMembership
 from src.entity.roles import Roles
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.interface_adapter.sql.model.models import Account
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
@@ -28,10 +30,12 @@ import re
         "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
         "admin": Roles.ADH6_ADMIN,
         "profile": Roles.ADH6_USER,
-        "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN
     },
     collection={
-        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN
     }
 ))
 class MemberManager(CRUDManager):
@@ -59,15 +63,35 @@ class MemberManager(CRUDManager):
 
         return admin, roles
 
-    def new_membership(self, ctx, member_id: int, duration: int, payment_method: Union[int, PaymentMethod]) -> None:
+    @log_call
+    @auto_raise
+    @uses_security("read", is_collection=True)
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership=None) -> (list, int):
+        if limit < 0:
+            raise IntMustBePositive('limit')
+
+        if offset < 0:
+            raise IntMustBePositive('offset')
+
+        return self._search(ctx, limit=limit,
+                            offset=offset,
+                            terms=terms,
+                            filter_=filter_)
+
+    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
+        return self.membership_repository.membership_search_by(ctx, limit=limit,
+                                         offset=offset,
+                                         terms=terms,
+                                         filter_=filter_)
+
+    def new_membership(self, ctx, member_id: int, abstract_membership: AbstractMembership) -> Membership:
         """
         Core use case of ADH. Registers a membership.
 
         User story: As an admin, I can create a new membership record, so that a member can have internet access.
-        :param payment_method:
         :param ctx: context
         :param member_id: member_id
-        :param duration: duration of the membership in days
+        :param abstract_membership: entity AbstractMembership
 
         :raise IntMustBePositiveException
         :raise NoPriceAssignedToThatDurationException
@@ -76,24 +100,33 @@ class MemberManager(CRUDManager):
         :raise UnknownPaymentMethod
         """
 
-        if duration < 0:
-            raise IntMustBePositive('duration')
-
-        if duration not in self.config.PRICES:
-            LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=duration))
-            raise NoPriceAssignedToThatDuration(duration)
+        if abstract_membership.duration is not None:
+            if abstract_membership.duration < 0:
+                raise IntMustBePositive('duration')
+            if abstract_membership.duration not in self.config.PRICES:
+                LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx,
+                                                                                         duration=abstract_membership.duration))
+                raise NoPriceAssignedToThatDuration(abstract_membership.duration)
 
         start = datetime.datetime.now().isoformat()
 
+        membership_created: Optional[Membership] = None
         # TODO check price.
         try:
-            price = self.config.PRICES[duration]  # Expresed in EUR.
-            price_in_cents = price * 100  # Expressed in cents of EUR.
-            duration_str = self.config.DURATION_STRING.get(duration, '')
-            title = f'Internet - {duration_str}'
+            membership_created = self.membership_repository.create_membership(ctx, member_id, abstract_membership)
 
-            self.money_repository.add_member_payment_record(ctx, price_in_cents, title, username, payment_method)
-            self.membership_repository.create_membership(ctx, username, start, duration)
+            # TODO: Check the member has signed before setting-up the transaction
+            # TODO: if first-time and no account create an account
+
+            """
+            price = self.config.PRICES[membership.duration]  # Expressed in EUR.
+            price_in_cents = price * 100  # Expressed in cents of EUR.
+            duration_str = self.config.DURATION_STRING.get(membership.duration, '')
+            title = f'Internet - {duration_str}'
+            self.money_repository.add_member_payment_record(ctx, price_in_cents, title,
+                                                            membership_created.member.username,
+                                                            membership_created.payment_method)
+            """
 
         except InvalidAdmin:
             LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
@@ -101,15 +134,16 @@ class MemberManager(CRUDManager):
 
         except UnknownPaymentMethod:
             LOG.warning("create_membership_record_unknown_payment_method",
-                        extra=log_extra(ctx, payment_method=payment_method))
+                        extra=log_extra(ctx, payment_method=abstract_membership.payment_method))
             raise
 
         LOG.info("create_membership_record", extra=log_extra(
             ctx,
-            username=username,
-            duration_in_days=duration,
-            start_date=start.isoformat()
+            membership_uuis=membership_created.uuid,
+            start_date=abstract_membership.created_at.datetime.isoformat()
         ))
+
+        return membership_created
 
     @log_call
     @auto_raise
@@ -253,3 +287,25 @@ class MemberManager(CRUDManager):
             return True
 
         return _change_password(self, ctx, filter_=member)
+
+    @log_call
+    @auto_raise
+    @uses_security("read", is_collection=False)
+    def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
+        # Check that the user exists in the system.
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(str(member_id))
+
+        return str(self.member_repository.get_charter(ctx, member_id, charter_id))
+
+    @log_call
+    @auto_raise
+    @uses_security("create", is_collection=False)
+    def put_charter(self, ctx, member_id: int, charter_id: int):
+        # Check that the user exists in the system.
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(str(member_id))
+
+        self.member_repository.update_charter(ctx, member_id, charter_id)

@@ -2,9 +2,9 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import {AbstractMember, Member, MemberService} from '../api';
+import {AbstractMember, AbstractMembership, Member, MemberService, MembershipService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
-import {finalize, first, flatMap} from 'rxjs/operators';
+import {finalize, first, mergeMap} from 'rxjs/operators';
 import {EMPTY, of} from 'rxjs';
 
 
@@ -22,6 +22,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
 
   constructor(
     public memberService: MemberService,
+    public membershipService: MembershipService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
@@ -36,7 +37,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
       lastName: ['', Validators.required],
       username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(8)]],
       email: ['', [Validators.required, Validators.email]],
-      roomNumber: [null, [Validators.min(1000), Validators.max(9999)]],
+      roomNumber: [null, [Validators.min(0), Validators.max(9999)]],
     });
   }
 
@@ -64,7 +65,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
 
     of(this.create)
       .pipe(
-        flatMap(() => {
+        mergeMap(() => {
           if (!this.create) {
             const abstractMember: AbstractMember = {
               email: v.email,
@@ -75,7 +76,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             if (v.roomNumber) {
               abstractMember.room = v.roomNumber;
             }
-            return this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'response');
+            return this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'body');
           } else {
             const req: Member = {
               email: v.email,
@@ -85,19 +86,24 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
               room: v.roomNumber,
               departureDate: new Date(),
             };
-            return this.memberService.memberPost(req, 'response');
+            return this.memberService.memberPost(req, 'body');
           }
         }),
         first(),
         finalize(() => this.disabled = false),
       )
       .subscribe((response) => {
-        if (this.create) {
-          this.router.navigate(['member/password', this.member_id]);
-        } else {
-          this.router.navigate(['member/view', this.member_id]);
-        }
-        this.notif.success(response.status + ': Success');
+        const abstractMembership: AbstractMembership = {};
+        this.membershipService.memberMemberIdMembershipPost(abstractMembership, response.id, 'body')
+          .subscribe((membership) => {
+            console.log(membership);
+            if (this.create) {
+              this.router.navigate(['member/password', response.id]);
+            } else {
+              this.router.navigate(['member/view', this.member_id]);
+            }
+            this.notif.success(response.status + ': Success');
+          });
       });
 
   }
@@ -118,7 +124,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.route.paramMap
       .pipe(
-        flatMap((params: ParamMap) => {
+        mergeMap((params: ParamMap) => {
           if (params.has('member_id')) {
             return of(params.get('member_id'));
           } else {
@@ -128,7 +134,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             return EMPTY;
           }
         }),
-        flatMap((member_id) => this.memberService.memberMemberIdGet(+member_id)),
+        mergeMap((member_id) => this.memberService.memberMemberIdGet(+member_id)),
         first(),
       )
       .subscribe((member: Member) => {

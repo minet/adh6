@@ -23,3 +23,9 @@ class MemberRepository(CRUDRepository):
 
     def update_password(self, ctx, member_id, hashed_password):
         raise NotImplemented
+
+    def get_charter(self, ctx, member_id: int, charter_id: int) -> bool:
+        raise NotImplemented
+
+    def update_charter(self, ctx, member_id: int, charter_id: int) -> bool:
+        raise NotImplemented

@@ -90,6 +90,15 @@ class RoomNumberMismatchError(ValidationError):
         super().__init__('cannot create room with 2 different room_numbers')
 
 
+class InvalidCharterID(ValidationError):
+    def __init__(self, v):
+        super().__init__(f'"{v}" is not a valid charter id')
+
+class CharterAlreadySigned(ValidationError):
+    def __init__(self, v):
+        super().__init__(f'"{v}" charter has already be signed')
+
+
 # NOT FOUND ERROR.
 class NotFoundError(UserInputError):
     """
@@ -105,6 +114,9 @@ class AdminNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('admin', v)
 
+class AccountNotFoundError(NotFoundError):
+    def __init__(self, v=None):
+        super().__init__('account', v)
 
 class MemberNotFoundError(NotFoundError):
     def __init__(self, v=None):
@@ -179,6 +191,11 @@ class MemberAlreadyExist(AlreadyExistsError):
         super().__init__(what)
 
 
+class MembershipAlreadyExist(AlreadyExistsError):
+    def __init__(self, what='membership'):
+        super().__init__(what)
+
+
 class RoomAlreadyExists(AlreadyExistsError):
     def __init__(self, what='room'):
         super().__init__(what)
@@ -226,3 +243,9 @@ class UnauthorizedError(PermissionError):
 class UnauthenticatedError(PermissionError):
     def __init__(self, msg='Authentication required.'):
         super().__init__(msg)
+
+
+
+class MembershipPending(AlreadyExistsError):
+    def __init__(self, what: str='membership'):
+        super().__init__('membership ' + what + ' is not finished')
