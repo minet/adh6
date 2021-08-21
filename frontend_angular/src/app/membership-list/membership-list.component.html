@@ -1,0 +1,24 @@
+<h2 class="text-left">Liste des inscriptions</h2>
+<br/>
+
+<div style="overflow-x:auto;" class="u-max-full-width">
+  <table class="table table-striped clickable-table" *ngIf="result$ | async as result">
+    <thead>
+    <tr>
+      <th>UUID</th>
+      <th>Name</th>
+      <th>Status</th>
+    </tr>
+    </thead>
+    <tr
+      *ngFor="let membership of result.memberships | paginate: { id: 'paginationControlsTemplate',
+      itemsPerPage: result.item_per_page, currentPage: result.page_number, totalItems: result.item_count}"
+      [routerLink]="['../membership', membership.uuid]">
+      <td>{{ membership.uuid }}</td>
+      <td>{{ membership.member.lastName | uppercase }} <span class="capitalize">{{ membership.member.firstName | lowercase }}</span></td>
+      <td>{{ membership.status }}</td>
+    </tr>
+    <br/>
+  </table>
+  <app-custom-pagination id="paginationControlsTemplate"  (changePage)="changePage($event)"></app-custom-pagination>
+</div>
