@@ -32,6 +32,7 @@ import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.comp
 import {InscriptionComponent} from './inscription/inscription.component';
 import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
 import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
+import {MembershipListComponent} from './membership-list/membership-list.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -52,6 +53,7 @@ const routes: Routes = [
     data: {
     bypassAuth: true
   }},
+  {path: 'membership', component: MembershipListComponent},
   {path: 'portailfoyer', component: PortailfoyerComponent,
     data : {
     bypassAuth: true

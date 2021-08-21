@@ -747,16 +747,9 @@ paths:
       summary: Update if the hosting/MiNET charter has been signed
       tags:
       - member
-  /member/{member_id}/membership/:
-    parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+  /member/membership/:
     get:
+      operationId: membership_search
       parameters:
       - $ref: '#/components/parameters/limitParam'
       - $ref: '#/components/parameters/skipParam'
@@ -788,7 +781,52 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Filter members
+      summary: Filter memberships
+      tags:
+      - membership
+  /member/{member_id}/membership/:
+    parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: membership_by_member_search
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractMembership'
+        style: deepObject
+        explode: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Membership'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter memberships of a specific member
       tags:
       - membership
     post:
@@ -796,7 +834,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMembership'
+              $ref: '#/components/schemas/Membership'
         description: The membership to create
         required: true
       responses:
