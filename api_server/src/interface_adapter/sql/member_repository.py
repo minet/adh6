@@ -12,7 +12,7 @@ from src.entity import AbstractMember, Room, Membership, AbstractMembership, Pay
 from src.entity.member import Member
 from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipPending, \
-    InvalidCharterID, CharterAlreadySigned
+    InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Adherent, Chambre
 from src.interface_adapter.sql.model.models import Membership as MembershipSQL
@@ -145,6 +145,14 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         if adherent is None:
             raise MemberNotFoundError(str(member_id))
 
+        membership: MembershipSQL = s.query(MembershipSQL) \
+            .filter(MembershipSQL.adherent_id == member_id) \
+            .filter(MembershipSQL.status == MembershipStatus.PENDING_RULES) \
+            .one_or_none()
+
+        if membership is None:
+            raise MembershipNotFoundError(str(member_id))
+
         now = datetime.now()
         if charter_id == 1:
             if adherent.datesignedminet is not None or adherent.signedminet:
@@ -183,7 +191,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     @log_call
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractMembership = None) -> (List[Membership], int):
+                             filter_: AbstractMembership = None) -> (List[Membership], int):
         s = ctx.get(CTX_SQL_SESSION)
         q = s.query(MembershipSQL)
         q = q.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
@@ -229,14 +237,14 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         return list(map(_map_membership_sql_to_entity, r)), q.count()
 
     @log_call
-    def create_membership(self, ctx, member_id: int, abstract_membership: AbstractMembership) -> Membership:
+    def create_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
         """
         Add a membership record.
 
         :raise MemberNotFound
         """
+        now = datetime.now()
         s = ctx.get(CTX_SQL_SESSION)
-        print(abstract_membership)
         LOG.debug("sql_membership_repository_add_membership_called", extra=log_extra(ctx, member_id=member_id))
 
         # Check the member exists
@@ -245,45 +253,37 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             member = self.search_by(ctx, limit=1, offset=0, filter_=AbstractMember(id=member_id))
         if member is None:
             raise MemberNotFoundError(str(member_id))
-        print(member)
 
         # Check the transaction does not already exist
         _membership: Optional[MembershipSQL] = None
-        if abstract_membership.uuid is not None:
-            _membership = s.query(MembershipSQL).filter(MembershipSQL.uuid == abstract_membership.uuid).one_or_none()
+        if membership.uuid is not None:
+            _membership = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership.uuid).one_or_none()
         if _membership is not None:
             raise MembershipAlreadyExist()
-        print(_membership)
 
-        to_add: MembershipSQL = _map_entity_to_membership_sql(abstract_membership)
-        to_add.uuid = uuid.uuid4()
+        to_add: MembershipSQL = _map_entity_to_membership_sql(membership)
+        to_add.uuid = str(uuid.uuid4())
         to_add.adherent_id = member_id
+        to_add.create_at = now
+        to_add.update_at = now
 
-        print(to_add)
         # Check any other membership from this member
-        all_membership: List[MembershipSQL] = s.query(MembershipSQL)\
-            .filter(MembershipSQL.adherent_id == member_id)\
+        all_membership: List[MembershipSQL] = s.query(MembershipSQL) \
+            .filter(MembershipSQL.adherent_id == member_id) \
             .all()
 
         # Check no other membership are Pending
         for i in all_membership:
             if i.status != MembershipStatus.COMPLETE:
-                raise MembershipPending(str(abstract_membership.uuid))
-
+                raise MembershipPending(membership.uuid)
 
         to_add.first_time = len(all_membership) == 0
-        if to_add.first_time:
-            to_add.status = MembershipStatus.INITIAL
-        else:
-            if abstract_membership.duration is not None:
-                to_add.status = MembershipStatus.PENDING_PAYMENT
-            else:
-                to_add.status = MembershipStatus.PENDING_PAYMENT_INITIAL
 
         s.add(to_add)
         s.flush()
 
-        LOG.debug("sql_membership_repository_add_membership_finished", extra=log_extra(ctx, membership_uuid=to_add.uuid))
+        LOG.debug("sql_membership_repository_add_membership_finished",
+                  extra=log_extra(ctx, membership_uuid=to_add.uuid))
 
         return _map_membership_sql_to_entity(to_add)
 
@@ -297,7 +297,6 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         with track_modifications(ctx, s, member):
             s.delete(member)
-
 
     @log_call
     def get_minet_charter(self, ctx, member_id) -> bool:
@@ -369,6 +368,8 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
+    print(obj_sql.status)
+    print(obj_sql.status.value)
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
@@ -377,12 +378,11 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         payment_method=obj_sql.payment_method_id,
         account=obj_sql.account_id,
         member=_map_member_sql_to_entity(obj_sql.adherent) if obj_sql.adherent else Null(),
-        status=obj_sql.status,
-        created_at=obj_sql.create_at,
-        updated_at=obj_sql.update_at
+        status=obj_sql.status.value,
     )
 
-def _map_entity_to_membership_sql(entity: AbstractMembership) -> MembershipSQL:
+
+def _map_entity_to_membership_sql(entity: Membership) -> MembershipSQL:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
@@ -398,4 +398,3 @@ def _map_entity_to_membership_sql(entity: AbstractMembership) -> MembershipSQL:
         create_at=entity.created_at,
         update_at=entity.updated_at
     )
-

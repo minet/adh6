@@ -1,26 +1,26 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
-import datetime
-from typing import List, Union, Optional
+from typing import List, Optional
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
-    AbstractMembership
+    AbstractMembership, AbstractAccount, AbstractTransaction
 from src.entity.roles import Roles
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
-    MemberNotFoundError, IntMustBePositive, UnauthorizedError
+    MemberNotFoundError, IntMustBePositive, MembershipStatusNotAllowed, AccountNotFoundError, \
+    PaymentMethodNotFoundError, MembershipAlreadyExist, CharterAlreadySigned
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.sql.model.models import Account
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.money_repository import MoneyRepository
+from src.use_case.interface.transaction_repository import TransactionRepository
 from src.util.context import log_extra
-from src.util.date import string_to_date
 from src.util.log import LOG
 import re
 
@@ -45,13 +45,16 @@ class MemberManager(CRUDManager):
 
     def __init__(self, member_repository: MemberRepository, membership_repository: MembershipRepository,
                  logs_repository: LogsRepository, money_repository: MoneyRepository,
-                 device_repository: DeviceRepository, configuration):
+                 device_repository: DeviceRepository, account_repository: AccountRepository,
+                 transaction_repository: TransactionRepository, configuration):
         super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
         self.money_repository = money_repository
         self.device_repository = device_repository
+        self.account_repository = account_repository
+        self.transaction_repository = transaction_repository
         self.config = configuration
 
     @log_call
@@ -66,7 +69,8 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("read", is_collection=True)
-    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership=None) -> (list, int):
+    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+                          filter_: AbstractMembership = None) -> (list, int):
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -74,24 +78,25 @@ class MemberManager(CRUDManager):
             raise IntMustBePositive('offset')
 
         return self._membership_search(ctx, limit=limit,
-                            offset=offset,
-                            terms=terms,
-                            filter_=filter_)
+                                       offset=offset,
+                                       terms=terms,
+                                       filter_=filter_)
 
-    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
+    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (
+    list, int):
         return self.membership_repository.membership_search_by(ctx, limit=limit,
-                                         offset=offset,
-                                         terms=terms,
-                                         filter_=filter_)
+                                                               offset=offset,
+                                                               terms=terms,
+                                                               filter_=filter_)
 
-    def new_membership(self, ctx, member_id: int, abstract_membership: AbstractMembership) -> Membership:
+    def new_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
         """
         Core use case of ADH. Registers a membership.
 
         User story: As an admin, I can create a new membership record, so that a member can have internet access.
         :param ctx: context
         :param member_id: member_id
-        :param abstract_membership: entity AbstractMembership
+        :param membership: entity AbstractMembership
 
         :raise IntMustBePositiveException
         :raise NoPriceAssignedToThatDurationException
@@ -100,23 +105,93 @@ class MemberManager(CRUDManager):
         :raise UnknownPaymentMethod
         """
 
-        if abstract_membership.duration is not None:
-            if abstract_membership.duration < 0:
+        if membership.duration is not None:
+            if membership.duration < 0:
                 raise IntMustBePositive('duration')
-            if abstract_membership.duration not in self.config.PRICES:
+            if membership.duration not in self.config.PRICES:
                 LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx,
-                                                                                         duration=abstract_membership.duration))
-                raise NoPriceAssignedToThatDuration(abstract_membership.duration)
+                                                                                         duration=membership.duration))
+                raise NoPriceAssignedToThatDuration(membership.duration)
 
-        start = datetime.datetime.now().isoformat()
+        if membership.status == MembershipStatus.COMPLETE or membership.status == MembershipStatus.ABORTED or membership.status == MembershipStatus.CANCELLED:
+            raise MembershipStatusNotAllowed(membership.status, "status cannot be used to create a membership")
 
-        membership_created: Optional[Membership] = None
+        searched_membership, _ = self.membership_repository.membership_search_by(
+            ctx=ctx,
+            limit=1,
+            filter_=AbstractMembership(uuid=membership.uuid)
+        )
+        if searched_membership:
+            raise MembershipAlreadyExist(membership.uuid)
+
+        date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+
+        def __charter_empty() -> bool:
+            return date_signed_minet is None or date_signed_minet == ""
+
+        def __duration_empty() -> bool:
+            return membership.duration is None or membership.duration == 0
+
+        def __account_not_found() -> None:
+            _account, _ = self.account_repository.search_by(
+                ctx=ctx,
+                limit=1,
+                filter_=AbstractAccount(id=membership.account)
+            )
+            if not _account:
+                raise AccountNotFoundError(str(membership.account))
+
+        def __payment_method_not_found() -> None:
+            _payment_method, _ = self.transaction_repository.search_by(
+                ctx=ctx,
+                limit=1,
+                filter_=AbstractTransaction(id=membership.payment_method)
+            )
+            if not _payment_method:
+                raise PaymentMethodNotFoundError(str(membership.payment_method))
+
+        if membership.status == MembershipStatus.INITIAL:
+            if __charter_empty():
+                membership.status = MembershipStatus.PENDING_RULES
+
+        if membership.status == MembershipStatus.PENDING_RULES:
+            if not __charter_empty():
+                membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
+
+        if membership.status == MembershipStatus.PENDING_PAYMENT_INITIAL:
+            if __charter_empty():
+                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
+            if not __duration_empty():
+                membership.status = MembershipStatus.PENDING_PAYMENT
+
+        if membership.status == MembershipStatus.PENDING_PAYMENT:
+            if __charter_empty():
+                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
+            if __duration_empty():
+                raise MembershipStatusNotAllowed(membership.status, "duration is null or 0")
+            if membership.account is not None:
+                __account_not_found()
+                if membership.payment_method is not None:
+                    __payment_method_not_found()
+                    membership.status = MembershipStatus.PENDING_PAYMENT_VALIDATION
+
+        if membership.status == MembershipStatus.PENDING_PAYMENT_VALIDATION:
+            if __charter_empty():
+                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
+            if __duration_empty():
+                raise MembershipStatusNotAllowed(membership.status, "duration is null or 0")
+            if membership.account is None:
+                raise MembershipStatusNotAllowed(membership.status, "no account provided")
+            else:
+                __account_not_found()
+            if membership.payment_method is None:
+                raise MembershipStatusNotAllowed(membership.status, "payment_method null")
+            else:
+                __payment_method_not_found()
+
         # TODO check price.
         try:
-            membership_created = self.membership_repository.create_membership(ctx, member_id, abstract_membership)
-
-            # TODO: Check the member has signed before setting-up the transaction
-            # TODO: if first-time and no account create an account
+            membership_created = self.membership_repository.create_membership(ctx, member_id, membership)
 
             """
             price = self.config.PRICES[membership.duration]  # Expressed in EUR.
@@ -134,13 +209,13 @@ class MemberManager(CRUDManager):
 
         except UnknownPaymentMethod:
             LOG.warning("create_membership_record_unknown_payment_method",
-                        extra=log_extra(ctx, payment_method=abstract_membership.payment_method))
+                        extra=log_extra(ctx, payment_method=membership.payment_method))
             raise
 
         LOG.info("create_membership_record", extra=log_extra(
             ctx,
             membership_uuis=membership_created.uuid,
-            start_date=abstract_membership.created_at.datetime.isoformat()
+            membership_status=membership_created.status
         ))
 
         return membership_created
@@ -208,9 +283,10 @@ class MemberManager(CRUDManager):
                 def add_to_statuses(status, timestamp, mac):
                     if mac not in device_to_statuses:
                         device_to_statuses[mac] = {}
-                    if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
+                    if status not in device_to_statuses[mac] or device_to_statuses[mac][
+                        status].last_timestamp < timestamp:
                         device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp,
-                                                                         comment=mac)
+                                                                       comment=mac)
 
                 prev_log = ["", ""]
                 for log in logs:
@@ -223,7 +299,8 @@ class MemberManager(CRUDManager):
                     if "EAP sub-module failed" in prev_log[1] \
                             and "mschap: MS-CHAP2-Response is incorrect" in log[1] \
                             and (prev_log[0] - log[0]).total_seconds() < 1:
-                        match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*', prev_log[1])
+                        match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
+                                          prev_log[1])
                         login, mac = match.group(1), match.group(2).upper()
                         if login != filter_.username:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)

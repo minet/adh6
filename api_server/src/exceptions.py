@@ -94,6 +94,7 @@ class InvalidCharterID(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" is not a valid charter id')
 
+
 class CharterAlreadySigned(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" charter has already be signed')
@@ -114,13 +115,20 @@ class AdminNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('admin', v)
 
+
 class AccountNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('account', v)
 
+
 class MemberNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('member', v)
+
+
+class MembershipNotFoundError(NotFoundError):
+    def __init__(self, v=None):
+        super().__init__('membership', v)
 
 
 class TransactionNotFoundError(NotFoundError):
@@ -205,6 +213,9 @@ class DeviceAlreadyExists(AlreadyExistsError):
     def __init__(self, what='device'):
         super().__init__(what)
 
+class MembershipPending(AlreadyExistsError):
+    def __init__(self, what: str = 'membership'):
+        super().__init__('membership ' + what + ' is not finished')
     # OTHER KIND OF ERRORS.
 
 
@@ -215,6 +226,12 @@ class DevicesLimitReached(UserInputError):
 
 class UnknownPaymentMethod(UserInputError):
     pass  # pragma: no cover
+
+
+class MembershipStatusNotAllowed(ValidationError):
+    def __init__(self, msg, msg_2):
+        super().__init__(f'{msg} not allowed: {msg_2}')
+
 
 
 class LogFetchError(RuntimeError):
@@ -243,9 +260,3 @@ class UnauthorizedError(PermissionError):
 class UnauthenticatedError(PermissionError):
     def __init__(self, msg='Authentication required.'):
         super().__init__(msg)
-
-
-
-class MembershipPending(AlreadyExistsError):
-    def __init__(self, what: str='membership'):
-        super().__init__('membership ' + what + ' is not finished')

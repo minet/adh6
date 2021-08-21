@@ -28,23 +28,6 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
-        try:
-            filter_ = deserialize_request(filter_, AbstractMembership)
-            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms,
-                                                           filter_=filter_)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            result = list(map(serialize_response, result))
-            return result, 200, headers
-        except Exception as e:
-            return handle_error(ctx, e)
-
-    @with_context
-    @require_sql
-    @log_call
     def membership_post(self, ctx, member_id: int, body):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, member_id=member_id, request=body))
@@ -53,7 +36,7 @@ class MemberHandler(DefaultHandler):
             if 'uuid' not in body:
                 body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
             print(body)
-            to_create: AbstractMembership = deserialize_request(body, AbstractMembership)
+            to_create: Membership = deserialize_request(body, Membership)
 
             self.member_manager.new_membership(ctx, member_id, to_create)
             return NoContent, 200  # 200 OK
@@ -90,6 +73,29 @@ class MemberHandler(DefaultHandler):
             return serialize_response(self.member_manager.get_statuses(ctx, member_id)), 200
         except Exception as e:
             return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+        try:
+            filter_ = deserialize_request(filter_, AbstractMembership)
+            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms,
+                                                                        filter_=filter_)
+            headers = {
+                "X-Total-Count": str(total_count),
+                'access-control-expose-headers': 'X-Total-Count'
+            }
+            result = list(map(serialize_response, result))
+            return result, 200, headers
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def membership_by_member_search(self, ctx, member_id, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+        pass
 
     @with_context
     @require_sql
