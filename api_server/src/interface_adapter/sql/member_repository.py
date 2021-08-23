@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 import uuid
 
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Room, Membership, AbstractMembership, PaymentMethod, Account
@@ -192,7 +192,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     @log_call
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                             filter_: AbstractMembership = None) -> (List[Membership], int):
+                             filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
         LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx, filter_status=filter_.status))
         s = ctx.get(CTX_SQL_SESSION)
         q = s.query(MembershipSQL)
@@ -288,6 +288,14 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         return _map_membership_sql_to_entity(to_add)
 
+    def validate_membership(self, ctx, membership_uuid: str) -> None:
+        s = ctx.get(CTX_SQL_SESSION)
+        membership: MembershipSQL = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid).one_or_None()
+        if membership is None:
+            raise MembershipNotFoundError(membership_uuid)
+
+        with track_modifications(ctx, s, membership):
+            membership.status = MembershipStatus.COMPLETE
 
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()

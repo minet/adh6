@@ -99,6 +99,10 @@ class CharterAlreadySigned(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" charter has already be signed')
 
+class CharterNotSigned(ValidationError):
+    def __init__(self, v):
+        super().__init__(f'"{v}" charter not signed yet')
+
 
 # NOT FOUND ERROR.
 class NotFoundError(UserInputError):
