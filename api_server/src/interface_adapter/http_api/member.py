@@ -38,8 +38,8 @@ class MemberHandler(DefaultHandler):
             print(body)
             to_create: Membership = deserialize_request(body, Membership)
 
-            self.member_manager.new_membership(ctx, member_id, to_create)
-            return NoContent, 200  # 200 OK
+            created_membership = self.member_manager.new_membership(ctx, member_id, to_create)
+            return serialize_response(created_membership), 200  # 200 OK
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -106,8 +106,14 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_patch(self, ctx, member_id, uuid):
-        pass
+    def membership_patch(self, ctx, member_id, uuid, body):
+        try:
+            body['uuid'] = uuid
+            to_update: AbstractMembership = deserialize_request(body, )
+            self.member_manager.change_membership(ctx, member_id, uuid, to_update)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql

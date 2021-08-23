@@ -135,7 +135,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             adherent.password = hashed_password
 
     @log_call
-    def update_charter(self, ctx, member_id: int, charter_id: int) -> datetime:
+    def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(Adherent)
@@ -160,6 +160,8 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             with track_modifications(ctx, s, adherent):
                 adherent.signedminet = True
                 adherent.datesignedminet = now
+            with track_modifications(ctx, s, membership):
+                membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
         elif charter_id == 2:
             if adherent.datesignedhosting is not None or adherent.signedhosting:
                 raise CharterAlreadySigned("Hosting")
@@ -169,10 +171,9 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         else:
             raise InvalidCharterID(str(charter_id))
 
-        return now
 
     @log_call
-    def get_charter(self, ctx, member_id: int, charter_id: int) -> bool:
+    def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(Adherent)
@@ -183,15 +184,16 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             raise MemberNotFoundError(str(member_id))
 
         if charter_id == 1:
-            return adherent.signedminet
+            return str(adherent.datesignedminet)
         if charter_id == 2:
-            return adherent.signedhosting
+            return str(adherent.datesignedhosting)
 
         raise InvalidCharterID(str(charter_id))
 
     @log_call
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                              filter_: AbstractMembership = None) -> (List[Membership], int):
+        LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx, filter_status=filter_.status))
         s = ctx.get(CTX_SQL_SESSION)
         q = s.query(MembershipSQL)
         q = q.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
@@ -200,6 +202,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         if filter_.uuid is not None:
             q = q.filter(MembershipSQL.uuid == filter_.uuid)
         if filter_.status is not None:
+            LOG.debug(filter_.status)
             q = q.filter(MembershipSQL.status == filter_.status)
         if filter_.first_time is not None:
             q = q.filter(MembershipSQL.first_time == filter_.first_time)
@@ -229,7 +232,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             )
         """
 
-        q = q.order_by(MembershipSQL.uuid.asc())
+        q = q.order_by(MembershipSQL.uuid)
         q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
@@ -263,7 +266,6 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         to_add: MembershipSQL = _map_entity_to_membership_sql(membership)
         to_add.uuid = str(uuid.uuid4())
-        to_add.adherent_id = member_id
         to_add.create_at = now
         to_add.update_at = now
 
@@ -274,39 +276,17 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         # Check no other membership are Pending
         for i in all_membership:
-            if i.status != MembershipStatus.COMPLETE:
-                raise MembershipPending(membership.uuid)
+            if i.status != MembershipStatus.COMPLETE or i.status != MembershipStatus.ABORTED or membership.status != MembershipStatus.CANCELLED:
+                raise MembershipPending(i.uuid)
 
         to_add.first_time = len(all_membership) == 0
 
         s.add(to_add)
         s.flush()
 
-        LOG.debug("sql_membership_repository_add_membership_finished",
-                  extra=log_extra(ctx, membership_uuid=to_add.uuid))
+        LOG.debug("sql_membership_repository_add_membership_finished", extra=log_extra(ctx, membership_uuid=to_add.uuid))
 
         return _map_membership_sql_to_entity(to_add)
-
-    @log_call
-    def get_minet_charter(self, ctx, member_id) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
-
-        member = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        if member is None:
-            raise MemberNotFoundError(member_id)
-
-        with track_modifications(ctx, s, member):
-            s.delete(member)
-
-    @log_call
-    def get_minet_charter(self, ctx, member_id) -> bool:
-        s = ctx.get(CTX_SQL_SESSION)
-
-        member: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        if member is None:
-            raise MemberNotFoundError(member_id)
-
-        return member.signedminet
 
 
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
@@ -340,7 +320,6 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     adherent.updated_at = now
     return adherent
 
-
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
@@ -368,8 +347,6 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
-    print(obj_sql.status)
-    print(obj_sql.status.value)
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
@@ -378,7 +355,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         payment_method=obj_sql.payment_method_id,
         account=obj_sql.account_id,
         member=_map_member_sql_to_entity(obj_sql.adherent) if obj_sql.adherent else Null(),
-        status=obj_sql.status.value,
+        status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 
 

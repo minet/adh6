@@ -1,10 +1,10 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
-    AbstractMembership, AbstractAccount, AbstractTransaction
+    AbstractMembership, AbstractAccount, AbstractTransaction, Account
 from src.entity.roles import Roles
 from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, MembershipStatusNotAllowed, AccountNotFoundError, \
@@ -31,6 +31,7 @@ import re
         "admin": Roles.ADH6_ADMIN,
         "profile": Roles.ADH6_USER,
         "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "membership": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
         "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN
     },
     collection={
@@ -89,6 +90,9 @@ class MemberManager(CRUDManager):
                                                                terms=terms,
                                                                filter_=filter_)
 
+    @log_call
+    @auto_raise
+    @uses_security("create", is_collection=True)
     def new_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
         """
         Core use case of ADH. Registers a membership.
@@ -105,15 +109,7 @@ class MemberManager(CRUDManager):
         :raise UnknownPaymentMethod
         """
 
-        if membership.duration is not None:
-            if membership.duration < 0:
-                raise IntMustBePositive('duration')
-            if membership.duration not in self.config.PRICES:
-                LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx,
-                                                                                         duration=membership.duration))
-                raise NoPriceAssignedToThatDuration(membership.duration)
-
-        if membership.status == MembershipStatus.COMPLETE or membership.status == MembershipStatus.ABORTED or membership.status == MembershipStatus.CANCELLED:
+        if membership.status != MembershipStatus.INITIAL.value:
             raise MembershipStatusNotAllowed(membership.status, "status cannot be used to create a membership")
 
         searched_membership, _ = self.membership_repository.membership_search_by(
@@ -124,84 +120,47 @@ class MemberManager(CRUDManager):
         if searched_membership:
             raise MembershipAlreadyExist(membership.uuid)
 
-        date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+        LOG.debug("create_membership_records", extra=log_extra(ctx,membership_status=membership.status))
+        if membership.status == MembershipStatus.INITIAL.value:
+            LOG.debug("create_membership_record_switch_status_to_pending_rules")
+            membership.status = MembershipStatus.PENDING_RULES.value
 
-        def __charter_empty() -> bool:
-            return date_signed_minet is None or date_signed_minet == ""
+        if membership.status == MembershipStatus.PENDING_RULES.value:
+            if (date_signed_minet := self.member_repository.get_charter(ctx, member_id, 1) is None) or date_signed_minet == "":
+                LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
+                membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL.value
 
-        def __duration_empty() -> bool:
-            return membership.duration is None or membership.duration == 0
+        if membership.status == MembershipStatus.PENDING_PAYMENT_INITIAL.value:
+            if membership.duration is not None or membership.duration == 0:
+                if membership.duration < 0:
+                    raise IntMustBePositive('duration')
+                if membership.duration not in self.config.PRICES:
+                    LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=membership.duration))
+                    raise NoPriceAssignedToThatDuration(membership.duration)
+                LOG.debug("create_membership_record_switch_status_to_pending_payment")
+                membership.status = MembershipStatus.PENDING_PAYMENT.value
 
-        def __account_not_found() -> None:
-            _account, _ = self.account_repository.search_by(
-                ctx=ctx,
-                limit=1,
-                filter_=AbstractAccount(id=membership.account)
-            )
-            if not _account:
-                raise AccountNotFoundError(str(membership.account))
-
-        def __payment_method_not_found() -> None:
-            _payment_method, _ = self.transaction_repository.search_by(
-                ctx=ctx,
-                limit=1,
-                filter_=AbstractTransaction(id=membership.payment_method)
-            )
-            if not _payment_method:
-                raise PaymentMethodNotFoundError(str(membership.payment_method))
-
-        if membership.status == MembershipStatus.INITIAL:
-            if __charter_empty():
-                membership.status = MembershipStatus.PENDING_RULES
-
-        if membership.status == MembershipStatus.PENDING_RULES:
-            if not __charter_empty():
-                membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
-
-        if membership.status == MembershipStatus.PENDING_PAYMENT_INITIAL:
-            if __charter_empty():
-                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
-            if not __duration_empty():
-                membership.status = MembershipStatus.PENDING_PAYMENT
-
-        if membership.status == MembershipStatus.PENDING_PAYMENT:
-            if __charter_empty():
-                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
-            if __duration_empty():
-                raise MembershipStatusNotAllowed(membership.status, "duration is null or 0")
+        if membership.status == MembershipStatus.PENDING_PAYMENT.value:
             if membership.account is not None:
-                __account_not_found()
+                self.__account_not_found(ctx, membership.account)
                 if membership.payment_method is not None:
-                    __payment_method_not_found()
-                    membership.status = MembershipStatus.PENDING_PAYMENT_VALIDATION
-
-        if membership.status == MembershipStatus.PENDING_PAYMENT_VALIDATION:
-            if __charter_empty():
-                raise MembershipStatusNotAllowed(membership.status, "MiNET Charter is not signed")
-            if __duration_empty():
-                raise MembershipStatusNotAllowed(membership.status, "duration is null or 0")
-            if membership.account is None:
-                raise MembershipStatusNotAllowed(membership.status, "no account provided")
-            else:
-                __account_not_found()
-            if membership.payment_method is None:
-                raise MembershipStatusNotAllowed(membership.status, "payment_method null")
-            else:
-                __payment_method_not_found()
+                    if isinstance(membership.payment_method, PaymentMethod):
+                        membership.payment_method = membership.payment_method.id
+                    self.__payment_method_not_found(ctx, membership.payment_method)
+                    LOG.debug("create_membership_record_switch_status_to_pending_payment_validation")
+                    membership.status = MembershipStatus.PENDING_PAYMENT_VALIDATION.value
 
         # TODO check price.
         try:
             membership_created = self.membership_repository.create_membership(ctx, member_id, membership)
-
-            """
-            price = self.config.PRICES[membership.duration]  # Expressed in EUR.
-            price_in_cents = price * 100  # Expressed in cents of EUR.
-            duration_str = self.config.DURATION_STRING.get(membership.duration, '')
-            title = f'Internet - {duration_str}'
-            self.money_repository.add_member_payment_record(ctx, price_in_cents, title,
-                                                            membership_created.member.username,
-                                                            membership_created.payment_method)
-            """
+            if membership.status == MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
+                price = self.config.PRICES[membership.duration]  # Expressed in EUR.
+                price_in_cents = price * 100  # Expressed in cents of EUR.
+                duration_str = self.config.DURATION_STRING.get(membership.duration, '')
+                title = f'Internet - {duration_str}'
+                self.money_repository.add_member_payment_record(ctx, price_in_cents, title,
+                                                                membership_created.member.username,
+                                                                membership_created.payment_method.name)
 
         except InvalidAdmin:
             LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
@@ -219,6 +178,35 @@ class MemberManager(CRUDManager):
         ))
 
         return membership_created
+
+
+    @log_call
+    @auto_raise
+    @uses_security("membership", is_collection=True)
+    def change_membership(self, ctx, member_id: int, uuid: str, abstract_membership: AbstractMembership):
+        pass
+
+    def __account_not_found(self, ctx, account: Union[int, Account]) -> None:
+        if isinstance(account, Account):
+            account = account.id
+        _account, _ = self.account_repository.search_by(
+            ctx=ctx,
+            limit=1,
+            filter_=AbstractAccount(id=account)
+        )
+        if not _account:
+            raise AccountNotFoundError(str(account))
+
+    def __payment_method_not_found(self, ctx, payment_method: Union[int, PaymentMethod]) -> None:
+        if isinstance(payment_method, PaymentMethod):
+            payment_method = payment_method.id
+        _payment_method, _ = self.transaction_repository.search_by(
+            ctx=ctx,
+            limit=1,
+            filter_=AbstractTransaction(id=payment_method)
+        )
+        if not _payment_method:
+            raise PaymentMethodNotFoundError(str(payment_method))
 
     @log_call
     @auto_raise
@@ -364,3 +352,15 @@ class MemberManager(CRUDManager):
             return True
 
         return _change_password(self, ctx, filter_=member)
+
+    @log_call
+    @auto_raise
+    @uses_security("profile", is_collection=False)
+    def update_charter(self, ctx, member_id, charter_id: int) -> None:
+        self.member_repository.update_charter(ctx, member_id, charter_id)
+
+    @log_call
+    @auto_raise
+    @uses_security("profile", is_collection=False)
+    def get_charter(self, ctx, member_id, charter_id: int) -> str:
+        return self.member_repository.get_charter(ctx, member_id, charter_id)
