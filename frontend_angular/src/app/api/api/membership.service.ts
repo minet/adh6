@@ -394,4 +394,60 @@ export class MembershipService {
         );
     }
 
+    /**
+     * Validate a pending transaction
+     * 
+     * @param memberId The unique identifier of the member
+     * @param uuid The UUID associated with this membership request
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public membershipValidate(memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public membershipValidate(memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public membershipValidate(memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public membershipValidate(memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling membershipValidate.');
+        }
+
+        if (uuid === null || uuid === undefined) {
+            throw new Error('Required parameter uuid was null or undefined when calling membershipValidate.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<any>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}/validate`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
 }

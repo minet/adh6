@@ -915,6 +915,39 @@ paths:
       summary: Partially update a membership
       tags:
       - membership
+  /member/{member_id}/membership/{uuid}/validate:
+    parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+      - description: The UUID associated with this membership request
+        in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+    get:
+      operationId: membership_validate
+      responses:
+        204:
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Validate a pending transaction
+      tags:
+      - membership
   /payment_method/:
     get:
       parameters:
