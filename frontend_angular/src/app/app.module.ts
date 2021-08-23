@@ -70,6 +70,7 @@ import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
 import {Ng9OdometerModule} from 'ng9-odometer';
 import { MembershipListComponent } from './membership-list/membership-list.component';
+import {RedirectGuard} from './redirect-guard/redirect-guard';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -162,6 +163,7 @@ export function storageFactory(): OAuthStorage {
     Ng9OdometerModule.forRoot()
   ],
   providers: [
+    RedirectGuard,
     AppComponent,
     {
       provide: HTTP_INTERCEPTORS,

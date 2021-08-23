@@ -93,7 +93,10 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
         finalize(() => this.disabled = false),
       )
       .subscribe((response) => {
-        const abstractMembership: AbstractMembership = {};
+        const abstractMembership: AbstractMembership = {
+          member: response.id,
+          status: AbstractMembership.StatusEnum.INITIAL,
+        };
         this.membershipService.memberMemberIdMembershipPost(abstractMembership, response.id, 'body')
           .subscribe((membership) => {
             console.log(membership);
