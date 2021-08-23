@@ -839,6 +839,12 @@ paths:
         required: true
       responses:
         200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Membership'
+                type: array
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
