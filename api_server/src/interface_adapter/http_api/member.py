@@ -109,8 +109,18 @@ class MemberHandler(DefaultHandler):
     def membership_patch(self, ctx, member_id, uuid, body):
         try:
             body['uuid'] = uuid
-            to_update: AbstractMembership = deserialize_request(body, )
+            to_update: AbstractMembership = deserialize_request(body, AbstractMembership)
             self.member_manager.change_membership(ctx, member_id, uuid, to_update)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def membership_validate(self, ctx, member_id, uuid):
+        try:
+            self.member_manager.validate_membership(ctx, member_id, uuid)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

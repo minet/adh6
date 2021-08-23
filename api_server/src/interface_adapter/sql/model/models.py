@@ -382,7 +382,7 @@ class MailTemplates(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-class Membership(Base):
+class Membership(Base, RubyHashTrackable):
     __tablename__ = "membership"
 
     uuid = Column(CHAR(36), primary_key=True)
