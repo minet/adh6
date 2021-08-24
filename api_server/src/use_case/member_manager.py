@@ -127,12 +127,12 @@ class MemberManager(CRUDManager):
 
         if membership.status == MembershipStatus.PENDING_RULES.value:
             date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
-            if date_signed_minet is not None or date_signed_minet != "":
+            if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL.value
 
         if membership.status == MembershipStatus.PENDING_PAYMENT_INITIAL.value:
-            if membership.duration is not None or membership.duration != 0:
+            if membership.duration is not None and membership.duration != 0:
                 if membership.duration < 0:
                     raise IntMustBePositive('duration')
                 if membership.duration not in self.config.PRICES:
@@ -200,7 +200,7 @@ class MemberManager(CRUDManager):
 
         if membership.status == MembershipStatus.PENDING_RULES.value:
             date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
-            if date_signed_minet is not None or date_signed_minet != "":
+            if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 abstract_membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL.value
                 membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL.value
@@ -208,7 +208,7 @@ class MemberManager(CRUDManager):
                 raise CharterNotSigned(str(member_id))
 
 
-        if abstract_membership.duration is not None or abstract_membership.duration != 0:
+        if abstract_membership.duration is not None and abstract_membership.duration != 0:
             if abstract_membership.duration < 0:
                 raise IntMustBePositive('duration')
             if abstract_membership.duration not in self.config.PRICES:

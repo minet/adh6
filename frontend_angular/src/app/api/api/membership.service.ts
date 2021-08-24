@@ -65,9 +65,9 @@ export class MembershipService {
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Membership>>;
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Membership>>>;
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Membership>>>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
     public memberMemberIdMembershipPost(body: Membership, memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
@@ -107,7 +107,7 @@ export class MembershipService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Array<Membership>>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+        return this.httpClient.request<Membership>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,

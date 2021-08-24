@@ -842,9 +842,7 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  $ref: '#/components/schemas/Membership'
-                type: array
+                $ref: '#/components/schemas/Membership'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'

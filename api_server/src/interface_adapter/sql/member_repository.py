@@ -7,12 +7,15 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
+from sqlalchemy.orm import Session, Query
+
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Room, Membership, AbstractMembership, PaymentMethod, Account
 from src.entity.member import Member
 from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipPending, \
-    InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError, PaymentMethodNotFoundError
+    InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError, PaymentMethodNotFoundError, \
+    MembershipStatusNotAllowed
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Adherent, Chambre
 from src.interface_adapter.sql.model.models import Membership as MembershipSQL
@@ -279,8 +282,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
                 raise MembershipPending(i.uuid)
 
         to_add.first_time = len(all_membership) == 0
-        with track_modifications(ctx, s, to_add):
-            s.add(to_add)
+        s.add(to_add)
         s.flush()
 
         LOG.debug("sql_membership_repository_add_membership_finished", extra=log_extra(ctx, membership_uuid=to_add.uuid))
@@ -288,25 +290,28 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         return _map_membership_sql_to_entity(to_add)
 
     def update_membership(self, ctx, member_id: int, membership_uuid: str, abstract_membership: AbstractMembership) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
+        s: Session = ctx.get(CTX_SQL_SESSION)
         adherent: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if adherent is None:
             raise MemberNotFoundError(str(member_id))
-        membership: MembershipSQL = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid).one_or_none()
+        q: Query = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
+        membership: MembershipSQL = q.one_or_none()
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
 
-        with track_modifications(ctx, s, membership):
-            _merge_membership_sql_with_entity(ctx, abstract_membership, membership)
+        _merge_membership_sql_with_entity(ctx, abstract_membership, q)
+        s.flush()
 
     def validate_membership(self, ctx, membership_uuid: str) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
-        membership: MembershipSQL = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid).one_or_None()
+        s: Session = ctx.get(CTX_SQL_SESSION)
+        q: Query = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
+        membership: MembershipSQL = q.one_or_None()
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
-
-        with track_modifications(ctx, s, membership):
-            membership.status = MembershipStatus.COMPLETE
+        if membership.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
+            raise MembershipStatusNotAllowed(membership.status, "Should be PENDING_PAYMENT_VALIDATION")
+        q.update({MembershipSQL.status: MembershipStatus.COMPLETE}, synchronize_session=False)
+        s.flush()
 
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
@@ -340,13 +345,12 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     return adherent
 
 
-def _merge_membership_sql_with_entity(ctx, entity: AbstractMembership, sql_object: MembershipSQL, override=False) -> MembershipSQL:
+def _merge_membership_sql_with_entity(ctx, entity: AbstractMembership, q: Query) -> None:
     now = datetime.now()
-    membership = sql_object
-    if entity.duration is not None or override:
-        membership.duration = entity.duration
-    if entity.products is not None or override:
-        membership.products = str(entity.products)
+    if entity.duration is not None:
+        q.update({MembershipSQL.duration: entity.duration}, synchronize_session=False)
+    if entity.products is not None:
+        q.update({MembershipSQL.products: str(entity.products)}, synchronize_session=False)
     if entity.member is not None:
         if isinstance(entity.member, Member):
             entity.member = entity.member.id
@@ -354,7 +358,7 @@ def _merge_membership_sql_with_entity(ctx, entity: AbstractMembership, sql_objec
         adherent: Adherent = s.query(Adherent).filter(Adherent.id == entity.member)
         if not adherent:
             raise MemberNotFoundError(str(entity.member))
-        membership.adherent_id = entity.member
+        q.update({MembershipSQL.adherent_id: entity.member}, synchronize_session=False)
     if entity.payment_method is not None:
         if isinstance(entity.payment_method, PaymentMethod):
             entity.payment_method = entity.payment_method.id
@@ -362,12 +366,11 @@ def _merge_membership_sql_with_entity(ctx, entity: AbstractMembership, sql_objec
         payment_method: PaymentMethod = s.query(PaymentMethodSQL).filter(PaymentMethodSQL.id == entity.payment_method)
         if not payment_method:
             raise PaymentMethodNotFoundError(str(entity.payment_method))
-        membership.payment_method = entity.payment_method
-    if entity.status is not None or override:
-        membership.status = entity.status
+        q.update({MembershipSQL.payment_method_id: entity.payment_method}, synchronize_session=False)
+    if entity.status is not None:
+        q.update({MembershipSQL.status: entity.status}, synchronize_session=False)
 
-    membership.updated_at = now
-    return membership
+    q.update({MembershipSQL.update_at: now}, synchronize_session=False)
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
