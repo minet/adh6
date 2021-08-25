@@ -180,13 +180,14 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             #return true, 200
             auth_state = get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
                                   port.oid)
-            print("MAB actuel : "+ mab_state)
-            if auth_state == "false" :
+            print("Auth actuel : "+ auth_state)
+            if auth_state == "auto" : #auth activée
                 return set_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                      port.oid, 2)
+                                      port.oid, 3)
             else :
+                set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', port.oid, 1)
                 return set_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                  port.oid, 3)
+                                  port.oid, 2)
         except NetworkManagerReadError:
             raise
 

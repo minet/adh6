@@ -36,8 +36,12 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   portMabString = 'N/A';
   portMab: boolean;
 
-  portAliasString: boolean;
+  portAliasString: string;
 
+  portSpeed: string ;
+
+  portUse: string;
+  portUseString = 'N/A';
   private sub: any;
 
   constructor(
@@ -46,6 +50,15 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
     private notif: NotificationsService,
   ) {
+  }
+
+  setUse(state) {
+    if (state == "authorized") {
+      this.portUseString = 'Le port est actuellement utilisé';
+    } else {
+      this.portUseString = 'Le port n\'est pas actuellement utilisé';
+    }
+    this.portUse = state;
   }
 
   setStatus(state) {
@@ -66,9 +79,9 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   setAuth(state) {
     if (state) {
-      this.portAuthString = 'ACTIVÉ';
+      this.portAuthString = 'ACTIVÉE';
     } else {
-      this.portAuthString = 'DÉSACTIVÉ';
+      this.portAuthString = 'DÉSACTIVÉE';
     }
     this.portAuth = state;
   }
@@ -86,6 +99,13 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.portPortIdMabPut(!this.portMab, this.portID)
       .subscribe(() => {
         this.setMabStatus(!this.portMab);
+      });
+  }
+
+  toggleAuth() {
+    this.portService.portPortIdAuthPut(!this.portAuth, this.portID)
+      .subscribe(() => {
+        this.setAuth(!this.portAuth);
       });
   }
 
@@ -111,11 +131,10 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.port$ = this.portService.portPortIdGet(this.portID);
     });
 
-/*    this.portService.authGet(this.portID)
+    this.portService.authGet(this.portID)
       .subscribe((status) => {
         this.setAuth(status);
       });
-*/
     this.portService.stateGet(this.portID)
       .subscribe((status) => {
         this.setStatus(status);
@@ -131,6 +150,14 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.aliasGet(this.portID)
       .subscribe((alias) => {
         this.portAliasString = alias;
+      });
+    this.portService.speedGet(this.portID)
+      .subscribe((speed) => {
+        this.portSpeed = speed;
+      });
+    this.portService.useGet(this.portID)
+      .subscribe((use) => {
+        this.setUse(use);
       });
   }
 

@@ -57,16 +57,16 @@ export class PortService {
 
 
     /**
-     * Retrieve whether MAB is enabled on this port
+     * Retrieve the alias on a port
      * 
      * @param portId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public aliasGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public aliasGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public aliasGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public aliasGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public aliasGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public aliasGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
     public aliasGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (portId === null || portId === undefined) {
@@ -97,7 +97,58 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/alias/`,
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/alias/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve whether authentication is enabled on this port
+     * 
+     * @param portId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public authGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public authGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public authGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public authGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (portId === null || portId === undefined) {
+            throw new Error('Required parameter portId was null or undefined when calling authGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -224,6 +275,68 @@ export class PortService {
         return this.httpClient.request<Array<Port>>('get',`${this.basePath}/port/`,
             {
                 params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Update the state of authentication on a port
+     * 
+     * @param body 
+     * @param portId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public portPortIdAuthPut(body: boolean, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling portPortIdAuthPut.');
+        }
+
+        if (portId === null || portId === undefined) {
+            throw new Error('Required parameter portId was null or undefined when calling portPortIdAuthPut.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
+            {
+                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -639,6 +752,57 @@ export class PortService {
     }
 
     /**
+     * Retrieve the speed on a port
+     * 
+     * @param portId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public speedGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public speedGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public speedGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
+    public speedGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (portId === null || portId === undefined) {
+            throw new Error('Required parameter portId was null or undefined when calling speedGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/speed/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Retrieve the state of a port
      * 
      * @param portId 
@@ -680,6 +844,57 @@ export class PortService {
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
         return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/state/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve the current use of a port
+     * 
+     * @param portId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public useGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public useGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public useGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
+    public useGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (portId === null || portId === undefined) {
+            throw new Error('Required parameter portId was null or undefined when calling useGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/use/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

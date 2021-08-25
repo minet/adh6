@@ -105,7 +105,7 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            print("HAHUAHUA\n\n" + self.switch_network_manager.get_port_mab(ctx, switch, port))
+            print("MAB\n\n" + self.switch_network_manager.get_port_mab(ctx, switch, port))
             return True if self.switch_network_manager.get_port_mab(ctx, switch, port) == "true" else False, 200
             #return self.switch_network_manager.get_port_mab(ctx, switch, port), 200
         except SwitchNotFoundError:
@@ -140,7 +140,7 @@ class PortHandler(DefaultHandler):
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
             print("AUTHENTIFICATION\n\n" + self.switch_network_manager.get_port_auth(ctx, switch, port))
-            return True if self.switch_network_manager.get_port_auth(ctx, switch, port) == "true" else False, 200
+            return True if self.switch_network_manager.get_port_auth(ctx, switch, port) == "auto" else False, 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -172,7 +172,7 @@ class PortHandler(DefaultHandler):
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
             print("Y A QUELQU'UN ? \n\n" + self.switch_network_manager.get_port_use(ctx, switch, port))
-            return True if self.switch_network_manager.get_port_use(ctx, switch, port) == "true" else False, 200
+            return self.switch_network_manager.get_port_use(ctx, switch, port), 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -187,8 +187,8 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            print("Y A QUELQU'UN ? \n\n" + self.switch_network_manager.get_port_alias(ctx, switch, port))
-            return True if self.switch_network_manager.get_port_alias(ctx, switch, port) == "true" else False, 200
+            print("MAIS COMMENT TU T'APPELLES \n\n" + self.switch_network_manager.get_port_alias(ctx, switch, port))
+            return self.switch_network_manager.get_port_alias(ctx, switch, port), 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -203,8 +203,8 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            print("Y A QUELQU'UN ? \n\n" + self.switch_network_manager.get_port_speed(ctx, switch, port))
-            return True if self.switch_network_manager.get_port_speed(ctx, switch, port) == "true" else False, 200
+            print("VITESSE \n\n" + str(int(self.switch_network_manager.get_port_speed(ctx, switch, port))/1000000))
+            return self.switch_network_manager.get_port_speed(ctx, switch, port), 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
