@@ -24,7 +24,7 @@
         <tbody>
         <tr
           *ngFor="let device of result.devices | paginate: { itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
-          [routerLink]="['../../member/view' , device.username]"
+          [routerLink]="['../../member/view' , device.member.id]"
           [queryParams]="{highlight: device.mac}">
           <td>{{ device.member.username }}</td>
           <td>{{ device.mac }}</td>
