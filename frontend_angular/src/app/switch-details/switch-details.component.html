@@ -17,10 +17,10 @@
       switchID: switchID}">
       <td class="center">{{ portResult.portNumber }}</td>
       <td class="center">
-        <a [routerLink]="['/room/view', portResult.roomNumber]">
-          {{ portResult.roomNumber }}</a></td>
+        <a [routerLink]="['/room/view', portResult.room.roomNumber]">
+          {{ portResult.room.roomNumber }}</a></td>
       <td class="center">
-        <a [routerLink]="['/switch/view', portResult.switchID, 'port', portResult.id]">
+        <a [routerLink]="['/switch/view', portResult.switchObj.id, 'port', portResult.id]">
           <button class="btn btn-primaryo">Consulter</button>
         </a>
       </td>
