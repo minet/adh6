@@ -7,6 +7,7 @@ from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractPort, Port, Switch, Room
+from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, SwitchNotFoundError, PortNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Port as SQLPort, Switch as SQLSwitch, Chambre as SQLChambre
@@ -147,6 +148,6 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         id=a.id,
         port_number=a.numero,
         oid=a.oid,
-        room=_map_room_sql_to_entity(a.chambre),
+        room=_map_room_sql_to_entity(a.chambre) if a.chambre is not None else Null(),
         switch_obj=_map_switch_sql_to_entity(a.switch)
     )

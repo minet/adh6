@@ -2406,6 +2406,7 @@ components:
           type: string
         room:
           description: The room this port is in
+          nullable: true
           oneOf:
             - $ref: '#/components/schemas/Room'
             - type: integer
