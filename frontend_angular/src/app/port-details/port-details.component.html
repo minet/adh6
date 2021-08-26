@@ -4,7 +4,7 @@
   <h3>Informations</h3>
   <div class="row">
     <div class="col-4">
-      <button class="w-100 btn btn-primary" [disabled]="port.room.roomNumber == null"
+      <button class="w-100 btn btn-primary" [disabled]="port.room == null"
               (click)="IfRoomExists(port.room.roomNumber)">Chambre {{ port.room.roomNumber }}
       </button>
     </div>
