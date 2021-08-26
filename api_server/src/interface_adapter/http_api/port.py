@@ -29,8 +29,8 @@ class PortHandler(DefaultHandler):
         """ Get the state of a port """
 
         try:
-            port = self.port_manager.get_by_id(ctx, port_id)
-            switch = self.switch_manager.get_by_id(ctx, port.switch_info.switch_id)
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
 
             return True if self.switch_network_manager.get_port_status(ctx, switch, port) == "up" else False, 200
         except SwitchNotFoundError:
@@ -41,8 +41,19 @@ class PortHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def state_put(self, ctx, port_id, state):
-        return NoContent, 501
+    def state_put(self, ctx, port_id, body):
+        #return NoContent, 501
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("TEST DE FERMETURE DE PORT \n\n" + self.switch_network_manager.update_port_status(ctx, switch, port))
+            return NoContent, 204
+            #return True if self.switch_network_manager.update_port_mab(ctx, switch, port), 200
+            #return self.switch_network_manager.get_port_mab(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
 
     @with_context
     @require_sql
@@ -51,8 +62,11 @@ class PortHandler(DefaultHandler):
         LOG.debug("http_port_vlan_get_called", extra=log_extra(ctx, port_id=port_id))
 
         try:
-            port = self.port_manager.get_by_id(ctx, port_id)
-            switch = self.switch_manager.get_by_id(ctx, port.switch_info.switch_id)
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("LE VLAN : " + self.switch_network_manager.get_port_vlan(ctx, switch, port))
+            if (self.switch_network_manager.get_port_vlan(ctx, switch, port)) == "No Such Instance currently exists at this OID" :
+                return 1, 200
 
             return int(self.switch_network_manager.get_port_vlan(ctx, switch, port)), 200
         except SwitchNotFoundError:
@@ -63,20 +77,20 @@ class PortHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def vlan_put(self, ctx, port_id, vlan):
-        return NoContent, 501
-
-    @with_context
-    @require_sql
-    @log_call
-    def mab_get(self, ctx, port_id):
-        LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+    def vlan_put(self, ctx, port_id, body):
+        LOG.debug("http_port_vlan_put_called", extra=log_extra(ctx, port_id=port_id))
 
         try:
-            port = self.port_manager.get_by_id(ctx, port_id)
-            switch = self.switch_manager.get_by_id(ctx, port.switch_info.switch_id)
+            print(port_id, body)
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
 
-            return self.switch_network_manager.get_port_mab(ctx, switch, port), 200
+            print("\n\n\n\n\n" + str(body))
+            if (self.switch_network_manager.get_port_vlan(ctx, switch, port)) == "No Such Instance currently exists at this OID" :
+                return 1, 200
+
+            print("Update de VLAN : " + self.switch_network_manager.update_port_vlan(ctx, switch, port, int(body)))
+            return int(body), 204
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -85,5 +99,113 @@ class PortHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def mab_put(self, ctx, port_id, mab):
-        return NoContent, 501
+    def mab_get(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("MAB\n\n" + self.switch_network_manager.get_port_mab(ctx, switch, port))
+            return True if self.switch_network_manager.get_port_mab(ctx, switch, port) == "true" else False, 200
+            #return self.switch_network_manager.get_port_mab(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def mab_put(self, ctx, port_id, body):
+        #return NoContent, 501
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("TEST DE CHANGEMENT DE MAB\n\n" + self.switch_network_manager.update_port_mab(ctx, switch, port))
+            return NoContent, 204
+            #return True if self.switch_network_manager.update_port_mab(ctx, switch, port), 200
+            #return self.switch_network_manager.get_port_mab(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def auth_get(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("AUTHENTIFICATION\n\n" + self.switch_network_manager.get_port_auth(ctx, switch, port))
+            return True if self.switch_network_manager.get_port_auth(ctx, switch, port) == "auto" else False, 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def auth_put(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("CHANGEMENT D'AUTHENTIFICATION\n\n" + self.switch_network_manager.update_port_auth(ctx, switch, port))
+            return NoContent,204
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def use_get(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("Y A QUELQU'UN ? \n\n" + self.switch_network_manager.get_port_use(ctx, switch, port))
+            return self.switch_network_manager.get_port_use(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def alias_get(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("MAIS COMMENT TU T'APPELLES \n\n" + self.switch_network_manager.get_port_alias(ctx, switch, port))
+            return self.switch_network_manager.get_port_alias(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404
+
+    @with_context
+    @require_sql
+    @log_call
+    def speed_get(self, ctx, port_id):
+        #LOG.debug("http_port_mab_get_called", extra=log_extra(ctx, port_id=port_id))
+
+        try:
+            port = self.port_manager.get_by_id(ctx, port_id=port_id)
+            switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
+            print("VITESSE \n\n" + str(int(self.switch_network_manager.get_port_speed(ctx, switch, port))/1000000))
+            return self.switch_network_manager.get_port_speed(ctx, switch, port), 200
+        except SwitchNotFoundError:
+            return NoContent, 404
+        except PortNotFoundError:
+            return NoContent, 404

@@ -42,7 +42,7 @@ RUN pip3 install -r ./requirements.txt
 
 # Build all MIBs required by pysnmp
 COPY api_server/mibs.zip ./
-RUN mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+RUN mibdump.py --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 RUN chmod 755 /root
 RUN chown -R uwsgi:www-data /root/.pysnmp
 

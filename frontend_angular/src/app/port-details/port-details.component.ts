@@ -33,6 +33,15 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   portAuthString = 'N/A';
   portAuth: boolean;
 
+  portMabString = 'N/A';
+  portMab: boolean;
+
+  portAliasString: string;
+
+  portSpeed: string ;
+
+  portUse: string;
+  portUseString = 'N/A';
   private sub: any;
 
   constructor(
@@ -43,33 +52,65 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   ) {
   }
 
+  setUse(state) {
+    if (state == "authorized") {
+      this.portUseString = 'Le port est actuellement utilisé';
+    } else {
+      this.portUseString = 'Le port n\'est pas actuellement utilisé';
+    }
+    this.portUse = state;
+  }
+
   setStatus(state) {
     if (state) {
-      this.portStatusString = 'OUI';
+      this.portStatusString = 'OUVERT';
     } else {
-      this.portStatusString = 'NON';
+      this.portStatusString = 'FERMÉ';
     }
     this.portStatus = state;
   }
 
   toggleStatus() {
     this.portService.portPortIdStatePut(!this.portStatus, this.portID)
-      .subscribe((status) => {
-        this.setStatus(status);
+      .subscribe(() => {
+        this.setStatus(!this.portStatus);
       });
   }
 
   setAuth(state) {
     if (state) {
-      this.portAuthString = 'ACTIVE';
+      this.portAuthString = 'ACTIVÉE';
     } else {
-      this.portAuthString = 'NON ACTIVE';
+      this.portAuthString = 'DÉSACTIVÉE';
     }
     this.portAuth = state;
   }
 
+  setMabStatus(state) {
+    if (state) {
+      this.portMabString = 'ACTIVÉ';
+    } else {
+      this.portMabString = 'DÉSACTIVÉ';
+    }
+    this.portMab = state;
+  }
+
+  toggleMabStatus() {
+    this.portService.portPortIdMabPut(!this.portMab, this.portID)
+      .subscribe(() => {
+        this.setMabStatus(!this.portMab);
+      });
+  }
+
+  toggleAuth() {
+    this.portService.portPortIdAuthPut(!this.portAuth, this.portID)
+      .subscribe(() => {
+        this.setAuth(!this.portAuth);
+      });
+  }
+
   changeVlan(newVlan) {
-    this.portService.portPortIdVlanPut(this.portID, newVlan)
+    this.portService.portPortIdVlanPut(newVlan, this.portID)
       .subscribe((vlan) => {
         this.vlan = vlan;
       });
@@ -90,6 +131,10 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.port$ = this.portService.portPortIdGet(this.portID);
     });
 
+    this.portService.authGet(this.portID)
+      .subscribe((status) => {
+        this.setAuth(status);
+      });
     this.portService.stateGet(this.portID)
       .subscribe((status) => {
         this.setStatus(status);
@@ -97,6 +142,22 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.vlanGet(this.portID)
       .subscribe((vlan) => {
         this.vlan = vlan;
+      });
+    this.portService.mabGet(this.portID)
+      .subscribe((mabState) => {
+        this.setMabStatus(mabState);
+      });
+    this.portService.aliasGet(this.portID)
+      .subscribe((alias) => {
+        this.portAliasString = alias;
+      });
+    this.portService.speedGet(this.portID)
+      .subscribe((speed) => {
+        this.portSpeed = speed;
+      });
+    this.portService.useGet(this.portID)
+      .subscribe((use) => {
+        this.setUse(use);
       });
   }
 
