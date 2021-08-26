@@ -53,7 +53,7 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
 
   private fetchPorts(terms: string, page: number): Observable<PortListResult> {
     const n = +PagingConf.item_count;
-    return this.portService.portGet(n, (page - 1) * n, terms, undefined, 'response')
+    return this.portService.portGet(n, (page - 1) * n, '', <AbstractPort>{switch: this.switch_id}, 'response')
       .pipe(
         map((response) => {
           return <PortListResult>{

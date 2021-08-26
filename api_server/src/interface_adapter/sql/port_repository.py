@@ -24,7 +24,7 @@ class PortSQLRepository(PortRepository):
 
         q = s.query(SQLPort)
         q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
-        q = q.join(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
 
 
         if terms:
@@ -93,7 +93,7 @@ class PortSQLRepository(PortRepository):
 
         q = s.query(SQLPort)
         q = q.filter(SQLPort.id == object_to_update.id)
-        q = q.join(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
         q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
 
         port = q.one_or_none()
