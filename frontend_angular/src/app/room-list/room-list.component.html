@@ -23,7 +23,7 @@
     <tr
       *ngFor="let room of result.room | paginate: { id: 'paginationControlsTemplate',
       itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
-      [routerLink]="['/room/view',room.roomNumber]">
+      [routerLink]="['/room/view',room.id]">
       <td class="center">{{ room.roomNumber }}</td>
       <td class="center">{{ room.description }}</td>
       <td class="center">{{ room.vlan.number }}</td>
