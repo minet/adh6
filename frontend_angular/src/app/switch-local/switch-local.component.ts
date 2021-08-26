@@ -16,7 +16,7 @@ export class SwitchLocalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch local', {}).pipe(
+    this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch Local', {}).pipe(
       map((switchObjArr) => {
         const switchObj = switchObjArr[0];
         this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{switch: switchObj.id});

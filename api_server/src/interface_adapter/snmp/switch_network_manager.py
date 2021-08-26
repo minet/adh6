@@ -126,12 +126,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise NetworkManagerReadError("SNMP read error: port object was None")
 
         try:
-            print("TENTATIVE D'UPDATE \n\n" + get_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
-                                  port.oid))
-            #return true, 200
             mab_state = get_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
                                   port.oid)
-            print("MAB actuel : "+ mab_state)
             if mab_state == "false" :
                 return set_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
                                       port.oid, 1)
@@ -156,7 +152,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise NetworkManagerReadError("SNMP read error: port object was None")
 
         try:
-            print(port.oid)
             return get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
                                   port.oid)
         except NetworkManagerReadError:
@@ -175,12 +170,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise NetworkManagerReadError("SNMP read error: port object was None")
 
         try:
-            print("TENTATIVE D'UPDATE D'AUTH \n\n" + get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                  port.oid))
-            #return true, 200
             auth_state = get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
                                   port.oid)
-            print("Auth actuel : "+ auth_state)
             if auth_state == "auto" : #auth activée
                 return set_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
                                       port.oid, 3)

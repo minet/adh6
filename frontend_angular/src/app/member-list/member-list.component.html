@@ -29,7 +29,7 @@
       [routerLink]="['../view', member.id]">
       <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
       <td>{{ member.username }}</td>
-      <td class="roomNumberRow"><a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.roomNumber }}</a><p *ngIf="member.room == null">Aucune</p></td>
+      <td class="roomNumberRow"><a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.room.roomNumber }}</a><p *ngIf="member.room.roomNumber == null">Aucune</p></td>
     </tr>
     <br/>
   </table>
