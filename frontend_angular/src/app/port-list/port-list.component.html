@@ -22,7 +22,8 @@
       <td class="center">{{ portResult.switchObj.description }}</td>
       <td class="center">{{ portResult.portNumber }}</td>
       <td class="center">
-        <a [routerLink]="['/room/view', portResult.room.id]">{{ portResult.room.description }}</a></td>
+        <a *ngIf="portResult.room != null" [routerLink]="['/room/view', portResult.room.roomNumber]">{{ portResult.room.description }}</a>
+        <a *ngIf="portResult.room == null">Aucune chambre</a>
       <td class="center">
         <a [routerLink]="['/switch/view', portResult.switchObj.id, 'port', portResult.id]">
           <button class="btn btn-primary">Consulter</button>
