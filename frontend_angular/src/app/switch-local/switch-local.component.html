@@ -18,7 +18,7 @@
           <area *ngIf="portResult.id>=16 && portResult.id<=24 &&
             portResult.id%2==0" coords="{{45+70*(portResult.id-16)/2}},186,15"
                 [routerLink]="['/switch/view', portResult.switchObj.id, 'port',
-                            portResult.id]" shape="circle" title="Port {{portResult.id}">
+                            portResult.id]" shape="circle" title="Port {{portResult.id}}">
           <area *ngIf="portResult.id>=15 && portResult.id<=23 &&
             portResult.id%2==1" coords="{{31+70*(portResult.id-15)/2}},215,15"
                 [routerLink]="['/switch/view', portResult.switchObj.id, 'port',
