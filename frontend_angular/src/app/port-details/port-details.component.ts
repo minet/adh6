@@ -117,10 +117,11 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   IfRoomExists(roomNumber) {
+    console.log(roomNumber);
     if (roomNumber == null) {
       this.notif.error('This port is not assigned to a room');
     } else {
-      this.router.navigate(['/room/view', roomNumber]);
+      this.router.navigate(['/room/view', roomNumber.roomNumber]);
     }
   }
 
