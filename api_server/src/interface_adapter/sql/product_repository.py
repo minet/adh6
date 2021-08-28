@@ -2,7 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from typing import List
+from typing import List, Tuple
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.product import Product
@@ -20,7 +20,7 @@ class ProductSQLRepository(ProductRepository):
     """
 
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: Product = None) -> (List[Product], int):
+                  filter_: Product = None) -> Tuple[List[Product], int]:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(SQLProduct)

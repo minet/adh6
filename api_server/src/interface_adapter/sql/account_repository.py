@@ -3,7 +3,11 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List
+
+from sqlalchemy.orm.session import Session
+from src.util.context import log_extra
+from src.util.log import LOG
+from typing import List, Optional, Tuple
 
 from sqlalchemy import func, case, or_
 
@@ -24,7 +28,7 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractAccount = None) -> (List[Account], int):
+                  filter_: AbstractAccount = None) -> Tuple[List[Account], int]:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(SQLAccount,
@@ -67,14 +71,16 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        s: Session = ctx.get(CTX_SQL_SESSION)
+        LOG.debug("sql_account_repository_create_called", extra=log_extra(ctx, account_type=abstract_account.account_type))
 
         now = datetime.now()
 
-        account_type = None
         if abstract_account.account_type is not None:
+            LOG.debug("sql_account_repository_search_account_type", extra=log_extra(ctx, account_type=abstract_account.account_type))
             account_type = s.query(AccountType).filter(AccountType.id == abstract_account.account_type).one_or_none()
-            if not account_type:
+
+            if account_type is None:
                 raise AccountNotFoundError(abstract_account.account_type)
 
         adherent = None
@@ -86,7 +92,7 @@ class AccountSQLRepository(AccountRepository):
         account = SQLAccount(
             name=abstract_account.name,
             actif=abstract_account.actif,
-            type=account_type,
+            account_type=account_type,
             creation_date=now,
             compte_courant=abstract_account.compte_courant,
             pinned=abstract_account.pinned,
@@ -95,6 +101,8 @@ class AccountSQLRepository(AccountRepository):
 
         with track_modifications(ctx, s, account):
             s.add(account)
+        s.flush()
+        LOG.debug("sql_account_repository_create_finished", extra=log_extra(ctx, account_id=account.id))
 
         return _map_account_sql_to_entity(account)
 
