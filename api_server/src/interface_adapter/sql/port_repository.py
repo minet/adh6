@@ -49,7 +49,7 @@ class PortSQLRepository(PortRepository):
                 q = q.filter(SQLPort.switch_id == filter_.switch_obj)
 
         count = q.count()
-        q = q.order_by(SQLPort.created_at.asc())
+        q = q.order_by(SQLPort.id.asc())
         q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
