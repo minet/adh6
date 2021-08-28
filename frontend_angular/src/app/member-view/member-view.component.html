@@ -17,6 +17,9 @@
         <!-- Association button -->
         <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
         <!-- History -->
+        <ng-container *ngIf="latestMembership$ | async as latestMembership">
+          <button class="btn btn-danger w-100 association-button mt-3" *ngIf="checkMembershipStatus(latestMembership.status)">{{statusToText[latestMembership.status]}}</button>
+        </ng-container>
       </div>
 
     </div>
@@ -57,6 +60,12 @@
     </table>
 
     <div class="row mt-3">
+      <div class="col-md-12">
+          <button class="w-100 btn btn-primary mb-3" (click)="signCharter()">Signer la charte</button>
+      </div>
+    </div>
+
+    <div class="row mt-3">
       <div class="col-md-6">
         <a [routerLink]="['/member/edit/', member.id ]">
           <button class="w-100 btn btn-primary mb-3">Éditer le profil</button>
@@ -90,37 +99,26 @@
           <select (change)="updateAmount()" class="w-100 form-control"
                   formControlName="renewal" type="text">
             <option value="0">Aucun</option>
-            <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
-            <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
-            <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
-            <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
-            <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
-            <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
+            <option value="30">1 mois (9€) - {{ formatDate(1) }}</option>
+            <option value="60">2 mois (18€) - {{ formatDate(2) }}</option>
+            <option value="90">3 mois (27€) - {{ formatDate(3) }}</option>
+            <option value="120">4 mois (36€) - {{ formatDate(4) }}</option>
+            <option value="150">5 mois (45€) - {{ formatDate(5) }}</option>
+            <option value="360">1 an (50€) - {{ formatDate(12) }}</option>
           </select>
         </div>
         <div class="form-group">
           <label>Matériel à ajouter</label>
-          <div class="form-check">
-            <input (change)="updateAmount()" class="form-check-input" formControlName="checkCable3" id="checkCable3" type="checkbox"
-                   value="">
-            <label class="form-check-label" for="checkCable3">
-              Câble 3m (3 €)
-            </label>
-          </div>
-          <div class="form-check">
-            <input (change)="updateAmount()" class="form-check-input" formControlName="checkCable5" id="checkCable5" type="checkbox"
-                   value="">
-            <label class="form-check-label" for="checkCable5">
-              Câble 5m (5 €)
-            </label>
-          </div>
-          <div class="form-check">
-            <input (change)="updateAmount()" class="form-check-input" formControlName="checkAdapter" id="checkAdapter" type="checkbox"
-                   value="">
-            <label class="form-check-label" for="checkAdapter">
-              Adaptateur Ethernet / USB (13 €)
-            </label>
-          </div>
+          <ng-container *ngIf="products$ | async as products">
+            <ng-container *ngFor="let product of products; let i = index" formArrayName="products">
+              <div class="form-check" [formGroupName]="i">
+                <input formControlName="checked" (change)="updateAmount()" class="form-check-input" type="checkbox" value="">
+                <label class="form-check-label" for="checked">
+                  {{product.name}} ({{product.sellingPrice}} €)
+                </label>
+              </div>
+            </ng-container>
+          </ng-container>
         </div>
         <div class="form-group">
           <label>Payer par (montant : {{ amountToPay }} €)</label>
@@ -136,6 +134,7 @@
     </div>
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
     <hr/>
+
 
     <!-- Device list -->
 
