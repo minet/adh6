@@ -7,7 +7,7 @@ from typing import Tuple, Any
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractMember, Member, Membership, AbstractMembership
+from src.entity import AbstractMember, Member, Membership, AbstractMembership, membership_request
 from src.exceptions import ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
@@ -24,6 +24,17 @@ class MemberHandler(DefaultHandler):
     def __init__(self, member_manager: MemberManager):
         super().__init__(Member, AbstractMember, member_manager)
         self.member_manager = member_manager
+
+    @with_context
+    @require_sql
+    @log_call
+    def post(self, ctx, body):
+        try:
+            body['id'] = 0  # Set a dummy id to pass the initial validation
+            to_create = deserialize_request(body, self.entity_class)
+            return serialize_response(self.member_manager.new_member(ctx, to_create)), 201
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
@@ -94,8 +105,15 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_by_member_search(self, ctx, member_id, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
-        pass
+    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+        try:
+            membership: Membership = self.member_manager.get_latest_membership(ctx, member_id)
+            LOG.debug("get_latest_membership", extra=log_extra(ctx,membership_uuid=membership.uuid))
+            return serialize_response(membership), 200
+        except Exception as e:
+            LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
+            handle_error(e)
+
 
     @with_context
     @require_sql

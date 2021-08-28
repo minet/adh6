@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session, Query
+from sqlalchemy.sql.expression import desc, or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Room, Membership, AbstractMembership, PaymentMethod, Account
@@ -31,8 +32,7 @@ from src.util.log import LOG
 class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractMember = None) -> (List[Member], int):
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> Tuple[List[Member], int]:
         s = ctx.get(CTX_SQL_SESSION)
         q = s.query(Adherent)
         q = q.outerjoin(Chambre, Chambre.id == Adherent.chambre_id)
@@ -140,7 +140,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
     @log_call
     def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
+        s: Session = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(Adherent)
         q = q.filter(Adherent.id == member_id)
@@ -164,8 +164,6 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             with track_modifications(ctx, s, adherent):
                 adherent.signedminet = True
                 adherent.datesignedminet = now
-            with track_modifications(ctx, s, membership):
-                membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
         elif charter_id == 2:
             if adherent.datesignedhosting is not None or adherent.signedhosting:
                 raise CharterAlreadySigned("Hosting")
@@ -174,6 +172,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
                 adherent.datesignedhosting = now
         else:
             raise InvalidCharterID(str(charter_id))
+        s.flush()
 
 
     @log_call
@@ -188,11 +187,38 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             raise MemberNotFoundError(str(member_id))
 
         if charter_id == 1:
-            return str(adherent.datesignedminet)
+            return "" if adherent.signedminet is None else str(adherent.datesignedminet)
         if charter_id == 2:
-            return str(adherent.datesignedhosting)
+            return "" if adherent.signedhosting is None else str(adherent.datesignedhosting)
 
         raise InvalidCharterID(str(charter_id))
+
+    @log_call
+    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+        s: Session = ctx.get(CTX_SQL_SESSION)
+        q = s.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
+                or_(
+                    MembershipSQL.status == MembershipStatus.PENDING_RULES, 
+                    MembershipSQL.status == MembershipStatus.PENDING_PAYMENT, 
+                    MembershipSQL.status == MembershipStatus.PENDING_PAYMENT_INITIAL, 
+                    MembershipSQL.status == MembershipStatus.PENDING_PAYMENT_VALIDATION
+                )
+            )
+        membership: MembershipSQL = q.one_or_none()
+        if membership is None:
+            q = s.query(MembershipSQL).filter(MembershipSQL.id == member_id).filter(
+                or_(
+                    MembershipSQL.status == MembershipStatus.INITIAL,
+                    MembershipSQL.status == MembershipStatus.COMPLETE,
+                    MembershipSQL.status == MembershipStatus.ABORTED,
+                    MembershipSQL.status == MembershipStatus.CANCELLED,
+                )
+            ).order_by(desc(MembershipSQL.create_at)).limit(1)
+            membership = q.one_or_none()
+            if membership is None:
+                raise MembershipNotFoundError(str(member_id))
+        
+        return _map_membership_sql_to_entity(membership)
 
     @log_call
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,

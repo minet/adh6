@@ -1,12 +1,13 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
-from typing import List, Optional, Union
+from src.entity.account_type import AccountType
+from typing import List, Optional, Tuple, Union
 
 from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
     AbstractMembership, AbstractAccount, AbstractTransaction, Account
 from src.entity.roles import Roles
-from src.exceptions import InvalidAdmin, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
+from src.exceptions import AccountTypeNotFoundError, InvalidAdmin, MemberAlreadyExist, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, MembershipStatusNotAllowed, AccountNotFoundError, \
     PaymentMethodNotFoundError, MembershipAlreadyExist, MembershipNotFoundError, CharterNotSigned
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -14,6 +15,7 @@ from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
 from src.use_case.interface.account_repository import AccountRepository
+from src.use_case.interface.account_type_repository import AccountTypeRepository
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
@@ -32,7 +34,8 @@ import re
         "profile": Roles.ADH6_USER,
         "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
         "membership": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "update": (Member.id == Admin.member) | Roles.ADH6_ADMIN
     },
     collection={
         "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
@@ -47,7 +50,8 @@ class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository, membership_repository: MembershipRepository,
                  logs_repository: LogsRepository, money_repository: MoneyRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
-                 transaction_repository: TransactionRepository, configuration):
+                 transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
+                 configuration):
         super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
@@ -55,6 +59,7 @@ class MemberManager(CRUDManager):
         self.money_repository = money_repository
         self.device_repository = device_repository
         self.account_repository = account_repository
+        self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
         self.config = configuration
 
@@ -69,9 +74,38 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
+    @uses_security("create", is_collection=True)
+    def new_member(self, ctx, member: Member) -> Member:
+        LOG.debug("create_member_records", extra=log_extra(ctx, username=member.username))
+        # Check that the user exists in the system.
+        fetched_member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(username=member.username))
+        if fetched_member:
+            raise MemberAlreadyExist(fetched_member[0].username)
+
+        fetched_account_type, _ = self.account_type_repository.search_by(ctx, filter_=AccountType(name="Adhérent"))
+        if not fetched_account_type:
+            raise AccountTypeNotFoundError("Adhérent")
+        created_member: Member = self.member_repository.create(ctx, member)
+        _: Account = self.account_repository.create(ctx, Account(
+            id=0,
+            actif=True,
+            account_type=fetched_account_type[0].id,
+            member=created_member.id,
+            name=f'{created_member.first_name} {created_member.last_name} ({created_member.username})',
+            pinned=False,
+            compte_courant=False,
+            balance=0,
+            pending_balance=0
+        ))
+
+        return created_member
+
+    
+    @log_call
+    @auto_raise
     @uses_security("read", is_collection=True)
     def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                          filter_: AbstractMembership = None) -> (list, int):
+                          filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -83,12 +117,29 @@ class MemberManager(CRUDManager):
                                        terms=terms,
                                        filter_=filter_)
 
-    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (
-    list, int):
+    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[List[Membership], int]:
         return self.membership_repository.membership_search_by(ctx, limit=limit,
                                                                offset=offset,
                                                                terms=terms,
                                                                filter_=filter_)
+
+    @log_call
+    @auto_raise
+    @uses_security("read", is_collection=True)
+    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+        LOG.debug("get_latest_membership_records", extra=log_extra(ctx,member_id=member_id))
+        # Check that the user exists in the system.
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(member_id)
+        
+        membership = self.membership_repository.get_latest_membership(ctx, member_id)
+        if membership is None:
+            raise MembershipNotFoundError(str(member_id))
+        LOG.debug("latest_membership_records", extra=log_extra(ctx,membership_uuid=membership.uuid))
+
+        return membership
+
 
     @log_call
     @auto_raise

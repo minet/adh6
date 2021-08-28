@@ -106,6 +106,7 @@ def init(testing=True, managing=False):
         logs_repository=elk_repository,
         device_repository=device_sql_repository,
         account_repository=account_sql_repository,
+        account_type_repository=account_type_sql_repository,
         transaction_repository=transaction_sql_repository,
         configuration=configuration,
     )
