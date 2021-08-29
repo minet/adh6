@@ -14,10 +14,12 @@ from test.integration.resource import (
 def prep_db(session,
             sample_member1, sample_member2, sample_member13,
             wired_device, wireless_device,
-            sample_room1, sample_room12, sample_vlan):
+            account_type,
+            sample_room1, sample_room12, sample_vlan,):
     session.add_all([
         sample_room1, sample_room12,
         wired_device, wireless_device,
+        account_type,
         sample_member1, sample_member2, sample_member13])
     session.commit()
 

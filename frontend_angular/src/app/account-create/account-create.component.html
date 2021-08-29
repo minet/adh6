@@ -15,7 +15,7 @@
     <select class="form-control" id="accountType" formControlName="accountType">
       <option
         *ngFor="let accountType of accountTypes$ | async"
-        value="{{ accountType.account_type_id }}"
+        value="{{ accountType.id }}"
         >{{ accountType.name }}</option
       >
     </select>

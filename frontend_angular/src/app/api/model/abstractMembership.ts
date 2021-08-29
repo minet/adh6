@@ -21,7 +21,7 @@ export interface AbstractMembership {
      */
     readonly uuid?: string;
     /**
-     * The requested duration (in days) for this membership
+     * The requested duration (in months) for this membership
      */
     duration?: AbstractMembership.DurationEnum;
     /**
@@ -58,15 +58,16 @@ export interface AbstractMembership {
     updatedAt?: Date;
 }
 export namespace AbstractMembership {
-    export type DurationEnum = 30 | 60 | 90 | 120 | 150 | 180 | 360;
+    export type DurationEnum = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 12;
     export const DurationEnum = {
-        NUMBER_30: 30 as DurationEnum,
-        NUMBER_60: 60 as DurationEnum,
-        NUMBER_90: 90 as DurationEnum,
-        NUMBER_120: 120 as DurationEnum,
-        NUMBER_150: 150 as DurationEnum,
-        NUMBER_180: 180 as DurationEnum,
-        NUMBER_360: 360 as DurationEnum
+        NUMBER_0: 0 as DurationEnum,
+        NUMBER_1: 1 as DurationEnum,
+        NUMBER_2: 2 as DurationEnum,
+        NUMBER_3: 3 as DurationEnum,
+        NUMBER_4: 4 as DurationEnum,
+        NUMBER_5: 5 as DurationEnum,
+        NUMBER_6: 6 as DurationEnum,
+        NUMBER_12: 12 as DurationEnum
     };
     export type StatusEnum = 'INITIAL' | 'PENDING_RULES' | 'PENDING_PAYMENT_INITIAL' | 'PENDING_PAYMENT' | 'PENDING_PAYMENT_VALIDATION' | 'COMPLETE' | 'CANCELLED' | 'ABORTED';
     export const StatusEnum = {

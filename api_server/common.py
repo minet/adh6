@@ -31,7 +31,6 @@ from src.interface_adapter.sql.model.database import Database
 # from src.interface_adapter.sql.model.models import *
 #
 from src.interface_adapter.sql.model.models import *
-from src.interface_adapter.sql.money_repository import MoneySQLRepository
 from src.interface_adapter.sql.payment_method_repository import PaymentMethodSQLRepository
 from src.interface_adapter.sql.ping_repository import PingSQLRepository
 from src.interface_adapter.sql.port_repository import PortSQLRepository
@@ -77,7 +76,6 @@ def init(testing=True, managing=False):
     device_sql_repository = DeviceSQLRepository()
     room_sql_repository = RoomSQLRepository()
     elk_repository = ElasticSearchRepository(configuration)
-    money_repository = MoneySQLRepository()
     switch_network_manager = SwitchSNMPNetworkManager()
     account_sql_repository = AccountSQLRepository()
     product_sql_repository = ProductSQLRepository()
@@ -101,10 +99,13 @@ def init(testing=True, managing=False):
     )
     member_manager = MemberManager(
         member_repository=member_sql_repository,
-        money_repository=money_repository,
+        payment_method_repository=payment_method_sql_repository,
         membership_repository=member_sql_repository,
         logs_repository=elk_repository,
         device_repository=device_sql_repository,
+        account_repository=account_sql_repository,
+        account_type_repository=account_type_sql_repository,
+        transaction_repository=transaction_sql_repository,
         configuration=configuration,
     )
     room_manager = RoomManager(

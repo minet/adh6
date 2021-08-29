@@ -1,5 +1,6 @@
-import datetime
-from unittest.mock import MagicMock
+from src.constants import MembershipStatus
+from src.entity.member_status import MemberStatus
+from src.entity.membership import Membership
 
 from pytest import fixture
 
@@ -16,7 +17,6 @@ from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.use_case.interface.account_repository import AccountRepository
 from src.util.context import build_context
 
 def pytest_configure(config):
@@ -56,6 +56,14 @@ def sample_member(faker, sample_room):
         comment=faker.sentence,
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
         room=sample_room,
+    )
+
+@fixture
+def sample_membership_no_duration(faker, sample_member):
+    return Membership(
+        uuid="",
+        member=sample_member,
+        status=MembershipStatus.INITIAL.value
     )
 
 

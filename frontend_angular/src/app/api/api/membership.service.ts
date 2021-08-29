@@ -57,6 +57,57 @@ export class MembershipService {
 
 
     /**
+     * Get the latest pending membership of a specific member
+     * 
+     * @param memberId The unique identifier of the member
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public getLatestMembership(memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public getLatestMembership(memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public getLatestMembership(memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
+    public getLatestMembership(memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling getLatestMembership.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Add a membership record for a member
      * 
      * @param body The membership to create
@@ -65,10 +116,10 @@ export class MembershipService {
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberMemberIdMembershipPost(body: AbstractMembership, memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public memberMemberIdMembershipPost(body: AbstractMembership, memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public memberMemberIdMembershipPost(body: AbstractMembership, memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public memberMemberIdMembershipPost(body: AbstractMembership, memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
+    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling memberMemberIdMembershipPost.');
@@ -107,7 +158,7 @@ export class MembershipService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+        return this.httpClient.request<Membership>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -233,6 +284,136 @@ export class MembershipService {
         return this.httpClient.request<any>('patch',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}`,
             {
                 body: body,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Filter memberships
+     * 
+     * @param limit Limit the number of results returned
+     * @param offset Skip the first n results
+     * @param terms The generic search terms (will search in any field)
+     * @param filter Filters by various properties
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public membershipSearch(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Membership>>;
+    public membershipSearch(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Membership>>>;
+    public membershipSearch(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Membership>>>;
+    public membershipSearch(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+
+
+
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (limit !== undefined && limit !== null) {
+            queryParameters = queryParameters.set('limit', <any>limit);
+        }
+        if (offset !== undefined && offset !== null) {
+            queryParameters = queryParameters.set('offset', <any>offset);
+        }
+        if (terms !== undefined && terms !== null) {
+            queryParameters = queryParameters.set('terms', <any>terms);
+        }
+        if (filter) {
+            for (const key in filter) {
+                if (Object.prototype.hasOwnProperty.call(filter, key)) {
+                  const value = filter[key];
+                  queryParameters = queryParameters.append('filter[' + key + ']', <any>value);
+                }
+            }
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<Array<Membership>>('get',`${this.basePath}/member/membership/`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Validate a pending transaction
+     * 
+     * @param memberId The unique identifier of the member
+     * @param uuid The UUID associated with this membership request
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public membershipValidate(memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public membershipValidate(memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public membershipValidate(memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public membershipValidate(memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (memberId === null || memberId === undefined) {
+            throw new Error('Required parameter memberId was null or undefined when calling membershipValidate.');
+        }
+
+        if (uuid === null || uuid === undefined) {
+            throw new Error('Required parameter uuid was null or undefined when calling membershipValidate.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<any>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}/validate`,
+            {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

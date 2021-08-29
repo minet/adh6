@@ -69,17 +69,17 @@ DATABASE = {
 }
 
 PRICES = {
-    31: 9,
-    2 * 31: 18,
-    3 * 31: 27,
-    4 * 31: 36,
-    5 * 31: 45,
-    360: 50,
+    1: 9,
+    2: 18,
+    3: 27,
+    4: 36,
+    5: 45,
+    12: 50,
 }
 
 DURATION_STRING = {
     1: '1 jour',
-    360: '1 an',
+    365: '1 an',
 }
 
 # IPs and ports for Elasticsearch nodes

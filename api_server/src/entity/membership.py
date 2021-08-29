@@ -77,12 +77,16 @@ class Membership(object):
         self._updated_at = None
         self.discriminator = None
         self.uuid = uuid
-        self.duration = duration
-        self.products = products
+        if duration is not None:
+            self.duration = duration
+        if products is not None:
+            self.products = products
         if first_time is not None:
             self.first_time = first_time
-        self.payment_method = payment_method
-        self.account = account
+        if payment_method is not None:
+            self.payment_method = payment_method
+        if account is not None:
+            self.account = account
         self.member = member
         self.status = status
         if created_at is not None:
@@ -119,7 +123,7 @@ class Membership(object):
     def duration(self):
         """Gets the duration of this Membership.  # noqa: E501
 
-        The requested duration (in days) for this membership  # noqa: E501
+        The requested duration (in months) for this membership  # noqa: E501
 
         :return: The duration of this Membership.  # noqa: E501
         :rtype: int
@@ -130,14 +134,12 @@ class Membership(object):
     def duration(self, duration):
         """Sets the duration of this Membership.
 
-        The requested duration (in days) for this membership  # noqa: E501
+        The requested duration (in months) for this membership  # noqa: E501
 
         :param duration: The duration of this Membership.  # noqa: E501
         :type: int
         """
-        if duration is None:
-            raise ValueError("Invalid value for `duration`, must not be `None`")  # noqa: E501
-        allowed_values = [30, 60, 90, 120, 150, 180, 360]  # noqa: E501
+        allowed_values = [0, 1, 2, 3, 4, 5, 6, 12]  # noqa: E501
         if duration not in allowed_values:
             raise ValueError(
                 "Invalid value for `duration` ({0}), must be one of {1}"  # noqa: E501
@@ -166,8 +168,6 @@ class Membership(object):
         :param products: The products of this Membership.  # noqa: E501
         :type: list[Object]
         """
-        if products is None:
-            raise ValueError("Invalid value for `products`, must not be `None`")  # noqa: E501
 
         self._products = products
 
@@ -214,8 +214,6 @@ class Membership(object):
         :param payment_method: The payment_method of this Membership.  # noqa: E501
         :type: Object
         """
-        if payment_method is None:
-            raise ValueError("Invalid value for `payment_method`, must not be `None`")  # noqa: E501
 
         self._payment_method = payment_method
 
@@ -239,8 +237,6 @@ class Membership(object):
         :param account: The account of this Membership.  # noqa: E501
         :type: Object
         """
-        if account is None:
-            raise ValueError("Invalid value for `account`, must not be `None`")  # noqa: E501
 
         self._account = account
 

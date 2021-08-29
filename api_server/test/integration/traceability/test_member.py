@@ -15,7 +15,7 @@ def test_member_log_create(api_client, sample_room1, caplog):
 
     assert logs_contains(
         caplog,
-        'member_manager_update_or_create',
+        'member_handler_post_called',
         user=TESTING_CLIENT
     )
 

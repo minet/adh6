@@ -32,6 +32,8 @@ import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.comp
 import {InscriptionComponent} from './inscription/inscription.component';
 import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
 import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
+import {MembershipListComponent} from './membership-list/membership-list.component';
+import {RedirectGuard} from './redirect-guard/redirect-guard';
 
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
@@ -52,6 +54,15 @@ const routes: Routes = [
     data: {
     bypassAuth: true
   }},
+  {path: 'membership', component: MembershipListComponent},
+  {
+    path: 'charter',
+    canActivate: [RedirectGuard],
+    component: RedirectGuard,
+    data: {
+      externalUrl: 'https://chartes.minet.net'
+    }
+  },
   {path: 'portailfoyer', component: PortailfoyerComponent,
     data : {
     bypassAuth: true

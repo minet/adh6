@@ -2,16 +2,18 @@
 """
 Contain all the http http_api functions.
 """
+from typing import Tuple, Any
 
 from connexion import NoContent
 
-from src.entity import AbstractMember, Member
-from src.exceptions import MemberNotFoundError, UserInputError
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from src.entity import AbstractMember, Member, Membership, AbstractMembership, membership_request
+from src.exceptions import ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler, _error
 from src.interface_adapter.http_api.util.error import bad_request, handle_error
-from src.interface_adapter.http_api.util.serializer import serialize_response
+from src.interface_adapter.http_api.util.serializer import serialize_response, deserialize_request
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
 from src.util.context import log_extra
@@ -26,16 +28,31 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_post(self, ctx, username, body):
+    def post(self, ctx, body):
+        try:
+            body['id'] = 0  # Set a dummy id to pass the initial validation
+            to_create = deserialize_request(body, self.entity_class)
+            return serialize_response(self.member_manager.new_member(ctx, to_create)), 201
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def membership_post(self, ctx, member_id: int, body):
         """ Add a membership record in the database """
-        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, username=username, request=body))
+        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, member_id=member_id, request=body))
 
         try:
-            self.member_manager.new_membership(ctx, username, body.get('duration'), body.get('payment_method'),
-                                               start_str=body.get('start'))
-            return NoContent, 200  # 200 OK
+            if 'uuid' not in body:
+                body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
+            print(body)
+            to_create: Membership = deserialize_request(body, Membership)
+
+            created_membership = self.member_manager.new_membership(ctx, member_id, to_create)
+            return serialize_response(created_membership), 200  # 200 OK
         except Exception as e:
-            return handle_error(e)
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
@@ -68,8 +85,80 @@ class MemberHandler(DefaultHandler):
         except Exception as e:
             return handle_error(ctx, e)
 
+    @with_context
+    @require_sql
+    @log_call
+    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+        try:
+            filter_ = deserialize_request(filter_, AbstractMembership)
+            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms,
+                                                                        filter_=filter_)
+            headers = {
+                "X-Total-Count": str(total_count),
+                'access-control-expose-headers': 'X-Total-Count'
+            }
+            result = list(map(serialize_response, result))
+            return result, 200, headers
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+        try:
+            membership: Membership = self.member_manager.get_latest_membership(ctx, member_id)
+            LOG.debug("get_latest_membership", extra=log_extra(ctx,membership_uuid=membership.uuid))
+            return serialize_response(membership), 200
+        except Exception as e:
+            LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
+            handle_error(ctx, e)
+
+
+    @with_context
+    @require_sql
+    @log_call
     def membership_get(self, ctx, member_id, uuid):
         pass
 
-    def membership_patch(self, ctx, member_id, uuid):
-        pass
+    @with_context
+    @require_sql
+    @log_call
+    def membership_patch(self, ctx, member_id, uuid, body):
+        try:
+            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, uuid=uuid, member_id=member_id))
+            body['uuid'] = uuid
+            to_update: AbstractMembership = deserialize_request(body, AbstractMembership)
+            self.member_manager.change_membership(ctx, member_id, uuid, to_update)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def membership_validate(self, ctx, member_id, uuid):
+        try:
+            self.member_manager.validate_membership(ctx, member_id, uuid)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def charter_get(self, ctx, member_id, charter_id) -> Tuple[str, int]:
+        try:
+            return self.member_manager.get_charter(ctx, member_id, charter_id), 200
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def charter_put(self, ctx, member_id, charter_id) -> Tuple[Any, int]:
+        try:
+            self.member_manager.update_charter(ctx, member_id, charter_id)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)

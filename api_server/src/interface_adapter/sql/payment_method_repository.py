@@ -2,7 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from typing import List
+from typing import List, Tuple
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
 from src.entity.payment_method import PaymentMethod
@@ -15,7 +15,7 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
 
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: PaymentMethod = None) -> (List[PaymentMethod], int):
+                  filter_: PaymentMethod = None) -> Tuple[List[PaymentMethod], int]:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(SQLPaymentMethod)
