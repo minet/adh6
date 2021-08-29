@@ -35,6 +35,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private amountToPay = 0;
   private content: string;  // for log formatting
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
+  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 30, 60, 90, 120, 150, 360];
 
   statusToText = {
     'PENDING_RULES': "Sign the Charter",
@@ -123,6 +124,14 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       status == AbstractMembership.StatusEnum.COMPLETE ||
       status == AbstractMembership.StatusEnum.INITIAL 
     )
+  }
+
+  actionMembershipStatus(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
+    switch (status) {
+      case AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION:
+        this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => console.log("isqdfupnqoisfn"))
+        break
+    }
   }
 
   ngOnDestroy() {
@@ -236,13 +245,15 @@ export class MemberViewComponent implements OnInit, OnDestroy {
             if (elem.id == +v.paidBy) { paymentMethod = elem }
           })
           const subscription: AbstractMembership = {
-            duration: v.renewal,
-            account: account,
+            duration: this.subscriptionDuration[v.renewal],
+            account: account.id,
             products: products,
-            paymentMethod: paymentMethod
+            paymentMethod: paymentMethod.id
           }
 
-          console.log(subscription);
+          this.latestMembership$.subscribe((membership) => {
+            this.membershipService.memberMemberIdMembershipUuidPatch(subscription, member_id, membership.uuid).subscribe(() => console.log("Finally"))
+          })
         })
       })
   }
