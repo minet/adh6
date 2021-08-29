@@ -1157,6 +1157,139 @@ paths:
       summary: Update the state of MAB on a port
       tags:
       - port
+  /port/{port_id}/alias/:
+    parameters:
+      - in: path
+        name: port_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: alias_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Check the alias of the port
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the alias on a port
+      tags:
+      - port
+  /port/{port_id}/use/:
+    parameters:
+      - in: path
+        name: port_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: use_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Check if the port is currently used
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the current use of a port
+      tags:
+      - port
+  /port/{port_id}/speed/:
+    parameters:
+      - in: path
+        name: port_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: speed_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Check the speed of the port
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the speed on a port
+      tags:
+      - port
+  /port/{port_id}/auth/:
+    parameters:
+      - in: path
+        name: port_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+    get:
+      operationId: auth_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Whether authentication is enabled on this port
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve whether authentication is enabled on this port
+      tags:
+      - port
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+        required: true
+      responses:
+        204:
+          description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update the state of authentication on a port
+      tags:
+      - port
   /port/{port_id}/state/:
     parameters:
       - in: path
@@ -2408,6 +2541,7 @@ components:
           type: string
         room:
           description: The room this port is in
+          nullable: true
           oneOf:
             - $ref: '#/components/schemas/Room'
             - type: integer

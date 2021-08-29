@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../api';
 import {map, share} from 'rxjs/operators';
@@ -16,10 +16,10 @@ export class SwitchLocalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch local', {}).pipe(
+    this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch Local', {}).pipe(
       map((switchObjArr) => {
         const switchObj = switchObjArr[0];
-        this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{switch: switchObj.id});
+        this.ports$ = this.portService.portGet(52, undefined, '', <AbstractPort>{switchObj: switchObj.id});
         return switchObj;
       }));
   }

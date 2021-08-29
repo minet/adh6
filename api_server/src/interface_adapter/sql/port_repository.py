@@ -7,6 +7,7 @@ from typing import List
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractPort, Port, Switch, Room
+from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, SwitchNotFoundError, PortNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Port as SQLPort, Switch as SQLSwitch, Chambre as SQLChambre
@@ -24,7 +25,7 @@ class PortSQLRepository(PortRepository):
 
         q = s.query(SQLPort)
         q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
-        q = q.join(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
 
 
         if terms:
@@ -48,7 +49,7 @@ class PortSQLRepository(PortRepository):
                 q = q.filter(SQLPort.switch_id == filter_.switch_obj)
 
         count = q.count()
-        q = q.order_by(SQLPort.created_at.asc())
+        q = q.order_by(SQLPort.id.asc())
         q = q.offset(offset)
         q = q.limit(limit)
         r = q.all()
@@ -93,7 +94,7 @@ class PortSQLRepository(PortRepository):
 
         q = s.query(SQLPort)
         q = q.filter(SQLPort.id == object_to_update.id)
-        q = q.join(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
         q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
 
         port = q.one_or_none()
@@ -147,6 +148,6 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         id=a.id,
         port_number=a.numero,
         oid=a.oid,
-        room=_map_room_sql_to_entity(a.chambre),
+        room=_map_room_sql_to_entity(a.chambre) if a.chambre is not None else Null(),
         switch_obj=_map_switch_sql_to_entity(a.switch)
     )

@@ -114,15 +114,22 @@ def fake(login):
     """Add dummy data to the database."""
     fake = Faker()
     s = Database.get_db().get_session()
-    switch = Switch(
-        description="Dummy switch",
-        ip="192.168.254.254",
-        communaute="adh6",
+    #switch = Switch(
+    #    description="Dummy switch",
+    #    ip="192.168.254.254",
+    #    communaute="adh6",
+    #)
+    #s.add(switch)
+
+    switch2 = Switch(
+        description="Switch local",
+        ip="192.168.102.219",
+        communaute="adh5",
     )
-    s.add(switch)
+    s.add(switch2)
 
     chambres = []
-    for n in range(1, 10):
+    for n in range(1, 30):
         chambre = Chambre(
             numero=n,
             description="Chambre " + str(n),
@@ -131,14 +138,34 @@ def fake(login):
         chambres.append(chambre)
         s.add(chambre)
 
+    #for n in range(1, 10):
+    #    s.add(Port(
+    #        rcom=0,
+    #        numero="1/0/" + str(n),
+    #        oid="1010" + str(n),
+    #        switch=switch,
+    #        chambre=chambres[n - 1]
+    #    ))
+
     for n in range(1, 10):
         s.add(Port(
             rcom=0,
             numero="1/0/" + str(n),
             oid="1010" + str(n),
-            switch=switch,
-            chambre=chambres[n - 1]
+            switch=switch2,
+            chambre=chambres[n-1]
         ))
+
+
+    for n in range(10, 20):
+        s.add(Port(
+            rcom=0,
+            numero="1/0/" + str(n),
+            oid="101" + str(n),
+            switch=switch2,
+            chambre=chambres[n-1]
+        ))
+
 
     admin = Admin(
         roles="adh6_user,adh6_admin,adh6_treso,adh6_superadmin"
