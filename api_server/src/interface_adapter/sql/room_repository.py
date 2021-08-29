@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractRoom
@@ -21,7 +21,7 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractRoom = None) -> (List[Room], int):
+                  filter_: AbstractRoom = None) -> Tuple[List[Room], int]:
         s = ctx.get(CTX_SQL_SESSION)
 
         q = s.query(Chambre)

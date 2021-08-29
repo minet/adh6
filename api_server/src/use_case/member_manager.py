@@ -21,7 +21,6 @@ from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
-from src.use_case.interface.money_repository import MoneyRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.util.context import log_extra
 from src.util.log import LOG

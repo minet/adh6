@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import {AbstractMember, AbstractMembership, Member, MemberService, MembershipService} from '../api';
+import {AbstractMember, AbstractMembership, AbstractRoom, Member, MemberService, MembershipService, RoomService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, mergeMap} from 'rxjs/operators';
 import {EMPTY, of} from 'rxjs';
@@ -23,6 +23,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
   constructor(
     public memberService: MemberService,
     public membershipService: MembershipService,
+    public roomService: RoomService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
@@ -63,43 +64,39 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.disabled = true;
     const v = this.memberEdit.value;
 
-    of(this.create)
-      .pipe(
-        mergeMap(() => {
-          if (!this.create) {
-            const abstractMember: AbstractMember = {
-              email: v.email,
-              firstName: v.firstName,
-              lastName: v.lastName,
-              username: v.username,
-            };
-            if (v.roomNumber) {
-              abstractMember.room = v.roomNumber;
-            }
-            return this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'body');
-          } else {
-            const req: Member = {
-              email: v.email,
-              firstName: v.firstName,
-              lastName: v.lastName,
-              username: v.username,
-              room: v.roomNumber,
-              departureDate: new Date(),
-            };
-            return this.memberService.memberPost(req, 'body');
-          }
-        }),
-        first(),
-        finalize(() => this.disabled = false),
-      )
-      .subscribe((response) => {
-        if (this.create) {
-          this.router.navigate(['member/password', response.id]);
-        } else {
-          this.router.navigate(['member/view', this.member_id]);
+    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber:v.roomNumber})
+      .subscribe((rooms) => {
+        if (rooms.length == 0) {
+          this.notif.alert('Room not Found', "Room "+v.roomNumber+" has not be found")
+          return undefined
         }
-        this.notif.success(response.status + ': Success');
-      });
+        if (!this.create) {
+          const abstractMember: AbstractMember = {
+            email: v.email,
+            firstName: v.firstName,
+            lastName: v.lastName,
+            username: v.username,
+            room: rooms[0].id
+          };
+          this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'body')
+            .subscribe((_) => {
+              this.router.navigate(['member/view', this.member_id]);
+            });
+        } else {
+          const req: Member = {
+            email: v.email,
+            firstName: v.firstName,
+            lastName: v.lastName,
+            username: v.username,
+            room: rooms[0].id,
+            departureDate: new Date(),
+          };
+          this.memberService.memberPost(req, 'body')
+            .subscribe((member) => {
+              this.router.navigate(['member/password', member.id]);
+            });
+        }
+      })
 
   }
 
