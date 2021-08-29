@@ -50,6 +50,11 @@ class InvalidAdmin(ValidationError):
     pass  # pragma: no cover
 
 
+class InvalidMembershipDuration(ValidationError):
+    def __init__(self, v):
+        super().__init__(f'"{v}" is not a valid membership duration')
+
+
 class PasswordTooShortError(ValidationError):
     def __init__(self):
         super().__init__('password is too short')
@@ -72,7 +77,7 @@ class MemberTransactionAmountMustBeGreaterThan(ValidationError):
 
 class NoPriceAssignedToThatDuration(ValidationError):
     def __init__(self, duration):
-        super().__init__(f'there is no price assigned to that duration ({duration} days)')
+        super().__init__(f'there is no price assigned to that duration ({duration} mounths)')
 
 
 class UsernameMismatchError(ValidationError):

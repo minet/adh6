@@ -2072,9 +2072,9 @@ components:
           example: "123e4567-e89b-12d3-a456-426614174000"
           readOnly: true
         duration:
-          description: The requested duration (in days) for this membership
+          description: The requested duration (in months) for this membership
           type: integer
-          enum: [0, 30, 60, 90, 120, 150, 180, 360]
+          enum: [0, 1, 2, 3, 4, 5, 6, 12]
           nullable: true
         products:
           description: A list of products to buy

@@ -123,7 +123,7 @@ class Membership(object):
     def duration(self):
         """Gets the duration of this Membership.  # noqa: E501
 
-        The requested duration (in days) for this membership  # noqa: E501
+        The requested duration (in months) for this membership  # noqa: E501
 
         :return: The duration of this Membership.  # noqa: E501
         :rtype: int
@@ -134,12 +134,12 @@ class Membership(object):
     def duration(self, duration):
         """Sets the duration of this Membership.
 
-        The requested duration (in days) for this membership  # noqa: E501
+        The requested duration (in months) for this membership  # noqa: E501
 
         :param duration: The duration of this Membership.  # noqa: E501
         :type: int
         """
-        allowed_values = [0, 30, 60, 90, 120, 150, 180, 360]  # noqa: E501
+        allowed_values = [0, 1, 2, 3, 4, 5, 6, 12]  # noqa: E501
         if duration not in allowed_values:
             raise ValueError(
                 "Invalid value for `duration` ({0}), must be one of {1}"  # noqa: E501

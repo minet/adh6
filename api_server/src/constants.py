@@ -25,10 +25,10 @@ class MembershipStatus(enum.Enum):
 
 class MembershipDuration(enum.IntEnum):
     NONE = 0
-    ONE_MONTH = 30
-    TWO_MONTH = 60
-    THREE_MONTH = 90
-    FOUR_MONTH = 120
-    FIVE_MONTH = 150
-    SIX_MONTH = 180
-    ONE_YEAR = 365
+    ONE_MONTH = 1
+    TWO_MONTH = 2
+    THREE_MONTH = 3
+    FOUR_MONTH = 4
+    FIVE_MONTH = 5
+    SIX_MONTH = 6
+    ONE_YEAR = 12
