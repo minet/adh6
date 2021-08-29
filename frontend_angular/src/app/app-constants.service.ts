@@ -48,6 +48,7 @@ export class AppConstantsService {
             can('manage', 'Port');
             can('manage', 'Switch');
             can('manage', 'search');
+            can('manage', 'switch_local');
           }
           if (roles.indexOf('adh6_treso') !== -1) {
             can('manage', 'treasury');
