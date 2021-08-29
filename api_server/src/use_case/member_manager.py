@@ -100,6 +100,12 @@ class MemberManager(CRUDManager):
             pending_balance=0
         ))
 
+        _ = self.new_membership(ctx, created_member.id, Membership(
+            uuid="123e4567-e89b-12d3-a456-426614174000",
+            status='INITIAL',
+            member=created_member.id,
+        ))
+
         return created_member
 
     
@@ -319,6 +325,7 @@ class MemberManager(CRUDManager):
                                                                 membership.member.username,
                                                                 membership.payment_method.name)
             self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name)
+            self.member_repository.add_duration(ctx, member_id, membership.duration)
 
         return _validate(self, ctx, uuid)
 

@@ -35,7 +35,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private amountToPay = 0;
   private content: string;  // for log formatting
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
-  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 30, 60, 90, 120, 150, 360];
+  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12];
 
   statusToText = {
     'PENDING_RULES': "Sign the Charter",

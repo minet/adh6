@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 import uuid
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session, Query
@@ -15,7 +15,7 @@ from src.entity import AbstractMember, Room, Membership, AbstractMembership, Pay
 from src.entity import member
 from src.entity.member import Member
 from src.entity.null import Null
-from src.exceptions import RoomNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipPending, \
+from src.exceptions import InvalidMembershipDuration, RoomNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipPending, \
     InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError, PaymentMethodNotFoundError, \
     MembershipStatusNotAllowed
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -196,6 +196,28 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             return "" if adherent.signedhosting is None else str(adherent.datesignedhosting)
 
         raise InvalidCharterID(str(charter_id))
+
+    @log_call
+    def add_duration(self, ctx, member_id: int, duration_in_mounth: int) -> None:
+        now = date.today()
+        s: Session = ctx.get(CTX_SQL_SESSION)
+        q = s.query(Adherent).filter(Adherent.id == member_id)
+        adherent: Adherent = q.one_or_none()
+        if adherent is None:
+            raise MemberNotFoundError(str(member_id))
+        
+        if duration_in_mounth not in [1, 2, 3, 4, 5, 12]:
+            raise InvalidMembershipDuration(str(duration_in_mounth))
+        
+        if adherent.date_de_depart is None:
+            adherent.date_de_depart = now
+        
+        if adherent.date_de_depart.month + duration_in_mounth > 12:
+            adherent.date_de_depart = adherent.date_de_depart.replace(year=adherent.date_de_depart.year + 1, month=(adherent.date_de_depart.month + duration_in_mounth) - 12)
+        else:
+            adherent.date_de_depart = adherent.date_de_depart.replace(month=adherent.date_de_depart.month + duration_in_mounth)
+        s.flush()
+        
 
     @log_call
     def get_latest_membership(self, ctx, member_id: int) -> Membership:
@@ -424,7 +446,7 @@ def _map_string_to_list(product_str: str) -> list:
     s = product_str.split(",")
     s[0] = s[0][1:]
     s[-1] = s[-1][:-1]
-    return [int(elem) for elem in s]
+    return [int(elem) for elem in s if elem != '']
 
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
@@ -450,7 +472,7 @@ def _map_entity_to_membership_sql(entity: Membership) -> MembershipSQL:
     return MembershipSQL(
         uuid=entity.uuid,
         duration=entity.duration,
-        products=str(entity.products),
+        products=str(entity.products) if entity.products is not None else "",
         first_time=entity.first_time,
         payment_method_id=entity.payment_method,
         account_id=entity.account,
