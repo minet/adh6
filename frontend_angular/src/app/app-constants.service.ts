@@ -46,7 +46,7 @@ export class AppConstantsService {
             can('manage', 'Device');
             can('manage', 'Room');
             can('manage', 'Port');
-            can('manage', 'Swicth');
+            can('manage', 'Switch');
             can('manage', 'search');
           }
           if (roles.indexOf('adh6_treso') !== -1) {
