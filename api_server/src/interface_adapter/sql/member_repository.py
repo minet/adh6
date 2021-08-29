@@ -330,7 +330,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         # Check no other membership are Pending
         for i in all_membership:
-            if i.status != MembershipStatus.COMPLETE or i.status != MembershipStatus.ABORTED or membership.status != MembershipStatus.CANCELLED:
+            if i.status != MembershipStatus.COMPLETE and i.status != MembershipStatus.ABORTED and membership.status != MembershipStatus.CANCELLED:
                 raise MembershipPending(i.uuid)
 
         to_add.first_time = len(all_membership) == 0

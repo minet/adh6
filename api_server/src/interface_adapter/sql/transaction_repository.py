@@ -195,7 +195,7 @@ class TransactionSQLRepository(TransactionRepository):
             src_account=account,
             dst_account=minet_asso_account,
             author=adherent,
-            pending_validation=payment_method.name in auto_validate_payment_method,
+            pending_validation=payment_method.name not in auto_validate_payment_method,
             name=title,
             attachments="",
             payment_method=payment_method
@@ -210,7 +210,7 @@ class TransactionSQLRepository(TransactionRepository):
                 src_account=account,
                 dst_account=minet_technique_account,
                 author=adherent,
-                pending_validation=payment_method.name in auto_validate_payment_method,
+                pending_validation=payment_method.name not in auto_validate_payment_method,
                 name=title,
                 attachments="",
                 payment_method=payment_method
@@ -250,7 +250,7 @@ class TransactionSQLRepository(TransactionRepository):
                 src_account=member_account,
                 dst_account=minet_technique_account,
                 author=adherent,
-                pending_validation=payment_method.name in auto_validate_payment_method,
+                pending_validation=payment_method.name not in auto_validate_payment_method,
                 name=product.name,
                 attachments="",
                 payment_method=payment_method

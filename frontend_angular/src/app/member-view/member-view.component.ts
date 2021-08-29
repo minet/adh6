@@ -25,6 +25,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
   cotisation = false;
+  newMembershipDisabled = false;
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
   private commentForm: FormGroup;
@@ -121,15 +122,16 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     return !(
       status == AbstractMembership.StatusEnum.ABORTED ||
       status == AbstractMembership.StatusEnum.CANCELLED ||
-      status == AbstractMembership.StatusEnum.COMPLETE ||
-      status == AbstractMembership.StatusEnum.INITIAL 
+      status == AbstractMembership.StatusEnum.COMPLETE
     )
   }
 
   actionMembershipStatus(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
     switch (status) {
       case AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION:
-        this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => console.log("isqdfupnqoisfn"))
+        this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
+          this.refreshLatestMembership(memberID);
+        });
         break
     }
   }
@@ -178,6 +180,23 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       products: this.fb.array([]),
       paidBy: ['0', [Validators.required]],
     });
+  }
+
+  newMembership(member_id: number): void {
+    this.latestMembership$ = this.membershipService.memberMemberIdMembershipPost(<Membership>{
+      member: member_id,
+      status: AbstractMembership.StatusEnum.INITIAL
+    }, member_id, 'body').pipe(
+      finalize(() => {
+        this.newMembershipDisabled = false;
+        this.refreshLatestMembership(member_id);
+      }),
+      first(() => this.newMembershipDisabled = true)
+    );
+  }
+
+  refreshLatestMembership(member_id: number): void {
+    this.latestMembership$ = this.membershipService.getLatestMembership(+member_id, 'body');
   }
 
   submitComment(): void {
@@ -252,7 +271,10 @@ export class MemberViewComponent implements OnInit, OnDestroy {
           }
 
           this.latestMembership$.subscribe((membership) => {
-            this.membershipService.memberMemberIdMembershipUuidPatch(subscription, member_id, membership.uuid).subscribe(() => console.log("Finally"))
+            this.membershipService.memberMemberIdMembershipUuidPatch(subscription, member_id, membership.uuid).subscribe(() => {
+              this.refreshLatestMembership(member_id);
+              this.toggleCotisationMenu();
+            })
           })
         })
       })
