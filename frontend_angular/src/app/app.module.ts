@@ -8,7 +8,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
 import {MemberListComponent} from './member-list/member-list.component';
 import {MemberViewComponent} from './member-view/member-view.component';
-import {ApiModule, BASE_PATH, Device, Member, Room, Port, Switch, Transaction, Account} from './api';
+import {ApiModule, BASE_PATH, Device, Member, Room, Port, ModelSwitch, Transaction, Account} from './api';
 import {RoomListComponent} from './room-list/room-list.component';
 import {RoomDetailsComponent} from './room-details/room-details.component';
 import {RoomEditComponent} from './room-edit/room-edit.component';
@@ -73,7 +73,7 @@ import {Ng9OdometerModule} from 'ng9-odometer';
 export {ClickOutsideDirective} from './clickOutside.directive';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<Switch> |'all';
+type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> |'all';
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
