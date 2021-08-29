@@ -73,7 +73,7 @@ import {Ng9OdometerModule} from 'ng9-odometer';
 export {ClickOutsideDirective} from './clickOutside.directive';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | 'all';
+type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<Switch> |'all';
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
