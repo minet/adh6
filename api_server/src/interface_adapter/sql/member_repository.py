@@ -12,6 +12,7 @@ from sqlalchemy.sql.expression import desc, or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Room, Membership, AbstractMembership, PaymentMethod, Account
+from src.entity import member
 from src.entity.member import Member
 from src.entity.null import Null
 from src.exceptions import RoomNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipPending, \
@@ -22,6 +23,8 @@ from src.interface_adapter.sql.model.models import Adherent, Chambre
 from src.interface_adapter.sql.model.models import Membership as MembershipSQL
 from src.interface_adapter.sql.model.models import PaymentMethod as PaymentMethodSQL
 from src.interface_adapter.sql.room_repository import _map_room_sql_to_entity
+from src.interface_adapter.sql.account_type_repository import _map_account_type_sql_to_entity
+from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
@@ -53,11 +56,11 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         if terms:
             q = q.filter(
-                (terms in Adherent.nom) |
-                (terms in Adherent.prenom) |
-                (terms in Adherent.mail) |
-                (terms in Adherent.login) |
-                (terms in Adherent.commentaires)
+                (Adherent.nom.contains(terms)) |
+                (Adherent.prenom.contains(terms)) |
+                (Adherent.mail.contains(terms)) |
+                (Adherent.login.contains(terms)) |
+                (Adherent.commentaires.contains(terms))
             )
 
         count = q.count()
@@ -80,7 +83,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             if not room:
                 raise RoomNotFoundError(abstract_member.room)
 
-        member: Adherent = Adherent(
+        member = Adherent(
             nom=abstract_member.last_name,
             prenom=abstract_member.first_name,
             mail=abstract_member.email,
@@ -164,6 +167,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             with track_modifications(ctx, s, adherent):
                 adherent.signedminet = True
                 adherent.datesignedminet = now
+            membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
         elif charter_id == 2:
             if adherent.datesignedhosting is not None or adherent.signedhosting:
                 raise CharterAlreadySigned("Hosting")
@@ -206,7 +210,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             )
         membership: MembershipSQL = q.one_or_none()
         if membership is None:
-            q = s.query(MembershipSQL).filter(MembershipSQL.id == member_id).filter(
+            q = s.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
                 or_(
                     MembershipSQL.status == MembershipStatus.INITIAL,
                     MembershipSQL.status == MembershipStatus.COMPLETE,
@@ -315,7 +319,9 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
 
         return _map_membership_sql_to_entity(to_add)
 
-    def update_membership(self, ctx, member_id: int, membership_uuid: str, abstract_membership: AbstractMembership) -> None:
+    def update_membership(self, ctx, member_id: int, membership_uuid: str, abstract_membership: AbstractMembership) -> Membership:
+        LOG.debug("sql_membership_repository_update_membership_called", extra=log_extra(ctx, membership_uuid=membership_uuid))
+        now = datetime.now()
         s: Session = ctx.get(CTX_SQL_SESSION)
         adherent: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if adherent is None:
@@ -325,18 +331,42 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
 
-        _merge_membership_sql_with_entity(ctx, abstract_membership, q)
+        if abstract_membership.duration is not None:
+            membership.duration = abstract_membership.duration
+        if abstract_membership.products is not None:
+            membership.products = str(abstract_membership.products)
+        if abstract_membership.member is not None:
+            if isinstance(abstract_membership.member, Member):
+                abstract_membership.member = abstract_membership.member.id
+            adherent: Adherent = s.query(Adherent).filter(Adherent.id == abstract_membership.member).one_or_none()
+            if adherent is None:
+                raise MemberNotFoundError(str(abstract_membership.member))
+            membership.adherent = adherent
+        if abstract_membership.payment_method is not None:
+            if isinstance(abstract_membership.payment_method, PaymentMethod):
+                abstract_membership.payment_method = abstract_membership.payment_method.id
+            payment_method: PaymentMethod = s.query(PaymentMethodSQL).filter(PaymentMethodSQL.id == abstract_membership.payment_method).one_or_none()
+            if payment_method is None:
+                raise PaymentMethodNotFoundError(str(abstract_membership.payment_method))
+            membership.payment_method = payment_method
+        if abstract_membership.status is not None:
+            membership.status = abstract_membership.status
+
+        membership.update_at = now
         s.flush()
+
+        LOG.debug("sql_membership_repository_update_membership_finished", extra=log_extra(ctx, duration=membership.duration))
+        return _map_membership_sql_to_entity(q.one_or_none())
 
     def validate_membership(self, ctx, membership_uuid: str) -> None:
         s: Session = ctx.get(CTX_SQL_SESSION)
         q: Query = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
-        membership: MembershipSQL = q.one_or_None()
+        membership: MembershipSQL = q.one_or_none()
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
-        if membership.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
+        if membership.status != MembershipStatus.PENDING_PAYMENT_VALIDATION:
             raise MembershipStatusNotAllowed(membership.status, "Should be PENDING_PAYMENT_VALIDATION")
-        q.update({MembershipSQL.status: MembershipStatus.COMPLETE}, synchronize_session=False)
+        membership.status = MembershipStatus.COMPLETE
         s.flush()
 
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
@@ -371,33 +401,6 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     return adherent
 
 
-def _merge_membership_sql_with_entity(ctx, entity: AbstractMembership, q: Query) -> None:
-    now = datetime.now()
-    if entity.duration is not None:
-        q.update({MembershipSQL.duration: entity.duration}, synchronize_session=False)
-    if entity.products is not None:
-        q.update({MembershipSQL.products: str(entity.products)}, synchronize_session=False)
-    if entity.member is not None:
-        if isinstance(entity.member, Member):
-            entity.member = entity.member.id
-        s=ctx.get(CTX_SQL_SESSION)
-        adherent: Adherent = s.query(Adherent).filter(Adherent.id == entity.member)
-        if not adherent:
-            raise MemberNotFoundError(str(entity.member))
-        q.update({MembershipSQL.adherent_id: entity.member}, synchronize_session=False)
-    if entity.payment_method is not None:
-        if isinstance(entity.payment_method, PaymentMethod):
-            entity.payment_method = entity.payment_method.id
-        s=ctx.get(CTX_SQL_SESSION)
-        payment_method: PaymentMethod = s.query(PaymentMethodSQL).filter(PaymentMethodSQL.id == entity.payment_method)
-        if not payment_method:
-            raise PaymentMethodNotFoundError(str(entity.payment_method))
-        q.update({MembershipSQL.payment_method_id: entity.payment_method}, synchronize_session=False)
-    if entity.status is not None:
-        q.update({MembershipSQL.status: entity.status}, synchronize_session=False)
-
-    q.update({MembershipSQL.update_at: now}, synchronize_session=False)
-
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
@@ -418,7 +421,10 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
 
 
 def _map_string_to_list(product_str: str) -> list:
-    return []
+    s = product_str.split(",")
+    s[0] = s[0][1:]
+    s[-1] = s[-1][:-1]
+    return [int(elem) for elem in s]
 
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
@@ -430,8 +436,8 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         duration=obj_sql.duration,
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
-        payment_method=obj_sql.payment_method_id,
-        account=obj_sql.account_id,
+        payment_method=_map_payment_method_sql_to_entity(obj_sql.payment_method) if obj_sql.payment_method else None,
+        account=_map_account_type_sql_to_entity(obj_sql.account) if obj_sql.account else None,
         member=_map_member_sql_to_entity(obj_sql.adherent) if obj_sql.adherent else Null(),
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
