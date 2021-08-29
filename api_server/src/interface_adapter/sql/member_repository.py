@@ -83,7 +83,7 @@ class MemberSQLRepository(MemberRepository, MembershipRepository):
             if not room:
                 raise RoomNotFoundError(abstract_member.room)
 
-        member = Adherent(
+        member: Adherent = Adherent(
             nom=abstract_member.last_name,
             prenom=abstract_member.first_name,
             mail=abstract_member.email,

@@ -23,6 +23,7 @@ from src.interface_adapter.sql.payment_method_repository import _map_payment_met
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
 
+auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
@@ -194,7 +195,7 @@ class TransactionSQLRepository(TransactionRepository):
             src_account=account,
             dst_account=minet_asso_account,
             author=adherent,
-            pending_validation=True,
+            pending_validation=payment_method.name in auto_validate_payment_method,
             name=title,
             attachments="",
             payment_method=payment_method
@@ -209,7 +210,7 @@ class TransactionSQLRepository(TransactionRepository):
                 src_account=account,
                 dst_account=minet_technique_account,
                 author=adherent,
-                pending_validation=True,
+                pending_validation=payment_method.name in auto_validate_payment_method,
                 name=title,
                 attachments="",
                 payment_method=payment_method
@@ -248,7 +249,7 @@ class TransactionSQLRepository(TransactionRepository):
                 src_account=member_account,
                 dst_account=minet_technique_account,
                 author=adherent,
-                pending_validation=True,
+                pending_validation=payment_method.name in auto_validate_payment_method,
                 name=product.name,
                 attachments="",
                 payment_method=payment_method
