@@ -65,6 +65,11 @@ class StringMustNotBeEmpty(ValidationError):
         super().__init__(f'{msg} must not be empty')
 
 
+class MemberTransactionAmountMustBeGreaterThan(ValidationError):
+    def __init__(self, msg):
+        super().__init__(f'Amount {msg} for the member transaction must be greater than 900 cents')
+
+
 class NoPriceAssignedToThatDuration(ValidationError):
     def __init__(self, duration):
         super().__init__(f'there is no price assigned to that duration ({duration} days)')

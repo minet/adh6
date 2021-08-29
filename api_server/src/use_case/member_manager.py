@@ -1,5 +1,6 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
+from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.entity.account_type import AccountType
 from typing import List, Optional, Tuple, Union
 
@@ -39,7 +40,8 @@ import re
     },
     collection={
         "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
+        "membership": (Member.id == Admin.member) | Roles.ADH6_ADMIN
     }
 ))
 class MemberManager(CRUDManager):
@@ -48,7 +50,7 @@ class MemberManager(CRUDManager):
     """
 
     def __init__(self, member_repository: MemberRepository, membership_repository: MembershipRepository,
-                 logs_repository: LogsRepository, money_repository: MoneyRepository,
+                 logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
                  configuration):
@@ -56,8 +58,8 @@ class MemberManager(CRUDManager):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
-        self.money_repository = money_repository
         self.device_repository = device_repository
+        self.payment_method_repository = payment_method_repository
         self.account_repository = account_repository
         self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
@@ -201,15 +203,6 @@ class MemberManager(CRUDManager):
 
         try:
             membership_created = self.membership_repository.create_membership(ctx, member_id, membership)
-            if membership.status == MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
-                price = self.config.PRICES[membership.duration]  # Expressed in EUR.
-                price_in_cents = price * 100  # Expressed in cents of EUR.
-                duration_str = self.config.DURATION_STRING.get(membership.duration, '')
-                title = f'Internet - {duration_str}'
-                self.money_repository.add_member_payment_record(ctx, price_in_cents, title,
-                                                                membership_created.member.username,
-                                                                membership_created.payment_method.name)
-
         except InvalidAdmin:
             LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
             raise
@@ -239,15 +232,15 @@ class MemberManager(CRUDManager):
         )
         if not member:
             raise MemberNotFoundError(str(member_id))
-        membership: List[Membership] = self.membership_search(
+        membership_fetched, _ = self.membership_search(
             ctx=ctx,
             limit=1,
             filter_=AbstractMembership(uuid=uuid)
         )
-        if not membership:
+        if not membership_fetched:
             raise MembershipNotFoundError(uuid)
 
-        membership: Membership = membership[0]
+        membership: Membership = membership_fetched[0]
 
         if membership.status == MembershipStatus.PENDING_RULES.value:
             date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
@@ -287,25 +280,45 @@ class MemberManager(CRUDManager):
             raise MembershipStatusNotAllowed(membership.status, "membership already completed, cancelled or aborted")
 
         try:
-            self.membership_repository.update_membership(ctx, member_id, uuid, abstract_membership)
+            updated_membership = self.membership_repository.update_membership(ctx, member_id, uuid, abstract_membership)
+            LOG.info("patch_membership_record", extra=log_extra(
+                ctx,
+                membership_uuis=updated_membership.uuid,
+                membership_status=updated_membership.status
+            ))
         except Exception:
             raise
 
 
     @log_call
     @auto_raise
-    def validate_membership(self, ctx, uuid: str):
-        membership, _ = self.membership_repository.membership_search_by(
+    def validate_membership(self, ctx, member_id: int, uuid: str):
+        # Check that the user exists in the system.
+        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        if not member:
+            raise MemberNotFoundError(member_id)
+        fethed_membership, _ = self.membership_repository.membership_search_by(
             ctx=ctx,
             limit=1,
             filter_=AbstractMembership(uuid=uuid)
         )
-        if not membership:
+        if not fethed_membership:
             raise MembershipNotFoundError(uuid)
 
         @uses_security("admin", is_collection=False)
-        def _validate(cls, global_ctx, membership_uuid: str) -> None:
-            cls.membership_repository.validate_membership(global_ctx, membership_uuid)
+        def _validate(cls, ctx, membership_uuid: str) -> None:
+            self.membership_repository.validate_membership(ctx, membership_uuid)
+
+            membership = fethed_membership[0]
+            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account, products=membership.products))
+            price = self.config.PRICES[int(membership.duration)]  # Expressed in EUR.
+            price_in_cents = price * 100  # Expressed in cents of EUR.
+            duration_str = self.config.DURATION_STRING.get(int(membership.duration), '')
+            title = f'Internet - {duration_str}'
+            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title,
+                                                                membership.member.username,
+                                                                membership.payment_method.name)
+            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name)
 
         return _validate(self, ctx, uuid)
 
@@ -324,7 +337,7 @@ class MemberManager(CRUDManager):
     def __payment_method_not_found(self, ctx, payment_method: Union[int, PaymentMethod]) -> None:
         if isinstance(payment_method, PaymentMethod):
             payment_method = payment_method.id
-        _payment_method, _ = self.transaction_repository.search_by(
+        _payment_method, _ = self.payment_method_repository.search_by(
             ctx=ctx,
             limit=1,
             filter_=AbstractTransaction(id=payment_method)
