@@ -189,7 +189,7 @@ class TransactionSQLRepository(TransactionRepository):
         if payment_method is None:
             raise UnknownPaymentMethod(payment_method_name)
 
-        frai_asso_transaction: SQLTransaction = SQLTransaction(
+        frais_asso_transaction: SQLTransaction = SQLTransaction(
             value=9.00,
             timestamp=now,
             src_account=account,
@@ -200,11 +200,11 @@ class TransactionSQLRepository(TransactionRepository):
             attachments="",
             payment_method=payment_method
         )
-        s.add(frai_asso_transaction)
+        s.add(frais_asso_transaction)
 
         amount_in_cents = amount_in_cents - 900
         if amount_in_cents > 0:
-            frai_asso_transaction: SQLTransaction = SQLTransaction(
+            frais_asso_transaction: SQLTransaction = SQLTransaction(
                 value=amount_in_cents/100,
                 timestamp=now,
                 src_account=account,
@@ -215,6 +215,7 @@ class TransactionSQLRepository(TransactionRepository):
                 attachments="",
                 payment_method=payment_method
             )
+            s.add(frais_asso_transaction)
 
         s.flush()
     
