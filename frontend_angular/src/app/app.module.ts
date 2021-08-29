@@ -8,7 +8,7 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {SwitchLocalComponent} from './switch-local/switch-local.component';
 import {MemberListComponent} from './member-list/member-list.component';
 import {MemberViewComponent} from './member-view/member-view.component';
-import {ApiModule, BASE_PATH, Device, Member, Room, Transaction, Account} from './api';
+import {ApiModule, BASE_PATH, Device, Member, Room, Port, Switch, Transaction, Account} from './api';
 import {RoomListComponent} from './room-list/room-list.component';
 import {RoomDetailsComponent} from './room-details/room-details.component';
 import {RoomEditComponent} from './room-edit/room-edit.component';
