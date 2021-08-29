@@ -112,7 +112,7 @@ class MemberHandler(DefaultHandler):
             return serialize_response(membership), 200
         except Exception as e:
             LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
-            handle_error(e)
+            handle_error(ctx, e)
 
 
     @with_context
@@ -126,6 +126,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def membership_patch(self, ctx, member_id, uuid, body):
         try:
+            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, uuid=uuid, member_id=member_id))
             body['uuid'] = uuid
             to_update: AbstractMembership = deserialize_request(body, AbstractMembership)
             self.member_manager.change_membership(ctx, member_id, uuid, to_update)
