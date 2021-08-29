@@ -90,7 +90,7 @@ export class MemberPasswordEditComponent implements OnInit {
       .pipe(
         first(),
         tap((response) => {
-          this.location.back();
+          this.router.navigate(['member/view', +member_id]);
           this.notif.success(response.status + ': Success');
         }),
       );

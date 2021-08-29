@@ -64,11 +64,13 @@ import {ErrorPageComponent} from './error-page/error-page.component';
 import {Ability, AbilityClass, detectSubjectType, InferSubjects, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
-import { DeviceNewComponent } from './device-new/device-new.component'
+import { DeviceNewComponent } from './device-new/device-new.component';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
 import {Ng9OdometerModule} from 'ng9-odometer';
+import { MembershipListComponent } from './membership-list/membership-list.component';
+import {RedirectGuard} from './redirect-guard/redirect-guard';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
@@ -130,6 +132,7 @@ export function storageFactory(): OAuthStorage {
     ErrorPageComponent,
     DeviceNewComponent,
     AutoTroubleshootComponent,
+    MembershipListComponent,
   ],
   imports: [
     FontAwesomeModule,
@@ -160,6 +163,7 @@ export function storageFactory(): OAuthStorage {
     Ng9OdometerModule.forRoot()
   ],
   providers: [
+    RedirectGuard,
     AppComponent,
     {
       provide: HTTP_INTERCEPTORS,

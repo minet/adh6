@@ -6,8 +6,16 @@ from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
-    Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
+    AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
 from test.integration.test_member import prep_db
+
+
+@pytest.fixture
+def account_type(faker):
+    yield AccountType(
+        id=faker.random_digit_not_null(),
+        name="Adhérent"
+    )
 
 
 @pytest.fixture
@@ -218,6 +226,7 @@ def sample_port2(sample_switch2):
 @pytest.fixture
 def api_client(sample_member1, sample_member2, sample_member13,
                wired_device, wireless_device,
+               account_type,
                sample_room1, sample_room2, sample_vlan):
     from .context import app
     with app.app.test_client() as c:
@@ -228,6 +237,7 @@ def api_client(sample_member1, sample_member2, sample_member13,
                 sample_member13,
                 wired_device,
                 wireless_device,
+                account_type,
                 sample_room1,
                 sample_room2,
                 sample_vlan)

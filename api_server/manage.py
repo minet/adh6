@@ -1,3 +1,4 @@
+from threading import active_count
 from flask_sqlalchemy import SQLAlchemy
 
 from common import init
@@ -7,7 +8,7 @@ from faker import Faker
 
 from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.model.models import Adherent, AccountType, PaymentMethod, Vlan, Switch, Port, Chambre, \
-    Admin, Caisse, Account, Device
+    Admin, Caisse, Account, Device, Product
 
 application, migrate = init(testing=False, managing=True)
 
@@ -26,6 +27,33 @@ def seed():
             AccountType(
                 id=type[0],
                 name=type[1]
+            )
+        )
+
+    print("Seeding MiNET accounts")
+    accounts = [1, 1, "MiNET frais techniques", True, None, True, True],[2, 1, "MiNET frais asso", True, None, True, True]
+    for account in accounts:
+        s.add(
+            Account(
+                id=account[0],
+                type=account[1],
+                name=account[2],
+                actif=account[3],
+                adherent_id=account[4],
+                compte_courant=account[5],
+                pinned=account[6]
+            )
+        )
+
+    print("Seeding Products")
+    products = [1,"Cable 3m", 3, 3],[2,"Cable 5m", 5, 5],[3,"Adaptateur USB/Ethernet", 13.00, 13.00],[4,"Adaptateur USB-C/Ethernet", 12.00, 12.00]
+    for product in products:
+        s.add(
+            Product(
+                id=product[0],
+                name=product[1],
+                buying_price=product[2],
+                selling_price=product[3]
             )
         )
 

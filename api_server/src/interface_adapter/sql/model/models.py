@@ -1,12 +1,12 @@
 # coding: utf-8
-import time
-
-from authlib.integrations.sqla_oauth2 import OAuth2ClientMixin, OAuth2AuthorizationCodeMixin, OAuth2TokenMixin
-from sqlalchemy import Column, DECIMAL, ForeignKey, String, TIMESTAMP, TEXT, Boolean
+from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean
 from sqlalchemy import Date, DateTime, Integer, \
     Numeric, Text, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql.sqltypes import CHAR, Enum
+
+from src.constants import MembershipStatus, MembershipDuration
 
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 from src.interface_adapter.sql.util.rubydiff import rubydiff
@@ -381,3 +381,21 @@ class MailTemplates(Base):
     template = Column(Text)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+
+class Membership(Base):
+    __tablename__ = "membership"
+
+    uuid = Column(CHAR(36), primary_key=True)
+    account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
+    create_at = Column(DateTime)
+    duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
+    first_time = Column(Boolean, default=False, nullable=False)
+    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
+    payment_method_id = Column(Integer, ForeignKey(PaymentMethod.id), nullable=True)
+    products = Column(String(255), nullable=True)
+    status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
+    update_at = Column(DateTime)
+
+    adherent = relationship('Adherent', foreign_keys=[adherent_id])
+    account = relationship('Account', foreign_keys=[account_id])
+    payment_method = relationship('PaymentMethod', foreign_keys=[payment_method_id])

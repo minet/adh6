@@ -21,7 +21,6 @@ export * from './labels';
 export * from './member';
 export * from './memberStatus';
 export * from './membership';
-export * from './membershipRequest';
 export * from './modelError';
 export * from './modelSwitch';
 export * from './paymentMethod';

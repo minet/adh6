@@ -637,6 +637,153 @@ paths:
       summary: Retrieves some common status updates concerning a member
       tags:
       - member
+  /member/{member_id}/password/:
+    put:
+      parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  example: '&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;'
+                  type: string
+                  format: password
+                  description: The plaintext password to use
+                hashedPassword:
+                  example: 'de6a3b882c1cff12af8616e1f6bf5b6c'
+                  type: string
+                  format: md4
+                  description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
+              type: object
+        description: The new value for the password, either in plaintext or pre-hashed client-side
+        required: true
+      responses:
+        204:
+          description: Modified
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update the password of a member
+      tags:
+      - member
+  /member/{member_id}/charter/{charter_id}:
+    get:
+      operationId: charter_get
+      parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieves if the hosting charter has been signed
+      tags:
+      - member
+    put:
+      operationId: charter_put
+      parameters:
+      - description: The unique identifier of the member
+        in: path
+        name: member_id
+        required: true
+        schema:
+          type: integer
+          example: 0
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+      responses:
+        204:
+          description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update if the hosting/MiNET charter has been signed
+      tags:
+      - member
+  /member/membership/:
+    get:
+      operationId: membership_search
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractMembership'
+        style: deepObject
+        explode: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Membership'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter memberships
+      tags:
+      - membership
   /member/{member_id}/membership/:
     parameters:
       - description: The unique identifier of the member
@@ -646,16 +793,38 @@ paths:
         schema:
           type: integer
           example: 0
+    get:
+      operationId: get_latest_membership
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Get the latest pending membership of a specific member
+      tags:
+      - membership
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMembership'
+              $ref: '#/components/schemas/Membership'
         description: The membership to create
         required: true
       responses:
         200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Membership'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -726,9 +895,8 @@ paths:
       summary: Partially update a membership
       tags:
       - membership
-  /member/{member_id}/password/:
-    put:
-      parameters:
+  /member/{member_id}/membership/{uuid}/validate:
+    parameters:
       - description: The unique identifier of the member
         in: path
         name: member_id
@@ -736,27 +904,19 @@ paths:
         schema:
           type: integer
           example: 0
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                password:
-                  example: '&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;'
-                  type: string
-                  format: password
-                  description: The plaintext password to use
-                hashedPassword:
-                  example: 'de6a3b882c1cff12af8616e1f6bf5b6c'
-                  type: string
-                  format: md4
-                  description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
-              type: object
-        description: The new value for the password, either in plaintext or pre-hashed client-side
+      - description: The UUID associated with this membership request
+        in: path
+        name: uuid
         required: true
+        schema:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+    get:
+      operationId: membership_validate
       responses:
         204:
-          description: Modified
+          description: Success
         400:
           $ref: '#/components/responses/Invalid'
         403:
@@ -765,9 +925,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Update the password of a member
+      summary: Validate a pending transaction
       tags:
-      - member
+      - membership
   /payment_method/:
     get:
       parameters:
@@ -1912,9 +2072,9 @@ components:
           example: "123e4567-e89b-12d3-a456-426614174000"
           readOnly: true
         duration:
-          description: The requested duration (in days) for this membership
+          description: The requested duration (in months) for this membership
           type: integer
-          enum: [30, 60, 90, 120, 150, 180, 360]
+          enum: [0, 1, 2, 3, 4, 5, 6, 12]
           nullable: true
         products:
           description: A list of products to buy
@@ -1983,10 +2143,6 @@ components:
         - $ref: '#/components/schemas/AbstractMembership'
         - required:
             - uuid
-            - duration
-            - products
-            - paymentMethod
-            - account
             - member
             - status
       type: object
@@ -2334,27 +2490,6 @@ components:
             - firstName
             - lastName
       type: object
-    MembershipRequest:
-      type: object
-      required:
-        - duration
-        - paymentMethod
-        - firstTime
-      properties:
-        duration:
-          description: The duration in days this membership is for
-          example: 365
-          type: integer
-        paymentMethod:
-          description: The payment method used to pay the membership fee
-          oneOf:
-            - $ref: '#/components/schemas/PaymentMethod'
-            - type: integer
-          example: 4
-        firstTime:
-          description: Whether or not this membership request is the member's first
-          type: boolean
-          example: false
     AbstractRoom:
       type: object
       properties:
