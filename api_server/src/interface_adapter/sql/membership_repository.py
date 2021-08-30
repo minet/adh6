@@ -9,10 +9,10 @@ from typing import List, Optional, Tuple
 
 from src.util.log import LOG
 from src.util.context import log_extra
-from src.exceptions import MemberNotFoundError, MembershipAlreadyExist, MembershipNotFoundError, MembershipPending, MembershipStatusNotAllowed, PaymentMethodNotFoundError
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, MembershipAlreadyExist, MembershipNotFoundError, MembershipPending, MembershipStatusNotAllowed, PaymentMethodNotFoundError
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import Membership, PaymentMethod, AbstractMembership, Member, Account
-from src.interface_adapter.sql.model.models import Adherent, Membership as MembershipSQL, PaymentMethod as PaymentMethodSQL
+from src.interface_adapter.sql.model.models import Adherent, Membership as MembershipSQL, PaymentMethod as PaymentMethodSQL, Account as SQLAccount
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
@@ -119,6 +119,13 @@ class MembershipSQLRepository(MembershipRepository):
             membership.duration = abstract_membership.duration
         if abstract_membership.products is not None:
             membership.products = str(abstract_membership.products)
+        if abstract_membership.account is not None:
+            if isinstance(abstract_membership.account, Account):
+                abstract_membership.account = abstract_membership.account.id
+            account: SQLAccount = s.query(SQLAccount).filter(SQLAccount.id == abstract_membership.account).one_or_none()
+            if account is None:
+                raise AccountNotFoundError(str(abstract_membership.account))
+            membership.account = account
         if abstract_membership.member is not None:
             if isinstance(abstract_membership.member, Member):
                 abstract_membership.member = abstract_membership.member.id
