@@ -26,6 +26,7 @@ from src.interface_adapter.sql.cashbox_repository import CashboxSQLRepository
 from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.ip_allocator import IPSQLAllocator
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
+from src.interface_adapter.sql.membership_repository import MembershipSQLRepository
 from src.interface_adapter.sql.model.database import Database
 # THIS IMPORT IS NEEDED FOR sqlalchemy migrations management
 # from src.interface_adapter.sql.model.models import *
@@ -71,6 +72,7 @@ def init(testing=True, managing=False):
     # Repositories:
     ping_repository = PingSQLRepository()
     member_sql_repository = MemberSQLRepository()
+    membership_sql_repository = MembershipSQLRepository()
     port_sql_repostitory = PortSQLRepository()
     switch_sql_repostitory = SwitchSQLRepository()
     device_sql_repository = DeviceSQLRepository()
@@ -100,7 +102,7 @@ def init(testing=True, managing=False):
     member_manager = MemberManager(
         member_repository=member_sql_repository,
         payment_method_repository=payment_method_sql_repository,
-        membership_repository=member_sql_repository,
+        membership_repository=membership_sql_repository,
         logs_repository=elk_repository,
         device_repository=device_sql_repository,
         account_repository=account_sql_repository,
