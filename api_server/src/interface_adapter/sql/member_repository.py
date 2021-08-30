@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 import uuid
 
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session, Query
@@ -23,7 +23,7 @@ from src.interface_adapter.sql.model.models import Adherent, Chambre
 from src.interface_adapter.sql.model.models import Membership as MembershipSQL
 from src.interface_adapter.sql.model.models import PaymentMethod as PaymentMethodSQL
 from src.interface_adapter.sql.room_repository import _map_room_sql_to_entity
-from src.interface_adapter.sql.account_type_repository import _map_account_type_sql_to_entity
+from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.member_repository import MemberRepository
@@ -459,7 +459,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
         payment_method=_map_payment_method_sql_to_entity(obj_sql.payment_method) if obj_sql.payment_method else None,
-        account=_map_account_type_sql_to_entity(obj_sql.account) if obj_sql.account else None,
+        account=_map_account_sql_to_entity(obj_sql.account) if obj_sql.account else None,
         member=_map_member_sql_to_entity(obj_sql.adherent) if obj_sql.adherent else Null(),
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
