@@ -178,10 +178,10 @@ class TransactionSQLRepository(TransactionRepository):
             raise AccountNotFoundError(member_username)
         
         LOG.debug("sql_money_repository_get_minet_frais_asso_account", extra=log_extra(ctx, account_name=minet_frais_asso_name))
-        minet_asso_account: Account = s.query(Account).filter(Account.name == minet_frais_asso_name).one_or_none()
+        minet_asso_account: Account = s.query(Account).filter(Account.name == minet_frais_asso_name).filter(Account.pinned == True).one_or_none()
         if minet_asso_account is None:
             raise AccountNotFoundError(minet_frais_asso_name)
-        minet_technique_account: Account = s.query(Account).filter(Account.name == minet_frais_techniques_name).one_or_none()
+        minet_technique_account: Account = s.query(Account).filter(Account.name == minet_frais_techniques_name).filter(Account.pinned == True).one_or_none()
         if minet_technique_account is None:
             raise AccountNotFoundError(minet_frais_techniques_name)
 
@@ -230,7 +230,7 @@ class TransactionSQLRepository(TransactionRepository):
         member_account: Account = s.query(Account).filter(Account.adherent_id == member_id).one_or_none()
         if member_account is None:
             raise AccountNotFoundError(str(adherent.login))
-        minet_technique_account: Account = s.query(Account).filter(Account.name == "MiNET frais techniques").one_or_none()
+        minet_technique_account: Account = s.query(Account).filter(Account.name == "MiNET frais techniques").filter(Account.pinned == True).one_or_none()
         if minet_technique_account is None:
             raise AccountNotFoundError("MiNET frais techniques")
         payment_method: PaymentMethod = s.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
