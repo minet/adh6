@@ -78,8 +78,13 @@ PRICES = {
 }
 
 DURATION_STRING = {
-    1: '1 jour',
-    365: '1 an',
+    1: '1 mois',
+    2: '2 mois',
+    3: '3 mois',
+    4: '4 mois',
+    5: '5 mois',
+    6: '6 mois',
+    12: '1 an',
 }
 
 # IPs and ports for Elasticsearch nodes
