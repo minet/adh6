@@ -35,8 +35,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private options = {year: 'numeric', month: 'long', day: 'numeric'};
   private amountToPay = 0;
   private content: string;  // for log formatting
-  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50];
-  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12];
+  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
+  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
 
   statusToText = {
     'PENDING_RULES': "Sign the Charter",
@@ -267,7 +267,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
             duration: this.subscriptionDuration[v.renewal],
             account: account.id,
             products: products,
-            paymentMethod: paymentMethod.id
+            paymentMethod: paymentMethod.id,
+            hasRoom: +v.renewal !== 7
           }
 
           this.latestMembership$.subscribe((membership) => {

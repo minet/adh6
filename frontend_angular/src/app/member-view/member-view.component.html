@@ -103,6 +103,7 @@
           <select (change)="updateAmount()" class="w-100 form-control"
                   formControlName="renewal" type="text">
             <option value="0">Aucun</option>
+            <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
             <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
             <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
             <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>

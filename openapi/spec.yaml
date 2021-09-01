@@ -2076,6 +2076,10 @@ components:
           type: integer
           enum: [0, 1, 2, 3, 4, 5, 6, 12]
           nullable: true
+        hasRoom:
+          description: if the Member ask for a room or not
+          type: boolean
+          nullable: true
         products:
           description: A list of products to buy
           type: array

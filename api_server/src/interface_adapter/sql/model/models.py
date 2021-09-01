@@ -389,6 +389,7 @@ class Membership(Base):
     account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
     create_at = Column(DateTime)
     duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
+    has_room = Column(Boolean, default=True, nullable=False)
     first_time = Column(Boolean, default=False, nullable=False)
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
     payment_method_id = Column(Integer, ForeignKey(PaymentMethod.id), nullable=True)

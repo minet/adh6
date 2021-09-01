@@ -202,6 +202,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
+        has_room=obj_sql.has_room,
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
         payment_method=_map_payment_method_sql_to_entity(obj_sql.payment_method) if obj_sql.payment_method else None,
@@ -218,6 +219,7 @@ def _map_entity_to_membership_sql(entity: Membership) -> MembershipSQL:
     return MembershipSQL(
         uuid=entity.uuid,
         duration=entity.duration,
+        has_room=entity.has_room if entity is not None else False,
         products=str(entity.products) if entity.products is not None else "",
         first_time=entity.first_time,
         payment_method_id=entity.payment_method,

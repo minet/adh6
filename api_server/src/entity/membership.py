@@ -35,6 +35,7 @@ class Membership(object):
     swagger_types = {
         'uuid': 'str',
         'duration': 'int',
+        'has_room': 'bool',
         'products': 'list[Object]',
         'first_time': 'bool',
         'payment_method': 'Object',
@@ -50,6 +51,7 @@ class Membership(object):
     attribute_map = {
         'uuid': 'uuid',
         'duration': 'duration',
+        'has_room': 'hasRoom',
         'products': 'products',
         'first_time': 'firstTime',
         'payment_method': 'paymentMethod',
@@ -62,11 +64,12 @@ class Membership(object):
     if hasattr(AbstractMembership, "attribute_map"):
         attribute_map.update(AbstractMembership.attribute_map)
 
-    def __init__(self, uuid=None, duration=None, products=None, first_time=None, payment_method=None, account=None, member=None, status=None, created_at=None, updated_at=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, uuid=None, duration=None, has_room=None, products=None, first_time=None, payment_method=None, account=None, member=None, status=None, created_at=None, updated_at=None, *args, **kwargs):  # noqa: E501
         """Membership - a model defined in Swagger"""  # noqa: E501
         AbstractMembership.__init__(self, *args, **kwargs)
         self._uuid = None
         self._duration = None
+        self._has_room = None
         self._products = None
         self._first_time = None
         self._payment_method = None
@@ -79,6 +82,8 @@ class Membership(object):
         self.uuid = uuid
         if duration is not None:
             self.duration = duration
+        if has_room is not None:
+            self.has_room = has_room
         if products is not None:
             self.products = products
         if first_time is not None:
@@ -147,6 +152,29 @@ class Membership(object):
             )
 
         self._duration = duration
+
+    @property
+    def has_room(self):
+        """Gets the has_room of this Membership.  # noqa: E501
+
+        if the Member ask for a room or not  # noqa: E501
+
+        :return: The has_room of this Membership.  # noqa: E501
+        :rtype: bool
+        """
+        return self._has_room
+
+    @has_room.setter
+    def has_room(self, has_room):
+        """Sets the has_room of this Membership.
+
+        if the Member ask for a room or not  # noqa: E501
+
+        :param has_room: The has_room of this Membership.  # noqa: E501
+        :type: bool
+        """
+
+        self._has_room = has_room
 
     @property
     def products(self):

@@ -317,6 +317,8 @@ class MemberManager(CRUDManager):
             membership = fethed_membership[0]
             LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account, products=membership.products))
             price = self.config.PRICES[int(membership.duration)]  # Expressed in EUR.
+            if price == 50 and not membership.has_room:
+                price = 9
             price_in_cents = price * 100  # Expressed in cents of EUR.
             duration_str = self.config.DURATION_STRING.get(int(membership.duration), '')
             title = f'Internet - {duration_str}'

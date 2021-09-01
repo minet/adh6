@@ -1,19 +1,182 @@
-from threading import active_count
-from flask_sqlalchemy import SQLAlchemy
-
+from src.constants import MembershipDuration, MembershipStatus
+import uuid
+import itertools
+from datetime import date, datetime, timedelta
+from typing import Dict, List, Optional
+from sqlalchemy.orm import Session
 from common import init
 from flask_script import Manager
 from flask_migrate import MigrateCommand
 from faker import Faker
 
 from src.interface_adapter.sql.model.database import Database
-from src.interface_adapter.sql.model.models import Adherent, AccountType, PaymentMethod, Vlan, Switch, Port, Chambre, \
+from src.interface_adapter.sql.model.models import Adherent, AccountType, Membership, PaymentMethod, Transaction, Vlan, Switch, Port, Chambre, \
     Admin, Caisse, Account, Device, Product
 
 application, migrate = init(testing=False, managing=True)
 
 manager = Manager(application.app)
 manager.add_command('db', MigrateCommand)
+
+limit_departure_date = date(2019, 1, 1)
+limit_creation_date = date(2017, 1, 1)
+@manager.command
+def remove_duplicate_accounts():
+    s: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    
+    for adherent in adherents:
+        print(adherent.login)
+        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == adherent.id).order_by(Account.id).all()
+        if len(accounts) == 0:
+            print("No Account")
+            continue
+        if len(accounts) == 1:
+            continue
+        empty_accounts: List[Account] = []
+        for account in accounts:
+            t = s.query(Transaction).filter(Transaction.src == account.id).all()
+            if not t:
+                empty_accounts.append(account)
+        if len(accounts) == len(empty_accounts):
+            empty_accounts.pop(0)
+        for a in accounts:
+            s.delete(a)
+    s.commit()
+
+@manager.command
+def generate_membership():
+    s: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    products: Dict[str, Product] = {}
+    products_sql = s.query(Product).all()
+    for p in products_sql:
+        products[p.name] = p
+
+    for adherent in adherents:
+        print(adherent.login)
+        memberships: List[Membership] = s.query(Membership).filter(Membership.adherent_id == adherent.id).all()
+        if memberships != []:
+            print("Already have a membership")
+            continue
+        membership: Membership = Membership(
+            uuid=str(uuid.uuid4()),
+            account_id=None,
+            create_at=adherent.created_at,
+            has_room=False,
+            duration=MembershipDuration.NONE,
+            first_time=False,
+            adherent_id=adherent.id,
+            payment_method_id=None,
+            products="",
+            status=MembershipStatus.COMPLETE,
+            update_at=adherent.created_at,
+
+        )
+        account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+        if account is None:
+            print("No Account")
+            s.add(membership)
+            continue
+        membership.account_id = account.id
+        transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).all()
+        if not transactions:
+            print("Empty Account")
+            s.add(membership)
+            continue
+        grouped_transactions: Dict[date, List[Transaction]] = {}
+        first_date: Optional[date] = None
+        for transaction in transactions:
+            if first_date is None or first_date > transaction.timestamp.date():
+                first_date = transaction.timestamp.date()
+            if transaction.timestamp.date() not in grouped_transactions:
+                grouped_transactions[transaction.timestamp.date()] = [transaction]
+            else:
+                grouped_transactions[transaction.timestamp.date()].append(transaction)
+        
+        DURATION_STRING = {
+        -1: 'sans chambre',
+        1: '1 mois',
+        2: '2 mois',
+        3: '3 mois',
+        4: '4 mois',
+        5: '5 mois',
+        6: '6 mois',
+        12: '1 an',
+        }
+
+        current_products: List[int] = []
+        for d, ts in grouped_transactions.items():
+            print(d)
+            for t in ts:
+                if membership.duration is None:
+                    if t.name.startswith('Internet'):
+                        membership.has_room = True
+                        membership.create_at = t.timestamp
+                        membership.update_at = t.timestamp
+                        membership.first_time = t.timestamp.date() == first_date
+                        if t.name.endswith('1 mois'):
+                            membership.duration = MembershipDuration.ONE_MONTH
+                        if t.name.endswith('2 mois'):
+                            membership.duration = MembershipDuration.TWO_MONTH
+                        if t.name.endswith('3 mois'):
+                            membership.duration = MembershipDuration.THREE_MONTH
+                        if t.name.endswith('4 mois'):
+                            membership.duration = MembershipDuration.FOUR_MONTH
+                        if t.name.endswith('5 mois'):
+                            membership.duration = MembershipDuration.FIVE_MONTH
+                        if t.name.endswith('6 mois'):
+                            membership.duration = MembershipDuration.SIX_MONTH
+                        if t.name.endswith('1 an'):
+                            membership.duration = MembershipDuration.ONE_YEAR
+                        if t.name.endswith('sans chambre'):
+                            membership.has_room = False
+                            membership.duration = MembershipDuration.ONE_YEAR
+                if t.name in products:
+                    current_products.append(products[t.name].id)
+            membership.products = str(current_products) if current_products != [] else ""
+            s.add(membership)
+    s.commit()
+
+@manager.command
+def todays_subscriptions():
+    s: Session = Database.get_db().get_session()
+    now = datetime.today()
+    today = now + timedelta(-1)
+    tomorrow = now
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).filter(Adherent.updated_at <= tomorrow, Adherent.updated_at >= today).all()
+    with open("memberships.md", "w+") as f:
+        f.writelines(["|#|Login|Create At|Update At|Account Name|First time|Duration|Transaction Name|Transaction Timestamp|\n", "|-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|\n"])
+        for i, adherent in enumerate(adherents):
+            print(adherent.login)
+            account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+            if account is None:
+                f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|None|None|None|None|None|\n')
+                continue
+            memberships: List[Membership] = s.query(Membership).filter(Membership.adherent_id == adherent.id).all()
+            if not memberships:
+                f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|None|None|None|None|\n')
+                continue
+            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).order_by(Transaction.timestamp.desc()).all()
+            if not transactions:
+                print("no transaction")
+            for elem in itertools.zip_longest(transactions, memberships):
+                if elem[1] is not None and elem[0] is not None:
+                    f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{elem[1].first_time}|{elem[1].duration}|{elem[0].name}|{elem[0].timestamp}|\n')
+                elif elem[1] is not None:
+                    f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{elem[1].first_time}|{elem[1].duration}|||\n')
+                else:
+                    f.writelines(f'||||||||{elem[0].name}|{elem[0].timestamp}|\n')
+
+
+@manager.command
+def reset_membership():
+    s: Session = Database.get_db().get_session()
+    memberships: List[Membership] = s.query(Membership).all()
+    for m in memberships:
+        print(m.uuid)
+        s.delete(m)
+    s.commit()
 
 @manager.command
 def seed():

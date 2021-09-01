@@ -25,6 +25,10 @@ export interface AbstractMembership {
      */
     duration?: AbstractMembership.DurationEnum;
     /**
+     * if the Member ask for a room or not
+     */
+    hasRoom?: boolean;
+    /**
      * A list of products to buy
      */
     products?: Array<Product | number>;
