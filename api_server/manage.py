@@ -1,6 +1,6 @@
+from sqlalchemy.engine.create import create_engine
 from src.constants import MembershipDuration, MembershipStatus
 import uuid
-import itertools
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
@@ -9,45 +9,56 @@ from flask_script import Manager
 from flask_migrate import MigrateCommand
 from faker import Faker
 
+import ipaddress
 from src.interface_adapter.sql.model.database import Database
-from src.interface_adapter.sql.model.models import Adherent, AccountType, Membership, PaymentMethod, Transaction, Vlan, Switch, Port, Chambre, \
-    Admin, Caisse, Account, Device, Product
-
+from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
 application, migrate = init(testing=False, managing=True)
 
 manager = Manager(application.app)
 manager.add_command('db', MigrateCommand)
 
-limit_departure_date = date(2019, 1, 1)
-limit_creation_date = date(2017, 1, 1)
 @manager.command
-def remove_duplicate_accounts():
-    s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).all()
-    
-    for adherent in adherents:
-        print(adherent.login)
-        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == adherent.id).order_by(Account.id).all()
-        if len(accounts) == 0:
-            print("No Account")
+def check_subnet():
+    public_range = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
+    excluded_addresses = ["157.159.192.0", "157.159.192.1", "157.159.192.255", "157.159.193.0", "157.159.193.1", "157.159.193.255", "157.159.194.0", "157.159.194.1", "157.159.194.255"]
+    hosts = []
+    for r in public_range:
+        hosts.extend(list(r.hosts()))
+    private_range = ipaddress.IPv4Network("10.42.0.0/16").subnets(new_prefix=28)
+    mappings = {}
+    for subnet, ip in zip(private_range, hosts):
+        if str(ip) in excluded_addresses:
             continue
-        if len(accounts) == 1:
-            continue
-        empty_accounts: List[Account] = []
-        for account in accounts:
-            t = s.query(Transaction).filter(Transaction.src == account.id).all()
-            if not t:
-                empty_accounts.append(account)
-        if len(accounts) == len(empty_accounts):
-            empty_accounts.pop(0)
-        for a in accounts:
-            s.delete(a)
-    s.commit()
+        mappings[str(subnet)] = str(ip)
 
+    s: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = s.query(Adherent).all()
+    i = 1
+    for a in adherents:
+        if a.date_de_depart is None:
+            # print(f'{a.login}: Has no departure date')
+            continue
+        if a.ip is None or a.subnet is None:
+            continue
+        if a.date_de_depart < date.today() and a.subnet is not None and a.subnet != "":
+            print(f'{a.login}: Should not have any subnet')
+            continue
+        if a.ip is None:
+            continue
+        if a.subnet not in mappings:
+            print(f'{a.login}: {a.ip} is not in the mapping')
+            continue
+        if a.ip != mappings[a.subnet]:
+            i += 1
+            print(f'{a.login}: {a.subnet} is not in mapped to {a.ip} but to {mappings[a.subnet]}')
+    print(i)
+    
+
+limit_departure_date = date(2019, 1, 1)
 @manager.command
 def generate_membership():
     s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
     products: Dict[str, Product] = {}
     products_sql = s.query(Product).all()
     for p in products_sql:
@@ -93,23 +104,28 @@ def generate_membership():
                 grouped_transactions[transaction.timestamp.date()] = [transaction]
             else:
                 grouped_transactions[transaction.timestamp.date()].append(transaction)
-        
-        DURATION_STRING = {
-        -1: 'sans chambre',
-        1: '1 mois',
-        2: '2 mois',
-        3: '3 mois',
-        4: '4 mois',
-        5: '5 mois',
-        6: '6 mois',
-        12: '1 an',
-        }
 
-        current_products: List[int] = []
         for d, ts in grouped_transactions.items():
             print(d)
+            current_products: List[int] = []
+            membership: Membership = Membership(
+                uuid=str(uuid.uuid4()),
+                account_id=account.id,
+                create_at=adherent.created_at,
+                has_room=False,
+                duration=MembershipDuration.NONE,
+                first_time=False,
+                adherent_id=adherent.id,
+                payment_method_id=None,
+                products="",
+                status=MembershipStatus.COMPLETE,
+                update_at=adherent.created_at,
+            )
             for t in ts:
-                if membership.duration is None:
+                if membership.duration == MembershipDuration.NONE:
+                    membership.create_at = t.timestamp
+                    membership.update_at = t.timestamp
+                    membership.first_time = t.timestamp.date() == first_date
                     if t.name.startswith('Internet'):
                         membership.has_room = True
                         membership.create_at = t.timestamp
@@ -132,6 +148,7 @@ def generate_membership():
                         if t.name.endswith('sans chambre'):
                             membership.has_room = False
                             membership.duration = MembershipDuration.ONE_YEAR
+                        print(membership.duration)
                 if t.name in products:
                     current_products.append(products[t.name].id)
             membership.products = str(current_products) if current_products != [] else ""
@@ -141,10 +158,12 @@ def generate_membership():
 @manager.command
 def todays_subscriptions():
     s: Session = Database.get_db().get_session()
-    now = datetime.today()
-    today = now + timedelta(-1)
-    tomorrow = now
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.created_at >= limit_creation_date).filter(Adherent.date_de_depart >= limit_departure_date).filter(Adherent.updated_at <= tomorrow, Adherent.updated_at >= today).all()
+    now = datetime.now()
+    today = datetime(now.year, now.month, now.day)
+    tomorrow = today + timedelta(1)
+    print(today)
+    print(tomorrow)
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).filter(Adherent.updated_at <= tomorrow, Adherent.updated_at >= today).all()
     with open("memberships.md", "w+") as f:
         f.writelines(["|#|Login|Create At|Update At|Account Name|First time|Duration|Transaction Name|Transaction Timestamp|\n", "|-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|\n"])
         for i, adherent in enumerate(adherents):
@@ -155,19 +174,19 @@ def todays_subscriptions():
                 continue
             memberships: List[Membership] = s.query(Membership).filter(Membership.adherent_id == adherent.id).all()
             if not memberships:
-                f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|None|None|None|None|\n')
+                print("no membership")
                 continue
-            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).order_by(Transaction.timestamp.desc()).all()
-            if not transactions:
-                print("no transaction")
-            for elem in itertools.zip_longest(transactions, memberships):
-                if elem[1] is not None and elem[0] is not None:
-                    f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{elem[1].first_time}|{elem[1].duration}|{elem[0].name}|{elem[0].timestamp}|\n')
-                elif elem[1] is not None:
-                    f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{elem[1].first_time}|{elem[1].duration}|||\n')
-                else:
-                    f.writelines(f'||||||||{elem[0].name}|{elem[0].timestamp}|\n')
-
+            for m in memberships:
+                create_at = datetime(m.create_at.year, m.create_at.month, m.create_at.day)
+                transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id, Transaction.timestamp >= create_at, Transaction.timestamp <= create_at + timedelta(1)).order_by(Transaction.timestamp.asc()).all()
+                if not transactions:
+                    print(f"no transaction for membership {m.uuid}")
+                    continue
+                for j, t in enumerate(transactions):
+                    if j == 0:
+                        f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{m.first_time}|{m.duration}|{t.name}|{t.timestamp}|\n')
+                    else:
+                        f.writelines(f'||||||||{t.name}|{t.timestamp}|\n')
 
 @manager.command
 def reset_membership():
@@ -177,6 +196,83 @@ def reset_membership():
         print(m.uuid)
         s.delete(m)
     s.commit()
+
+@manager.command
+def check_migration_from_adh5():
+    engine = create_engine('')
+    s: Session = Database.get_db().get_session()
+    i = 0
+    j = 0
+    total = 0
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    with open("migration_transactions.md", "w+") as f:
+        f.writelines(["# Missing Transactions\n"])
+        for adherent in adherents:
+            # Check an account exist, if not create a fake one (for now)
+            account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+            if account is None:
+                print("Creation of an account")
+                account = Account(
+                    type=2,
+                    creation_date=adherent.created_at,
+                    name=f'{adherent.prenom} {adherent.nom.upper()} ({adherent.login})',
+                    actif=True,
+                    compte_courant=False,
+                    pinned=False,
+                    adherent_id=adherent.id
+                )
+                s.add(account)
+                s.flush()
+            
+            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).all()
+            adh5_transactions: List[Transaction] = []
+            with engine.connect() as connection:
+                adh5_adherents = connection.execute("SELECT id FROM adherents WHERE login='{}'".format(adherent.login))
+                adh5_adherent_id = 0
+                for row in adh5_adherents:
+                    adh5_adherent_id = row['id']
+                
+                ecritures = connection.execute("SELECT * FROM ecritures WHERE adherent_id={} AND created_at >= '{}'".format(adh5_adherent_id, datetime(2020, 2, 15)))
+                for e in ecritures:
+                    adh5_transactions.append(Transaction(
+                        value=e['montant'],
+                        timestamp=e['date'],
+                        src=account.id,
+                        dst=1,
+                        name=e['intitule'],
+                        attachments="",
+                        type=e['moyen'],
+                        author_id=adherent.id,
+                        pending_validation=False
+                    ))
+            if len(adh5_transactions) == 0:
+                continue
+            missing_transactions: List[Transaction] = []
+            for adh5_t in adh5_transactions:
+                if len(transactions) == 0:
+                    missing_transactions.append(adh5_t)
+                    continue
+                in_adh6 = False
+                for t in transactions:
+                    if adh5_t.name == t.name and adh5_t.timestamp.date() == t.timestamp.date():
+                        in_adh6 = True
+                        break
+                if not in_adh6:
+                    missing_transactions.append(adh5_t)
+            j += len(missing_transactions)
+            if len(missing_transactions) == 0:
+                continue
+            f.writelines([f"## {adherent.login}\n", "|*Name*|*Timestamp*|*Value*|\n", "|:-:|:-:|:-:|\n"])
+            sum_adh = 0
+            for t in missing_transactions:
+                total += t.value
+                print("{}, {}, {}".format(t.name, t.timestamp, t.value))
+                f.write("|{}|{}|{}|\n".format(t.name, t.timestamp, t.value))
+                sum_adh += t.value
+            f.write("|||*{}*|\n".format(sum_adh))
+            i += 1
+        print(f'{i} adherent, {j} transactions, {total} €')
+
 
 @manager.command
 def seed():
