@@ -320,7 +320,6 @@ class Transaction(Base, RubyHashTrackable):
     author = relationship('Adherent', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
-    membership = relationship('Membership', foreign_keys=[membership_uuid])
     payment_method = relationship('PaymentMethod')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
