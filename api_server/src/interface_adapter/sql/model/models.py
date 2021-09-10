@@ -314,7 +314,7 @@ class Transaction(Base, RubyHashTrackable):
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
     author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False)
     pending_validation = Column(Boolean(), nullable=False)
-    membership_uuid = Column(CHAR(36), ForeignKey('membership.uuid'), nullable=True)
+    membership_uuid = Column(CHAR(36), nullable=True)
     is_archive = Column(Boolean, default=False, nullable=True)
 
     author = relationship('Adherent', foreign_keys=[author_id])
