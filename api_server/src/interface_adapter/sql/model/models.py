@@ -314,10 +314,13 @@ class Transaction(Base, RubyHashTrackable):
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
     author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False)
     pending_validation = Column(Boolean(), nullable=False)
+    membership_uuid = Column(CHAR(36), ForeignKey('membership.uuid'), nullable=True)
+    is_archive = Column(Boolean, default=False, nullable=True)
 
     author = relationship('Adherent', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
+    membership = relationship('Membership', foreign_keys=[membership_uuid])
     payment_method = relationship('PaymentMethod')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
