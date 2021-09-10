@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import Transaction, AbstractTransaction, Product
@@ -24,8 +24,8 @@ class TransactionRepository(CRUDRepository):
     def delete(self, ctx, object_id) -> None:
         raise NotImplemented
 
-    def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str, payment_method: str) -> None:
+    def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str, payment_method: str, membership_uuid: str) -> None:
         raise NotImplemented
 
-    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str) -> None:
+    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str]) -> None:
         raise NotImplemented

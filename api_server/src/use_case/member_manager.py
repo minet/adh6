@@ -322,10 +322,8 @@ class MemberManager(CRUDManager):
             price_in_cents = price * 100  # Expressed in cents of EUR.
             duration_str = self.config.DURATION_STRING.get(int(membership.duration), '')
             title = f'Internet - {duration_str}'
-            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title,
-                                                                membership.member.username,
-                                                                membership.payment_method.name)
-            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name)
+            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, membership.member.username, membership.payment_method.name, membership.uuid)
+            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name, membership_uuid)
             self.member_repository.add_duration(ctx, member_id, membership.duration)
 
         return _validate(self, ctx, uuid)

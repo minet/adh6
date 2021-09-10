@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy.orm.session import Session
 from src.util.log import LOG
 from src.util.context import log_extra
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from sqlalchemy.orm import aliased
 
@@ -151,8 +151,7 @@ class TransactionSQLRepository(TransactionRepository):
             s.delete(transaction)
         s.flush()
 
-    def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str,
-                                  payment_method_name: str) -> None:
+    def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str, payment_method_name: str, membership_uuid: str) -> None:
         if amount_in_cents < 900:
             raise MemberTransactionAmountMustBeGreaterThan(str(amount_in_cents))
 
@@ -198,7 +197,9 @@ class TransactionSQLRepository(TransactionRepository):
             pending_validation=payment_method.name not in auto_validate_payment_method,
             name=title,
             attachments="",
-            payment_method=payment_method
+            payment_method=payment_method,
+            membership_uuid=membership_uuid,
+            is_archive=False
         )
         s.add(frais_asso_transaction)
 
@@ -213,13 +214,15 @@ class TransactionSQLRepository(TransactionRepository):
                 pending_validation=payment_method.name not in auto_validate_payment_method,
                 name=title,
                 attachments="",
-                payment_method=payment_method
+                payment_method=payment_method,
+                membership_uuid=membership_uuid,
+                is_archive=False
             )
             s.add(frais_asso_transaction)
 
         s.flush()
     
-    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str) -> None:
+    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str]) -> None:
         now = datetime.now()
         s: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_money_repository_add_products_transaction_record", extra=log_extra(ctx, number_products=len(products)))
@@ -253,7 +256,9 @@ class TransactionSQLRepository(TransactionRepository):
                 pending_validation=payment_method.name not in auto_validate_payment_method,
                 name=product.name,
                 attachments="",
-                payment_method=payment_method
+                payment_method=payment_method,
+                membership_uuid=membership_uuid,
+                is_archive=False
             )
 
             s.add(p_transaction)
