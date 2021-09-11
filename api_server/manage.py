@@ -11,7 +11,7 @@ from faker import Faker
 
 import ipaddress
 from src.interface_adapter.sql.model.database import Database
-from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
+from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
 application, migrate = init(testing=False, managing=True)
 
 manager = Manager(application.app)
@@ -52,9 +52,82 @@ def check_subnet():
             i += 1
             print(f'{a.login}: {a.subnet} is not in mapped to {a.ip} but to {mappings[a.subnet]}')
     print(i)
-    
 
 limit_departure_date = date(2019, 1, 1)
+@manager.command
+def remove_members():
+    s: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+
+    passed_adherents: List[Adherent] = []
+    total = len(adherents)
+    total_lines = 0
+    deleted_devices = 0
+    deleted_modifications = 0
+    for i, a in enumerate(adherents):
+        print(f'{i}/{total}: {a.login}, {a.created_at}')
+        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == a.id).all()
+        pass_adherent = False
+        for acc in accounts:
+            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == acc.id).all()
+            transactions_from: List[Transaction] = s.query(Transaction).filter(Transaction.author_id == a.id).all()
+            if len(transactions) != 0 or len(transactions_from) != 0:
+                print("Adherent passed")
+                passed_adherents.append(a)
+                pass_adherent = True
+                continue
+            s.delete(acc)
+            total_lines += 1
+        if pass_adherent:
+            continue
+        devices: List[Device] = s.query(Device).filter(Device.adherent_id == a.id).all()
+        for d in devices:
+            s.delete(d)
+            total_lines += 1
+            deleted_devices += 1
+        adhesions: List[Adhesion] = s.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+        for add in adhesions:
+            s.delete(add)
+            total_lines += 1
+        routeurs: List[Routeur] = s.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+        for r in routeurs:
+            s.delete(r)
+            total_lines += 1
+        modifications: List[Modification] = s.query(Modification).filter(Modification.adherent_id == a.id).all()
+        for m in modifications:
+            s.delete(m)
+            total_lines += 1
+            deleted_modifications += 1
+        s.delete(a)
+    print(f'deleted lines: {total_lines}, ')
+    s.commit()
+   
+@manager.command
+def check_transactions_member_to_remove():
+    s: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+
+    total = len(adherents)
+    for i, a in enumerate(adherents):
+        print(f'{i}/{total}: {a.login}, {a.created_at}')
+        devices: List[Device] = s.query(Device).filter(Device.adherent_id == a.id).all()
+        for d in devices:
+            s.delete(d)
+        adhesions: List[Adhesion] = s.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+        for add in adhesions:
+            s.delete(add)
+        routeurs: List[Routeur] = s.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+        for r in routeurs:
+            s.delete(r)
+        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == a.id).all()
+        for acc in accounts:
+            print(acc.id)
+            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == acc.id).all() + s.query(Transaction).filter(Transaction.author_id == a.id).all()
+            for t in transactions:
+                print(a.id)
+                print(t.name)
+    s.commit() 
+
 @manager.command
 def generate_membership():
     s: Session = Database.get_db().get_session()
@@ -264,6 +337,7 @@ def check_migration_from_adh5():
                 continue
             f.writelines([f"## {adherent.login}\n", "|*Name*|*Timestamp*|*Value*|\n", "|:-:|:-:|:-:|\n"])
             sum_adh = 0
+            print(adherent.login)
             for t in missing_transactions:
                 total += t.value
                 print("{}, {}, {}".format(t.name, t.timestamp, t.value))
