@@ -231,10 +231,10 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("membership", is_collection=True)
-    def change_membership(self, ctx, member_id: int, uuid: str, abstract_membership: Optional[AbstractMembership]) -> None:
+    def change_membership(self, ctx, member_id: int, uuid: str, abstract_membership: Optional[AbstractMembership] = None) -> None:
         self.__member_not_found(ctx, member_id)
-
-        membership_fetched, _ = self.membership_search(
+        
+        membership_fetched, _ = self.membership_repository.membership_search_by(
             ctx=ctx,
             limit=1,
             filter_=AbstractMembership(uuid=uuid)
@@ -243,6 +243,10 @@ class MemberManager(CRUDManager):
             raise MembershipNotFoundError(uuid)
 
         membership: Membership = membership_fetched[0]
+
+        if abstract_membership is None:
+            LOG.debug("patch_membership_record_no_change")
+            return
 
         if membership.status == MembershipStatus.PENDING_RULES.value:
             date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
