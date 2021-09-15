@@ -4,22 +4,18 @@ from src.use_case.interface.payment_method_repository import PaymentMethodReposi
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
 from src.use_case.interface.account_repository import AccountRepository
-from unittest import mock
 from unittest.mock import MagicMock
 
-from pytest import fixture, raises, mark
+from pytest import fixture, raises
 
 from config import TEST_CONFIGURATION
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractMember
-from src.entity.member import Member
-from src.exceptions import LogFetchError, NoPriceAssignedToThatDuration, MemberNotFoundError, IntMustBePositive, \
-    UnknownPaymentMethod, InvalidAdmin
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod
+from src.exceptions import AccountNotFoundError, LogFetchError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
-from src.use_case.interface.money_repository import MoneyRepository
 from src.use_case.member_manager import MemberManager
 
 INVALID_MUTATION_REQ_ARGS = [
@@ -41,106 +37,181 @@ FAKE_LOGS = "1 blah blah blah logging logs"
 
 
 class TestNewMembership:
-    pass
+    """Unit tests for the management of the memberships
     """
-    def test_happy_path(self, ctx,
-                        faker,
+    def test_pending_rules(self, ctx,
                         mock_membership_repository: MagicMock,
                         mock_member_repository: MagicMock,
-                        sample_member,
-                        sample_membership_no_duration,
+                        sample_member: Member,
+                        sample_membership_empty: Membership,
                         member_manager: MemberManager):
-        test_date = faker.date_time_this_year()
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value="")
         # When...
-        member_manager.new_membership(ctx, sample_member.id, sample_membership_no_duration)
+        member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
 
-        # Expect...
-        expected_start_date = test_date
-        expected_end_date = test_date + datetime.timedelta(days=1)
 
         # Expect to create a new membership record...
-        self._assert_membership_record_was_created(ctx, sample_member.username, mock_membership_repository,
-                                                   expected_start_date, expected_end_date)
-    
-    def test_happy_path_without_start_time(self, ctx,
-                                           faker,
-                                           sample_member,
-                                           mock_membership_repository: MagicMock,
-                                           mock_member_repository: MagicMock,
-                                           member_manager: MemberManager):
-        test_date = faker.date_time_this_year()
-        # Given that now == TEST_DATE (monkey patch datetime.now())
-        # See here: http://blog.xelnor.net/python-mocking-datetime/
-        with mock.patch.object(datetime, 'datetime', mock.Mock(wraps=datetime.datetime)) as patched:
-            patched.now.return_value = test_date
-
-            # When...
-            member_manager.new_membership(ctx, sample_member.id, 1, sample_membership_no_duration)
-
-        # Expect...
-        expected_start_date = test_date
-        expected_end_date = test_date + datetime.timedelta(days=1)
-
-        # Expect to create a new membership record...
-        self._assert_membership_record_was_created(ctx, sample_member.username, mock_membership_repository,
-                                                   expected_start_date, expected_end_date)
-
-    def test_invalid_duration(self, ctx,
-                              sample_member,
-                              mock_member_repository: MagicMock,
-                              mock_membership_repository: MagicMock,
-                              member_manager: MemberManager):
-        # When...
-        with raises(IntMustBePositive):
-            member_manager.new_membership(ctx, sample_member.username, -1, 'bank_cheque')
-
-        # Expect that the database has not been touched.
-        mock_member_repository.update.assert_not_called()
-        mock_membership_repository.create_membership.assert_not_called()
-
-    def test_no_price_for_duration(self, ctx,
-                                   sample_member,
-                                   mock_member_repository: MagicMock,
-                                   mock_membership_repository: MagicMock,
-                                   member_manager: MemberManager):
-        # When...
-        with raises(NoPriceAssignedToThatDuration):
-            member_manager.new_membership(ctx, sample_member.username, 123456789, 'cash')
-
-        # Expect that the database has not been touched.
-        mock_member_repository.update.assert_not_called()
-        mock_membership_repository.create_membership.assert_not_called()
-
-    @mark.parametrize('exception', [UnknownPaymentMethod, InvalidAdmin])
-    def test_fail_to_create_transaction(self, ctx,
-                                        faker,
-                                        sample_member,
-                                        mock_membership_repository: MembershipRepository,
-                                        mock_member_repository: MemberRepository,
-                                        mock_money_repository: MoneyRepository,
-                                        exception: Exception,
-                                        member_manager: MemberManager):
-        mock_member_repository.update_member = MagicMock()
-        mock_money_repository.add_member_payment_record = MagicMock(side_effect=exception)
-        test_date = faker.date_time_this_year()
-
-        # When...
-        with raises(exception):
-            member_manager.new_membership(ctx, sample_member.username, 1, 'cash', start_str=test_date.isoformat())
-
-        # Expect...
-        mock_member_repository.update_member.assert_not_called()
-
-    @staticmethod
-    def _assert_membership_record_was_created(ctx, user, repo, start_time, end_time):
-        repo.create_membership.assert_called_once_with(
+        mock_membership_repository.create_membership.assert_called_once_with(
             ctx,
-            user,
-            start_time,
-            end_time
+            sample_member.id,
+            sample_membership_empty
         )
-    """
 
+        assert sample_membership_empty.status == MembershipStatus.PENDING_RULES.value
+    
+    def test_pending_payment_initial(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_empty: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+        # When...
+        member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
+        # Expect to create a new membership record...
+        mock_membership_repository.create_membership.assert_called_once_with(
+            ctx,
+            sample_member.id,
+            sample_membership_empty
+        )
+        
+        assert sample_membership_empty.status == MembershipStatus.PENDING_PAYMENT_INITIAL.value
+
+    def test_pending_payment(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_duration_no_account: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+        # When...
+        member_manager.new_membership(ctx, sample_member.id, sample_membership_duration_no_account)
+
+        # Expect to create a new membership record...
+        mock_membership_repository.create_membership.assert_called_once_with(
+            ctx,
+            sample_member.id,
+            sample_membership_duration_no_account
+        )
+        
+        assert sample_membership_duration_no_account.status == MembershipStatus.PENDING_PAYMENT.value
+
+    def test_payment_validation(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        mock_account_repository: MagicMock,
+                        mock_payment_method_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_duration_account_payment_method: Membership,
+                        sample_account1: Account,
+                        sample_payment_method: PaymentMethod,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_account_repository.search_by = MagicMock(return_value=([sample_account1], 1))
+        mock_payment_method_repository.search_by = MagicMock(return_value=([sample_payment_method], 1))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+        # When...
+        member_manager.new_membership(ctx, sample_member.id, sample_membership_duration_account_payment_method)
+
+        # Expect to create a new membership record...
+        mock_membership_repository.create_membership.assert_called_once_with(
+            ctx,
+            sample_member.id,
+            sample_membership_duration_account_payment_method
+        )
+        
+        assert sample_membership_duration_account_payment_method.status == MembershipStatus.PENDING_PAYMENT_VALIDATION.value
+
+    def test_bad_initial_status(self, ctx,
+                        mock_member_repository: MagicMock,
+                        sample_membership_empty: Membership,
+                        sample_member: Member,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        sample_membership_empty.status = MembershipStatus.COMPLETE.value
+
+        with raises(MembershipStatusNotAllowed):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
+    def test_membership_already_pending(self, ctx,
+                        mock_member_repository: MagicMock,
+                        sample_membership_empty: Membership,
+                        sample_member: Member,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        sample_membership_empty.status = MembershipStatus.COMPLETE.value
+
+        with raises(MembershipStatusNotAllowed):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
+    def test_unknown_member(self, ctx,
+                        mock_member_repository: MagicMock,
+                        sample_membership_empty: Membership,
+                        sample_member: Member,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([], 1))
+
+        with raises(MemberNotFoundError):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
+    def test_unknown_account(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        mock_account_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_duration_account_payment_method: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_account_repository.search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+
+        with raises(AccountNotFoundError):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_duration_account_payment_method)
+
+    def test_unknown_payment_method(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        mock_account_repository: MagicMock,
+                        mock_payment_method_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_duration_account_payment_method: Membership,
+                        sample_account1: Account,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_account_repository.search_by = MagicMock(return_value=([sample_account1], 1))
+        mock_payment_method_repository.search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+
+        with raises(PaymentMethodNotFoundError):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_duration_account_payment_method)
+
+    def test_unknown_price_asign_to_duration(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_empty: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_charter = MagicMock(return_value=str(datetime.datetime.today()))
+        sample_membership_empty.duration = 12
+
+        with raises(NoPriceAssignedToThatDuration):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+        
 
 class TestGetByID:
     def test_happy_path(self, ctx,

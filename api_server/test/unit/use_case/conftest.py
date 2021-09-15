@@ -59,11 +59,31 @@ def sample_member(faker, sample_room):
     )
 
 @fixture
-def sample_membership_no_duration(faker, sample_member):
+def sample_membership_empty(sample_member):
     return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value
+    )
+
+@fixture
+def sample_membership_duration_no_account(sample_member):
+    return Membership(
+        uuid="",
+        member=sample_member,
+        status=MembershipStatus.INITIAL.value,
+        duration=1
+    )
+
+@fixture
+def sample_membership_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
+    return Membership(
+        uuid="",
+        member=sample_member,
+        status=MembershipStatus.INITIAL.value,
+        duration=1,
+        account=sample_account1.id,
+        payment_method=sample_payment_method.id
     )
 
 
