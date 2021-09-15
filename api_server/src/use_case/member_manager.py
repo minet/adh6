@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, Union
 
 from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
-    AbstractMembership, AbstractAccount, AbstractTransaction, Account
+    AbstractMembership, AbstractAccount, AbstractPaymentMethod, Account
 from src.entity.roles import Roles
 from src.exceptions import AccountTypeNotFoundError, InvalidAdmin, MemberAlreadyExist, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
     MemberNotFoundError, IntMustBePositive, MembershipStatusNotAllowed, AccountNotFoundError, \
@@ -167,6 +167,8 @@ class MemberManager(CRUDManager):
         :raise UnknownPaymentMethod
         """
 
+        self.__member_not_found(ctx, member_id)
+
         if membership.status != MembershipStatus.INITIAL.value:
             raise MembershipStatusNotAllowed(membership.status, "status cannot be used to create a membership")
 
@@ -230,13 +232,8 @@ class MemberManager(CRUDManager):
     @auto_raise
     @uses_security("membership", is_collection=True)
     def change_membership(self, ctx, member_id: int, uuid: str, abstract_membership: Optional[AbstractMembership]) -> None:
-        # Check the member and membership exist
-        member: Member = self.member_repository.search_by(
-            ctx=ctx,
-            filter_=AbstractMember(id=member_id)
-        )
-        if not member:
-            raise MemberNotFoundError(str(member_id))
+        self.__member_not_found(ctx, member_id)
+
         membership_fetched, _ = self.membership_search(
             ctx=ctx,
             limit=1,
@@ -298,10 +295,8 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def validate_membership(self, ctx, member_id: int, uuid: str):
-        # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
-        if not member:
-            raise MemberNotFoundError(member_id)
+        self.__member_not_found(ctx, member_id)
+
         fethed_membership, _ = self.membership_repository.membership_search_by(
             ctx=ctx,
             limit=1,
@@ -346,10 +341,17 @@ class MemberManager(CRUDManager):
         _payment_method, _ = self.payment_method_repository.search_by(
             ctx=ctx,
             limit=1,
-            filter_=AbstractTransaction(id=payment_method)
+            filter_=AbstractPaymentMethod(id=payment_method)
         )
         if not _payment_method:
             raise PaymentMethodNotFoundError(str(payment_method))
+    
+    def __member_not_found(self, ctx, member: Union[int, Member]) -> None:
+        if isinstance(member, Member):
+            member = member.id
+        _member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member))
+        if not _member:
+            raise MemberNotFoundError(str(member))
 
     @log_call
     @auto_raise
