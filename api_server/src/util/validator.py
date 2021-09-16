@@ -5,7 +5,7 @@ import re
 from ipaddress import IPv4Address, IPv4Network
 from ipaddress import IPv6Address, IPv6Network, AddressValueError
 
-MAC_REGEX = re.compile('^([0-9A-Fa-f]{2}-){5}([0-9A-Fa-f]{2})$')
+MAC_REGEX = re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 

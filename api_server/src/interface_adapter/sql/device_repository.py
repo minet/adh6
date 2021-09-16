@@ -82,7 +82,7 @@ class DeviceSQLRepository(DeviceRepository):
                 raise MemberNotFoundError(abstract_device.member)
 
         device = SQLDevice(
-            mac=abstract_device.mac,
+            mac=str(abstract_device.mac).upper().replace(':', '-'),
             created_at=now,
             updated_at=now,
             last_seen=now,

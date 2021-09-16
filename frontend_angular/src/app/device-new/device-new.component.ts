@@ -51,7 +51,7 @@ export class DeviceNewComponent implements OnInit {
 
   createForm() {
     this.deviceForm = this.fb.group({
-      mac: ['', [Validators.required, Validators.pattern('^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$')]],
+      mac: ['', [Validators.required, Validators.pattern('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')]],
       connectionType: ['', [Validators.required, Validators.pattern('wired|wireless')]],
     });
   }
