@@ -500,6 +500,51 @@ class TestPatchMembership:
             mock_membership_repository.update_membership.assert_not_called()
 
 
+class TestValidateMembership:
+    def test_unknown_member(self, ctx,
+                        mock_membership_repository: MagicMock, 
+                        mock_member_repository: MagicMock,
+                        sample_membership_empty: Membership,
+                        sample_member: Member,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+
+        with raises(MemberNotFoundError):
+            member_manager.validate_membership(ctx, sample_member.id, sample_membership_empty.uuid)
+            mock_member_repository.search_by.assert_called_once()
+            mock_member_repository.search_by.assert_not_called()
+            mock_membership_repository.validate_membership.assert_not_called()
+
+    def test_unknown_membership(self, ctx,
+                        mock_membership_repository: MagicMock, 
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([], 0))
+
+        with raises(MembershipNotFoundError):
+            member_manager.validate_membership(ctx, sample_member.id, "")
+            mock_member_repository.search_by.assert_called_once()
+            mock_member_repository.search_by.assert_called_once()
+            mock_membership_repository.validate_membership.assert_not_called()
+
+    def test_not_payment_validation(self, ctx,
+                        mock_membership_repository: MagicMock,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_pending_payment: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_membership_repository.membership_search_by = MagicMock(return_value=([sample_membership_pending_payment], 1))
+
+        with raises(MembershipStatusNotAllowed):
+            member_manager.validate_membership(ctx, sample_member.id, sample_membership_pending_payment.uuid)
+            mock_membership_repository.membership_search_by.assert_called_once()
+            mock_member_repository.search_by.assert_called_once()
+            mock_membership_repository.validate_membership.assert_not_called()
+
+
 class TestGetByID:
     def test_happy_path(self, ctx,
                         mock_member_repository: MagicMock,

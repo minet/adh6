@@ -308,6 +308,8 @@ class MemberManager(CRUDManager):
         )
         if not fethed_membership:
             raise MembershipNotFoundError(uuid)
+        if fethed_membership[0].status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
+            raise MembershipStatusNotAllowed(fethed_membership[0].status, "status cannot be used to validate a membership") 
 
         @uses_security("admin", is_collection=False)
         def _validate(cls, ctx, membership_uuid: str) -> None:
