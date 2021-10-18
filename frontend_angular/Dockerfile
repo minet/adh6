@@ -1,7 +1,8 @@
 ###############################################################################
-# First stage: generate config files...
+# 1st stage: generate config files...
 ###############################################################################
-FROM loicmahieu/alpine-envsubst AS generate_config
+FROM alpine:latest AS config
+RUN apk add gettext && apk update && apk upgrade
 WORKDIR /tmp
 
 ARG ADH6_URL="adh6.minet.net"
@@ -12,18 +13,29 @@ COPY frontend_angular/src/app/config/auth.config.template.ts .
 
 RUN cat auth.config.template.ts | envsubst | tee auth.config.ts
 
+
 ###############################################################################
-# 2nd stage, launch the app
+# 2nd stage, generate certificats
 ###############################################################################
-FROM node:10.16.0-stretch-slim
+FROM alpine:latest AS certs
+RUN apk add --update openssl
+RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
+    && openssl req -new -key /etc/ssl/private/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
+    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /etc/ssl/private/adh6.key -out /etc/ssl/certs/adh6.crt
+
+
+###############################################################################
+# 3rd stage, launch the app
+###############################################################################
+FROM node:10.16.0-buster-slim
 
 EXPOSE 8443
 
+COPY --from=certs /etc/ssl/certs/adh6.crt /etc/ssl/certs/
+COPY --from=certs /etc/ssl/private/adh6.key /etc/ssl/private/
+
 # Make TLS self-signed certificate and change its owner to the angular user.
-RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
-    && openssl req -new -key /etc/ssl/private/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /etc/ssl/private/adh6.key -out /etc/ssl/certs/adh6.crt \
-    && groupadd -r angular && useradd --no-log-init -r -m -g angular angular \
+RUN groupadd -r angular && useradd --no-log-init -r -m -g angular angular \
     && chmod 600 /etc/ssl/private/adh6.key \
     && chmod 600 /etc/ssl/certs/adh6.crt \
     && chown angular:angular /etc/ssl/private/adh6.key \
@@ -48,7 +60,7 @@ USER root
 COPY frontend_angular/*.json ./
 
 # Copy the generated config files.
-COPY --from=generate_config /tmp/auth.config.ts ./src/app/config/auth.config.ts
+COPY --from=config /tmp/auth.config.ts ./src/app/config/auth.config.ts
 
 COPY frontend_angular/src ./src
 
