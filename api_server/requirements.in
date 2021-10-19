@@ -28,7 +28,7 @@ elasticsearch
 requests
 
 # Easily create requirements.txt
-pip-tools
+# pip-tools
 
 python-gitlab
 Flask-Migrate
