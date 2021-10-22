@@ -17,6 +17,7 @@ mysqlclient
 # Misc
 python-dateutil
 PyYAML
+jsonschema<4.0
 
 # ADH <-> Switches communication
 pysnmp

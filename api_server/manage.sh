@@ -4,5 +4,7 @@ source ../.env.local
 cat config/CONFIGURATION.template.py | envsubst > config/CONFIGURATION.py
 set +a
 
-python manage.py $@
+export FLASK_APP=manage:manager
+flask $@
+
 git checkout config/CONFIGURATION.py

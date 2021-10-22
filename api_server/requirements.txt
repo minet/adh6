@@ -38,7 +38,7 @@ decopatch==1.4.8
     # via pytest-cases
 elasticsearch==7.15.1
     # via -r requirements.in
-faker==9.3.1
+faker==9.5.2
     # via -r requirements.in
 flask-migrate==3.1.0
     # via -r requirements.in
@@ -70,8 +70,9 @@ jinja2==3.0.2
     #   -r requirements.in
     #   flask
     #   swagger-ui-bundle
-jsonschema==4.1.0
+jsonschema==3.2.0
     # via
+    #   -r requirements.in
     #   connexion
     #   openapi-schema-validator
     #   openapi-spec-validator
@@ -143,10 +144,11 @@ requests==2.26.0
     #   requests-toolbelt
 six==1.16.0
     # via
+    #   jsonschema
     #   openapi-schema-validator
     #   openapi-spec-validator
     #   python-dateutil
-sqlalchemy==1.4.25
+sqlalchemy==1.4.26
     # via
     #   -r requirements.in
     #   alembic
@@ -167,3 +169,6 @@ uwsgi==2.0.20
     # via -r requirements.in
 werkzeug==2.0.2
     # via flask
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

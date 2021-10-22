@@ -1,23 +1,21 @@
+import click
+from flask import Flask
 from sqlalchemy.engine.create import create_engine
 from src.constants import MembershipDuration, MembershipStatus
 import uuid
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 from common import init
-from flask_script import Manager
-from flask_migrate import MigrateCommand
 from faker import Faker
 
 import ipaddress
 from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
 application, migrate = init(testing=False, managing=True)
+manager: Flask = application.app
 
-manager = Manager(application.app)
-manager.add_command('db', MigrateCommand)
-
-@manager.command
+@manager.cli.command("check_subnet")
 def check_subnet():
     public_range = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
     excluded_addresses = ["157.159.192.0", "157.159.192.1", "157.159.192.255", "157.159.193.0", "157.159.193.1", "157.159.193.255", "157.159.194.0", "157.159.194.1", "157.159.194.255"]
@@ -54,7 +52,7 @@ def check_subnet():
     print(i)
 
 limit_departure_date = date(2019, 1, 1)
-@manager.command
+@manager.cli.command("remove_member")
 def remove_members():
     s: Session = Database.get_db().get_session()
     adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
@@ -102,7 +100,7 @@ def remove_members():
     print(f'deleted lines: {total_lines}, ')
     s.commit()
    
-@manager.command
+@manager.cli.command("check_transactions_member_to_remove")
 def check_transactions_member_to_remove():
     s: Session = Database.get_db().get_session()
     adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
@@ -128,7 +126,7 @@ def check_transactions_member_to_remove():
                 print(t.name)
     s.commit() 
 
-@manager.command
+@manager.cli.command("generate_membership")
 def generate_membership():
     s: Session = Database.get_db().get_session()
     adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
@@ -228,40 +226,7 @@ def generate_membership():
             s.add(membership)
     s.commit()
 
-@manager.command
-def todays_subscriptions():
-    s: Session = Database.get_db().get_session()
-    now = datetime.now()
-    today = datetime(now.year, now.month, now.day)
-    tomorrow = today + timedelta(1)
-    print(today)
-    print(tomorrow)
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).filter(Adherent.updated_at <= tomorrow, Adherent.updated_at >= today).all()
-    with open("memberships.md", "w+") as f:
-        f.writelines(["|#|Login|Create At|Update At|Account Name|First time|Duration|Transaction Name|Transaction Timestamp|\n", "|-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|\n"])
-        for i, adherent in enumerate(adherents):
-            print(adherent.login)
-            account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
-            if account is None:
-                f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|None|None|None|None|None|\n')
-                continue
-            memberships: List[Membership] = s.query(Membership).filter(Membership.adherent_id == adherent.id).all()
-            if not memberships:
-                print("no membership")
-                continue
-            for m in memberships:
-                create_at = datetime(m.create_at.year, m.create_at.month, m.create_at.day)
-                transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id, Transaction.timestamp >= create_at, Transaction.timestamp <= create_at + timedelta(1)).order_by(Transaction.timestamp.asc()).all()
-                if not transactions:
-                    print(f"no transaction for membership {m.uuid}")
-                    continue
-                for j, t in enumerate(transactions):
-                    if j == 0:
-                        f.writelines(f'|{i}|{adherent.login}|{adherent.created_at}|{adherent.updated_at}|{account.name}|{m.first_time}|{m.duration}|{t.name}|{t.timestamp}|\n')
-                    else:
-                        f.writelines(f'||||||||{t.name}|{t.timestamp}|\n')
-
-@manager.command
+@manager.cli.command("reset_membership")
 def reset_membership():
     s: Session = Database.get_db().get_session()
     memberships: List[Membership] = s.query(Membership).all()
@@ -270,7 +235,7 @@ def reset_membership():
         s.delete(m)
     s.commit()
 
-@manager.command
+@manager.cli.command("check_migration_from_adh5")
 def check_migration_from_adh5():
     engine = create_engine('')
     s: Session = Database.get_db().get_session()
@@ -348,7 +313,7 @@ def check_migration_from_adh5():
         print(f'{i} adherent, {j} transactions, {total} €')
 
 
-@manager.command
+@manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
     s = Database.get_db().get_session()
@@ -441,8 +406,8 @@ def seed():
     s.commit()
 
 
-@manager.option('-l', '--login', help='Your login', default='dummy_user')
-@manager.command
+@manager.cli.command("fake")
+@click.argument("login")
 def fake(login):
     """Add dummy data to the database."""
     fake = Faker()
@@ -547,4 +512,4 @@ def fake(login):
 
 
 if __name__ == '__main__':
-    manager.run()
+    application.run()

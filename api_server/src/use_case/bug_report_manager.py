@@ -1,5 +1,6 @@
 import gitlab
-from gitlab.v4.objects import ProjectIssue, GitlabAuthenticationError
+from gitlab.v4.objects import ProjectIssue
+from gitlab.exceptions import GitlabAuthenticationError
 
 from src.exceptions import MissingRequiredField
 from src.util.log import logger

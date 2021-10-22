@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import os
+from typing import Tuple
 
 import connexion
 from authlib.integrations.flask_client import OAuth
+from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -56,7 +58,7 @@ from src.use_case.switch_manager import SwitchManager
 from src.use_case.transaction_manager import TransactionManager
 
 
-def init(testing=True, managing=False):
+def init(testing=True, managing=False) -> Tuple[FlaskApp, Migrate]:
     """
     Initialize and wire together the dependency of the application.
     """
