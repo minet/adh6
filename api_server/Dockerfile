@@ -48,6 +48,9 @@ RUN apt update \
 
 WORKDIR /adh6/api_server
 
+# Download the latest OUI list from the IEEE
+RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
+
 # Install python requirements
 COPY api_server/requirements.txt ./
 RUN pip3 install -r ./requirements.txt
@@ -57,9 +60,6 @@ COPY api_server/mibs.zip ./
 RUN mibdump.py --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 RUN chmod 755 /root
 RUN chown -R uwsgi:www-data /root/.pysnmp
-
-# Download the latest OUI list from the IEEE
-RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
 # Copy source files
 COPY ./openapi/spec.yaml ../openapi/

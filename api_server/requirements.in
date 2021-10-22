@@ -33,7 +33,6 @@ requests
 
 python-gitlab
 Flask-Migrate
-flask-script
 authlib
 
 # Enforced requirements for security reasons

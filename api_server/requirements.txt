@@ -42,8 +42,6 @@ faker==9.5.2
     # via -r requirements.in
 flask-migrate==3.1.0
     # via -r requirements.in
-flask-script==2.0.6
-    # via -r requirements.in
 flask-sqlalchemy==2.5.1
     # via flask-migrate
 flask==2.0.2
@@ -51,7 +49,6 @@ flask==2.0.2
     #   -r requirements.in
     #   connexion
     #   flask-migrate
-    #   flask-script
     #   flask-sqlalchemy
 greenlet==1.1.2
     # via sqlalchemy
