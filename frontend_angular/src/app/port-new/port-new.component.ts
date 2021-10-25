@@ -2,7 +2,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {NotificationsService} from 'angular2-notifications';
-import {Port, PortService} from '../api';
+import {Port, PortService, SwitchService, AbstractSwitch} from '../api';
 import {takeWhile} from 'rxjs/operators';
 
 @Component({
@@ -20,6 +20,7 @@ export class PortNewComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public portService: PortService,
+    private switchService: SwitchService,
     private router: Router,
     private notif: NotificationsService,
     private route: ActivatedRoute,
@@ -29,7 +30,6 @@ export class PortNewComponent implements OnInit {
 
   createForm() {
     this.portForm = this.fb.group({
-      id: ['', [Validators.required]],
       roomNumber: ['', [Validators.required]],
       portNumber: ['', [Validators.required]],
 
@@ -39,15 +39,15 @@ export class PortNewComponent implements OnInit {
   onSubmit() {
     const v = this.portForm.value;
     const port: Port = {
-      id: v.id,
       portNumber: v.portNumber,
       room: v.roomNumber,
       switchObj: this.switch_id
     };
+
     this.portService.portPost(port)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
-        this.router.navigate(['/switch/', this.switch_id, 'details']);
+      .subscribe((res: Port) => {
+        this.router.navigate(['/switch/', this.switch_id, '/port/', res.id]);
         this.notif.success('Success');
       });
   }
