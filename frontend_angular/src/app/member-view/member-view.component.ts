@@ -32,7 +32,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private deviceForm: FormGroup;
   private subscriptionForm: FormGroup;
   private selectedDevice: string;
-  private options = {year: 'numeric', month: 'long', day: 'numeric'};
+  private options: Intl.DateTimeFormatOptions = {year: 'numeric', month: 'long', day: 'numeric'};
   private amountToPay = 0;
   private content: string;  // for log formatting
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];

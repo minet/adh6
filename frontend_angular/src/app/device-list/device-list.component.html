@@ -13,7 +13,7 @@
   <!-- Device list -->
   <div class="row">
     <div class="col-md-12">
-      <table class="table table-striped clickable-table" *ngIf="result$ | async as result">
+      <table class="table table-striped clickable-table" *ngIf="result$ | async as result" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
         <thead>
         <tr>
           <th>Utilisateur</th>

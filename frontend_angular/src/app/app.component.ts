@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { OAuthService} from 'angular-oauth2-oidc';
-import {authBypass, authConfig} from './config/auth.config';
+import {authBypass} from './config/auth.config';
 import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
 import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
@@ -10,8 +10,6 @@ import {BugReport, Member, MiscService} from './api';
 import {NotificationsService} from 'angular2-notifications';
 import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
-import {Ability, AbilityBuilder} from '@casl/ability';
-import {JsonFormatter} from 'tslint/lib/formatters';
 import {AppConstantsService} from './app-constants.service';
 
 @Component({
@@ -31,13 +29,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private oauthService: OAuthService,
+    public oauthService: OAuthService,
     private route: ActivatedRoute,
     private router: Router,
     private _service: NotificationsService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
-    private ability: Ability,
     private appConstantsService: AppConstantsService
   ) {
     this.configureWithNewConfigApi();

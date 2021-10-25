@@ -1,37 +1,6 @@
 <div class="dashboard">
   <img class="mt-5" src="../assets/adh6_dark.png">
   <h1 *ngIf="name" i18n="dashboard hello|Greets the user on the dashboard" class="mb-5">Bonjour {{ name }}</h1>
-  <ng-container *ngIf="'manage' | able: 'search'">
-      <hr>
-      <h2 class="mb-2">Sur la dernière heure</h2>
-      <div class="card-deck mb-3" *ngIf="stats$ | async as stats">
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-center"><ng9-odometer [number]="stats.unique_ips.value"></ng9-odometer></h3>
-            <p class="card-text text-center">Adresses IP vues</p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-center"><ng9-odometer [number]="stats.unique_macs.value"></ng9-odometer></h3>
-            <p class="card-text text-center">Adresses MAC vues</p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h3 class="card-title text-center"><ng9-odometer [number]="stats.unique_users.value"></ng9-odometer></h3>
-            <p class="card-text text-center">Adhérents vus</p>
-          </div>
-        </div>
-      </div>
-      <hr>
-    <h2 class="mb-2">Rechercher</h2>
-    <app-global-search></app-global-search>
-
-    <div style="height: 25vh"></div>
-    <hr>
-    <h2 class="mb-2">Mon compte</h2>
-  </ng-container>
   <ng-container>
     <ng-container *ngIf="member$ | async as member">
     <div class="card mb-3">

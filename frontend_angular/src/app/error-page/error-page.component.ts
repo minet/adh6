@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {BehaviorSubject, Subject} from 'rxjs';
 import {ErrorPageService} from '../error-page.service';
 
 @Component({

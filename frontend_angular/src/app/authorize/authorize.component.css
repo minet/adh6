@@ -1,7 +1,0 @@
-body, html {
-  background-color: #e9ecef !important;
-}
-
-ng-toggle.ng-toggle-animate .ng-toggle-container {
-  transition: margin-left .2s !important;
-}

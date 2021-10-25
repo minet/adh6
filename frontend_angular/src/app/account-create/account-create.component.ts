@@ -23,7 +23,6 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     public accountService: AccountService,
-    private route: ActivatedRoute,
     private router: Router,
     private notif: NotificationsService,
   ) {

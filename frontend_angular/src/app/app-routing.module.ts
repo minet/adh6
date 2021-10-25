@@ -26,7 +26,6 @@ import {AccountViewComponent} from './account-view/account-view.component';
 import {AccountEditComponent} from './account-edit/account-edit.component';
 import {ProductListComponent} from './product-list/product-list.component';
 import {AccountListComponent} from './account-list/account-list.component';
-import {AuthorizeComponent} from './authorize/authorize.component';
 import {PortailComponent} from './portail/portail.component';
 import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
 import {InscriptionComponent} from './inscription/inscription.component';
@@ -38,10 +37,6 @@ import {RedirectGuard} from './redirect-guard/redirect-guard';
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
   {path: 'dashboard', component: DashboardComponent},
-  {path: 'authorize', component: AuthorizeComponent,
-    data: {
-    bypassAuth: true
-  }},
   {path: 'portail', component: PortailComponent,
     data: {
     bypassAuth: true

@@ -27,7 +27,7 @@ RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
 ###############################################################################
 # 3rd stage, launch the app
 ###############################################################################
-FROM node:10.16.0-buster-slim
+FROM node:14-buster-slim
 
 EXPOSE 8443
 

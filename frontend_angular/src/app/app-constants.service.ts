@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService} from './api';
 import {Observable, of} from 'rxjs';
-import {first, map, share} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 import {Ability, AbilityBuilder} from '@casl/ability';
 
 @Injectable({
@@ -39,7 +39,7 @@ export class AppConstantsService {
           localStorage.setItem('roles', roles.join(','));
           localStorage.setItem('admin_member', JSON.stringify(profile.admin.member as Member));
 
-          const { can, rules } = new AbilityBuilder();
+          const { can, rules } = new AbilityBuilder(Ability);
 
           if (roles.indexOf('adh6_admin') !== -1) {
             can('manage', 'Member');

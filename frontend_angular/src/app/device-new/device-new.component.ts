@@ -4,7 +4,7 @@ import {Device, DeviceService, Member, Port} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
-import {LINKS_LIST, localize_link} from '../config/links.config';
+import {localize_link} from '../config/links.config';
 
 @Component({
   selector: 'app-device-new',
@@ -13,7 +13,7 @@ import {LINKS_LIST, localize_link} from '../config/links.config';
 })
 export class DeviceNewComponent implements OnInit {
   deviceForm: FormGroup;
-  localize_link = localize_link;
+  public localize_link = localize_link;
   private alive = true;
 
   @Input() member_id: number;

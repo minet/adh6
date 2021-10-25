@@ -51,7 +51,6 @@ import {ObjectFilterPipe} from './ObjectFilter.pipe';
 import {MemberDeviceListComponent} from './member-device-list/member-device-list.component';
 import {AccountListComponent} from './account-list/account-list.component';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
-import {AuthorizeComponent} from './authorize/authorize.component';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {BackButtonDirective} from './back-button.directive';
@@ -61,21 +60,20 @@ import {InscriptionComponent} from './inscription/inscription.component';
 import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
 import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
 import {ErrorPageComponent} from './error-page/error-page.component';
-import {Ability, AbilityClass, detectSubjectType, InferSubjects, PureAbility} from '@casl/ability';
+import {Ability, AbilityClass, InferSubjects, PureAbility} from '@casl/ability';
 import {AbilityModule} from '@casl/angular';
 import {authConfig} from './config/auth.config';
 import { DeviceNewComponent } from './device-new/device-new.component';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
-import {Ng9OdometerModule} from 'ng9-odometer';
 import { MembershipListComponent } from './membership-list/membership-list.component';
 import {RedirectGuard} from './redirect-guard/redirect-guard';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
-type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> |'all';
+type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> | "all";
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
@@ -122,7 +120,6 @@ export function storageFactory(): OAuthStorage {
     ObjectFilterPipe,
     MemberDeviceListComponent,
     AccountListComponent,
-    AuthorizeComponent,
     BackButtonDirective,
     PortailComponent,
     PortailCotisantComponent,
@@ -160,7 +157,6 @@ export function storageFactory(): OAuthStorage {
     NgToggleModule,
     TooltipModule.forRoot(),
     AbilityModule,
-    Ng9OdometerModule.forRoot()
   ],
   providers: [
     RedirectGuard,
@@ -179,16 +175,7 @@ export function storageFactory(): OAuthStorage {
     {provide: OAuthStorage, useFactory: storageFactory},
     {provide: AuthConfig, useValue: authConfig},
     {
-      provide: AppAbility, useValue: new AppAbility(undefined, {
-        detectSubjectType: function (subject) {
-
-          if (subject && typeof subject === 'object' && subject.__typename) {
-            return subject.__typename;
-          }
-
-          return detectSubjectType(subject);
-        }
-      })
+      provide: AppAbility, useValue: new AppAbility()
     },
     {provide: PureAbility, useExisting: AppAbility},
   ],
