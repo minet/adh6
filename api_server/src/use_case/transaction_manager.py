@@ -81,7 +81,7 @@ class TransactionManager(CRUDManager):
             abstract_transaction.author,
         ])):
             raise ValidationError('you are trying to update a transaction with fields that cannot be updated')
-        raise NotImplemented
+        raise NotImplementedError
 
     @log_call
     @auto_raise

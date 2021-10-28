@@ -10,13 +10,13 @@ from src.use_case.interface.crud_repository import CRUDRepository
 class ProductRepository(CRUDRepository):
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: Product = None) -> Tuple[List[Product], int]:
-        raise NotImplemented
+        raise NotImplementedError
 
     def create(self, ctx, object_to_create: Product) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     def update(self, ctx, object_to_update: Product, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     def delete(self, ctx, object_id) -> None:
-        raise NotImplemented
+        raise NotImplementedError

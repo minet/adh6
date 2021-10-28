@@ -17,7 +17,7 @@ class RubyHashTrackable:
                     for column in self.__table__.columns)
 
     def get_related_member(self):
-        raise NotImplemented()
+        raise NotImplementedError
 
     def serialize_snapshot_diff(self, snap_before, snap_after) -> str:
-        raise NotImplemented()
+        raise NotImplementedError

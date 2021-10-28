@@ -25,7 +25,7 @@ class Expression:
         return BinaryExpression(self, other, operator=lambda x, y: x or y)
 
     def _operate(self, *values):
-        raise NotImplemented
+        raise NotImplementedError
 
     def __repr__(self):
         ret = ""

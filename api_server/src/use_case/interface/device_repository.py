@@ -10,16 +10,16 @@ from src.use_case.interface.crud_repository import CRUDRepository
 class DeviceRepository(CRUDRepository):
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractDevice = None) -> (List[Device], int):
-        raise NotImplemented
+        raise NotImplementedError
 
     def create(self, ctx, object_to_create: Device) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     def update(self, ctx, object_to_update: AbstractDevice, override=False) -> object:
-        raise NotImplemented
+        raise NotImplementedError
 
     def delete(self, ctx, object_id) -> None:
-        raise NotImplemented
+        raise NotImplementedError
 
     def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> (List[str], int):
-        raise NotImplemented
+        raise NotImplementedError
