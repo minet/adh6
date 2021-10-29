@@ -1,8 +1,9 @@
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
+from typing import Tuple
+from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.exceptions import IntMustBePositive, ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import defines_security, SecurityDefinition, uses_security
+from src.use_case.decorator.security import uses_security
 from src.use_case.interface.crud_repository import CRUDRepository
 
 
@@ -17,7 +18,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     @uses_security("read", is_collection=True)
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -29,7 +30,7 @@ class CRUDManager:
                             terms=terms,
                             filter_=filter_)
 
-    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> (list, int):
+    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[list, int]:
         return self.repository.search_by(ctx, limit=limit,
                                          offset=offset,
                                          terms=terms,

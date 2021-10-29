@@ -1,10 +1,12 @@
 # coding=utf-8
 """
 Implements everything related to actions on the SQL database.
-This deals with all the network objects (except the member's devices).
+This deals with all the network objects (except the member'session devices).
 """
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
+
+from sqlalchemy.orm.session import Session
 
 from sqlalchemy import or_
 
@@ -28,32 +30,31 @@ from src.util.log import LOG
 class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepository):
 
     def search_switches_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, switch_id: str = None,
-                           terms: str = None) -> (
-            List[Switch], int):
+                           terms: str = None) -> Tuple[List[Switch], int]:
         """
         Search for a switch.
         """
         LOG.debug("sql_network_object_repository_search_switch_by",
                   extra=log_extra(ctx, switch_id=switch_id, terms=terms))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SwitchSQL)
+        query = session.query(SwitchSQL)
 
         if switch_id is not None:
-            q = q.filter(SwitchSQL.id == switch_id)
+            query = query.filter(SwitchSQL.id == switch_id)
 
         if terms is not None:
-            q = q.filter(or_(
+            query = query.filter(or_(
                 SwitchSQL.description.contains(terms),
                 SwitchSQL.ip.contains(terms),
             ))
 
-        count = q.count()
-        q = q.order_by(SwitchSQL.description.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        result = q.all()
+        count = query.count()
+        query = query.order_by(SwitchSQL.description.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        result = query.all()
 
         result = map(_map_switch_sql_to_entity, result)
         result = list(result)
@@ -64,14 +65,14 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
         LOG.debug("sql_network_object_repository_create_switch",
                   extra=log_extra(ctx, ip_v4=ip_v4, description=description))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         switch = SwitchSQL(
             ip=ip_v4,
             description=description,
             communaute=community,
         )
-        s.add(switch)
-        s.flush()
+        session.add(switch)
+        session.flush()
 
         return str(switch.id)
 
@@ -80,8 +81,8 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
         LOG.debug("sql_network_object_repository_update_switch",
                   extra=log_extra(ctx, switch_id=switch_id, ip_v4=ip_v4, description=description))
 
-        s = ctx.get(CTX_SQL_SESSION)
-        result: SwitchSQL = s.query(SwitchSQL).filter(SwitchSQL.id == int(switch_id)).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        result: SwitchSQL = session.query(SwitchSQL).filter(SwitchSQL.id == int(switch_id)).one_or_none()
         if not result:
             raise SwitchNotFoundError(switch_id)
 
@@ -92,16 +93,16 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
     def delete_switch(self, ctx, switch_id: str) -> None:
         LOG.debug("sql_network_object_repository_delete_switch", extra=log_extra(ctx, switch_id=switch_id))
 
-        s = ctx.get(CTX_SQL_SESSION)
-        result: SwitchSQL = s.query(SwitchSQL).filter(SwitchSQL.id == int(switch_id)).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        result: SwitchSQL = session.query(SwitchSQL).filter(SwitchSQL.id == int(switch_id)).one_or_none()
         if not result:
             raise SwitchNotFoundError(switch_id)
 
-        s.delete(result)
+        session.delete(result)
 
     def search_port_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, port_id: str = None,
                        switch_id: str = None,
-                       room_number: str = None, terms: str = None) -> (List[Port], int):
+                       room_number: str = None, terms: str = None) -> Tuple[List[Port], int]:
         """
         Search for a port.
         :return: the ports and the number of matches in the DB.
@@ -109,32 +110,32 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
         LOG.debug("sql_network_object_repository_search_port_by",
                   extra=log_extra(ctx, port_id=port_id, switch_id=switch_id, room_number=room_number, terms=terms))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(PortSQL)
+        query = session.query(PortSQL)
 
         if port_id:
-            q = q.filter(PortSQL.id == port_id)
+            query = query.filter(PortSQL.id == port_id)
 
         if switch_id:
-            q = q.join(SwitchSQL)
-            q = q.filter(SwitchSQL.id == switch_id)
+            query = query.join(SwitchSQL)
+            query = query.filter(SwitchSQL.id == switch_id)
 
         if room_number:
-            q = q.join(Chambre)
-            q = q.filter(Chambre.numero == room_number)
+            query = query.join(Chambre)
+            query = query.filter(Chambre.numero == room_number)
 
         if terms:
-            q = q.filter(or_(
+            query = query.filter(or_(
                 PortSQL.numero.contains(terms),
                 PortSQL.oid.contains(terms),
             ))
 
-        count = q.count()
-        q = q.order_by(PortSQL.switch_id.asc(), PortSQL.numero.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        result = q.all()
+        count = query.count()
+        query = query.order_by(PortSQL.switch_id.asc(), PortSQL.numero.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        result = query.all()
 
         result = map(_map_port_sql_to_entity, result)
         result = list(result)
@@ -152,14 +153,14 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
                   extra=log_extra(ctx, rcom=rcom, port_number=port_number, oid=oid, switch_id=switch_id,
                                   room_number=room_number))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
-        room = s.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
+        room = session.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
         if room is None:
             raise RoomNotFoundError(room_number)
 
-        switch = s.query(SwitchSQL).filter(SwitchSQL.id == switch_id).one_or_none()
+        switch = session.query(SwitchSQL).filter(SwitchSQL.id == switch_id).one_or_none()
         if switch is None:
             raise SwitchNotFoundError(switch_id)
 
@@ -172,8 +173,8 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
             created_at=now,
             updated_at=now,
         )
-        s.add(port)
-        s.flush()
+        session.add(port)
+        session.flush()
 
         return str(port.id)
 
@@ -191,18 +192,18 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
                   extra=log_extra(ctx, port_id=port_id, rcom=rcom, port_number=port_number, oid=oid,
                                   switch_id=switch_id, room_number=room_number))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
-        port = s.query(PortSQL).filter(PortSQL.id == int(port_id)).one_or_none()
+        port = session.query(PortSQL).filter(PortSQL.id == int(port_id)).one_or_none()
         if port is None:
             raise PortNotFoundError(port_id)
 
-        room = s.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
+        room = session.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
         if room is None:
             raise RoomNotFoundError(room_number)
 
-        switch = s.query(SwitchSQL).filter(SwitchSQL.id == switch_id).one_or_none()
+        switch = session.query(SwitchSQL).filter(SwitchSQL.id == switch_id).one_or_none()
         if switch is None:
             raise SwitchNotFoundError(switch_id)
 
@@ -219,12 +220,12 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
 
         :raise PortNotFound
         """
-        s = ctx.get(CTX_SQL_SESSION)
-        port = s.query(PortSQL).filter(PortSQL.id == port_id).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        port = session.query(PortSQL).filter(PortSQL.id == port_id).one_or_none()
         if port is None:
             raise PortNotFoundError(port_id)
 
-        s.delete(port)
+        session.delete(port)
 
     def get_vlan(self, ctx, vlan_number) -> Vlan:
         """
@@ -234,8 +235,8 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
         """
         LOG.debug("sql_network_object_repository_get_vlan", extra=log_extra(ctx, vlan_number=vlan_number))
 
-        s = ctx.get(CTX_SQL_SESSION)
-        result = s.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        result = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
         if not result:
             raise VLANNotFoundError(vlan_number)
 

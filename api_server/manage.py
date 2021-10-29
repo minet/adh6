@@ -29,8 +29,8 @@ def check_subnet():
             continue
         mappings[str(subnet)] = str(ip)
 
-    s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).all()
+    session: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = session.query(Adherent).all()
     i = 1
     for a in adherents:
         if a.date_de_depart is None:
@@ -54,8 +54,8 @@ def check_subnet():
 limit_departure_date = date(2019, 1, 1)
 @manager.cli.command("remove_member")
 def remove_members():
-    s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+    session: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
     passed_adherents: List[Adherent] = []
     total = len(adherents)
@@ -64,80 +64,80 @@ def remove_members():
     deleted_modifications = 0
     for i, a in enumerate(adherents):
         print(f'{i}/{total}: {a.login}, {a.created_at}')
-        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == a.id).all()
+        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
         pass_adherent = False
         for acc in accounts:
-            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == acc.id).all()
-            transactions_from: List[Transaction] = s.query(Transaction).filter(Transaction.author_id == a.id).all()
+            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all()
+            transactions_from: List[Transaction] = session.query(Transaction).filter(Transaction.author_id == a.id).all()
             if len(transactions) != 0 or len(transactions_from) != 0:
                 print("Adherent passed")
                 passed_adherents.append(a)
                 pass_adherent = True
                 continue
-            s.delete(acc)
+            session.delete(acc)
             total_lines += 1
         if pass_adherent:
             continue
-        devices: List[Device] = s.query(Device).filter(Device.adherent_id == a.id).all()
+        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
         for d in devices:
-            s.delete(d)
+            session.delete(d)
             total_lines += 1
             deleted_devices += 1
-        adhesions: List[Adhesion] = s.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
         for add in adhesions:
-            s.delete(add)
+            session.delete(add)
             total_lines += 1
-        routeurs: List[Routeur] = s.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
         for r in routeurs:
-            s.delete(r)
+            session.delete(r)
             total_lines += 1
-        modifications: List[Modification] = s.query(Modification).filter(Modification.adherent_id == a.id).all()
+        modifications: List[Modification] = session.query(Modification).filter(Modification.adherent_id == a.id).all()
         for m in modifications:
-            s.delete(m)
+            session.delete(m)
             total_lines += 1
             deleted_modifications += 1
-        s.delete(a)
+        session.delete(a)
     print(f'deleted lines: {total_lines}, ')
-    s.commit()
+    session.commit()
    
 @manager.cli.command("check_transactions_member_to_remove")
 def check_transactions_member_to_remove():
-    s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+    session: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
     total = len(adherents)
     for i, a in enumerate(adherents):
         print(f'{i}/{total}: {a.login}, {a.created_at}')
-        devices: List[Device] = s.query(Device).filter(Device.adherent_id == a.id).all()
+        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
         for d in devices:
-            s.delete(d)
-        adhesions: List[Adhesion] = s.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+            session.delete(d)
+        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
         for add in adhesions:
-            s.delete(add)
-        routeurs: List[Routeur] = s.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+            session.delete(add)
+        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
         for r in routeurs:
-            s.delete(r)
-        accounts: List[Account] = s.query(Account).filter(Account.adherent_id == a.id).all()
+            session.delete(r)
+        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
         for acc in accounts:
             print(acc.id)
-            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == acc.id).all() + s.query(Transaction).filter(Transaction.author_id == a.id).all()
+            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all() + session.query(Transaction).filter(Transaction.author_id == a.id).all()
             for t in transactions:
                 print(a.id)
                 print(t.name)
-    s.commit() 
+    session.commit() 
 
 @manager.cli.command("generate_membership")
 def generate_membership():
-    s: Session = Database.get_db().get_session()
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    session: Session = Database.get_db().get_session()
+    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
     products: Dict[str, Product] = {}
-    products_sql = s.query(Product).all()
+    products_sql = session.query(Product).all()
     for p in products_sql:
         products[p.name] = p
 
     for adherent in adherents:
         print(adherent.login)
-        memberships: List[Membership] = s.query(Membership).filter(Membership.adherent_id == adherent.id).all()
+        memberships: List[Membership] = session.query(Membership).filter(Membership.adherent_id == adherent.id).all()
         if memberships != []:
             print("Already have a membership")
             continue
@@ -155,16 +155,16 @@ def generate_membership():
             update_at=adherent.created_at,
 
         )
-        account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+        account = session.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
         if account is None:
             print("No Account")
-            s.add(membership)
+            session.add(membership)
             continue
         membership.account_id = account.id
-        transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).all()
+        transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == account.id).all()
         if not transactions:
             print("Empty Account")
-            s.add(membership)
+            session.add(membership)
             continue
         grouped_transactions: Dict[date, List[Transaction]] = {}
         first_date: Optional[date] = None
@@ -223,31 +223,31 @@ def generate_membership():
                 if t.name in products:
                     current_products.append(products[t.name].id)
             membership.products = str(current_products) if current_products != [] else ""
-            s.add(membership)
-    s.commit()
+            session.add(membership)
+    session.commit()
 
 @manager.cli.command("reset_membership")
 def reset_membership():
-    s: Session = Database.get_db().get_session()
-    memberships: List[Membership] = s.query(Membership).all()
+    session: Session = Database.get_db().get_session()
+    memberships: List[Membership] = session.query(Membership).all()
     for m in memberships:
         print(m.uuid)
-        s.delete(m)
-    s.commit()
+        session.delete(m)
+    session.commit()
 
 @manager.cli.command("check_migration_from_adh5")
 def check_migration_from_adh5():
     engine = create_engine('')
-    s: Session = Database.get_db().get_session()
+    session: Session = Database.get_db().get_session()
     i = 0
     j = 0
     total = 0
-    adherents: List[Adherent] = s.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
+    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
     with open("migration_transactions.md", "w+") as f:
         f.writelines(["# Missing Transactions\n"])
         for adherent in adherents:
             # Check an account exist, if not create a fake one (for now)
-            account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+            account: Account = session.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
             if account is None:
                 print("Creation of an account")
                 account = Account(
@@ -259,10 +259,10 @@ def check_migration_from_adh5():
                     pinned=False,
                     adherent_id=adherent.id
                 )
-                s.add(account)
-                s.flush()
+                session.add(account)
+                session.flush()
             
-            transactions: List[Transaction] = s.query(Transaction).filter(Transaction.src == account.id).all()
+            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == account.id).all()
             adh5_transactions: List[Transaction] = []
             with engine.connect() as connection:
                 adh5_adherents = connection.execute("SELECT id FROM adherents WHERE login='{}'".format(adherent.login))
@@ -316,12 +316,12 @@ def check_migration_from_adh5():
 @manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
-    s = Database.get_db().get_session()
+    session: Session = Database.get_db().get_session()
 
     print("Seeding account types")
     account_types = [1,"Special"],[2,"Adherent"],[3,"Club interne"],[4,"Club externe"],[5,"Association externe"]
     for type in account_types:
-        s.add(
+        session.add(
             AccountType(
                 id=type[0],
                 name=type[1]
@@ -331,7 +331,7 @@ def seed():
     print("Seeding MiNET accounts")
     accounts = [1, 1, "MiNET frais techniques", True, None, True, True],[2, 1, "MiNET frais asso", True, None, True, True]
     for account in accounts:
-        s.add(
+        session.add(
             Account(
                 id=account[0],
                 type=account[1],
@@ -346,7 +346,7 @@ def seed():
     print("Seeding Products")
     products = [1,"Cable 3m", 3, 3],[2,"Cable 5m", 5, 5],[3,"Adaptateur USB/Ethernet", 13.00, 13.00],[4,"Adaptateur USB-C/Ethernet", 12.00, 12.00]
     for product in products:
-        s.add(
+        session.add(
             Product(
                 id=product[0],
                 name=product[1],
@@ -358,7 +358,7 @@ def seed():
     print("Seeding payment methods")
     payment_methods = [1,"Liquide"],[2,"Chèque"],[3,"Carte bancaire"],[4,"Virement"],[5,"Stripe"]
     for method in payment_methods:
-        s.add(
+        session.add(
             PaymentMethod(
                 id=method[0],
                 name=method[1]
@@ -366,44 +366,29 @@ def seed():
         )
 
     print("Seeding cashbox")
-    s.add(Caisse(
+    session.add(Caisse(
         fond=0,
         coffre=0
     ))
 
     print("Seeding vlans")
-    s.bulk_save_objects([
+    session.bulk_save_objects([
         Vlan(
-            numero=35,
-            adresses="10.42.0.0/16",
-            adressesv6="",
-            excluded_addr="",
-            excluded_addrv6="",
-        ),
-        Vlan(
-            numero=36,
-            adresses="157.159.192.0/22",
-            adressesv6="",
-            excluded_addr="157.159.195.0/24",
-            excluded_addrv6="",
-        ),
-        Vlan(
-            numero=30,
-            adresses="172.30.0.0/16",
-            adressesv6="",
-            excluded_addr="",
-            excluded_addrv6="",
-        ),
-        Vlan(
-            numero=41,
-            adresses="157.159.41.0/24",
-            adressesv6="",
-            excluded_addr="157.159.41.1/32",
-            excluded_addrv6="",
-        )
+            numero=e[0], 
+            adresses=e[1], 
+            adressesv6=e[2], 
+            excluded_addr=e[3], 
+            excluded_addrv6=e[4]
+        ) for e in [
+            (35, "10.42.0.0/16", "", "", ""),
+            (36, "157.159.192.0/22", "", "157.159.195.0/24", ""),
+            (30, "172.30.0.0/16", "", "", ""),
+            (41, "157.159.41.0/24", "", "157.159.41.1/32", ""),
+            (35, "10.42.0.0/16", "", "", ""),
+        ]
     ])
 
-    s.commit()
+    session.commit()
 
 
 @manager.cli.command("fake")
@@ -411,20 +396,14 @@ def seed():
 def fake(login):
     """Add dummy data to the database."""
     fake = Faker()
-    s = Database.get_db().get_session()
-    #switch = Switch(
-    #    description="Dummy switch",
-    #    ip="192.168.254.254",
-    #    communaute="adh6",
-    #)
-    #s.add(switch)
+    session: Session = Database.get_db().get_session()
 
-    switch2 = Switch(
+    switch = Switch(
         description="Switch local",
         ip="192.168.102.219",
         communaute="adh5",
     )
-    s.add(switch2)
+    session.add(switch)
 
     chambres = []
     for n in range(1, 30):
@@ -434,33 +413,24 @@ def fake(login):
             vlan_id=3
         )
         chambres.append(chambre)
-        s.add(chambre)
-
-    #for n in range(1, 10):
-    #    s.add(Port(
-    #        rcom=0,
-    #        numero="1/0/" + str(n),
-    #        oid="1010" + str(n),
-    #        switch=switch,
-    #        chambre=chambres[n - 1]
-    #    ))
+        session.add(chambre)
 
     for n in range(1, 10):
-        s.add(Port(
+        session.add(Port(
             rcom=0,
             numero="1/0/" + str(n),
             oid="1010" + str(n),
-            switch=switch2,
+            switch=switch,
             chambre=chambres[n-1]
         ))
 
 
     for n in range(10, 20):
-        s.add(Port(
+        session.add(Port(
             rcom=0,
             numero="1/0/" + str(n),
             oid="101" + str(n),
-            switch=switch2,
+            switch=switch,
             chambre=chambres[n-1]
         ))
 
@@ -468,7 +438,7 @@ def fake(login):
     admin = Admin(
         roles="adh6_user,adh6_admin,adh6_treso,adh6_superadmin"
     )
-    s.add(admin)
+    session.add(admin)
 
     adherent = Adherent(
         nom=fake.last_name_nonbinary(),
@@ -479,20 +449,38 @@ def fake(login):
         chambre=chambres[2],
         admin=admin
     )
-    s.add(adherent)
-    s.add(
-        Account(
-            type=1,
-            name=adherent.nom + " " + adherent.prenom,
-            actif=True,
-            compte_courant=True,
-            pinned=False,
-            adherent=adherent
-        )
+    session.add(adherent)
+    account = Account(
+        type=1,
+        name=adherent.nom + " " + adherent.prenom,
+        actif=True,
+        compte_courant=True,
+        pinned=False,
+        adherent=adherent
     )
 
+    session.add(account)
+
+    payment_methods: List[PaymentMethod] = [
+        PaymentMethod( 
+            name=e
+        ) for e in [
+            "Liquide",
+            "Chèque",
+            "Carte Bancaire",
+            "Virement",
+            "Stripe"
+        ]
+    ]
+    session.bulk_save_objects(payment_methods)
+    
+    membership = Membership(
+        
+    )
+
+
     for n in range(1, 4):
-        s.add(Device(
+        session.add(Device(
             mac=fake.mac_address(),
             ip=None,
             adherent=adherent,
@@ -500,14 +488,14 @@ def fake(login):
             type=0
         ))
     for n in range(1, 4):
-        s.add(Device(
+        session.add(Device(
             mac=fake.mac_address(),
             ip=None,
             adherent=adherent,
             ipv6=None,
             type=1
         ))
-    s.commit()
+    session.commit()
 
 
 

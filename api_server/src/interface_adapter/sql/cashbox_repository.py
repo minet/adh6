@@ -4,21 +4,21 @@ Implements everything related to actions on the SQL database.
 """
 import decimal
 from datetime import datetime
+from typing import Tuple
+
+from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Caisse as SQLCashbox
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.cashbox_repository import CashboxRepository
-from src.util.context import log_extra
-from src.util.log import LOG
-
 
 class CashboxSQLRepository(CashboxRepository):
 
     @log_call
     def update_cashbox(self, ctx, value_modifier=None, transaction=None):
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
@@ -35,16 +35,16 @@ class CashboxSQLRepository(CashboxRepository):
             linked_transaction=transaction.id if transaction is not None else None
         )
 
-        with track_modifications(ctx, s, cashbox_update):
-            s.add(cashbox_update)
+        with track_modifications(ctx, session, cashbox_update):
+            session.add(cashbox_update)
         pass
 
     @log_call
-    def get_cashbox(self, ctx) -> (int, int):
-        s = ctx.get(CTX_SQL_SESSION)
+    def get_cashbox(self, ctx) -> Tuple[int, int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLCashbox)
-        q = q.order_by(SQLCashbox.id.desc())
-        q = q.limit(1)
-        r = q.all()[0]
+        query = session.query(SQLCashbox)
+        query = query.order_by(SQLCashbox.id.desc())
+        query = query.limit(1)
+        r = query.all()[0]
         return r.fond, r.coffre

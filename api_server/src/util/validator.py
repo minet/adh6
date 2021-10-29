@@ -1,16 +1,18 @@
 # coding=utf-8
 # from datetime import datetime
-import dateutil
 import re
-from ipaddress import IPv4Address, IPv4Network
-from ipaddress import IPv6Address, IPv6Network, AddressValueError
+from ipaddress import (
+    IPv4Address,IPv4Network,
+    IPv6Address,IPv6Network,AddressValueError
+)
+import dateutil
 
 MAC_REGEX = re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
-def is_empty(s: str) -> bool:
-    return s == ''
+def is_empty(string: str) -> bool:
+    return string == ''
 
 
 def is_email(mail: str) -> bool:
@@ -58,9 +60,9 @@ def is_ip_v6(ip_address: str) -> bool:
     return True
 
 
-def is_date(d: str) -> bool:
+def is_date(date: str) -> bool:
     try:
-        dateutil.parser.parse(d)
+        dateutil.parser.parse(date)
         return True
 
     except ValueError:

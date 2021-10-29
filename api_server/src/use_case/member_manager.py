@@ -1,17 +1,34 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.entity.account_type import AccountType
 from typing import List, Optional, Tuple, Union
 
 from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
-from src.entity import AbstractMember, AbstractDevice, MemberStatus, Member, Admin, PaymentMethod, Membership, \
-    AbstractMembership, AbstractAccount, AbstractPaymentMethod, Account
+from src.entity import (
+    AbstractMember, Member,
+    AbstractMembership, Membership,
+    AbstractDevice, MemberStatus,
+    AbstractAccount, Account,
+    AbstractPaymentMethod, PaymentMethod,
+    AccountType,
+    Admin,
+)
 from src.entity.roles import Roles
-from src.exceptions import AccountTypeNotFoundError, InvalidAdmin, MemberAlreadyExist, UnknownPaymentMethod, LogFetchError, NoPriceAssignedToThatDuration, \
-    MemberNotFoundError, IntMustBePositive, MembershipStatusNotAllowed, AccountNotFoundError, \
-    PaymentMethodNotFoundError, MembershipAlreadyExist, MembershipNotFoundError, CharterNotSigned
-from src.interface_adapter.http_api.decorator.log_call import log_call
+from src.exceptions import (
+    AccountTypeNotFoundError,
+    MembershipNotFoundError,
+    PaymentMethodNotFoundError,
+    AccountNotFoundError,
+    MemberNotFoundError,
+    InvalidAdmin,
+    MemberAlreadyExist,
+    MembershipAlreadyExist,
+    UnknownPaymentMethod,
+    LogFetchError,
+    NoPriceAssignedToThatDuration,
+    IntMustBePositive,
+    MembershipStatusNotAllowed,
+    CharterNotSigned
+)
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
@@ -22,8 +39,10 @@ from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
+from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.util.context import log_extra
 from src.util.log import LOG
+from src.interface_adapter.http_api.decorator.log_call import log_call
 import re
 
 
@@ -370,10 +389,10 @@ class MemberManager(CRUDManager):
         """
         # Fetch all the devices of the member to put them in the request
         # all_devices = get_all_devices(s)
-        # q = s.query(all_devices, Adherent.login.label("login"))
-        # q = q.join(Adherent, Adherent.id == all_devices.columns.adherent_id)
-        # q = q.filter(Adherent.login == username)
-        # mac_tbl = list(map(lambda x: x.mac, q.all()))
+        # query = session.query(all_devices, Adherent.login.label("login"))
+        # query = query.join(Adherent, Adherent.id == all_devices.columns.adherent_id)
+        # query = query.filter(Adherent.login == username)
+        # mac_tbl = list(map(lambda x: x.mac, query.all()))
 
         # Check that the user exists in the system.
         member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))

@@ -3,7 +3,9 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
+
+from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractPort, Port, Switch, Room
@@ -20,57 +22,57 @@ class PortSQLRepository(PortRepository):
 
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractPort = None) -> (List[Port], int):
-        s = ctx.get(CTX_SQL_SESSION)
+                  filter_: AbstractPort = None) -> Tuple[List[Port], int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLPort)
-        q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
-        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        query = session.query(SQLPort)
+        query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
+        query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
 
 
         if terms:
-            q = q.filter(SQLPort.numero.contains(terms)|
+            query = query.filter(SQLPort.numero.contains(terms)|
                          SQLPort.oid.contains(terms) |
                          SQLPort.numero.contains(terms))
         if filter_:
             if filter_.id is not None:
-                q = q.filter(SQLPort.id == filter_.id)
+                query = query.filter(SQLPort.id == filter_.id)
             if filter_.port_number:
-                q = q.filter(SQLPort.numero.contains(filter_.port_number))
+                query = query.filter(SQLPort.numero.contains(filter_.port_number))
             if filter_.oid is not None:
-                q = q.filter(SQLPort.oid == filter_.oid)
+                query = query.filter(SQLPort.oid == filter_.oid)
             if filter_.room is not None:
                 if isinstance(filter_.room, Room):
                     filter_.room = filter_.room.id
-                q = q.filter(SQLPort.chambre_id == filter_.room)
+                query = query.filter(SQLPort.chambre_id == filter_.room)
             if filter_.switch_obj is not None:
                 if isinstance(filter_.switch_obj, Switch):
                     filter_.switch_obj = filter_.switch_obj.id
-                q = q.filter(SQLPort.switch_id == filter_.switch_obj)
+                query = query.filter(SQLPort.switch_id == filter_.switch_obj)
 
-        count = q.count()
-        q = q.order_by(SQLPort.id.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query = query.order_by(SQLPort.id.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
         return list(map(lambda item: _map_port_sql_to_entity(item), r)), count
 
     @log_call
     def create(self, ctx, abstract_port: Port) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
         room = None
         if abstract_port.room is not None:
-            room = s.query(SQLChambre).filter(SQLChambre.id == abstract_port.room).one_or_none()
+            room = session.query(SQLChambre).filter(SQLChambre.id == abstract_port.room).one_or_none()
             if not room:
                 raise RoomNotFoundError(abstract_port.room)
 
         switch = None
         if abstract_port.switch_obj is not None:
-            switch = s.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch_obj).one_or_none()
+            switch = session.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch_obj).one_or_none()
             if not switch:
                 raise SwitchNotFoundError(abstract_port.switch_obj)
 
@@ -83,21 +85,21 @@ class PortSQLRepository(PortRepository):
             updated_at=now
         )
 
-        s.add(port)
-        s.flush()
+        session.add(port)
+        session.flush()
 
         return _map_port_sql_to_entity(port)
 
     @log_call
     def update(self, ctx, object_to_update: AbstractPort, override=False) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLPort)
-        q = q.filter(SQLPort.id == object_to_update.id)
-        q = q.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
-        q = q.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
+        query = session.query(SQLPort)
+        query = query.filter(SQLPort.id == object_to_update.id)
+        query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
+        query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
 
-        port = q.one_or_none()
+        port = query.one_or_none()
         if port is None:
             raise PortNotFoundError(str(object_to_update.id))
         new_port = _merge_sql_with_entity(ctx, object_to_update, port, override)
@@ -106,14 +108,14 @@ class PortSQLRepository(PortRepository):
 
     @log_call
     def delete(self, ctx, object_id) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        port = s.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
+        port = session.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
         if port is None:
             raise PortNotFoundError(object_id)
 
-        s.delete(port)
-        s.flush()
+        session.delete(port)
+        session.flush()
 
 
 def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
@@ -124,14 +126,14 @@ def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, overr
     if entity.port_number is not None or override:
         port.numero = entity.port_number
     if entity.room is not None:
-        s = ctx.get(CTX_SQL_SESSION)
-        room = s.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        room = session.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
         if not room:
             raise RoomNotFoundError(entity.room)
         port.chambre = room
     if entity.switch_obj is not None:
-        s = ctx.get(CTX_SQL_SESSION)
-        switch = s.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        switch = session.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
         if not switch:
             raise SwitchNotFoundError(entity.switch_obj)
         port.switch = switch

@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy.orm.session import Session
 from src.util.context import log_extra
 from src.util.log import LOG
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from sqlalchemy import func, case, or_
 
@@ -29,63 +29,63 @@ class AccountSQLRepository(AccountRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractAccount = None) -> Tuple[List[Account], int]:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLAccount,
+        query = session.query(SQLAccount,
                     func.sum(case(value=Transaction.src, whens={
                         SQLAccount.id: -Transaction.value
                     }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
-        q = q.join(AccountType, AccountType.id == SQLAccount.type)
-        q = q.outerjoin(Adherent, Adherent.id == SQLAccount.adherent_id)
-        q = q.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
+        query = query.join(AccountType, AccountType.id == SQLAccount.type)
+        query = query.outerjoin(Adherent, Adherent.id == SQLAccount.adherent_id)
+        query = query.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if terms:
-            q = q.filter(SQLAccount.name.contains(terms))
+            query = query.filter(SQLAccount.name.contains(terms))
         if filter_:
             if filter_.id is not None:
-                q = q.filter(SQLAccount.id == filter_.id)
+                query = query.filter(SQLAccount.id == filter_.id)
             if filter_.name:
-                q = q.filter(SQLAccount.name.contains(filter_.name))
+                query = query.filter(SQLAccount.name.contains(filter_.name))
             if filter_.compte_courant is not None:
-                q = q.filter(SQLAccount.compte_courant == filter_.compte_courant)
+                query = query.filter(SQLAccount.compte_courant == filter_.compte_courant)
             if filter_.actif is not None:
-                q = q.filter(SQLAccount.actif == filter_.actif)
+                query = query.filter(SQLAccount.actif == filter_.actif)
             if filter_.pinned is not None:
-                q = q.filter(SQLAccount.pinned == filter_.pinned)
+                query = query.filter(SQLAccount.pinned == filter_.pinned)
             if filter_.account_type is not None:
                 if isinstance(filter_.account_type, AccountType):
                     filter_.account_type = filter_.account_type.id
-                q = q.filter(SQLAccount.type == filter_.account_type)
+                query = query.filter(SQLAccount.type == filter_.account_type)
             if filter_.member is not None:
                 if isinstance(filter_.member, Member):
                     filter_.member = filter_.member.id
-                q = q.filter(SQLAccount.adherent_id == filter_.member)
+                query = query.filter(SQLAccount.adherent_id == filter_.member)
 
-        count = q.count()
-        q = q.order_by(SQLAccount.creation_date.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query = query.order_by(SQLAccount.creation_date.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
         return list(map(lambda item: _map_account_sql_to_entity(item, True), r)), count
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_account_repository_create_called", extra=log_extra(ctx, account_type=abstract_account.account_type))
 
         now = datetime.now()
 
         if abstract_account.account_type is not None:
             LOG.debug("sql_account_repository_search_account_type", extra=log_extra(ctx, account_type=abstract_account.account_type))
-            account_type = s.query(AccountType).filter(AccountType.id == abstract_account.account_type).one_or_none()
+            account_type = session.query(AccountType).filter(AccountType.id == abstract_account.account_type).one_or_none()
 
             if account_type is None:
                 raise AccountNotFoundError(abstract_account.account_type)
 
         adherent = None
         if abstract_account.member is not None:
-            adherent = s.query(Adherent).filter(Adherent.id == abstract_account.member).one_or_none()
+            adherent = session.query(Adherent).filter(Adherent.id == abstract_account.member).one_or_none()
             if not adherent:
                 raise MemberNotFoundError(abstract_account.member)
 
@@ -99,9 +99,9 @@ class AccountSQLRepository(AccountRepository):
             adherent=adherent
         )
 
-        with track_modifications(ctx, s, account):
-            s.add(account)
-        s.flush()
+        with track_modifications(ctx, session, account):
+            session.add(account)
+        session.flush()
         LOG.debug("sql_account_repository_create_finished", extra=log_extra(ctx, account_id=account.id))
 
         return _map_account_sql_to_entity(account)

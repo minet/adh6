@@ -25,38 +25,38 @@ class MembershipSQLRepository(MembershipRepository):
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                              filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
         LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx, filter_status=filter_.status))
-        s: Session = ctx.get(CTX_SQL_SESSION)
-        q = s.query(MembershipSQL)
-        q = q.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        query = session.query(MembershipSQL)
+        query = query.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
 
         if filter_.uuid is not None:
-            q = q.filter(MembershipSQL.uuid == filter_.uuid)
+            query = query.filter(MembershipSQL.uuid == filter_.uuid)
         if filter_.status is not None:
             LOG.debug(filter_.status)
-            q = q.filter(MembershipSQL.status == filter_.status)
+            query = query.filter(MembershipSQL.status == filter_.status)
         if filter_.first_time is not None:
-            q = q.filter(MembershipSQL.first_time == filter_.first_time)
+            query = query.filter(MembershipSQL.first_time == filter_.first_time)
         if filter_.duration is not None:
-            q = q.filter(MembershipSQL.duration == filter_.duration)
+            query = query.filter(MembershipSQL.duration == filter_.duration)
         if filter_.payment_method is not None:
             if isinstance(filter_.payment_method, PaymentMethod):
                 filter_.payment_method = filter_.payment_method.id
-            q = q.filter(MembershipSQL.payment_method == filter_.payment_method)
+            query = query.filter(MembershipSQL.payment_method == filter_.payment_method)
         if filter_.account is not None:
             if isinstance(filter_.account, Account):
                 filter_.account = filter_.account.id
-            q = q.filter(MembershipSQL.account == filter_.account)
+            query = query.filter(MembershipSQL.account == filter_.account)
         if filter_.member is not None:
             if isinstance(filter_.member, Member):
                 filter_.member = filter_.member.id
-            q = q.filter(MembershipSQL.adherent_id == filter_.member)
+            query = query.filter(MembershipSQL.adherent_id == filter_.member)
 
-        q = q.order_by(MembershipSQL.uuid)
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        query = query.order_by(MembershipSQL.uuid)
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
-        return list(map(_map_membership_sql_to_entity, r)), q.count()
+        return list(map(_map_membership_sql_to_entity, r)), query.count()
     @log_call
     def create_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
         """
@@ -65,18 +65,18 @@ class MembershipSQLRepository(MembershipRepository):
         :raise MemberNotFound
         """
         now = datetime.now()
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_membership_repository_add_membership_called", extra=log_extra(ctx, member_id=member_id))
 
         # Check the member exists
-        member: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        member: Adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if member is None:
             raise MemberNotFoundError(str(member_id))
 
         # Check the transaction does not already exist
         _membership: Optional[MembershipSQL] = None
         if membership.uuid is not None:
-            _membership = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership.uuid).one_or_none()
+            _membership = session.query(MembershipSQL).filter(MembershipSQL.uuid == membership.uuid).one_or_none()
         if _membership is not None:
             raise MembershipAlreadyExist()
 
@@ -86,7 +86,7 @@ class MembershipSQLRepository(MembershipRepository):
         to_add.update_at = now
 
         # Check any other membership from this member
-        all_membership: List[MembershipSQL] = s.query(MembershipSQL) \
+        all_membership: List[MembershipSQL] = session.query(MembershipSQL) \
             .filter(MembershipSQL.adherent_id == member_id) \
             .all()
 
@@ -96,8 +96,8 @@ class MembershipSQLRepository(MembershipRepository):
                 raise MembershipPending(i.uuid)
 
         to_add.first_time = len(all_membership) == 0
-        s.add(to_add)
-        s.flush()
+        session.add(to_add)
+        session.flush()
 
         LOG.debug("sql_membership_repository_add_membership_finished", extra=log_extra(ctx, membership_uuid=to_add.uuid))
 
@@ -106,12 +106,12 @@ class MembershipSQLRepository(MembershipRepository):
     def update_membership(self, ctx, member_id: int, membership_uuid: str, abstract_membership: AbstractMembership) -> Membership:
         LOG.debug("sql_membership_repository_update_membership_called", extra=log_extra(ctx, membership_uuid=membership_uuid))
         now = datetime.now()
-        s: Session = ctx.get(CTX_SQL_SESSION)
-        adherent: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        adherent: Adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if adherent is None:
             raise MemberNotFoundError(str(member_id))
-        q: Query = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
-        membership: MembershipSQL = q.one_or_none()
+        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
+        membership: MembershipSQL = query.one_or_none()
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
 
@@ -122,21 +122,21 @@ class MembershipSQLRepository(MembershipRepository):
         if abstract_membership.account is not None:
             if isinstance(abstract_membership.account, Account):
                 abstract_membership.account = abstract_membership.account.id
-            account: SQLAccount = s.query(SQLAccount).filter(SQLAccount.id == abstract_membership.account).one_or_none()
+            account: SQLAccount = session.query(SQLAccount).filter(SQLAccount.id == abstract_membership.account).one_or_none()
             if account is None:
                 raise AccountNotFoundError(str(abstract_membership.account))
             membership.account = account
         if abstract_membership.member is not None:
             if isinstance(abstract_membership.member, Member):
                 abstract_membership.member = abstract_membership.member.id
-            adherent: Adherent = s.query(Adherent).filter(Adherent.id == abstract_membership.member).one_or_none()
+            adherent: Adherent = session.query(Adherent).filter(Adherent.id == abstract_membership.member).one_or_none()
             if adherent is None:
                 raise MemberNotFoundError(str(abstract_membership.member))
             membership.adherent = adherent
         if abstract_membership.payment_method is not None:
             if isinstance(abstract_membership.payment_method, PaymentMethod):
                 abstract_membership.payment_method = abstract_membership.payment_method.id
-            payment_method: PaymentMethodSQL = s.query(PaymentMethodSQL).filter(PaymentMethodSQL.id == abstract_membership.payment_method).one_or_none()
+            payment_method: PaymentMethodSQL = session.query(PaymentMethodSQL).filter(PaymentMethodSQL.id == abstract_membership.payment_method).one_or_none()
             if payment_method is None:
                 raise PaymentMethodNotFoundError(str(abstract_membership.payment_method))
             membership.payment_method = payment_method
@@ -144,26 +144,26 @@ class MembershipSQLRepository(MembershipRepository):
             membership.status = abstract_membership.status
 
         membership.update_at = now
-        s.flush()
+        session.flush()
 
         LOG.debug("sql_membership_repository_update_membership_finished", extra=log_extra(ctx, duration=membership.duration))
-        return _map_membership_sql_to_entity(q.one_or_none())
+        return _map_membership_sql_to_entity(query.one_or_none())
 
     def validate_membership(self, ctx, membership_uuid: str) -> None:
-        s: Session = ctx.get(CTX_SQL_SESSION)
-        q: Query = s.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
-        membership: MembershipSQL = q.one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == membership_uuid)
+        membership: MembershipSQL = query.one_or_none()
         if membership is None:
             raise MembershipNotFoundError(membership_uuid)
         if membership.status != MembershipStatus.PENDING_PAYMENT_VALIDATION:
             raise MembershipStatusNotAllowed(membership.status, "Should be PENDING_PAYMENT_VALIDATION")
         membership.status = MembershipStatus.COMPLETE
-        s.flush()
+        session.flush()
         
     @log_call
     def get_latest_membership(self, ctx, member_id: int) -> Membership:
-        s: Session = ctx.get(CTX_SQL_SESSION)
-        q = s.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        query = session.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
                 or_(
                     MembershipSQL.status == MembershipStatus.PENDING_RULES, 
                     MembershipSQL.status == MembershipStatus.PENDING_PAYMENT, 
@@ -171,9 +171,9 @@ class MembershipSQLRepository(MembershipRepository):
                     MembershipSQL.status == MembershipStatus.PENDING_PAYMENT_VALIDATION
                 )
             )
-        membership: MembershipSQL = q.one_or_none()
+        membership: MembershipSQL = query.one_or_none()
         if membership is None:
-            q = s.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
+            query = session.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
                 or_(
                     MembershipSQL.status == MembershipStatus.INITIAL,
                     MembershipSQL.status == MembershipStatus.COMPLETE,
@@ -181,7 +181,7 @@ class MembershipSQLRepository(MembershipRepository):
                     MembershipSQL.status == MembershipStatus.CANCELLED,
                 )
             ).order_by(desc(MembershipSQL.create_at)).limit(1)
-            membership = q.one_or_none()
+            membership = query.one_or_none()
             if membership is None:
                 raise MembershipNotFoundError(str(member_id))
         
@@ -189,10 +189,10 @@ class MembershipSQLRepository(MembershipRepository):
 
 
 def _map_string_to_list(product_str: str) -> list:
-    s = product_str.split(",")
-    s[0] = s[0][1:]
-    s[-1] = s[-1][:-1]
-    return [int(elem) for elem in s if elem != '']
+    session = product_str.split(",")
+    session[0] = session[0][1:]
+    session[-1] = session[-1][:-1]
+    return [int(elem) for elem in session if elem != '']
 
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:

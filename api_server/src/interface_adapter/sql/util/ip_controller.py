@@ -2,6 +2,8 @@
 import datetime
 import ipaddress
 
+from sqlalchemy.orm.session import Session
+
 from src.interface_adapter.sql.model.models import Device, Adherent
 
 
@@ -20,27 +22,27 @@ def get_available_ip(network, ip_taken):
     return str(ip)
 
 
-def get_all_used_ipv4(s):
-    q = s.query(Device)
-    q = q.filter(Device.ip != "En Attente")
-    return list(map(lambda x: x.ip, q.all()))
+def get_all_used_ipv4(session: Session):
+    query = session.query(Device)
+    query = query.filter(Device.ip != "En Attente")
+    return list(map(lambda x: x.ip, query.all()))
 
 
-def get_all_used_ipv6(s):
-    q = s.query(Device)
-    q = q.filter(Device.ipv6 != "En Attente")
-    return list(map(lambda x: x.ipv6, q.all()))
+def get_all_used_ipv6(session: Session):
+    query = session.query(Device)
+    query = query.filter(Device.ipv6 != "En Attente")
+    return list(map(lambda x: x.ipv6, query.all()))
 
 
-def _get_expired_devices(session):
-    q = session.query(Device)
-    q = q.filter(Device.ip != "En Attente")
-    q = q.join(Adherent)
-    q = q.filter(Adherent.date_de_depart < datetime.datetime.now())
-    return list(q.all())
-
-
-def _free_expired_devices(session):
+def _get_expired_devices(session: Session):
+    query = session.query(Device)
+    query = query.filter(Device.ip != "En Attente")
+    query = query.join(Adherent)
+    query = query.filter(Adherent.date_de_depart < datetime.datetime.now())
+    return list(query.all())
+"""
+def _free_expired_devices(session: Session):
     for dev in _get_expired_devices(session):
         dev.ip = "En Attente"
         dev.ipv6 = "En Attente"
+"""

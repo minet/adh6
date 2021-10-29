@@ -32,7 +32,7 @@ class PortHandler(DefaultHandler):
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
 
-            return True if self.switch_network_manager.get_port_status(ctx, switch, port) == "up" else False, 200
+            return self.switch_network_manager.get_port_status(ctx, switch, port) == "up", 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -100,7 +100,7 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            return True if self.switch_network_manager.get_port_mab(ctx, switch, port) == "true" else False, 200
+            return self.switch_network_manager.get_port_mab(ctx, switch, port) == "true", 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -130,7 +130,7 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            return True if self.switch_network_manager.get_port_auth(ctx, switch, port) == "auto" else False, 200
+            return self.switch_network_manager.get_port_auth(ctx, switch, port) == "auto", 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:

@@ -4,10 +4,11 @@ from functools import wraps
 import connexion
 from flask import current_app
 
+from sqlalchemy.orm.session import Session
+
 from src.constants import CTX_SQL_SESSION
 from src.entity import Admin
 from src.entity.roles import Roles
-from src.entity.util.logic import Expression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, AdminNotFoundError, UnauthorizedError
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
@@ -16,7 +17,7 @@ from src.util.context import log_extra, build_context
 from src.util.log import LOG
 
 
-def _find_admin(s, username):
+def _find_admin(session: Session, username):
     """
     Get the specified admin, if it does not exist, create it.
 
@@ -29,9 +30,9 @@ def _find_admin(s, username):
     """
 
     try:
-        q = s.query(Adherent)
-        q = q.filter((Adherent.login == username) | (Adherent.ldap_login == username))
-        adherent = q.one_or_none()
+        query = session.query(Adherent)
+        query = query.filter((Adherent.login == username) | (Adherent.ldap_login == username))
+        adherent = query.one_or_none()
 
         if adherent is not None:
             roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
@@ -52,10 +53,10 @@ def _find_admin(s, username):
                 password="",
                 admin=new_admin
             )
-            s.add(new_admin)
-            s.add(new_adherent)
+            session.add(new_admin)
+            session.add(new_adherent)
 
-            return _find_admin(s, username)
+            return _find_admin(session, username)
         raise MemberNotFoundError()
 
 

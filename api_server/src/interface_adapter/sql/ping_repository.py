@@ -1,4 +1,5 @@
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
 from src.use_case.interface.ping_repository import PingRepository
@@ -10,9 +11,9 @@ class PingSQLRepository(PingRepository):
     def ping(self, ctx) -> bool:
         LOG.debug("sql_ping", extra=log_extra(ctx))
 
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         try:
-            result = s.execute('SELECT 42 AS result').fetchall()
+            result = session.execute('SELECT 42 AS result').fetchall()
             if 1 != len(result):
                 return False
 

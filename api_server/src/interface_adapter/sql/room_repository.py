@@ -5,6 +5,8 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from typing import List, Tuple
 
+from sqlalchemy.orm.session import Session
+
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractRoom
 from src.entity.null import Null
@@ -22,36 +24,36 @@ class RoomSQLRepository(RoomRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractRoom = None) -> Tuple[List[Room], int]:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(Chambre)
+        query = session.query(Chambre)
 
         if filter_.id is not None:
-            q = q.filter(Chambre.id == filter_.id)
+            query = query.filter(Chambre.id == filter_.id)
         if terms:
-            q = q.filter(Chambre.description.contains(terms))
+            query = query.filter(Chambre.description.contains(terms))
         if filter_.description:
-            q = q.filter(Chambre.description.contains(filter_.description))
+            query = query.filter(Chambre.description.contains(filter_.description))
         if filter_.room_number is not None:
-            q = q.filter(Chambre.numero == filter_.room_number)
+            query = query.filter(Chambre.numero == filter_.room_number)
 
 
-        count = q.count()
-        q = q.order_by(Chambre.numero.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query = query.order_by(Chambre.numero.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
         return list(map(_map_room_sql_to_entity, r)), count
 
     @log_call
     def create(self, ctx, abstract_room: Room) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
         vlan = None
         if abstract_room.vlan is not None:
-            vlan = s.query(Vlan).filter(Vlan.id == abstract_room.vlan).one_or_none()
+            vlan = session.query(Vlan).filter(Vlan.id == abstract_room.vlan).one_or_none()
             if not vlan:
                 raise VLANNotFoundError(str(abstract_room.vlan))
 
@@ -63,21 +65,21 @@ class RoomSQLRepository(RoomRepository):
             vlan=vlan,
         )
 
-        with track_modifications(ctx, s, room):
-            s.add(room)
-        s.flush()
+        with track_modifications(ctx, session, room):
+            session.add(room)
+        session.flush()
 
         return _map_room_sql_to_entity(room)
 
     @log_call
     def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(Chambre)
-        q = q.filter(Chambre.id == abstract_room.id)
-        q = q.join(Vlan, Vlan.id == Chambre.vlan_id)
+        query = session.query(Chambre)
+        query = query.filter(Chambre.id == abstract_room.id)
+        query = query.join(Vlan, Vlan.id == Chambre.vlan_id)
 
-        room = q.one_or_none()
+        room = query.one_or_none()
         if room is None:
             raise RoomNotFoundError(str(abstract_room.id))
         new_chambre = _merge_sql_with_entity(ctx, abstract_room, room, override)
@@ -86,14 +88,14 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def delete(self, ctx, room_id) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        room = s.query(Chambre).filter(Chambre.id == room_id).one_or_none()
+        room = session.query(Chambre).filter(Chambre.id == room_id).one_or_none()
         if room is None:
             raise RoomNotFoundError(room_id)
 
-        with track_modifications(ctx, s, room):
-            s.delete(room)
+        with track_modifications(ctx, session, room):
+            session.delete(room)
 
 
 def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
@@ -104,8 +106,8 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
     if entity.room_number is not None or override:
         chambre.numero = entity.room_number
     if entity.vlan is not None:
-        s = ctx.get(CTX_SQL_SESSION)
-        vlan = s.query(Vlan).filter(Vlan.id == entity.vlan).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        vlan = session.query(Vlan).filter(Vlan.id == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
         chambre.vlan = vlan

@@ -4,14 +4,12 @@ Implements everything related to actions on the SQL database.
 """
 from typing import List, Tuple
 
+from sqlalchemy.orm.session import Session
+
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.product import Product
-from src.exceptions import ProductNotFoundError
 from src.interface_adapter.sql.model.models import Product as SQLProduct
-from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.product_repository import ProductRepository
-from src.util.context import log_extra
-from src.util.log import LOG
 
 
 class ProductSQLRepository(ProductRepository):
@@ -21,25 +19,34 @@ class ProductSQLRepository(ProductRepository):
 
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: Product = None) -> Tuple[List[Product], int]:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLProduct)
+        query = session.query(SQLProduct)
 
         if filter_ is not None:
             if filter_.id:
-                q = q.filter(SQLProduct.id == filter_.id)
+                query = query.filter(SQLProduct.id == filter_.id)
             if terms:
-                q = q.filter(SQLProduct.name.contains(terms))
+                query = query.filter(SQLProduct.name.contains(terms))
             if filter_.name:
-                q = q.filter(SQLProduct.name.contains(filter_.name))
+                query = query.filter(SQLProduct.name.contains(filter_.name))
 
-        count = q.count()
-        q = q.order_by(SQLProduct.id.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query = query.order_by(SQLProduct.id.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
         return list(map(_map_product_sql_to_entity, r)), count
+
+    def create(self, ctx, object_to_create: Product) -> object:
+        raise NotImplementedError
+
+    def update(self, ctx, object_to_update: Product, override=False) -> object:
+        raise NotImplementedError
+
+    def delete(self, ctx, object_id) -> None:
+        raise NotImplementedError
 
 
 def _map_product_sql_to_entity(p) -> Product:

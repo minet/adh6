@@ -24,30 +24,30 @@ class MoneySQLRepository(MoneyRepository):
                   extra=log_extra(ctx, amount=amount_in_cents / 100, title=title, username=member_username,
                                   payment_method=payment_method_name))
         now = datetime.now()
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         admin = ctx.get(CTX_ADMIN)
 
-        admin_sql = s.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
+        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
         if admin_sql is None:
             raise InvalidAdmin()
 
-        adherent = s.query(Adherent).filter(Adherent.login == member_username).one_or_none()
+        adherent = session.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if adherent is None:
             raise MemberNotFoundError(member_username)
         
-        account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+        account: Account = session.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
         if account is None:
             raise AccountNotFoundError(member_username)
         
         LOG.debug("sql_money_repository_get_minet_frais_asso_account", extra=log_extra(ctx, account_name=minet_frais_asso_name))
-        minet_asso_account: Account = s.query(Account).filter(Account.name == minet_frais_asso_name).one_or_none()
+        minet_asso_account: Account = session.query(Account).filter(Account.name == minet_frais_asso_name).one_or_none()
         if minet_asso_account is None:
             raise AccountNotFoundError(minet_frais_asso_name)
-        minet_technique_account: Account = s.query(Account).filter(Account.name == minet_frais_techniques_name).one_or_none()
+        minet_technique_account: Account = session.query(Account).filter(Account.name == minet_frais_techniques_name).one_or_none()
         if minet_technique_account is None:
             raise AccountNotFoundError(minet_frais_techniques_name)
 
-        payment_method: PaymentMethod = s.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
+        payment_method: PaymentMethod = session.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
         if payment_method is None:
             raise UnknownPaymentMethod(payment_method_name)
 
@@ -61,7 +61,7 @@ class MoneySQLRepository(MoneyRepository):
             name=title,
             attachments=""
         )
-        s.add(frai_asso_transaction)
+        session.add(frai_asso_transaction)
 
         amount_in_cents = amount_in_cents - 900
         if amount_in_cents > 0:
@@ -76,10 +76,10 @@ class MoneySQLRepository(MoneyRepository):
                 attachments=""
             )
 
-        s.flush()
+        session.flush()
     
     def add_products_payment_record(self, ctx, products: List[Product]) -> None:
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_money_repository_add_products_transaction_record", extra=log_extra(ctx, number_products=len(products)))
         pass
 

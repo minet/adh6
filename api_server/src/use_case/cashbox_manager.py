@@ -1,5 +1,6 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to the cashbox. """
+from typing import Tuple
 from src.entity.roles import Roles
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
 from src.use_case.interface.cashbox_repository import CashboxRepository
@@ -30,7 +31,7 @@ class CashboxManager:
         self.transaction_repository = transaction_repository
 
     @uses_security("read", is_collection=False)
-    def get_cashbox(self, ctx) -> (int, int):
+    def get_cashbox(self, ctx) -> Tuple[int, int]:
         fond, coffre = self.cashbox_repository.get_cashbox(ctx)
 
         # Log action.

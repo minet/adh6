@@ -4,6 +4,8 @@ Implements everything related to actions on the SQL database.
 """
 from typing import List, Tuple
 
+from sqlalchemy.orm.session import Session
+
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
 from src.entity.payment_method import PaymentMethod
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -16,23 +18,23 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: PaymentMethod = None) -> Tuple[List[PaymentMethod], int]:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLPaymentMethod)
+        query = session.query(SQLPaymentMethod)
 
         if filter_ is not None:
             if filter_.id:
-                q = q.filter(SQLPaymentMethod.id == filter_.id)
+                query = query.filter(SQLPaymentMethod.id == filter_.id)
             if filter_.name:
-                q = q.filter(SQLPaymentMethod.name.contains(filter_.name))
+                query = query.filter(SQLPaymentMethod.name.contains(filter_.name))
         if terms:
-            q = q.filter(SQLPaymentMethod.name.contains(terms))
+            query = query.filter(SQLPaymentMethod.name.contains(terms))
 
-        count = q.count()
-        q = q.order_by(SQLPaymentMethod.id.asc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query = query.order_by(SQLPaymentMethod.id.asc())
+        query = query.offset(offset)
+        query = query.limit(limit)
+        r = query.all()
 
         return list(map(_map_payment_method_sql_to_entity, r)), count
 

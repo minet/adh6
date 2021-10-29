@@ -4,7 +4,9 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Tuple
+
+from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractDevice, Member
@@ -26,26 +28,26 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
 
-    def _search(self, ctx, s, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+    def _search(self, ctx, session: Session, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                 filter_: AbstractDevice = None, query=None):
-        q = query or s.query(SQLDevice)
-        q = q.join(Adherent, Adherent.id == SQLDevice.adherent_id)
+        query = query or session.query(SQLDevice)
+        query = query.join(Adherent, Adherent.id == SQLDevice.adherent_id)
 
         if filter_ is not None:
             if filter_.id is not None:
-                q = q.filter(SQLDevice.id == filter_.id)
+                query = query.filter(SQLDevice.id == filter_.id)
             if filter_.member is not None:
                 if isinstance(filter_.member, Member):
-                    q = q.filter(Adherent.id == filter_.member.id)
+                    query = query.filter(Adherent.id == filter_.member.id)
                 else:
-                    q = q.filter(Adherent.id == filter_.member)
+                    query = query.filter(Adherent.id == filter_.member)
             if filter_.mac:
-                q = q.filter(SQLDevice.mac == filter_.mac)
+                query = query.filter(SQLDevice.mac == filter_.mac)
             if filter_.connection_type:
-                q = q.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
+                query = query.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
 
         if terms:
-            q = q.filter(
+            query = query.filter(
                 (SQLDevice.mac.contains(terms)) |
                 (SQLDevice.mac.contains(terms.replace("-", ":"))) |
                 (SQLDevice.ip.contains(terms)) |
@@ -53,31 +55,31 @@ class DeviceSQLRepository(DeviceRepository):
                 (Adherent.login.contains(terms))
             )
 
-        count = q.count()
-        q = q.order_by(SQLDevice.created_at.asc())
-        q = q.offset(offset)
+        count = query.count()
+        query = query.order_by(SQLDevice.created_at.asc())
+        query = query.offset(offset)
         if limit > 0:
-            q = q.limit(limit)
-        r = q.all()
+            query = query.limit(limit)
+        r = query.all()
 
         return r, count
 
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractDevice = None) -> (List[Device], int):
-        s = ctx.get(CTX_SQL_SESSION)
-        r, count = self._search(ctx, s, limit, offset, terms, filter_)
+                  filter_: AbstractDevice = None) -> Tuple[List[Device], int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        r, count = self._search(ctx, session, limit, offset, terms, filter_)
         return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
     def create(self, ctx, abstract_device: Device) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
         adherent = None
         if abstract_device.member is not None:
-            adherent = s.query(Adherent).filter(Adherent.id == abstract_device.member).one_or_none()
+            adherent = session.query(Adherent).filter(Adherent.id == abstract_device.member).one_or_none()
             if not adherent:
                 raise MemberNotFoundError(abstract_device.member)
 
@@ -92,54 +94,54 @@ class DeviceSQLRepository(DeviceRepository):
             ipv6=abstract_device.ipv6_address
         )
 
-        with track_modifications(ctx, s, device):
-            s.add(device)
-        s.flush()
+        with track_modifications(ctx, session, device):
+            session.add(device)
+        session.flush()
 
         return _map_device_sql_to_entity(device)
 
     @log_call
     def update(self, ctx, abstract_device: AbstractDevice, override=False) -> Device:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLDevice)
-        q = q.filter(SQLDevice.id == abstract_device.id)
-        q = q.join(Adherent, Adherent.id == SQLDevice.adherent_id)
+        query = session.query(SQLDevice)
+        query = query.filter(SQLDevice.id == abstract_device.id)
+        query = query.join(Adherent, Adherent.id == SQLDevice.adherent_id)
 
-        device = q.one_or_none()
+        device = query.one_or_none()
         if device is None:
             raise DeviceNotFoundError(str(abstract_device.id))
 
-        with track_modifications(ctx, s, device):
+        with track_modifications(ctx, session, device):
             new_device = _merge_sql_with_entity(ctx, abstract_device, device, override)
 
         return _map_device_sql_to_entity(new_device)
 
     @log_call
     def delete(self, ctx, device_id) -> None:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        device = s.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        device = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
 
         if device is None:
             raise DeviceNotFoundError(device_id)
 
-        with track_modifications(ctx, s, device):
-            s.delete(device)
+        with track_modifications(ctx, session, device):
+            session.delete(device)
 
-    def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> (List[str], int):
-        s = ctx.get(CTX_SQL_SESSION)
+    def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> Tuple[List[str], int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
         if type == "ipv4":
-            q = s.query(SQLDevice.ip)
-            q = q.filter((SQLDevice.ip != None) &
+            query = session.query(SQLDevice.ip)
+            query = query.filter((SQLDevice.ip != None) &
                          (SQLDevice.ip != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
                          )
         elif type == "ipv6":
-            q = s.query(SQLDevice.ipv6)
-            q = q.filter((SQLDevice.ipv6 != None) &
+            query = session.query(SQLDevice.ipv6)
+            query = query.filter((SQLDevice.ipv6 != None) &
                          (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
                          )
-        r, count = self._search(ctx, s, filter_=filter_, query=q, limit=0)
+        r, count = self._search(ctx, session, filter_=filter_, query=query, limit=0)
 
         return list(map(lambda x: x[0], r)), count
 
@@ -157,8 +159,8 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
     if entity.ipv6_address is not None or override:
         device.ipv6 = entity.ipv6_address
     if entity.member is not None:
-        s = ctx.get(CTX_SQL_SESSION)
-        adherent = s.query(Adherent).filter(Adherent.id == entity.member).one_or_none()
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        adherent = session.query(Adherent).filter(Adherent.id == entity.member).one_or_none()
         if not adherent:
             raise MemberNotFoundError(entity.member)
         device.adherent = adherent

@@ -183,11 +183,6 @@ class PaymentMethodNotFoundError(NotFoundError):
         super().__init__('payment_method', v)
 
 
-class AccountNotFoundError(NotFoundError):
-    def __init__(self, v=None):
-        super().__init__('account', v)
-
-
 class AccountTypeNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('account_type', v)
@@ -235,7 +230,7 @@ class MembershipPending(AlreadyExistsError):
 
 class DevicesLimitReached(UserInputError):
     def __init__(self):
-        super().__init__(f'maximum number of devices reached')
+        super().__init__('maximum number of devices reached')
 
 
 class UnknownPaymentMethod(UserInputError):

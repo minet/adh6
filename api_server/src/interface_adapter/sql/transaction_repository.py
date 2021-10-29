@@ -29,55 +29,55 @@ class TransactionSQLRepository(TransactionRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractTransaction = None) -> Tuple[List[Transaction], int]:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session= ctx.get(CTX_SQL_SESSION)
 
         account_source = aliased(Account)
         account_destination = aliased(Account)
 
-        q = s.query(SQLTransaction)
-        q = q.join(account_source, account_source.id == SQLTransaction.dst)
-        q = q.join(account_destination, account_destination.id == SQLTransaction.src)
+        query= session.query(SQLTransaction)
+        query= query.join(account_source, account_source.id == SQLTransaction.dst)
+        query= query.join(account_destination, account_destination.id == SQLTransaction.src)
 
         if filter_.id is not None:
-            q = q.filter(SQLTransaction.id == filter_.id)
+            query= query.filter(SQLTransaction.id == filter_.id)
         if filter_.payment_method is not None:
             if isinstance(filter_.payment_method, PaymentMethod):
                 filter_.payment_method = filter_.payment_method.id
-            q = q.filter(SQLTransaction.type == filter_.payment_method)
+            query= query.filter(SQLTransaction.type == filter_.payment_method)
         if terms:
-            q = q.filter(
+            query= query.filter(
                 (SQLTransaction.name.contains(terms))
             )
         if filter_.pending_validation is not None:
-            q = q.filter(
+            query= query.filter(
                 (SQLTransaction.pending_validation == filter_.pending_validation)
             )
         if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-            q = q.filter(
+            query= query.filter(
                 (SQLTransaction.src == filter_.src) |
                 (SQLTransaction.dst == filter_.dst)
             )
         elif filter_.src is not None:
-            q = q.filter(SQLTransaction.src == filter_.src)
+            query= query.filter(SQLTransaction.src == filter_.src)
         elif filter_.dst is not None:
-            q = q.filter(SQLTransaction.dst == filter_.dst)
+            query= query.filter(SQLTransaction.dst == filter_.dst)
 
-        count = q.count()
-        q = q.order_by(SQLTransaction.timestamp.desc())
-        q = q.offset(offset)
-        q = q.limit(limit)
-        r = q.all()
+        count = query.count()
+        query= query.order_by(SQLTransaction.timestamp.desc())
+        query= query.offset(offset)
+        query= query.limit(limit)
+        r = query.all()
 
         return list(map(_map_transaction_sql_to_entity, r)), count
 
     @log_call
     def create(self, ctx, abstract_transaction: AbstractTransaction) -> object:
-        s = ctx.get(CTX_SQL_SESSION)
+        session: Session= ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
         admin_id = ctx.get(CTX_ADMIN).id
-        author_ref = s.query(Adherent).join(Admin) \
+        author_ref = session.query(Adherent).join(Admin) \
             .filter(Adherent.id == admin_id) \
             .filter(Adherent.admin is not None).one_or_none()
         if not author_ref:
@@ -85,19 +85,19 @@ class TransactionSQLRepository(TransactionRepository):
 
         account_src = None
         if abstract_transaction.src is not None:
-            account_src = s.query(Account).filter(Account.id == abstract_transaction.src).one_or_none()
+            account_src = session.query(Account).filter(Account.id == abstract_transaction.src).one_or_none()
             if not account_src:
                 raise AccountNotFoundError(abstract_transaction.src)
 
         account_dst = None
         if abstract_transaction.dst is not None:
-            account_dst = s.query(Account).filter(Account.id == abstract_transaction.dst).one_or_none()
+            account_dst = session.query(Account).filter(Account.id == abstract_transaction.dst).one_or_none()
             if not account_dst:
                 raise AccountNotFoundError(abstract_transaction.dst)
 
         method = None
         if abstract_transaction.payment_method is not None:
-            method = s.query(PaymentMethod).filter(
+            method = session.query(PaymentMethod).filter(
                 PaymentMethod.id == abstract_transaction.payment_method).one_or_none()
             if not method:
                 raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
@@ -114,9 +114,9 @@ class TransactionSQLRepository(TransactionRepository):
             pending_validation=abstract_transaction.pending_validation
         )
 
-        with track_modifications(ctx, s, transaction):
-            s.add(transaction)
-        s.flush()
+        with track_modifications(ctx, session, transaction):
+            session.add(transaction)
+        session.flush()
 
         return _map_transaction_sql_to_entity(transaction)
 
@@ -125,31 +125,31 @@ class TransactionSQLRepository(TransactionRepository):
 
     @log_call
     def validate(self, ctx, transaction_id) -> None:
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        q = s.query(SQLTransaction)
-        q = q.filter(SQLTransaction.id == transaction_id)
+        query= session.query(SQLTransaction)
+        query= query.filter(SQLTransaction.id == transaction_id)
 
-        transaction = q.one_or_none()
+        transaction = query.one_or_none()
         if transaction is None:
             raise TransactionNotFoundError(str(transaction_id))
 
-        with track_modifications(ctx, s, transaction):
+        with track_modifications(ctx, session, transaction):
             transaction.pending_validation = False
-        s.flush()
+        session.flush()
 
     @log_call
     def delete(self, ctx, object_id) -> None:
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
 
-        transaction = s.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
+        transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
 
         if transaction is None:
             raise TransactionNotFoundError(object_id)
 
-        with track_modifications(ctx, s, transaction):
-            s.delete(transaction)
-        s.flush()
+        with track_modifications(ctx, session, transaction):
+            session.delete(transaction)
+        session.flush()
 
     def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str, payment_method_name: str, membership_uuid: str) -> None:
         if amount_in_cents < 900:
@@ -161,30 +161,30 @@ class TransactionSQLRepository(TransactionRepository):
                   extra=log_extra(ctx, amount=amount_in_cents / 100, title=title, username=member_username,
                                   payment_method=payment_method_name))
         now = datetime.now()
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         admin = ctx.get(CTX_ADMIN)
 
-        admin_sql = s.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
+        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
         if admin_sql is None:
             raise InvalidAdmin()
 
-        adherent = s.query(Adherent).filter(Adherent.login == member_username).one_or_none()
+        adherent = session.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if adherent is None:
             raise MemberNotFoundError(member_username)
         
-        account: Account = s.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
+        account: Account = session.query(Account).filter(Account.adherent_id == adherent.id).one_or_none()
         if account is None:
             raise AccountNotFoundError(member_username)
         
         LOG.debug("sql_money_repository_get_minet_frais_asso_account", extra=log_extra(ctx, account_name=minet_frais_asso_name))
-        minet_asso_account: Account = s.query(Account).filter(Account.name == minet_frais_asso_name).filter(Account.pinned == True).one_or_none()
+        minet_asso_account: Account = session.query(Account).filter(Account.name == minet_frais_asso_name).filter(Account.pinned == True).one_or_none()
         if minet_asso_account is None:
             raise AccountNotFoundError(minet_frais_asso_name)
-        minet_technique_account: Account = s.query(Account).filter(Account.name == minet_frais_techniques_name).filter(Account.pinned == True).one_or_none()
+        minet_technique_account: Account = session.query(Account).filter(Account.name == minet_frais_techniques_name).filter(Account.pinned == True).one_or_none()
         if minet_technique_account is None:
             raise AccountNotFoundError(minet_frais_techniques_name)
 
-        payment_method: PaymentMethod = s.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
+        payment_method: PaymentMethod = session.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
         if payment_method is None:
             raise UnknownPaymentMethod(payment_method_name)
 
@@ -201,7 +201,7 @@ class TransactionSQLRepository(TransactionRepository):
             membership_uuid=membership_uuid,
             is_archive=False
         )
-        s.add(frais_asso_transaction)
+        session.add(frais_asso_transaction)
 
         amount_in_cents = amount_in_cents - 900
         if amount_in_cents > 0:
@@ -218,32 +218,32 @@ class TransactionSQLRepository(TransactionRepository):
                 membership_uuid=membership_uuid,
                 is_archive=False
             )
-            s.add(frais_asso_transaction)
+            session.add(frais_asso_transaction)
 
-        s.flush()
+        session.flush()
     
     def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str]) -> None:
         now = datetime.now()
-        s: Session = ctx.get(CTX_SQL_SESSION)
+        session: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_money_repository_add_products_transaction_record", extra=log_extra(ctx, number_products=len(products)))
 
-        adherent: Adherent = s.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        adherent: Adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
         if adherent is None:
             raise MemberNotFoundError(str(member_id))
-        member_account: Account = s.query(Account).filter(Account.adherent_id == member_id).one_or_none()
+        member_account: Account = session.query(Account).filter(Account.adherent_id == member_id).one_or_none()
         if member_account is None:
             raise AccountNotFoundError(str(adherent.login))
-        minet_technique_account: Account = s.query(Account).filter(Account.name == "MiNET frais techniques").filter(Account.pinned == True).one_or_none()
+        minet_technique_account: Account = session.query(Account).filter(Account.name == "MiNET frais techniques").filter(Account.pinned == True).one_or_none()
         if minet_technique_account is None:
             raise AccountNotFoundError("MiNET frais techniques")
-        payment_method: PaymentMethod = s.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
+        payment_method: PaymentMethod = session.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
         if payment_method is None:
             raise UnknownPaymentMethod(payment_method_name)
         for p in products:
             if isinstance(p, Product):
                 p = p.id
             
-            product: SQLProduct = s.query(SQLProduct).filter(SQLProduct.id == p).one_or_none()
+            product: SQLProduct = session.query(SQLProduct).filter(SQLProduct.id == p).one_or_none()
             if product is None:
                 ProductNotFoundError(str(p))
             
@@ -261,8 +261,8 @@ class TransactionSQLRepository(TransactionRepository):
                 is_archive=False
             )
 
-            s.add(p_transaction)
-        s.flush()
+            session.add(p_transaction)
+        session.flush()
 
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
