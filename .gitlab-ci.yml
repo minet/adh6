@@ -8,7 +8,8 @@ cache:
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
 .setup_test_jobs: &before_test_job
   before_script:
-    - apt install git
+    - apt update
+    - apt install git -y
     - pip install -r api_server/requirements.txt
 
 stages:
