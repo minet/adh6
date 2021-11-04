@@ -9,7 +9,7 @@ cache:
 .setup_test_jobs: &before_test_job
   before_script:
     - apt update
-    - apt install git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
+    - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
 stages:
