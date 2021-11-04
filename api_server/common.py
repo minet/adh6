@@ -212,7 +212,7 @@ def init_handlers(configuration, testing=False):
     )
 
 
-def init(testing=True) -> Tuple[FlaskApp, Migrate]:
+def init(testing=True, managing=True) -> Tuple[FlaskApp, Migrate]:
     """
     Initialize and wire together the dependency of the application.
     """
@@ -275,18 +275,11 @@ def init(testing=True) -> Tuple[FlaskApp, Migrate]:
     app.app.config.update(configuration.DATABASE)
     if 'username' in configuration.DATABASE:
         app.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': f'''
-                {configuration.DATABASE["drivername"]}://
-                {configuration.DATABASE["username"]}:{configuration.DATABASE["password"]}
-                @{configuration.DATABASE["host"]}
-                /{configuration.DATABASE["database"]}
-            '''
+            'SQLALCHEMY_DATABASE_URI': f'{configuration.DATABASE["drivername"]}://{configuration.DATABASE["username"]}:{configuration.DATABASE["password"]}@{configuration.DATABASE["host"]}/{configuration.DATABASE["database"]}'
         })
     else:
         app.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': f'''
-                {configuration.DATABASE["drivername"]}://{configuration.DATABASE["database"]}
-            '''
+            'SQLALCHEMY_DATABASE_URI': f'{configuration.DATABASE["drivername"]}://{configuration.DATABASE["database"]}'
         })
 
     app.app.config['SESSION_TYPE'] = 'memcached'

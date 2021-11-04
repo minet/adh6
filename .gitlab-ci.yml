@@ -1,4 +1,4 @@
-image: python:3.7-stretch
+image: python:3.9-slim-buster
 
 cache:
   paths:
@@ -17,7 +17,7 @@ stages:
 
 angular_try_build:
   stage: build
-  image: node:10.16.0-stretch-slim
+  image: node:14-buster-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
@@ -39,7 +39,7 @@ angular_try_build:
 
 angular_build_prod:
   stage: build
-  image: node:10.16.0-stretch-slim
+  image: node:14-buster-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
