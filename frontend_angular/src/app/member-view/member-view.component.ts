@@ -116,6 +116,10 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         }))
       })
     });
+
+    this.latestMembership$.subscribe((membership: Membership) => {
+      this.subscriptionForm.setValue({renewal: 3});
+    })
   }
 
   checkMembershipStatus(status: AbstractMembership.StatusEnum): boolean {

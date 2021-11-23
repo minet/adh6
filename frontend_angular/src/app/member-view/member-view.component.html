@@ -18,7 +18,7 @@
         <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
         <!-- History -->
         <ng-container *ngIf="latestMembership$ | async as latestMembership">
-          <button class="btn btn-danger w-100 association-button mt-3" *ngIf="checkMembershipStatus(latestMembership.status)">{{statusToText[latestMembership.status]}}</button>
+          <button class="btn btn-danger w-100 association-button mt-3" *ngIf="checkMembershipStatus(latestMembership.status)" disabled>{{statusToText[latestMembership.status]}}</button>
         </ng-container>
       </div>
 
@@ -61,10 +61,11 @@
 
     <div class="row mt-3">
       <div class="col-md-12">
+        <!-- Put roles to hide this to a member -->
         <ng-container *ngIf="latestMembership$ | async as latestMembership">
           <button class="w-100 btn btn-primary mb-3" (click)="signCharter()" *ngIf="">Signer la charte</button>
           <button class="w-100 btn btn-primary mb-3" (click)="newMembership(member.id)" *ngIf="!checkMembershipStatus(latestMembership.status) || newMembershipDisabled">Nouvelle Inscription</button>
-          <button class="w-100 btn btn-primary mb-3" (click)="actionMembershipStatus(latestMembership.uuid, latestMembership.status, member.id)" *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider Paiement</button>
+          <button class="w-100 btn btn-success mb-3" (click)="actionMembershipStatus(latestMembership.uuid, latestMembership.status, member.id)" *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider Paiement</button>
         </ng-container>
       </div>
     </div>
@@ -83,9 +84,11 @@
     </div>
 
     <div class="row">
-      <div class="col-md-6">
-        <button (click)="toggleCotisationMenu()" class="w-100 btn btn-primary mb-3">Cotiser</button>
-      </div>
+      <ng-container *ngIf="latestMembership$ | async as latestMembership">
+        <div class="col-md-6">
+          <button (click)="toggleCotisationMenu()" class="w-100 btn btn-primary mb-3">Cotiser</button>
+        </div>
+      </ng-container>
 
       <div class="col-md-6">
         <button [routerLink]="['/account/search' ]" [queryParams]="{ member: member.id }" class="w-100 btn btn-primary mb-3">
@@ -94,49 +97,52 @@
       </div>
     </div>
 
-
-    <div *ngIf="cotisation">
-      <h3>Cotisation</h3>
-      <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
-        <div class="form-group">
-          <label>Renouvellement pour</label>
-          <select (change)="updateAmount()" class="w-100 form-control"
-                  formControlName="renewal" type="text">
-            <option value="0">Aucun</option>
-            <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
-            <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
-            <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
-            <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
-            <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
-            <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
-            <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Matériel à ajouter</label>
-          <ng-container *ngIf="products$ | async as products">
-            <ng-container *ngFor="let product of products; let i = index" formArrayName="products">
-              <div class="form-check" [formGroupName]="i">
-                <input formControlName="checked" (change)="updateAmount()" class="form-check-input" type="checkbox" value="">
-                <label class="form-check-label" for="checked">
-                  {{product.name}} ({{product.sellingPrice}} €)
-                </label>
-              </div>
+    
+    <ng-container *ngIf="latestMembership$ | async as latestMembership">
+      <div *ngIf="cotisation">
+        <h3>Cotisation</h3>
+        {{ subscriptionForm | json }}
+        <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
+          <div class="form-group">
+            <label>Renouvellement pour</label>
+            <select (change)="updateAmount()" class="w-100 form-control"
+                    formControlName="renewal" type="text">
+              <option value="0">Aucun</option>
+              <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
+              <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
+              <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
+              <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
+              <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
+              <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
+              <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Matériel à ajouter</label>
+            <ng-container *ngIf="products$ | async as products">
+              <ng-container *ngFor="let product of products; let i = index" formArrayName="products">
+                <div class="form-check" [formGroupName]="i">
+                  <input formControlName="checked" (change)="updateAmount()" class="form-check-input" type="checkbox" value="">
+                  <label class="form-check-label" for="checked">
+                    {{product.name}} ({{product.sellingPrice}} €)
+                  </label>
+                </div>
+              </ng-container>
             </ng-container>
-          </ng-container>
-        </div>
-        <div class="form-group">
-          <label>Payer par (montant : {{ amountToPay }} €)</label>
-          <select class="w-100 form-control" formControlName="paidBy"
-                  type="text">
-            <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <button class="w-100 btn btn-success mt-3" type="submit">Valider</button>
-        </div>
-      </form>
-    </div>
+          </div>
+          <div class="form-group">
+            <label>Payer par (montant : {{ amountToPay }} €)</label>
+            <select class="w-100 form-control" formControlName="paidBy"
+                    type="text">
+              <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button class="w-100 btn btn-success mt-3" type="submit">Valider</button>
+          </div>
+        </form>
+      </div>
+    </ng-container>
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
     <hr/>
 
