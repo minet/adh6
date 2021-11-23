@@ -49,11 +49,18 @@
       <tr>
         <td class="profile-field">Chambre</td>
         <td class="pb-2">
-          <a [routerLink]='["/room/view/", member.room.id]'>
+          <ng-container *ngIf="member.room.id; else elseNoRoom">
+            <a [routerLink]='["/room/view/", member.room.id]'>
+              <button [disabled]="member.room.id == null" class="btn btn-primary">
+                {{ member.room.roomNumber }}
+              </button>
+            </a>
+          </ng-container>
+          <ng-template #elseNoRoom>
             <button [disabled]="member.room.id == null" class="btn btn-primary">
-              {{ member.room.roomNumber || "Aucune" }}
+              Aucune
             </button>
-          </a>
+          </ng-template>
         </td>
       </tr>
       </tbody>
