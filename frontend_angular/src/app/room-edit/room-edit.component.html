@@ -1,26 +1,28 @@
 <h2>Modification d'une chambre</h2>
-<form [formGroup]="roomEdit" (ngSubmit)="onSubmit()" novalidate>
-  <div class="form-group">
-    <label>Numéro de la chambre</label>
-    <input class="w-100 form-control" formControlName="roomNumber" disabled type="number"/>
-  </div>
-  <div class="form-group">
-    <label>Vlan</label>
-    <input class="w-100 form-control" formControlName="vlan" type="number"/>
-  </div>
-
-  <div class="form-group">
-    <label>Description</label>
-    <input class="w-100 form-control" formControlName="description" type="text"/>
-  </div>
-
-  <div class="form-group">
-    <button
-      type="submit"
-      [disabled]="disabled || roomEdit.status == 'INVALID'"
-      class="w-100 btn btn-primary"
-    >
-      Modifier
-    </button>
-  </div>
-</form>
+<ng-container *ngIf="room$ | async">
+  <form [formGroup]="roomEdit" (ngSubmit)="onSubmit()" novalidate>
+    <div class="form-group">
+      <label>Numéro de la chambre</label>
+      <input class="w-100 form-control" formControlName="roomNumber" disabled type="number"/>
+    </div>
+    <div class="form-group">
+      <label>Vlan</label>
+      <input class="w-100 form-control" formControlName="vlan" type="number"/>
+    </div>
+  
+    <div class="form-group">
+      <label>Description</label>
+      <input class="w-100 form-control" formControlName="description" type="text"/>
+    </div>
+  
+    <div class="form-group">
+      <button
+        type="submit"
+        [disabled]="disabled"
+        class="w-100 btn btn-primary"
+      >
+        Modifier
+      </button>
+    </div>
+  </form>
+</ng-container>
