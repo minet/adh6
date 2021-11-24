@@ -20,6 +20,6 @@ class VLANManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("profile", is_collection=False)
+    @uses_security("read", is_collection=False)
     def get_from_number(self, ctx, vlan_number: int) -> Vlan:
         return self.vlan_repository.get_vlan(ctx, vlan_number)

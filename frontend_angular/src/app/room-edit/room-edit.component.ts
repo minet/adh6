@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 
-import {Room, RoomService} from '../api';
+import {Room, RoomService, VlanService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, switchMap, tap} from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -21,6 +21,7 @@ export class RoomEditComponent implements OnInit {
 
   constructor(
     private roomService: RoomService,
+    private vlanService: VlanService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
@@ -41,19 +42,22 @@ export class RoomEditComponent implements OnInit {
 
   onSubmit() {
     const v = this.roomEdit.value;
-    const room: Room = {
-      roomNumber: v.roomNumber,
-      vlan: v.vlan,
-      description: v.description
-    };
-    this.roomService.roomRoomIdPut(room, v.id, 'response')
+    this.vlanService.getFromNumber(v.vlan)
       .pipe(
         first(() => this.disabled = true),
         finalize(() => this.disabled = false)
       )
-      .subscribe(() => {
-        this.router.navigate(['/room/view', v.roomNumber]);
-        this.notif.success('Success');
+      .subscribe(vlan => {
+        const room: Room = {
+          roomNumber: v.roomNumber,
+          vlan: vlan.id,
+          description: v.description
+        };
+        this.roomService.roomRoomIdPut(room, v.id)
+          .subscribe(() => {
+            this.router.navigate(['/room/view', v.roomNumber]);
+            this.notif.success('Success');
+          });
       });
   }
 
@@ -65,7 +69,7 @@ export class RoomEditComponent implements OnInit {
           id: room.id,
           roomNumber: room.roomNumber,
           description: room.description,
-          vlan: (typeof(room.vlan) === 'number') ? room.vlan : room.vlan.id
+          vlan: (typeof(room.vlan) === 'number') ? room.vlan : room.vlan.number
         }))
       );
   }

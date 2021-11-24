@@ -1721,12 +1721,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Vlan'
           description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
         400:
           $ref: '#/components/responses/Invalid'
         403:

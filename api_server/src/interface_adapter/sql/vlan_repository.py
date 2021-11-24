@@ -23,14 +23,14 @@ class VLANSQLRepository(VLANRepository):
 
         :raise VlanNotFound
         """
-        LOG.debug("sql_network_object_repository_get_vlan", extra=log_extra(ctx, vlan_number=vlan_number))
+        LOG.debug("vlan_sql_repository_get_vlan", extra=log_extra(ctx, vlan_number=vlan_number))
 
         session: Session = ctx.get(CTX_SQL_SESSION)
-        result = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
-        if not result:
+        vlan = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
+        if not vlan:
             raise VLANNotFoundError(vlan_number)
-
-        return _map_vlan_sql_to_entity(result)
+        print(vlan)
+        return _map_vlan_sql_to_entity(vlan)
 
 
 def _map_vlan_sql_to_entity(r: VlanSQL) -> Vlan:
