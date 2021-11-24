@@ -1,10 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BehaviorSubject, combineLatest, forkJoin, merge, Observable, timer} from 'rxjs';
-import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractAccount, Account, Product, TreasuryService} from '../api';
-import {ActivatedRoute, Router} from '@angular/router';
-import {NotificationsService} from 'angular2-notifications';
-import {finalize, first, flatMap, map, mergeMap, share, switchMap, tap} from 'rxjs/operators';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
+import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService} from '../api';
+import {ActivatedRoute} from '@angular/router';
+import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
 import {Utils} from '../utils';
 
 @Component({
@@ -14,29 +13,21 @@ import {Utils} from '../utils';
 })
 
 export class MemberViewComponent implements OnInit, OnDestroy {
-
+  cotisation = false;
   submitDisabled = false;
-  date = new Date;
   getDhcp = false;
   member$: Observable<Member>;
   paymentMethods$: Observable<Array<PaymentMethod>>;
   latestMembership$: Observable<Membership>;
-  products$: Observable<Product[]>;
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
-  cotisation = false;
   newMembershipDisabled = false;
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
   private commentForm: FormGroup;
   private deviceForm: FormGroup;
-  private subscriptionForm: FormGroup;
   private selectedDevice: string;
-  private options: Intl.DateTimeFormatOptions = {year: 'numeric', month: 'long', day: 'numeric'};
-  private amountToPay = 0;
   private content: string;  // for log formatting
-  private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
-  private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
 
   statusToText = {
     'PENDING_RULES': "Sign the Charter",
@@ -51,11 +42,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     public deviceService: DeviceService,
     public transactionService: TransactionService,
     public accountService: AccountService,
-    private treasuryService: TreasuryService,
     private route: ActivatedRoute,
-    private router: Router,
     private fb: FormBuilder,
-    private notif: NotificationsService,
   ) {
     this.createForm();
   }
@@ -65,10 +53,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       console.log(member_id);
       this.memberService.charterPut(member_id, 1, "body").subscribe(() => console.log("Charter  Signed"));
     })
-  }
-
-  get productsFormArray(): FormArray {
-    return this.subscriptionForm.get('products') as FormArray
   }
 
   ngOnInit() {
@@ -105,21 +89,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.latestMembership$ = refresh$.pipe(
       switchMap(member_id => this.membershipService.getLatestMembership(member_id, 'body'))
     )
-
-    this.products$ = this.treasuryService.productGet(100, 0, undefined, "body");
-    this.products$.subscribe((products) => {
-      products.forEach((product) => {
-        this.productsFormArray.push(this.fb.group({
-          id: [{value: product.id}],
-          checked: [false, [Validators.required]],
-          amount: [{value: product.sellingPrice}]
-        }))
-      })
-    });
-
-    this.latestMembership$.subscribe((membership: Membership) => {
-      this.subscriptionForm.setValue({renewal: 3});
-    })
   }
 
   checkMembershipStatus(status: AbstractMembership.StatusEnum): boolean {
@@ -179,11 +148,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       mac: ['01-23-45-76-89-AB', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
       connectionType: ['wired', Validators.required],
     });
-    this.subscriptionForm = this.fb.group({
-      renewal: ['0', [Validators.required]],
-      products: this.fb.array([]),
-      paidBy: ['0', [Validators.required]],
-    });
   }
 
   newMembership(member_id: number): void {
@@ -237,52 +201,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
       });
-  }
-
-  submitSubscription(): void {
-    this.member_id$.subscribe((member_id) => this.addSubscription(member_id));
-  }
-
-  addSubscription(member_id: number) {
-    const v = this.subscriptionForm.value;
-    let products = [];
-    for (let i = 0; i < this.productsFormArray.length; i++) {
-      if (this.productsFormArray.at(i).value.checked === true) {
-        products.push(+this.productsFormArray.at(i).value.id.value)
-      }
-    }
-
-    const abstractAccount: AbstractAccount = {
-      member: member_id
-    };
-    this.accountService.accountGet(1, 0, undefined, abstractAccount, 'response')
-      .subscribe((response) => {
-        if (+response.headers.get('x-total-count') == 0) { 
-          this.notif.alert("No Account", "There is no account selected for this subscription");
-          return;
-        }
-        const account: Account = response.body[0]
-        this.paymentMethods$.subscribe((paymentMethodList) => {
-          let paymentMethod: PaymentMethod;
-          paymentMethodList.forEach((elem) => {
-            if (elem.id == +v.paidBy) { paymentMethod = elem }
-          })
-          const subscription: AbstractMembership = {
-            duration: this.subscriptionDuration[v.renewal],
-            account: account.id,
-            products: products,
-            paymentMethod: paymentMethod.id,
-            hasRoom: +v.renewal !== 7
-          }
-
-          this.latestMembership$.subscribe((membership) => {
-            this.membershipService.memberMemberIdMembershipUuidPatch(subscription, member_id, membership.uuid).subscribe(() => {
-              this.refreshLatestMembership(member_id);
-              this.toggleCotisationMenu();
-            })
-          })
-        })
-      })
   }
 
   addDevice(member_id?: number, alreadyExists?: boolean) {
@@ -362,23 +280,4 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   isDeviceOpened(device: Device): boolean {
     return this.selectedDevice === device.mac;
   }
-
-  formatDate(monthsToAdd: number): string {
-    this.date = new Date();
-    this.date.setMonth(this.date.getMonth() + monthsToAdd);
-
-    return this.date.toLocaleDateString('fr-FR', this.options);
-  }
-
-  updateAmount() {
-    this.amountToPay = 0;
-    this.amountToPay = this.amountToPay + this.subscriptionPrices[this.subscriptionForm.value.renewal];
-
-    for (let i = 0; i < this.productsFormArray.length; i++) {
-      if (this.productsFormArray.at(i).value.checked === true) {
-        this.amountToPay += +this.productsFormArray.at(i).value.amount.value;
-      }
-    }
-  }
-
 }
