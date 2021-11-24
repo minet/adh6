@@ -2597,13 +2597,8 @@ components:
             - community
             - ip
       type: object
-    Vlan:
+    AbstractVlan:
       type: object
-      required:
-        - id
-        - number
-        - ipv4Network
-        - ipv6Network
       properties:
         id:
           description: The unique identifier of this vlan
@@ -2626,6 +2621,15 @@ components:
           type: string
           example: "2001:660:3203:403::/64"
           nullable: true
+    Vlan:
+      allOf:
+        - $ref: '#/components/schemas/AbstractVlan'
+        - required:
+          - id
+          - number
+          - ipv4Network
+          - ipv6Network
+      type: object
     BugReport:
       type: object
       required:

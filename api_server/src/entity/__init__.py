@@ -24,6 +24,7 @@ from src.entity.abstract_product import AbstractProduct
 from src.entity.abstract_room import AbstractRoom
 from src.entity.abstract_switch import AbstractSwitch
 from src.entity.abstract_transaction import AbstractTransaction
+from src.entity.abstract_vlan import AbstractVlan
 from src.entity.account import Account
 from src.entity.account_type import AccountType
 from src.entity.admin import Admin
