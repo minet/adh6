@@ -280,4 +280,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   isDeviceOpened(device: Device): boolean {
     return this.selectedDevice === device.mac;
   }
+
+  refreshMembership(memberId: number): void {
+    this.latestMembership$ = this.membershipService.getLatestMembership(memberId);
+  }
 }
