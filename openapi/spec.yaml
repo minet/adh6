@@ -1704,6 +1704,38 @@ paths:
       summary: Update a switch
       tags:
       - switch
+  /vlan/:
+    get:
+      operationId: get_from_number
+      parameters:
+      - in: query
+        name: vlan_number
+        schema:
+          type: integer
+        required: true
+        description: Number of the Vlan
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vlan'
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter vlans
+      tags:
+      - vlan
   /transaction/:
     get:
       parameters:
@@ -2691,6 +2723,8 @@ tags:
   name: device
 - description: Operations on rooms
   name: room
+- description: Operations on VLANs
+  name: vlan
 - description: Operations on switches
   name: switch
 - description: Operations on ports
