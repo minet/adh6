@@ -93,9 +93,9 @@ class MemberSQLRepository(MemberRepository):
     def update(self, ctx, abstract_member: AbstractMember, override=False) -> object:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
-        query = session.query(Adherent)
-        query = query.filter(Adherent.id == abstract_member.id)
-        query = query.join(Chambre, Chambre.id == Adherent.chambre_id)
+        query = session.query(Adherent)\
+            .filter(Adherent.id == abstract_member.id)\
+            .join(Chambre, Chambre.id == Adherent.chambre_id)
 
         adherent = query.one_or_none()
         if adherent is None:
@@ -234,6 +234,9 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
         if not room:
             raise RoomNotFoundError(entity.room)
         adherent.chambre = room
+    else:
+        if adherent.chambre is not None:
+            adherent.chambre_id = None
 
     adherent.updated_at = now
     return adherent
