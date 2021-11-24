@@ -57,7 +57,7 @@ import {BackButtonDirective} from './back-button.directive';
 import {PortailComponent} from './portail/portail.component';
 import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
 import {InscriptionComponent} from './inscription/inscription.component';
-import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
+import {CotisationComponent} from './cotisation/cotisation.component';
 import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
 import {ErrorPageComponent} from './error-page/error-page.component';
 import {Ability, AbilityClass, InferSubjects, PureAbility} from '@casl/ability';
@@ -124,7 +124,7 @@ export function storageFactory(): OAuthStorage {
     PortailComponent,
     PortailCotisantComponent,
     InscriptionComponent,
-    CotisantRecotisationComponent,
+    CotisationComponent,
     PortailfoyerComponent,
     ErrorPageComponent,
     DeviceNewComponent,

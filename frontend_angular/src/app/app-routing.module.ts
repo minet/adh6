@@ -29,7 +29,7 @@ import {AccountListComponent} from './account-list/account-list.component';
 import {PortailComponent} from './portail/portail.component';
 import {PortailCotisantComponent} from './portail-cotisant/portail-cotisant.component';
 import {InscriptionComponent} from './inscription/inscription.component';
-import {CotisantRecotisationComponent} from './cotisant-recotisation/cotisant-recotisation.component';
+import {CotisationComponent} from './cotisation/cotisation.component';
 import {PortailfoyerComponent} from './portailfoyer/portailfoyer.component';
 import {MembershipListComponent} from './membership-list/membership-list.component';
 import {RedirectGuard} from './redirect-guard/redirect-guard';
@@ -62,10 +62,6 @@ const routes: Routes = [
     data : {
     bypassAuth: true
   }},
-  {path: 'recotisation', component: CotisantRecotisationComponent,
-    data: {
-      bypassAuth: true
-    }},
   {
     path: 'member',
     children: [
