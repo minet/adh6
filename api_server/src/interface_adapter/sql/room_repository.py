@@ -14,7 +14,7 @@ from src.entity.room import Room
 from src.exceptions import RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Chambre, Vlan
-from src.interface_adapter.sql.network_object_repository import _map_vlan_sql_to_entity
+from src.interface_adapter.sql.vlan_repository import _map_vlan_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.room_repository import RoomRepository
 

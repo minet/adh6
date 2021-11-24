@@ -1704,6 +1704,32 @@ paths:
       summary: Update a switch
       tags:
       - switch
+  /vlan/:
+    get:
+      operationId: get_from_number
+      parameters:
+      - in: query
+        name: vlan_number
+        schema:
+          type: integer
+        required: true
+        description: Number of the Vlan
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vlan'
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter vlans
+      tags:
+      - vlan
   /transaction/:
     get:
       parameters:
@@ -2597,13 +2623,8 @@ components:
             - community
             - ip
       type: object
-    Vlan:
+    AbstractVlan:
       type: object
-      required:
-        - id
-        - number
-        - ipv4Network
-        - ipv6Network
       properties:
         id:
           description: The unique identifier of this vlan
@@ -2626,6 +2647,15 @@ components:
           type: string
           example: "2001:660:3203:403::/64"
           nullable: true
+    Vlan:
+      allOf:
+        - $ref: '#/components/schemas/AbstractVlan'
+        - required:
+          - id
+          - number
+          - ipv4Network
+          - ipv6Network
+      type: object
     BugReport:
       type: object
       required:
@@ -2687,6 +2717,8 @@ tags:
   name: device
 - description: Operations on rooms
   name: room
+- description: Operations on VLANs
+  name: vlan
 - description: Operations on switches
   name: switch
 - description: Operations on ports

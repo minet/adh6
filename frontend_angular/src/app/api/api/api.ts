@@ -18,4 +18,6 @@ export * from './transaction.service';
 import { TransactionService } from './transaction.service';
 export * from './treasury.service';
 import { TreasuryService } from './treasury.service';
-export const APIS = [AccountService, DeviceService, MemberService, MembershipService, MiscService, PortService, RoomService, SwitchService, TransactionService, TreasuryService];
+export * from './vlan.service';
+import { VlanService } from './vlan.service';
+export const APIS = [AccountService, DeviceService, MemberService, MembershipService, MiscService, PortService, RoomService, SwitchService, TransactionService, TreasuryService, VlanService];

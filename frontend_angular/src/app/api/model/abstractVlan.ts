@@ -9,8 +9,23 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AbstractVlan } from './abstractVlan';
 
-export interface Vlan extends AbstractVlan { 
+export interface AbstractVlan { 
     __typename?: string;
+    /**
+     * The unique identifier of this vlan
+     */
+    readonly id?: number;
+    /**
+     * The number of this VLAN
+     */
+    number?: number;
+    /**
+     * The IPv4 network range for this VLAN
+     */
+    ipv4Network?: string;
+    /**
+     * The IPv6 network range for this VLAN
+     */
+    ipv6Network?: string;
 }

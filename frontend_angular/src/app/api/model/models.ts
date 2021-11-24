@@ -8,6 +8,7 @@ export * from './abstractProduct';
 export * from './abstractRoom';
 export * from './abstractSwitch';
 export * from './abstractTransaction';
+export * from './abstractVlan';
 export * from './account';
 export * from './accountType';
 export * from './admin';
