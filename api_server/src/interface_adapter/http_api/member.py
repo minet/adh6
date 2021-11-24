@@ -112,7 +112,7 @@ class MemberHandler(DefaultHandler):
             return serialize_response(membership), 200
         except Exception as e:
             LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
-            handle_error(ctx, e)
+            return handle_error(ctx, e)
 
 
     @with_context
