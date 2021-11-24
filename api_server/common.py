@@ -16,6 +16,9 @@ from src.entity import (
     AbstractSwitch, Switch,
 
 )
+
+from src.resolver import ADHResolver
+
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
 from src.interface_adapter.http_api.bug_report import BugReportHandler
 from src.interface_adapter.http_api.default import DefaultHandler
@@ -27,7 +30,10 @@ from src.interface_adapter.http_api.profile import ProfileHandler
 from src.interface_adapter.http_api.stats import StatsHandler
 from src.interface_adapter.http_api.transaction import TransactionHandler
 from src.interface_adapter.http_api.treasury import TreasuryHandler
+from src.interface_adapter.http_api.vlan import VLANHandler
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
+
+from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.account_repository import AccountSQLRepository
 from src.interface_adapter.sql.account_type_repository import AccountTypeSQLRepository
 from src.interface_adapter.sql.cashbox_repository import CashboxSQLRepository
@@ -35,8 +41,6 @@ from src.interface_adapter.sql.device_repository import DeviceSQLRepository
 from src.interface_adapter.sql.ip_allocator import IPSQLAllocator
 from src.interface_adapter.sql.member_repository import MemberSQLRepository
 from src.interface_adapter.sql.membership_repository import MembershipSQLRepository
-from src.interface_adapter.sql.model.database import Database
-
 from src.interface_adapter.sql.payment_method_repository import PaymentMethodSQLRepository
 from src.interface_adapter.sql.ping_repository import PingSQLRepository
 from src.interface_adapter.sql.port_repository import PortSQLRepository
@@ -44,7 +48,8 @@ from src.interface_adapter.sql.product_repository import ProductSQLRepository
 from src.interface_adapter.sql.room_repository import RoomSQLRepository
 from src.interface_adapter.sql.switch_repository import SwitchSQLRepository
 from src.interface_adapter.sql.transaction_repository import TransactionSQLRepository
-from src.resolver import ADHResolver
+from src.interface_adapter.sql.vlan_repository import VLANSQLRepository
+
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
 from src.use_case.bug_report_manager import BugReportManager
@@ -59,6 +64,7 @@ from src.use_case.room_manager import RoomManager
 from src.use_case.stats_manager import StatsManager
 from src.use_case.switch_manager import SwitchManager
 from src.use_case.transaction_manager import TransactionManager
+from src.use_case.vlan_manager import VLANManager
 
 def init_managers(configuration, testing=False) -> Tuple[
     HealthManager,
@@ -99,6 +105,7 @@ def init_managers(configuration, testing=False) -> Tuple[
         12: PortManager
         13: SwitchManager
         14: SwitchSNMPNetworkManager
+        15: VLANManager
         [All the managers used in the application]
     """
     # Repositories:
@@ -163,7 +170,8 @@ def init_managers(configuration, testing=False) -> Tuple[
         SwitchManager(
             switch_repository=SwitchSQLRepository(),
         ),
-        SwitchSNMPNetworkManager()
+        SwitchSNMPNetworkManager(),
+        VLANManager(VLANSQLRepository())
     )
 
 
@@ -208,7 +216,8 @@ def init_handlers(configuration, testing=False):
         DeviceHandler(managers[3]),
         PortHandler(managers[12], managers[13], managers[14]),
         BugReportHandler(managers[2]),
-        TreasuryHandler(managers[5], managers[7])
+        TreasuryHandler(managers[5], managers[7]),
+        VLANHandler(managers[15])
     )
 
 
@@ -238,7 +247,8 @@ def init(testing=True, managing=True) -> Tuple[FlaskApp, Migrate]:
         device_handler,
         port_handler,
         bug_report_handler,
-        treasury_handler
+        treasury_handler,
+        vlan_handler
     ) = init_handlers(configuration, testing)
 
     # Connexion will use this function to authenticate and fetch the information of the user.
@@ -264,6 +274,7 @@ def init(testing=True, managing=True) -> Tuple[FlaskApp, Migrate]:
             'product': product_handler,
             'bug_report': bug_report_handler,
             'treasury': treasury_handler,
+            'vlan': vlan_handler
         }),
         validate_responses=True,
         strict_validation=True,
