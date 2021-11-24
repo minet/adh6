@@ -1,42 +1,38 @@
-<div class="d-flex align-items-center" >
-  <main role="main" class="container">
-    <div id="content" class="row">
-      <div class="col-md-6 offset-md-3">
-        <div class="card">
-          <div class="card-header text-center">
-            <img src="https://minet.net/res/img/minet.png" class="img-fluid">
-            <div class="alert alert-danger text-center" role="alert">
-              Portail captif (page recotisation) en construction ! Suivez le développement <a href="https://gitlab.minet.net/adh6/core/blob/portail_captif/frontend_angular/src/app/cotisant-recotisation/" class="alert-link">ici</a> !
-            </div>
-          </div>
-          <form>
-            <div class="form-row">
-              <div class="form-group offset-md-1">
-                <label for="InputLogin" class="text-center"> Login Minet </label>
-                <input type="text" class="form-control" id="InputLogin" placeholder="{{adherent.username}}">
-              </div>
-
-              <div class="form-group offset-md-1">
-                <label for="InputChambre" class="text-center"> Numéro de chambre/ Room Number</label>
-                <input type="text" class="form-control w-auto" id="InputChambre" placeholder="{{room}}">
-              </div>
-            </div>
-              <div class="form-group offset-md-1">
-                <label for="inputDureecotisation">Durée d'adhésion / Subscription duration</label>
-                <select id="inputDureecotisation" class="form-control">
-                  <option value="360">Sans chambre - 9 € - {{ setDate(1) | date:'d/MM/yyyy'}}</option>
-                  <option value="30">1 mois - 9 € - {{ setDate(1) | date:'d/MM/yyyy'}}</option>
-                  <option value="60">2 mois - 18 € - {{ setDate(2) | date:'d/MM/yyyy'}}</option>
-                  <option value="90">3 mois - 27 € - {{ setDate(3) | date:'d/MM/yyyy'}}</option>
-                  <option value="120">4 mois - 36 € - {{ setDate(4) | date:'d/MM/yyyy'}}</option>
-                  <option value="150">5 mois - 45 € - {{ setDate(5) | date:'d/MM/yyyy'}}</option>
-                  <option value="365">1 an - 50 € - {{ setDate(12) | date:"d/MM/yyyy"}}</option></select>
-              </div>
-          </form>
-
-          <button class="btn btn-primary w-100" > Costiser / Suscribe</button>
+<h3>Cotisation</h3>
+<form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
+  <div class="form-group">
+    <label>Renouvellement pour</label>
+    <select (change)="updateAmount()" class="w-100 form-control" formControlName="renewal" type="text">
+      <option value="0">Aucun</option>
+      <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
+      <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
+      <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
+      <option value="3">3 mois (27€) - {{ formatDate(3) }}</option>
+      <option value="4">4 mois (36€) - {{ formatDate(4) }}</option>
+      <option value="5">5 mois (45€) - {{ formatDate(5) }}</option>
+      <option value="6">1 an (50€) - {{ formatDate(12) }}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Matériel à ajouter</label>
+    <ng-container *ngIf="products$ | async as products">
+      <ng-container *ngFor="let product of products; let i = index" formArrayName="products">
+        <div class="form-check" [formGroupName]="i">
+          <input formControlName="checked" (change)="updateAmount()" class="form-check-input" type="checkbox" value="">
+          <label class="form-check-label" for="checked">
+            {{product.name}} ({{product.sellingPrice}} €)
+          </label>
         </div>
-      </div>
-    </div>
-  </main>
-</div>
+      </ng-container>
+    </ng-container>
+  </div>
+  <div class="form-group">
+    <label>Payer par (montant : {{ amountToPay }} €)</label>
+    <select class="w-100 form-control" formControlName="paidWith" type="text">
+      <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <button class="w-100 btn btn-success mt-3" type="submit" [disabled]="cotisation">Valider</button>
+  </div>
+</form>
