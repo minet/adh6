@@ -49,7 +49,7 @@
       <tr>
         <td class="profile-field">Chambre</td>
         <td class="pb-2">
-          <ng-container *ngIf="member.room.id; else elseNoRoom">
+          <ng-container *ngIf="member.room != null; else elseNoRoom">
             <a [routerLink]='["/room/view/", member.room.id]'>
               <button [disabled]="member.room.id == null" class="btn btn-primary">
                 {{ member.room.roomNumber }}
@@ -57,14 +57,27 @@
             </a>
           </ng-container>
           <ng-template #elseNoRoom>
-            <button [disabled]="true" class="btn btn-danger">
-              Aucune
+            <button class="btn btn-warning" (click)="collapseMoveIn()">
+              Emmenager
             </button>
           </ng-template>
         </td>
       </tr>
       </tbody>
     </table>
+
+    <div *ngIf="moveIn">
+      <h3>Emmenagement</h3>
+      <form (ngSubmit)="submitRoom()" [formGroup]="moveInForm">
+        <div class="form-group">
+          <label>Numéro de Chambre</label>
+          <input class="w-100 form-control" formControlName="roomNumber" type="number"/>
+        </div>
+        <div class="form-group">
+          <button class="w-100 btn btn-success mt-3" type="submit" [disabled]="moveInDisabled">Valider</button>
+        </div>
+      </form>
+    </div>
 
     <div class="row mt-3">
       <div class="col-md-12">
@@ -106,7 +119,6 @@
     <div *ngIf="cotisation">
       <ng-container *ngIf="latestMembership$ | async as latestMembership">
         <ng-container *ngIf="member_id$ | async as memberId">
-          {{latestMembership | json}}
           <app-cotisation (membershipUpdated)="refreshMembership($event)" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
         </ng-container>
       </ng-container>
