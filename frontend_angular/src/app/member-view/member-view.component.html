@@ -57,7 +57,7 @@
             </a>
           </ng-container>
           <ng-template #elseNoRoom>
-            <button [disabled]="member.room.id == null" class="btn btn-primary">
+            <button [disabled]="true" class="btn btn-danger">
               Aucune
             </button>
           </ng-template>
@@ -105,15 +105,14 @@
     </div>
 
     
-    <ng-container *ngIf="latestMembership$ | async as latestMembership">
-      <div *ngIf="cotisation">
+    <div *ngIf="cotisation">
+      <ng-container *ngIf="latestMembership$ | async as latestMembership">
         <h3>Cotisation</h3>
         {{ subscriptionForm | json }}
         <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
           <div class="form-group">
             <label>Renouvellement pour</label>
-            <select (change)="updateAmount()" class="w-100 form-control"
-                    formControlName="renewal" type="text">
+            <select (change)="updateAmount()" class="w-100 form-control" formControlName="renewal" type="text">
               <option value="0">Aucun</option>
               <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
               <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
@@ -139,8 +138,7 @@
           </div>
           <div class="form-group">
             <label>Payer par (montant : {{ amountToPay }} €)</label>
-            <select class="w-100 form-control" formControlName="paidBy"
-                    type="text">
+            <select class="w-100 form-control" formControlName="paidBy" type="text">
               <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
             </select>
           </div>
@@ -148,8 +146,8 @@
             <button class="w-100 btn btn-success mt-3" type="submit">Valider</button>
           </div>
         </form>
-      </div>
-    </ng-container>
+      </ng-container>
+    </div>
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
     <hr/>
 
