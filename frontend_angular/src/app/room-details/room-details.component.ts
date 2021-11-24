@@ -5,6 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-room-details',
@@ -28,6 +29,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   private sub: any;
 
   constructor(
+    private location: Location,
     private notif: NotificationsService,
     private router: Router,
     public roomService: RoomService,
@@ -42,7 +44,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   createForm() {
     this.ngOnInit();
     this.roomForm = this.fb.group({
-      roomNumberNew: ['', [Validators.min(0), Validators.max(9999), Validators.required]],
+      roomNumberNew: ['', [Validators.min(-1), Validators.max(9999), Validators.required]],
     });
     this.EmmenagerForm = this.fb.group({
       username: ['', [Validators.minLength(6), Validators.maxLength(20), Validators.required]],
@@ -125,9 +127,10 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
         }
         const member: Member = members[0];
 
-        this.memberService.memberMemberIdPatch(<AbstractMember>{room: undefined}, member.id, 'response')
+        this.memberService.memberMemberIdPatch(<AbstractMember>{room: -1}, member.id, 'response')
           .subscribe((response) => {
             this.refreshInfo();
+            this.location.back();
             this.notif.success(response.status + ': Success');
           });
       });
