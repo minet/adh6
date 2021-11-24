@@ -10,7 +10,7 @@ class VLANRepository(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_vlan(self, ctx, vlan_number) -> Vlan:
+    def get_vlan(self, ctx, vlan_number: int) -> Vlan:
         """
         Get a VLAN.
 

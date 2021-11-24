@@ -1,10 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
-import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService} from '../api';
+import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember} from '../api';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
 import {Utils} from '../utils';
+import { NotificationsService } from 'angular2-notifications';
 
 @Component({
   selector: 'app-member-details',
@@ -22,9 +23,13 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
   newMembershipDisabled = false;
+  public moveIn: boolean = false;
+  public moveInDisabled: boolean = false;
+
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
   private commentForm: FormGroup;
+  private moveInForm: FormGroup;
   private deviceForm: FormGroup;
   private selectedDevice: string;
   private content: string;  // for log formatting
@@ -39,11 +44,13 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   constructor(
     public memberService: MemberService,
     public membershipService: MembershipService,
+    public roomService: RoomService,
     public deviceService: DeviceService,
     public transactionService: TransactionService,
     public accountService: AccountService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
+    private notif: NotificationsService,
   ) {
     this.createForm();
   }
@@ -147,6 +154,9 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.deviceForm = this.fb.group({
       mac: ['01-23-45-76-89-AB', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
       connectionType: ['wired', Validators.required],
+    });
+    this.moveInForm = this.fb.group({
+      roomNumber: ['', [Validators.required, Validators.min(-1), Validators.max(9999)]]
     });
   }
 
@@ -283,5 +293,31 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
   refreshMembership(memberId: number): void {
     this.latestMembership$ = this.membershipService.getLatestMembership(memberId);
+  }
+
+  collapseMoveIn(): void {
+    this.moveIn = !this.moveIn;
+  }
+
+  submitRoom(): void {
+    const v = this.moveInForm.value;
+    this.member_id$
+      .subscribe(memberId => {
+        this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: +v.roomNumber})
+          .subscribe(rooms => {
+            if (rooms.length == 0) {
+              this.notif.alert("404: No Room", "There is no room with this number");
+              return;
+            }
+            const room: Room = rooms[0];
+
+            this.memberService.memberMemberIdPatch(<AbstractMember>{room: room.id}, memberId, 'response')
+              .subscribe((response) => {
+                this.refreshInfo();
+                this.moveIn = false;
+                this.notif.success(response.status + ': Success');
+              })
+          })
+      })
   }
 }

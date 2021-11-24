@@ -2,9 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService} from '../api';
+import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom} from '../api';
 import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-room-details',
@@ -28,6 +29,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   private sub: any;
 
   constructor(
+    private location: Location,
     private notif: NotificationsService,
     private router: Router,
     public roomService: RoomService,
@@ -42,10 +44,10 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   createForm() {
     this.ngOnInit();
     this.roomForm = this.fb.group({
-      roomNumberNew: ['', [Validators.min(1000), Validators.max(9999), Validators.required]],
+      roomNumberNew: ['', [Validators.min(-1), Validators.max(9999), Validators.required]],
     });
     this.EmmenagerForm = this.fb.group({
-      username: ['', [Validators.minLength(7), Validators.maxLength(8), Validators.required]],
+      username: ['', [Validators.minLength(6), Validators.maxLength(20), Validators.required]],
     });
   }
 
@@ -90,32 +92,45 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   onSubmitMoveRoom(username) {
     const v = this.roomForm.value;
 
-    this.memberService.memberGet(1, 0, username)
-      .pipe(takeWhile(() => this.alive))
-      .subscribe((member_list) => {
-        const member: Member = member_list[0];
-        member.room = v.roomNumberNew;
-        this.memberService.memberMemberIdPut(member, member.id, 'response')
-          .pipe(takeWhile(() => this.alive))
-          .subscribe((response) => {
-            this.refreshInfo();
-            this.onDemenager(username);
-            this.router.navigate(['room', v.roomNumberNew]);
-            this.notif.success(response.status + ': Success');
+    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: v.roomNumberNew})
+      .subscribe(rooms => {
+        if (rooms.length == 0) {
+          this.notif.alert("404", "The room does not exists");
+          return
+        }
+        const room: Room = rooms[0];
+        this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
+          .subscribe((members) => {
+            if (members.length == 0) {
+              this.notif.alert("404", "The member " + username + " does not exists");
+              return
+            }
+            const member: Member = members[0];
+            console.log(member);
+            this.memberService.memberMemberIdPatch(<AbstractMember>{room: room.id}, member.id, 'response')
+              .subscribe((response) => {
+                this.refreshInfo();
+                this.onDemenager(username);
+                this.router.navigate(['room', v.roomNumberNew]);
+                this.notif.success(response.status + ': Success');
+              });
           });
-      });
+      })
   }
 
   onRemoveFromRoom(username) {
-    this.memberService.memberGet(1, 0, username)
-      .pipe(takeWhile(() => this.alive))
-      .subscribe((member_list) => {
-        const member: Member = member_list[0];
-        member.room = null;
-        this.memberService.memberMemberIdPut(member, member.id, 'response')
-          .pipe(takeWhile(() => this.alive))
+    this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
+      .subscribe((members) => {
+        if (members.length == 0) {
+          this.notif.alert("404", "The member " + username + " does not exists");
+          return
+        }
+        const member: Member = members[0];
+
+        this.memberService.memberMemberIdPatch(<AbstractMember>{room: -1}, member.id, 'response')
           .subscribe((response) => {
             this.refreshInfo();
+            this.location.back();
             this.notif.success(response.status + ': Success');
           });
       });

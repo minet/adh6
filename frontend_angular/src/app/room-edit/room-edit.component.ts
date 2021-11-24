@@ -1,11 +1,12 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 
-import {Room, RoomService} from '../api';
+import {Room, RoomService, VlanService} from '../api';
 import {NotificationsService} from 'angular2-notifications';
-import {switchMap, takeWhile} from 'rxjs/operators';
+import {finalize, first, switchMap, tap} from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-room-edit',
@@ -13,16 +14,14 @@ import {switchMap, takeWhile} from 'rxjs/operators';
   styleUrls: ['./room-edit.component.css']
 })
 
-export class RoomEditComponent implements OnInit, OnDestroy {
-
-  disabled = false;
-  roomNumber: number;
-  roomEdit: FormGroup;
-  private alive = true;
-  private room: Room;
+export class RoomEditComponent implements OnInit {
+  public disabled = false;
+  public roomEdit: FormGroup;
+  public room$: Observable<Room>;
 
   constructor(
-    public roomService: RoomService,
+    private roomService: RoomService,
+    private vlanService: VlanService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
@@ -34,43 +33,44 @@ export class RoomEditComponent implements OnInit, OnDestroy {
   createForm() {
     this.disabled = false;
     this.roomEdit = this.fb.group({
-      roomNumber: ['', [Validators.min(1000), Validators.max(9999), Validators.required]],
-      vlan: ['', [Validators.min(0), Validators.max(100), Validators.required]],
+      id: ['', [Validators.required]],
+      roomNumber: ['', [Validators.min(0), Validators.max(9999), Validators.required]],
+      vlan: ['', [Validators.min(41), Validators.max(49), Validators.required]],
       description: ['', Validators.required],
     });
   }
 
   onSubmit() {
-    this.disabled = true;
     const v = this.roomEdit.value;
-    const room: Room = {
-      roomNumber: v.roomNumber,
-      vlan: v.vlan,
-      description: v.description
-    };
-    this.roomService.roomRoomIdPut(room, v.id, 'response')
-      .pipe(takeWhile(() => this.alive))
-      .subscribe((response) => {
-        this.router.navigate(['/room/view', v.roomNumber]);
-        this.notif.success('Success');
+    this.vlanService.getFromNumber(v.vlan)
+      .pipe(
+        first(() => this.disabled = true),
+        finalize(() => this.disabled = false)
+      )
+      .subscribe(vlan => {
+        const room: Room = {
+          roomNumber: v.roomNumber,
+          vlan: vlan.id,
+          description: v.description
+        };
+        this.roomService.roomRoomIdPut(room, v.id)
+          .subscribe(() => {
+            this.router.navigate(['/room/view', v.roomNumber]);
+            this.notif.success('Success');
+          });
       });
-    this.disabled = false;
   }
 
   ngOnInit() {
-    this.route.paramMap
+    this.room$ = this.route.paramMap
       .pipe(
         switchMap((params: ParamMap) => this.roomService.roomRoomIdGet(+params.get('room_id'))),
-        takeWhile(() => this.alive),
-      )
-      .subscribe((room: Room) => {
-        this.room = room;
-        this.roomEdit.patchValue(room);
-      });
+        tap(room => this.roomEdit.patchValue({
+          id: room.id,
+          roomNumber: room.roomNumber,
+          description: room.description,
+          vlan: (typeof(room.vlan) === 'number') ? room.vlan : room.vlan.number
+        }))
+      );
   }
-
-  ngOnDestroy() {
-    this.alive = false;
-  }
-
 }

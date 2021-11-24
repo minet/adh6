@@ -11,23 +11,19 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy import or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.null import Null
 from src.entity.port import Port
 from src.entity.switch import Switch
-from src.entity.vlan import Vlan
-from src.exceptions import SwitchNotFoundError, PortNotFoundError, VLANNotFoundError, RoomNotFoundError
+from src.exceptions import SwitchNotFoundError, PortNotFoundError, RoomNotFoundError
 from src.interface_adapter.sql.model.models import Chambre
 from src.interface_adapter.sql.model.models import Port as PortSQL
 from src.interface_adapter.sql.model.models import Switch as SwitchSQL
-from src.interface_adapter.sql.model.models import Vlan as VlanSQL
 from src.use_case.interface.port_repository import PortRepository
 from src.use_case.interface.switch_repository import SwitchRepository
-from src.use_case.interface.vlan_repository import VLANRepository
 from src.util.context import log_extra
 from src.util.log import LOG
 
 
-class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepository):
+class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
 
     def search_switches_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, switch_id: str = None,
                            terms: str = None) -> Tuple[List[Switch], int]:
@@ -226,30 +222,6 @@ class NetworkObjectSQLRepository(PortRepository, VLANRepository, SwitchRepositor
             raise PortNotFoundError(port_id)
 
         session.delete(port)
-
-    def get_vlan(self, ctx, vlan_number) -> Vlan:
-        """
-        Get a VLAN.
-
-        :raise VlanNotFound
-        """
-        LOG.debug("sql_network_object_repository_get_vlan", extra=log_extra(ctx, vlan_number=vlan_number))
-
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        result = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
-        if not result:
-            raise VLANNotFoundError(vlan_number)
-
-        return _map_vlan_sql_to_entity(result)
-
-
-def _map_vlan_sql_to_entity(r: VlanSQL) -> Vlan:
-    return Vlan(
-        id=r.id,
-        number=r.numero,
-        ipv4_network=r.adresses or Null(),
-        ipv6_network=r.adressesv6 or Null(),
-    )
 
 
 def _map_switch_sql_to_entity(r: SwitchSQL) -> Switch:

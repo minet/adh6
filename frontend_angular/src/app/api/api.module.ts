@@ -13,6 +13,7 @@ import { RoomService } from './api/room.service';
 import { SwitchService } from './api/switch.service';
 import { TransactionService } from './api/transaction.service';
 import { TreasuryService } from './api/treasury.service';
+import { VlanService } from './api/vlan.service';
 
 @NgModule({
   imports:      [],
@@ -28,7 +29,8 @@ import { TreasuryService } from './api/treasury.service';
     RoomService,
     SwitchService,
     TransactionService,
-    TreasuryService ]
+    TreasuryService,
+    VlanService ]
 })
 export class ApiModule {
     public static forRoot(configurationFactory: () => Configuration): ModuleWithProviders<ApiModule> {
