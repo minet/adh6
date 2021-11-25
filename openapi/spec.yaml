@@ -1137,14 +1137,12 @@ paths:
       tags:
       - port
     put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: boolean
-        required: true
       responses:
-        204:
+        200:
+          content:
+            application/json:
+              schema:
+                type: boolean
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
@@ -1270,14 +1268,12 @@ paths:
       tags:
       - port
     put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: boolean
-        required: true
       responses:
-        204:
+        200:
+          content:
+            application/json:
+              schema:
+                type: boolean
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'
@@ -1319,15 +1315,12 @@ paths:
       tags:
       - port
     put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: boolean
-        description: The new state of the port
-        required: true
       responses:
-        204:
+        200:
+          content:
+            application/json:
+              schema:
+                type: boolean
           description: Updated
         400:
           $ref: '#/components/responses/Invalid'

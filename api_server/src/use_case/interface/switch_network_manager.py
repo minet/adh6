@@ -23,7 +23,7 @@ class SwitchNetworkManager(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_status(self, ctx, switch: Switch = None, port: Port = None, status=None) -> None:
+    def update_port_status(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update the status of a port.
 
@@ -41,7 +41,7 @@ class SwitchNetworkManager(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> None:
+    def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> str:
         """
         Update the VLAN assigned to a port.
 
@@ -59,7 +59,7 @@ class SwitchNetworkManager(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_mab(self, ctx, switch: Switch = None, port: Port = None, mab=None) -> None:
+    def update_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update whether MAB should be active on a port.
 
