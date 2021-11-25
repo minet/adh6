@@ -32,7 +32,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    def update_port_status(self, ctx, switch: Switch = None, port: Port = None, status=None) -> None:
+    def update_port_status(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update the status of a port.
 
@@ -73,7 +73,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> None:
+    def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> str:
         """
         Update the VLAN assigned to a port.
 
@@ -113,7 +113,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    def update_port_mab(self, ctx, switch: Switch = None, port: Port = None, mab=None) -> None:
+    def update_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update whether MAB should be active on a port.
 
@@ -157,7 +157,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    def update_port_auth(self, ctx, switch: Switch = None, port: Port = None, auth=None) -> None:
+    def update_port_auth(self, ctx, switch: Switch = None, port: Port = None) -> None:
         """
         Update whether MAB should be active on a port.
 

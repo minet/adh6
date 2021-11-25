@@ -41,12 +41,11 @@ class PortHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def state_put(self, ctx, port_id, body):
+    def state_put(self, ctx, port_id):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            self.switch_network_manager.update_port_status(ctx, switch, port)
-            return NoContent, 204
+            return self.switch_network_manager.update_port_status(ctx, switch, port) == "up", 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -77,7 +76,6 @@ class PortHandler(DefaultHandler):
         LOG.debug("http_port_vlan_put_called", extra=log_extra(ctx, port_id=port_id))
 
         try:
-            print(port_id, body)
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
 
@@ -109,13 +107,12 @@ class PortHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def mab_put(self, ctx, port_id, body):
+    def mab_put(self, ctx, port_id):
         #return NoContent, 501
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            self.switch_network_manager.update_port_mab(ctx, switch, port)
-            return NoContent, 204
+            return self.switch_network_manager.update_port_mab(ctx, switch, port) == 'true', 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:
@@ -145,8 +142,7 @@ class PortHandler(DefaultHandler):
         try:
             port = self.port_manager.get_by_id(ctx, port_id=port_id)
             switch = self.switch_manager.get_by_id(ctx, switch_id=port.switch_obj.id)
-            self.switch_network_manager.update_port_auth(ctx, switch, port)
-            return NoContent,204
+            return self.switch_network_manager.update_port_auth(ctx, switch, port) == "auto", 200
         except SwitchNotFoundError:
             return NoContent, 404
         except PortNotFoundError:

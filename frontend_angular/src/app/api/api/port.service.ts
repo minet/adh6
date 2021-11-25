@@ -286,20 +286,15 @@ export class PortService {
     /**
      * Update the state of authentication on a port
      * 
-     * @param body 
      * @param portId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdAuthPut(body: boolean, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdAuthPut(body: boolean, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling portPortIdAuthPut.');
-        }
+    public portPortIdAuthPut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portPortIdAuthPut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portPortIdAuthPut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portPortIdAuthPut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (portId === null || portId === undefined) {
             throw new Error('Required parameter portId was null or undefined when calling portPortIdAuthPut.');
@@ -326,17 +321,11 @@ export class PortService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
             {
-                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -450,20 +439,15 @@ export class PortService {
     /**
      * Update the state of MAB on a port
      * 
-     * @param body 
      * @param portId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdMabPut(body: boolean, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdMabPut(body: boolean, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdMabPut(body: boolean, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdMabPut(body: boolean, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling portPortIdMabPut.');
-        }
+    public portPortIdMabPut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portPortIdMabPut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portPortIdMabPut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portPortIdMabPut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (portId === null || portId === undefined) {
             throw new Error('Required parameter portId was null or undefined when calling portPortIdMabPut.');
@@ -490,17 +474,11 @@ export class PortService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/mab/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/mab/`,
             {
-                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -573,20 +551,15 @@ export class PortService {
     /**
      * Update the state of a port
      * 
-     * @param body The new state of the port
      * @param portId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdStatePut(body: boolean, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdStatePut(body: boolean, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdStatePut(body: boolean, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdStatePut(body: boolean, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling portPortIdStatePut.');
-        }
+    public portPortIdStatePut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portPortIdStatePut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portPortIdStatePut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portPortIdStatePut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (portId === null || portId === undefined) {
             throw new Error('Required parameter portId was null or undefined when calling portPortIdStatePut.');
@@ -613,17 +586,11 @@ export class PortService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'application/json'
         ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/state/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/state/`,
             {
-                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
