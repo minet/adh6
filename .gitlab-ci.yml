@@ -140,7 +140,8 @@ deploy_prod_backend:
     - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
-    - python3 manage.py db upgrade
+    - export FLASK_APP=manage:manager
+    - flask db upgrade
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
     - sudo rm /etc/uwsgi/vassals/adh6_api.ini
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
