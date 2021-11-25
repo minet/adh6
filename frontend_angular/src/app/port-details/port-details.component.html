@@ -5,8 +5,7 @@
   <div class="row">
     <div class="col-4">
 
-      <button class="w-100 btn btn-primary" [disabled]="port.room == null"
-              (click)="IfRoomExists(port.room)">
+      <button class="w-100 btn btn-primary" [disabled]="port.room == null"(click)="IfRoomExists(port.room)">
         <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.roomNumber]" style="color:white;">Chambre {{ port.room.roomNumber }}</a>
         <a *ngIf="port.room == null">Aucune chambre</a>
       </button>
@@ -23,27 +22,21 @@
   <a> {{portUseString}}</a>
   <div class=row>
     <div class="col-4">
-      <button class="w-100 btn"
-              [ngClass]="{true:'btn-success',
-    false:'btn-danger'}[portStatus]"
-              (click)="toggleStatus()"
-      >Port : {{ portStatusString }}
+      <button class="w-100 btn" [ngClass]="{true:'btn-success', false:'btn-danger'}[(status$ | async)]" (click)="toggleStatus()">
+        Port : {{ getStatus((status$ | async)) }}
       </button>
     </div>
     <div class="col-4">
-      <button class="w-100 btn btn-primary"
-              [ngClass]="{true:'btn-success',
-      false:'btn-danger'}[portAuth]"
-              (click)="toggleAuth()"
-      >Authentification : {{ portAuthString }}
+      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[(auth$|async)]" (click)="toggleAuth()">
+        Authentification : {{ getAuth((auth$ | async)) }}
       </button>
     </div>
   </div>
-  <div class=row>
+  <div class="row">
     <div class="col-4">
-      <strong>VLAN {{ vlan }}</strong><br/>
+      <strong>VLAN {{ (vlan$ | async) }}</strong><br/>
       <button class="w-100 btn btn-primary" (click)="changeVlanVisible = !changeVlanVisible">Changer de VLAN</button>
-      <div [ngStyle]="{'visibility': changeVlanVisible?'visible':'hidden'}">
+      <div *ngIf="changeVlanVisible">
         <select [(ngModel)]="selectedVlan">
           <option *ngFor="let v of vlans" [ngValue]="v.value">{{ v.name }}</option>
         </select>
@@ -57,11 +50,8 @@
     </div>
     <div class="col-4">
       <strong>MAB</strong><br/>
-            <button class="w-100 btn btn-primary"
-              [ngClass]="{true:'btn-success',
-      false:'btn-danger'}[portMab]"
-              (click)="toggleMabStatus()"
-      >MAB : {{ portMabString }}
+      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[(mab$ | async)]" (click)="toggleMAB()">
+        MAB : {{ getMABStatus((mab$ | async)) }}
       </button>
     </div>
   </div>
