@@ -106,13 +106,11 @@ deploy_dev:
     - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
   only:
     - master
+  tags:
+    - dev
   environment:
     name: development
     url: https://adh6-dev.minet.net/
-  tags:
-    - dev
-  only:
-    - master
 
 deploy_prod_front:
   stage: deploy
