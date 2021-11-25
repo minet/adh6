@@ -1,9 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, tap} from 'rxjs';
 import {PortService} from '../api';
 import {Port} from '../api';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationsService} from 'angular2-notifications';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-port-details',
@@ -11,21 +12,13 @@ import {NotificationsService} from 'angular2-notifications';
   styleUrls: ['./port-details.component.css']
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
-
+  vlanForm: FormGroup;
   port$: Observable<Port>;
   portID: number;
   switchID: number;
 
-  vlans = [
-    {'name': '1', 'value': '1'},
-    {'name': 'dev: 103', 'value': '103'},
-    {'name': 'prod: 102', 'value': '102'},
-    {'name': '999', 'value': '999'}
-  ];
-
-  vlan: number;
   changeVlanVisible = false;
-  selectedVlan = '1';
+  selectedVlan: number = 1;
 
   portAliasString: string;
   portSpeed: string ;
@@ -39,11 +32,23 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   public vlan$: Observable<number>;
 
   constructor(
-    public portService: PortService,
+    private portService: PortService,
+    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private notif: NotificationsService,
-  ) {
+  ) { 
+    this.createForm();
+  }
+
+  createForm(): void {
+    this.vlanForm = this.fb.group({
+      vlanNumber: [1, [Validators.required, Validators.min(1), Validators.max(4096)]]
+    })
+  }
+
+  get newVlanNumber(): number {
+    return this.vlanForm.value.vlanNumber as number;
   }
 
   getUse(state: string): string {
@@ -53,10 +58,13 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     return (state) ? 'OUVERT' : 'FERMÉ';
   }
   getAuth(state: boolean): string {
-    return (state) ? 'ACTIVÉ' : 'DESACTIVÉ';
+    return (state) ? 'ACTIVÉ' : 'DÉSACTIVÉ';
   }
   getMABStatus(state: boolean): string {
-    return (state) ? 'ACTIVÉ' : 'DEACTIVÉ';
+    return (state) ? 'ACTIVÉ' : 'DÉSACTIVÉ';
+  }
+  getAction(state: boolean): string {
+    return (state) ? 'ACTIVER' : 'DÉSACTIVER';
   }
 
   public toggleStatus(): void {
@@ -71,10 +79,17 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.auth$ = this.portService.portPortIdAuthPut(this.portID);
   }
 
-  changeVlan(newVlan) {
-    this.portService.portPortIdVlanPut(newVlan, this.portID)
+  toogleVLANForm() {
+    this.changeVlanVisible = !this.changeVlanVisible;
+  }
+
+  submitVLAN() {
+    const v = this.vlanForm.value;
+    this.portService.portPortIdVlanPut(v.vlanNumber, this.portID)
       .subscribe(() => {
         this.vlan$ = this.portService.vlanGet(this.portID);
+        this.notif.success('VLAN assigned');
+        this.toogleVLANForm();
       });
   }
 
@@ -106,7 +121,10 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.status$ = this.portService.stateGet(this.portID);
     this.mab$ = this.portService.mabGet(this.portID);
     this.use$ = this.portService.useGet(this.portID);
-    this.vlan$ = this.portService.vlanGet(this.portID);
+    this.vlan$ = this.portService.vlanGet(this.portID)
+      .pipe(
+        tap(vlan => this.vlanForm.patchValue({vlanNumber: vlan}))
+      );
     this.portService.aliasGet(this.portID)
       .subscribe((alias) => {
         this.portAliasString = alias;
