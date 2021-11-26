@@ -1,7 +1,7 @@
  import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {AbstractPort, ModelSwitch, Port, PortService, SwitchService} from '../api';
-import {map, share} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-switch-local',

@@ -57,8 +57,9 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "extractCss": true,
-              "namedChunks": false,
+              "extractCss": false,
+              "namedChunks": true,
+              "sourceMap": true,
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -66,8 +67,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "200kb",
+                  "maximumError": "700kb"
                 },
                 {
                   "type": "anyComponentStyle",
