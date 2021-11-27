@@ -16,12 +16,10 @@
              style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
         <!-- Association button -->
         <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
-        <!-- History -->
         <ng-container *ngIf="latestMembership$ | async as latestMembership">
-          <button class="btn btn-danger w-100 association-button mt-3" *ngIf="checkMembershipStatus(latestMembership.status)" disabled>{{statusToText[latestMembership.status]}}</button>
+          <button class="w-100 btn btn-success mt-3" (click)="validatePayment(latestMembership.uuid, latestMembership.status, member.id)" *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
         </ng-container>
       </div>
-
     </div>
   </div>
 
@@ -78,18 +76,6 @@
         </div>
       </form>
     </div>
-
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <!-- Put roles to hide this to a member -->
-        <ng-container *ngIf="latestMembership$ | async as latestMembership">
-          <button class="w-100 btn btn-primary mb-3" (click)="signCharter()" *ngIf="">Signer la charte</button>
-          <button class="w-100 btn btn-primary mb-3" (click)="newMembership(member.id)" *ngIf="!checkMembershipStatus(latestMembership.status) || newMembershipDisabled">Nouvelle Inscription</button>
-          <button class="w-100 btn btn-success mb-3" (click)="actionMembershipStatus(latestMembership.uuid, latestMembership.status, member.id)" *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider Paiement</button>
-        </ng-container>
-      </div>
-    </div>
-
     <div class="row mt-3">
       <div class="col-md-6">
         <a [routerLink]="['/member/edit/', member.id ]">
@@ -97,23 +83,28 @@
         </a>
       </div>
       <div class="col-md-6">
+        <button [routerLink]="['/account/search' ]" [queryParams]="{ member: member.id }" class="w-100 btn btn-primary mb-3">
+          Comptes liés
+        </button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
         <a [routerLink]="['/member/password/', member.id ]">
           <button class="w-100 btn btn-danger mb-3">Changer mot de passe</button>
         </a>
       </div>
-    </div>
-
-    <div class="row">
-      <ng-container *ngIf="latestMembership$ | async as latestMembership">
-        <div class="col-md-6">
-          <button (click)="toggleCotisationMenu()" class="w-100 btn btn-primary mb-3">Cotiser</button>
-        </div>
-      </ng-container>
-
       <div class="col-md-6">
-        <button [routerLink]="['/account/search' ]" [queryParams]="{ member: member.id }" class="w-100 btn btn-primary mb-3">
-          Comptes liés
-        </button>
+        <ng-container *ngIf="latestMembership$ | async as latestMembership; else waitingMembership">
+          <a [routerLink]="['charter']">
+            <button class="w-100 btn btn-danger mb-3" *ngIf="latestMembership.status == 'PENDING_RULES'">Signer la charte</button>
+          </a>
+          <button class="w-100 btn btn-success mb-3" (click)="newMembership(member.id)" *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Nouvelle Inscription</button>
+          <button class="w-100 btn btn-primary mb-3" (click)="toggleCotisationMenu()" *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE' && latestMembership.status != 'PENDING_RULES'">Cotiser / Recotiser</button>
+        </ng-container>
+        <ng-template #waitingMembership>
+          <button class="w-100 btn btn-primary mb-3" disabled>Attente...</button>
+        </ng-template>
       </div>
     </div>
     <div *ngIf="cotisation">
