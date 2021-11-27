@@ -22,8 +22,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     RouterModule.forChild([
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: PortListComponent},
-      {path: 'port/:switch_id/:port_id', component: PortDetailsComponent},
-      {path: 'port/:switch_id/add', component: PortNewComponent},
+      {path: ':switch_id/:port_id', component: PortDetailsComponent},
+      {path: ':switch_id/add', component: PortNewComponent},
     ]),
     NgxPaginationModule,
   ]

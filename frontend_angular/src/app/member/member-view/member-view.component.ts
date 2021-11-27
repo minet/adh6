@@ -4,7 +4,6 @@ import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
 import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember} from '../../api';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import {Utils} from '../../utils';
 import { NotificationsService } from 'angular2-notifications';
 
 @Component({
