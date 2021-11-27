@@ -222,7 +222,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     }
 
     const v = this.deviceForm.value;
-    const mac = Utils.sanitizeMac(v.mac);
+    const mac = v.mac.toLowerCase().replace(/[^a-f0-9]+/g, '-');
 
     const device: AbstractDevice = {
       mac: mac,
