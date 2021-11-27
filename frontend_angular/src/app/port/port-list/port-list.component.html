@@ -9,27 +9,32 @@
 </div>
 
 <div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="w-100" *ngIf="result$ | async as result">
-    <tr>
-      <th class="center">Switch</th>
-      <th class="center">Numéro de port</th>
-      <th class="center">Chambre</th>
-      <th></th>
-    </tr>
-    <tr
-      *ngFor="let portResult of result.ports | paginate: { id: 'pagination',
-      itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}">
-      <td class="center">{{ portResult.switchObj.description }}</td>
-      <td class="center">{{ portResult.portNumber }}</td>
-      <td class="center">
-        <a *ngIf="portResult.room != null" [routerLink]="['/room/view', portResult.room.id]">{{ portResult.room.description }}</a>
-        <a *ngIf="portResult.room == null">Aucune chambre</a>
-      <td class="center">
-        <a [routerLink]="['/switch/view', portResult.switchObj.id, 'port', portResult.id]">
-          <button class="btn btn-primary">Consulter</button>
-        </a>
-      </td>
-    </tr>
+  <table class="w-100 table clickable-table" *ngIf="result$ | async as result">
+    <thead>
+      <tr>
+        <th class="center">Switch</th>
+        <th class="center">Numéro de port</th>
+        <th class="center">Chambre</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let port of result.ports | paginate: {
+        id: 'pagination',
+        itemsPerPage: result.items_per_page, 
+        currentPage: result.current_page, 
+        totalItems: result.item_count
+      }"
+      [routerLink]="['/port', port.switchObj.id, port.id]" routerLinkActive="router-link-active" >
+        <td class="center">{{ port.switchObj.description }}</td>
+        <td class="center">{{ port.portNumber }}</td>
+        <td class="center">
+          <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.id]">{{ port.room.description }}</a>
+          <a *ngIf="port.room == null">Aucune chambre</a>
+        </td>
+      </tr>
+    </tbody>
   </table>
+</div>
+<div class="container d-flex align-items-center justify-content-center">
   <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

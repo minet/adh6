@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TransactionListComponent } from './transaction-list.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 
 
@@ -12,6 +13,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   ],
   imports: [
     CommonModule,
+    FontAwesomeModule,
     NgxPaginationModule,
   ],
   exports: [

@@ -57,7 +57,6 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "extractCss": false,
               "namedChunks": true,
               "sourceMap": true,
               "aot": true,
@@ -67,8 +66,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "200kb",
-                  "maximumError": "700kb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",

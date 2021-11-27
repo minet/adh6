@@ -33,13 +33,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   private selectedDevice: string;
   private content: string;  // for log formatting
 
-  statusToText = {
-    'PENDING_RULES': "Sign the Charter",
-    'PENDING_PAYMENT_INITIAL': "Select Duration of payment",
-    'PENDING_PAYMENT': "Select Account to pay with",
-    'PENDING_PAYMENT_VALIDATION': "Need manual validation",
-  }
-
   constructor(
     public memberService: MemberService,
     public membershipService: MembershipService,
@@ -52,13 +45,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     private notif: NotificationsService,
   ) {
     this.createForm();
-  }
-
-  signCharter(): void {
-    this.member_id$.subscribe((member_id) => {
-      console.log(member_id);
-      this.memberService.charterPut(member_id, 1, "body").subscribe(() => console.log("Charter  Signed"));
-    })
   }
 
   ngOnInit() {
@@ -97,22 +83,10 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     )
   }
 
-  checkMembershipStatus(status: AbstractMembership.StatusEnum): boolean {
-    return !(
-      status == AbstractMembership.StatusEnum.ABORTED ||
-      status == AbstractMembership.StatusEnum.CANCELLED ||
-      status == AbstractMembership.StatusEnum.COMPLETE
-    )
-  }
-
-  actionMembershipStatus(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
-    switch (status) {
-      case AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION:
-        this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
-          this.refreshLatestMembership(memberID);
-        });
-        break
-    }
+  validatePayment(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
+    this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
+      this.refreshLatestMembership(memberID);
+    });
   }
 
   ngOnDestroy() {
@@ -121,10 +95,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   refreshInfo(): void {
     this.refreshInfoOrder$.next(null);
   }
-
-  // switchMap(username => this.memberService.memberUsernameGet(username)),
-  // tap((user) => this.commentForm.setValue({comment: (user.comment === undefined) ? '' : user.comment})),
-  // share(),
 
   refreshLog(): void {
     // stream, which will emit the username every time the profile needs to be refreshed

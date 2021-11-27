@@ -14,26 +14,32 @@
 <br/>
 
 <div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="table table-striped clickable-table" *ngIf="result$ | async as
-    result">
+  <table class="table clickable-table" *ngIf="result$ | async as result">
     <thead>
-    <tr>
-      <th>Nom</th>
-      <th>Login</th>
-      <th class="roomNumberRow">Chambre</th>
-    </tr>
+      <tr>
+        <th>Nom</th>
+        <th>Login</th>
+        <th class="roomNumberRow">Chambre</th>
+      </tr>
     </thead>
-    <tr *ngFor="let member of result.members | paginate: { 
-      id: 'pagination',
-      itemsPerPage: result.item_per_page, 
-      currentPage: result.page_number, 
-      totalItems: result.item_count
-    }" [routerLink]="['../view', member.id]">
-      <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
-      <td>{{ member.username }}</td>
-      <td class="roomNumberRow"><a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.room.roomNumber }}</a><p *ngIf="member.room == null">Aucune</p></td>
-    </tr>
-    <br/>
+    <tbody>
+      <tr *ngFor="let member of result.members | paginate: { 
+        id: 'pagination',
+        itemsPerPage: result.item_per_page, 
+        currentPage: result.page_number, 
+        totalItems: result.item_count
+      }"
+      [routerLink]="['../view', member.id]">
+        <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
+        <td>{{ member.username }}</td>
+        <td class="roomNumberRow">
+          <a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.room.roomNumber }}</a>
+          <a *ngIf="member.room == null">Aucune</a>
+        </td>
+      </tr>
+    </tbody>
   </table>
+</div>
+<div class="container d-flex align-items-center justify-content-center">
   <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>
