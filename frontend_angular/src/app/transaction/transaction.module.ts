@@ -17,7 +17,6 @@ import { ClickOutsideDirective } from './clickOutside.directive';
   ],
   imports: [
     ReactiveFormsModule,
-    FontAwesomeModule,
     CommonModule,
     RouterModule.forChild([
       {path: '', redirectTo: 'add', pathMatch: 'full'},

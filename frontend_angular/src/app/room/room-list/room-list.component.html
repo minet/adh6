@@ -14,20 +14,29 @@
 <br/>
 
 <div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="w-100 table table-striped clickable-table" *ngIf="result$ | async as result">
-    <tr>
-      <th class="center">Numéro</th>
-      <th class="center">Description</th>
-      <th class="center">VLAN</th>
-    </tr>
-    <tr
-      *ngFor="let room of result.room | paginate: { id: 'pagination',
-      itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
+  <table class="w-100 table clickable-table" *ngIf="result$ | async as result">
+    <thead>
+      <tr>
+        <th class="center">Numéro</th>
+        <th class="center">Description</th>
+        <th class="center">VLAN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of result.room | paginate: { 
+        id: 'pagination',
+        itemsPerPage: result.items_per_page, 
+        currentPage: result.current_page, 
+        totalItems: result.item_count
+      }"
       [routerLink]="['/room/view',room.id]">
-      <td class="center">{{ room.roomNumber }}</td>
-      <td class="center">{{ room.description }}</td>
-      <td class="center">{{ room.vlan.number }}</td>
-    </tr>
+        <td class="center">{{ room.roomNumber }}</td>
+        <td class="center">{{ room.description }}</td>
+        <td class="center">{{ room.vlan.number }}</td>
+      </tr>
+    </tbody>
   </table>
+</div>
+<div class="container d-flex align-items-center justify-content-center">
   <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

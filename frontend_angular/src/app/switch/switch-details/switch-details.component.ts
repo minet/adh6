@@ -30,7 +30,6 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
   page_number = 1;
   item_count = 1;
   items_per_page: number = +PagingConf.item_count;
-  private sub: any;
   private searchTerms = new BehaviorSubject<string>('');
 
   constructor(public switchService: SwitchService, private route: ActivatedRoute, public portService: PortService) {
@@ -43,27 +42,29 @@ export class SwitchDetailsComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     super.ngOnInit();
-    this.sub = this.route.params.subscribe(params => {
+    this.route.params.subscribe(params => {
       this.switch_id = +params['switch_id'];
       this.switch$ = this.switchService.switchSwitchIdGet(this.switch_id);
       this.result$ = this.getSearchResult((terms, page) => this.fetchPorts(terms, page));
     });
-    // this.refreshPorts(1);
   }
 
   private fetchPorts(terms: string, page: number): Observable<PortListResult> {
     const n = +PagingConf.item_count;
-    return this.portService.portGet(n, (page - 1) * n, '', <AbstractPort>{switchObj: this.switch_id}, 'response')
+    return this.portService.portGet(n, (page - 1) * n, terms, <AbstractPort>{switchObj: this.switch_id}, 'response')
       .pipe(
-        map((response) => {
-          return <PortListResult>{
-            ports: response.body,
-            item_count: +response.headers.get('x-total-count'),
-            current_page: page,
-            items_per_page: n,
-          };
+        map((response) => <PortListResult>{
+          ports: response.body,
+          item_count: +response.headers.get('x-total-count'),
+          current_page: page,
+          items_per_page: n,
         }),
       );
   }
 
+  handlePageChange(page: number) {
+    this.changePage(page);
+    console.log(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchPorts(terms, page));
+  }
 }

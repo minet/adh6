@@ -7,23 +7,29 @@
 </select>
 
 <div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="table table-striped clickable-table" *ngIf="result$ | async as result">
+  <table class="table clickable-table" *ngIf="result$ | async as result">
     <thead>
-    <tr>
-      <th>UUID</th>
-      <th>Name</th>
-      <th>Status</th>
-    </tr>
+      <tr>
+        <th>UUID</th>
+        <th>Name</th>
+        <th>Status</th>
+      </tr>
     </thead>
-    <tr
-      *ngFor="let membership of result.memberships | paginate: { id: 'pagination',
-      itemsPerPage: result.item_per_page, currentPage: result.page_number, totalItems: result.item_count}"
+    <tbody>
+      <tr *ngFor="let membership of result.memberships | paginate: {
+        id: 'pagination',
+        itemsPerPage: result.item_per_page, 
+        currentPage: result.page_number, 
+        totalItems: result.item_count
+      }"
       [routerLink]="[redirectLink(membership.status)]">
-      <td>{{ membership.uuid }}</td>
-      <td>{{ membership.member.lastName | uppercase }} <span class="capitalize">{{ membership.member.firstName | lowercase }}</span></td>
-      <td>{{ membership.status }}</td>
-    </tr>
-    <br/>
+        <td>{{ membership.uuid }}</td>
+        <td>{{ membership.member.lastName | uppercase }} <span class="capitalize">{{ membership.member.firstName | lowercase }}</span></td>
+        <td>{{ membership.status }}</td>
+      </tr>
+    </tbody>
   </table>
+</div>
+<div class="container d-flex align-items-center justify-content-center">
   <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>
