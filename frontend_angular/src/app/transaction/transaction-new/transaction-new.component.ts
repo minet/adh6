@@ -12,7 +12,7 @@ import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock} from '@fort
 import {ActivatedRoute} from '@angular/router';
 import {AppConstantsService} from '../../app-constants.service';
 
-export {ClickOutsideDirective} from '../../clickOutside.directive';
+export {ClickOutsideDirective} from '../clickOutside.directive';
 
 export interface AccountListResult {
   accounts?: Array<Account>;

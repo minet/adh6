@@ -6,12 +6,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TransactionListModule } from '../transaction-list/transaction-list.module';
+import { ClickOutsideDirective } from './clickOutside.directive';
 
 
 
 @NgModule({
   declarations: [
     TransactionNewComponent,
+    ClickOutsideDirective,
   ],
   imports: [
     ReactiveFormsModule,

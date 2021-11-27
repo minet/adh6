@@ -28,9 +28,6 @@ import {authConfig} from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
-import { ClickOutsideDirective } from './clickOutside.directive';
-
-export {ClickOutsideDirective} from './clickOutside.directive';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
 type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> | "all";
@@ -47,7 +44,6 @@ export function storageFactory(): OAuthStorage {
     AppComponent,
     GlobalSearchComponent,
     NavbarComponent,
-    ClickOutsideDirective,
     PortailComponent,
     ErrorPageComponent,
     AutoTroubleshootComponent,
