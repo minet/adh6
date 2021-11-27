@@ -13,34 +13,27 @@
   </div>
 </div>
 
-<div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="table table-striped clickable-table table-sm" *ngIf="result$ | async as result">
+  <table class="table clickable-table table-sm" *ngIf="result$ | async as result">
+    <thead>
     <tr>
       <th>Nom</th>
       <th>Prix d'achat</th>
       <th>Prix de vente</th>
     </tr>
-
-    <tr
-    *ngFor="
-      let productResult of result.products
-        | paginate
-          : {
-              id: 'paginationControlsTemplate',
-              itemsPerPage: result.items_per_page,
-              currentPage: result.current_page,
-              totalItems: result.item_count
-            }
-    "
-  >
-    <td class="align-middle">
-      {{ productResult.name }}
-    </td>
-    <td class="align-middle">{{ productResult.buying_price*0.01 }}</td>
-    <td class="align-middle">{{ productResult.selling_price*0.01 }}</td>
-  </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let productResult of result.products | paginate : {
+        id: 'pagination',
+        itemsPerPage: result.items_per_page,
+        currentPage: result.current_page,
+        totalItems: result.item_count
+      }">
+        <td class="align-middle">{{ productResult.name }}</td>
+        <td class="align-middle">{{ productResult.buying_price*0.01 }}</td>
+        <td class="align-middle">{{ productResult.selling_price*0.01 }}</td>
+    </tr>
+  </tbody>
 </table>
-  <app-custom-pagination id="paginationControlsTemplate"
-                         (changePage)="changePage($event)"></app-custom-pagination>
-
+<div class="container d-flex align-items-center justify-content-center">
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

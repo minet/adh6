@@ -32,17 +32,22 @@ export class ProductListComponent extends SearchPage implements OnInit {
   }
 
   private fetchProducts(terms: string, page: number): Observable<ProductListResult> {
-      const n = +PagingConf.item_count;
-      return this.treasuryService.productGet(n, (page - 1) * n, terms, 'response')
-        .pipe(
-          map((response) => {
-            return <ProductListResult> {
-              products: response.body,
-              item_count: +response.headers.get('x-total-count'),
-              current_page: page,
-              items_per_page: n,
-            };
-          }),
-        );
+    const n = +PagingConf.item_count;
+    return this.treasuryService.productGet(n, (page - 1) * n, terms, 'response')
+      .pipe(
+        map((response) => {
+          return <ProductListResult> {
+            products: response.body,
+            item_count: +response.headers.get('x-total-count'),
+            current_page: page,
+            items_per_page: n,
+          };
+        }),
+      );
+  }
+
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchProducts(terms, page));
   }
 }

@@ -1,0 +1,35 @@
+<div *ngIf="(switch$ | async) as cur_switch">
+  <h2>{{ cur_switch.description }}</h2>
+  <p><strong>Adresse IP:</strong> {{ cur_switch.ip }}</p>
+  <a [routerLink]="['/port', cur_switch.id, 'add']">
+    <button class="w-100
+      btn btn-primary">Nouveau port
+    </button>
+  </a>
+  <table class="w-100 table clickable-table" *ngIf="result$ | async as result" routerLinkActive="router-link-active" >
+    <thead>
+      <tr>
+        <th class="center">Numéro de port</th>
+        <th class="center">Numéro de chambre</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let port of result.ports | paginate: {
+        id: 'pagination',
+        itemsPerPage: result.items_per_page, 
+        currentPage: result.current_page, 
+        totalItems: result.item_count
+      }"
+      [routerLink]="['/port', cur_switch.id, port.id]" >
+        <td class="center">{{ port.portNumber }}</td>
+        <td class="center">
+          <a *ngIf="port.room" [routerLink]="['/room/view', port.room.roomNumber]">{{ port.room.roomNumber }}</a>
+          <a *ngIf="!port.room">Aucune chambre</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="container d-flex align-items-center justify-content-center">
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
+</div>
