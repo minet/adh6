@@ -108,7 +108,7 @@ export class CotisationComponent implements OnInit {
       }
     }
     this.accountService.accountGet(1, 0, undefined, <AbstractAccount>{
-      member: 1
+      member: this.memberId
     }, 'response').pipe(
       first(() => this.cotisationDisabled = true),
       finalize(() => {
