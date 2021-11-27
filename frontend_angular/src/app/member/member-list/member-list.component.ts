@@ -28,7 +28,6 @@ export class MemberListComponent extends SearchPage implements OnInit {
   constructor(public memberService: MemberService) {
     super();
   }
-
   ngOnInit() {
     super.ngOnInit();
     this.result$ = this.getSearchResult((terms, page) => this.fetchMembers(terms, page));
@@ -48,4 +47,8 @@ export class MemberListComponent extends SearchPage implements OnInit {
       );
   }
 
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchMembers(terms, page));
+  }
 }

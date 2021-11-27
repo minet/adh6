@@ -47,4 +47,9 @@ export class RoomListComponent extends SearchPage implements OnInit {
       );
   }
 
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchRoom(terms, page));
+  }
+
 }

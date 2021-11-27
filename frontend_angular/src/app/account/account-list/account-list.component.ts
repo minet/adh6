@@ -92,4 +92,9 @@ export class AccountListComponent extends SearchPage implements OnInit {
         }),
       );
   }
+
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
+  }
 }

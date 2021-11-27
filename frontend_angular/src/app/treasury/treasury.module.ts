@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TreasuryComponent } from './treasury.component';
+import { AccountModule } from '../account/account.module';
 
 
 
@@ -11,8 +12,10 @@ import { TreasuryComponent } from './treasury.component';
   ],
   imports: [
     CommonModule,
-    RouterModule.forRoot([
-      {path: '', component: TreasuryComponent},    ])
+    AccountModule,
+    RouterModule.forChild([
+      {path: '', component: TreasuryComponent},
+    ])
   ]
 })
 export class TreasuryModule { }

@@ -10,21 +10,16 @@ import {NavbarComponent} from './navbar/navbar.component';
 import {NotificationAnimationType, SimpleNotificationsModule} from 'angular2-notifications';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AuthConfig, OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
-import {NgxPaginationModule} from 'ngx-pagination';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {AuthInterceptor} from './http-interceptor/auth-interceptor';
 import {NotifInterceptor} from './http-interceptor/notif-interceptor';
 import {environment} from '../environments/environment';
-import {ProductListComponent} from './product-list/product-list.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {ButtonsModule} from 'ngx-bootstrap/buttons';
-import {ObjectFilterPipe} from './ObjectFilter.pipe';
 import {TypeaheadModule} from 'ngx-bootstrap/typeahead';
 import {NgToggleModule} from '@nth-cloud/ng-toggle';
 import {TooltipModule} from 'ngx-bootstrap/tooltip';
-import {BackButtonDirective} from './back-button.directive';
 import {PortailComponent} from './portail/portail.component';
 import {ErrorPageComponent} from './error-page/error-page.component';
 import {Ability, AbilityClass, InferSubjects, PureAbility} from '@casl/ability';
@@ -33,7 +28,6 @@ import {authConfig} from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
-import {RedirectGuard} from './redirect-guard/redirect-guard';
 import { ClickOutsideDirective } from './clickOutside.directive';
 
 export {ClickOutsideDirective} from './clickOutside.directive';
@@ -53,10 +47,7 @@ export function storageFactory(): OAuthStorage {
     AppComponent,
     GlobalSearchComponent,
     NavbarComponent,
-    ProductListComponent,
     ClickOutsideDirective,
-    ObjectFilterPipe,
-    BackButtonDirective,
     PortailComponent,
     ErrorPageComponent,
     AutoTroubleshootComponent,
@@ -77,8 +68,6 @@ export function storageFactory(): OAuthStorage {
     }),
     BrowserAnimationsModule,
     OAuthModule.forRoot(),
-    NgxPaginationModule,
-    PaginationModule.forRoot(),
     BsDropdownModule.forRoot(),
     HttpClientModule,
     ModalModule.forRoot(),
@@ -89,7 +78,6 @@ export function storageFactory(): OAuthStorage {
     AbilityModule,
   ],
   providers: [
-    RedirectGuard,
     AppComponent,
     {
       provide: HTTP_INTERCEPTORS,

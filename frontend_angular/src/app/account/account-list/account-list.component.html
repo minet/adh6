@@ -49,7 +49,7 @@
       let accountResult of result.accounts | ObjectFilter: filter:!specificSearch
         | paginate
           : {
-              id: 'paginationControlsTemplate',
+              id: 'pagination',
               itemsPerPage: result.item_per_page,
               currentPage: result.page_number,
               totalItems: result.item_count
@@ -66,6 +66,5 @@
       <ng-template #noBalance><td class="align-middle">-</td></ng-template>
     </tr>
   </table>
-  <app-custom-pagination id="paginationControlsTemplate"
-                         (changePage)="changePage($event)"></app-custom-pagination>
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

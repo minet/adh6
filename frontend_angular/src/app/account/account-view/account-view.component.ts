@@ -7,6 +7,7 @@ import {PagingConf} from '../../paging.config';
 
 import {SearchPage} from '../../search-page';
 import {AppConstantsService} from '../../app-constants.service';
+import { Location } from '@angular/common';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -31,11 +32,11 @@ export class AccountViewComponent extends SearchPage implements OnInit {
     private accountService: AccountService,
     private transactionService: TransactionService,
     private route: ActivatedRoute,
+    private location: Location,
     public appConstantsService: AppConstantsService
   ) {
     super();
   }
-
   ngOnInit() {
     // id of the account
     this.id$ = this.route.params.pipe(
@@ -64,7 +65,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
   }
 
   goBack() {
-    window.history.back();
+    this.location.back();
   }
 
   private fetchTransaction(account: number, page: number): Observable<TransactionListResult> {
@@ -87,6 +88,5 @@ export class AccountViewComponent extends SearchPage implements OnInit {
           };
         }),
       );
-
   }
 }

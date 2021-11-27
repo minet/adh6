@@ -16,7 +16,7 @@
     </tr>
     </thead>
     <tr
-      *ngFor="let membership of result.memberships | paginate: { id: 'paginationControlsTemplate',
+      *ngFor="let membership of result.memberships | paginate: { id: 'pagination',
       itemsPerPage: result.item_per_page, currentPage: result.page_number, totalItems: result.item_count}"
       [routerLink]="[redirectLink(membership.status)]">
       <td>{{ membership.uuid }}</td>
@@ -25,5 +25,5 @@
     </tr>
     <br/>
   </table>
-  <app-custom-pagination id="paginationControlsTemplate"  (changePage)="changePage($event)"></app-custom-pagination>
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

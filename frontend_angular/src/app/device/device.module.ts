@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import {DeviceListComponent} from './device-list/device-list.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 
 
@@ -12,10 +12,10 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
     DeviceListComponent,
   ],
   imports: [
-    PaginationModule.forRoot(),
+    NgxPaginationModule,
     ReactiveFormsModule,
     CommonModule,
-    RouterModule.forRoot([
+    RouterModule.forChild([
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: DeviceListComponent},
     ])

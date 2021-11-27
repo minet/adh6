@@ -1,7 +1,7 @@
 <div *ngIf="(account$ | async) as account">
   <div class="row mb-2">
     <div class="col-lg-4">
-      <button class="btn btn-primary mb-3 w-100" appBackButton>Retour</button>
+      <button class="btn btn-primary mb-3 w-100" (click)="goBack()">Retour</button>
     </div>
     <div class="col-lg-8">
       <h2>{{ account.name }}</h2>
@@ -25,7 +25,7 @@
 
             <dt class="col-6">Actif</dt>
             <dd class="col-6">
-              <div class="btn-group" btnRadioGroup [(ngModel)]="account.actif">
+              <div class="btn-group" btnRadioGroup>
                 <label btnRadio="true" class="btn btn-sm"
                        [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.actif]"
                        tabindex="0" role="button">OUI</label>
@@ -37,7 +37,7 @@
 
             <dt class="col-6">Compte courant</dt>
             <dd class="col-6">
-              <div class="btn-group" btnRadioGroup [(ngModel)]="account.compteCourant">
+              <div class="btn-group" btnRadioGroup>
                 <label btnRadio="true" class="btn btn-sm"
                        [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.compteCourant]"
                        tabindex="0" role="button">OUI</label>
@@ -49,10 +49,10 @@
 
             <dt class="col-6">Épinglé</dt>
             <dd class="col-6">
-              <div class="btn-group" btnRadioGroup [(ngModel)]="account.pinned">
+              <div class="btn-group" btnRadioGroup>
                 <label btnRadio="true" class="btn btn-sm"
-                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.pinned]"
-                       tabindex="0" role="button">OUI</label>
+                  [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.pinned]"
+                  tabindex="0" role="button">OUI</label>
                 <label btnRadio="false" class="btn btn-sm"
                        [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.pinned]"
                        tabindex="0" role="button">NON</label>

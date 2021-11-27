@@ -14,8 +14,7 @@ class MembershipListResponse {
 
 @Component({
   selector: 'app-membership-list',
-  templateUrl: './membership-list.component.html',
-  styleUrls: ['./membership-list.component.sass']
+  templateUrl: './membership-list.component.html'
 })
 export class MembershipListComponent extends SearchPage implements OnInit {
   @Input() abstractFilterMembership: AbstractMembership = {};
@@ -81,5 +80,10 @@ export class MembershipListComponent extends SearchPage implements OnInit {
           item_per_page: n,
         }),
       );
+  }
+
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchMemberships(terms, page));
   }
 }

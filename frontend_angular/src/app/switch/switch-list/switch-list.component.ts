@@ -46,4 +46,9 @@ export class SwitchListComponent extends SearchPage implements OnInit {
         }),
       );
   }
+
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchSwitches(terms, page));
+  }
 }

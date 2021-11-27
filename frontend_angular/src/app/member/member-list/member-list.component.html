@@ -23,17 +23,17 @@
       <th class="roomNumberRow">Chambre</th>
     </tr>
     </thead>
-    <tr
-      *ngFor="let member of result.members | paginate: { id: 'paginationControlsTemplate',
-      itemsPerPage: result.item_per_page, currentPage: result.page_number, totalItems: result.item_count}"
-      [routerLink]="['../view', member.id]">
+    <tr *ngFor="let member of result.members | paginate: { 
+      id: 'pagination',
+      itemsPerPage: result.item_per_page, 
+      currentPage: result.page_number, 
+      totalItems: result.item_count
+    }" [routerLink]="['../view', member.id]">
       <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
       <td>{{ member.username }}</td>
       <td class="roomNumberRow"><a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.room.roomNumber }}</a><p *ngIf="member.room == null">Aucune</p></td>
     </tr>
     <br/>
   </table>
-
-  <app-custom-pagination id="paginationControlsTemplate"
-                       (changePage)="changePage($event)"></app-custom-pagination>
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>

@@ -1,11 +1,11 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {SearchPage} from '../../search-page';
+import {SearchPage} from '../search-page';
 import {Observable} from 'rxjs';
-import {AccountType, PaymentMethod, Transaction, TransactionService, AbstractTransaction} from '../../api';
-import {PagingConf} from '../../paging.config';
+import {PaymentMethod, Transaction, TransactionService, AbstractTransaction} from '../api';
+import {PagingConf} from '../paging.config';
 import {map} from 'rxjs/operators';
 import {IconDefinition} from '@fortawesome/free-solid-svg-icons';
-import {AppConstantsService} from '../../app-constants.service';
+import {AppConstantsService} from '../app-constants.service';
 import {faClock} from '@fortawesome/free-solid-svg-icons';
 
 export interface TransactionListResult {
@@ -99,4 +99,8 @@ export class TransactionListComponent extends SearchPage implements OnInit {
       );
   }
 
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchTransaction(terms, page));
+  }
 }

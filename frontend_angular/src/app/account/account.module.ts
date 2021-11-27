@@ -6,8 +6,10 @@ import {AccountEditComponent} from './account-edit/account-edit.component';
 import {AccountListComponent} from './account-list/account-list.component';
 import {AccountCreateComponent} from './account-create/account-create.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ReactiveFormsModule } from '@angular/forms';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { ObjectFilterPipe } from './ObjectFilter.pipe';
+import { TransactionListModule } from '../transaction-list/transaction-list.module';
 
 
 @NgModule({
@@ -16,18 +18,25 @@ import { ReactiveFormsModule } from '@angular/forms';
     AccountViewComponent,
     AccountEditComponent,
     AccountListComponent,
+    ObjectFilterPipe,
   ],
   imports: [
+    CommonModule,
+    TransactionListModule,
+    FormsModule,
+    NgxPaginationModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    CommonModule,
-    RouterModule.forRoot([
+    RouterModule.forChild([
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: AccountListComponent},
       {path: 'add', component: AccountCreateComponent},
       {path: 'view/:account_id', component: AccountViewComponent},
       {path: 'edit/:account_id', component: AccountEditComponent}
     ])
+  ],
+  exports: [
+    AccountListComponent,
   ]
 })
 export class AccountModule { }

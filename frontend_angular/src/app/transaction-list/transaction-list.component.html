@@ -26,7 +26,7 @@
   </thead>
   <tbody>
   <tr
-    *ngFor="let transactionResult of result.transactions | paginate: { id: 'paginationControlsTemplate',
+    *ngFor="let transactionResult of result.transactions | paginate: { id: 'pagination',
     itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
     [ngClass]="{'table-success' : asAccount && transactionResult.dst.id==this.asAccount, 'table-danger' : asAccount && transactionResult.dst.id!=this.asAccount,
     'text-muted': transactionResult.pendingValidation}">
@@ -57,5 +57,4 @@
   </tr>
   </tbody>
 </table>
-<app-custom-pagination id="paginationControlsTemplate"
-                       (changePage)="changePage($event)"></app-custom-pagination>
+<pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>

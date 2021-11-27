@@ -46,7 +46,10 @@ export class PortListComponent extends SearchPage implements OnInit {
           };
         }),
       );
-
   }
 
+  handlePageChange(page: number) {
+    this.changePage(page);
+    this.result$ = this.getSearchResult((terms, page) => this.fetchPort(terms, page));
+  }
 }

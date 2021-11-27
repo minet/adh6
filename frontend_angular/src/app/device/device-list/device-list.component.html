@@ -23,7 +23,7 @@
         </thead>
         <tbody>
         <tr
-          *ngFor="let device of result.devices | paginate: { itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
+          *ngFor="let device of result.devices | paginate: { id: 'pagination', itemsPerPage: result.items_per_page, currentPage: result.current_page, totalItems: result.item_count}"
           [routerLink]="['../../member/view' , device.member.id]"
           [queryParams]="{highlight: device.mac}">
           <td>{{ device.member.username }}</td>
@@ -32,7 +32,6 @@
         </tr>
         </tbody>
       </table>
-      <pagination previousText="&lsaquo;" nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;"
-                  (pageChange)="changePage($event)"></pagination>
+      <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
     </div>
   </div>

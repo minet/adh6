@@ -11,7 +11,7 @@ import { SwitchLocalComponent } from './switch-local.component';
   ],
   imports: [
     CommonModule,
-    RouterModule.forRoot([
+    RouterModule.forChild([
       {path: '', component: SwitchLocalComponent}
     ])
   ]

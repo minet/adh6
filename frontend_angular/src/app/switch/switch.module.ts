@@ -21,13 +21,14 @@ import { NgxPaginationModule } from 'ngx-pagination';
     NgxPaginationModule,
     ReactiveFormsModule,
     CommonModule,
-    RouterModule.forRoot([
+    RouterModule.forChild([
       {path: '', redirectTo: 'search', pathMatch: 'full'},
       {path: 'search', component: SwitchListComponent},
       {path: 'view/:switch_id', component: SwitchDetailsComponent},
       {path: 'edit/:switch_id', component: SwitchEditComponent},
       {path: 'add', component: SwitchNewComponent},
-    ])
+    ]),
+    NgxPaginationModule,
   ]
 })
 export class SwitchModule { }
