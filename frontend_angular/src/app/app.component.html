@@ -1,6 +1,6 @@
-<title>{{ titre }}</title>
+<title>MiNET - ADH6</title>
 <app-navbar></app-navbar>
-<div *ngIf="isAuthenticated() || !needsAuth(); else elseBlock">
+<div *ngIf="isAuthenticated(); else elseBlock">
   <div class="modal fade" bsModal #bugReportModal="bs-modal"
        tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
     <div class="modal-dialog modal-lg">

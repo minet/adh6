@@ -1,12 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark color-white">
   <a class="navbar-brand" [routerLink]="['dashboard']">
     <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
-    {{ titre }}
+    MiNET - ADH6
   </a>
-
-  <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
-    <span class="navbar-toggler-icon"></span>
-  </button>
 
   <div class="collapse navbar-collapse justify-content-end" [ngClass]="{ 'show': navBarStatus }">
     <ul class="navbar-nav mr-auto">

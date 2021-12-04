@@ -4,15 +4,14 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AppComponent} from './app.component';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {AppRoutingModule} from './app-routing.module';
-import {ApiModule, BASE_PATH, Device, Member, Room, Port, ModelSwitch, Transaction, Account} from './api';
+import {ApiModule, Device, Member, Room, Port, ModelSwitch, Transaction, Account, Configuration, ConfigurationParameters} from './api';
 import {GlobalSearchComponent} from './global-search/global-search.component';
 import {NavbarComponent} from './navbar/navbar.component';
 import {NotificationAnimationType, SimpleNotificationsModule} from 'angular2-notifications';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {AuthConfig, OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
+import {AuthConfig, OAuthModule, OAuthService, OAuthStorage} from 'angular-oauth2-oidc';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {AuthInterceptor} from './http-interceptor/auth-interceptor';
 import {NotifInterceptor} from './http-interceptor/notif-interceptor';
 import {environment} from '../environments/environment';
 import {ModalModule} from 'ngx-bootstrap/modal';
@@ -35,8 +34,13 @@ type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjec
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
 
-export function storageFactory(): OAuthStorage {
-  return localStorage;
+function load(oAuthService: OAuthService): Configuration {
+  let params: ConfigurationParameters = 
+  {
+    basePath: environment.API_BASE_PATH,
+    accessToken: oAuthService.getAccessToken() || "",
+  };
+  return new Configuration(params);
 }
 
 @NgModule({
@@ -77,21 +81,21 @@ export function storageFactory(): OAuthStorage {
     AppComponent,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
       useClass: NotifInterceptor,
       multi: true
     },
-    {provide: BASE_PATH, useValue: environment.API_BASE_PATH},
-    {provide: OAuthStorage, useFactory: storageFactory},
+    {provide: OAuthStorage, useFactory: (): OAuthStorage => localStorage},
     {provide: AuthConfig, useValue: authConfig},
     {
       provide: AppAbility, useValue: new AppAbility()
     },
     {provide: PureAbility, useExisting: AppAbility},
+    {
+      provide: Configuration, 
+      useFactory: load,
+      deps: [OAuthService],
+      multi: false
+    },
   ],
   bootstrap: [AppComponent]
 })
