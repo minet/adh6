@@ -196,7 +196,7 @@ class MemberSQLRepository(MemberRepository):
         if duration_in_mounth not in [1, 2, 3, 4, 5, 12]:
             raise InvalidMembershipDuration(str(duration_in_mounth))
         
-        if adherent.date_de_depart is None:
+        if adherent.date_de_depart is None and adherent.date_de_depart < now:
             adherent.date_de_depart = now
         
         if adherent.date_de_depart.month + duration_in_mounth > 12:

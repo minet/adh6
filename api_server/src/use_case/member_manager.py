@@ -335,7 +335,7 @@ class MemberManager(CRUDManager):
             self.membership_repository.validate_membership(ctx, membership_uuid)
 
             membership = fethed_membership[0]
-            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account, products=membership.products))
+            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account.id, products=membership.products))
             price = self.config.PRICES[int(membership.duration)]  # Expressed in EUR.
             if price == 50 and not membership.has_room:
                 price = 9
