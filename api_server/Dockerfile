@@ -22,16 +22,16 @@ RUN cat CONFIGURATION.template.py | envsubst | tee CONFIGURATION.py
 ###############################################################################
 FROM alpine:latest AS certs
 RUN apk add --update openssl
-RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
-    && openssl req -new -key /etc/ssl/private/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /etc/ssl/private/adh6.key -out /etc/ssl/certs/adh6.crt
+RUN openssl genrsa -out /tmp/adh6.key 2048 \
+    && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
+    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
 
 
 FROM python:3.9-slim
 EXPOSE 443
 
-COPY --from=certs /etc/ssl/certs/adh6.crt /etc/ssl/certs/
-COPY --from=certs /etc/ssl/private/adh6.key /etc/ssl/private/
+COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
+COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
 # Install dependencies
 RUN apt update \

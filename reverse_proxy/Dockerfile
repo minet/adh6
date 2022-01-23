@@ -19,14 +19,14 @@ FROM alpine:latest AS certs
 RUN apk add --update openssl
 
 # Make TLS self-signed certificate
-RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
-    && openssl req -new -key /etc/ssl/private/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=reverse_proxy" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /etc/ssl/private/adh6.key -out /etc/ssl/certs/adh6.crt
+RUN openssl genrsa -out /tmp/adh6.key 2048 \
+    && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=reverse_proxy" \
+    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
 
 FROM nginx:alpine
 
-COPY --from=certs /etc/ssl/certs/adh6.crt /etc/ssl/certs/
-COPY --from=certs /etc/ssl/private/adh6.key /etc/ssl/private/
+COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
+COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
 COPY --from=config /tmp/adh6.conf /etc/nginx/conf.d/adh6.conf
 

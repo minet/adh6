@@ -5,6 +5,7 @@ import { MemberViewComponent } from './member-view.component';
 import { RedirectGuard } from './redirect-guard/redirect-guard';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MemberDeviceListModule } from '../../member-device-list/member-device-list.module';
 
 
 
@@ -26,7 +27,8 @@ import { ReactiveFormsModule } from '@angular/forms';
           externalUrl: 'https://chartes.minet.net'
         }
       },
-    ])
+    ]),
+    MemberDeviceListModule
   ],
   providers: [
     RedirectGuard,
