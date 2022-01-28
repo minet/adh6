@@ -320,50 +320,46 @@ def seed():
 
     print("Seeding account types")
     account_types = [1,"Special"],[2,"Adherent"],[3,"Club interne"],[4,"Club externe"],[5,"Association externe"]
-    for type in account_types:
-        session.add(
-            AccountType(
-                id=type[0],
-                name=type[1]
-            )
-        )
+    session.bulk_save_objects([
+        AccountType(
+            id=e[0],
+            name=e[0]
+        ) for e in account_types
+    ])
 
     print("Seeding MiNET accounts")
     accounts = [1, 1, "MiNET frais techniques", True, None, True, True],[2, 1, "MiNET frais asso", True, None, True, True]
-    for account in accounts:
-        session.add(
-            Account(
-                id=account[0],
-                type=account[1],
-                name=account[2],
-                actif=account[3],
-                adherent_id=account[4],
-                compte_courant=account[5],
-                pinned=account[6]
-            )
-        )
+    session.bulk_save_objects([
+        Account(
+            id=e[0],
+            type=e[1],
+            name=e[2],
+            actif=e[3],
+            adherent_id=e[4],
+            compte_courant=e[5],
+            pinned=e[6]
+        ) for e in accounts
+    ])
 
     print("Seeding Products")
     products = [1,"Cable 3m", 3, 3],[2,"Cable 5m", 5, 5],[3,"Adaptateur USB/Ethernet", 13.00, 13.00],[4,"Adaptateur USB-C/Ethernet", 12.00, 12.00]
-    for product in products:
-        session.add(
-            Product(
-                id=product[0],
-                name=product[1],
-                buying_price=product[2],
-                selling_price=product[3]
-            )
-        )
+    session.bulk_save_objects([
+        Product(
+            id=e[0],
+            name=e[1],
+            buying_price=e[2],
+            selling_price=e[3]
+        ) for e in products
+    ])
 
     print("Seeding payment methods")
     payment_methods = [1,"Liquide"],[2,"Chèque"],[3,"Carte bancaire"],[4,"Virement"],[5,"Stripe"]
-    for method in payment_methods:
-        session.add(
-            PaymentMethod(
-                id=method[0],
-                name=method[1]
-            )
-        )
+    session.bulk_save_objects([
+        PaymentMethod(
+            id=e[0],
+            name=e[1]
+        ) for e in payment_methods
+    ])
 
     print("Seeding cashbox")
     session.add(Caisse(
@@ -372,6 +368,7 @@ def seed():
     ))
 
     print("Seeding vlans")
+    vlans = [35, "10.42.0.0/16", "", "", ""], [36, "157.159.192.0/22", "", "157.159.195.0/24", ""], [30, "172.30.0.0/16", "", "", ""], [41, "157.159.41.0/24", "", "157.159.41.1/32", ""], [35, "10.42.0.0/16", "", "", ""]
     session.bulk_save_objects([
         Vlan(
             numero=e[0], 
@@ -379,13 +376,48 @@ def seed():
             adressesv6=e[2], 
             excluded_addr=e[3], 
             excluded_addrv6=e[4]
-        ) for e in [
-            (35, "10.42.0.0/16", "", "", ""),
-            (36, "157.159.192.0/22", "", "157.159.195.0/24", ""),
-            (30, "172.30.0.0/16", "", "", ""),
-            (41, "157.159.41.0/24", "", "157.159.41.1/32", ""),
-            (35, "10.42.0.0/16", "", "", ""),
-        ]
+        ) for e in vlans
+    ])
+
+    print("Seeding Rooms")
+    session.bulk_save_objects([
+        Chambre(
+            id=i,
+            numero=i,
+            description="Chambre " + str(i),
+            vlan_id=3
+        ) for i in range(1, 30)
+    ])
+
+    print("Seeding Switchs")
+    switchs = [1, "Switch local", "192.168.102.219", "adh5"],
+    session.bulk_save_objects([
+        Switch(
+            id=e[0],
+            description=e[1],
+            ip=e[2],
+            communaute=e[3],
+        ) for e in switchs
+    ])
+
+    print("Seeding 30 Ports Switch local + link to room")
+    session.bulk_save_objects([
+        Port(
+            rcom=0,
+            numero="1/0/" + str(i),
+            oid="1010" + str(i),
+            switch_id=1,
+            chambre_id=i
+        ) for i in range(1, 30)
+    ])
+
+    print("Seeding Roles")
+    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_superadmin"],
+    session.bulk_save_objects([
+        Admin(
+            id=e[0],
+            roles=e[1]
+        ) for e in roles
     ])
 
     session.commit()
@@ -398,88 +430,61 @@ def fake(login):
     fake = Faker()
     session: Session = Database.get_db().get_session()
 
-    switch = Switch(
-        description="Switch local",
-        ip="192.168.102.219",
-        communaute="adh5",
-    )
-    session.add(switch)
+    import datetime as dt
 
-    chambres = []
-    for n in range(1, 30):
-        chambre = Chambre(
-            numero=n,
-            description="Chambre " + str(n),
-            vlan_id=3
-        )
-        chambres.append(chambre)
-        session.add(chambre)
-
-    for n in range(1, 10):
-        session.add(Port(
-            rcom=0,
-            numero="1/0/" + str(n),
-            oid="1010" + str(n),
-            switch=switch,
-            chambre=chambres[n-1]
-        ))
-
-
-    for n in range(10, 20):
-        session.add(Port(
-            rcom=0,
-            numero="1/0/" + str(n),
-            oid="101" + str(n),
-            switch=switch,
-            chambre=chambres[n-1]
-        ))
-
-
-    admin = Admin(
-        roles="adh6_user,adh6_admin,adh6_treso,adh6_superadmin"
-    )
-    session.add(admin)
-
+    now = datetime.now()
     adherent = Adherent(
+        id=1,
         nom=fake.last_name_nonbinary(),
         prenom=fake.first_name_nonbinary(),
         mail=fake.email(),
         login=login,
+        ldap_login=login,
         password="",
-        chambre=chambres[2],
-        admin=admin
+        chambre_id=1,
+        admin_id=1,
+        datesignedminet=now,
+        signedminet=True,
+        date_de_depart=now + dt.timedelta(days=365)
     )
+
     session.add(adherent)
+
     account = Account(
-        type=1,
+        type=2,
         name=adherent.nom + " " + adherent.prenom,
         actif=True,
-        compte_courant=True,
+        compte_courant=False,
         pinned=False,
         adherent=adherent
     )
 
     session.add(account)
 
-    payment_methods: List[PaymentMethod] = [
-        PaymentMethod( 
-            name=e
-        ) for e in [
-            "Liquide",
-            "Chèque",
-            "Carte Bancaire",
-            "Virement",
-            "Stripe"
-        ]
-    ]
-    session.bulk_save_objects(payment_methods)
+    session.add(Transaction(
+        value=9,
+        timestamp=now,
+        src_account=account,
+        dst=2,
+        name="Internet - 1 an",
+        attachments="",
+        type=3,
+        author_id=1,
+        pending_validation=False,
+    ))
+    session.add(Transaction(
+        value=41,
+        timestamp=now,
+        src_account=account,
+        dst=1,
+        name="Internet - 1 an",
+        attachments="",
+        type=3,
+        author_id=1,
+        pending_validation=False,
+    ))
     
-    membership = Membership(
-        
-    )
-
-
-    for n in range(1, 4):
+    for _ in range(1, 4):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
@@ -487,7 +492,7 @@ def fake(login):
             ipv6=None,
             type=0
         ))
-    for n in range(1, 4):
+    for _ in range(1, 4):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
