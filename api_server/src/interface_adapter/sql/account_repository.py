@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy.orm.session import Session
 from src.util.context import log_extra
 from src.util.log import LOG
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy import func, case, or_
 
@@ -68,6 +68,11 @@ class AccountSQLRepository(AccountRepository):
         r = query.all()
 
         return list(map(lambda item: _map_account_sql_to_entity(item, True), r)), count
+
+    @log_call
+    def get(self, ctx, id: int) -> Optional[Account]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        return session.query(Account).filter(Account.id == id).one_or_none()
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:

@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import date, datetime, timezone
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -58,6 +58,12 @@ class MemberSQLRepository(MemberRepository):
         r = query.all()
 
         return list(map(_map_member_sql_to_entity, r)), count
+
+    @log_call
+    def get(self, ctx, member_id: int) -> Optional[Member]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        
+        return session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
 
     @log_call
     def create(self, ctx, abstract_member: Member) -> object:

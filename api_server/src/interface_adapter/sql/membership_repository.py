@@ -57,6 +57,7 @@ class MembershipSQLRepository(MembershipRepository):
         r = query.all()
 
         return list(map(_map_membership_sql_to_entity, r)), query.count()
+
     @log_call
     def create_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
         """
@@ -161,7 +162,7 @@ class MembershipSQLRepository(MembershipRepository):
         session.flush()
         
     @log_call
-    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+    def get_latest_membership(self, ctx, member_id: int) -> Optional[Membership]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
                 or_(
@@ -183,7 +184,7 @@ class MembershipSQLRepository(MembershipRepository):
             ).order_by(desc(MembershipSQL.create_at)).limit(1)
             membership = query.one_or_none()
             if membership is None:
-                raise MembershipNotFoundError(str(member_id))
+                return None
         
         return _map_membership_sql_to_entity(membership)
 

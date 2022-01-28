@@ -1,8 +1,9 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 from typing import List, Optional, Tuple, Union
+import uuid
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -12,7 +13,9 @@ from src.entity import (
     AccountType,
     Admin,
 )
+from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.roles import Roles
+from src.entity.transaction import Transaction
 from src.exceptions import (
     AccountTypeNotFoundError,
     MembershipNotFoundError,
@@ -22,6 +25,7 @@ from src.exceptions import (
     InvalidAdmin,
     MemberAlreadyExist,
     MembershipAlreadyExist,
+    TransactionNotFoundError,
     UnknownPaymentMethod,
     LogFetchError,
     NoPriceAssignedToThatDuration,
@@ -155,13 +159,67 @@ class MemberManager(CRUDManager):
     def get_latest_membership(self, ctx, member_id: int) -> Membership:
         LOG.debug("get_latest_membership_records", extra=log_extra(ctx,member_id=member_id))
         # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        member = self.member_repository.get(ctx, member_id)
         if not member:
             raise MemberNotFoundError(member_id)
         
         membership = self.membership_repository.get_latest_membership(ctx, member_id)
+
+        # If no membership has been found it is most likely because the subscription has been done with adh5 so it will be automatically created when not found
         if membership is None:
-            raise MembershipNotFoundError(str(member_id))
+            accounts, _ = self.account_repository.search_by(ctx, 1, 0, filter_=AbstractAccount(member=member_id))
+            if not accounts:
+                raise AccountNotFoundError(member_id)
+            account = accounts[0]
+
+            transactions, _ = self.transaction_repository.search_by(ctx, filter_=AbstractTransaction(src=account.id))
+            if not transactions:
+                raise TransactionNotFoundError(account.id)
+
+            t: Optional[Transaction] = None
+            for i in transactions:
+                if str(i.name).startswith("Internet"):
+                    t = i
+                    break
+
+            duration = MembershipDuration.ONE_YEAR
+            has_room = True
+            if t.name.endswith('1 mois'):
+                duration = MembershipDuration.ONE_MONTH
+            if t.name.endswith('2 mois'):
+                duration = MembershipDuration.TWO_MONTH
+            if t.name.endswith('3 mois'):
+                duration = MembershipDuration.THREE_MONTH
+            if t.name.endswith('4 mois'):
+                duration = MembershipDuration.FOUR_MONTH
+            if t.name.endswith('5 mois'):
+                duration = MembershipDuration.FIVE_MONTH
+            if t.name.endswith('6 mois'):
+                duration = MembershipDuration.SIX_MONTH
+            if t.name.endswith('1 an'):
+                duration = MembershipDuration.ONE_YEAR
+            if t.name.endswith('sans chambre'):
+                has_room = False
+                duration = MembershipDuration.ONE_YEAR
+
+            print(t.payment_method)
+
+            self.membership_repository.create_membership(ctx, member_id=member_id, membership=Membership(
+                uuid=str(uuid.uuid4()),
+                duration=duration,
+                has_room=has_room,
+                products=None,
+                first_time=True,
+                payment_method=t.payment_method.id,
+                account=account.id,
+                member=member_id,
+                status=MembershipStatus.COMPLETE.value,
+                created_at=account.creation_date,
+                updated_at=account.creation_date
+            ))
+
+            membership = self.membership_repository.get_latest_membership(ctx, member_id)
+
         LOG.debug("latest_membership_records", extra=log_extra(ctx,membership_uuid=membership.uuid))
 
         return membership
