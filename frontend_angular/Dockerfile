@@ -19,9 +19,9 @@ RUN cat auth.config.template.ts | envsubst | tee auth.config.ts
 ###############################################################################
 FROM alpine:latest AS certs
 RUN apk add --update openssl
-RUN openssl genrsa -out /etc/ssl/private/adh6.key 2048 \
-    && openssl req -new -key /etc/ssl/private/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /etc/ssl/private/adh6.key -out /etc/ssl/certs/adh6.crt
+RUN openssl genrsa -out /tmp/adh6.key 2048 \
+    && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
+    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
 
 
 ###############################################################################
@@ -31,8 +31,8 @@ FROM node:14-buster-slim
 
 EXPOSE 8443
 
-COPY --from=certs /etc/ssl/certs/adh6.crt /etc/ssl/certs/
-COPY --from=certs /etc/ssl/private/adh6.key /etc/ssl/private/
+COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
+COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
 # Make TLS self-signed certificate and change its owner to the angular user.
 RUN groupadd -r angular && useradd --no-log-init -r -m -g angular angular \

@@ -3,7 +3,7 @@
 Membership repository.
 """
 import abc
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import Membership, AbstractMembership
@@ -37,7 +37,7 @@ class MembershipRepository(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+    def get_latest_membership(self, ctx, member_id: int) -> Optional[Membership]:
         """
         Add a membership.
         """

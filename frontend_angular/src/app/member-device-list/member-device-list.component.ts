@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {AbstractDevice, Device, DeviceService} from '../../api';
-import {PagingConf} from '../../paging.config';
+import {AbstractDevice, Device, DeviceService} from '../api';
+import {PagingConf} from '../paging.config';
 import {first, map} from 'rxjs/operators';
-import {SearchPage} from '../../search-page';
+import {SearchPage} from '../search-page';
 
 class DeviceListReponse {
   devices?: Array<Device>;

@@ -84,6 +84,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   validatePayment(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
+    this.cotisation = false;
     this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
       this.refreshLatestMembership(memberID);
     });

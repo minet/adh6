@@ -1,6 +1,7 @@
 # coding=utf-8
 
-from typing import List, Tuple
+import abc
+from typing import List, Optional, Tuple
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import Member, AbstractMember
@@ -11,6 +12,10 @@ class MemberRepository(CRUDRepository):
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractMember = None) -> Tuple[List[Member], int]:
         raise NotImplementedError
+
+    @abc.abstractclassmethod
+    def get(self, ctx, member_id: int) -> Optional[Member]:
+        pass
 
     def create(self, ctx, object_to_create: Member) -> object:
         raise NotImplementedError

@@ -99,7 +99,7 @@
           <a [routerLink]="['charter']">
             <button class="w-100 btn btn-danger mb-3" *ngIf="latestMembership.status == 'PENDING_RULES'">Signer la charte</button>
           </a>
-          <button class="w-100 btn btn-success mb-3" (click)="newMembership(member.id)" *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Nouvelle Inscription</button>
+          <button class="w-100 btn btn-success mb-3" (click)="newMembership(member.id)" *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Cotiser / Recotiser</button>
           <button class="w-100 btn btn-primary mb-3" (click)="toggleCotisationMenu()" *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE' && latestMembership.status != 'PENDING_RULES'">Cotiser / Recotiser</button>
         </ng-container>
         <ng-template #waitingMembership>
