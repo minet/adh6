@@ -3,6 +3,7 @@ import {AccountService, AccountType, Member, MiscService, PaymentMethod, Transac
 import {Observable, of} from 'rxjs';
 import {map, share} from 'rxjs/operators';
 import {Ability, AbilityBuilder} from '@casl/ability';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,14 @@ export class AppConstantsService {
 
   private currentMember: Member;
   private currentMemberObservable: Observable<any>;
+  
+  Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+  })
 
   constructor(public accountService: AccountService,
               public transactionService: TransactionService,

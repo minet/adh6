@@ -1,10 +1,9 @@
 <div *ngIf="(port$ | async) as port">
   <h2>Port {{ port.portNumber }}</h2>
-  <center><h3><i>{{portAliasString}}</i></h3></center>
+  <center><h3><i>{{ alias }}</i></h3></center>
   <h3>Informations</h3>
   <div class="row">
     <div class="col-4">
-
       <button class="w-100 btn btn-primary" [disabled]="port.room == null"(click)="IfRoomExists(port.room)">
         <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.roomNumber]" style="color:white;">Chambre {{ port.room.roomNumber }}</a>
         <a *ngIf="port.room == null">Aucune chambre</a>
@@ -16,50 +15,25 @@
       </a>
     </div>
   </div>
-  <p></p>
   <h3>Configuration</h3>
-  <br/>
-  <a> {{portUseString}}</a>
   <div class=row>
     <div class="col-4">
-      <strong>Port: {{getStatus((status$ | async))}}</strong><br/>
-      <button class="w-100 btn" [ngClass]="{true:'btn-success', false:'btn-danger'}[!(status$ | async)]" (click)="toggleStatus()">
-        {{ getAction(!(status$ | async)) }}
+      <strong>Port: {{getStatus(status)}}</strong><br/>
+      <button class="w-100 btn" [ngClass]="{true:'btn-success', false:'btn-danger'}[!status]" (click)="toggleStatus()">
+        {{ getAction(!status) }}
       </button>
     </div>
     <div class="col-4">
-      <strong>Authentification: {{getAuth((auth$ | async))}}</strong><br/>
-      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!(auth$|async)]" (click)="toggleAuth()">
-        {{ getAction(!(auth$ | async)) }}
+      <strong>Authentification: {{getState(auth)}} - VLAN: {{ vlan }}</strong><br/>
+      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!auth]" (click)="toggleAuth()">
+        {{ getAction(!auth) }}
       </button>
     </div>
     <div class="col-4">
-      <strong>MAB: {{getMABStatus((mab$ | async))}}</strong><br/>
-      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!(mab$ | async)]" (click)="toggleMAB()">
-        {{ getAction(!(mab$ | async)) }}
+      <strong>MAB: {{getState(mab)}}</strong><br/>
+      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!mab]" (click)="toggleMAB()">
+        {{ getAction(!mab) }}
       </button>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-4">
-      <strong>VLAN {{ (vlan$ | async) }}</strong><br/>
-      <button class="w-100 btn btn-primary" (click)="toogleVLANForm()">Changer de VLAN</button>
-      <div class="row mt-3" *ngIf="changeVlanVisible">
-        <form (ngSubmit)="submitVLAN()" [formGroup]="vlanForm">
-          <input class="w-100 form-control" formControlName="vlanNumber" type="number"/>
-          <button class="w-100 btn btn-success mt-3" type="submit">
-            Assigner au VLAN {{ newVlanNumber }}
-          </button>
-        </form>
-      </div>
-    </div>
-    <!--
-    <div class="col-4">
-      <strong>Vitesse {{portSpeed / 1000000}} Mb/s</strong><br/>
-      <button class="w-100 btn btn-primary">
-        Changer le débit
-      </button>
-    </div>
-    -->
   </div>
 </div>
