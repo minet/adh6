@@ -2,7 +2,7 @@
 from connexion import NoContent
 
 from src.entity import AbstractPort, Port
-from src.exceptions import PortNotFoundError, SwitchNotFoundError
+from src.exceptions import NetworkManagerReadError, PortNotFoundError, SwitchNotFoundError, UnauthorizedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
@@ -88,6 +88,10 @@ class PortHandler(DefaultHandler):
             return NoContent, 404
         except PortNotFoundError:
             return NoContent, 404
+        except UnauthorizedError:
+            return NoContent, 403
+        except NetworkManagerReadError:
+            return NoContent, 400
 
     @with_context
     @require_sql

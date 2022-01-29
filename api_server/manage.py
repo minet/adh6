@@ -412,7 +412,7 @@ def seed():
     ])
 
     print("Seeding Roles")
-    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_superadmin"],
+    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_super_admin"]
     session.bulk_save_objects([
         Admin(
             id=e[0],

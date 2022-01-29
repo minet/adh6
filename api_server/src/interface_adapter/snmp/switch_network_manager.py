@@ -2,15 +2,21 @@
 """
 Implements everything related to SNMP-related actions
 """
+from src.constants import CTX_ROLES
+from src.entity.roles import Roles
 from src.entity.port import Port
 from src.entity.switch import Switch
-from src.exceptions import NetworkManagerReadError
+from src.exceptions import NetworkManagerReadError, UnauthorizedError
 from src.interface_adapter.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
+from src.use_case.decorator.auto_raise import auto_raise
+from src.use_case.decorator.security import defines_security, uses_security, SecurityDefinition
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
-from src.util.context import log_extra
-from src.util.log import LOG
 
-
+@defines_security(SecurityDefinition(
+    item={
+        "vlan": Roles.ADH6_SUPER_ADMIN | Roles.ADH6_ADMIN,
+    },
+))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
 
     def get_port_status(self, ctx, switch: Switch = None, port: Port = None) -> bool:
@@ -73,6 +79,9 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    
+    @uses_security("vlan")
+    @auto_raise
     def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> str:
         """
         Update the VLAN assigned to a port.
@@ -88,10 +97,14 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise NetworkManagerReadError("SNMP read error: port object was None")
 
         try:
+            roles = ctx.get(CTX_ROLES)
+            if int(vlan) in [2, 3, 102, 103, 104] and Roles.ADH6_SUPER_ADMIN.value not in roles:
+                raise UnauthorizedError()
+
             return set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan',
                                   port.oid, int(vlan))
-        except NetworkManagerReadError:
-            raise
+        except Exception as e:
+            raise e
 
     def get_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
