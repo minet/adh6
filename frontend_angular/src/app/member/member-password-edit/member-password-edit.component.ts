@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {MemberService} from '../../api';
 import { md4 } from 'hash-wasm';
 import {Location} from '@angular/common';
+import { AppConstantsService } from '../../app-constants.service';
 
 function passwordConfirming(c: AbstractControl): any {
   if (!c || !c.value) {
@@ -33,7 +33,7 @@ export class MemberPasswordEditComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
     private route: ActivatedRoute,
     private memberService: MemberService,
     private location: Location
@@ -91,7 +91,9 @@ export class MemberPasswordEditComponent implements OnInit {
         first(),
         tap((response) => {
           this.router.navigate(['member/view', +member_id]);
-          this.notif.success(response.status + ': Success');
+          this.appConstantService.Toast.fire({
+            title: response.status + ': Success',
+          });
         }),
       );
 

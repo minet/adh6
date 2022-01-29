@@ -4,8 +4,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 
 import {Room, RoomService} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
+import { AppConstantsService } from '../../app-constants.service';
 
 @Component({
   selector: 'app-room-new',
@@ -24,7 +24,7 @@ export class RoomNewComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) {
     this.createForm();
   }
@@ -50,7 +50,9 @@ export class RoomNewComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.router.navigate(['/room/view', v.roomNumber]);
-        this.notif.success('Success');
+        this.appConstantService.Toast.fire({
+          title: 'Success',
+        });
       });
     this.disabled = false;
   }

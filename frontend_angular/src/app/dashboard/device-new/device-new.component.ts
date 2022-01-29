@@ -1,10 +1,10 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Device, DeviceService} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
 import {localize_link} from '../../config/links.config';
+import { AppConstantsService } from '../../app-constants.service';
 
 @Component({
   selector: 'app-device-new',
@@ -22,7 +22,7 @@ export class DeviceNewComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private deviceService: DeviceService,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
     @Inject(LOCALE_ID) public locale: string) {
     this.createForm();
   }
@@ -44,7 +44,9 @@ export class DeviceNewComponent implements OnInit {
     this.deviceService.devicePost(device)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
-        this.notif.success('Success');
+        this.appConstantService.Toast.fire({
+          title: 'Success',
+        });
         this.added.emit(res);
       });
   }

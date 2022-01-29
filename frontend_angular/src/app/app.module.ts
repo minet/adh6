@@ -7,7 +7,6 @@ import {AppRoutingModule} from './app-routing.module';
 import {ApiModule, BASE_PATH, Device, Member, Room, Port, ModelSwitch, Transaction, Account} from './api';
 import {GlobalSearchComponent} from './global-search/global-search.component';
 import {NavbarComponent} from './navbar/navbar.component';
-import {NotificationAnimationType, SimpleNotificationsModule} from 'angular2-notifications';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AuthConfig, OAuthModule, OAuthStorage} from 'angular-oauth2-oidc';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
@@ -55,13 +54,6 @@ export function storageFactory(): OAuthStorage {
     ApiModule,
     ReactiveFormsModule,
     FormsModule,
-    SimpleNotificationsModule.forRoot({
-      timeOut: 3000,
-      clickToClose: false,
-      clickIconToClose: true,
-      animate: NotificationAnimationType.Fade,
-      showProgressBar: false,
-    }),
     BrowserAnimationsModule,
     OAuthModule.forRoot(),
     BsDropdownModule.forRoot(),

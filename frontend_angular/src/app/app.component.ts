@@ -6,8 +6,7 @@ import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
 import {filter, first, map} from 'rxjs/operators';
 import {faBug} from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BugReport, Member, MiscService} from './api';
-import {NotificationsService} from 'angular2-notifications';
+import {BugReport, MiscService} from './api';
 import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
 import {AppConstantsService} from './app-constants.service';
@@ -32,7 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public oauthService: OAuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private _service: NotificationsService,
+    private appConstantService: AppConstantsService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
     private appConstantsService: AppConstantsService
@@ -100,7 +99,11 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
         this.bugReportModal.hide();
         this.submitBugForm.reset();
-        this._service.success('Ok!', 'Bug envoyé avec succès ');
+        this.appConstantService.Toast.fire({
+          title: 'Ok!', 
+          text: 'Bug envoyé avec succès ',
+          icon: 'success'
+        });
       });
   }
 

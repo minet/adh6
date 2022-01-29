@@ -2,10 +2,10 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
-import {AbstractMember, AbstractMembership, AbstractRoom, Member, MemberService, MembershipService, RoomService} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
+import {AbstractMember, AbstractRoom, Member, MemberService, MembershipService, RoomService} from '../../api';
 import {finalize, first, mergeMap} from 'rxjs/operators';
 import {EMPTY, of} from 'rxjs';
+import { AppConstantsService } from '../../app-constants.service';
 
 
 @Component({
@@ -27,7 +27,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) {
     this.createForm();
   }
@@ -67,7 +67,11 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber:v.roomNumber})
       .subscribe((rooms) => {
         if (rooms.length == 0) {
-          this.notif.alert('Room not Found', "Room "+v.roomNumber+" has not be found")
+          this.appConstantService.Toast.fire({
+            title: 'Room not Found',
+            text: "Room "+v.roomNumber+" has not be found",
+            icon: 'error'
+          });
           return undefined
         }
         if (!this.create) {
@@ -109,7 +113,9 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((response) => {
         this.router.navigate(['member/search']);
-        this.notif.success(response.status + ': Success');
+        this.appConstantService.Toast.fire({
+          title: response.status + ': Success',
+        });
       });
   }
 

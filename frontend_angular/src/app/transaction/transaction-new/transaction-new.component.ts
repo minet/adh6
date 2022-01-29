@@ -7,7 +7,6 @@ import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
 import {Account, AccountService, PaymentMethod, Transaction, TransactionService} from '../../api';
 
 import {SearchPage} from '../../search-page';
-import {NotificationsService} from 'angular2-notifications';
 import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock} from '@fortawesome/free-solid-svg-icons';
 import {ActivatedRoute} from '@angular/router';
 import {AppConstantsService} from '../../app-constants.service';
@@ -47,8 +46,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   constructor(private fb: FormBuilder,
               public transactionService: TransactionService,
               private accountService: AccountService,
-              public appConstantsService: AppConstantsService,
-              private _service: NotificationsService,
+              public appConstantService: AppConstantsService,
               private route: ActivatedRoute) {
     super();
     this.createForm();
@@ -59,14 +57,20 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       this.transactionService.validate(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
         .subscribe((res) => {
-          this._service.success('Ok!', 'Transaction validée avec succès !');
+          this.appConstantService.Toast.fire({
+            title: 'Ok!',
+            text: 'Transaction validée avec succès !'
+          });
           this.refreshTransactions.next({action: 'refresh'});
         });
     } else if (event.name === 'delete') {
       this.transactionService.transactionTransactionIdDelete(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
         .subscribe((res) => {
-          this._service.success('Ok!', 'Transaction supprimée avec succès !');
+          this.appConstantService.Toast.fire({
+            title: 'Ok!',
+            text: 'Transaction supprimée avec succès !'
+          });
           this.refreshTransactions.next({action: 'refresh'});
         });
     }
@@ -168,7 +172,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       account => this.setSelectedAccount(account, true)
     );
 
-    this.appConstantsService.getPaymentMethods().subscribe(
+    this.appConstantService.getPaymentMethods().subscribe(
       data => {
         this.paymentMethods = data;
       }
@@ -194,7 +198,10 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.transactionDetails.reset();
-        this._service.success('Ok!', 'Transaction créée avec succès !');
+        this.appConstantService.Toast.fire({
+          title: 'Ok!',
+          text: 'Transaction créée avec succès !'
+        });
         this.refreshTransactions.next({action: 'refresh'});
       });
   }

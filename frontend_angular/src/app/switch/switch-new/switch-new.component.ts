@@ -2,9 +2,9 @@ import {Router} from '@angular/router';
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {NotificationsService} from 'angular2-notifications';
 import {ModelSwitch, SwitchService} from '../../api';
 import {takeWhile} from 'rxjs/operators';
+import { AppConstantsService } from '../../app-constants.service';
 
 @Component({
   selector: 'app-switch-new',
@@ -22,7 +22,7 @@ export class SwitchNewComponent implements OnInit {
     private fb: FormBuilder,
     public switchService: SwitchService,
     private router: Router,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) {
     this.createForm();
   }
@@ -47,7 +47,9 @@ export class SwitchNewComponent implements OnInit {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.router.navigate(['/switch/search']);
-        this.notif.success('Success');
+        this.appConstantService.Toast.fire({
+          title: 'Success',
+        });
       });
   }
 

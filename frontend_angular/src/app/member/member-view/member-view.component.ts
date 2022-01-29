@@ -4,7 +4,7 @@ import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
 import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember} from '../../api';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import { NotificationsService } from 'angular2-notifications';
+import { AppConstantsService } from '../../app-constants.service';
 
 @Component({
   selector: 'app-member-details',
@@ -42,7 +42,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     public accountService: AccountService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) {
     this.createForm();
   }
@@ -276,7 +276,11 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: +v.roomNumber})
           .subscribe(rooms => {
             if (rooms.length == 0) {
-              this.notif.alert("404: No Room", "There is no room with this number");
+              this.appConstantService.Toast.fire({
+                title: "404: No Room",
+                text: "There is no room with this number",
+                icon: 'error'
+              });
               return;
             }
             const room: Room = rooms[0];
@@ -285,7 +289,9 @@ export class MemberViewComponent implements OnInit, OnDestroy {
               .subscribe((response) => {
                 this.refreshInfo();
                 this.moveIn = false;
-                this.notif.success(response.status + ': Success');
+                this.appConstantService.Toast.fire({
+                  title: response.status + ': Success',
+                });
               })
           })
       })

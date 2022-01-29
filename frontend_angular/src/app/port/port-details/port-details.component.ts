@@ -1,8 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {finalize, Observable, tap} from 'rxjs';
+import {Observable} from 'rxjs';
 import {PortService, Port} from '../../api';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NotificationsService} from 'angular2-notifications';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { AppConstantsService } from '../../app-constants.service';
@@ -37,8 +36,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notif: NotificationsService,
-    private appConstant: AppConstantsService
+    private appConstantService: AppConstantsService
   ) { 
     this.createForm();
   }
@@ -70,7 +68,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.portPortIdStatePut(this.portID)
       .subscribe(value => {
         this.status = value;
-        this.appConstant.Toast.fire({
+        this.appConstantService.Toast.fire({
           title: "État du port modifié",
           icon: 'success'
         });
@@ -81,7 +79,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.portPortIdMabPut(this.portID)
       .subscribe(value => {
         this.mab = value;
-        this.appConstant.Toast.fire({
+        this.appConstantService.Toast.fire({
           title: "MAB modifié",
           icon: 'success'
         });
@@ -91,7 +89,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   public toggleAuth(): void {
     this.portService.portPortIdAuthPut(this.portID)
       .subscribe(value => {
-        this.appConstant.Toast.fire({
+        this.appConstantService.Toast.fire({
           title: "Authentification modifiée",
           icon: 'success'
         });
@@ -123,7 +121,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   submitVLAN(vlan: number) {
     this.portService.portPortIdVlanPut(vlan, this.portID)
       .subscribe(() => {
-        this.appConstant.Toast.fire({
+        this.appConstantService.Toast.fire({
           title: "Vlan modifié: " + vlan,
           icon: 'success'
         });
@@ -134,7 +132,11 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   IfRoomExists(roomNumber) {
     console.log(roomNumber);
     if (roomNumber == null) {
-      this.notif.error('This port is not assigned to a room');
+      this.appConstantService.Toast.fire({
+        title: 'Error',
+        text: 'This port is not assigned to a room',
+        icon: 'error'
+      });
     } else {
       this.router.navigate(['/room/view', roomNumber.roomNumber]);
     }

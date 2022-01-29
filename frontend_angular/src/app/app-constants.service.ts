@@ -24,7 +24,8 @@ export class AppConstantsService {
     position: 'top-end',
     showConfirmButton: false,
     timer: 1500,
-    timerProgressBar: true
+    timerProgressBar: true,
+    icon: 'success'
   })
 
   constructor(public accountService: AccountService,

@@ -3,9 +3,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 import {AbstractAccount, Account, AccountService, AccountType} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {Observable} from 'rxjs';
 import {switchMap, takeWhile} from 'rxjs/operators';
+import { AppConstantsService } from '../../app-constants.service';
 
 @Component({
   selector: 'app-account-edit',
@@ -26,7 +26,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) {
     this.createForm();
   }
@@ -56,7 +56,9 @@ export class AccountEditComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/account/view', this.account.id]);
-        this.notif.success(response.status + ': Success');
+        this.appConstantService.Toast.fire({
+          title: response.status + ': Success',
+        });
       });
     this.disabled = false;
   }

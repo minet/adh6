@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {finalize, first, map} from 'rxjs/operators';
 import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account} from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NotificationsService } from 'angular2-notifications';
+import { AppConstantsService } from '../../../app-constants.service';
 
 @Component({
   selector: 'app-cotisation',
@@ -35,7 +35,7 @@ export class CotisationComponent implements OnInit {
     public accountService: AccountService,
     private treasuryService: TreasuryService,
     private fb: FormBuilder,
-    private notif: NotificationsService,
+    private appConstantService: AppConstantsService,
   ) { 
     this.createForm();
   }
@@ -116,7 +116,11 @@ export class CotisationComponent implements OnInit {
       }),
     ).subscribe((response) => {
       if (+response.headers.get('x-total-count') == 0) { 
-        this.notif.alert("No Account", "There is no account selected for this subscription");
+        this.appConstantService.Toast.fire({
+          title: "No Account",
+          text: "There is no account selected for this subscription",
+          icon: 'warning'
+        });
         return;
       }
       const account: Account = response.body[0];
@@ -136,7 +140,10 @@ export class CotisationComponent implements OnInit {
         }
         this.membershipService.memberMemberIdMembershipUuidPatch(subscription, this.memberId, this.membership.uuid).subscribe(() => {
           this.membershipUpdated.emit(this.memberId);
-          this.notif.success("Membership update", "The membership for this member has been updated");
+          this.appConstantService.Toast.fire({
+            title: "Membership updated",
+            text: "The membership for this member has been updated"
+          });
         })
       });
     });
