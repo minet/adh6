@@ -12,6 +12,7 @@ from src.use_case.port_manager import PortManager
 from src.use_case.switch_manager import SwitchManager
 from src.util.context import log_extra
 from src.util.log import LOG
+from src.interface_adapter.http_api.util.error import handle_error
 
 
 class PortHandler(DefaultHandler):
@@ -84,14 +85,8 @@ class PortHandler(DefaultHandler):
 
             self.switch_network_manager.update_port_vlan(ctx, switch, port, int(body))
             return int(body), 204
-        except SwitchNotFoundError:
-            return NoContent, 404
-        except PortNotFoundError:
-            return NoContent, 404
-        except UnauthorizedError:
-            return NoContent, 403
-        except NetworkManagerReadError:
-            return NoContent, 400
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql
