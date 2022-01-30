@@ -1,8 +1,8 @@
 # coding=utf-8
-from ipaddress import IPv4Network, IPv6Network
+from ipaddress import AddressValueError, IPv4Network, IPv6Network
 from typing import List
 
-from src.exceptions import NoMoreIPAvailableException
+from src.exceptions import BadSubnetError, NoMoreIPAvailableException
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.interface.ip_allocator import IPAllocator
 
@@ -11,7 +11,10 @@ class IPSQLAllocator(IPAllocator):
 
     @log_call
     def allocate_ip_v4(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
-        network = IPv4Network(ip_range)
+        try:
+            network = IPv4Network(ip_range)
+        except AddressValueError as e:
+            raise BadSubnetError("Unknown ipv4 subnet")
 
         i = 0
         for host in network.hosts():
@@ -21,11 +24,14 @@ class IPSQLAllocator(IPAllocator):
 
             if str(host) not in taken_ips:
                 return str(host)
-        raise NoMoreIPAvailableException()
+        raise NoMoreIPAvailableException(ip_range)
 
     @log_call
     def allocate_ip_v6(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
-        network = IPv6Network(ip_range)
+        try:
+            network = IPv6Network(ip_range)
+        except AddressValueError as e:
+            raise BadSubnetError("Unknown ipv6 subnet")
 
         i = 0
         for host in network.hosts():
@@ -35,6 +41,6 @@ class IPSQLAllocator(IPAllocator):
 
             if str(host) not in taken_ips:
                 return str(host)
-        raise NoMoreIPAvailableException()
+        raise NoMoreIPAvailableException(ip_range)
 
 
