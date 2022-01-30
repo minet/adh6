@@ -4,6 +4,7 @@ import {finalize, first, map} from 'rxjs/operators';
 import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account} from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AppConstantsService } from '../../../app-constants.service';
+import { NotificationService } from '../../../notification.service';
 
 @Component({
   selector: 'app-cotisation',
@@ -35,7 +36,7 @@ export class CotisationComponent implements OnInit {
     public accountService: AccountService,
     private treasuryService: TreasuryService,
     private fb: FormBuilder,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
   ) { 
     this.createForm();
   }
@@ -115,12 +116,12 @@ export class CotisationComponent implements OnInit {
         this.cotisationDisabled = false;
       }),
     ).subscribe((response) => {
-      if (+response.headers.get('x-total-count') == 0) { 
-        this.appConstantService.Toast.fire({
-          title: "No Account",
-          text: "There is no account selected for this subscription",
-          icon: 'warning'
-        });
+      if (+response.headers.get('x-total-count') == 0) {
+        this.notificationService.errorNotification(
+          404,
+          "No Account",
+          "There is no account selected for this subscription"
+        );
         return;
       }
       const account: Account = response.body[0];
@@ -140,10 +141,10 @@ export class CotisationComponent implements OnInit {
         }
         this.membershipService.memberMemberIdMembershipUuidPatch(subscription, this.memberId, this.membership.uuid).subscribe(() => {
           this.membershipUpdated.emit(this.memberId);
-          this.appConstantService.Toast.fire({
-            title: "Membership updated",
-            text: "The membership for this member has been updated"
-          });
+          this.notificationService.successNotification(
+            "Membership updated",
+            "The membership for this member has been updated"
+          );
         })
       });
     });

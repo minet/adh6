@@ -10,6 +10,7 @@ import {BugReport, MiscService} from './api';
 import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
 import {AppConstantsService} from './app-constants.service';
+import { NotificationService } from './notification.service';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public oauthService: OAuthService,
     private route: ActivatedRoute,
     private router: Router,
+    private notificationService: NotificationService,
     private appConstantService: AppConstantsService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
@@ -99,11 +101,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
         this.bugReportModal.hide();
         this.submitBugForm.reset();
-        this.appConstantService.Toast.fire({
-          title: 'Ok!', 
-          text: 'Bug envoyé avec succès ',
-          icon: 'success'
-        });
+        this.notificationService.successNotification('Ok!', 'Bug envoyé avec succès ');
       });
   }
 

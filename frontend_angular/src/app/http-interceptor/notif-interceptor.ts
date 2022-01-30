@@ -6,12 +6,12 @@ import {catchError} from 'rxjs/operators';
 import {authConfig} from '../config/auth.config';
 import {ErrorPageService} from '../error-page.service';
 import {OAuthService} from 'angular-oauth2-oidc';
-import { AppConstantsService } from '../app-constants.service';
+import { NotificationService } from '../notification.service';
 
 @Injectable()
 export class NotifInterceptor implements HttpInterceptor {
   constructor(
-    private appConstant: AppConstantsService,
+    private notificationService: NotificationService,
     private errorPageService: ErrorPageService,
     private oauthService: OAuthService) {
   }
@@ -41,12 +41,7 @@ export class NotifInterceptor implements HttpInterceptor {
             if (req.method === 'GET' && req.headers.get('x-critical-error') === 'true') {
               this.errorPageService.show(err);
             } else {
-              this.appConstant.Toast.fire({
-                title: err.code + ' on ' + req.url,
-                text: err.message,
-                icon: 'error',
-                timer: 3000
-              });
+              this.notificationService.errorNotification(+err.code, err.code + ' on ' + req.url, err.message, 3000);
             }
           }
           return throwError(response);

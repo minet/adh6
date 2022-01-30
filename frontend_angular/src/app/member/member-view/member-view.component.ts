@@ -5,6 +5,7 @@ import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceServic
 import {ActivatedRoute} from '@angular/router';
 import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-member-details',
@@ -42,7 +43,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     public accountService: AccountService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -276,11 +277,11 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: +v.roomNumber})
           .subscribe(rooms => {
             if (rooms.length == 0) {
-              this.appConstantService.Toast.fire({
-                title: "404: No Room",
-                text: "There is no room with this number",
-                icon: 'error'
-              });
+              this.notificationService.errorNotification(
+                404,
+                'No Room',
+                'There is no room with this number'
+              )
               return;
             }
             const room: Room = rooms[0];
@@ -289,9 +290,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
               .subscribe((response) => {
                 this.refreshInfo();
                 this.moveIn = false;
-                this.appConstantService.Toast.fire({
-                  title: response.status + ': Success',
-                });
+                this.notificationService.successNotification();
               })
           })
       })

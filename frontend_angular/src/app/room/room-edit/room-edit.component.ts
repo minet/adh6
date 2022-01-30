@@ -7,6 +7,7 @@ import {Room, RoomService, VlanService} from '../../api';
 import {finalize, first, switchMap, tap} from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-room-edit',
@@ -25,7 +26,7 @@ export class RoomEditComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -56,9 +57,7 @@ export class RoomEditComponent implements OnInit {
         this.roomService.roomRoomIdPut(room, v.id)
           .subscribe(() => {
             this.router.navigate(['/room/view', v.roomNumber]);
-            this.appConstantService.Toast.fire({
-              title: 'Success',
-            });
+            this.notificationService.successNotification();
           });
       });
   }

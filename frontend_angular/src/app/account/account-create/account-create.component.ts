@@ -4,7 +4,7 @@ import {Account, AccountService, AccountType} from '../../api';
 import {takeWhile} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-account-create',
@@ -22,7 +22,7 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
     public accountService: AccountService,
     private router: Router,
   ) {
@@ -50,10 +50,7 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe(res => {
         this.router.navigate(['/treasury']);
-        this.appConstantService.Toast.fire({
-          title: 'Success',
-          icon: 'success'
-        })
+        this.notificationService.successNotification();
       });
 
     this.disabled = false;

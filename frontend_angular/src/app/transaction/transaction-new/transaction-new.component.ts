@@ -10,6 +10,7 @@ import {SearchPage} from '../../search-page';
 import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock} from '@fortawesome/free-solid-svg-icons';
 import {ActivatedRoute} from '@angular/router';
 import {AppConstantsService} from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 export {ClickOutsideDirective} from '../clickOutside.directive';
 
@@ -45,8 +46,9 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
 
   constructor(private fb: FormBuilder,
               public transactionService: TransactionService,
-              private accountService: AccountService,
               public appConstantService: AppConstantsService,
+              private accountService: AccountService,
+              private notificationService: NotificationService,
               private route: ActivatedRoute) {
     super();
     this.createForm();
@@ -57,20 +59,14 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       this.transactionService.validate(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
         .subscribe((res) => {
-          this.appConstantService.Toast.fire({
-            title: 'Ok!',
-            text: 'Transaction validée avec succès !'
-          });
+          this.notificationService.successNotification('Ok!', 'Transaction validée avec succès !');
           this.refreshTransactions.next({action: 'refresh'});
         });
     } else if (event.name === 'delete') {
       this.transactionService.transactionTransactionIdDelete(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
         .subscribe((res) => {
-          this.appConstantService.Toast.fire({
-            title: 'Ok!',
-            text: 'Transaction supprimée avec succès !'
-          });
+          this.notificationService.successNotification('Ok!', 'Transaction supprimée avec succès !');
           this.refreshTransactions.next({action: 'refresh'});
         });
     }
@@ -198,10 +194,7 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.transactionDetails.reset();
-        this.appConstantService.Toast.fire({
-          title: 'Ok!',
-          text: 'Transaction créée avec succès !'
-        });
+        this.notificationService.successNotification('Ok!', 'Transaction créée avec succès !');
         this.refreshTransactions.next({action: 'refresh'});
       });
   }

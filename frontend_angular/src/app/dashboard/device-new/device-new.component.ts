@@ -5,6 +5,7 @@ import {takeWhile} from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
 import {localize_link} from '../../config/links.config';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-device-new',
@@ -22,7 +23,7 @@ export class DeviceNewComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private deviceService: DeviceService,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
     @Inject(LOCALE_ID) public locale: string) {
     this.createForm();
   }
@@ -44,9 +45,7 @@ export class DeviceNewComponent implements OnInit {
     this.deviceService.devicePost(device)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
-        this.appConstantService.Toast.fire({
-          title: 'Success',
-        });
+        this.notificationService.successNotification();
         this.added.emit(res);
       });
   }
