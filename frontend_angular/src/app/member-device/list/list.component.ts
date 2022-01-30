@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {AbstractDevice, Device, DeviceService} from '../api';
-import {PagingConf} from '../paging.config';
+import {AbstractDevice, Device, DeviceService} from '../../api';
+import {PagingConf} from '../../paging.config';
 import {first, map} from 'rxjs/operators';
-import {SearchPage} from '../search-page';
+import {SearchPage} from '../../search-page';
 
 class DeviceListReponse {
   devices?: Array<Device>;
@@ -14,10 +14,10 @@ class DeviceListReponse {
 
 @Component({
   selector: 'app-member-device-list',
-  templateUrl: './member-device-list.component.html',
-  styleUrls: ['./member-device-list.component.css']
+  templateUrl: './list.component.html',
+  styleUrls: ['./list.component.css']
 })
-export class MemberDeviceListComponent extends SearchPage implements OnInit {
+export class ListComponent extends SearchPage implements OnInit {
   @Input() filter: any;
   @Input() macHighlighted: Observable<string>;
   @Input() abstractDeviceFilter: AbstractDevice = {};

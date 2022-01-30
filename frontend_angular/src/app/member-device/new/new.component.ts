@@ -9,10 +9,10 @@ import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-device-new',
-  templateUrl: './device-new.component.html',
-  styleUrls: ['./device-new.component.sass']
+  templateUrl: './new.component.html',
+  styleUrls: ['./new.component.sass']
 })
-export class DeviceNewComponent implements OnInit {
+export class NewComponent implements OnInit {
   deviceForm: FormGroup;
   public localize_link = localize_link;
   private alive = true;
