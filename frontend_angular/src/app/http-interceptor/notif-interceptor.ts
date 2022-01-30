@@ -3,22 +3,20 @@ import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/com
 
 import {Observable, throwError} from 'rxjs';
 import {catchError} from 'rxjs/operators';
-import {authConfig} from '../config/auth.config';
 import {ErrorPageService} from '../error-page.service';
-import {OAuthService} from 'angular-oauth2-oidc';
 import { NotificationService } from '../notification.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class NotifInterceptor implements HttpInterceptor {
   constructor(
     private notificationService: NotificationService,
     private errorPageService: ErrorPageService,
-    private oauthService: OAuthService) {
-  }
+    private router: Router
+  ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler):
     Observable<HttpEvent<any>> {
-    const api_url = authConfig.redirectUri;
     // Check that the request is for the API server
       // if there is an error, notify
       return next.handle(req).pipe(
@@ -36,7 +34,7 @@ export class NotifInterceptor implements HttpInterceptor {
             err = response.error;
           }
           if (err.code === 401) {
-            this.oauthService.logOut();
+            this.router.navigate(['/dashboard'])
           } else {
             if (req.method === 'GET' && req.headers.get('x-critical-error') === 'true') {
               this.errorPageService.show(err);
