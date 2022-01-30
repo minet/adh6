@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MemberDeviceListComponent } from './member-device-list.component';
+import { MacVendorComponent } from './mac-vendor/mac-vendor.component';
 
 
 
 @NgModule({
   declarations: [
-    MemberDeviceListComponent
+    MemberDeviceListComponent,
+    MacVendorComponent
   ],
   imports: [
     CommonModule
