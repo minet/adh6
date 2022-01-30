@@ -18,9 +18,22 @@ export class SessionService {
   ) { }
 
   checkSession(): void {
+    if (this.oauthService.hasValidAccessToken()) {
+      this.oauthService.loadDiscoveryDocumentAndTryLogin().then(_ => {
+        this.oauthService.loadUserProfile()
+          .then(v => {
+            const _info = v['info'];
+            if (_info === undefined) return
+            this.loadProfileAndSetupAbilities(_info['attributes'])
+          });
+      });
+      return;
+    }
+
     this.oauthService.events
       .pipe(filter(e => e.type === 'token_received'))
-      .subscribe(_ => {
+      .subscribe(event => {
+        console.log(event)
         this.configurationAPI.accessToken = this.oauthService.getAccessToken();
         this.oauthService.loadUserProfile()
           .then(v => {
