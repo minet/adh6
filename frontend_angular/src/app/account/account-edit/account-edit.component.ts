@@ -6,6 +6,7 @@ import {AbstractAccount, Account, AccountService, AccountType} from '../../api';
 import {Observable} from 'rxjs';
 import {switchMap, takeWhile} from 'rxjs/operators';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-account-edit',
@@ -26,7 +27,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -56,9 +57,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/account/view', this.account.id]);
-        this.appConstantService.Toast.fire({
-          title: response.status + ': Success',
-        });
+        this.notificationService.successNotification();
       });
     this.disabled = false;
   }

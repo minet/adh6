@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {DeviceService} from '../../api';
+import {DeviceService} from '../../../api';
 import {first, map} from 'rxjs/operators';
 
 @Component({

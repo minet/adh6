@@ -368,7 +368,7 @@ def seed():
     ))
 
     print("Seeding vlans")
-    vlans = [35, "10.42.0.0/16", "", "", ""], [36, "157.159.192.0/22", "", "157.159.195.0/24", ""], [30, "172.30.0.0/16", "", "", ""], [41, "157.159.41.0/24", "", "157.159.41.1/32", ""], [35, "10.42.0.0/16", "", "", ""]
+    vlans = [41, "157.159.41.0/24", "2001:660:3203:401::/64", "157.159.41.1/32", ""], [35, "10.42.0.0/16", "", "", ""], [36, "157.159.192.0/22", "", "157.159.195.0/24", ""], [30, "172.30.0.0/16", "", "", ""], [35, "10.42.0.0/16", "", "", ""]
     session.bulk_save_objects([
         Vlan(
             numero=e[0], 
@@ -385,7 +385,7 @@ def seed():
             id=i,
             numero=i,
             description="Chambre " + str(i),
-            vlan_id=3
+            vlan_id=1
         ) for i in range(1, 30)
     ])
 
@@ -412,7 +412,7 @@ def seed():
     ])
 
     print("Seeding Roles")
-    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_super_admin"]
+    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_super_admin"],
     session.bulk_save_objects([
         Admin(
             id=e[0],
@@ -445,7 +445,9 @@ def fake(login):
         admin_id=1,
         datesignedminet=now,
         signedminet=True,
-        date_de_depart=now + dt.timedelta(days=365)
+        date_de_depart=now + dt.timedelta(days=365),
+        subnet="10.0.42.0/28",
+        ip="157.159.192.2"
     )
 
     session.add(adherent)

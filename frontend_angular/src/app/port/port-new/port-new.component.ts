@@ -3,7 +3,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Port, PortService, SwitchService} from '../../api';
 import {takeWhile} from 'rxjs/operators';
-import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-port-new',
@@ -21,7 +21,7 @@ export class PortNewComponent implements OnInit {
     private fb: FormBuilder,
     public portService: PortService,
     private router: Router,
-    private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
     private route: ActivatedRoute,
   ) {
     this.createForm();
@@ -47,9 +47,7 @@ export class PortNewComponent implements OnInit {
       .pipe(takeWhile(() => this.alive))
       .subscribe((res: Port) => {
         this.router.navigate(['/switch/', this.switch_id, '/port/', res.id]);
-        this.appConstantService.Toast.fire({
-          title: 'Success',
-        });
+        this.notificationService.successNotification();
       });
   }
 

@@ -6,6 +6,7 @@ import {AbstractMember, AbstractRoom, Member, MemberService, MembershipService, 
 import {finalize, first, mergeMap} from 'rxjs/operators';
 import {EMPTY, of} from 'rxjs';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private appConstantService: AppConstantsService,
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -67,11 +69,11 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber:v.roomNumber})
       .subscribe((rooms) => {
         if (rooms.length == 0) {
-          this.appConstantService.Toast.fire({
-            title: 'Room not Found',
-            text: "Room "+v.roomNumber+" has not be found",
-            icon: 'error'
-          });
+          this.notificationService.errorNotification(
+            404,
+            'Room not Found',
+            "Room "+v.roomNumber+" has not be found"
+          );
           return undefined
         }
         if (!this.create) {
@@ -113,9 +115,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((response) => {
         this.router.navigate(['member/search']);
-        this.appConstantService.Toast.fire({
-          title: response.status + ': Success',
-        });
+        this.notificationService.successNotification();
       });
   }
 
