@@ -323,7 +323,7 @@ def seed():
     session.bulk_save_objects([
         AccountType(
             id=e[0],
-            name=e[0]
+            name=e[1]
         ) for e in account_types
     ])
 
