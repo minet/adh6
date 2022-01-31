@@ -18,4 +18,16 @@ def api_client():
 
 def test_token_info_testing(api_client):
     with app.app.test_request_context():
-        assert token_info("IGNORED") == {'uid': 'TestingClient', 'scope': ['profile'], 'groups': []}
+        assert token_info("IGNORED") == {
+            'uid': 'TestingClient', 
+            'scope': ['profile'],
+            'groups': [
+                "adh6_user", 
+                "adh6_admin", 
+                "adh6_treso",
+                "adh6_superadmin",
+                "cluster-dev",
+                "cluster-prod",
+                "cluster-hosting"
+            ]
+        }

@@ -10,10 +10,10 @@ from src.use_case.interface.account_type_repository import AccountTypeRepository
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     },
     collection={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     }
 ))
 class AccountTypeManager(CRUDManager):

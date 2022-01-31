@@ -10,7 +10,7 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN,
+        "read": Roles.ADMIN,
     }
 ))
 class VLANManager(CRUDManager):

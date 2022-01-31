@@ -9,10 +9,10 @@ from src.use_case.interface.payment_method_repository import PaymentMethodReposi
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     },
     collection={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     }
 ))
 class PaymentMethodManager(CRUDManager):

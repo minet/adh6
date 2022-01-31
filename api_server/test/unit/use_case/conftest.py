@@ -32,7 +32,7 @@ def ctx(sample_member):
     return build_context(
         admin=sample_member,
         testing=True,
-        roles=[Roles.ADH6_USER, Roles.ADH6_ADMIN, Roles.ADH6_SUPERADMIN, Roles.ADH6_TRESO]
+        roles=[Roles.USER, Roles.ADMIN, Roles.SUPERADMIN, Roles.TRESO]
     )
 
 

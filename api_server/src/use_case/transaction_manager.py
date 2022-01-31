@@ -16,13 +16,13 @@ from src.use_case.payment_method_manager import PaymentMethodManager
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN,
-        "update": Roles.ADH6_TRESO,
-        "delete": Roles.ADH6_TRESO
+        "read": Roles.ADMIN,
+        "update": Roles.TRESO,
+        "delete": Roles.TRESO
     },
     collection={
-        "read": Roles.ADH6_ADMIN,
-        "create": Roles.ADH6_ADMIN,
+        "read": Roles.ADMIN,
+        "create": Roles.ADMIN,
     }
 ))
 class TransactionManager(CRUDManager):
@@ -51,7 +51,7 @@ class TransactionManager(CRUDManager):
         @uses_security("create", is_collection=True)
         def _force_invalid(cls, ctx, obj):
             roles = ctx.get(CTX_ROLES)
-            if Roles.ADH6_TRESO.value not in roles:
+            if Roles.TRESO.value not in roles:
                 obj.pending_validation = True
         _force_invalid(self, ctx, abstract_transaction)
 
