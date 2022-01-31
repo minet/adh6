@@ -6,8 +6,8 @@ from flask import current_app
 
 from src.util.env import is_development_environment
 
-ADH6_USER = "adh6_user"
-ADH6_ADMIN = "adh6_admin"
+USER = "adh6_user"
+ADMIN = "adh6_admin"
 
 TESTING_CLIENT = 'TestingClient'
 
@@ -18,7 +18,15 @@ def token_info(access_token) -> dict:
         return {
             "uid": TESTING_CLIENT,
             "scope": ["profile"],
-            "groups": []
+            "groups": [
+                "adh6_user", 
+                "adh6_admin", 
+                "adh6_treso",
+                "adh6_superadmin",
+                "cluster-dev",
+                "cluster-prod",
+                "cluster-hosting"
+            ]
         }
     return authenticate_against_sso(access_token)
 

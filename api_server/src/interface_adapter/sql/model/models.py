@@ -83,6 +83,7 @@ class Adherent(Base, RubyHashTrackable):
     subnet = Column(String(255))
     ip = Column(String(255))
     ldap_login = Column(String(255))
+    is_naina = Column(Boolean, default=False, nullable=False)
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
