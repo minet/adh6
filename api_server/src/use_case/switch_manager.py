@@ -9,12 +9,12 @@ from src.entity.roles import Roles
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN,
-        "update": Roles.ADH6_ADMIN,
+        "read": Roles.ADMIN,
+        "update": Roles.ADMIN,
     },
     collection={
-        "read": Roles.ADH6_ADMIN,
-        "create" : Roles.ADH6_ADMIN,
+        "read": Roles.ADMIN,
+        "create" : Roles.ADMIN,
     }
 ))
 class SwitchManager(CRUDManager):

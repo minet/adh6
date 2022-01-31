@@ -35,7 +35,10 @@ def _find_admin(session: Session, username):
         adherent = query.one_or_none()
 
         if adherent is not None:
-            roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
+            #roles = [Roles.USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
+            roles = connexion.context["token_info"]["groups"]
+            if adherent.is_naina and "adh6_admin" not in roles:
+                roles += ["adh6_admin"]
             return _map_member_sql_to_entity(adherent), roles
         else:
             raise AdminNotFoundError(username)

@@ -52,18 +52,18 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "admin": Roles.ADH6_ADMIN,
-        "profile": Roles.ADH6_USER,
-        "password": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "update": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "read": (Member.id == Admin.member) | Roles.ADMIN,
+        "admin": Roles.ADMIN,
+        "profile": Roles.USER,
+        "password": (Member.id == Admin.member) | Roles.ADMIN,
+        "membership": (Member.id == Admin.member) | Roles.ADMIN,
+        "create": (Member.id == Admin.member) | Roles.ADMIN,
+        "update": (Member.id == Admin.member) | Roles.ADMIN
     },
     collection={
-        "read": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADH6_ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADH6_ADMIN
+        "read": (Member.id == Admin.member) | Roles.ADMIN,
+        "create": (Member.id == Admin.member) | Roles.ADMIN,
+        "membership": (Member.id == Admin.member) | Roles.ADMIN
     }
 ))
 class MemberManager(CRUDManager):

@@ -7,10 +7,10 @@ from src.use_case.interface.logs_repository import LogsRepository
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     },
     collection={
-        "read": Roles.ADH6_USER
+        "read": Roles.USER
     }
 ))
 class StatsManager:

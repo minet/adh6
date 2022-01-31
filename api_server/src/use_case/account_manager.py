@@ -10,10 +10,10 @@ from src.use_case.interface.account_repository import AccountRepository
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Account.member.id == Admin.member) | (AbstractAccount.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": (Account.member.id == Admin.member) | (AbstractAccount.member == Admin.member) | Roles.ADMIN
     },
     collection={
-        "read": (AbstractAccount.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": (AbstractAccount.member == Admin.member) | Roles.ADMIN
     }
 ))
 class AccountManager(CRUDManager):

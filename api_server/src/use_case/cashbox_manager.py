@@ -11,11 +11,11 @@ from src.util.log import LOG
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADH6_ADMIN,
-        "update": Roles.ADH6_ADMIN | Roles.ADH6_TRESO
+        "read": Roles.ADMIN,
+        "update": Roles.ADMIN | Roles.TRESO
     },
     collection={
-        "read": Roles.ADH6_ADMIN
+        "read": Roles.ADMIN
     }
 ))
 class CashboxManager:

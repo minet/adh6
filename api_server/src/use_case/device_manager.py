@@ -15,13 +15,13 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
+        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
+        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN
     },
     collection={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADH6_ADMIN,
-        "create": (Device.member == Admin.member) | Roles.ADH6_ADMIN
+        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
+        "create": (Device.member == Admin.member) | Roles.ADMIN
     }
 ))
 class DeviceManager(CRUDManager):

@@ -111,7 +111,7 @@ class TransactionSQLRepository(TransactionRepository):
             attachments="",
             payment_method=method,
             author=author_ref,
-            pending_validation=abstract_transaction.pending_validation
+            pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
         )
 
         with track_modifications(ctx, session, transaction):
