@@ -1,4 +1,5 @@
 # coding=utf-8
+from typing import List
 import requests
 import requests.exceptions
 from flask import current_app
@@ -41,6 +42,7 @@ def get_sso_groups(token):
         return None
 
     result = r.json()
+    print(result)
     return result
 
 
@@ -48,7 +50,12 @@ def authenticate_against_sso(access_token):
     infos = get_sso_groups(access_token)
     if not infos:
         return None
+    groups = ['user']
+    if 'attributes' in infos and 'memberOf' in infos['attributes']:
+        groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
+
     return {
         "uid": infos["id"],
         "scope": ['profile'],
+        "groups": groups
     }

@@ -35,8 +35,9 @@ def _find_admin(session: Session, username):
         adherent = query.one_or_none()
 
         if adherent is not None:
-            roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
-            return _map_member_sql_to_entity(adherent), roles
+            #roles = [Roles.ADH6_USER.value] if adherent.admin is None else adherent.admin.roles.split(",")
+            print(connexion.context["token_info"]["groups"])
+            return _map_member_sql_to_entity(adherent), connexion.context["token_info"]["groups"]
         else:
             raise AdminNotFoundError(username)
 
@@ -111,6 +112,8 @@ def uses_security(action, is_collection=False):
                 arguments = merge_obj_to_dict(arguments, obj)
                 arguments = merge_obj_to_dict(arguments, Admin(login=user, member=adherent.id, roles=admin_roles))
                 arguments['Roles'] = admin_roles
+
+                print(arguments)
 
                 authorized = False
 

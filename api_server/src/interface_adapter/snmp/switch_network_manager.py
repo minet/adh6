@@ -14,7 +14,7 @@ from src.use_case.interface.switch_network_manager import SwitchNetworkManager
 
 @defines_security(SecurityDefinition(
     item={
-        "vlan": Roles.ADH6_SUPER_ADMIN | Roles.ADH6_ADMIN,
+        "vlan": Roles.ADH6_SUPERADMIN | Roles.ADH6_ADMIN,
     },
 ))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
@@ -98,11 +98,15 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
 
         try:
             roles = ctx.get(CTX_ROLES)
-            if int(vlan) in [2, 3, 102, 103, 104] and Roles.ADH6_SUPER_ADMIN.value not in roles:
+            vlan = int(vlan)
+            if (
+                ((vlan == 3 or vlan == 103) and Roles.ADH6_VLAN_DEV.value not in roles)
+                or ((vlan == 2 or vlan == 102) and Roles.ADH6_VLAN_PROD.value not in roles)
+                or ((vlan == 104) and Roles.ADH6_VLAN_HOSTING.value not in roles)
+            ):
                 raise UnauthorizedError()
 
-            return set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan',
-                                  port.oid, int(vlan))
+            return set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', port.oid, vlan)
         except Exception as e:
             raise e
 
