@@ -4,9 +4,10 @@ import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 
 
 import {Room, RoomService, VlanService} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {finalize, first, switchMap, tap} from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-room-edit',
@@ -25,7 +26,7 @@ export class RoomEditComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notif: NotificationsService,
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -56,7 +57,7 @@ export class RoomEditComponent implements OnInit {
         this.roomService.roomRoomIdPut(room, v.id)
           .subscribe(() => {
             this.router.navigate(['/room/view', v.roomNumber]);
-            this.notif.success('Success');
+            this.notificationService.successNotification();
           });
       });
   }

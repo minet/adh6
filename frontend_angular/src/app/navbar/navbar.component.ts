@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {AppComponent} from '../app.component';
 import {OAuthService} from 'angular-oauth2-oidc';
 import {authConfig} from '../config/auth.config';
@@ -9,30 +9,20 @@ import {authConfig} from '../config/auth.config';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent implements OnInit {
-
-  public titre: string = this.appcomponent.titre;
+export class NavbarComponent {
   navBarStatus = false;
 
-  constructor(private oauthService: OAuthService,
-              private appComponent: AppComponent,
-              private appcomponent: AppComponent) {
-  }
+  constructor(
+    private oauthService: OAuthService,
+    private appComponent: AppComponent
+  ) { }
 
   logout() {
     this.oauthService.logOut();
     window.location.href = authConfig.logoutUrl;
   }
 
-  ngOnInit() {
-  }
-
   isAuthenticated() {
     return this.appComponent.isAuthenticated();
   }
-
-  toggleNavbar() {
-    this.navBarStatus = !this.navBarStatus;
-  }
-
 }

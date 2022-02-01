@@ -3,9 +3,9 @@ import {Observable} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 import {Location} from '@angular/common';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-room-details',
@@ -30,7 +30,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private location: Location,
-    private notif: NotificationsService,
+    private notificationService: NotificationService,
     private router: Router,
     public roomService: RoomService,
     public portService: PortService,
@@ -81,11 +81,11 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
           .pipe(takeWhile(() => this.alive))
           .subscribe((response) => {
             this.refreshInfo();
-            this.notif.success(response.status + ': Success');
+            this.notificationService.successNotification();
             this.onEmmenager();
           });
       }, (member) => {
-        this.notif.error('Member ' + v.username + ' does not exists');
+        this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
       });
   }
 
@@ -95,14 +95,14 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
     this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: v.roomNumberNew})
       .subscribe(rooms => {
         if (rooms.length == 0) {
-          this.notif.alert("404", "The room does not exists");
+          this.notificationService.errorNotification(404, undefined, "The room with number: " + v.roomNumberNew + " does not exists");
           return
         }
         const room: Room = rooms[0];
         this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
           .subscribe((members) => {
             if (members.length == 0) {
-              this.notif.alert("404", "The member " + username + " does not exists");
+              this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
               return
             }
             const member: Member = members[0];
@@ -112,7 +112,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
                 this.refreshInfo();
                 this.onDemenager(username);
                 this.router.navigate(['room', v.roomNumberNew]);
-                this.notif.success(response.status + ': Success');
+                this.notificationService.successNotification();
               });
           });
       })
@@ -122,7 +122,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
     this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
       .subscribe((members) => {
         if (members.length == 0) {
-          this.notif.alert("404", "The member " + username + " does not exists");
+          this.notificationService.errorNotification(404, undefined, 'Member ' + username + ' does not exists');
           return
         }
         const member: Member = members[0];
@@ -131,7 +131,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
           .subscribe((response) => {
             this.refreshInfo();
             this.location.back();
-            this.notif.success(response.status + ': Success');
+            this.notificationService.successNotification();
           });
       });
   }
@@ -141,7 +141,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['room']);
-        this.notif.success(response.status + ': Success');
+        this.notificationService.successNotification();
       });
   }
 

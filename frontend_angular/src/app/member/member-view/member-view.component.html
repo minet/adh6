@@ -110,7 +110,7 @@
     <div *ngIf="cotisation">
       <ng-container *ngIf="latestMembership$ | async as latestMembership">
         <ng-container *ngIf="member_id$ | async as memberId">
-          <app-cotisation (membershipUpdated)="refreshMembership($event)" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
+          <app-cotisation (membershipUpdated)="refreshMembership($event)" [member]="member" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
         </ng-container>
       </ng-container>
     </div>
@@ -134,29 +134,7 @@
                             [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
                             [macHighlighted]="macHighlighted$"></app-member-device-list>
 
-
-    <form (ngSubmit)="submitDevice()" [formGroup]="deviceForm" class="w-100" novalidate>
-      <div class="form-row">
-        <div class="from-group col-md-8">
-          <input class="w-100 form-control mb-3" formControlName="mac" type="text">
-        </div>
-        <div class="from-group col-md-4">
-          <select class="w-100 form-control mb-3" formControlName="connectionType"
-                  type="text">
-            <option value="wired">Filaire</option>
-            <option value="wireless">Wi-Fi</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <button [disabled]="submitDisabled || deviceForm.status == 'INVALID'"
-                class="w-100 btn btn-primary mb-3"
-                type="submit">Ajouter l'appareil
-        </button>
-      </div>
-    </form>
-
+    <app-device-new [member_id]="member.id" (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()"></app-device-new>
 
     <h3>Commentaire</h3>
     <form (ngSubmit)="submitComment()" [formGroup]="commentForm" novalidate>

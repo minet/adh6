@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {OAuthService} from 'angular-oauth2-oidc';
-import {Member} from '../api';
+import {Configuration, Member} from '../api';
 import {localize_link} from '../config/links.config';
 import { LOCALE_ID, Inject } from '@angular/core';
 import {AppConstantsService} from '../app-constants.service';
@@ -19,10 +19,11 @@ export class DashboardComponent implements OnInit {
   isAssociationMode = false;
   member$: Observable<Member> = this.appConstantsService.getCurrentMember();
 
-  constructor(private oauthService: OAuthService,
-              private appConstantsService: AppConstantsService,
-              @Inject(LOCALE_ID) public locale: string) {
-  }
+  constructor(
+    private oauthService: OAuthService,
+    private appConstantsService: AppConstantsService,
+    @Inject(LOCALE_ID) public locale: string
+  ) { }
 
   ngOnInit() {
     this.member$.subscribe(member => {
@@ -34,6 +35,7 @@ export class DashboardComponent implements OnInit {
   public get name() {
     const claims: any = this.oauthService.getIdentityClaims();
     if (!claims) { return null; }
+    if (!claims.attributes) { return null; }
     return claims.attributes.displayName;
   }
 }

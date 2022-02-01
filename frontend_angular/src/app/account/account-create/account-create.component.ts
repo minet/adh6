@@ -3,8 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Account, AccountService, AccountType} from '../../api';
 import {takeWhile} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NotificationsService} from 'angular2-notifications';
 import {Observable} from 'rxjs';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-account-create',
@@ -22,9 +22,9 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
+    private notificationService: NotificationService,
     public accountService: AccountService,
     private router: Router,
-    private notif: NotificationsService,
   ) {
     this.createForm();
   }
@@ -50,7 +50,7 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe(res => {
         this.router.navigate(['/treasury']);
-        this.notif.success('Success');
+        this.notificationService.successNotification();
       });
 
     this.disabled = false;

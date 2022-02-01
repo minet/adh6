@@ -1,12 +1,13 @@
 # coding=utf-8
+from typing import List
 import requests
 import requests.exceptions
 from flask import current_app
 
 from src.util.env import is_development_environment
 
-ADH6_USER = "adh6_user"
-ADH6_ADMIN = "adh6_admin"
+USER = "adh6_user"
+ADMIN = "adh6_admin"
 
 TESTING_CLIENT = 'TestingClient'
 
@@ -17,7 +18,15 @@ def token_info(access_token) -> dict:
         return {
             "uid": TESTING_CLIENT,
             "scope": ["profile"],
-            "groups": []
+            "groups": [
+                "adh6_user", 
+                "adh6_admin", 
+                "adh6_treso",
+                "adh6_superadmin",
+                "cluster-dev",
+                "cluster-prod",
+                "cluster-hosting"
+            ]
         }
     return authenticate_against_sso(access_token)
 
@@ -41,6 +50,7 @@ def get_sso_groups(token):
         return None
 
     result = r.json()
+    print(result)
     return result
 
 
@@ -48,7 +58,12 @@ def authenticate_against_sso(access_token):
     infos = get_sso_groups(access_token)
     if not infos:
         return None
+    groups = ['user']
+    if 'attributes' in infos and 'memberOf' in infos['attributes']:
+        groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
+
     return {
         "uid": infos["id"],
         "scope": ['profile'],
+        "groups": groups
     }

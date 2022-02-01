@@ -1,24 +1,21 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { OAuthService} from 'angular-oauth2-oidc';
+import {Component, ViewChild} from '@angular/core';
+import {OAuthService} from 'angular-oauth2-oidc';
 import {authBypass} from './config/auth.config';
-import {NAINA_FIELD, NAINA_PREFIX} from './config/naina.config';
-import {ActivatedRoute, Router, RoutesRecognized} from '@angular/router';
-import {filter, first, map} from 'rxjs/operators';
+import {Router, RoutesRecognized} from '@angular/router';
 import {faBug} from '@fortawesome/free-solid-svg-icons';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BugReport, Member, MiscService} from './api';
-import {NotificationsService} from 'angular2-notifications';
+import {BugReport, MiscService, Configuration} from './api';
 import {Subject} from 'rxjs';
 import {ErrorPageService} from './error-page.service';
-import {AppConstantsService} from './app-constants.service';
+import { NotificationService } from './notification.service';
+import {SessionService} from './session.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
-  titre = 'MiNET - ADH6';
+export class AppComponent {
   faBug = faBug;
   submitBugForm: FormGroup;
   currentPageAuthBypass = false;
@@ -29,22 +26,22 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    public oauthService: OAuthService,
-    private route: ActivatedRoute,
+    private oauthService: OAuthService,
+    private configurationAPI: Configuration,
+    private sessionService: SessionService,
     private router: Router,
-    private _service: NotificationsService,
+    private notificationService: NotificationService,
     private miscService: MiscService,
     private errorPageService: ErrorPageService,
-    private appConstantsService: AppConstantsService
   ) {
-    this.configureWithNewConfigApi();
+    this.sessionService.checkSession();
     this.createForm();
 
     router.events.subscribe(event => {
       if (event instanceof RoutesRecognized) {
         this.hasError.next(false);
         const r = event.state.root.firstChild;
-        this.currentPageAuthBypass = !!r.data['bypassAuth'];
+        this.currentPageAuthBypass = Boolean(r.data['bypassAuth']);
       }
     });
   }
@@ -57,36 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   isAuthenticated() {
-    return authBypass || this.oauthService.hasValidAccessToken();
-  }
-
-  needsAuth() {
-    return !this.currentPageAuthBypass;
-  }
-
-  ngOnInit() {
-    this.isAuthenticated();
-    this.route.fragment
-      .pipe(
-        filter((fragment) => fragment != null && fragment.startsWith(NAINA_FIELD + NAINA_PREFIX)),
-        map((fragment) => fragment.substring(NAINA_FIELD.length)),
-        first(),
-      )
-      .subscribe((token) => {
-        if (this.isAuthenticated()) {
-          alert('Vous êtes déjà authentifié.');
-          return;
-        }
-        sessionStorage.setItem('access_token', token);
-        sessionStorage.setItem('granted_scopes', '["profile"]');
-        sessionStorage.setItem('access_token_stored_at', '' + Date.now());
-
-        // const pathWithoutHash = this.location.path(false);
-        // this.location.replaceState(pathWithoutHash);
-      });
-  }
-
-  ngOnDestroy() {
+    return (this.currentPageAuthBypass || authBypass || this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
   }
 
   onSubmitBug() {
@@ -97,10 +65,10 @@ export class AppComponent implements OnInit, OnDestroy {
     };
 
     this.miscService.bugReportPost(bugReport)
-      .subscribe((res) => {
+      .subscribe(_ => {
         this.bugReportModal.hide();
         this.submitBugForm.reset();
-        this._service.success('Ok!', 'Bug envoyé avec succès ');
+        this.notificationService.successNotification('Ok!', 'Bug envoyé avec succès ');
       });
   }
 
@@ -114,23 +82,4 @@ export class AppComponent implements OnInit, OnDestroy {
     const stateComponent = <any>state.component;
     return stateComponent ? stateComponent.name : '';
   }
-
-  loadProfileAndSetupAbilities() {
-    if (this.oauthService.hasValidAccessToken()) {
-      this.appConstantsService.getCurrentMember();
-    }
-  }
-
-  private configureWithNewConfigApi() {
-    this.oauthService.events
-      .pipe(filter(e => e.type === 'token_received'))
-      .subscribe(_ => {
-        this.oauthService.loadUserProfile();
-        this.loadProfileAndSetupAbilities();
-      });
-    this.oauthService.loadDiscoveryDocumentAndTryLogin();
-    this.loadProfileAndSetupAbilities();
-  }
-
 }
-

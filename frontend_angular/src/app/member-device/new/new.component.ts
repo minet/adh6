@@ -1,17 +1,18 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Device, DeviceService} from '../../api';
-import {NotificationsService} from 'angular2-notifications';
 import {takeWhile} from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
 import {localize_link} from '../../config/links.config';
+import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-device-new',
-  templateUrl: './device-new.component.html',
-  styleUrls: ['./device-new.component.sass']
+  templateUrl: './new.component.html',
+  styleUrls: ['./new.component.sass']
 })
-export class DeviceNewComponent implements OnInit {
+export class NewComponent implements OnInit {
   deviceForm: FormGroup;
   public localize_link = localize_link;
   private alive = true;
@@ -22,7 +23,7 @@ export class DeviceNewComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private deviceService: DeviceService,
-    private notif: NotificationsService,
+    private notificationService: NotificationService,
     @Inject(LOCALE_ID) public locale: string) {
     this.createForm();
   }
@@ -44,7 +45,7 @@ export class DeviceNewComponent implements OnInit {
     this.deviceService.devicePost(device)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
-        this.notif.success('Success');
+        this.notificationService.successNotification();
         this.added.emit(res);
       });
   }

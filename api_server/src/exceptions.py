@@ -241,16 +241,21 @@ class MembershipStatusNotAllowed(ValidationError):
     def __init__(self, msg, msg_2):
         super().__init__(f'{msg} not allowed: {msg_2}')
 
+class IPAssignError(ValidationError):
+    pass
 
+class NoMoreIPAvailableException(IPAssignError):
+    def __init__(self, subnet: str) -> None:
+        super().__init__(f"No more ips availables: {subnet}")
+
+class BadSubnetError(IPAssignError):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 class LogFetchError(RuntimeError):
     """
     Cannot fetch the logs error.
     """
-    pass  # pragma: no cover
-
-
-class NoMoreIPAvailableException(RuntimeError):
     pass  # pragma: no cover
 
 

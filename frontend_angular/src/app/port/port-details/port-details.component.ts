@@ -1,11 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {finalize, Observable, tap} from 'rxjs';
+import {Observable} from 'rxjs';
 import {PortService, Port} from '../../api';
 import {ActivatedRoute, Router} from '@angular/router';
-import {NotificationsService} from 'angular2-notifications';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { AppConstantsService } from '../../app-constants.service';
+import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-port-details',
@@ -37,8 +37,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notif: NotificationsService,
-    private appConstant: AppConstantsService
+    private notificationService: NotificationService
   ) { 
     this.createForm();
   }
@@ -70,10 +69,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.portPortIdStatePut(this.portID)
       .subscribe(value => {
         this.status = value;
-        this.appConstant.Toast.fire({
-          title: "État du port modifié",
-          icon: 'success'
-        });
+        this.notificationService.successNotification("État du port modifié");
       });
   }
 
@@ -81,20 +77,14 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.portService.portPortIdMabPut(this.portID)
       .subscribe(value => {
         this.mab = value;
-        this.appConstant.Toast.fire({
-          title: "MAB modifié",
-          icon: 'success'
-        });
+        this.notificationService.successNotification("MAB modifié");
       });
   }
 
   public toggleAuth(): void {
     this.portService.portPortIdAuthPut(this.portID)
       .subscribe(value => {
-        this.appConstant.Toast.fire({
-          title: "Authentification modifiée",
-          icon: 'success'
-        });
+        this.notificationService.successNotification("Authentification modifiée");
         if (!value) {
           Swal.fire({
             title: 'Entrer le VLAN',
@@ -123,10 +113,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   submitVLAN(vlan: number) {
     this.portService.portPortIdVlanPut(vlan, this.portID)
       .subscribe(() => {
-        this.appConstant.Toast.fire({
-          title: "Vlan modifié: " + vlan,
-          icon: 'success'
-        });
+        this.notificationService.successNotification("VLAN modifié: " + vlan);
         this.vlan = vlan;
       });
   }
@@ -134,7 +121,11 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   IfRoomExists(roomNumber) {
     console.log(roomNumber);
     if (roomNumber == null) {
-      this.notif.error('This port is not assigned to a room');
+      this.notificationService.errorNotification(
+        404,
+        "No room found",
+        'This port is not assigned to a room'
+      );
     } else {
       this.router.navigate(['/room/view', roomNumber.roomNumber]);
     }

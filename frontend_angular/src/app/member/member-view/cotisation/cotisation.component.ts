@@ -1,9 +1,10 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import {Observable} from 'rxjs';
 import {finalize, first, map} from 'rxjs/operators';
-import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account} from '../../../api';
+import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member} from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NotificationsService } from 'angular2-notifications';
+import { AppConstantsService } from '../../../app-constants.service';
+import { NotificationService } from '../../../notification.service';
 
 @Component({
   selector: 'app-cotisation',
@@ -11,6 +12,7 @@ import { NotificationsService } from 'angular2-notifications';
   styleUrls: ['./cotisation.component.css']
 })
 export class CotisationComponent implements OnInit {
+  @Input() member: Member;
   @Input() memberId: number;
   @Input() membership: Membership;
 
@@ -35,7 +37,7 @@ export class CotisationComponent implements OnInit {
     public accountService: AccountService,
     private treasuryService: TreasuryService,
     private fb: FormBuilder,
-    private notif: NotificationsService,
+    private notificationService: NotificationService,
   ) { 
     this.createForm();
   }
@@ -115,8 +117,12 @@ export class CotisationComponent implements OnInit {
         this.cotisationDisabled = false;
       }),
     ).subscribe((response) => {
-      if (+response.headers.get('x-total-count') == 0) { 
-        this.notif.alert("No Account", "There is no account selected for this subscription");
+      if (+response.headers.get('x-total-count') == 0) {
+        this.notificationService.errorNotification(
+          404,
+          "No Account",
+          "There is no account selected for this subscription"
+        );
         return;
       }
       const account: Account = response.body[0];
@@ -136,7 +142,10 @@ export class CotisationComponent implements OnInit {
         }
         this.membershipService.memberMemberIdMembershipUuidPatch(subscription, this.memberId, this.membership.uuid).subscribe(() => {
           this.membershipUpdated.emit(this.memberId);
-          this.notif.success("Membership update", "The membership for this member has been updated");
+          this.notificationService.successNotification(
+            "Membership updated",
+            "The membership for this member has been updated"
+          );
         })
       });
     });
@@ -155,6 +164,11 @@ export class CotisationComponent implements OnInit {
 
   formatDate(monthsToAdd: number): string {
     this.date = new Date();
+    if (this.member.departureDate !== undefined) {
+      if (this.date.getTime() < new Date(this.member.departureDate).getTime()) {
+        this.date = new Date(this.member.departureDate);
+      }
+    }
     this.date.setMonth(this.date.getMonth() + monthsToAdd);
 
     return this.date.toLocaleDateString('fr-FR', this.options);
