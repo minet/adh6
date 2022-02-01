@@ -110,7 +110,7 @@
     <div *ngIf="cotisation">
       <ng-container *ngIf="latestMembership$ | async as latestMembership">
         <ng-container *ngIf="member_id$ | async as memberId">
-          <app-cotisation (membershipUpdated)="refreshMembership($event)" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
+          <app-cotisation (membershipUpdated)="refreshMembership($event)" [member]="member" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
         </ng-container>
       </ng-container>
     </div>

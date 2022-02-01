@@ -2,7 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session
@@ -202,13 +202,19 @@ class MemberSQLRepository(MemberRepository):
         if duration_in_mounth not in [1, 2, 3, 4, 5, 12]:
             raise InvalidMembershipDuration(str(duration_in_mounth))
         
-        if adherent.date_de_depart is None and adherent.date_de_depart < now:
+        if adherent.date_de_depart is None or adherent.date_de_depart < now:
             adherent.date_de_depart = now
         
-        if adherent.date_de_depart.month + duration_in_mounth > 12:
-            adherent.date_de_depart = adherent.date_de_depart.replace(year=adherent.date_de_depart.year + 1, month=(adherent.date_de_depart.month + duration_in_mounth) - 12)
-        else:
-            adherent.date_de_depart = adherent.date_de_depart.replace(month=adherent.date_de_depart.month + duration_in_mounth)
+        import calendar
+        days_to_add = 0
+        for i in range(duration_in_mounth):
+            if adherent.date_de_depart.month+i <= 12:
+                days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month+i)[1]
+            else:
+                days_to_add += calendar.monthrange(adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12)[1]
+        print(days_to_add)
+        adherent.date_de_depart += timedelta(days=days_to_add)
+
         session.flush()
 
 

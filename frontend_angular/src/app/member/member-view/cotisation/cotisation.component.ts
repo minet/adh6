@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import {Observable} from 'rxjs';
 import {finalize, first, map} from 'rxjs/operators';
-import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account} from '../../../api';
+import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member} from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AppConstantsService } from '../../../app-constants.service';
 import { NotificationService } from '../../../notification.service';
@@ -12,6 +12,7 @@ import { NotificationService } from '../../../notification.service';
   styleUrls: ['./cotisation.component.css']
 })
 export class CotisationComponent implements OnInit {
+  @Input() member: Member;
   @Input() memberId: number;
   @Input() membership: Membership;
 
@@ -163,6 +164,11 @@ export class CotisationComponent implements OnInit {
 
   formatDate(monthsToAdd: number): string {
     this.date = new Date();
+    if (this.member.departureDate !== undefined) {
+      if (this.date.getTime() < new Date(this.member.departureDate).getTime()) {
+        this.date = new Date(this.member.departureDate);
+      }
+    }
     this.date.setMonth(this.date.getMonth() + monthsToAdd);
 
     return this.date.toLocaleDateString('fr-FR', this.options);
