@@ -1,3 +1,4 @@
+import os
 import sys
 from functools import wraps
 
@@ -91,11 +92,11 @@ def uses_security(action, is_collection=False):
     def decorator(f):
         @wraps(f)
         def wrapper(cls, ctx, *args, **kwargs):
-            if hasattr(sys, "_called_from_unit_test"):
+            if os.getenv("UNIT_TESTING"):
                 return f(cls, ctx, *args, **kwargs)
 
-            user = connexion.context["user"] or None
-            token_info = connexion.context["token_info"] or None
+            user = connexion.context["user"] if "user" in connexion.context else None
+            token_info = connexion.context["token_info"] if "token_info" in connexion.context else None
             LOG.warning('auth_required_called', extra=log_extra(ctx, token_info=token_info))
 
             if not current_app.config["TESTING"] and (user is None or token_info is None):

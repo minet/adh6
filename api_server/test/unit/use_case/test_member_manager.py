@@ -757,12 +757,12 @@ class TestGetLogs:
 @fixture
 def sample_mutation_request(faker, sample_room):
     return AbstractMember(
-        username=faker.user_name,
-        email=faker.email,
-        first_name=faker.first_name,
-        last_name=faker.last_name,
+        username=faker.user_name(),
+        email=faker.email(),
+        first_name=faker.first_name(),
+        last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
-        comment=faker.sentence,
+        comment=faker.sentence(),
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
         room=sample_room,
     )
