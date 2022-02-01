@@ -39,6 +39,8 @@ def _find_admin(session: Session, username):
             roles = connexion.context["token_info"]["groups"]
             if adherent.is_naina and "adh6_admin" not in roles:
                 roles += ["adh6_admin"]
+            if Roles.USER.value not in roles:
+                roles.append(Roles.USER.value)
             return _map_member_sql_to_entity(adherent), roles
         else:
             raise AdminNotFoundError(username)
