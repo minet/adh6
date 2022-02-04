@@ -10,13 +10,15 @@ from pytest import fixture, raises
 
 from config import TEST_CONFIGURATION
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
-from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod, AbstractMembership, abstract_member, member
+from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod
 from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.member_manager import MemberManager
+from src.use_case.device_manager import DeviceManager
+from src.use_case.interface.ip_allocator import IPAllocator
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),
@@ -778,6 +780,7 @@ def member_manager(
         mock_membership_repository,
         mock_logs_repository,
         mock_device_repository,
+        device_manager,
 ):
     return MemberManager(
         member_repository=mock_member_repository,
@@ -788,6 +791,7 @@ def member_manager(
         membership_repository=mock_membership_repository,
         logs_repository=mock_logs_repository,
         device_repository=mock_device_repository,
+        device_manager=device_manager,
         configuration=TEST_CONFIGURATION,
     )
 
@@ -839,6 +843,19 @@ def sample_membership_pending_rules(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_RULES.value
+    )
+    
+@fixture
+def mock_ip_allocator():
+    return MagicMock(spec=IPAllocator)
+
+@fixture
+def device_manager(
+        mock_device_repository: DeviceRepository,
+):
+    return DeviceManager(
+        device_repository=mock_device_repository,
+        ip_allocator=mock_ip_allocator
     )
 
 @fixture

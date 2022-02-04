@@ -8,6 +8,7 @@ from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import (
     AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port)
 from test.integration.test_member import prep_db
+from test.integration.context import tomorrow
 
 
 @pytest.fixture
@@ -137,7 +138,7 @@ def sample_member1(sample_room1):
         login='dubois_j',
         password='a',
         chambre=sample_room1,
-        date_de_depart=datetime.datetime(2005, 7, 14, 12, 30).date(),
+        date_de_depart=tomorrow,
     )
 
 
@@ -151,6 +152,7 @@ def sample_member2(sample_room1):
         commentaires='Desauthent pour routeur',
         password='a',
         chambre=sample_room1,
+        date_de_depart=tomorrow,
     )
 
 
@@ -164,7 +166,7 @@ def sample_member3(sample_room1):
         commentaires='abcdef',
         password='b',
         chambre=sample_room1,
-        date_de_depart=datetime.datetime(2105, 7, 14, 12, 30).date(),
+        date_de_depart=tomorrow,
     )
 
 
@@ -178,6 +180,7 @@ def sample_member13(sample_room2):
         login='dupond_r',
         commentaires='a',
         password='a',
+        date_de_depart=tomorrow,
     )
 
 

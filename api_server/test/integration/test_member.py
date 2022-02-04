@@ -1,4 +1,3 @@
-import datetime
 import json
 from dateutil import parser
 from pytest import mark
@@ -7,6 +6,7 @@ from src.interface_adapter.sql.model.database import Database as db
 from src.interface_adapter.sql.model.models import Adherent
 from test.integration.resource import (
     base_url, TEST_HEADERS, assert_modification_was_created)
+from test.integration.context import tomorrow
 
 
 def prep_db(session,
@@ -282,7 +282,7 @@ def test_member_patch_username(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "TESTTEST"
     })
@@ -305,7 +305,7 @@ def test_member_patch_email(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "TEST@TEST.FR",
         "username": "dubois_j"
     })
@@ -329,7 +329,7 @@ def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -337,7 +337,7 @@ def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
 
 def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
     body = {
-        "departureDate": "1996-01-01",
+        "departureDate": str(tomorrow),
     }
     res = api_client.patch(
         '{}/member/{}'.format(base_url, sample_member1.id),
@@ -352,7 +352,7 @@ def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": "1996-01-01",
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -375,7 +375,7 @@ def test_member_patch_comment(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": "TEST",
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -398,7 +398,7 @@ def test_member_patch_room(api_client, sample_member1, sample_room2):
         "lastName": "Dubois",
         "room": sample_room2.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -421,7 +421,7 @@ def test_member_patch_lastname(api_client, sample_member1, sample_room1):
         "lastName": "TEST",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -444,7 +444,7 @@ def test_member_patch_firstname(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": None,
-        "departureDate": str(datetime.datetime(2005, 7, 14, 12, 30)),
+        "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
         "username": "dubois_j"
     })
@@ -456,7 +456,7 @@ def test_member_put_member_update(api_client, sample_member1, sample_room1):
         "lastName": "Dubois",
         "room": sample_room1.id,
         "comment": "comment",
-        "departureDate": "2000-01-23T04:56:07.000+00:00",
+        "departureDate": str(tomorrow),
         "email": "john.doe@gmail.com",
         "username": "dubois_j"
     }
@@ -466,7 +466,7 @@ def test_member_put_member_update(api_client, sample_member1, sample_room1):
         content_type='application/json',
         headers=TEST_HEADERS
     )
-    assert res.status_code == 204
+    assert res.status_code == 201
     assert_modification_was_created(db.get_db().get_session())
 
     assert_member_in_db(body)
