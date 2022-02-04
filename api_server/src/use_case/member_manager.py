@@ -1,9 +1,10 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
+from ipaddress import IPv4Address, IPv4Network
 from typing import List, Optional, Tuple, Union
 import uuid
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus
+from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -11,14 +12,18 @@ from src.entity import (
     AbstractAccount, Account,
     AbstractPaymentMethod, PaymentMethod,
     AccountType,
-    Admin,
+    Admin, device,
 )
 from src.entity.abstract_transaction import AbstractTransaction
+from src.entity.null import Null
 from src.entity.roles import Roles
 from src.entity.transaction import Transaction
+from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
     AccountTypeNotFoundError,
+    MemberInactiveError,
     MembershipNotFoundError,
+    NoSubnetAvailable,
     PaymentMethodNotFoundError,
     AccountNotFoundError,
     MemberNotFoundError,
@@ -33,9 +38,11 @@ from src.exceptions import (
     MembershipStatusNotAllowed,
     CharterNotSigned
 )
+from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
 from src.use_case.interface.device_repository import DeviceRepository
@@ -75,6 +82,7 @@ class MemberManager(CRUDManager):
                  logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
+                 device_manager: DeviceManager,
                  configuration):
         super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
@@ -85,6 +93,7 @@ class MemberManager(CRUDManager):
         self.account_repository = account_repository
         self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
+        self.device_manager = device_manager
         self.config = configuration
 
     @log_call
@@ -129,6 +138,28 @@ class MemberManager(CRUDManager):
         ))
 
         return created_member
+
+    @log_call
+    @auto_raise
+    @uses_security("update")
+    def update_member(self, ctx, member_id: int, abstract_member: Union[AbstractMember, Member], override: bool) -> None:
+        member = self.__member_not_found(ctx, member_id)
+        is_room_changed = abstract_member.room is not None and (isinstance(member.room, Null) or (not isinstance(member.room, Null) and abstract_member.room != member.room.id))
+        self.member_repository.update(ctx, abstract_member, override)
+        member = self.member_repository.get(ctx, member_id)
+
+        if not is_member_active(member):
+            self.reset_member(ctx, member_id)
+        else:
+            if member.ip is None or member.subnet is None:
+                self.update_subnet(ctx, member_id)
+            if is_room_changed:
+                devices_to_refresh, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(
+                    member=member.id,
+                    connection_type=DeviceType.wired.name
+                ))
+                for d in devices_to_refresh:
+                    self.device_manager.allocate_ip_addresses(ctx, d, True)
 
     
     @log_call
@@ -403,6 +434,7 @@ class MemberManager(CRUDManager):
             self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, membership.member.username, membership.payment_method.name, membership.uuid)
             self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name, membership_uuid)
             self.member_repository.add_duration(ctx, member_id, membership.duration)
+            self.update_subnet(ctx, member_id)
 
         return _validate(self, ctx, uuid)
 
@@ -429,12 +461,14 @@ class MemberManager(CRUDManager):
         if not _payment_method:
             raise PaymentMethodNotFoundError(str(payment_method))
     
-    def __member_not_found(self, ctx, member: Union[int, Member]) -> None:
+    def __member_not_found(self, ctx, member: Union[int, Member]) -> Member:
         if isinstance(member, Member):
             member = member.id
         _member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member))
         if not _member:
             raise MemberNotFoundError(str(member))
+        
+        return _member[0]
 
     @log_call
     @auto_raise
@@ -585,7 +619,6 @@ class MemberManager(CRUDManager):
     @auto_raise
     @uses_security("profile", is_collection=False)
     def update_charter(self, ctx, member_id, charter_id: int) -> None:
-        #TODO: Update of the membership here instead of in the member_repository
         self.member_repository.update_charter(ctx, member_id, charter_id)
 
     @log_call
@@ -593,3 +626,56 @@ class MemberManager(CRUDManager):
     @uses_security("profile", is_collection=False)
     def get_charter(self, ctx, member_id, charter_id: int) -> str:
         return self.member_repository.get_charter(ctx, member_id, charter_id)
+
+    @log_call
+    @auto_raise
+    @uses_security("admin", is_collection=False)
+    def update_subnet(self, ctx, member_id) -> Tuple[IPv4Network, IPv4Address]:
+        member = self.__member_not_found(ctx, member_id)
+        if not is_member_active(member):
+            self.reset_member(ctx, member_id)
+            raise MemberInactiveError(member_id)
+
+        used_wireles_public_ips = self.member_repository.used_wireless_public_ips(ctx)
+
+        subnet = None
+        ip = None
+        print(SUBNET_PUBLIC_ADDRESSES_WIRELESS)
+        print(used_wireles_public_ips)
+        if len(used_wireles_public_ips) < len(SUBNET_PUBLIC_ADDRESSES_WIRELESS):
+            for i, s in SUBNET_PUBLIC_ADDRESSES_WIRELESS.items():
+                print(i, used_wireles_public_ips)
+                if i not in used_wireles_public_ips:
+                    subnet = s
+                    ip = i
+        
+        if subnet is None:
+            raise NoSubnetAvailable("wireless")
+
+        self.member_repository.update(ctx, AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+        member = self.__member_not_found(ctx, member_id)
+
+        # Update wireless devices
+        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(
+            member=member.id,
+            connection_type=DeviceType.wireless.name
+        ))
+        for d in devices_to_reset:
+            self.device_manager.allocate_ip_addresses(ctx, d, True)
+
+        return subnet, ip
+
+    @log_call
+    @auto_raise
+    @uses_security("admin", is_collection=False)
+    def reset_member(self, ctx, member_id) -> None:
+        member = self.__member_not_found(ctx, member_id)
+        self.member_repository.update(ctx, AbstractMember(
+            id=member_id,
+            room=-1, 
+            ip="", 
+            subnet=""
+        ))
+        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))
+        for d in devices_to_reset:
+            self.device_manager.unallocate_ip_addresses(ctx, d)

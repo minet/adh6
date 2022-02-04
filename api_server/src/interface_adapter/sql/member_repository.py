@@ -3,6 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import date, datetime, timezone, timedelta
+import ipaddress
 from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session
@@ -62,8 +63,10 @@ class MemberSQLRepository(MemberRepository):
     @log_call
     def get(self, ctx, member_id: int) -> Optional[Member]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        
-        return session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        adh = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        if adh is None:
+            raise MemberNotFoundError(member_id)
+        return _map_member_sql_to_entity(adh)
 
     @log_call
     def create(self, ctx, abstract_member: Member) -> object:
@@ -216,6 +219,12 @@ class MemberSQLRepository(MemberRepository):
         adherent.date_de_depart += timedelta(days=days_to_add)
 
         session.flush()
+    
+    def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        q = session.query(Adherent.ip).filter(Adherent.ip is not None)
+        r = q.all()
+        return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
 
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
@@ -236,9 +245,9 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     if entity.departure_date is not None or override:
         adherent.date_de_depart = entity.departure_date
     if entity.ip is not None or override:
-        adherent.ip = entity.ip
+        adherent.ip = entity.ip if entity.ip != "" else None
     if entity.subnet is not None or override:
-        adherent.subnet = entity.subnet
+        adherent.subnet = entity.subnet if entity.subnet != "" else None
     if entity.room is not None:
         if entity.room == -1:
             adherent.chambre_id = None
