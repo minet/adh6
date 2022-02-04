@@ -26,9 +26,8 @@ def test_member_log_update(api_client, sample_member1, sample_room1, caplog):
 
     assert logs_contains(
         caplog,
-        'member_manager_update',
-        user=TESTING_CLIENT,
-        member_id=sample_member1.id,
+        'member_manager_update_member_called',
+        user=None,
     )
 
 
