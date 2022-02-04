@@ -302,7 +302,7 @@ class TestUpdateOrCreate:
                 device_manager.update_or_create(ctx,
                                                 mac_address=sample_device.mac_address,
                                                 req=MutationRequest(
-                                                    owner_username=faker.user_name,
+                                                    owner_username=faker.user_name(),
                                                     connection_type='wired',
                                                     mac_address=TEST_MAC_ADDRESS1,
                                                     ip_v4_address=None,

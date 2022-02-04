@@ -109,7 +109,6 @@ def init_managers(configuration, testing=False) -> Tuple[
         [All the managers used in the application]
     """
     # Repositories:
-    print(configuration)
     device_sql_repository = DeviceSQLRepository()
     elk_repository = ElasticSearchRepository(configuration)
     account_sql_repository = AccountSQLRepository()
@@ -127,15 +126,16 @@ def init_managers(configuration, testing=False) -> Tuple[
         cashbox_repository=CashboxSQLRepository(),
         transaction_repository=transaction_sql_repository
     )
+    device_manager = DeviceManager(
+        device_repository=device_sql_repository,
+        ip_allocator=IPSQLAllocator()
+    )
 
     return (
         HealthManager(PingSQLRepository()),
         StatsManager(logs_repository=elk_repository),
         BugReportManager(configuration.GITLAB_CONF, testing=testing),
-        DeviceManager(
-            device_repository=device_sql_repository,
-            ip_allocator=IPSQLAllocator()
-        ),
+        device_manager,
         ProductManager(
             product_repository=ProductSQLRepository(),
         ),
@@ -159,6 +159,7 @@ def init_managers(configuration, testing=False) -> Tuple[
             account_repository=account_sql_repository,
             account_type_repository=account_type_sql_repository,
             transaction_repository=transaction_sql_repository,
+            device_manager=device_manager,
             configuration=configuration,
         ),
         RoomManager(

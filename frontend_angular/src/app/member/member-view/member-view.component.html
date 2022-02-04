@@ -45,6 +45,14 @@
         <td class="pb-2">{{ member.departureDate | date:'dd/MM/y' }}</td>
       </tr>
       <tr>
+        <td class="profile-field">IP Publique Wifi</td>
+        <td class="pb-2">{{ member.ip }}</td>
+      </tr>
+      <tr>
+        <td class="profile-field">Subnet Wifi</td>
+        <td class="pb-2">{{ member.subnet }}</td>
+      </tr>
+      <tr>
         <td class="profile-field">Chambre</td>
         <td class="pb-2">
           <ng-container *ngIf="member.room != null; else elseNoRoom">

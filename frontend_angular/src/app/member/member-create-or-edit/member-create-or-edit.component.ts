@@ -38,7 +38,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.memberEdit = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(8)]],
+      username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
       email: ['', [Validators.required, Validators.email]],
       roomNumber: [null, [Validators.min(0), Validators.max(9999)]],
     });
