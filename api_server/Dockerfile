@@ -30,8 +30,13 @@ RUN openssl genrsa -out /tmp/adh6.key 2048 \
 FROM python:3.9-slim
 EXPOSE 443
 
+WORKDIR /adh6/api_server
+
 COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
 COPY --from=certs /tmp/adh6.key /etc/ssl/private/
+
+# Download the latest OUI list from the IEEE
+RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
 # Install dependencies
 RUN apt update \
@@ -45,11 +50,6 @@ RUN apt update \
     git \
     wget \
     && useradd uwsgi
-
-WORKDIR /adh6/api_server
-
-# Download the latest OUI list from the IEEE
-RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
 # Install python requirements
 COPY api_server/requirements.txt ./
