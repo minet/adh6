@@ -39,6 +39,30 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
+    def put(self, ctx, member_id, body):
+        try:
+            body['id'] = member_id  # Set a dummy id to pass the initial validation
+            to_update = deserialize_request(body, self.entity_class)
+            self.member_manager.update_member(ctx, member_id, to_update, True)
+            return NoContent, 201
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def patch(self, ctx, member_id, body):
+        try:
+            body['id'] = member_id  # Set a dummy id to pass the initial validation
+            to_update = deserialize_request(body, self.abstract_entity_class)
+            self.member_manager.update_member(ctx, member_id, to_update, False)
+            return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
     def membership_post(self, ctx, member_id: int, body):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, member_id=member_id, request=body))

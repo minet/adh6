@@ -99,12 +99,14 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def allocate_ip_addresses(self, ctx, device: Device):
+    def allocate_ip_addresses(self, ctx, device: Device, override: bool = False):
         from src.entity.validators.member_validators import is_member_active, has_member_subnet
         if is_member_active(device.member):
-            if device.ipv4_address is None:
+            if device.ipv4_address is None or override:
                 if device.connection_type == "wired":
-                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
+                    print(device)
+                    print(device.member)
+                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
                         connection_type=device.connection_type
                     ))
 
@@ -113,7 +115,7 @@ class DeviceManager(CRUDManager):
                                                                       taken_ips, should_skip_reserved=True)
                     ), device_id=device.id, override=False)
                 elif device.connection_type == "wireless" and has_member_subnet(device.member):
-                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
+                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
                         member=device.member,
                         connection_type=device.connection_type
                     ))
@@ -121,9 +123,9 @@ class DeviceManager(CRUDManager):
                     self.partially_update(ctx, AbstractDevice(
                         ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, device.member.subnet, taken_ips)
                     ), device_id=device.id, override=False)
-            if device.ipv6_address is None:
+            if device.ipv6_address is None or override:
                 if device.connection_type == "wired":
-                    taken_ips, count = self.device_repository.get_ip_address(ctx, 'ipv6', AbstractDevice(
+                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv6', AbstractDevice(
                         connection_type=device.connection_type
                     ))
 
@@ -131,3 +133,17 @@ class DeviceManager(CRUDManager):
                         ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, device.member.room.vlan.ipv6_network,
                                                                       taken_ips, should_skip_reserved=True)
                     ), device_id=device.id, override=False)
+
+    @log_call
+    @auto_raise
+    def unallocate_ip_addresses(self, ctx, device: Device):
+        from src.entity.validators.member_validators import is_member_active
+        if not is_member_active(device.member):
+            if device.ipv4_address is not None:
+                self.partially_update(ctx, AbstractDevice(
+                    ipv4_address='En attente'
+                ), device_id=device.id, override=False)
+            if device.ipv6_address is not None:
+                self.partially_update(ctx, AbstractDevice(
+                    ipv6_address='En attente'
+                ), device_id=device.id, override=False)

@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import abc
+import ipaddress
 from typing import List, Optional, Tuple
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -35,5 +36,8 @@ class MemberRepository(CRUDRepository):
     def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
         raise NotImplementedError
 
-    def update_charter(self, ctx, member_id: int, charter_id: int) -> bool:
+    def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
+        raise NotImplementedError
+
+    def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
         raise NotImplementedError
