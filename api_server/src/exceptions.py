@@ -112,6 +112,14 @@ class CharterAlreadySigned(ValidationError):
 class CharterNotSigned(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" charter not signed yet')
+class MemberInactiveError(ValidationError):
+    """
+    Thrown when you try to create a room given a room_number and a mutation request and in the mutation request the
+    room_number does not match the first argument.
+    """
+
+    def __init__(self, member_id):
+        super().__init__(f'The member {member_id} is inactive and has been reset')
 
 
 # NOT FOUND ERROR.
@@ -191,6 +199,10 @@ class AccountTypeNotFoundError(NotFoundError):
 class ProductNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__('product', v)
+
+class NoSubnetAvailable(NotFoundError):
+    def __init__(self, device_type: str):
+        super().__init__(f'No subnet are avaialble for {device_type} devices')
 
 
 # ALREADY EXIST ERRORS.
