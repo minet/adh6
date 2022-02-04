@@ -7,30 +7,28 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from config import CONFIGURATION, TEST_CONFIGURATION
-from src.entity import (
-    AbstractAccount, Account,
-    AccountType,
-    AbstractPaymentMethod, PaymentMethod,
-    AbstractProduct, Product,
-    AbstractRoom, Room,
-    AbstractSwitch, Switch,
-
-)
 
 from src.resolver import ADHResolver
 
 from src.interface_adapter.elasticsearch.repository import ElasticSearchRepository
-from src.interface_adapter.http_api.bug_report import BugReportHandler
-from src.interface_adapter.http_api.default import DefaultHandler
-from src.interface_adapter.http_api.device import DeviceHandler
-from src.interface_adapter.http_api.health import HealthHandler
-from src.interface_adapter.http_api.member import MemberHandler
-from src.interface_adapter.http_api.port import PortHandler
-from src.interface_adapter.http_api.profile import ProfileHandler
-from src.interface_adapter.http_api.stats import StatsHandler
-from src.interface_adapter.http_api.transaction import TransactionHandler
-from src.interface_adapter.http_api.treasury import TreasuryHandler
-from src.interface_adapter.http_api.vlan import VLANHandler
+from src.interface_adapter.http_api import (
+    BugReportHandler,
+    DeviceHandler,
+    HealthHandler,
+    MemberHandler,
+    PortHandler,
+    ProfileHandler,
+    StatsHandler,
+    TransactionHandler,
+    TreasuryHandler,
+    VLANHandler,
+    AccountTypeHandler,
+    AccountHandler,
+    PaymentMethodHandler,
+    ProductHandler,
+    RoomHandler,
+    SwitchHandler
+)
 from src.interface_adapter.snmp.switch_network_manager import SwitchSNMPNetworkManager
 
 from src.interface_adapter.sql.model.database import Database
@@ -179,36 +177,12 @@ def init_managers(configuration, testing=False) -> Tuple[
 def init_handlers(configuration, testing=False):
     managers = init_managers(configuration, testing)
     return (
-        DefaultHandler(
-            Account,
-            AbstractAccount,
-            managers[7]
-        ),
-        DefaultHandler(
-            AccountType,
-            AccountType,
-            managers[6]
-        ),
-        DefaultHandler(
-            PaymentMethod,
-            AbstractPaymentMethod,
-            managers[9]
-        ),
-        DefaultHandler(
-            Product,
-            AbstractProduct,
-            managers[4]
-        ),
-        DefaultHandler(
-            Room,
-            AbstractRoom,
-            managers[11]
-        ),
-        DefaultHandler(
-            Switch,
-            AbstractSwitch,
-            managers[13]
-        ),
+        AccountHandler(managers[7]),
+        AccountTypeHandler(managers[6]),
+        PaymentMethodHandler(managers[9]),
+        ProductHandler(managers[4]),
+        RoomHandler(managers[11]),
+        SwitchHandler(managers[13]),
         HealthHandler(managers[0]),
         StatsHandler(managers[8], managers[3], managers[10], managers[1]),
         ProfileHandler(managers[10]),
