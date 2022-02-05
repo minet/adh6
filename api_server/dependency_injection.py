@@ -96,8 +96,16 @@ class BindingSpec(pinject.BindingSpec):
 
 _global = _repositories+_managers+handlers
 
+_base_interfaces = [
+    abc.ABC,
+    CRUDManager,
+    CRUDRepository,
+    DefaultHandler
+]
+
 def get_base_class(cls):
-    if len(cls.__bases__) == 0 or cls.__bases__[0] == abc.ABC  or cls.__bases__[0] == object or cls.__bases__[0] == abc.ABC or cls.__bases__[0] == CRUDRepository or cls.__bases__[0] == CRUDManager or cls.__bases__[0] == DefaultHandler:
+    # print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
+    if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
         return cls
     return get_base_class(cls.__bases__[0])
 
