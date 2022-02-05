@@ -4,6 +4,7 @@
 #
 #    pip-compile requirements.in
 #
+pinject
 alembic==1.7.4
     # via flask-migrate
 attrs==21.2.0

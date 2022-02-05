@@ -35,9 +35,6 @@ WORKDIR /adh6/api_server
 COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
 COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
-# Download the latest OUI list from the IEEE
-RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
-
 # Install dependencies
 RUN apt update \
     && apt install -y \
@@ -50,6 +47,9 @@ RUN apt update \
     git \
     wget \
     && useradd uwsgi
+
+# Download the latest OUI list from the IEEE
+RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
 # Install python requirements
 COPY api_server/requirements.txt ./

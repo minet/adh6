@@ -12,7 +12,7 @@ from faker import Faker
 import ipaddress
 from src.interface_adapter.sql.model.database import Database
 from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
-application, migrate = init(testing=False, managing=True)
+application, migrate = init(testing=False)
 manager: Flask = application.app
 
 @manager.cli.command("check_subnet")

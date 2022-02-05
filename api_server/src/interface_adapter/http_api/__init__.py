@@ -16,3 +16,22 @@ from src.interface_adapter.http_api.payment_method import PaymentMethodHandler
 from src.interface_adapter.http_api.product import ProductHandler
 from src.interface_adapter.http_api.room import RoomHandler
 from src.interface_adapter.http_api.switch import SwitchHandler
+
+handlers = [
+    AccountHandler,
+    AccountTypeHandler,
+    PaymentMethodHandler,
+    ProductHandler,
+    RoomHandler,
+    SwitchHandler,
+    HealthHandler,
+    StatsHandler,
+    ProfileHandler,
+    TransactionHandler,
+    MemberHandler,
+    DeviceHandler,
+    PortHandler,
+    BugReportHandler,
+    TreasuryHandler,
+    VLANHandler
+]
