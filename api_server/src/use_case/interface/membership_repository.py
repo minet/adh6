@@ -8,8 +8,8 @@ from typing import List, Optional, Tuple
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import Membership, AbstractMembership
 
-
-class MembershipRepository(metaclass=abc.ABCMeta):
+# TODO: This class should be derive from CRUDRepository
+class MembershipRepository(abc.ABC):
     """
     Abstract interface to handle memberships.
     """

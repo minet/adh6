@@ -1,24 +1,25 @@
 # coding=utf-8
 import abc
-from typing import List, Tuple
+from typing import List, Tuple, TypeVar, Generic
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 
+T = TypeVar('T')
+AbstractT = TypeVar('AbstractT')
 
-class CRUDRepository(metaclass=abc.ABCMeta):
-
+class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
     @abc.abstractmethod
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[List, int]:
+    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms=None, filter_: AbstractT = None) -> Tuple[List[T], int]:
         pass
 
     @abc.abstractmethod
-    def create(self, ctx, object_to_create) -> object:
+    def create(self, ctx, object_to_create: AbstractT) -> T:
         pass
 
     @abc.abstractmethod
-    def update(self, ctx, object_to_update, override=False) -> object:
+    def update(self, ctx, object_to_update: AbstractT, override: bool = False) -> T:
         pass
 
     @abc.abstractmethod
-    def delete(self, ctx, object_id) -> None:
+    def delete(self, ctx, object_id: int) -> T:
         pass

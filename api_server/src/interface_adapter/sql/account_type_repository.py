@@ -14,7 +14,6 @@ from src.use_case.interface.account_type_repository import AccountTypeRepository
 
 
 class AccountTypeSQLRepository(AccountTypeRepository):
-
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AccountType = None) -> Tuple[List[AccountType], int]:
@@ -37,6 +36,15 @@ class AccountTypeSQLRepository(AccountTypeRepository):
         r = query.all()
 
         return list(map(_map_account_type_sql_to_entity, r)), count
+
+    def create(self, ctx, object_to_create: AccountType) -> AccountType:
+        raise NotImplementedError
+
+    def update(self, ctx, object_to_update: AccountType, override: bool = False) -> AccountType:
+        raise NotImplementedError
+
+    def delete(self, ctx, object_id: int) -> AccountType:
+        raise NotImplementedError
 
 
 def _map_account_type_sql_to_entity(a) -> AccountType:

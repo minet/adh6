@@ -39,10 +39,10 @@ class ProductSQLRepository(ProductRepository):
 
         return list(map(_map_product_sql_to_entity, r)), count
 
-    def create(self, ctx, object_to_create: Product) -> object:
+    def create(self, ctx, object_to_create: Product) -> Product:
         raise NotImplementedError
 
-    def update(self, ctx, object_to_update: Product, override=False) -> object:
+    def update(self, ctx, object_to_update: Product, override=False) -> Product:
         raise NotImplementedError
 
     def delete(self, ctx, object_id) -> None:
