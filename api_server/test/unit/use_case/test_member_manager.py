@@ -1,5 +1,8 @@
 # coding=utf-8 import datetime import datetime import datetime
 import datetime
+from unittest import mock
+
+import pytest
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
@@ -8,7 +11,6 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from config import TEST_CONFIGURATION
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod
 from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError
@@ -792,7 +794,6 @@ def member_manager(
         logs_repository=mock_logs_repository,
         device_repository=mock_device_repository,
         device_manager=device_manager,
-        configuration=TEST_CONFIGURATION,
     )
 
 

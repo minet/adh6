@@ -29,6 +29,12 @@ def mock_missing_default_user(monkeypatch):
 def app_context(monkeypatch):
     monkeypatch.setenv("UNIT_TESTING", "test")
 
+@fixture(autouse=True)
+def mock_test_configuration(monkeypatch):
+    from src.use_case import MemberManager
+    monkeypatch.setattr(MemberManager, "duration_price", {1:9})
+    monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois'})
+
 @fixture
 def ctx(sample_member):
     return build_context(
