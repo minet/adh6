@@ -27,34 +27,32 @@ class BindingSpec(pinject.BindingSpec):
         bind('gitlab_conf', to_instance=self.configration.GITLAB_CONF)
         bind('testing', to_instance=self.testing)
 
-
-
-_global = sql_repositories+managers+handlers+[SwitchSNMPNetworkManager, ElasticSearchRepository]
-
-_base_interfaces = [
-    abc.ABC,
-    CRUDManager,
-    CRUDRepository,
-    DefaultHandler,
-    object
-]
-
-def get_base_class(cls):
-    print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
-    if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
-        return cls
-    return get_base_class(cls.__bases__[0])
-
-_class_name_to_abstract = {
-    cls.__name__: get_base_class(cls) for cls in _global
-}
-
-def get_arg_names(class_name):
-    if class_name in _class_name_to_abstract:
-        class_name = _class_name_to_abstract[class_name].__name__
-    return pinject.bindings.default_get_arg_names_from_class_name(class_name)
-
 def get_obj_graph(configuration, testing):
+    _global = sql_repositories+managers+handlers+[SwitchSNMPNetworkManager, ElasticSearchRepository]
+
+    _base_interfaces = [
+        abc.ABC,
+        CRUDManager,
+        CRUDRepository,
+        DefaultHandler,
+        object
+    ]
+
+    def get_base_class(cls):
+        print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
+        if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
+            return cls
+        return get_base_class(cls.__bases__[0])
+
+    _class_name_to_abstract = {
+        cls.__name__: get_base_class(cls) for cls in _global
+    }
+
+    def get_arg_names(class_name):
+        if class_name in _class_name_to_abstract:
+            class_name = _class_name_to_abstract[class_name].__name__
+        return pinject.bindings.default_get_arg_names_from_class_name(class_name)
+
     return pinject.new_object_graph(
         modules=None,
         binding_specs=[BindingSpec(configuration, testing)],
