@@ -14,7 +14,7 @@ from .room_manager import RoomManager
 from .stats_manager import StatsManager
 from .switch_manager import SwitchManager
 from .transaction_manager import TransactionManager
-from .vlan_manager import VLANManager
+from .vlan_manager import VlanManager
 
 managers = [
     DeviceManager,
@@ -31,4 +31,5 @@ managers = [
     RoomManager,
     PortManager,
     SwitchManager,
+    VlanManager
 ]

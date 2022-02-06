@@ -18,7 +18,7 @@ from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.member_manager import MemberManager
 from src.use_case.device_manager import DeviceManager
-from src.use_case.interface.ip_allocator import IPAllocator
+from src.use_case.interface.ip_allocator import IpAllocator
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),
@@ -847,7 +847,7 @@ def sample_membership_pending_rules(sample_member):
     
 @fixture
 def mock_ip_allocator():
-    return MagicMock(spec=IPAllocator)
+    return MagicMock(spec=IpAllocator)
 
 @fixture
 def device_manager(

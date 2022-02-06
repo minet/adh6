@@ -31,5 +31,6 @@ repositories = [
     SwitchSQLRepository,
     TransactionSQLRepository,
     MoneySQLRepository,
-    PortSQLRepository
+    PortSQLRepository,
+    VLANSQLRepository
 ]

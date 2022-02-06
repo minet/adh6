@@ -14,7 +14,7 @@ from src.interface_adapter.sql.ip_allocator import IPSQLAllocator
 from src.interface_adapter.sql.vlan_repository import VLANSQLRepository
 
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.vlan_manager import VLANManager
+from src.use_case.vlan_manager import VlanManager
 from src.use_case.interface.crud_repository import CRUDRepository
 
 class BindingSpec(pinject.BindingSpec):
@@ -26,9 +26,6 @@ class BindingSpec(pinject.BindingSpec):
         bind('configuration', to_instance=self.configration)
         bind('gitlab_conf', to_instance=self.configration.GITLAB_CONF)
         bind('testing', to_instance=self.testing)
-        bind('ip_allocator', to_class=IPSQLAllocator)
-        bind('vlan_manager', to_class=VLANManager)
-        bind('vlan_repository', to_class=VLANSQLRepository)
 
 
 
@@ -43,7 +40,7 @@ _base_interfaces = [
 ]
 
 def get_base_class(cls):
-    # print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
+    print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
     if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
         return cls
     return get_base_class(cls.__bases__[0])

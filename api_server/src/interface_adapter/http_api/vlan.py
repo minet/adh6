@@ -8,10 +8,10 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.default import DefaultHandler
 from src.interface_adapter.sql.decorator.sql_session import require_sql
-from src.use_case.vlan_manager import VLANManager
+from src.use_case.vlan_manager import VlanManager
 
 class VLANHandler(DefaultHandler):
-    def __init__(self, vlan_manager: VLANManager):
+    def __init__(self, vlan_manager: VlanManager):
         super().__init__(Vlan, AbstractVlan, vlan_manager)
         self.vlan_manager = vlan_manager
 

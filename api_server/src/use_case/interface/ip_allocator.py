@@ -3,7 +3,7 @@ import abc
 from typing import List
 
 
-class IPAllocator(abc.ABC):
+class IpAllocator(abc.ABC):
     """
     Abstract interface to allocate IP addresses.
     """
