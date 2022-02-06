@@ -14,8 +14,8 @@ ARG DATABASE_PASSWORD="my_db_password"
 ARG DATABASE_DB_NAME="adh6"
 ARG GITLAB_ACCESS_TOKEN="token"
 
-COPY api_server/config/CONFIGURATION.template.py .
-RUN cat CONFIGURATION.template.py | envsubst | tee CONFIGURATION.py
+COPY api_server/config/.env.template .
+RUN cat .env.template | envsubst | tee .env
 
 ###############################################################################
 # 2nd stage, generate certificats
@@ -64,7 +64,8 @@ RUN chown -R uwsgi:www-data /root/.pysnmp
 # Copy source files
 COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
-COPY --from=config /tmp/CONFIGURATION.py config/
+COPY --from=config /tmp/.env config/
+RUN cat config/.env
 
 # Launch the app 
 CMD ["uwsgi", "--ini", "uwsgi.ini"]

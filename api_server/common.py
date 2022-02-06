@@ -6,8 +6,6 @@ from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from config import CONFIGURATION, TEST_CONFIGURATION
-
 from src.resolver import ADHResolver
 from src.interface_adapter.http_api import (
     BugReportHandler,
@@ -29,26 +27,31 @@ from src.interface_adapter.http_api import (
 
 from src.interface_adapter.sql.model.database import Database
 
+config = {
+    'default': 'config.configuration.BaseConfig',
+    'production': 'config.configuration.ProductionConfig',
+    'development': 'config.configuration.DevelopmentConfig',
+    'testing': 'config.configuration.TestingConfig'
+}
+
+
 def init(testing=True) -> Tuple[FlaskApp, Migrate]:
-    """
-    Initialize and wire together the dependency of the application.
-    """
-    if testing:
-        configuration = TEST_CONFIGURATION
-    else:
-        configuration = CONFIGURATION
-
-    Database.init_db(configuration.DATABASE, testing=testing)
-
     # Connexion will use this function to authenticate and fetch the information of the user.
     if os.environ.get('TOKENINFO_FUNC') is None:
         os.environ['TOKENINFO_FUNC'] = 'src.interface_adapter.http_api.auth.token_info'
 
-    from dependency_injection import get_obj_graph
-
-    obj_graph = get_obj_graph(configuration, testing)
-
+    # Initialize the application
     app = FlaskApp(__name__, specification_dir='openapi')
+
+    # Setup the configuration
+    config_name = os.getenv('ENVIRONMENT', 'default')
+    app.app.config.from_object(config[config_name])
+
+    Database.init_db(app.app.config["DATABASE"], testing=testing)
+
+    from dependency_injection import get_obj_graph
+    app.app.app_context().push()
+    obj_graph = get_obj_graph(testing)
     app.add_api(
         'swagger.yaml',
         resolver=ADHResolver({
@@ -74,20 +77,6 @@ def init(testing=True) -> Tuple[FlaskApp, Migrate]:
         pythonic_params=True,
         auth_all_paths=True,
     )
-
-    app.app.config.update(configuration.API_CONF)
-    app.app.config.update(configuration.DATABASE)
-    if 'username' in configuration.DATABASE:
-        app.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': f'{configuration.DATABASE["drivername"]}://{configuration.DATABASE["username"]}:{configuration.DATABASE["password"]}@{configuration.DATABASE["host"]}/{configuration.DATABASE["database"]}'
-        })
-    else:
-        app.app.config.update({
-            'SQLALCHEMY_DATABASE_URI': f'{configuration.DATABASE["drivername"]}://{configuration.DATABASE["database"]}'
-        })
-
-    app.app.config['SESSION_TYPE'] = 'memcached'
-    app.app.config['SECRET_KEY'] = 'TODO A CHANGER' #@TODO
 
     database = SQLAlchemy(app.app)
 
