@@ -15,10 +15,10 @@ from src.use_case.account_manager import AccountManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.device_repository import DeviceRepository
-from src.use_case.interface.ip_allocator import IPAllocator
+from src.use_case.interface.ip_allocator import IpAllocator
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.interface.vlan_repository import VLANRepository
+from src.use_case.interface.vlan_repository import VlanRepository
 from test.unit.use_case.conftest import sample_device, sample_account1
 
 
@@ -313,12 +313,12 @@ class TestUpdateOrCreate:
 
 @fixture
 def mock_vlan_repository():
-    return MagicMock(spec=VLANRepository)
+    return MagicMock(spec=VlanRepository)
 
 
 @fixture
 def mock_ip_allocator():
-    return MagicMock(spec=IPAllocator)
+    return MagicMock(spec=IpAllocator)
 
 
 @fixture

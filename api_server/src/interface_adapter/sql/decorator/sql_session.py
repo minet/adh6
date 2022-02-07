@@ -7,7 +7,7 @@ from connexion import NoContent
 from functools import wraps
 
 from src.constants import CTX_SQL_SESSION, CTX_TESTING
-from src.interface_adapter.sql.model.database import Database as Db
+from src.interface_adapter.sql.model.models import db
 from src.util.context import build_context, log_extra
 from src.util.log import LOG
 
@@ -28,7 +28,7 @@ def require_sql(f):
         if ctx is not None and ctx.get(CTX_SQL_SESSION):
             return f(cls, ctx, *args, **kwds)
 
-        s = Db.get_db().get_session()
+        s = db.session()
         ctx = build_context(session=s, ctx=ctx)
 
         try:

@@ -1,10 +1,10 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 from ipaddress import IPv4Address, IPv4Network
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 import uuid
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
+from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -12,7 +12,7 @@ from src.entity import (
     AbstractAccount, Account,
     AbstractPaymentMethod, PaymentMethod,
     AccountType,
-    Admin, device,
+    Admin
 )
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.null import Null
@@ -82,8 +82,7 @@ class MemberManager(CRUDManager):
                  logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
-                 device_manager: DeviceManager,
-                 configuration):
+                 device_manager: DeviceManager):
         super().__init__("member", member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
@@ -94,7 +93,14 @@ class MemberManager(CRUDManager):
         self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
         self.device_manager = device_manager
-        self.config = configuration
+
+    @property
+    def duration_price(self) -> Dict[int, int]:
+        return PRICES
+
+    @property
+    def duration_string(self) -> Dict[int, str]:
+        return DURATION_STRING
 
     @log_call
     @auto_raise
@@ -303,7 +309,7 @@ class MemberManager(CRUDManager):
             if membership.duration is not None and membership.duration != 0:
                 if membership.duration < 0:
                     raise IntMustBePositive('duration')
-                if membership.duration not in self.config.PRICES:
+                if membership.duration not in self.duration_price:
                     LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=membership.duration))
                     raise NoPriceAssignedToThatDuration(membership.duration)
                 LOG.debug("create_membership_record_switch_status_to_pending_payment")
@@ -369,7 +375,7 @@ class MemberManager(CRUDManager):
         if abstract_membership.duration is not None and abstract_membership.duration != 0:
             if abstract_membership.duration < 0:
                 raise IntMustBePositive('duration')
-            if abstract_membership.duration not in self.config.PRICES:
+            if abstract_membership.duration not in self.duration_price:
                 LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=abstract_membership.duration))
                 raise NoPriceAssignedToThatDuration(abstract_membership.duration)
 
@@ -425,11 +431,11 @@ class MemberManager(CRUDManager):
 
             membership = fethed_membership[0]
             LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account.id, products=membership.products))
-            price = self.config.PRICES[int(membership.duration)]  # Expressed in EUR.
+            price = self.duration_price[int(membership.duration)]  # Expressed in EUR.
             if price == 50 and not membership.has_room:
                 price = 9
             price_in_cents = price * 100  # Expressed in cents of EUR.
-            duration_str = self.config.DURATION_STRING.get(int(membership.duration), '')
+            duration_str = self.duration_string.get(int(membership.duration), '')
             title = f'Internet - {duration_str}'
             self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, membership.member.username, membership.payment_method.name, membership.uuid)
             self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name, membership_uuid)

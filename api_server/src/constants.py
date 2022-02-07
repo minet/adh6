@@ -14,6 +14,25 @@ DEFAULT_LIMIT = 100
 DEFAULT_OFFSET = 0
 LOG_DEFAULT_LIMIT = 10
 
+PRICES = {
+    1: 9,
+    2: 18,
+    3: 27,
+    4: 36,
+    5: 45,
+    12: 50,
+}
+
+DURATION_STRING = {
+    1: '1 mois',
+    2: '2 mois',
+    3: '3 mois',
+    4: '4 mois',
+    5: '5 mois',
+    6: '6 mois',
+    12: '1 an',
+}
+
 class MembershipStatus(enum.Enum):
     INITIAL = "INITIAL"
     PENDING_RULES = "PENDING_RULES"

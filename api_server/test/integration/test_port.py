@@ -2,7 +2,7 @@ import json
 import pytest
 
 from config.TEST_CONFIGURATION import DATABASE as db_settings
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Port
 from test.integration.resource import base_url, TEST_HEADERS
 
@@ -23,16 +23,18 @@ def prep_db(session,
 def api_client(sample_port1, sample_port2, sample_room1):
     from .context import app
     with app.app.test_client() as c:
-        db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(),
+        db.create_all()
+        prep_db(db.session(),
                 sample_port1,
                 sample_port2,
                 sample_room1)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def assert_port_in_db(body):
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Port)
     q = q.filter(Port.numero == body["portNumber"])
     p = q.one()
@@ -262,7 +264,7 @@ def test_port_delete_port(api_client, sample_switch1, sample_port1):
     )
     assert r.status_code == 204
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Port)
     q = q.filter(Port.id == sample_port1.id)
     assert not s.query(q.exists()).scalar()

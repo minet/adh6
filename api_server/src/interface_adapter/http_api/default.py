@@ -2,15 +2,12 @@
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.exceptions import NotFoundError, ValidationError, UserInputError, UnauthorizedError, UnauthenticatedError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import handle_error, _error
 from src.interface_adapter.http_api.util.serializer import deserialize_request, serialize_response
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.crud_manager import CRUDManager
-from src.util.context import log_extra
-from src.util.log import LOG
 
 
 class DefaultHandler:

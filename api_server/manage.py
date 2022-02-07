@@ -10,9 +10,8 @@ from common import init
 from faker import Faker
 
 import ipaddress
-from src.interface_adapter.sql.model.database import Database
-from src.interface_adapter.sql.model.models import Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
-application, migrate = init(testing=False, managing=True)
+from src.interface_adapter.sql.model.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
+application, migrate = init()
 manager: Flask = application.app
 
 @manager.cli.command("check_subnet")
@@ -29,7 +28,7 @@ def check_subnet():
             continue
         mappings[str(subnet)] = str(ip)
 
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     adherents: List[Adherent] = session.query(Adherent).all()
     i = 1
     for a in adherents:
@@ -54,7 +53,7 @@ def check_subnet():
 limit_departure_date = date(2019, 1, 1)
 @manager.cli.command("remove_member")
 def remove_members():
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
     passed_adherents: List[Adherent] = []
@@ -102,7 +101,7 @@ def remove_members():
    
 @manager.cli.command("check_transactions_member_to_remove")
 def check_transactions_member_to_remove():
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
     total = len(adherents)
@@ -128,7 +127,7 @@ def check_transactions_member_to_remove():
 
 @manager.cli.command("generate_membership")
 def generate_membership():
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart >= limit_departure_date).all()
     products: Dict[str, Product] = {}
     products_sql = session.query(Product).all()
@@ -228,7 +227,7 @@ def generate_membership():
 
 @manager.cli.command("reset_membership")
 def reset_membership():
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     memberships: List[Membership] = session.query(Membership).all()
     for m in memberships:
         print(m.uuid)
@@ -238,7 +237,7 @@ def reset_membership():
 @manager.cli.command("check_migration_from_adh5")
 def check_migration_from_adh5():
     engine = create_engine('')
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
     i = 0
     j = 0
     total = 0
@@ -316,7 +315,7 @@ def check_migration_from_adh5():
 @manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
 
     print("Seeding account types")
     account_types = [1,"Special"],[2,"Adherent"],[3,"Club interne"],[4,"Club externe"],[5,"Association externe"]
@@ -428,7 +427,7 @@ def seed():
 def fake(login):
     """Add dummy data to the database."""
     fake = Faker()
-    session: Session = Database.get_db().get_session()
+    session: Session = db.session
 
     import datetime as dt
 

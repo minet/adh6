@@ -25,6 +25,11 @@ pysnmp
 # ELK communication
 elasticsearch
 
+# Dependency injection
+pinject
+
+python-dotenv
+
 # Communicate with other APIs (fetch MAC vendor)
 requests
 

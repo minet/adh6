@@ -1,7 +1,7 @@
 import abc
 
 
-class PingRepository(metaclass=abc.ABCMeta):
+class PingRepository(abc.ABC):
     """
     Abstract interface to get the health of the DB.
     """

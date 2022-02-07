@@ -12,10 +12,10 @@ from src.constants import CTX_SQL_SESSION
 from src.exceptions import VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Vlan as VlanSQL
-from src.use_case.interface.vlan_repository import VLANRepository
+from src.use_case.interface.vlan_repository import VlanRepository
 
 
-class VLANSQLRepository(VLANRepository):
+class VLANSQLRepository(VlanRepository):
     @log_call
     def get_vlan(self, ctx, vlan_number: int) -> Vlan:
         """

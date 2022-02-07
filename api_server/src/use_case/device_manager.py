@@ -9,7 +9,7 @@ from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security
 from src.use_case.interface.device_repository import DeviceRepository
-from src.use_case.interface.ip_allocator import IPAllocator
+from src.use_case.interface.ip_allocator import IpAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 
@@ -31,7 +31,7 @@ class DeviceManager(CRUDManager):
 
     def __init__(self,
                  device_repository: DeviceRepository,
-                 ip_allocator: IPAllocator,
+                 ip_allocator: IpAllocator,
                  ):
         super().__init__('device', device_repository, AbstractDevice, DeviceNotFoundError)
         self.device_repository = device_repository
