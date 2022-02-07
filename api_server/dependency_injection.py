@@ -11,7 +11,7 @@ from src.interface_adapter.snmp import SwitchSNMPNetworkManager
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.crud_repository import CRUDRepository
 
-def get_obj_graph(testing):
+def get_obj_graph():
     _global = sql_repositories+managers+handlers+[SwitchSNMPNetworkManager, ElasticSearchRepository]
 
     _base_interfaces = [

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from shutil import ExecError
 from typing import Tuple
 
 from connexion.apps.flask_app import FlaskApp
@@ -25,33 +26,32 @@ from src.interface_adapter.http_api import (
     SwitchHandler
 )
 
-from src.interface_adapter.sql.model.database import Database
+from src.interface_adapter.sql.model.models import db
 
 config = {
-    'default': 'config.configuration.BaseConfig',
     'production': 'config.configuration.ProductionConfig',
     'development': 'config.configuration.DevelopmentConfig',
     'testing': 'config.configuration.TestingConfig'
 }
 
 
-def init(testing=True) -> Tuple[FlaskApp, Migrate]:
+def init() -> Tuple[FlaskApp, Migrate]:
+    environment = os.environ.get('ENVIRONMENT', 'default').lower()
+    if environment == "default" or environment not in config:
+        raise ExecError("The server cannot be started because environment variable has not been set or is not production, development, testing")
+
     # Connexion will use this function to authenticate and fetch the information of the user.
-    if os.environ.get('TOKENINFO_FUNC') is None:
-        os.environ['TOKENINFO_FUNC'] = 'src.interface_adapter.http_api.auth.token_info'
+    os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'src.interface_adapter.http_api.auth.token_info')
 
     # Initialize the application
     app = FlaskApp(__name__, specification_dir='openapi')
 
     # Setup the configuration
-    config_name = os.getenv('ENVIRONMENT', 'default')
-    app.app.config.from_object(config[config_name])
-
-    Database.init_db(app.app.config["DATABASE"], testing=testing)
+    app.app.config.from_object(config[environment])
 
     from dependency_injection import get_obj_graph
     app.app.app_context().push()
-    obj_graph = get_obj_graph(testing)
+    obj_graph = get_obj_graph()
     app.add_api(
         'swagger.yaml',
         resolver=ADHResolver({
@@ -78,6 +78,9 @@ def init(testing=True) -> Tuple[FlaskApp, Migrate]:
         auth_all_paths=True,
     )
 
-    database = SQLAlchemy(app.app)
 
-    return app, Migrate(app.app, database)
+    db.init_app(app.app)
+    if environment == "testing":
+        db.create_all()
+
+    return app, Migrate(app.app, db)

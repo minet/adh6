@@ -6,13 +6,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import CHAR, Enum
 
+from flask_sqlalchemy import SQLAlchemy
+
 from src.constants import MembershipStatus, MembershipDuration
 
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 from src.interface_adapter.sql.util.rubydiff import rubydiff
 
-Base = declarative_base()
-
+db = SQLAlchemy()
+Base = db.Model
 
 class Vlan(Base):
     __tablename__ = 'vlans'

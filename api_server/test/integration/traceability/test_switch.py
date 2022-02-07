@@ -4,7 +4,7 @@ import pytest
 
 from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Switch
 from test.integration.resource import logs_contains
 from test.integration.test_switch import test_switch_post_valid, test_switch_update_existant_switch, \
@@ -31,9 +31,11 @@ def prep_db(session, sample_switch1):
 def api_client(sample_switch1):
     from ..context import app
     with app.app.test_client() as c:
-        db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(), sample_switch1)
+        db.create_all()
+        prep_db(db.session(), sample_switch1)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def test_switch_log_create(api_client, caplog):

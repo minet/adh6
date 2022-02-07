@@ -1,7 +1,6 @@
 import json
 from typing import Optional
-from src.interface_adapter.sql.model.database import Database as db
-from src.interface_adapter.sql.model.models import Membership
+from src.interface_adapter.sql.model.models import Membership, db
 from test.integration.resource import (base_url, TEST_HEADERS)
 from src.constants import MembershipStatus
 
@@ -46,7 +45,7 @@ def test_member_post_add_membership_bad_initial_status(api_client):
                 headers=TEST_HEADERS,
             )
 
-            membership: Optional[Membership] = db.get_db().get_session().query(Membership).filter(Membership.adherent_id == 1).one_or_none()
+            membership: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == 1).one_or_none()
             
             assert result.status_code == 400
             assert membership is None

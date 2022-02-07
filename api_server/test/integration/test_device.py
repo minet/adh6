@@ -5,7 +5,7 @@ from pytest_cases import fixture_ref, parametrize_plus
 
 from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.sql.device_repository import DeviceType
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import db
 from src.interface_adapter.sql.model.models import Device
 from .conftest import sample_member1, sample_member2, sample_member3
 from .resource import (
@@ -49,14 +49,16 @@ def api_client(wired_device,
                sample_member3):
     from .context import app
     with app.app.test_client() as c:
-        db.init_db(DATABASE, testing=True)
-        prep_db(db.get_db().get_session(),
+        db.create_all()
+        prep_db(db.session(),
                 custom_device,
                 wired_device,
                 wired_device2,
                 wireless_device,
                 sample_member3)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def test_device_filter_all_devices(api_client):
@@ -124,7 +126,7 @@ def test_device_filter_invalid_limit(api_client):
 
 
 def test_device_filter_hit_limit(api_client, sample_member1):
-    s = db.get_db().get_session()
+    s = db.session()
     LIMIT = 10
 
     # Create a lot of devices
@@ -158,7 +160,7 @@ def test_device_post_create_wireless(api_client, wireless_device_dict):
                        content_type='application/json',
                        headers=TEST_HEADERS)
     assert r.status_code == 201
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
 
 def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
@@ -173,7 +175,7 @@ def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
                        content_type='application/json',
                        headers=TEST_HEADERS)
     assert r.status_code == 201
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
     wired_device_dict["mac"] = "AB-CD-EF-01-23-45"
     r = api_client.post('{}/device/'.format(base_url),
@@ -181,9 +183,9 @@ def test_device_post_create_wired_without_ip(api_client, wired_device_dict):
                        content_type='application/json',
                        headers=TEST_HEADERS)
     assert r.status_code == 201
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Device)
     q = q.filter(Device.type == DeviceType.wired.value)
     q = q.filter(Device.mac == wired_device_dict["mac"])
@@ -199,9 +201,9 @@ def test_device_post_create_wired(api_client, wired_device_dict):
                        content_type='application/json',
                        headers=TEST_HEADERS)
     assert r.status_code == 201
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Device)
     q = q.filter(Device.type == DeviceType.wired.value)
     q = q.filter(Device.mac == wired_device_dict["mac"])
@@ -273,7 +275,7 @@ def test_device_patch_update_wireless(api_client, wireless_device,
         content_type='application/json',
         headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
 
 def test_device_patch_update_wired(api_client, wired_device, wired_device_dict):
@@ -284,7 +286,7 @@ def test_device_patch_update_wired(api_client, wired_device, wired_device_dict):
         content_type='application/json',
         headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
 
 def test_device_patch_update_wired_to_wireless(api_client, wired_device,
@@ -296,7 +298,7 @@ def test_device_patch_update_wired_to_wireless(api_client, wired_device,
         content_type='application/json',
         headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
 
 def test_device_patch_update_wireless_to_wired(api_client,
@@ -309,7 +311,7 @@ def test_device_patch_update_wireless_to_wired(api_client,
         content_type='application/json',
         headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
 
 def test_device_get_unknown_id(api_client):
@@ -345,9 +347,9 @@ def test_device_delete_wired(api_client, wired_device):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Device)
     q = q.filter(Device.type == "wired")
     q = q.filter(Device.mac == wired_device.mac)
@@ -360,9 +362,9 @@ def test_device_delete_wireless(api_client, wireless_device):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Device)
     q = q.filter(Device.type == "wireless")
     q = q.filter(Device.mac == wireless_device.mac)
