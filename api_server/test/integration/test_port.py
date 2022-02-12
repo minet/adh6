@@ -1,7 +1,6 @@
 import json
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Port
 from test.integration.resource import base_url, TEST_HEADERS

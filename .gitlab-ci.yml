@@ -137,7 +137,7 @@ deploy_prod_backend:
     - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
-    - cat config/CONFIGURATION.template.py | envsubst | tee config/CONFIGURATION.py
+    - cat config/.env.template | envsubst | tee config/.env
     - export FLASK_APP=manage:manager
     - flask db upgrade
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini

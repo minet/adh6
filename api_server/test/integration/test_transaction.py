@@ -4,11 +4,9 @@ from dateutil import parser
 
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Transaction, PaymentMethod, Account, AccountType
-from test.integration.conftest import sample_member1
-from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url, assert_modification_was_created
+from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
 
 
 @pytest.fixture

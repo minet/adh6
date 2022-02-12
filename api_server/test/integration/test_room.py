@@ -3,7 +3,6 @@ import logging
 import pytest
 
 from src.interface_adapter.sql.model.models import  db
-from config.TEST_CONFIGURATION import DATABASE as db_settings
 from src.interface_adapter.sql.model.models import Chambre
 from test.integration.resource import TEST_HEADERS, base_url
 

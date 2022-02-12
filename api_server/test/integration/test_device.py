@@ -3,7 +3,6 @@ import json
 import pytest
 from pytest_cases import fixture_ref, parametrize_plus
 
-from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import db
 from src.interface_adapter.sql.model.models import Device

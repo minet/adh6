@@ -1,7 +1,5 @@
-import datetime
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
