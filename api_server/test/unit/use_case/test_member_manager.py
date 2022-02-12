@@ -43,6 +43,16 @@ FAKE_LOGS = "1 blah blah blah logging logs"
 class TestNewMembership:
     """Unit tests for the management of the memberships
     """
+    def test_member_not_found(self, ctx,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_empty: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+        # When...
+        with pytest.raises(MemberNotFoundError):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
     def test_pending_rules(self, ctx,
                         mock_membership_repository: MagicMock,
                         mock_member_repository: MagicMock,

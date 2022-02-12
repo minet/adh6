@@ -26,7 +26,7 @@ config.set_main_option(
     'sqlalchemy.url', current_app.config.get(
         'SQLALCHEMY_DATABASE_URI').replace('%', '%%'))
 from src.interface_adapter.sql.model.models import *
-target_metadata = Base.metadata
+target_metadata = db.Model.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
