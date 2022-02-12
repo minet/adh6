@@ -443,7 +443,6 @@ def fake(login):
         chambre_id=1,
         admin_id=1,
         datesignedminet=now,
-        signedminet=True,
         date_de_depart=now + dt.timedelta(days=365),
         subnet="10.0.42.0/28",
         ip="157.159.192.2"

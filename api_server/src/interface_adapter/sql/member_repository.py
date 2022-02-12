@@ -158,17 +158,15 @@ class MemberSQLRepository(MemberRepository):
 
         now = datetime.now()
         if charter_id == 1:
-            if adherent.datesignedminet is not None or adherent.signedminet:
+            if adherent.datesignedminet is not None:
                 raise CharterAlreadySigned("MiNET")
             with track_modifications(ctx, session, adherent):
-                adherent.signedminet = True
                 adherent.datesignedminet = now
             membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
         elif charter_id == 2:
-            if adherent.datesignedhosting is not None or adherent.signedhosting:
+            if adherent.datesignedhosting is not None:
                 raise CharterAlreadySigned("Hosting")
             with track_modifications(ctx, session, adherent):
-                adherent.signedhosting = True
                 adherent.datesignedhosting = now
         else:
             raise InvalidCharterID(str(charter_id))
@@ -187,9 +185,9 @@ class MemberSQLRepository(MemberRepository):
             raise MemberNotFoundError(str(member_id))
 
         if charter_id == 1:
-            return "" if adherent.signedminet is None else str(adherent.datesignedminet)
+            return "" if adherent.datesignedminet is None else str(adherent.datesignedminet)
         if charter_id == 2:
-            return "" if adherent.signedhosting is None else str(adherent.datesignedhosting)
+            return "" if adherent.datesignedhosting is None else str(adherent.datesignedhosting)
 
         raise InvalidCharterID(str(charter_id))
 

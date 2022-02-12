@@ -19,8 +19,8 @@ class Vlan(db.Model):
     numero = Column(Integer)
     adresses = Column(String(255))
     adressesv6 = Column(String(255))
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     excluded_addr = Column(String(255))
     excluded_addrv6 = Column(String(255))
 
@@ -31,8 +31,8 @@ class Chambre(db.Model, RubyHashTrackable):
     id = Column(Integer, primary_key=True)
     numero = Column(Integer)
     description = Column(String(255))
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     dernier_adherent = Column(Integer)
     vlan_id = Column(Integer, ForeignKey(Vlan.id))
 
@@ -69,8 +69,8 @@ class Adherent(db.Model, RubyHashTrackable):
     password = Column(String(255))
     chambre_id = Column(Integer, ForeignKey(Chambre.id))
 
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     date_de_depart = Column(Date)
     commentaires = Column(String(255))
     mode_association = Column(
@@ -85,8 +85,8 @@ class Adherent(db.Model, RubyHashTrackable):
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
-    datesignedminet = Column(DateTime, nullable=True, server_default=text('NOW()'))
-    datesignedhosting = Column(DateTime, nullable=True, server_default=text('NOW()'))
+    datesignedminet = Column(DateTime, nullable=True)
+    datesignedhosting = Column(DateTime, nullable=True)
     mailinglist = Column(Boolean, nullable=False, default=False)
 
     admin = relationship('Admin', foreign_keys=[admin_id])
@@ -132,8 +132,8 @@ class Modification(db.Model):
     id = Column(Integer, primary_key=True)
     adherent_id = Column(Integer, index=True)
     action = Column(Text)
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     utilisateur_id = Column(Integer, index=True)
 
 
@@ -145,8 +145,8 @@ class Device(db.Model, RubyHashTrackable):
     ip = Column(String(255))
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
     adherent = relationship(Adherent, foreign_keys=[adherent_id])
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     last_seen = Column(DateTime)
     ipv6 = Column(String(255))
     type = Column(Integer)
@@ -179,8 +179,8 @@ class Routeur(db.Model, RubyHashTrackable):
     ip = Column(String(255))
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
     adherent = relationship(Adherent, foreign_keys=[adherent_id])
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -208,8 +208,8 @@ class Switch(db.Model):
     description = Column(String(255))
     ip = Column(String(15))
     communaute = Column(String(255))
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
 
 class Port(db.Model):
@@ -221,8 +221,8 @@ class Port(db.Model):
     oid = Column(String(255))
     switch_id = Column(Integer, ForeignKey(Switch.id), nullable=False)
     chambre_id = Column(Integer, ForeignKey(Chambre.id), nullable=False)
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
 
     switch = relationship(Switch, foreign_keys=[switch_id])
     chambre = relationship(Chambre, foreign_keys=[chambre_id])
@@ -277,7 +277,7 @@ class Account(db.Model, RubyHashTrackable):
 
     id = Column(Integer, primary_key=True, unique=True)
     type = Column(ForeignKey('account_types.id'), nullable=False, index=True)
-    creation_date = Column(DateTime, nullable=False, server_default=text('NOW()'))
+    creation_date = Column(DateTime, nullable=False)
     name = Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
     compte_courant = Column(Boolean(), nullable=False, default=False)
@@ -304,7 +304,7 @@ class Transaction(db.Model, RubyHashTrackable):
 
     id = Column(Integer, primary_key=True)
     value = Column(DECIMAL(8, 2), nullable=False)
-    timestamp = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    timestamp = Column(DateTime, nullable=False)
     src = Column(ForeignKey('accounts.id'), nullable=False, index=True)
     dst = Column(ForeignKey('accounts.id'), nullable=False, index=True)
     name = Column(String(255), nullable=False)
@@ -340,8 +340,8 @@ class Caisse(db.Model, RubyHashTrackable):
     fond = Column(Numeric(10, 2))
     coffre = Column(Numeric(10, 2))
     date = Column(DateTime)
-    created_at = Column(DateTime, server_default=text('NOW()'))
-    updated_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     linked_transaction = Column(Integer, ForeignKey('transactions.id'), nullable=True, index=True)
     transaction = relationship('Transaction', foreign_keys=[linked_transaction])
 
@@ -387,7 +387,7 @@ class Membership(db.Model):
 
     uuid = Column(String(36), primary_key=True)
     account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
-    create_at = Column(DateTime, server_default=text('NOW()'))
+    create_at = Column(DateTime)
     duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
     has_room = Column(Boolean, default=True, nullable=False)
     first_time = Column(Boolean, default=False, nullable=False)
@@ -395,7 +395,7 @@ class Membership(db.Model):
     payment_method_id = Column(Integer, ForeignKey(PaymentMethod.id), nullable=True)
     products = Column(String(255), nullable=True)
     status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
-    update_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+    update_at = Column(DateTime)
 
     adherent = relationship('Adherent', foreign_keys=[adherent_id])
     account = relationship('Account', foreign_keys=[account_id])
