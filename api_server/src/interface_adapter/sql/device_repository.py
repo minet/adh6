@@ -144,6 +144,24 @@ class DeviceSQLRepository(DeviceRepository):
         r, count = self._search(ctx, session, filter_=filter_, query=query, limit=0)
 
         return list(map(lambda x: x[0], r)), count
+    
+
+    def get_mab(self, ctx, device_id: int) -> bool:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        if not device:
+            raise DeviceNotFoundError(str(device_id))
+        return device.mab
+
+    def put_mab(self, ctx, device_id: int, mab: bool) -> bool:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        if not device:
+            raise DeviceNotFoundError(str(device_id))
+        
+        device.mab = mab
+
+        return mab
 
 
 def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:

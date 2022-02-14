@@ -1,13 +1,13 @@
 # coding=utf-8
 from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice, Device, Member, Admin
+from src.entity import AbstractDevice, Device, Member, Admin, device
 from src.entity.roles import Roles
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
     DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IpAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
@@ -17,7 +17,8 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
     item={
         "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
         "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN
+        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
+        "admin": Roles.ADMIN
     },
     collection={
         "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
@@ -46,6 +47,29 @@ class DeviceManager(CRUDManager):
                 oui, company = line.split('\t')
                 self.oui_repository[oui] = company
                 line = f.readline()
+
+    @log_call
+    @auto_raise
+    @uses_security("admin")
+    def put_mab(self, ctx, device_id: int) -> bool:
+        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=device_id))
+        if not devices:
+            raise DeviceNotFoundError(str(device_id))
+        
+        mab = self.device_repository.get_mab(ctx, device_id)
+        return self.device_repository.put_mab(ctx, device_id, not mab)
+
+    @log_call
+    @auto_raise
+    @uses_security("admin")
+    def get_mab(self, ctx, device_id: int) -> bool:
+        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=device_id))
+
+        if not devices:
+            raise DeviceNotFoundError(str(device_id))
+        
+        return self.device_repository.get_mab(ctx, device_id)
+
 
     @log_call
     @auto_raise
