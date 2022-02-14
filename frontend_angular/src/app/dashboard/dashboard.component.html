@@ -64,7 +64,7 @@
         <h4 i18n="own devices">Mes appareils</h4>
         <hr>
         <app-device-new [member_id]="member.id"
-                        (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()"></app-device-new>
+                        (added)="$event.connectionType == 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()"></app-device-new>
         <hr>
         <div class="row mt-3">
           <div class="col-md-6">

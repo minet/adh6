@@ -132,13 +132,13 @@
 
     <br>
     <h4 class="table-title my-0">Filaire</h4>
-    <app-member-device-list
+    <app-member-device-list #wiredList
                             [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
                             [macHighlighted]="macHighlighted$"></app-member-device-list>
 
     <br>
     <h4 class="table-title my-0">Wifi</h4>
-    <app-member-device-list
+    <app-member-device-list #wirelessList
                             [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
                             [macHighlighted]="macHighlighted$"></app-member-device-list>
 

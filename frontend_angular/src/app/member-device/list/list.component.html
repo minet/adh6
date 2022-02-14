@@ -5,54 +5,7 @@
       <tbody>
       <tr *ngFor="let device of result.devices" class="device_row"
           [ngClass]="{'mac_highlighted': device.mac == (macHighlighted | async)}">
-        <table class="w-100">
-          <tr (click)="toggleDeviceDetails(device)">
-            <td colspan="3">{{ device.mac | uppercase }}
-              <span
-                style="position: absolute; right: 30px">{{ isDeviceOpened(device) === false ? "&#x25bc;" : "&#x25b2;"
-                }}</span>
-            </td>
-          </tr>
-          <tr *ngIf="isDeviceOpened(device)" class="device_details_area">
-            <td>
-              <div>
-                <dl class="row">
-                  <dt class="col-sm-6">Type</dt>
-                  <dd class="col-sm-6" style="font-style: italic">{{ device.connectionType }}</dd>
-
-                  <dt class="col-sm-6">IPv4</dt>
-                  <dd class="col-sm-6">{{ device.ipv4Address == null ? "-" : device.ipv4Address }}</dd>
-
-                  <dt class="col-sm-6">IPv6</dt>
-                  <dd class="col-sm-6">{{ device.ipv6Address == null ? "-" : device.ipv6Address }}</dd>
-
-                  <dt class="col-sm-6" i18n="device list manufacturer">Fabricant</dt>
-                  <dd class="col-sm-6">
-                    <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
-                  </dd>
-                </dl>
-
-                <!--<button
-                  (click)="onMAB()"
-                  class="btn btn-primary ml-3"
-                  [disabled]='MABdisabled'
-                  [ngClass]="{
-                              'off':'btn-warning',
-                              'on':'btn-success',
-                              'wifi':'btn-primary'
-                              }[MAB]"
-                >MAB : {{ MAB }}
-                </button>-->
-              </div>
-
-              <div>
-                <a (click)="deviceDelete(device.id)">
-                  <button class="btn btn-danger" i18n="@@delete">Supprimer</button>
-                </a>
-              </div>
-            </td>
-          </tr>
-        </table>
+        <app-element [device]="device" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
       </tr>
       </tbody>
     </table>

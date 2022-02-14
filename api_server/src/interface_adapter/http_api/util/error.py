@@ -1,5 +1,5 @@
 # coding=utf-8
-from src.exceptions import NetworkManagerReadError, ValidationError, UnauthorizedError, UnauthenticatedError, NotFoundError
+from src.exceptions import AlreadyExistsError, NetworkManagerReadError, ValidationError, UnauthorizedError, UnauthenticatedError, NotFoundError
 from src.util.context import log_extra
 from src.util.log import LOG
 
@@ -16,7 +16,7 @@ def _error(code, message):
 
 
 def handle_error(ctx, e: Exception):
-    if isinstance(e, ValidationError) or isinstance(e, NetworkManagerReadError):
+    if isinstance(e, ValidationError) or isinstance(e, NetworkManagerReadError) or isinstance(e, AlreadyExistsError):
         return _error(400, str(e)), 400
     elif isinstance(e, NotFoundError):
         return _error(404, str(e)), 404
