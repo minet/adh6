@@ -1,12 +1,11 @@
 import json
 
 import pytest
-from pytest_cases import fixture_ref, parametrize_plus
+from pytest_lazyfixture import lazy_fixture
 
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import db
 from src.interface_adapter.sql.model.models import Device
-from .conftest import sample_member1, sample_member2, sample_member3
 from .resource import (
     base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created)
@@ -70,14 +69,15 @@ def test_device_filter_all_devices(api_client):
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 4
 
-
-@parametrize_plus('member,expected', [
-    (fixture_ref(sample_member1), 3),
-    (fixture_ref(sample_member2), 1),
-    (fixture_ref(sample_member3), 0)
-], idgen="{member.fixture}")
-def test_device_filter_wired_by_member(
-        api_client, member, expected):
+@pytest.mark.parametrize('member,expected', [
+    (lazy_fixture('sample_member1'), 3),
+    (lazy_fixture('sample_member2'), 1),
+    (lazy_fixture('sample_member3'), 0)
+])
+def test_device_filter_wired_by_member(api_client, member, expected):
+    id = member.id
+    print(member)
+    print("")
     r = api_client.get(
         '{}/device/?filter[member]={}'.format(
             base_url,
@@ -210,7 +210,7 @@ def test_device_post_create_wired(api_client, wired_device_dict):
     assert dev.ip == "127.0.0.1"
 
 
-@pytest.mark.parametrize('test_mac', INVALID_MAC)
+@pytest.mark.parametrize('test_mac', [(INVALID_MAC,)])
 def test_device_post_create_invalid_mac_address(api_client,
                                                test_mac,
                                                wired_device_dict):
@@ -225,7 +225,7 @@ def test_device_post_create_invalid_mac_address(api_client,
     assert r.status_code == 400 or r.status_code == 405
 
 
-@pytest.mark.parametrize('test_ip', INVALID_IPv6)
+@pytest.mark.parametrize('test_ip', [(INVALID_IPv6,)])
 def test_device_post_create_invalid_ipv6(api_client, test_ip,
                                         wired_device_dict):
     ''' Create with invalid ip address '''
@@ -239,7 +239,7 @@ def test_device_post_create_invalid_ipv6(api_client, test_ip,
     assert r.status_code == 400
 
 
-@pytest.mark.parametrize('test_ip', INVALID_IP)
+@pytest.mark.parametrize('test_ip', [(INVALID_IP,)])
 def test_device_post_create_invalid_ipv4(api_client, test_ip,
                                         wired_device_dict):
     ''' Create with invalid ip address '''
