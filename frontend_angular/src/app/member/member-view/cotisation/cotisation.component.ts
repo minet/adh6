@@ -68,13 +68,9 @@ export class CotisationComponent implements OnInit {
     } else {
       paymentMethod = this.membership.paymentMethod.id;
     }
-    console.log({
-      renewal: this.subscriptionDuration.indexOf(AbstractMembership.DurationEnum.NUMBER_2),
-      paidWith: paymentMethod
-    });
     this.subscriptionForm.patchValue({
       renewal: this.subscriptionDuration.indexOf(this.membership.duration),
-      paidWith: paymentMethod
+      paidWith: (paymentMethod != 0) ? paymentMethod : ''
     });
     this.updateAmount();
   }
