@@ -25,10 +25,10 @@ class BaseConfig(object):
 
     # IPs and ports for Elasticsearch nodes
     ELK_HOSTS = [
-        {'host': '192.168.102.229', 'port': 9200},
-        {'host': '192.168.102.231', 'port': 9200},
-        {'host': '192.168.102.227', 'port': 9200},
-        {'host': '192.168.102.228', 'port': 9200},
+        {'scheme': 'http', 'host': '192.168.102.229', 'port': 9200},
+        {'scheme': 'http', 'host': '192.168.102.231', 'port': 9200},
+        {'scheme': 'http', 'host': '192.168.102.227', 'port': 9200},
+        {'scheme': 'http', 'host': '192.168.102.228', 'port': 9200},
     ]
 
 
