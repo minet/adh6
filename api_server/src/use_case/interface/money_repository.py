@@ -7,7 +7,7 @@ from src.entity import Product
 from typing import List
 
 
-class MoneyRepository(metaclass=abc.ABCMeta):
+class MoneyRepository(abc.ABC):
     """
     Abstract interface to handle money movements.
     """

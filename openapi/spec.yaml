@@ -426,6 +426,57 @@ paths:
       summary: Retrieve the vendor of a device based on its MAC
       tags:
       - device
+  /device/{device_id}/mab/:
+    parameters:
+    - description: The unique identifier of the device
+      in: path
+      name: device_id
+      required: true
+      schema:
+        type: integer
+        example: 0
+    get:
+      operationId: device_mab_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                example: true
+                type: boolean
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the vendor of a device based on its MAC
+      tags:
+      - device
+    put:
+      operationId: device_mab_put
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                example: true
+                type: boolean
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieve the vendor of a device based on its MAC
+      tags:
+      - device
   /member/:
     get:
       parameters:

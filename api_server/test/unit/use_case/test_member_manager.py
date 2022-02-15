@@ -1,5 +1,8 @@
 # coding=utf-8 import datetime import datetime import datetime
 import datetime
+from unittest import mock
+
+import pytest
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
@@ -8,7 +11,6 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from config import TEST_CONFIGURATION
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod
 from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError
@@ -18,7 +20,7 @@ from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
 from src.use_case.member_manager import MemberManager
 from src.use_case.device_manager import DeviceManager
-from src.use_case.interface.ip_allocator import IPAllocator
+from src.use_case.interface.ip_allocator import IpAllocator
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),
@@ -41,6 +43,16 @@ FAKE_LOGS = "1 blah blah blah logging logs"
 class TestNewMembership:
     """Unit tests for the management of the memberships
     """
+    def test_member_not_found(self, ctx,
+                        mock_member_repository: MagicMock,
+                        sample_member: Member,
+                        sample_membership_empty: Membership,
+                        member_manager: MemberManager):
+        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+        # When...
+        with pytest.raises(MemberNotFoundError):
+            member_manager.new_membership(ctx, sample_member.id, sample_membership_empty)
+
     def test_pending_rules(self, ctx,
                         mock_membership_repository: MagicMock,
                         mock_member_repository: MagicMock,
@@ -792,7 +804,6 @@ def member_manager(
         logs_repository=mock_logs_repository,
         device_repository=mock_device_repository,
         device_manager=device_manager,
-        configuration=TEST_CONFIGURATION,
     )
 
 
@@ -847,7 +858,7 @@ def sample_membership_pending_rules(sample_member):
     
 @fixture
 def mock_ip_allocator():
-    return MagicMock(spec=IPAllocator)
+    return MagicMock(spec=IpAllocator)
 
 @fixture
 def device_manager(

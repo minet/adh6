@@ -4,11 +4,9 @@ from dateutil import parser
 
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE as db_settings
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Transaction, PaymentMethod, Account, AccountType
-from test.integration.conftest import sample_member1
-from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url, assert_modification_was_created
+from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
 
 
 @pytest.fixture
@@ -92,13 +90,15 @@ def prep_db(session, sample_transaction, sample_transaction_pending):
 def api_client(sample_transaction, sample_transaction_pending):
     from .context import app
     with app.app.test_client() as c:
-        db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(), sample_transaction, sample_transaction_pending)
+        db.create_all()
+        prep_db(db.session(), sample_transaction, sample_transaction_pending)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def assert_transaction_in_db(body):
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Transaction)
     q = q.filter(Transaction.name == body["name"])
     sw = q.one()
@@ -184,7 +184,7 @@ def test_transaction_validate_pending(api_client, sample_transaction_pending):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Transaction)
     q = q.filter(Transaction.name == sample_transaction_pending.name)
     sw = q.one()
@@ -206,7 +206,7 @@ def test_transaction_delete_pending(api_client, sample_transaction_pending):
     )
     assert r.status_code == 204
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Transaction)
     q = q.filter(Transaction.pending_validation == True)
     q = q.filter(Transaction.name == "description 2")

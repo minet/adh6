@@ -2,7 +2,7 @@ import json
 from dateutil import parser
 from pytest import mark
 
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import db
 from src.interface_adapter.sql.model.models import Adherent
 from test.integration.resource import (
     base_url, TEST_HEADERS, assert_modification_was_created)
@@ -24,7 +24,7 @@ def prep_db(session,
 
 def assert_member_in_db(body):
     # Actually check that the object was inserted
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Adherent)
     q = q.filter(Adherent.login == body["username"])
     r = q.one()
@@ -189,9 +189,9 @@ def test_member_delete_existant(api_client, sample_member1):
         headers=TEST_HEADERS
     )
     assert r.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Adherent)
     q = q.filter(Adherent.login == "dubois_j")
     assert not s.query(q.exists()).scalar()
@@ -260,7 +260,7 @@ def test_member_post_member_create(api_client, sample_room1):
         headers=TEST_HEADERS
     )
     assert 201 == res.status_code
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
     assert_member_in_db(body)
 
@@ -276,7 +276,7 @@ def test_member_patch_username(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -299,7 +299,7 @@ def test_member_patch_email(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -323,7 +323,7 @@ def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -346,7 +346,7 @@ def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -369,7 +369,7 @@ def test_member_patch_comment(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -392,7 +392,7 @@ def test_member_patch_room(api_client, sample_member1, sample_room2):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -415,7 +415,7 @@ def test_member_patch_lastname(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "TEST",
@@ -438,7 +438,7 @@ def test_member_patch_firstname(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
     assert_member_in_db({
         "firstName": "TEST",
         "lastName": "Dubois",
@@ -467,7 +467,7 @@ def test_member_put_member_update(api_client, sample_member1, sample_room1):
         headers=TEST_HEADERS
     )
     assert res.status_code == 201
-    assert_modification_was_created(db.get_db().get_session())
+    assert_modification_was_created(db.session())
 
     assert_member_in_db(body)
 

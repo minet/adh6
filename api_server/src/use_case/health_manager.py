@@ -8,8 +8,8 @@ class HealthManager:
     Response to health requests.
     """
 
-    def __init__(self, repository: PingRepository):
-        self.health_repository = repository
+    def __init__(self, ping_repository: PingRepository):
+        self.health_repository = ping_repository
 
     def is_healthy(self, ctx) -> bool:
         db_health = self.health_repository.ping(ctx)

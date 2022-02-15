@@ -358,6 +358,108 @@ export class DeviceService {
     }
 
     /**
+     * Retrieve the vendor of a device based on its MAC
+     * 
+     * @param deviceId The unique identifier of the device
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public deviceMabGet(deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public deviceMabGet(deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public deviceMabGet(deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public deviceMabGet(deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (deviceId === null || deviceId === undefined) {
+            throw new Error('Required parameter deviceId was null or undefined when calling deviceMabGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<boolean>('get',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}/mab/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve the vendor of a device based on its MAC
+     * 
+     * @param deviceId The unique identifier of the device
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public deviceMabPut(deviceId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public deviceMabPut(deviceId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public deviceMabPut(deviceId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public deviceMabPut(deviceId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (deviceId === null || deviceId === undefined) {
+            throw new Error('Required parameter deviceId was null or undefined when calling deviceMabPut.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<boolean>('put',`${this.basePath}/device/${encodeURIComponent(String(deviceId))}/mab/`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Create device
      * 
      * @param body The device to create

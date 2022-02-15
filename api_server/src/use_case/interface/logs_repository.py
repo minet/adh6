@@ -5,7 +5,7 @@ Logs repository interface.
 import abc
 
 
-class LogsRepository(metaclass=abc.ABCMeta):
+class LogsRepository(abc.ABC):
     """
     Abstract interface to access the logs.
     """

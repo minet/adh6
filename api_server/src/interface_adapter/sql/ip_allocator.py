@@ -4,10 +4,10 @@ from typing import List
 
 from src.exceptions import BadSubnetError, NoMoreIPAvailableException
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.use_case.interface.ip_allocator import IPAllocator
+from src.use_case.interface.ip_allocator import IpAllocator
 
 
-class IPSQLAllocator(IPAllocator):
+class IPSQLAllocator(IpAllocator):
 
     @log_call
     def allocate_ip_v4(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:

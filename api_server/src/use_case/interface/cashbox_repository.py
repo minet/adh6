@@ -3,15 +3,15 @@
 Treasury repository.
 """
 import abc
+from typing import Tuple
 
-
-class CashboxRepository(metaclass=abc.ABCMeta):
+class CashboxRepository(abc.ABC):
     """
     Abstract interface to handle the cashbox.
     """
 
     @abc.abstractmethod
-    def get_cashbox(self, ctx,) -> (int, int):
+    def get_cashbox(self, ctx,) -> Tuple[int, int]:
         """
         Get the current value
         """

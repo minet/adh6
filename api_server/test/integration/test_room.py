@@ -2,14 +2,13 @@ import json
 import logging
 import pytest
 
-from src.interface_adapter.sql.model.database import Database as db
-from config.TEST_CONFIGURATION import DATABASE as db_settings
+from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Chambre
 from test.integration.resource import TEST_HEADERS, base_url
 
 
 def assert_room_in_db(body):
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Chambre)
     q = q.filter(body["roomNumber"] == Chambre.numero)
     c = q.one()
@@ -31,10 +30,12 @@ def prep_db(session,
 def api_client(sample_room1, sample_room2):
     from .context import app
     with app.app.test_client() as c:
-        db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(),
+        db.create_all()
+        prep_db(db.session(),
                 sample_room1, sample_room2)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def test_room_filter_all_rooms(api_client):
@@ -147,7 +148,7 @@ def test_room_delete_existant_room(api_client, sample_room1):
     )
     assert r.status_code == 204
 
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Chambre)
     q = q.filter(Chambre.id == sample_room1.id)
     assert q.count() == 0

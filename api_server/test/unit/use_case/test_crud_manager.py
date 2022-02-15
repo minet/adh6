@@ -1,18 +1,18 @@
 from unittest.mock import MagicMock
 
-from pytest import raises, mark
-from pytest_cases import fixture_ref, parametrize_plus, fixture_plus, unpack_fixture
+from pytest import raises
+import pytest
+from pytest_cases import unpack_fixture
+from pytest_lazyfixture import lazy_fixture
 
-from src.entity import AbstractDevice, AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType
+from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType
 from src.entity.abstract_payment_method import AbstractPaymentMethod
 from src.entity.abstract_product import AbstractProduct
 from src.exceptions import IntMustBePositive, UserInputError
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
-from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
-from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.port_repository import PortRepository
 from src.use_case.interface.product_repository import ProductRepository
@@ -23,30 +23,31 @@ from src.use_case.port_manager import PortManager
 from src.use_case.product_manager import ProductManager
 from src.use_case.room_manager import RoomManager
 from src.use_case.switch_manager import SwitchManager
-from test.unit.use_case.conftest import sample_account1, sample_device, sample_switch, sample_port, sample_room, \
-    sample_product, sample_payment_method, sample_account_type
 
 
-@fixture_plus
-@parametrize_plus("repository_class, manager_class, abstract_class, mock_object",
-                  [
-                      (SwitchRepository, SwitchManager, AbstractSwitch, fixture_ref(sample_switch)),
-                      (PortRepository, PortManager, AbstractPort, fixture_ref(sample_port)),
-                      (RoomRepository, RoomManager, AbstractRoom, fixture_ref(sample_room)),
-                      (AccountRepository, AccountManager, AbstractAccount, fixture_ref(sample_account1)),
-                      (ProductRepository, ProductManager, AbstractProduct, fixture_ref(sample_product)),
-                      (
-                              PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod,
-                              fixture_ref(sample_payment_method)),
-                      (AccountTypeRepository, AccountTypeManager, AccountType, fixture_ref(sample_account_type)),
+@pytest.fixture(
+    params=[
+        (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture('sample_switch')),
+        (PortRepository, PortManager, AbstractPort, lazy_fixture('sample_port')),
+        (RoomRepository, RoomManager, AbstractRoom, lazy_fixture('sample_room')),
+        (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
+        (ProductRepository, ProductManager, AbstractProduct, lazy_fixture('sample_product')),
+        (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
+        (AccountTypeRepository, AccountTypeManager, AccountType, lazy_fixture('sample_account_type')),
+    ]
+)
+def data_set(request):
+    return request.param
 
-                  ],
-                  ids=[
-                      "switch", "port", "room", "account", "product", "payment_method", "account_type"
-                  ])
-def manager(repository_class, manager_class, abstract_class, mock_object):
-    mock_repo = MagicMock(spec=repository_class)
-    return mock_repo, manager_class(mock_repo), abstract_class, mock_object
+
+@pytest.fixture(
+    ids=[
+        "switch", "port", "room", "account", "product", "payment_method", "account_type"
+    ]
+)
+def manager(data_set):
+    mock_repo = MagicMock(spec=data_set[0])
+    return mock_repo, data_set[1](mock_repo), data_set[2], data_set[3]
 
 
 mock_repo, mock_manager, abstract_object, mock_object = unpack_fixture(

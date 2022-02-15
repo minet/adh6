@@ -29,6 +29,7 @@
   <div class="form-group">
     <label>Payer par (montant : {{ amountToPay }} €)</label>
     <select class="w-100 form-control" formControlName="paidWith" type="text">
+      <option value="">Choisir moyen de paiement</option>
       <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
     </select>
   </div>

@@ -1,11 +1,11 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
 import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember} from '../../api';
 import {ActivatedRoute} from '@angular/router';
 import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
-import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
+import { ListComponent } from '../../member-device/list/list.component';
 
 @Component({
   selector: 'app-member-details',
@@ -14,6 +14,9 @@ import { NotificationService } from '../../notification.service';
 })
 
 export class MemberViewComponent implements OnInit, OnDestroy {
+  @ViewChild(ListComponent) wiredList:ListComponent;
+  @ViewChild(ListComponent) wirelessList:ListComponent;
+
   cotisation = false;
   submitDisabled = false;
   getDhcp = false;

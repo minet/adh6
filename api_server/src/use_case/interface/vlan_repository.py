@@ -4,7 +4,7 @@ import abc
 from src.entity.vlan import Vlan
 
 
-class VLANRepository(metaclass=abc.ABCMeta):
+class VlanRepository(abc.ABC):
     """
     Abstract interface to handle VLANs.
     """

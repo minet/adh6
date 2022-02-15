@@ -11,12 +11,13 @@ class BugReportManager:
     Response to health requests.
     """
 
-    def __init__(self, gitlab_conf, testing):
-        self.testing = testing
+    def __init__(self):
+        from flask import current_app
+        self.testing = current_app.config["TESTING"]
 
         if not self.testing:
             try:
-                self.gl = gitlab.Gitlab('https://gitlab.minet.net', private_token=gitlab_conf['access_token'])
+                self.gl = gitlab.Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"])
                 self.gl.auth()
                 self.project = self.gl.projects.get(223)
             except GitlabAuthenticationError:

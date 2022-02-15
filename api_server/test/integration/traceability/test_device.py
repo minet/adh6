@@ -1,9 +1,8 @@
 import logging
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import db
 from test.integration.resource import logs_contains
 from test.integration.test_device import test_device_post_create_wired, test_device_post_create_wireless, \
     test_device_patch_update_wired, test_device_patch_update_wireless, test_device_delete_wired, test_device_delete_wireless
@@ -27,12 +26,14 @@ def api_client(wired_device,
                sample_member3):
     from ..context import app
     with app.app.test_client() as c:
-        db.init_db(DATABASE, testing=True)
-        prep_db(db.get_db().get_session(),
+        db.create_all()
+        prep_db(db.session(),
                 wired_device,
                 wireless_device,
                 sample_member3)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def test_device_log_create_wired(api_client, caplog, wired_device_dict):

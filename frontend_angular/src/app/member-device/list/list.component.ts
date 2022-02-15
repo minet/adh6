@@ -24,35 +24,6 @@ export class ListComponent extends SearchPage implements OnInit {
 
   result$: Observable<DeviceListReponse>;
 
-  private selectedDevice: string;
-
-
-  toggleDeviceDetails(device: Device): void {
-    if (this.isDeviceOpened(device)) {
-      this.selectedDevice = null;
-    } else {
-      this.selectedDevice = device.mac;
-    }
-  }
-
-  isDeviceOpened(device: Device): boolean {
-    return this.selectedDevice === device.mac;
-  }
-
-  deviceDelete(deviceId: number) {
-    this.deviceService.deviceDeviceIdDelete(deviceId)
-      .pipe(
-        first(),
-        map(() => {
-          this.updateSearch();
-          return null; // @TODO return the device ?
-        }),
-        first(),
-      )
-      .subscribe(() => {
-      });
-  }
-
   constructor(public deviceService: DeviceService) {
     super();
   }

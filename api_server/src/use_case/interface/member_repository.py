@@ -9,35 +9,27 @@ from src.entity import Member, AbstractMember
 from src.use_case.interface.crud_repository import CRUDRepository
 
 
-class MemberRepository(CRUDRepository):
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractMember = None) -> Tuple[List[Member], int]:
-        raise NotImplementedError
-
-    @abc.abstractclassmethod
+class MemberRepository(CRUDRepository[Member, AbstractMember]):
+    @abc.abstractmethod
     def get(self, ctx, member_id: int) -> Optional[Member]:
         pass
 
-    def create(self, ctx, object_to_create: Member) -> object:
-        raise NotImplementedError
-
-    def update(self, ctx, object_to_update: AbstractMember, override=False) -> object:
-        raise NotImplementedError
-
-    def delete(self, ctx, object_id) -> None:
-        raise NotImplementedError
-
+    @abc.abstractmethod
     def add_duration(self, ctx, member_id: int, duration_in_mounth: int) -> None:
-        raise NotImplementedError
+        pass
 
-    def update_password(self, ctx, member_id, hashed_password):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def update_password(self, ctx, member_id: int, hashed_password: str) -> None:
+        pass
 
+    @abc.abstractmethod
     def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
-        raise NotImplementedError
+        pass
 
+    @abc.abstractmethod
     def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
-        raise NotImplementedError
+        pass
 
+    @abc.abstractmethod
     def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
-        raise NotImplementedError
+        pass

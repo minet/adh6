@@ -2,7 +2,7 @@
 from src.entity import AbstractVlan, Vlan
 from src.exceptions import VLANNotFoundError
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.interface.vlan_repository import VLANRepository
+from src.use_case.interface.vlan_repository import VlanRepository
 from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
 from src.entity.roles import Roles
 from src.use_case.decorator.auto_raise import auto_raise
@@ -13,8 +13,8 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
         "read": Roles.ADMIN,
     }
 ))
-class VLANManager(CRUDManager):
-    def __init__(self, vlan_repository: VLANRepository):
+class VlanManager(CRUDManager):
+    def __init__(self, vlan_repository: VlanRepository):
         super().__init__('vlan', vlan_repository, AbstractVlan, VLANNotFoundError)
         self.vlan_repository = vlan_repository
 

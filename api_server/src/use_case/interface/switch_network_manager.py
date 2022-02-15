@@ -8,7 +8,7 @@ from src.entity.port import Port
 from src.entity.switch import Switch
 
 
-class SwitchNetworkManager(metaclass=abc.ABCMeta):
+class SwitchNetworkManager(abc.ABC):
     """
     Abstract interface to manipulate the members.
     """

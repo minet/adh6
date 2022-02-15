@@ -30,3 +30,23 @@ class DeviceHandler(DefaultHandler):
             return self.device_manager.get_mac_vendor(ctx, device_id=device_id), 200
         except Exception as e:
             return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def device_mab_get(self, ctx, device_id: int):
+        """ Return the vendor associated with the given device """
+        try:
+            return self.device_manager.get_mab(ctx, device_id=device_id), 200
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
+    def device_mab_put(self, ctx, device_id: int):
+        """ Return the vendor associated with the given device """
+        try:
+            return self.device_manager.put_mab(ctx, device_id=device_id), 200
+        except Exception as e:
+            return handle_error(ctx, e)

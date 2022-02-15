@@ -1,15 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {MemberService} from '../../api';
 import { md4 } from 'hash-wasm';
 import {Location} from '@angular/common';
-import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
 
-function passwordConfirming(c: AbstractControl): any {
+function passwordConfirming(c: AbstractControl): ValidationErrors|null {
   if (!c || !c.value) {
     return;
   }
@@ -38,8 +37,7 @@ export class MemberPasswordEditComponent implements OnInit {
     private route: ActivatedRoute,
     private memberService: MemberService,
     private location: Location
-  ) {
-  }
+  ) { }
 
   disabled = false;
   memberPassword: FormGroup;
@@ -47,7 +45,7 @@ export class MemberPasswordEditComponent implements OnInit {
   /*
   Taken from https://stackoverflow.com/a/37597001
    */
-  strEncodeUTF16(str) {
+  strEncodeUTF16(str: string) {
     const buf = new ArrayBuffer(str.length * 2);
     const bufView = new Uint16Array(buf);
     for (let i = 0, strLen = str.length; i < strLen; i++) {
@@ -90,8 +88,8 @@ export class MemberPasswordEditComponent implements OnInit {
       'response')
       .pipe(
         first(),
-        tap((response) => {
-          this.router.navigate(['member/view', +member_id]);
+        tap((_) => {
+          this.location.back();
           this.notificationService.successNotification();
         }),
       );

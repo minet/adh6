@@ -1,8 +1,7 @@
 import json
 import pytest
 
-from config.TEST_CONFIGURATION import DATABASE as db_settings
-from src.interface_adapter.sql.model.database import Database as db
+from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Switch
 from test.integration.resource import TEST_HEADERS, INVALID_IP, base_url
 
@@ -27,13 +26,15 @@ def prep_db(session, sample_switch1):
 def api_client(sample_switch1):
     from .context import app
     with app.app.test_client() as c:
-        db.init_db(db_settings, testing=True)
-        prep_db(db.get_db().get_session(), sample_switch1)
+        db.create_all()
+        prep_db(db.session(), sample_switch1)
         yield c
+        db.session.remove()
+        db.drop_all()
 
 
 def assert_switch_in_db(body):
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Switch)
     q = q.filter(Switch.ip == body["ip"])
     sw = q.one()
@@ -213,7 +214,7 @@ def test_switch_delete_existant_switch(api_client):
         headers=TEST_HEADERS
     )
     assert r.status_code == 204
-    s = db.get_db().get_session()
+    s = db.session()
     q = s.query(Switch)
     q = q.filter(Switch.id == 1)
 

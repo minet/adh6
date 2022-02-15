@@ -22,11 +22,12 @@ class ElasticSearchRepository(LogsRepository):
     Interface to the log repository.
     """
 
-    def __init__(self, configuration):
-        self.config = configuration
+    def __init__(self):
+        from flask import current_app
+        self.config = current_app.config
         LOG.info('About to instantiate ElasticSearch')
-        LOG.debug('ELK_HOSTS:' + str(self.config.ELK_HOSTS))
-        self.es = Elasticsearch(self.config.ELK_HOSTS)
+        LOG.debug('ELK_HOSTS:' + str(self.config['ELK_HOSTS']))
+        self.es = Elasticsearch(self.config['ELK_HOSTS'])
 
     def get_global_stats(self, ctx):
         query = {
@@ -69,7 +70,7 @@ class ElasticSearchRepository(LogsRepository):
         :param dhcp: allow to query DHCP logs or not
         :return: logs
         """
-        if not self.config.ELK_HOSTS:
+        if not self.config['ELK_HOSTS']:
             raise LogFetchError('no elk host configured')
 
         if ctx.get(CTX_TESTING):  # Do not actually query elasticsearch if testing...

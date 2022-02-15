@@ -1,20 +1,18 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean
-from sqlalchemy import Date, DateTime, Integer, \
-    Numeric, Text, text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean, Date, DateTime, Integer, Numeric, Text, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import CHAR, Enum
+
+from flask_sqlalchemy import SQLAlchemy
 
 from src.constants import MembershipStatus, MembershipDuration
 
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 from src.interface_adapter.sql.util.rubydiff import rubydiff
 
-Base = declarative_base()
+db = SQLAlchemy()
 
-
-class Vlan(Base):
+class Vlan(db.Model):
     __tablename__ = 'vlans'
 
     id = Column(Integer, primary_key=True)
@@ -27,7 +25,7 @@ class Vlan(Base):
     excluded_addrv6 = Column(String(255))
 
 
-class Chambre(Base, RubyHashTrackable):
+class Chambre(db.Model, RubyHashTrackable):
     __tablename__ = 'chambres'
 
     id = Column(Integer, primary_key=True)
@@ -53,14 +51,14 @@ class Chambre(Base, RubyHashTrackable):
         return self
 
 
-class Admin(Base):
+class Admin(db.Model):
     __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
     roles = Column(String(255))
 
 
-class Adherent(Base, RubyHashTrackable):
+class Adherent(db.Model, RubyHashTrackable):
     __tablename__ = 'adherents'
 
     id = Column(Integer, primary_key=True)
@@ -87,10 +85,9 @@ class Adherent(Base, RubyHashTrackable):
 
     admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
-    signedminet = Column(Boolean, nullable=True)
     datesignedminet = Column(DateTime, nullable=True)
-    signedhosting = Column(Boolean, nullable=True)
     datesignedhosting = Column(DateTime, nullable=True)
+    mailinglist = Column(Boolean, nullable=False, default=False)
 
     admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])
@@ -114,7 +111,7 @@ class Adherent(Base, RubyHashTrackable):
         return self
 
 
-class Inscription(Base):
+class Inscription(db.Model):
     __tablename__ = 'inscriptions'
 
     id = Column(Integer, primary_key=True)
@@ -129,7 +126,7 @@ class Inscription(Base):
     updated_at = Column(DateTime)
 
 
-class Modification(Base):
+class Modification(db.Model):
     __tablename__ = 'modifications'
 
     id = Column(Integer, primary_key=True)
@@ -140,20 +137,20 @@ class Modification(Base):
     utilisateur_id = Column(Integer, index=True)
 
 
-class Device(Base, RubyHashTrackable):
+class Device(db.Model, RubyHashTrackable):
     __tablename__ = 'devices'
 
     id = Column(Integer, primary_key=True)
     mac = Column(String(255))
     ip = Column(String(255))
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent)
+    adherent = relationship(Adherent, foreign_keys=[adherent_id])
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     last_seen = Column(DateTime)
     ipv6 = Column(String(255))
     type = Column(Integer)
-    mab = Column(Boolean(), nullable=False, default=False, server_default='0')
+    mab = Column(Boolean, nullable=False, default=False, server_default='0')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -174,14 +171,14 @@ class Device(Base, RubyHashTrackable):
         return self.adherent
 
 
-class Routeur(Base, RubyHashTrackable):
+class Routeur(db.Model, RubyHashTrackable):
     __tablename__ = 'routeurs'
 
     id = Column(Integer, primary_key=True)
     mac = Column(String(255))
     ip = Column(String(255))
     adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent)
+    adherent = relationship(Adherent, foreign_keys=[adherent_id])
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
@@ -204,18 +201,18 @@ class Routeur(Base, RubyHashTrackable):
         return self.adherent
 
 
-class Switch(Base):
+class Switch(db.Model):
     __tablename__ = 'switches'
 
     id = Column(Integer, primary_key=True)
     description = Column(String(255))
-    ip = Column(String(255))
+    ip = Column(String(15))
     communaute = Column(String(255))
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
 
-class Port(Base):
+class Port(db.Model):
     __tablename__ = 'ports'
 
     id = Column(Integer, primary_key=True)
@@ -231,7 +228,7 @@ class Port(Base):
     chambre = relationship(Chambre, foreign_keys=[chambre_id])
 
 
-class Adhesion(Base):
+class Adhesion(db.Model):
     __tablename__ = 'adhesions'
 
     id = Column(Integer, primary_key=True)
@@ -241,21 +238,21 @@ class Adhesion(Base):
     fin = Column(DateTime, nullable=False)
 
 
-class AccountType(Base):
+class AccountType(db.Model):
     __tablename__ = 'account_types'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
 
-class PaymentMethod(Base):
+class PaymentMethod(db.Model):
     __tablename__ = 'payment_methods'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
 
-class Product(Base, RubyHashTrackable):
+class Product(db.Model, RubyHashTrackable):
     __tablename__ = 'products'
 
     id = Column(Integer, primary_key=True, unique=True)
@@ -275,7 +272,7 @@ class Product(Base, RubyHashTrackable):
         return self
 
 
-class Account(Base, RubyHashTrackable):
+class Account(db.Model, RubyHashTrackable):
     __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True, unique=True)
@@ -288,7 +285,7 @@ class Account(Base, RubyHashTrackable):
     adherent_id = Column(Integer, ForeignKey('adherents.id'), nullable=True)
 
     adherent = relationship('Adherent', foreign_keys=[adherent_id])
-    account_type = relationship('AccountType')
+    account_type = relationship('AccountType', foreign_keys=[type])
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -302,7 +299,7 @@ class Account(Base, RubyHashTrackable):
         return self
 
 
-class Transaction(Base, RubyHashTrackable):
+class Transaction(db.Model, RubyHashTrackable):
     __tablename__ = 'transactions'
 
     id = Column(Integer, primary_key=True)
@@ -313,15 +310,15 @@ class Transaction(Base, RubyHashTrackable):
     name = Column(String(255), nullable=False)
     attachments = Column(TEXT(65535), nullable=False)
     type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
-    author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False, index=True)
     pending_validation = Column(Boolean(), nullable=False)
-    membership_uuid = Column(CHAR(36), nullable=True)
+    membership_uuid = Column(String(36), nullable=True)
     is_archive = Column(Boolean, default=False, nullable=True)
 
     author = relationship('Adherent', foreign_keys=[author_id])
     dst_account = relationship('Account', foreign_keys=[dst])
     src_account = relationship('Account', foreign_keys=[src])
-    payment_method = relationship('PaymentMethod')
+    payment_method = relationship('PaymentMethod', foreign_keys=[type])
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -336,7 +333,7 @@ class Transaction(Base, RubyHashTrackable):
         return self
 
 
-class Caisse(Base, RubyHashTrackable):
+class Caisse(db.Model, RubyHashTrackable):
     __tablename__ = 'caisse'
 
     id = Column(Integer, primary_key=True)
@@ -345,8 +342,8 @@ class Caisse(Base, RubyHashTrackable):
     date = Column(DateTime)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    linked_transaction = Column(ForeignKey('transactions.id'), nullable=True, index=True)
-    transaction = relationship(Transaction)
+    linked_transaction = Column(Integer, ForeignKey('transactions.id'), nullable=True, index=True)
+    transaction = relationship('Transaction', foreign_keys=[linked_transaction])
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -361,7 +358,7 @@ class Caisse(Base, RubyHashTrackable):
         return self
 
 
-class Utilisateur(Base):
+class Utilisateur(db.Model):
     __tablename__ = 'utilisateurs'
 
     id = Column(Integer, primary_key=True)
@@ -375,7 +372,7 @@ class Utilisateur(Base):
     access_token = Column(String(255))
 
 
-class MailTemplates(Base):
+class MailTemplates(db.Model):
     __tablename__ = 'mail_templates'
 
     id = Column(Integer, primary_key=True)
@@ -385,10 +382,10 @@ class MailTemplates(Base):
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
 
-class Membership(Base):
+class Membership(db.Model):
     __tablename__ = "membership"
 
-    uuid = Column(CHAR(36), primary_key=True)
+    uuid = Column(String(36), primary_key=True)
     account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
     create_at = Column(DateTime)
     duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)

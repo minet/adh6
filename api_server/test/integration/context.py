@@ -4,10 +4,11 @@ import sys
 sys._called_from_test = True  # This will make sure we don't call 'init' anywhere else.
 
 import common
+import os
 
-app, _ = common.init(testing=True)
+os.environ["ENVIRONMENT"] = "testing"
 
-app.app.config["TESTING"] = True
+app, _ = common.init()
 
 from datetime import datetime, timedelta
 

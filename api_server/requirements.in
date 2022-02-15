@@ -2,6 +2,7 @@
 pytest
 pytest-cov
 pytest-cases
+pytest-lazy-fixture
 faker
 
 # HTTP API
@@ -24,6 +25,11 @@ pysnmp
 
 # ELK communication
 elasticsearch
+
+# Dependency injection
+pinject
+
+python-dotenv
 
 # Communicate with other APIs (fetch MAC vendor)
 requests

@@ -14,8 +14,8 @@ ARG DATABASE_PASSWORD="my_db_password"
 ARG DATABASE_DB_NAME="adh6"
 ARG GITLAB_ACCESS_TOKEN="token"
 
-COPY api_server/config/CONFIGURATION.template.py .
-RUN cat CONFIGURATION.template.py | envsubst | tee CONFIGURATION.py
+COPY api_server/config/.env.template .
+RUN cat .env.template | envsubst | tee .env
 
 ###############################################################################
 # 2nd stage, generate certificats
@@ -29,6 +29,8 @@ RUN openssl genrsa -out /tmp/adh6.key 2048 \
 
 FROM python:3.9-slim
 EXPOSE 443
+
+WORKDIR /adh6/api_server
 
 COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
 COPY --from=certs /tmp/adh6.key /etc/ssl/private/
@@ -46,8 +48,6 @@ RUN apt update \
     wget \
     && useradd uwsgi
 
-WORKDIR /adh6/api_server
-
 # Download the latest OUI list from the IEEE
 RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
@@ -64,7 +64,8 @@ RUN chown -R uwsgi:www-data /root/.pysnmp
 # Copy source files
 COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
-COPY --from=config /tmp/CONFIGURATION.py config/
+COPY --from=config /tmp/.env config/
+RUN cat config/.env
 
 # Launch the app 
 CMD ["uwsgi", "--ini", "uwsgi.ini"]
