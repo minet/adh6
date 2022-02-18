@@ -41,6 +41,9 @@ class TestingConfig(BaseConfig):
 
 
 class DeployedConfig(BaseConfig):
+    DEBUG = False
+    TESTING = False
+
     GITLAB_ACCESS_TOKEN = os.environ.get("GITLAB_ACCESS_TOKEN")
     AUTH_PROFILE_ADDRESS = '{}/profile'.format(os.environ.get("OAUTH2_BASE_PATH"))
 
@@ -61,12 +64,10 @@ class DeployedConfig(BaseConfig):
 
 
 class DevelopmentConfig(DeployedConfig):
-    DEBUG = True
-    TESTING = True
-
-    SQLALCHEMY_ECHO = True
-    SQLALCHEMY_RECORD_QUERIES = True
+    pass
 
 
 class ProductionConfig(DeployedConfig):
-    pass
+    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_RECORD_QUERIES = False
+
