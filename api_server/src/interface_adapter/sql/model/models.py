@@ -87,7 +87,7 @@ class Adherent(db.Model, RubyHashTrackable):
 
     datesignedminet = Column(DateTime, nullable=True)
     datesignedhosting = Column(DateTime, nullable=True)
-    mailinglist = Column(Boolean, nullable=False, default=False)
+    mailinglist = Column(Boolean, nullable=False, default=True)
 
     admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])

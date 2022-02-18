@@ -15,6 +15,10 @@ class ValidationError(UserInputError):
     """
     pass
 
+class UpdateImpossible(ValidationError):
+    def __init__(self, obj: str, msg: str):
+        super().__init__(f'{obj} cannot be updated: {msg}')
+
 
 class MissingRequiredField(ValidationError):
     def __init__(self, msg):

@@ -21,7 +21,6 @@ from src.entity.transaction import Transaction
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
     AccountTypeNotFoundError,
-    MemberInactiveError,
     MembershipNotFoundError,
     NoSubnetAvailable,
     PaymentMethodNotFoundError,
@@ -36,7 +35,8 @@ from src.exceptions import (
     NoPriceAssignedToThatDuration,
     IntMustBePositive,
     MembershipStatusNotAllowed,
-    CharterNotSigned
+    CharterNotSigned,
+    UpdateImpossible
 )
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
@@ -145,14 +145,23 @@ class MemberManager(CRUDManager):
 
         return created_member
 
+    def __is_membership_finished(self, membership: Membership) -> bool:
+        return membership is not None and (
+            membership.status == MembershipStatus.CANCELLED.value or
+            membership.status == MembershipStatus.ABORTED.value or
+            membership.status == MembershipStatus.COMPLETE.value
+        )
+
     @log_call
     @auto_raise
     @uses_security("update")
     def update_member(self, ctx, member_id: int, abstract_member: Union[AbstractMember, Member], override: bool) -> None:
         member = self.__member_not_found(ctx, member_id)
+        if not self.__is_membership_finished(self.get_latest_membership(ctx, member_id)):
+            raise UpdateImpossible(f'member {member.username}', 'membership not validated')
+
         is_room_changed = abstract_member.room is not None and (isinstance(member.room, Null) or (not isinstance(member.room, Null) and abstract_member.room != member.room.id))
-        self.member_repository.update(ctx, abstract_member, override)
-        member = self.member_repository.get(ctx, member_id)
+        member = self.member_repository.update(ctx, abstract_member, override)
 
         if not is_member_active(member):
             self.reset_member(ctx, member_id)
@@ -238,8 +247,6 @@ class MemberManager(CRUDManager):
             if t.name.endswith('sans chambre'):
                 has_room = False
                 duration = MembershipDuration.ONE_YEAR
-
-            print(t.payment_method)
 
             self.membership_repository.create_membership(ctx, member_id=member_id, membership=Membership(
                 uuid=str(uuid.uuid4()),
@@ -639,18 +646,14 @@ class MemberManager(CRUDManager):
     def update_subnet(self, ctx, member_id) -> Tuple[IPv4Network, IPv4Address]:
         member = self.__member_not_found(ctx, member_id)
         if not is_member_active(member):
-            self.reset_member(ctx, member_id)
-            raise MemberInactiveError(member_id)
+            return None
 
         used_wireles_public_ips = self.member_repository.used_wireless_public_ips(ctx)
 
         subnet = None
         ip = None
-        print(SUBNET_PUBLIC_ADDRESSES_WIRELESS)
-        print(used_wireles_public_ips)
         if len(used_wireles_public_ips) < len(SUBNET_PUBLIC_ADDRESSES_WIRELESS):
             for i, s in SUBNET_PUBLIC_ADDRESSES_WIRELESS.items():
-                print(i, used_wireles_public_ips)
                 if i not in used_wireles_public_ips:
                     subnet = s
                     ip = i
