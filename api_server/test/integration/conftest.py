@@ -1,8 +1,13 @@
+from datetime import datetime
+from uuid import uuid4
 import pytest
+from src.constants import MembershipDuration, MembershipStatus
 
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
+    Account,
+    Membership,
     db,
     AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port
 )
@@ -17,13 +22,26 @@ def account_type(faker):
         name="Adhérent"
     )
 
+@pytest.fixture
+def sample_account(faker, account_type: AccountType, sample_member: Adherent):
+    yield Account(
+        id=faker.random_digit_not_null(),
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="account",
+        actif=True,
+        compte_courant=False,
+        pinned=False,
+        adherent_id=sample_member.id
+    )
+
 
 @pytest.fixture
-def wired_device(faker, sample_member1):
+def wired_device(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member1,
+        adherent=sample_member,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -31,11 +49,11 @@ def wired_device(faker, sample_member1):
 
 
 @pytest.fixture
-def wired_device2(faker, sample_member1):
+def wired_device2(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member1,
+        adherent=sample_member,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -129,7 +147,23 @@ def sample_member_admin(sample_admin):
 
 
 @pytest.fixture
-def sample_member1(sample_room1):
+def sample_membership(sample_account: Account, sample_member: Adherent, ):
+    yield Membership(
+        uuid=str(uuid4()),
+        account_id=sample_account.id,
+        create_at=datetime.now(),
+        duration=MembershipDuration.ONE_YEAR,
+        has_room=True,
+        first_time=True,
+        adherent_id=1,
+        status=MembershipStatus.COMPLETE,
+        update_at=datetime.now(),
+        products="[]"
+    )
+
+# Member that have an account and a membership
+@pytest.fixture
+def sample_member(sample_room1):
     yield Adherent(
         nom='Dubois',
         prenom='Jean-Louis',
@@ -226,15 +260,15 @@ def sample_port2(sample_switch2):
 
 
 @pytest.fixture
-def api_client(sample_member1, sample_member2, sample_member13,
+def api_client(sample_member, sample_member2, sample_member13,
                wired_device, wireless_device,
                account_type,
-               sample_room1, sample_room2, sample_vlan):
+               sample_room1, sample_room2, sample_vlan, sample_account, sample_membership):
     from .context import app
     with app.app.test_client() as c:
         db.create_all()
         prep_db(db.session(),
-                sample_member1,
+                sample_member,
                 sample_member2,
                 sample_member13,
                 wired_device,
@@ -242,7 +276,9 @@ def api_client(sample_member1, sample_member2, sample_member13,
                 account_type,
                 sample_room1,
                 sample_room2,
-                sample_vlan)
+                sample_vlan,
+                sample_account,
+                sample_membership)
         yield c
         db.session.remove()
         db.drop_all()

@@ -12,11 +12,11 @@ from .resource import (
 
 
 @pytest.fixture
-def custom_device(sample_member1):
+def custom_device(sample_member):
     yield Device(
         id=42,
         mac='96-24-F6-D0-48-A7',
-        adherent=sample_member1,
+        adherent=sample_member,
         type=DeviceType.wired.value,
         ip='157.159.1.1',
         ipv6='::1',
@@ -70,7 +70,7 @@ def test_device_filter_all_devices(api_client):
     assert len(response) == 4
 
 @pytest.mark.parametrize('member,expected', [
-    (lazy_fixture('sample_member1'), 3),
+    (lazy_fixture('sample_member'), 3),
     (lazy_fixture('sample_member2'), 1),
     (lazy_fixture('sample_member3'), 0)
 ])
@@ -124,7 +124,7 @@ def test_device_filter_invalid_limit(api_client):
     assert r.status_code == 400
 
 
-def test_device_filter_hit_limit(api_client, sample_member1):
+def test_device_filter_hit_limit(api_client, sample_member):
     s = db.session()
     LIMIT = 10
 
@@ -132,7 +132,7 @@ def test_device_filter_hit_limit(api_client, sample_member1):
     for i in range(LIMIT * 2):
         suffix = "{0:04X}".format(i)
         dev = Device(
-            adherent=sample_member1,
+            adherent=sample_member,
             mac='00-00-00-00-' + suffix[:2] + "-" + suffix[2:],
             type=DeviceType.wired.value,
             ip="127.0.0.1",

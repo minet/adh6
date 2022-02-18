@@ -1,6 +1,8 @@
 import json
 from typing import Optional
-from src.interface_adapter.sql.model.models import Membership, db
+
+import pytest
+from src.interface_adapter.sql.model.models import Adherent, Membership, db
 from test.integration.resource import (base_url, TEST_HEADERS)
 from src.constants import MembershipStatus
 
@@ -30,22 +32,21 @@ def test_member_post_add_membership_not_found(api_client):
     )
     assert result.status_code == 404
 
+@pytest.mark.parametrize("status,status_code", [pytest.param(i.value, 400, marks=pytest.mark.xfail) for i in MembershipStatus if i.value != "INITIAL"] + [("INITIAL", 200)])
+def test_membership_post_bad_initial_status(api_client, sample_member2: Adherent, status: str, status_code: int):
+    body = {
+        "status": status,
+        "member": sample_member2.id
+    }
+    
+    result = api_client.post(
+        f'{base_url}/member/{sample_member2.id}/membership/',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
 
-def test_member_post_add_membership_bad_initial_status(api_client):
-    for i in MembershipStatus:
-        if i.value != "INITIAL":
-            body = {
-                "status": "PENDING_PAYMENT"
-            }
-            
-            result = api_client.post(
-                '{}/member/{}/membership/'.format(base_url, 1),
-                data=json.dumps(body),
-                content_type='application/json',
-                headers=TEST_HEADERS,
-            )
-
-            membership: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == 1).one_or_none()
-            
-            assert result.status_code == 400
-            assert membership is None
+    membership: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == sample_member2.id).one_or_none()
+    
+    assert result.status_code == status_code
+    assert (membership is None if status_code == 400 else membership is not None)

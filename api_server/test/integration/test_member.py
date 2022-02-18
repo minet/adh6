@@ -10,15 +10,16 @@ from test.integration.context import tomorrow
 
 
 def prep_db(session,
-            sample_member1, sample_member2, sample_member13,
+            sample_member, sample_member2, sample_member3,
             wired_device, wireless_device,
             account_type,
-            sample_room1, sample_room12, sample_vlan,):
+            sample_room1, sample_room12, sample_vlan, sample_account, sample_membership):
     session.add_all([
         sample_room1, sample_room12,
         wired_device, wireless_device,
         account_type,
-        sample_member1, sample_member2, sample_member13])
+        sample_member, sample_member2, sample_member3,
+        sample_vlan, sample_account, sample_membership])
     session.commit()
 
 
@@ -67,9 +68,9 @@ def test_member_filter_all_with_limit(api_client):
     assert len(response) == 1
 
 
-def test_member_filter_by_room_id(api_client, sample_member1):
+def test_member_filter_by_room_id(api_client, sample_member):
     r = api_client.get(
-        '{}/member/?filter[room]={}'.format(base_url, sample_member1.chambre_id),
+        '{}/member/?filter[room]={}'.format(base_url, sample_member.chambre_id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -166,9 +167,9 @@ def test_member_filter_terms_test_upper_case(api_client):
     assert len(response) == 1
 
 
-def test_member_get_existant(api_client, sample_member1):
+def test_member_get_existant(api_client, sample_member):
     r = api_client.get(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -183,9 +184,9 @@ def test_member_get_nonexistant(api_client):
     assert r.status_code == 404
 
 
-def test_member_delete_existant(api_client, sample_member1):
+def test_member_delete_existant(api_client, sample_member):
     r = api_client.delete(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         headers=TEST_HEADERS
     )
     assert r.status_code == 204
@@ -265,12 +266,12 @@ def test_member_post_member_create(api_client, sample_room1):
     assert_member_in_db(body)
 
 
-def test_member_patch_username(api_client, sample_member1, sample_room1):
+def test_member_patch_username(api_client, sample_member, sample_room1):
     body = {
         "username": "TESTTEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -288,12 +289,12 @@ def test_member_patch_username(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_patch_email(api_client, sample_member1, sample_room1):
+def test_member_patch_email(api_client, sample_member, sample_room1):
     body = {
         "email": "TEST@TEST.FR",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -312,12 +313,12 @@ def test_member_patch_email(api_client, sample_member1, sample_room1):
 
 
 @mark.skip(reason="PATCH on member is not the way we should handle this")
-def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
+def test_member_patch_associationmode(api_client, sample_member, sample_room1):
     body = {
         "associationMode": "1996-01-01T00:00:00Z",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -335,12 +336,12 @@ def test_member_patch_associationmode(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
+def test_member_patch_departuredate(api_client, sample_member, sample_room1):
     body = {
         "departureDate": str(tomorrow),
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -358,12 +359,12 @@ def test_member_patch_departuredate(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_patch_comment(api_client, sample_member1, sample_room1):
+def test_member_patch_comment(api_client, sample_member, sample_room1):
     body = {
         "comment": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -381,12 +382,12 @@ def test_member_patch_comment(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_patch_room(api_client, sample_member1, sample_room2):
+def test_member_patch_room(api_client, sample_member, sample_room2):
     body = {
         "room": sample_room2.id,
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -404,12 +405,12 @@ def test_member_patch_room(api_client, sample_member1, sample_room2):
     })
 
 
-def test_member_patch_lastname(api_client, sample_member1, sample_room1):
+def test_member_patch_lastname(api_client, sample_member, sample_room1):
     body = {
         "lastName": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -427,12 +428,12 @@ def test_member_patch_lastname(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_patch_firstname(api_client, sample_member1, sample_room1):
+def test_member_patch_firstname(api_client, sample_member, sample_room1):
     body = {
         "firstName": "TEST",
     }
     res = api_client.patch(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -450,7 +451,7 @@ def test_member_patch_firstname(api_client, sample_member1, sample_room1):
     })
 
 
-def test_member_put_member_update(api_client, sample_member1, sample_room1):
+def test_member_put_member_update(api_client, sample_member, sample_room1):
     body = {
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
@@ -461,7 +462,7 @@ def test_member_put_member_update(api_client, sample_member1, sample_room1):
         "username": "dubois_j"
     }
     res = api_client.put(
-        '{}/member/{}'.format(base_url, sample_member1.id),
+        '{}/member/{}'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -472,12 +473,12 @@ def test_member_put_member_update(api_client, sample_member1, sample_room1):
     assert_member_in_db(body)
 
 
-def test_member_get_logs(api_client, sample_member1):
+def test_member_get_logs(api_client, sample_member):
     body = {
         "dhcp": False,
     }
     result = api_client.get(
-        '{}/member/{}/logs/'.format(base_url, sample_member1.id),
+        '{}/member/{}/logs/'.format(base_url, sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
