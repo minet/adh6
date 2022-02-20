@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import uuid4
+from flask import Flask
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
 
@@ -8,11 +9,45 @@ from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
     Membership,
-    db,
     AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port
 )
-from test.integration.test_member import prep_db
 from test.integration.context import tomorrow
+
+def prep_db(*args):
+    from src.interface_adapter.sql.model.models import db as _db
+    _db.create_all()
+    session = _db.session()
+    session.add_all(args)
+    session.commit()
+
+def close_db():
+    from src.interface_adapter.sql.model.models import db as _db
+    _db.session.close()
+    _db.drop_all()
+
+
+@pytest.fixture
+def client(sample_member, sample_member2, sample_member13,
+        wired_device, wireless_device,
+        account_type,
+        sample_room1, sample_room2, sample_vlan, sample_account, sample_membership):
+    from .context import app
+    with app.app.test_client() as c:
+        prep_db(
+            sample_member,
+            sample_member2,
+            sample_member13,
+            wired_device,
+            wireless_device,
+            account_type,
+            sample_room1,
+            sample_room2,
+            sample_vlan,
+            sample_account,
+            sample_membership
+        )
+        yield c
+        close_db()
 
 
 @pytest.fixture
@@ -76,7 +111,7 @@ def wireless_device(faker, sample_member2):
 def wireless_device_dict(sample_member3):
     '''
     Device that will be inserted/updated when tests are run.
-    It is not present in the api_client by default
+    It is not present in the client by default
     '''
     yield {
         'mac': '01-23-45-67-89-AC',
@@ -255,33 +290,7 @@ def sample_port2(sample_switch2):
         oid="1.1.2",
         switch=sample_switch2,
         chambre_id=0,
-
     )
-
-
-@pytest.fixture
-def api_client(sample_member, sample_member2, sample_member13,
-               wired_device, wireless_device,
-               account_type,
-               sample_room1, sample_room2, sample_vlan, sample_account, sample_membership):
-    from .context import app
-    with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(),
-                sample_member,
-                sample_member2,
-                sample_member13,
-                wired_device,
-                wireless_device,
-                account_type,
-                sample_room1,
-                sample_room2,
-                sample_vlan,
-                sample_account,
-                sample_membership)
-        yield c
-        db.session.remove()
-        db.drop_all()
 
 
 @pytest.fixture

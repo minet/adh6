@@ -9,9 +9,9 @@ from test.integration.test_member import test_member_post_member_create, test_me
     test_member_get_logs
 
 
-def test_member_log_create(api_client, sample_room1, caplog):
+def test_member_log_create(client, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_member_post_member_create(api_client, sample_room1)
+        test_member_post_member_create(client, sample_room1)
 
     assert logs_contains(
         caplog,
@@ -20,9 +20,9 @@ def test_member_log_create(api_client, sample_room1, caplog):
     )
 
 
-def test_member_log_update(api_client, sample_member, sample_room1, caplog):
+def test_member_log_update(client, sample_member, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
-        test_member_put_member_update(api_client, sample_member, sample_room1)
+        test_member_put_member_update(client, sample_member, sample_room1)
 
     assert logs_contains(
         caplog,
@@ -31,9 +31,9 @@ def test_member_log_update(api_client, sample_member, sample_room1, caplog):
     )
 
 
-def test_member_log_delete(api_client, sample_member, caplog):
+def test_member_log_delete(client, sample_member, caplog):
     with caplog.at_level(logging.INFO):
-        test_member_delete_existant(api_client, sample_member)
+        test_member_delete_existant(client, sample_member)
 
     assert logs_contains(
         caplog,
@@ -43,9 +43,9 @@ def test_member_log_delete(api_client, sample_member, caplog):
     )
 
 
-def test_member_log_get_logs(api_client, sample_member, caplog):
+def test_member_log_get_logs(client, sample_member, caplog):
     with caplog.at_level(logging.INFO):
-        test_member_get_logs(api_client, sample_member)
+        test_member_get_logs(client, sample_member)
 
     assert logs_contains(
         caplog,

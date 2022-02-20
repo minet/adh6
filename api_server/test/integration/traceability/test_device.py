@@ -2,62 +2,48 @@ import logging
 import pytest
 
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.models import db
 from test.integration.resource import logs_contains
 from test.integration.test_device import test_device_post_create_wired, test_device_post_create_wireless, \
     test_device_patch_update_wired, test_device_patch_update_wireless, test_device_delete_wired, test_device_delete_wireless
 
 
-def prep_db(session,
-            wired_device,
+@pytest.fixture
+def client(wired_device,
             wireless_device,
             sample_member3):
-    session.add_all([
-        wired_device,
-        wireless_device,
-        sample_member3,
-    ])
-    session.commit()
-
-
-@pytest.fixture
-def api_client(wired_device,
-               wireless_device,
-               sample_member3):
     from ..context import app
+    from ..conftest import prep_db, close_db
     with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(),
-                wired_device,
-                wireless_device,
-                sample_member3)
+        prep_db(
+            wired_device,
+            wireless_device,
+            sample_member3
+        )
         yield c
-        db.session.remove()
-        db.drop_all()
+        close_db()
 
-
-def test_device_log_create_wired(api_client, caplog, wired_device_dict):
+def test_device_log_create_wired(client, caplog, wired_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_post_create_wired(api_client, wired_device_dict)
+        test_device_post_create_wired(client, wired_device_dict)
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
                          user=TESTING_CLIENT)
 
 
-def test_device_log_create_wireless(api_client, caplog, wireless_device_dict):
+def test_device_log_create_wireless(client, caplog, wireless_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_post_create_wireless(api_client, wireless_device_dict)
+        test_device_post_create_wireless(client, wireless_device_dict)
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
                          user=TESTING_CLIENT)
 
 
-def test_device_log_update_wired(api_client, caplog, wired_device,
+def test_device_log_update_wired(client, caplog, wired_device,
                                  wired_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_patch_update_wired(api_client, wired_device,
+        test_device_patch_update_wired(client, wired_device,
                                      wired_device_dict)
 
     assert logs_contains(caplog,
@@ -66,10 +52,10 @@ def test_device_log_update_wired(api_client, caplog, wired_device,
                          device_id=wired_device.id)
 
 
-def test_device_log_update_wireless(api_client, caplog, wireless_device,
+def test_device_log_update_wireless(client, caplog, wireless_device,
                                     wireless_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_patch_update_wireless(api_client, wireless_device,
+        test_device_patch_update_wireless(client, wireless_device,
                                         wireless_device_dict)
 
     assert logs_contains(caplog,
@@ -78,10 +64,10 @@ def test_device_log_update_wireless(api_client, caplog, wireless_device,
                          device_id=wireless_device.id)
 
 
-def test_device_log_delete_wired(api_client, caplog, wired_device,
+def test_device_log_delete_wired(client, caplog, wired_device,
                                  wired_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_delete_wired(api_client, wired_device)
+        test_device_delete_wired(client, wired_device)
 
     assert logs_contains(caplog,
                          'device_manager_delete',
@@ -89,10 +75,10 @@ def test_device_log_delete_wired(api_client, caplog, wired_device,
                          device_id=wired_device.id)
 
 
-def test_device_log_delete_wireless(api_client, caplog, wireless_device,
+def test_device_log_delete_wireless(client, caplog, wireless_device,
                                     wireless_device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_delete_wireless(api_client, wireless_device)
+        test_device_delete_wireless(client, wireless_device)
 
     assert logs_contains(caplog,
                          'device_manager_delete',
