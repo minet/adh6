@@ -32,21 +32,21 @@ def test_member_post_add_membership_not_found(client):
     )
     assert result.status_code == 404
 
-@pytest.mark.parametrize("status,status_code", [pytest.param(i.value, 400, marks=pytest.mark.xfail) for i in MembershipStatus if i.value != "INITIAL"] + [("INITIAL", 200)])
-def test_membership_post_bad_initial_status(client, sample_member2: Adherent, status: str, status_code: int):
+@pytest.mark.parametrize("status,status_code", [(i.value, 400) for i in MembershipStatus if i.value != "INITIAL"] + [("INITIAL", 200)])
+def test_membership_post_bad_initial_status(client, sample_member: Adherent, status: str, status_code: int):
     body = {
         "status": status,
-        "member": sample_member2.id
+        "member": sample_member.id
     }
     
     result = client.post(
-        f'{base_url}/member/{sample_member2.id}/membership/',
+        f'{base_url}/member/{sample_member.id}/membership/',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
 
-    membership: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == sample_member2.id).one_or_none()
+    memberships: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == sample_member.id).all()
     
     assert result.status_code == status_code
-    assert (membership is None if status_code == 400 else membership is not None)
+    assert (len(memberships) == 1 if status_code == 400 else len(memberships) == 2)

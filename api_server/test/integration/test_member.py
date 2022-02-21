@@ -1,8 +1,9 @@
 import json
 from dateutil import parser
-from pytest import mark
+from pytest_lazyfixture import lazy_fixture
+import pytest
 
-from src.interface_adapter.sql.model.models import db
+from src.interface_adapter.sql.model.models import Chambre, db
 from src.interface_adapter.sql.model.models import Adherent
 from test.integration.resource import (
     base_url, TEST_HEADERS, assert_modification_was_created)
@@ -252,122 +253,6 @@ def test_member_post_member_create(client, sample_room1):
     assert_member_in_db(body)
 
 
-def test_member_patch_username(client, sample_member, sample_room1):
-    body = {
-        "username": "TESTTEST",
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "TESTTEST"
-    })
-
-
-def test_member_patch_email(client, sample_member, sample_room1):
-    body = {
-        "email": "TEST@TEST.FR",
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "TEST@TEST.FR",
-        "username": "dubois_j"
-    })
-
-
-@mark.skip(reason="PATCH on member is not the way we should handle this")
-def test_member_patch_associationmode(client, sample_member, sample_room1):
-    body = {
-        "associationMode": "1996-01-01T00:00:00Z",
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "dubois_j"
-    })
-
-
-def test_member_patch_departuredate(client, sample_member, sample_room1):
-    body = {
-        "departureDate": str(tomorrow),
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "dubois_j"
-    })
-
-
-def test_member_patch_comment(client, sample_member, sample_room1):
-    body = {
-        "comment": "TEST",
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": "TEST",
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "dubois_j"
-    })
-
-
 def test_member_patch_room(client, sample_member, sample_room2):
     body = {
         "room": sample_room2.id,
@@ -390,10 +275,26 @@ def test_member_patch_room(client, sample_member, sample_room2):
         "username": "dubois_j"
     })
 
+@pytest.fixture
+def sample_room_id(sample_room2: Chambre):
+    return sample_room2.id
 
-def test_member_patch_lastname(client, sample_member, sample_room1):
+@pytest.mark.parametrize(
+    'key, value',
+    [
+        ("firstName", "TEST"),
+        ("lastName", "TEST"),
+        ("comment", "TEST"),
+        ("email", "TEST@TEST.FR"),
+        ("username", "TESTTEST"),
+        ("room", lazy_fixture('sample_room_id')),
+        pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
+        pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+    ]
+)
+def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     body = {
-        "lastName": "TEST",
+        key: value,
     }
     res = client.patch(
         '{}/member/{}'.format(base_url, sample_member.id),
@@ -403,38 +304,42 @@ def test_member_patch_lastname(client, sample_member, sample_room1):
     )
     assert res.status_code == 204
     assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "TEST",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "dubois_j"
-    })
+    member_to_check = {
+        "firstName": sample_member.prenom,
+        "lastName": sample_member.nom,
+        "room": sample_member.chambre_id,
+        "comment": sample_member.commentaires,
+        "departureDate": str(sample_member.date_de_depart),
+        "email": sample_member.mail,
+        "username": sample_member.login
+    }
+    member_to_check[key] = value
+    assert_member_in_db(member_to_check)
 
-
-def test_member_patch_firstname(client, sample_member, sample_room1):
+@pytest.mark.parametrize(
+    'key, value',
+    [
+        ("firstName", "TEST"),
+        ("lastName", "TEST"),
+        ("comment", "TEST"),
+        ("email", "TEST@TEST.FR"),
+        ("username", "TESTTEST"),
+        ("room", lazy_fixture('sample_room_id')),
+        pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
+        pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+    ]
+)
+def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
     body = {
-        "firstName": "TEST",
+        key: value,
     }
     res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
+        f'{base_url}/member/{sample_member2.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
     )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "TEST",
-        "lastName": "Dubois",
-        "room": sample_room1.id,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": "dubois_j"
-    })
+    assert res.status_code == 400
 
 
 def test_member_put_member_update(client, sample_member, sample_room1):
@@ -457,6 +362,25 @@ def test_member_put_member_update(client, sample_member, sample_room1):
     assert_modification_was_created(db.session())
 
     assert_member_in_db(body)
+
+
+def test_member_put_member_membership_pending(client, sample_member2: Adherent, sample_room1):
+    body = {
+        "firstName": sample_member2.prenom,
+        "lastName": sample_member2.nom,
+        "room": sample_room1.id,
+        "comment": sample_member2.commentaires,
+        "departureDate": str(sample_member2.date_de_depart),
+        "email": sample_member2.mail,
+        "username": sample_member2.login
+    }
+    res = client.put(
+        '{}/member/{}'.format(base_url, sample_member2.id),
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert res.status_code == 400
 
 
 def test_member_get_logs(client, sample_member):

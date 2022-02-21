@@ -30,7 +30,7 @@ def close_db():
 def client(sample_member, sample_member2, sample_member13,
         wired_device, wireless_device,
         account_type,
-        sample_room1, sample_room2, sample_vlan, sample_account, sample_membership):
+        sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
     with app.app.test_client() as c:
         prep_db(
@@ -44,7 +44,8 @@ def client(sample_member, sample_member2, sample_member13,
             sample_room2,
             sample_vlan,
             sample_account,
-            sample_membership
+            sample_complete_membership,
+            sample_pending_validation_membership
         )
         yield c
         close_db()
@@ -182,7 +183,7 @@ def sample_member_admin(sample_admin):
 
 
 @pytest.fixture
-def sample_membership(sample_account: Account, sample_member: Adherent, ):
+def sample_complete_membership(sample_account: Account, sample_member: Adherent, ):
     yield Membership(
         uuid=str(uuid4()),
         account_id=sample_account.id,
@@ -190,8 +191,24 @@ def sample_membership(sample_account: Account, sample_member: Adherent, ):
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
         first_time=True,
-        adherent_id=1,
+        adherent=sample_member,
         status=MembershipStatus.COMPLETE,
+        update_at=datetime.now(),
+        products="[]"
+    )
+
+@pytest.fixture
+def sample_pending_validation_membership(sample_account: Account, sample_member2: Adherent):
+    """ Membership that is not completed """
+    yield Membership(
+        uuid=str(uuid4()),
+        account_id=sample_account.id,
+        create_at=datetime.now(),
+        duration=MembershipDuration.ONE_YEAR,
+        has_room=True,
+        first_time=True,
+        adherent=sample_member2,
+        status=MembershipStatus.PENDING_PAYMENT_VALIDATION,
         update_at=datetime.now(),
         products="[]"
     )
@@ -239,7 +256,7 @@ def sample_member3(sample_room1):
 
 
 @pytest.fixture
-def sample_member13(sample_room2):
+def sample_member13():
     """ Membre sans chambre """
     yield Adherent(
         nom='Robert',
