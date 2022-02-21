@@ -1,10 +1,10 @@
 import logging
 import pytest
+from pytest_lazyfixture import lazy_fixture
 
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from src.interface_adapter.sql.model.models import Device
 from test.integration.resource import logs_contains
-from test.integration.test_device import test_device_post_create_wired, test_device_post_create_wireless, \
-    test_device_patch_update_wired, test_device_patch_update_wireless, test_device_delete_wired, test_device_delete_wireless
 
 
 @pytest.fixture
@@ -22,65 +22,49 @@ def client(wired_device,
         yield c
         close_db()
 
-def test_device_log_create_wired(client, caplog, wired_device_dict):
+
+@pytest.mark.parametrize(
+    'device_dict',
+    [lazy_fixture('wired_device_dict'), lazy_fixture('wireless_device_dict')]
+)
+def test_device_log_create_wireless(client, caplog, device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_post_create_wired(client, wired_device_dict)
+        from test.integration.test_device import test_device_post
+        test_device_post(client, device_dict)
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
                          user=TESTING_CLIENT)
 
 
-def test_device_log_create_wireless(client, caplog, wireless_device_dict):
+@pytest.mark.parametrize(
+    'device, device_dict',
+    [
+        (lazy_fixture('wired_device'), lazy_fixture('wired_device_dict')), 
+        (lazy_fixture('wireless_device'), lazy_fixture('wireless_device_dict'))
+    ]
+)
+def test_device_log_update(client, caplog, device: Device, device_dict):
     with caplog.at_level(logging.INFO):
-        test_device_post_create_wireless(client, wireless_device_dict)
-
-    assert logs_contains(caplog,
-                         'device_manager_update_or_create',
-                         user=TESTING_CLIENT)
-
-
-def test_device_log_update_wired(client, caplog, wired_device,
-                                 wired_device_dict):
-    with caplog.at_level(logging.INFO):
-        test_device_patch_update_wired(client, wired_device,
-                                     wired_device_dict)
+        from test.integration.test_device import test_device_patch
+        test_device_patch(client, device, device_dict)
 
     assert logs_contains(caplog,
                          'device_manager_partially_update',
                          user=TESTING_CLIENT,
-                         device_id=wired_device.id)
+                         device_id=device.id)
 
 
-def test_device_log_update_wireless(client, caplog, wireless_device,
-                                    wireless_device_dict):
+@pytest.mark.parametrize(
+    'device',
+    [lazy_fixture('wired_device'), lazy_fixture('wireless_device')]
+)
+def test_device_log_delete(client, caplog, device: Device):
     with caplog.at_level(logging.INFO):
-        test_device_patch_update_wireless(client, wireless_device,
-                                        wireless_device_dict)
-
-    assert logs_contains(caplog,
-                         'device_manager_partially_update',
-                         user=TESTING_CLIENT,
-                         device_id=wireless_device.id)
-
-
-def test_device_log_delete_wired(client, caplog, wired_device,
-                                 wired_device_dict):
-    with caplog.at_level(logging.INFO):
-        test_device_delete_wired(client, wired_device)
+        from test.integration.test_device import test_device_delete
+        test_device_delete(client, device, 204)
 
     assert logs_contains(caplog,
                          'device_manager_delete',
                          user=TESTING_CLIENT,
-                         device_id=wired_device.id)
-
-
-def test_device_log_delete_wireless(client, caplog, wireless_device,
-                                    wireless_device_dict):
-    with caplog.at_level(logging.INFO):
-        test_device_delete_wireless(client, wireless_device)
-
-    assert logs_contains(caplog,
-                         'device_manager_delete',
-                         user=TESTING_CLIENT,
-                         device_id=wireless_device.id)
+                         device_id=device.id)
