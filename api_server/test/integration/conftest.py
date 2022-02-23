@@ -246,7 +246,7 @@ def sample_pending_validation_membership(sample_account: Account, sample_member2
 
 # Member that have an account and a membership
 @pytest.fixture
-def sample_member(sample_room1):
+def sample_member(faker, sample_room1):
     yield Adherent(
         nom='Dubois',
         prenom='Jean-Louis',
@@ -255,7 +255,9 @@ def sample_member(sample_room1):
         password='a',
         chambre=sample_room1,
         date_de_depart=tomorrow,
-        datesignedminet=datetime.now()
+        datesignedminet=datetime.now(),
+        ip=faker.ipv4_public(),
+        subnet=faker.ipv4('c')
     )
 
 

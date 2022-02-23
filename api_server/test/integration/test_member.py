@@ -288,8 +288,8 @@ def sample_room_id(sample_room2: Chambre):
         ("email", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
         ("room", lazy_fixture('sample_room_id')),
-        pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
-        pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+        # pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
+        # pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
     ]
 )
 def test_member_patch(client, sample_member: Adherent, key: str, value: str):
@@ -325,8 +325,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         ("email", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
         ("room", lazy_fixture('sample_room_id')),
-        pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
-        pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+        #pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
+        #pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
     ]
 )
 def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
