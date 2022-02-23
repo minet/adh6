@@ -3,10 +3,10 @@ import {AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators} f
 import {ActivatedRoute, Router} from '@angular/router';
 import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {MemberService} from '../../api';
+import {MemberService} from '../api';
 import { md4 } from 'hash-wasm';
 import {Location} from '@angular/common';
-import { NotificationService } from '../../notification.service';
+import { NotificationService } from '../notification.service';
 
 function passwordConfirming(c: AbstractControl): ValidationErrors|null {
   if (!c || !c.value) {

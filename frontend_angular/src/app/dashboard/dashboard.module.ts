@@ -14,7 +14,7 @@ import { MemberDeviceModule } from '../member-device/member-device-list.module';
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    RouterModule.forRoot([
+    RouterModule.forChild([
       {path: '', component: DashboardComponent}
     ]),
     MemberDeviceModule

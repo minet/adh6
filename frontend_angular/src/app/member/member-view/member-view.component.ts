@@ -51,6 +51,19 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.createForm();
   }
 
+  public parseMembershipStatus(membership: Membership): string {
+    switch(membership.status) {
+      case AbstractMembership.StatusEnum.PENDINGRULES:
+        return "en attente de la signature de la charte"
+      case AbstractMembership.StatusEnum.PENDINGPAYMENTINITIAL:
+        return "en attente de la cotisation"
+      case AbstractMembership.StatusEnum.PENDINGPAYMENT:
+        return "en attente d'un moyen de payment et d'un compte"
+      case AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION:
+        return "en attente de bonne prise en compte du payment"
+    }
+  }
+
   ngOnInit() {
     this.member_id$ = this.route.params.pipe(
       map(params => params['member_id'])
