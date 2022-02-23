@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
+import { MemberPasswordEditComponent } from './member-password-edit/member-password-edit.component';
 
 import {PortailComponent} from './portail/portail.component';
 
@@ -11,6 +12,7 @@ const routes: Routes = [
       bypassAuth: true
     }
   },
+  {path: 'password/:member_id', component: MemberPasswordEditComponent},
   {path: 'product', loadChildren: () => import('./product-list/product-list.module').then(m => m.ProductListModule)},
   {path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)},
   {path: 'account', loadChildren: () => import('./account/account.module').then(m => m.AccountModule)},
