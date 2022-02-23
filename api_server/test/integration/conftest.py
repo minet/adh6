@@ -1,13 +1,57 @@
+from datetime import datetime
+from uuid import uuid4
 import pytest
+from src.constants import MembershipDuration, MembershipStatus
 
 from src.interface_adapter.http_api.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
-    db,
-    AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port
+    Account,
+    Membership,
+    AccountType, Adherent, Admin, Chambre,
+    PaymentMethod, Vlan, Device, Switch, Port
 )
-from test.integration.test_member import prep_db
 from test.integration.context import tomorrow
+
+def prep_db(*args):
+    from src.interface_adapter.sql.model.models import db as _db
+    _db.create_all()
+    session = _db.session()
+    session.add_all(args)
+    session.commit()
+
+def close_db():
+    from src.interface_adapter.sql.model.models import db as _db
+    _db.session.close()
+    _db.drop_all()
+
+
+@pytest.fixture
+def client(sample_member, sample_member2, sample_member13,
+        wired_device, wireless_device,
+        account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
+        sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
+    from .context import app
+    with app.app.test_client() as c:
+        prep_db(
+            sample_member,
+            sample_member2,
+            sample_member13,
+            sample_payment_method,
+            wired_device,
+            wireless_device,
+            account_type,
+            sample_room1,
+            sample_room2,
+            sample_vlan,
+            sample_account,
+            sample_account_frais_asso,
+            sample_account_frais_techniques,
+            sample_complete_membership,
+            sample_pending_validation_membership
+        )
+        yield c
+        close_db()
 
 
 @pytest.fixture
@@ -17,13 +61,54 @@ def account_type(faker):
         name="Adhérent"
     )
 
+@pytest.fixture
+def sample_account(faker, account_type: AccountType, sample_member: Adherent):
+    yield Account(
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="account",
+        actif=True,
+        compte_courant=False,
+        pinned=False,
+        adherent=sample_member
+    )
 
 @pytest.fixture
-def wired_device(faker, sample_member1):
+def sample_account_frais_asso(account_type: AccountType):
+    yield Account(
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="MiNET frais asso",
+        actif=True,
+        compte_courant=True,
+        pinned=True
+    )
+
+@pytest.fixture
+def sample_account_frais_techniques(faker, account_type: AccountType):
+    yield Account(
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="MiNET frais techniques",
+        actif=True,
+        compte_courant=True,
+        pinned=True
+    )
+
+@pytest.fixture
+def sample_payment_method():
+    return PaymentMethod(
+        id=1,
+        name='liquide'
+    )
+
+
+@pytest.fixture
+def wired_device(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member1,
+        adherent=sample_member,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -31,11 +116,11 @@ def wired_device(faker, sample_member1):
 
 
 @pytest.fixture
-def wired_device2(faker, sample_member1):
+def wired_device2(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member1,
+        adherent=sample_member,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -58,7 +143,7 @@ def wireless_device(faker, sample_member2):
 def wireless_device_dict(sample_member3):
     '''
     Device that will be inserted/updated when tests are run.
-    It is not present in the api_client by default
+    It is not present in the client by default
     '''
     yield {
         'mac': '01-23-45-67-89-AC',
@@ -129,7 +214,39 @@ def sample_member_admin(sample_admin):
 
 
 @pytest.fixture
-def sample_member1(sample_room1):
+def sample_complete_membership(sample_account: Account, sample_member: Adherent, ):
+    yield Membership(
+        uuid=str(uuid4()),
+        account_id=sample_account.id,
+        create_at=datetime.now(),
+        duration=MembershipDuration.ONE_YEAR,
+        has_room=True,
+        first_time=True,
+        adherent=sample_member,
+        status=MembershipStatus.COMPLETE,
+        update_at=datetime.now(),
+        products="[]"
+    )
+
+@pytest.fixture
+def sample_pending_validation_membership(sample_account: Account, sample_member2: Adherent):
+    """ Membership that is not completed """
+    yield Membership(
+        uuid=str(uuid4()),
+        account_id=sample_account.id,
+        create_at=datetime.now(),
+        duration=MembershipDuration.ONE_YEAR,
+        has_room=True,
+        first_time=True,
+        adherent=sample_member2,
+        status=MembershipStatus.PENDING_PAYMENT_VALIDATION,
+        update_at=datetime.now(),
+        products="[]"
+    )
+
+# Member that have an account and a membership
+@pytest.fixture
+def sample_member(faker, sample_room1):
     yield Adherent(
         nom='Dubois',
         prenom='Jean-Louis',
@@ -138,6 +255,9 @@ def sample_member1(sample_room1):
         password='a',
         chambre=sample_room1,
         date_de_depart=tomorrow,
+        datesignedminet=datetime.now(),
+        ip=faker.ipv4_public(),
+        subnet=faker.ipv4('c')
     )
 
 
@@ -170,7 +290,7 @@ def sample_member3(sample_room1):
 
 
 @pytest.fixture
-def sample_member13(sample_room2):
+def sample_member13():
     """ Membre sans chambre """
     yield Adherent(
         nom='Robert',
@@ -221,31 +341,7 @@ def sample_port2(sample_switch2):
         oid="1.1.2",
         switch=sample_switch2,
         chambre_id=0,
-
     )
-
-
-@pytest.fixture
-def api_client(sample_member1, sample_member2, sample_member13,
-               wired_device, wireless_device,
-               account_type,
-               sample_room1, sample_room2, sample_vlan):
-    from .context import app
-    with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(),
-                sample_member1,
-                sample_member2,
-                sample_member13,
-                wired_device,
-                wireless_device,
-                account_type,
-                sample_room1,
-                sample_room2,
-                sample_vlan)
-        yield c
-        db.session.remove()
-        db.drop_all()
 
 
 @pytest.fixture

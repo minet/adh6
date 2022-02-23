@@ -20,44 +20,39 @@ def sample_switch():
     )
 
 
-def prep_db(session, sample_switch1):
-    """ Insert the test objects in the Db """
-    session.add(sample_switch1)
-    session.commit()
-
-
 @pytest.fixture
-def api_client(sample_switch1):
+def client(sample_switch1):
     from ..context import app
+    from ..conftest import prep_db, close_db
     with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(), sample_switch1)
+        prep_db(
+            sample_switch1
+        )
         yield c
-        db.session.remove()
-        db.drop_all()
+        close_db()
 
 
-def test_switch_log_create(api_client, caplog):
+def test_switch_log_create(client, caplog):
     with caplog.at_level(logging.INFO):
-        test_switch_post_valid(api_client)
+        test_switch_post_valid(client)
 
     log = 'TestingClient created a switch'
     assert logs_contains(caplog, 'switch_manager_update_or_create',
                          user=TESTING_CLIENT)
 
 
-def test_switch_log_update(api_client, caplog):
+def test_switch_log_update(client, caplog):
     with caplog.at_level(logging.INFO):
-        test_switch_update_existant_switch(api_client)
+        test_switch_update_existant_switch(client)
 
     assert logs_contains(caplog, 'switch_manager_update',
                          user=TESTING_CLIENT,
                          switch_id=1)
 
 
-def test_switch_log_delete(api_client, caplog):
+def test_switch_log_delete(client, caplog):
     with caplog.at_level(logging.INFO):
-        test_switch_delete_existant_switch(api_client)
+        test_switch_delete_existant_switch(client)
 
     assert logs_contains(caplog, 'switch_manager_delete',
                          user=TESTING_CLIENT,

@@ -1,10 +1,23 @@
 import json
-import logging
 import pytest
 
 from src.interface_adapter.sql.model.models import  db
 from src.interface_adapter.sql.model.models import Chambre
 from test.integration.resource import TEST_HEADERS, base_url
+
+
+@pytest.fixture
+def client(sample_room1,
+            sample_room2):
+    from .context import app
+    from .conftest import prep_db, close_db
+    with app.app.test_client() as c:
+        prep_db(
+            sample_room1,
+            sample_room2
+        )
+        yield c
+        close_db()
 
 
 def assert_room_in_db(body):
@@ -16,30 +29,8 @@ def assert_room_in_db(body):
     assert body["description"] == c.description
 
 
-def prep_db(session,
-            sample_room1,
-            sample_room2):
-    session.add_all([
-        sample_room1,
-        sample_room2,
-    ])
-    session.commit()
-
-
-@pytest.fixture
-def api_client(sample_room1, sample_room2):
-    from .context import app
-    with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(),
-                sample_room1, sample_room2)
-        yield c
-        db.session.remove()
-        db.drop_all()
-
-
-def test_room_filter_all_rooms(api_client):
-    r = api_client.get(
+def test_room_filter_all_rooms(client):
+    r = client.get(
         "{}/room/".format(base_url),
         headers=TEST_HEADERS,
     )
@@ -48,16 +39,16 @@ def test_room_filter_all_rooms(api_client):
     assert len(response) == 2
 
 
-def test_room_filter_all_rooms_limit_invalid(api_client):
-    r = api_client.get(
+def test_room_filter_all_rooms_limit_invalid(client):
+    r = client.get(
         "{}/room/?limit={}".format(base_url, -1),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
-def test_room_filter_all_rooms_limit(api_client):
-    r = api_client.get(
+def test_room_filter_all_rooms_limit(client):
+    r = client.get(
         "{}/room/?limit={}".format(base_url, 1),
         headers=TEST_HEADERS,
     )
@@ -66,8 +57,8 @@ def test_room_filter_all_rooms_limit(api_client):
     assert len(response) == 1
 
 
-def test_room_filter_by_term(api_client, sample_room1):
-    r = api_client.get(
+def test_room_filter_by_term(client, sample_room1):
+    r = client.get(
         "{}/room/?terms={}".format(base_url, sample_room1.description),
         headers=TEST_HEADERS,
     )
@@ -76,8 +67,8 @@ def test_room_filter_by_term(api_client, sample_room1):
     assert len(response) == 1
 
 
-def test_room_get_valid_room(api_client, sample_room1):
-    r = api_client.get(
+def test_room_get_valid_room(client, sample_room1):
+    r = client.get(
         "{}/room/{}".format(base_url, sample_room1.id),
         headers=TEST_HEADERS,
     )
@@ -86,21 +77,21 @@ def test_room_get_valid_room(api_client, sample_room1):
     assert len(response) == 5
 
 
-def test_room_get_invalid_room(api_client):
-    r = api_client.get(
+def test_room_get_invalid_room(client):
+    r = client.get(
         "{}/room/{}".format(base_url, 4900),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
 
 
-def test_room_post_new_room_invalid_vlan(api_client):
+def test_room_post_new_room_invalid_vlan(client):
     room = {
         "roomNumber": 5111,
         "vlan": 45,
         "description": "Chambre 5111"
     }
-    r = api_client.post(
+    r = client.post(
         "{}/room/".format(base_url),
         data=json.dumps(room),
         content_type='application/json',
@@ -109,13 +100,13 @@ def test_room_post_new_room_invalid_vlan(api_client):
     assert r.status_code == 404
 
 
-def test_room_post_new_room(api_client, sample_room1):
+def test_room_post_new_room(client, sample_room1):
     room = {
         "roomNumber": 5111,
         "vlan": sample_room1.vlan.id,
         "description": "Chambre 5111",
     }
-    r = api_client.post(
+    r = client.post(
         "{}/room/".format(base_url),
         data=json.dumps(room),
         content_type='application/json',
@@ -125,13 +116,13 @@ def test_room_post_new_room(api_client, sample_room1):
     assert_room_in_db(room)
 
 
-def test_room_put_update_room(api_client, sample_room1):
+def test_room_put_update_room(client, sample_room1):
     room = {
         "vlan": sample_room1.vlan_id,
         "roomNumber": 5111,
         "description": "Chambre 5111"
     }
-    r = api_client.put(
+    r = client.put(
         "{}/room/{}".format(base_url, sample_room1.id),
         data=json.dumps(room),
         content_type='application/json',
@@ -141,8 +132,8 @@ def test_room_put_update_room(api_client, sample_room1):
     assert_room_in_db(room)
 
 
-def test_room_delete_existant_room(api_client, sample_room1):
-    r = api_client.delete(
+def test_room_delete_existant_room(client, sample_room1):
+    r = client.delete(
         "{}/room/{}".format(base_url, sample_room1.id),
         headers=TEST_HEADERS,
     )
@@ -154,8 +145,8 @@ def test_room_delete_existant_room(api_client, sample_room1):
     assert q.count() == 0
 
 
-def test_room_delete_non_existant_room(api_client):
-    r = api_client.delete(
+def test_room_delete_non_existant_room(client):
+    r = client.delete(
         "{}/room/{}".format(base_url, 4900),
         headers=TEST_HEADERS,
     )

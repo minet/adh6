@@ -16,21 +16,16 @@ def sample_switch():
     )
 
 
-def prep_db(session, sample_switch1):
-    """ Insert the test objects in the Db """
-    session.add(sample_switch1)
-    session.commit()
-
-
 @pytest.fixture
-def api_client(sample_switch1):
+def client(sample_switch1):
     from .context import app
+    from .conftest import prep_db, close_db
     with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(), sample_switch1)
+        prep_db(
+            sample_switch1
+        )
         yield c
-        db.session.remove()
-        db.drop_all()
+        close_db()
 
 
 def assert_switch_in_db(body):
@@ -44,13 +39,13 @@ def assert_switch_in_db(body):
 
 
 @pytest.mark.parametrize("test_ip", INVALID_IP)
-def test_switch_post_invalid_ip(api_client, test_ip):
+def test_switch_post_invalid_ip(client, test_ip):
     sample_switch1 = {
         "description": "Test Switch",
         "ip": test_ip,
         "community": "myGreatCommunity"
     }
-    r = api_client.post(
+    r = client.post(
         "{}/switch/".format(base_url),
         data=json.dumps(sample_switch1),
         content_type='application/json',
@@ -59,7 +54,7 @@ def test_switch_post_invalid_ip(api_client, test_ip):
     assert r.status_code == 400
 
 
-def test_switch_post_valid(api_client):
+def test_switch_post_valid(client):
     sample_switch1 = {
         "description": "Test Switch",
         "ip": "192.168.103.128",
@@ -67,7 +62,7 @@ def test_switch_post_valid(api_client):
     }
 
     # Insert data to the database
-    r = api_client.post(
+    r = client.post(
         "{}/switch/".format(base_url),
         data=json.dumps(sample_switch1),
         content_type='application/json',
@@ -77,16 +72,16 @@ def test_switch_post_valid(api_client):
     assert_switch_in_db(sample_switch1)
 
 
-def test_switch_get_all_invalid_limit(api_client):
-    r = api_client.get(
+def test_switch_get_all_invalid_limit(client):
+    r = client.get(
         "{}/switch/?limit={}".format(base_url, -1),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
-def test_switch_get_all_limit(api_client):
-    r = api_client.get(
+def test_switch_get_all_limit(client):
+    r = client.get(
         "{}/switch/?limit={}".format(base_url, 0),
         headers=TEST_HEADERS,
     )
@@ -95,8 +90,8 @@ def test_switch_get_all_limit(api_client):
     assert len(t) == 0
 
 
-def test_switch_get_all(api_client):
-    r = api_client.get(
+def test_switch_get_all(client):
+    r = client.get(
         "{}/switch/".format(base_url),
         headers=TEST_HEADERS,
     )
@@ -106,8 +101,8 @@ def test_switch_get_all(api_client):
     assert len(t) == 1
 
 
-def test_switch_get_existant_switch(api_client):
-    r = api_client.get(
+def test_switch_get_existant_switch(client):
+    r = client.get(
         "{}/switch/{}".format(base_url, 1),
         headers=TEST_HEADERS,
     )
@@ -115,17 +110,17 @@ def test_switch_get_existant_switch(api_client):
     assert json.loads(r.data.decode('utf-8'))
 
 
-def test_switch_get_non_existant_switch(api_client):
-    r = api_client.get(
+def test_switch_get_non_existant_switch(client):
+    r = client.get(
         "{}/switch/{}".format(base_url, 100000),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
 
 
-def test_switch_filter_by_term_ip(api_client):
+def test_switch_filter_by_term_ip(client):
     terms = "102.51"
-    r = api_client.get(
+    r = client.get(
         "{}/switch/?terms={}".format(base_url, terms),
         headers=TEST_HEADERS,
     )
@@ -135,9 +130,9 @@ def test_switch_filter_by_term_ip(api_client):
     assert len(result) == 1
 
 
-def test_switch_filter_by_term_desc(api_client):
+def test_switch_filter_by_term_desc(client):
     terms = "Switch"
-    r = api_client.get(
+    r = client.get(
         "{}/switch/?terms={}".format(base_url, terms),
         headers=TEST_HEADERS,
     )
@@ -147,9 +142,9 @@ def test_switch_filter_by_term_desc(api_client):
     assert len(result) == 1
 
 
-def test_switch_filter_by_term_nonexistant(api_client):
+def test_switch_filter_by_term_nonexistant(client):
     terms = "HEYO"
-    r = api_client.get(
+    r = client.get(
         "{}/switch/?terms={}".format(base_url, terms),
         headers=TEST_HEADERS,
     )
@@ -159,14 +154,14 @@ def test_switch_filter_by_term_nonexistant(api_client):
 
 
 @pytest.mark.parametrize("test_ip", INVALID_IP)
-def test_switch_update_switch_invalid_ip(api_client, test_ip):
+def test_switch_update_switch_invalid_ip(client, test_ip):
     sample_switch1 = {
         "description": "Modified switch",
         "ip": test_ip,
         "community": "communityModified"
     }
 
-    r = api_client.put(
+    r = client.put(
         "{}/switch/{}".format(base_url, 1),
         data=json.dumps(sample_switch1),
         content_type='application/json',
@@ -175,14 +170,14 @@ def test_switch_update_switch_invalid_ip(api_client, test_ip):
     assert r.status_code == 400
 
 
-def test_switch_update_existant_switch(api_client):
+def test_switch_update_existant_switch(client):
     sample_switch1 = {
         "description": "Modified switch",
         "ip": "192.168.103.132",
         "community": "communityModified"
     }
 
-    r = api_client.put(
+    r = client.put(
         "{}/switch/{}".format(base_url, 1),
         data=json.dumps(sample_switch1),
         content_type='application/json',
@@ -192,14 +187,14 @@ def test_switch_update_existant_switch(api_client):
     assert_switch_in_db(sample_switch1)
 
 
-def test_switch_update_non_existant_switch(api_client):
+def test_switch_update_non_existant_switch(client):
     sample_switch1 = {
         "description": "Modified switch",
         "ip": "192.168.103.132",
         "community": "communityModified"
     }
 
-    r = api_client.put(
+    r = client.put(
         "{}/switch/{}".format(base_url, 100000),
         data=json.dumps(sample_switch1),
         content_type='application/json',
@@ -208,8 +203,8 @@ def test_switch_update_non_existant_switch(api_client):
     assert r.status_code == 404
 
 
-def test_switch_delete_existant_switch(api_client):
-    r = api_client.delete(
+def test_switch_delete_existant_switch(client):
+    r = client.delete(
         "{}/switch/{}".format(base_url, 1),
         headers=TEST_HEADERS
     )
@@ -221,8 +216,8 @@ def test_switch_delete_existant_switch(api_client):
     assert not s.query(q.exists()).scalar()
 
 
-def test_switch_delete_non_existant_switch(api_client):
-    r = api_client.delete(
+def test_switch_delete_non_existant_switch(client):
+    r = client.delete(
         "{}/switch/{}".format(base_url, 10000),
         headers=TEST_HEADERS
     )

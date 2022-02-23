@@ -35,10 +35,10 @@ config = {
 }
 
 
-def init() -> Tuple[FlaskApp, Migrate]:
+def init() -> FlaskApp:
     environment = os.environ.get('ENVIRONMENT', 'default').lower()
     if environment == "default" or environment not in config:
-        raise ExecError("The server cannot be started because environment variable has not been set or is not production, development, testing")
+        raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development, testing")
 
     # Connexion will use this function to authenticate and fetch the information of the user.
     os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'src.interface_adapter.http_api.auth.token_info')
@@ -78,9 +78,8 @@ def init() -> Tuple[FlaskApp, Migrate]:
         auth_all_paths=True,
     )
 
-
     db.init_app(app.app)
-    if environment == "testing":
-        db.create_all()
+    
+    Migrate(app.app, db)
 
-    return app, Migrate(app.app, db)
+    return app

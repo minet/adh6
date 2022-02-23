@@ -91,6 +91,12 @@ class Adherent(db.Model, RubyHashTrackable):
 
     admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])
+    memberships = relationship(
+        'Membership', 
+        back_populates="adherent",
+        cascade="all, delete",
+        passive_deletes=True
+    )
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -397,6 +403,6 @@ class Membership(db.Model):
     status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
     update_at = Column(DateTime)
 
-    adherent = relationship('Adherent', foreign_keys=[adherent_id])
+    adherent = relationship('Adherent', foreign_keys=[adherent_id], back_populates="memberships")
     account = relationship('Account', foreign_keys=[account_id])
     payment_method = relationship('PaymentMethod', foreign_keys=[payment_method_id])

@@ -70,7 +70,6 @@ class MemberHandler(DefaultHandler):
         try:
             if 'uuid' not in body:
                 body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
-            print(body)
             to_create: Membership = deserialize_request(body, Membership)
 
             created_membership = self.member_manager.new_membership(ctx, member_id, to_create)

@@ -1,20 +1,11 @@
 import datetime
 import json
-from dateutil import parser
 
 import pytest
 
 from src.interface_adapter.sql.model.models import  db
-from src.interface_adapter.sql.model.models import Transaction, PaymentMethod, Account, AccountType
+from src.interface_adapter.sql.model.models import Transaction, Account, AccountType
 from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
-
-
-@pytest.fixture
-def sample_payment_method():
-    return PaymentMethod(
-        id=1,
-        name='liquide'
-    )
 
 
 @pytest.fixture
@@ -79,22 +70,17 @@ def sample_transaction_pending(sample_member_admin, sample_account1, sample_acco
         pending_validation=True)
 
 
-def prep_db(session, sample_transaction, sample_transaction_pending):
-    """ Insert the test objects in the Db """
-    session.add(sample_transaction)
-    session.add(sample_transaction_pending)
-    session.commit()
-
-
 @pytest.fixture
-def api_client(sample_transaction, sample_transaction_pending):
+def client(sample_transaction, sample_transaction_pending):
     from .context import app
+    from .conftest import prep_db, close_db
     with app.app.test_client() as c:
-        db.create_all()
-        prep_db(db.session(), sample_transaction, sample_transaction_pending)
+        prep_db(
+            sample_transaction,
+            sample_transaction_pending
+        )
         yield c
-        db.session.remove()
-        db.drop_all()
+        close_db()
 
 
 def assert_transaction_in_db(body):
@@ -109,7 +95,7 @@ def assert_transaction_in_db(body):
 
 
 @pytest.mark.parametrize("test_value", INVALID_TRANSACTION_VALUE)
-def test_switch_post_invalid_value(api_client, test_value):
+def test_switch_post_invalid_value(client, test_value):
     sample_transaction1 = {
         "src": 1,
         "dst": 2,
@@ -118,7 +104,7 @@ def test_switch_post_invalid_value(api_client, test_value):
         "value": test_value,
         "payment_method": "liquide"
     }
-    r = api_client.post(
+    r = client.post(
         "{}/transaction/".format(base_url),
         data=json.dumps(sample_transaction1),
         content_type='application/json',
@@ -127,7 +113,7 @@ def test_switch_post_invalid_value(api_client, test_value):
     assert r.status_code == 400
 
 
-def test_transaction_post_valid(api_client, sample_member_admin):
+def test_transaction_post_valid(client, sample_member_admin):
     sample_transaction1 = {
         "src": 1,
         "dst": 2,
@@ -139,7 +125,7 @@ def test_transaction_post_valid(api_client, sample_member_admin):
     }
 
     # Insert data to the database
-    r = api_client.post(
+    r = client.post(
         "{}/transaction/".format(base_url),
         data=json.dumps(sample_transaction1),
         content_type='application/json',
@@ -149,16 +135,16 @@ def test_transaction_post_valid(api_client, sample_member_admin):
     assert_transaction_in_db(sample_transaction1)
 
 
-def test_transaction_get_all_invalid_limit(api_client):
-    r = api_client.get(
+def test_transaction_get_all_invalid_limit(client):
+    r = client.get(
         "{}/transaction/?limit={}".format(base_url, -1),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
-def test_transaction_get_all_limit(api_client):
-    r = api_client.get(
+def test_transaction_get_all_limit(client):
+    r = client.get(
         "{}/transaction/?limit={}".format(base_url, 0),
         headers=TEST_HEADERS,
     )
@@ -167,8 +153,8 @@ def test_transaction_get_all_limit(api_client):
     assert len(t) == 0
 
 
-def test_transaction_get_all(api_client):
-    r = api_client.get(
+def test_transaction_get_all(client):
+    r = client.get(
         "{}/transaction/".format(base_url),
         headers=TEST_HEADERS,
     )
@@ -178,8 +164,8 @@ def test_transaction_get_all(api_client):
     assert len(t) == 2
 
 
-def test_transaction_validate_pending(api_client, sample_transaction_pending):
-    r = api_client.get(
+def test_transaction_validate_pending(client, sample_transaction_pending):
+    r = client.get(
         '{}/transaction/{}/validate'.format(base_url, sample_transaction_pending.id),
         headers=TEST_HEADERS,
     )
@@ -191,16 +177,16 @@ def test_transaction_validate_pending(api_client, sample_transaction_pending):
     assert sw.pending_validation == False, "Transaction was not actually validated"
 
 
-def test_device_validate_nonpending(api_client, sample_transaction):
-    r = api_client.get(
+def test_device_validate_nonpending(client, sample_transaction):
+    r = client.get(
         '{}/transaction/{}/validate'.format(base_url, sample_transaction.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
-def test_transaction_delete_pending(api_client, sample_transaction_pending):
-    r = api_client.delete(
+def test_transaction_delete_pending(client, sample_transaction_pending):
+    r = client.delete(
         '{}/transaction/{}'.format(base_url, sample_transaction_pending.id),
         headers=TEST_HEADERS,
     )
@@ -213,16 +199,16 @@ def test_transaction_delete_pending(api_client, sample_transaction_pending):
     assert not s.query(q.exists()).scalar(), "Object not actually deleted"
 
 
-def test_device_delete_nonpending(api_client, sample_transaction):
-    r = api_client.delete(
+def test_device_delete_nonpending(client, sample_transaction):
+    r = client.delete(
         '{}/transaction/{}'.format(base_url, sample_transaction.id),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
-def test_transaction_get_existant_transaction(api_client, sample_transaction):
-    r = api_client.get(
+def test_transaction_get_existant_transaction(client, sample_transaction):
+    r = client.get(
         "{}/transaction/{}".format(base_url, sample_transaction.id),
         headers=TEST_HEADERS,
     )
@@ -230,17 +216,17 @@ def test_transaction_get_existant_transaction(api_client, sample_transaction):
     assert json.loads(r.data.decode('utf-8'))
 
 
-def test_transaction_get_non_existant_transaction(api_client):
-    r = api_client.get(
+def test_transaction_get_non_existant_transaction(client):
+    r = client.get(
         "{}/transaction/{}".format(base_url, 100000),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
 
 
-def test_transaction_filter_by_term_desc(api_client):
+def test_transaction_filter_by_term_desc(client):
     terms = "descri"
-    r = api_client.get(
+    r = client.get(
         "{}/transaction/?terms={}".format(base_url, terms),
         headers=TEST_HEADERS,
     )
@@ -250,9 +236,9 @@ def test_transaction_filter_by_term_desc(api_client):
     assert len(result) == 2
 
 
-def test_transaction_filter_by_term_nonexistant(api_client):
+def test_transaction_filter_by_term_nonexistant(client):
     terms = "BONJOUR?"
-    r = api_client.get(
+    r = client.get(
         "{}/transaction/?terms={}".format(base_url, terms),
         headers=TEST_HEADERS,
     )
