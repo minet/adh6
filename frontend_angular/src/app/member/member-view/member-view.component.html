@@ -1,10 +1,18 @@
+
+<ng-container *ngIf="(latestMembership$ | async) as latestMembership">
+  <div *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'" class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-9">
+      <div class="alert alert-info" role="alert"><h4 class="text-center"><strong>Cotisation en cours:</strong><br />aucune modification sur l'adhérent (comme la chambre) ne peut-être faite</h4></div>
+    </div>
+  </div>
+</ng-container>
 <div *ngIf="(member$ | async) as member" class="row">
   <div class="col-md-3"></div>
   <div class="col-md-9"><h2><span
     class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
   </div>
-</div>
-<div *ngIf="(member$ | async) as member" class="row">
+</div><div *ngIf="(member$ | async) as member" class="row">
   <!-- Left column -->
   <div class="col-md-3">
     <div class="card shadow" style="position: sticky; top: 10px;">
@@ -63,9 +71,11 @@
             </a>
           </ng-container>
           <ng-template #elseNoRoom>
-            <button class="btn btn-warning" (click)="collapseMoveIn()">
-              Emmenager
-            </button>
+            <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
+              <button class="btn btn-warning" (click)="collapseMoveIn()" [disabled]="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'">
+                Emmenager
+              </button>
+            </ng-container>
           </ng-template>
         </td>
       </tr>
