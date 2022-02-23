@@ -1,6 +1,5 @@
 from datetime import datetime
 from uuid import uuid4
-from flask import Flask
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
 
@@ -9,7 +8,8 @@ from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
     Membership,
-    AccountType, Adherent, Admin, Chambre, Vlan, Device, Switch, Port
+    AccountType, Adherent, Admin, Chambre,
+    PaymentMethod, Vlan, Device, Switch, Port
 )
 from test.integration.context import tomorrow
 
@@ -29,7 +29,7 @@ def close_db():
 @pytest.fixture
 def client(sample_member, sample_member2, sample_member13,
         wired_device, wireless_device,
-        account_type,
+        account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
         sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
     with app.app.test_client() as c:
@@ -37,6 +37,7 @@ def client(sample_member, sample_member2, sample_member13,
             sample_member,
             sample_member2,
             sample_member13,
+            sample_payment_method,
             wired_device,
             wireless_device,
             account_type,
@@ -44,6 +45,8 @@ def client(sample_member, sample_member2, sample_member13,
             sample_room2,
             sample_vlan,
             sample_account,
+            sample_account_frais_asso,
+            sample_account_frais_techniques,
             sample_complete_membership,
             sample_pending_validation_membership
         )
@@ -61,14 +64,42 @@ def account_type(faker):
 @pytest.fixture
 def sample_account(faker, account_type: AccountType, sample_member: Adherent):
     yield Account(
-        id=faker.random_digit_not_null(),
         type=account_type.id,
         creation_date=datetime.now(),
         name="account",
         actif=True,
         compte_courant=False,
         pinned=False,
-        adherent_id=sample_member.id
+        adherent=sample_member
+    )
+
+@pytest.fixture
+def sample_account_frais_asso(account_type: AccountType):
+    yield Account(
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="MiNET frais asso",
+        actif=True,
+        compte_courant=True,
+        pinned=True
+    )
+
+@pytest.fixture
+def sample_account_frais_techniques(faker, account_type: AccountType):
+    yield Account(
+        type=account_type.id,
+        creation_date=datetime.now(),
+        name="MiNET frais techniques",
+        actif=True,
+        compte_courant=True,
+        pinned=True
+    )
+
+@pytest.fixture
+def sample_payment_method():
+    return PaymentMethod(
+        id=1,
+        name='liquide'
     )
 
 
@@ -224,6 +255,7 @@ def sample_member(sample_room1):
         password='a',
         chambre=sample_room1,
         date_de_depart=tomorrow,
+        datesignedminet=datetime.now()
     )
 
 

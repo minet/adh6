@@ -111,6 +111,7 @@ class MemberSQLRepository(MemberRepository):
 
         with track_modifications(ctx, session, adherent):
             new_adherent = _merge_sql_with_entity(ctx, abstract_member, adherent, override)
+        session.flush()
 
         return _map_member_sql_to_entity(new_adherent)
 
@@ -249,6 +250,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     if entity.room is not None:
         if entity.room == -1:
             adherent.chambre_id = None
+            adherent.chambre = None
         else:
             session: Session = ctx.get(CTX_SQL_SESSION)
             room = session.query(Chambre).filter(Chambre.id == entity.room).one_or_none()
