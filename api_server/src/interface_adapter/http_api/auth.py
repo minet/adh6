@@ -1,10 +1,8 @@
 # coding=utf-8
-from typing import List
 import requests
 import requests.exceptions
 from flask import current_app
 
-from src.util.env import is_development_environment
 
 USER = "adh6_user"
 ADMIN = "adh6_admin"
@@ -33,16 +31,12 @@ def token_info(access_token) -> dict:
 
 def get_sso_groups(token):
     try:
-        verify_cert = True
-        if is_development_environment():
-            verify_cert = False
-
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(
             current_app.config["AUTH_PROFILE_ADDRESS"],
             headers=headers,
             timeout=1,
-            verify=verify_cert
+            verify=True
         )
     except requests.exceptions.ReadTimeout:
         return None
