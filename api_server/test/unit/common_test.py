@@ -3,6 +3,6 @@ import common
 
 def test_common():
     import os
-    del os.environ["ENVIRONMENT"]
+    os.environ["ENVIRONMENT"] = "default"
     with pytest.raises(EnvironmentError):
         common.init()
