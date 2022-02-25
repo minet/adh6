@@ -123,7 +123,7 @@ deploy_prod_backend:
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
     - cat config/.env.template | envsubst | tee config/.env
     - export FLASK_APP=manage:manager
-    - flask db upgrade
+    - ENVIRONMENT=production flask db upgrade
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
     - sudo rm /etc/uwsgi/vassals/adh6_api.ini
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
