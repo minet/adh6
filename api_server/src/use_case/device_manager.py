@@ -41,7 +41,7 @@ class DeviceManager(CRUDManager):
         self.load_mac_oui_dict()
 
     def load_mac_oui_dict(self):
-        with open('OUIs.txt', 'r') as f:
+        with open('OUIs.txt', 'r', encoding='utf-8') as f:
             line = f.readline()
             while line != "":
                 oui, company = line.split('\t')
