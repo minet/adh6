@@ -65,7 +65,8 @@ import re
         "password": (Member.id == Admin.member) | Roles.ADMIN,
         "membership": (Member.id == Admin.member) | Roles.ADMIN,
         "create": (Member.id == Admin.member) | Roles.ADMIN,
-        "update": (Member.id == Admin.member) | Roles.ADMIN
+        "update": (Member.id == Admin.member) | Roles.ADMIN,
+        "delete": Roles.ADMIN
     },
     collection={
         "read": (Member.id == Admin.member) | Roles.ADMIN,

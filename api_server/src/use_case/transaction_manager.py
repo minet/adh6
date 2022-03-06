@@ -45,7 +45,7 @@ class TransactionManager(CRUDManager):
     def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None):
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
-        if abstract_transaction.value <= 0:
+        if abstract_transaction is not None and abstract_transaction.value <= 0:
             raise IntMustBePositive('value')
 
         @uses_security("create", is_collection=True)

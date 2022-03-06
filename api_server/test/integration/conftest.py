@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
 
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from test.auth import TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
@@ -18,6 +18,7 @@ def prep_db(*args):
     _db.create_all()
     session = _db.session()
     session.add_all(args)
+    session.add(sample_member_admin())
     session.commit()
 
 def close_db():
@@ -201,16 +202,14 @@ def sample_admin():
         roles=""
     )
 
-@pytest.fixture
-def sample_member_admin(sample_admin):
-    yield Adherent(
-                login=TESTING_CLIENT,
-                mail="test@example.com",
-                nom="Test",
-                prenom="test",
-                password="",
-                admin=sample_admin
-            )
+def sample_member_admin():
+    return Adherent(
+        login=TESTING_CLIENT,
+        mail="test@example.com",
+        nom="Test",
+        prenom="test",
+        password="",
+    )
 
 
 @pytest.fixture

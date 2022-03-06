@@ -1,4 +1,3 @@
-from flask import Flask
 from src.constants import MembershipStatus
 from src.entity.membership import Membership
 
@@ -16,7 +15,7 @@ from src.entity.roles import Roles
 from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from test.auth import TESTING_CLIENT
 from src.util.context import build_context
 
 @fixture(autouse=True)

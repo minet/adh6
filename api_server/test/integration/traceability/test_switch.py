@@ -2,12 +2,10 @@
 import logging
 import pytest
 
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.models import  db
+from test.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.models import Switch
 from test.integration.resource import logs_contains
-from test.integration.test_switch import test_switch_post_valid, test_switch_update_existant_switch, \
-    test_switch_delete_existant_switch
+from test.integration.test_switch import test_switch_post_valid, test_switch_update_existant_switch, test_switch_delete_existant_switch
 
 
 @pytest.fixture
@@ -36,7 +34,6 @@ def test_switch_log_create(client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_post_valid(client)
 
-    log = 'TestingClient created a switch'
     assert logs_contains(caplog, 'switch_manager_update_or_create',
                          user=TESTING_CLIENT)
 

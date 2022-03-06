@@ -11,6 +11,7 @@ from src.entity.roles import Roles
     item={
         "read": Roles.ADMIN,
         "update": Roles.ADMIN,
+        "delete": Roles.ADMIN,
     },
     collection={
         "read": Roles.ADMIN,

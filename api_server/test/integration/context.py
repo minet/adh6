@@ -3,6 +3,7 @@ import common
 import os
 
 os.environ["ENVIRONMENT"] = "testing"
+os.environ["TOKENINFO_FUNC"] = "test.auth.token_info"
 
 app = common.init()
 

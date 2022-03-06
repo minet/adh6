@@ -1,5 +1,6 @@
 import datetime
 import json
+from _pytest.outcomes import xfail
 
 import pytest
 
@@ -41,7 +42,7 @@ def sample_account2():
 
 
 @pytest.fixture
-def sample_transaction(sample_member_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=91,
         src_account=sample_account1,
@@ -51,12 +52,12 @@ def sample_transaction(sample_member_admin, sample_account1, sample_account2, sa
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
         payment_method=sample_payment_method,
-        author=sample_member_admin,
+        author=sample_member,
         pending_validation=False)
 
 
 @pytest.fixture
-def sample_transaction_pending(sample_member_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction_pending(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=92,
         src_account=sample_account1,
@@ -66,7 +67,7 @@ def sample_transaction_pending(sample_member_admin, sample_account1, sample_acco
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 31),
         payment_method=sample_payment_method,
-        author=sample_member_admin,
+        author=sample_member,
         pending_validation=True)
 
 
@@ -112,7 +113,8 @@ def test_switch_post_invalid_value(client, test_value):
     )
     assert r.status_code == 400
 
-
+#TODO: author should not be send and should be in readonly
+@pytest.mark.xfail(reason="author id should not be send and instead be compute in the backend")
 def test_transaction_post_valid(client, sample_member_admin):
     sample_transaction1 = {
         "src": 1,

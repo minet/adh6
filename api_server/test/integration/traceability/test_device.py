@@ -2,7 +2,7 @@ import logging
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from test.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.models import Device
 from test.integration.resource import logs_contains
 

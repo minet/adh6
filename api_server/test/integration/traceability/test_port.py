@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from test.auth import TESTING_CLIENT
 from test.integration.resource import logs_contains
 
 
