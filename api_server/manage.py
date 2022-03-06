@@ -10,7 +10,7 @@ from common import init
 from faker import Faker
 
 import ipaddress
-from src.interface_adapter.sql.model.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
+from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
 application = init()
 manager: Flask = application.app
 
@@ -310,6 +310,23 @@ def check_migration_from_adh5():
             f.write("|||*{}*|\n".format(sum_adh))
             i += 1
         print(f'{i} adherent, {j} transactions, {total} €')
+
+
+@manager.cli.command("api-key")
+def seed():
+    """Add seed data to the database."""
+    session: Session = db.session
+
+    print("Generate api key")
+    api_keys = [str(uuid.uuid4()),"dev-api-key","adh6_super_admin"],
+    session.bulk_save_objects([
+        ApiKey(
+            uuid=e[0],
+            name=e[1],
+            role=e[2]
+        ) for e in api_keys
+    ])
+    session.commit()
 
 
 @manager.cli.command("seed")
