@@ -162,11 +162,6 @@ class TransactionSQLRepository(TransactionRepository):
                                   payment_method=payment_method_name))
         now = datetime.now()
         session: Session = ctx.get(CTX_SQL_SESSION)
-        admin = ctx.get(CTX_ADMIN)
-
-        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
-        if admin_sql is None:
-            raise InvalidAdmin()
 
         adherent = session.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if adherent is None:

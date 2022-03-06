@@ -1,6 +1,9 @@
 # coding=utf-8
 
 
+from typing import Optional
+
+
 class UserInputError(ValueError):
     """
     Type of error thrown when the user input is responsible for the failure of the flow.
@@ -132,7 +135,7 @@ class NotFoundError(UserInputError):
     Error thrown when something is not found.
     """
 
-    def __init__(self, what, v: str = None):
+    def __init__(self, what, v: Optional[str] = None):
         err_msg = what + ' ' + str(v) + ' was not found'
         super().__init__(err_msg)
 

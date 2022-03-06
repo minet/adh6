@@ -3,7 +3,6 @@
 Log function call decorator.
 """
 import re
-import sys
 from functools import wraps
 
 import src.entity
