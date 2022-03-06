@@ -1,33 +1,35 @@
 # coding=utf-8
+from typing import Any, Dict, Optional
 import requests
 import requests.exceptions
 from flask import current_app
+from src.interface_adapter.sql.model.models import ApiKey, db
+from connexion.exceptions import OAuthProblem
 
+def apikey_auth(token: str):
+    exist: Optional[ApiKey] = db.session().query(ApiKey).filter(ApiKey.uuid == token).one_or_none()
+    if exist is None:
+        raise OAuthProblem('invalid api key')
+    return {
+        "scope": ["profile"],
+        "user": exist.name,
+        "is_api_key": True,
+        "groups": exist.role
+    }
 
-USER = "adh6_user"
-ADMIN = "adh6_admin"
+def token_info(access_token) -> Optional[Dict[str, Any]]:
+    infos = get_sso_groups(access_token)
+    if not infos:
+        raise OAuthProblem('invalid access token, no info found')
+    groups = ['adh6_user']
+    if 'attributes' in infos and 'memberOf' in infos['attributes']:
+        groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
 
-TESTING_CLIENT = 'TestingClient'
-
-
-def token_info(access_token) -> dict:
-
-    if current_app.config["TESTING"]:
-        return {
-            "uid": TESTING_CLIENT,
-            "scope": ["profile"],
-            "groups": [
-                "adh6_user", 
-                "adh6_admin", 
-                "adh6_treso",
-                "adh6_superadmin",
-                "cluster-dev",
-                "cluster-prod",
-                "cluster-hosting"
-            ]
-        }
-    return authenticate_against_sso(access_token)
-
+    return {
+        "uid": infos["id"],
+        "scope": ['profile'],
+        "groups": groups
+    }
 
 def get_sso_groups(token):
     try:
@@ -44,20 +46,5 @@ def get_sso_groups(token):
         return None
 
     result = r.json()
-    print(result)
     return result
 
-
-def authenticate_against_sso(access_token):
-    infos = get_sso_groups(access_token)
-    if not infos:
-        return None
-    groups = ['user']
-    if 'attributes' in infos and 'memberOf' in infos['attributes']:
-        groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
-
-    return {
-        "uid": infos["id"],
-        "scope": ['profile'],
-        "groups": groups
-    }

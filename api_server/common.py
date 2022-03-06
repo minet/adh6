@@ -42,6 +42,7 @@ def init() -> FlaskApp:
 
     # Connexion will use this function to authenticate and fetch the information of the user.
     os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'src.interface_adapter.http_api.auth.token_info')
+    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'src.interface_adapter.http_api.auth.apikey_auth')
 
     # Initialize the application
     app = FlaskApp(__name__, specification_dir='openapi')

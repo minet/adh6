@@ -2748,9 +2748,14 @@ components:
           authorizationUrl: https://cas.minet.net/oidc/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
 
 security:
-- OAuth2: [profile]
+  - OAuth2: [profile]
+  - ApiKeyAuth: []
 
 tags:
 - description: Operations on members
