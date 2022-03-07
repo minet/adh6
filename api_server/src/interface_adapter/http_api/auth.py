@@ -6,7 +6,7 @@ from flask import current_app
 from src.interface_adapter.sql.model.models import ApiKey, db
 from connexion.exceptions import OAuthProblem
 
-def apikey_auth(token: str):
+def apikey_auth(token: str, required_scope):
     exist: Optional[ApiKey] = db.session().query(ApiKey).filter(ApiKey.uuid == token).one_or_none()
     if exist is None:
         raise OAuthProblem('invalid api key')
