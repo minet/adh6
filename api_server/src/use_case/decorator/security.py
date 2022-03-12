@@ -79,7 +79,7 @@ def uses_security(action, is_collection=False):
 
             arguments = {}
             authorized = False
-            if (token_info is None or (user is None or ("user" in token_info and token_info["user"] is None))):
+            if (token_info is None or (user is None and ("user" in token_info and token_info["user"] is None))):
                 LOG.warning('could_not_extract_user_and_token_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("You are not authenticated correctly")
 

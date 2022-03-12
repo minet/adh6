@@ -1,5 +1,5 @@
 import click
-from flask import Flask
+from flask import Flask, cli
 from sqlalchemy.engine.create import create_engine
 from src.constants import MembershipDuration, MembershipStatus
 import uuid
@@ -12,6 +12,7 @@ from faker import Faker
 import ipaddress
 from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
 application = init()
+assert application.app is not None, "No flask application"
 manager: Flask = application.app
 
 @manager.cli.command("check_subnet")
@@ -313,11 +314,16 @@ def check_migration_from_adh5():
 
 
 @manager.cli.command("api-key")
-def seed():
+@click.argument("login")
+def api_key(login: str):
     """Add seed data to the database."""
     session: Session = db.session
 
-    print("Generate api key")
+    print("Generate api key and associated user")
+    adherent = Adherent(
+        login=login,
+    )
+    
     api_keys = [str(uuid.uuid4()),"dev-api-key","adh6_super_admin"],
     session.bulk_save_objects([
         ApiKey(
@@ -325,6 +331,8 @@ def seed():
             name=e[1],
             role=e[2]
         ) for e in api_keys
+    ] + [
+        adherent
     ])
     session.commit()
 
@@ -450,7 +458,6 @@ def fake(login):
 
     now = datetime.now()
     adherent = Adherent(
-        id=1,
         nom=fake.last_name_nonbinary(),
         prenom=fake.first_name_nonbinary(),
         mail=fake.email(),
