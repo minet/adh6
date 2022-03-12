@@ -4,7 +4,6 @@ import connexion
 
 from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
-from src.interface_adapter.http_api.auth import update_profile_url
 
 from src.resolver import ADHResolver
 from src.interface_adapter.http_api import (
