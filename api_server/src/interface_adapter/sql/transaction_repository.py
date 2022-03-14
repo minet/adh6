@@ -13,12 +13,12 @@ from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from src.entity import AbstractTransaction, Transaction, Product
-from src.exceptions import AccountNotFoundError, InvalidAdmin, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, AdminNotFoundError, ProductNotFoundError, \
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, AdminNotFoundError, ProductNotFoundError, \
     TransactionNotFoundError, UnknownPaymentMethod
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.model.models import Admin, Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
+from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -76,8 +76,8 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_id = ctx.get(CTX_ADMIN).id
-        author_ref = session.query(Adherent).join(Admin) \
+        admin_id = ctx.get(CTX_ADMIN).member
+        author_ref = session.query(Adherent) \
             .filter(Adherent.id == admin_id) \
             .filter(Adherent.admin is not None).one_or_none()
         if not author_ref:

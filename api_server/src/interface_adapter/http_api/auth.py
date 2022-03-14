@@ -14,7 +14,7 @@ def apikey_auth(token: str, required_scopes):
         "scope": ["profile"],
         "user": exist.name,
         "is_api_key": True,
-        "groups": exist.role
+        "groups": [exist.role]
     }
 
 def token_info(access_token) -> Optional[Dict[str, Any]]:

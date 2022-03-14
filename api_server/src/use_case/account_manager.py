@@ -1,5 +1,5 @@
 # coding=utf-8
-from src.entity import AbstractAccount, Admin, Account
+from src.entity import AbstractAccount, Admin, Account, Member
 from src.entity.roles import Roles
 from src.exceptions import AccountNotFoundError, UnauthorizedError
 from src.use_case.crud_manager import CRUDManager
@@ -10,10 +10,10 @@ from src.use_case.interface.account_repository import AccountRepository
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Account.member.id == Admin.member) | (AbstractAccount.member == Admin.member) | Roles.ADMIN
+        "read": (Account.member.username == Admin.login) | (AbstractAccount.member.username == Admin.login) | Roles.ADMIN
     },
     collection={
-        "read": (AbstractAccount.member == Admin.member) | Roles.ADMIN
+        "read": (AbstractAccount.member.username == Admin.login) | Roles.ADMIN
     }
 ))
 class AccountManager(CRUDManager):

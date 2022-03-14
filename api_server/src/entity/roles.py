@@ -5,6 +5,7 @@ from src.entity.util.logic import Expression
 
 class Roles(Expression, Enum):
     USER = "adh6_user"
+    NETWORK = "network"
     ADMIN = "adh6_admin"
     SUPERADMIN = "adh6_superadmin"
     TRESO = "adh6_treso"

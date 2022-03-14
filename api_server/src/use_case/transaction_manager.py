@@ -1,7 +1,7 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
 from src.constants import CTX_ROLES
-from src.entity import AbstractTransaction, Admin
+from src.entity import AbstractTransaction
 from src.entity.roles import Roles
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from src.interface_adapter.http_api.decorator.log_call import log_call

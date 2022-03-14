@@ -1,6 +1,5 @@
 # coding=utf-8
-from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice, Device, Member, Admin, device
+from src.entity import AbstractDevice, Device, Admin
 from src.entity.roles import Roles
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
     DeviceAlreadyExists, DevicesLimitReached
@@ -15,14 +14,14 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
+        "read": (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
+        "update": (Device.member.username == Admin.login) | (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
+        "delete": (Device.member.username == Admin.login) | (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
         "admin": Roles.ADMIN
     },
     collection={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "create": (Device.member == Admin.member) | Roles.ADMIN
+        "read": (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
+        "create": (Device.member.username == Admin.login) | Roles.ADMIN
     }
 ))
 class DeviceManager(CRUDManager):
@@ -87,15 +86,6 @@ class DeviceManager(CRUDManager):
 
             return {"vendorname": vendor}
 
-    @auto_raise
-    def delete_access_control_function(self, ctx, roles, f, args, kwargs):
-        admin = ctx.get(CTX_ADMIN)
-        if 'device_id' in kwargs:
-            device, count = self.repository.search_by(ctx, filter_=AbstractDevice(id=kwargs['device_id']))
-            if count >= 1:
-                if device[0].member.id == admin.id:
-                    return args, kwargs, True
-        return args, kwargs, False
 
     @log_call
     @auto_raise

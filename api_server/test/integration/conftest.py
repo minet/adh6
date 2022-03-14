@@ -8,7 +8,7 @@ from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
     Membership,
-    AccountType, Adherent, Admin, Chambre,
+    AccountType, Adherent, Chambre,
     PaymentMethod, Vlan, Device, Switch, Port
 )
 from test.integration.context import tomorrow
@@ -194,13 +194,6 @@ def sample_room2(sample_vlan):
         vlan=sample_vlan,
     )
 
-
-@pytest.fixture
-def sample_admin():
-    yield Admin(
-        id=1,
-        roles=""
-    )
 
 def sample_member_admin():
     return Adherent(

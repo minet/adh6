@@ -4,7 +4,7 @@ from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
 import uuid
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -59,19 +59,19 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Member.id == Admin.member) | Roles.ADMIN,
+        "read": (Member.username == Admin.login) | Roles.ADMIN,
         "admin": Roles.ADMIN,
         "profile": Roles.USER,
-        "password": (Member.id == Admin.member) | Roles.ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADMIN,
-        "update": (Member.id == Admin.member) | Roles.ADMIN,
+        "password": (Member.username == Admin.login) | Roles.ADMIN,
+        "membership": (Member.username == Admin.login) | Roles.ADMIN,
+        "create": (Member.username == Admin.login) | Roles.ADMIN,
+        "update": (Member.username == Admin.login) | Roles.ADMIN,
         "delete": Roles.ADMIN
     },
     collection={
-        "read": (Member.id == Admin.member) | Roles.ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADMIN
+        "read": (Member.username == Admin.login) | Roles.ADMIN,
+        "create": (Member.username == Admin.login) | Roles.ADMIN,
+        "membership": (Member.username == Admin.login) | Roles.ADMIN
     }
 ))
 class MemberManager(CRUDManager):
@@ -106,11 +106,10 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("profile", is_collection=False)
-    def get_profile(self, ctx):
+    def get_profile(self, ctx) -> Admin:
         admin = ctx.get(CTX_ADMIN)
-        roles = ctx.get(CTX_ROLES)
 
-        return admin, roles
+        return admin
 
     @log_call
     @auto_raise

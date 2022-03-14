@@ -2,6 +2,7 @@
 from types import MappingProxyType
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN, CTX_TESTING, CTX_REQUEST_ID, CTX_REQUEST_URL, CTX_ROLES
+from src.entity import Admin
 
 
 def build_context(ctx: MappingProxyType = None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None):
@@ -29,8 +30,8 @@ def build_context(ctx: MappingProxyType = None, session=None, admin=None, testin
 
 def log_extra(context: MappingProxyType, **extra_fields):
     admin_login = None
-    if context.get(CTX_ADMIN):
-        admin_login = context.get(CTX_ADMIN).username
+    if (admin := context.get(CTX_ADMIN)) and isinstance(admin, Admin):
+        admin_login = admin.login
 
     infos = {
         'request_uuid': context.get(CTX_REQUEST_ID),

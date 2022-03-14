@@ -6,7 +6,7 @@ from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN
 from src.exceptions import AccountNotFoundError, InvalidAdmin, MemberNotFoundError, UnknownPaymentMethod, MemberTransactionAmountMustBeGreaterThan
-from src.interface_adapter.sql.model.models import Admin, Adherent, PaymentMethod, Transaction, Account
+from src.interface_adapter.sql.model.models import Adherent, PaymentMethod, Transaction, Account
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.log import LOG
@@ -27,7 +27,7 @@ class MoneySQLRepository(MoneyRepository):
         session: Session = ctx.get(CTX_SQL_SESSION)
         admin = ctx.get(CTX_ADMIN)
 
-        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
+        admin_sql = session.query(Adherent).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
         if admin_sql is None:
             raise InvalidAdmin()
 

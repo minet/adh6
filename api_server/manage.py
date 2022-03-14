@@ -10,7 +10,8 @@ from common import init
 from faker import Faker
 
 import ipaddress
-from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
+from src.entity.roles import Roles
+from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app
@@ -313,7 +314,7 @@ def check_migration_from_adh5():
         print(f'{i} adherent, {j} transactions, {total} €')
 
 
-@manager.cli.command("api-key")
+@manager.cli.command("api_key")
 @click.argument("login")
 def api_key(login: str):
     """Add seed data to the database."""
@@ -324,7 +325,7 @@ def api_key(login: str):
         login=login,
     )
     
-    api_keys = [str(uuid.uuid4()),"dev-api-key","adh6_super_admin"],
+    api_keys = [str(uuid.uuid4()),"dev-api-key",Roles.SUPERADMIN.value],
     session.bulk_save_objects([
         ApiKey(
             uuid=e[0],
@@ -433,15 +434,6 @@ def seed():
             switch_id=1,
             chambre_id=i
         ) for i in range(1, 30)
-    ])
-
-    print("Seeding Roles")
-    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_super_admin"],
-    session.bulk_save_objects([
-        Admin(
-            id=e[0],
-            roles=e[1]
-        ) for e in roles
     ])
 
     session.commit()
