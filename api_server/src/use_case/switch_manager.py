@@ -4,18 +4,17 @@ from src.entity import AbstractSwitch
 from src.exceptions import SwitchNotFoundError
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.switch_repository import SwitchRepository
-from src.use_case.decorator.security import SecurityDefinition, defines_security
-from src.entity.roles import Roles
+from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADMIN,
-        "update": Roles.ADMIN,
-        "delete": Roles.ADMIN
+        "read": is_admin(),
+        "update": is_admin(),
+        "delete": is_admin()
     },
     collection={
-        "read": Roles.ADMIN,
-        "create" : Roles.ADMIN,
+        "read": is_admin(),
+        "create" : is_admin(),
     }
 ))
 class SwitchManager(CRUDManager):

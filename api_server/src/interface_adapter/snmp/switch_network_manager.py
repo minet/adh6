@@ -3,18 +3,17 @@
 Implements everything related to SNMP-related actions
 """
 from src.constants import CTX_ROLES
-from src.entity.roles import Roles
 from src.entity.port import Port
 from src.entity.switch import Switch
 from src.exceptions import NetworkManagerReadError, UnauthorizedError
 from src.interface_adapter.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import defines_security, uses_security, SecurityDefinition
+from src.use_case.decorator.security import defines_security, has_any_role, uses_security, SecurityDefinition, Roles
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
 
 @defines_security(SecurityDefinition(
     item={
-        "network": Roles.SUPERADMIN | Roles.ADMIN | Roles.NETWORK,
+        "network": has_any_role([Roles.ADMIN, Roles.NETWORK]),
     },
 ))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
@@ -101,9 +100,12 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             roles = ctx.get(CTX_ROLES)
             vlan = int(vlan)
             if (
-                ((vlan == 3 or vlan == 103) and Roles.VLAN_DEV.value not in roles)
-                or ((vlan == 2 or vlan == 102) and Roles.VLAN_PROD.value not in roles)
-                or ((vlan == 104) and Roles.VLAN_HOSTING.value not in roles)
+                Roles.NETWORK.value not in roles and
+                (
+                    ((vlan == 3 or vlan == 103) and Roles.VLAN_DEV.value not in roles)
+                    or ((vlan == 2 or vlan == 102) and Roles.VLAN_PROD.value not in roles)
+                    or ((vlan == 104) and Roles.VLAN_HOSTING.value not in roles)
+                )
             ):
                 raise UnauthorizedError()
 

@@ -11,9 +11,8 @@ def apikey_auth(token: str, required_scopes):
     if exist is None:
         raise OAuthProblem('invalid api key')
     return {
+        "uid": exist.name,
         "scope": ["profile"],
-        "user": exist.name,
-        "is_api_key": True,
         "groups": [exist.role]
     }
 

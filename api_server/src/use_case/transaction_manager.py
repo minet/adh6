@@ -2,27 +2,25 @@
 """ Use cases (business rule layer) of everything related to transactions. """
 from src.constants import CTX_ROLES
 from src.entity import AbstractTransaction
-from src.entity.roles import Roles
 from src.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.use_case.cashbox_manager import CashboxManager
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, uses_security
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADMIN,
-        "update": Roles.TRESO,
-        "delete": Roles.TRESO
+        "read": is_admin(),
+        "update": has_any_role([Roles.TRESO]),
+        "delete": has_any_role([Roles.TRESO])
     },
     collection={
-        "read": Roles.ADMIN,
-        "create": Roles.ADMIN,
+        "read": is_admin(),
+        "create": is_admin(),
     }
 ))
 class TransactionManager(CRUDManager):

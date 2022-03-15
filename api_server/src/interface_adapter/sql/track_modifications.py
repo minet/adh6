@@ -5,10 +5,8 @@ Track modification on SQLAlchemy objects.
 from contextlib import contextmanager
 from datetime import datetime
 
-from sqlalchemy.orm.session import Session
 
-from src.constants import CTX_ADMIN, CTX_SQL_SESSION
-from src.entity import Admin
+from src.constants import CTX_ADMIN
 from src.interface_adapter.sql.model.models import Adherent, Modification
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
 from src.use_case.decorator.security import User

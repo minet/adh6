@@ -12,11 +12,9 @@ from src.entity import (
     AbstractAccount, Account,
     AbstractPaymentMethod, PaymentMethod,
     AccountType,
-    Admin
 )
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.null import Null
-from src.entity.roles import Roles
 from src.entity.transaction import Transaction
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
@@ -41,7 +39,7 @@ from src.exceptions import (
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, owns, uses_security, User
+from src.use_case.decorator.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, owns, uses_security, User
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
@@ -59,19 +57,19 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": owns(Member.id) | Roles.ADMIN,
-        "admin": Roles.ADMIN,
-        "profile": Roles.USER,
-        "password": owns(Member.id) | Roles.ADMIN,
-        "membership": owns(Member.id) | Roles.ADMIN,
-        "create": owns(Member.id) | Roles.ADMIN,
-        "update": owns(Member.id) | Roles.ADMIN,
-        "delete": Roles.ADMIN
+        "read": owns(Member.id) | is_admin(),
+        "admin": is_admin(),
+        "profile": has_any_role([Roles.USER]),
+        "password": owns(Member.id) | is_admin(),
+        "membership": owns(Member.id) | is_admin(),
+        "create": owns(Member.id) | is_admin(),
+        "update": owns(Member.id) | is_admin(),
+        "delete": is_admin()
     },
     collection={
-        "read": owns(Member.id) | Roles.ADMIN,
-        "create": owns(Member.id) | Roles.ADMIN,
-        "membership": owns(Member.id) | Roles.ADMIN
+        "read": owns(Member.id) | is_admin(),
+        "create": owns(Member.id) | is_admin(),
+        "membership": owns(Member.id) | is_admin()
     }
 ))
 class MemberManager(CRUDManager):

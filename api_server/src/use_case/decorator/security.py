@@ -1,3 +1,4 @@
+from enum import Enum
 import operator
 import os
 from functools import wraps
@@ -8,7 +9,6 @@ import connexion
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
-from src.entity.roles import Roles
 from src.entity.util.logic import BinaryExpression, Expression, TrueExpression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, UnauthorizedError
 from src.interface_adapter.sql.model.models import Adherent, ApiKey
@@ -51,6 +51,16 @@ class User(object):
     @roles.setter
     def roles(self, roles):
         self._roles = roles
+
+class Roles(Enum):
+    USER = "adh6_user"
+    NETWORK = "network"
+    ADMIN = "adh6_admin"
+    SUPERADMIN = "adh6_superadmin"
+    TRESO = "adh6_treso"
+    VLAN_PROD = "cluster-prod"
+    VLAN_DEV = "cluster-dev"
+    VLAN_HOSTING = "cluster-hosting" 
 
 
 def _find_user(session: Session, username) -> User:
@@ -108,11 +118,11 @@ def uses_security(action, is_collection=False):
             if os.getenv("UNIT_TESTING"):
                 return f(cls, ctx, *args, **kwargs)
             token_info = connexion.context["token_info"] if "token_info" in connexion.context else None
+            username = connexion.context["user"] if "user" in connexion.context else None
             if token_info is None:
                 LOG.warning('could_not_extract_token_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("Not token informations")
-            user = connexion.context["user"] if "user" in connexion.context else (token_info["user"] if "user" in token_info else None)
-            if user is None:
+            if username is None:
                 LOG.warning('could_not_extract_user_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("You are not authenticated correctly")
             
@@ -121,15 +131,13 @@ def uses_security(action, is_collection=False):
             arguments = {}
             authorized = False
             assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
-            logged_user = _find_user(ctx.get(CTX_SQL_SESSION), user)
+            logged_user = _find_user(ctx.get(CTX_SQL_SESSION), username)
             obj = kwargs["filter_"] if "filter_" in kwargs else None
             arguments = merge_obj_to_dict(arguments, obj)
-            arguments["User"] = logged_user
-            arguments['Roles'] = logged_user.roles
+            arguments["user"] = logged_user
             if not hasattr(cls, '_security_definition'):
                 raise UnauthorizedError("You do not have enough permissions to access this")
             security_definition: SecurityDefinition = getattr(cls, '_security_definition')
-            print(arguments)
             if action not in security_definition.collection and action not in security_definition.item:
                 raise UnauthorizedError("The authentication has not been authorize on the server, please contact the administrator")
             if is_collection:
@@ -154,9 +162,8 @@ class OwnsExpression(Expression):
         super().__init__()
 
     def __call__(self, arguments):
-        user: User = arguments['User']
+        user: User = arguments['user']
         return user.id
-
 
 def owns(*props: List[property]) -> Expression:
     expression = TrueExpression()
@@ -164,3 +171,20 @@ def owns(*props: List[property]) -> Expression:
         expression &= BinaryExpression(prop, OwnsExpression(), operator=operator.eq)
     return expression
 
+class HasRoleExpression(Expression):
+    def __init__(self, enum_element: Roles):
+        super().__init__()
+        self.enum_element: Roles = enum_element
+
+    def __call__(self, arguments):
+        roles: List[str] = arguments['user'].roles
+        return self.enum_element.value in roles
+
+def has_any_role(roles: List[Roles]) -> Expression:
+    expression = TrueExpression()
+    for role in roles:
+        expression |= HasRoleExpression(role)
+    return expression
+
+def is_admin() -> Expression:
+    return HasRoleExpression(Roles.ADMIN)

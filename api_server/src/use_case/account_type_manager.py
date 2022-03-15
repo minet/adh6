@@ -1,19 +1,18 @@
 # coding=utf-8
 
 from src.entity.account_type import AccountType
-from src.entity.roles import Roles
 from src.exceptions import AccountTypeNotFoundError
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.decorator.security import SecurityDefinition, defines_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, Roles, has_any_role
 from src.use_case.interface.account_type_repository import AccountTypeRepository
 
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.USER
+        "read": has_any_role([Roles.USER])
     },
     collection={
-        "read": Roles.USER
+        "read": has_any_role([Roles.USER])
     }
 ))
 class AccountTypeManager(CRUDManager):

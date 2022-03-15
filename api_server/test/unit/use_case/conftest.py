@@ -3,19 +3,20 @@ from src.entity.membership import Membership
 
 from pytest import fixture
 
-from src.entity import AccountType
-from src.entity.account import Account
-from src.entity.admin import Admin
-from src.entity.device import Device
-from src.entity.member import Member
-from src.entity.payment_method import PaymentMethod
-from src.entity.port import Port
-from src.entity.product import Product
-from src.entity.roles import Roles
-from src.entity.room import Room
-from src.entity.switch import Switch
-from src.entity.transaction import Transaction
-from src.use_case.decorator.security import User
+from src.entity import (
+        AccountType,
+        Account,
+        Admin,
+        Device,
+        Member,
+        PaymentMethod,
+        Port,
+        Product,
+        Room,
+        Switch,
+        Transaction
+)
+from src.use_case.decorator.security import User, Roles
 from test.auth import TESTING_CLIENT
 from src.util.context import build_context
 

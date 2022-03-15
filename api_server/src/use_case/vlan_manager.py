@@ -3,14 +3,13 @@ from src.entity import AbstractVlan, Vlan
 from src.exceptions import VLANNotFoundError
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.vlan_repository import VlanRepository
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
-from src.entity.roles import Roles
+from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, uses_security
 from src.use_case.decorator.auto_raise import auto_raise
 from src.interface_adapter.http_api.decorator.log_call import log_call
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADMIN,
+        "read": is_admin(),
     }
 ))
 class VlanManager(CRUDManager):

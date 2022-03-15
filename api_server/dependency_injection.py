@@ -23,7 +23,6 @@ def get_obj_graph():
     ]
 
     def get_base_class(cls):
-        # print(cls.__name__, ": ", set(_base_interfaces)&set(cls.__bases__), " --- ", type(cls))
         if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
             return cls
         return get_base_class(cls.__bases__[0])

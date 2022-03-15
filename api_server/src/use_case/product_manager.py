@@ -1,21 +1,18 @@
 # coding=utf-8
-from src.use_case.decorator.security import SecurityDefinition, defines_security
-from src.entity.roles import Roles
+from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin
 from src.entity.abstract_product import AbstractProduct
 from src.exceptions import ProductNotFoundError
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.product_repository import ProductRepository
-from src.use_case.decorator.security import SecurityDefinition, defines_security
-from src.entity.roles import Roles
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADMIN,
-        "update": Roles.ADMIN,
+        "read": is_admin(),
+        "update": is_admin(),
     },
     collection={
-        "read": Roles.ADMIN,
-        "create" : Roles.ADMIN,
+        "read": is_admin(),
+        "create" : is_admin(),
     }
 ))
 class ProductManager(CRUDManager):

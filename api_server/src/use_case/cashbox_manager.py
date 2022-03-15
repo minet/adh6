@@ -1,8 +1,7 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to the cashbox. """
 from typing import Tuple
-from src.entity.roles import Roles
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, uses_security
 from src.use_case.interface.cashbox_repository import CashboxRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.util.context import log_extra
@@ -11,11 +10,11 @@ from src.util.log import LOG
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.ADMIN,
-        "update": Roles.ADMIN | Roles.TRESO
+        "read": is_admin(),
+        "update": has_any_role([Roles.ADMIN, Roles.TRESO])
     },
     collection={
-        "read": Roles.ADMIN
+        "read": is_admin()
     }
 ))
 class CashboxManager:

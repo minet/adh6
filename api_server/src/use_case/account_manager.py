@@ -1,18 +1,17 @@
 # coding=utf-8
 from src.entity import AbstractAccount, Account
-from src.entity.roles import Roles
 from src.exceptions import AccountNotFoundError
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.decorator.security import SecurityDefinition, defines_security, owns, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, owns, uses_security
 from src.use_case.interface.account_repository import AccountRepository
 
 
 @defines_security(SecurityDefinition(
     item={
-        "read": owns(Account.member.id) | owns(AbstractAccount.member.id) | Roles.ADMIN
+        "read": owns(Account.member.id) | owns(AbstractAccount.member.id) | is_admin()
     },
     collection={
-        "read": owns(AbstractAccount.member.id) | Roles.ADMIN
+        "read": owns(AbstractAccount.member.id) | is_admin()
     }
 ))
 class AccountManager(CRUDManager):
