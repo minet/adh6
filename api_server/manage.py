@@ -316,26 +316,21 @@ def check_migration_from_adh5():
 
 @manager.cli.command("api_key")
 @click.argument("login")
-def api_key(login: str):
+def api_key(login: str = "dev-api-key"):
     """Add seed data to the database."""
     session: Session = db.session
 
-    print("Generate api key and associated user")
-    adherent = Adherent(
-        login=login,
-    )
-    
-    api_keys = [str(uuid.uuid4()),"dev-api-key",Roles.SUPERADMIN.value],
-    session.bulk_save_objects([
+    print("Generate api key")
+    api_key = (str(uuid.uuid4()), login, Roles.SUPERADMIN.value)
+    session.add(
         ApiKey(
-            uuid=e[0],
-            name=e[1],
-            role=e[2]
-        ) for e in api_keys
-    ] + [
-        adherent
-    ])
+            uuid=api_key[0],
+            name=api_key[1],
+            role=api_key[2]
+        )
+    )
     session.commit()
+    print(f"generated key: {api_key[0]}")
 
 
 @manager.cli.command("seed")
