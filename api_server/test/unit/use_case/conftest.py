@@ -6,7 +6,6 @@ from pytest import fixture
 from src.entity import (
         AccountType,
         Account,
-        Admin,
         Device,
         Member,
         PaymentMethod,
@@ -46,10 +45,14 @@ def ctx(sample_member: Member):
 
 
 @fixture
-def sample_admin():
-    return Admin(
-        login=TESTING_CLIENT,
-        roles=[]
+def sample_admin(faker):
+    yield Member(
+        id=faker.random_digit_not_null(),
+        username=TESTING_CLIENT,
+        email=faker.email(),
+        first_name=faker.first_name(),
+        last_name=faker.last_name(),
+        departure_date=faker.date_this_year(after_today=True).isoformat(),
     )
 
 
@@ -97,7 +100,7 @@ def sample_membership_duration_account_payment_method(sample_member, sample_acco
 
 
 @fixture
-def sample_member_no_room(faker, sample_room):
+def sample_member_no_room(faker):
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),

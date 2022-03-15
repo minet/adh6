@@ -53,10 +53,6 @@ class InvalidDate(ValidationError):
         super().__init__(f'"{value}" is not a valid date')
 
 
-class InvalidAdmin(ValidationError):
-    pass  # pragma: no cover
-
-
 class InvalidMembershipDuration(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" is not a valid membership duration')
@@ -138,11 +134,6 @@ class NotFoundError(UserInputError):
     def __init__(self, what, v: Optional[str] = None):
         err_msg = what + ' ' + str(v) + ' was not found'
         super().__init__(err_msg)
-
-
-class AdminNotFoundError(NotFoundError):
-    def __init__(self, v=None):
-        super().__init__('admin', v)
 
 
 class AccountNotFoundError(NotFoundError):

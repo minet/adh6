@@ -27,7 +27,6 @@ from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.abstract_vlan import AbstractVlan
 from src.entity.account import Account
 from src.entity.account_type import AccountType
-from src.entity.admin import Admin
 from src.entity.bank import Bank
 from src.entity.body import Body
 from src.entity.bug_report import BugReport
@@ -54,7 +53,6 @@ from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransacti
 from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
 from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
 from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
-from src.entity.one_of_admin_member import OneOfAdminMember
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product

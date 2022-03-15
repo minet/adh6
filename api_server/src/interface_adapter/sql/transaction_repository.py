@@ -13,8 +13,7 @@ from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from src.entity import AbstractTransaction, Transaction, Product
-from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, AdminNotFoundError, ProductNotFoundError, \
-    TransactionNotFoundError, UnknownPaymentMethod
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, ProductNotFoundError, TransactionNotFoundError, UnknownPaymentMethod
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
@@ -77,11 +76,9 @@ class TransactionSQLRepository(TransactionRepository):
         now = datetime.now()
 
         admin_id = ctx.get(CTX_ADMIN).member
-        author_ref = session.query(Adherent) \
-            .filter(Adherent.id == admin_id) \
-            .filter(Adherent.admin is not None).one_or_none()
+        author_ref = session.query(Adherent).filter(Adherent.id == admin_id).one_or_none()
         if not author_ref:
-            raise AdminNotFoundError(abstract_transaction.author)
+            raise MemberNotFoundError(abstract_transaction.author)
 
         account_src = None
         if abstract_transaction.src is not None:

@@ -1,4 +1,3 @@
-from src.entity.abstract_member import AbstractMember
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import handle_error
@@ -16,12 +15,6 @@ class ProfileHandler:
     @log_call
     def profile(self, ctx):
         try:
-            user = self.member_manager.get_profile(ctx)
-            l, _ = self.member_manager.search(ctx=ctx, limit=1, filter_ = AbstractMember(username=user.login))
-            return {'admin': {
-                'login': user.login,
-                'member': serialize_response(l[0]),
-                'roles': user.roles
-            }}, 200
+            return serialize_response(self.member_manager.get_profile(ctx)), 200
         except Exception as e:
             return handle_error(ctx, e)

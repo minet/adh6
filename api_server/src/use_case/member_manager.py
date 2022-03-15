@@ -24,10 +24,10 @@ from src.exceptions import (
     PaymentMethodNotFoundError,
     AccountNotFoundError,
     MemberNotFoundError,
-    InvalidAdmin,
     MemberAlreadyExist,
     MembershipAlreadyExist,
     TransactionNotFoundError,
+    UnauthorizedError,
     UnknownPaymentMethod,
     LogFetchError,
     NoPriceAssignedToThatDuration,
@@ -57,7 +57,7 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": owns(Member.id) | is_admin(),
+        "read": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
         "admin": is_admin(),
         "profile": has_any_role([Roles.USER]),
         "password": owns(Member.id) | is_admin(),
@@ -104,10 +104,12 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("profile", is_collection=False)
-    def get_profile(self, ctx) -> User:
-        admin = ctx.get(CTX_ADMIN)
-
-        return admin
+    def get_profile(self, ctx) -> Member:
+        user: User = ctx.get(CTX_ADMIN)
+        m, _ = self.search(ctx, limit=1, filter_ = AbstractMember(id=user.id))
+        if not m:
+            raise UnauthorizedError("Not authorize to access this profile")
+        return m[0]
 
     @log_call
     @auto_raise
@@ -282,7 +284,6 @@ class MemberManager(CRUDManager):
         :raise IntMustBePositiveException
         :raise NoPriceAssignedToThatDurationException
         :raise MemberNotFound
-        :raise InvalidAdmin
         :raise UnknownPaymentMethod
         """
 
@@ -329,13 +330,8 @@ class MemberManager(CRUDManager):
 
         try:
             membership_created = self.membership_repository.create_membership(ctx, member_id, membership)
-        except InvalidAdmin:
-            LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
-            raise
-
         except UnknownPaymentMethod:
-            LOG.warning("create_membership_record_unknown_payment_method",
-                        extra=log_extra(ctx, payment_method=membership.payment_method))
+            LOG.warning("create_membership_record_unknown_payment_method", extra=log_extra(ctx, payment_method=membership.payment_method))
             raise
 
         LOG.info("create_membership_record", extra=log_extra(
