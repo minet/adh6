@@ -1,19 +1,18 @@
 # coding=utf-8
-from src.entity import AbstractAccount, Admin, Account, Member
+from src.entity import AbstractAccount, Account
 from src.entity.roles import Roles
-from src.exceptions import AccountNotFoundError, UnauthorizedError
+from src.exceptions import AccountNotFoundError
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, owns, uses_security
 from src.use_case.interface.account_repository import AccountRepository
 
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Account.member.username == Admin.login) | (AbstractAccount.member.username == Admin.login) | Roles.ADMIN
+        "read": owns(Account.member.id) | owns(AbstractAccount.member.id) | Roles.ADMIN
     },
     collection={
-        "read": (AbstractAccount.member.username == Admin.login) | Roles.ADMIN
+        "read": owns(AbstractAccount.member.id) | Roles.ADMIN
     }
 ))
 class AccountManager(CRUDManager):
@@ -23,5 +22,5 @@ class AccountManager(CRUDManager):
 
     @uses_security("read", is_collection=False)
     def get_cav_balance(self, ctx):
-        results, count = self.account_repository.search_by(ctx, filter_=AbstractAccount(compte_courant=True))
+        results, _ = self.account_repository.search_by(ctx, filter_=AbstractAccount(compte_courant=True))
         return sum(list(map(lambda a: a.balance, results)))

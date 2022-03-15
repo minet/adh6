@@ -1,12 +1,12 @@
 # coding=utf-8
-from src.entity import AbstractDevice, Device, Admin
+from src.entity import AbstractDevice, Device
+from src.entity.member import Member
 from src.entity.roles import Roles
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
-    DeviceAlreadyExists, DevicesLimitReached
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, owns, uses_security
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IpAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
@@ -14,14 +14,14 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
-        "update": (Device.member.username == Admin.login) | (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
-        "delete": (Device.member.username == Admin.login) | (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
+        "read": owns(Device.member.id) | owns(AbstractDevice.member) | Roles.ADMIN,
+        "update": owns(Device.member.id) | owns(Device.member) | owns(AbstractDevice.member) | Roles.ADMIN,
+        "delete": owns(Device.member.id) | Roles.ADMIN,
         "admin": Roles.ADMIN
     },
     collection={
-        "read": (AbstractDevice.member.username == Admin.login) | Roles.ADMIN,
-        "create": (Device.member.username == Admin.login) | Roles.ADMIN
+        "read": owns(AbstractDevice.member) | Roles.ADMIN,
+        "create": owns(Device.member) | Roles.ADMIN
     }
 ))
 class DeviceManager(CRUDManager):

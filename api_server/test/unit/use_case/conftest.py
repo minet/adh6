@@ -15,6 +15,7 @@ from src.entity.roles import Roles
 from src.entity.room import Room
 from src.entity.switch import Switch
 from src.entity.transaction import Transaction
+from src.use_case.decorator.security import User
 from test.auth import TESTING_CLIENT
 from src.util.context import build_context
 
@@ -35,9 +36,9 @@ def mock_test_configuration(monkeypatch):
     monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois'})
 
 @fixture
-def ctx(sample_member):
+def ctx(sample_member: Member):
     return build_context(
-        admin=sample_member,
+        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
         testing=True,
         roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
     )

@@ -1,6 +1,6 @@
 import operator
 
-from src.entity.util.logic import BinaryExpression, Expression, NestedPropertyExpression
+from src.entity.util.logic import BinaryExpression, NestedPropertyExpression
 
 
 class entity_property(property):

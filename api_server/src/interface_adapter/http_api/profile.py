@@ -16,14 +16,12 @@ class ProfileHandler:
     @log_call
     def profile(self, ctx):
         try:
-            admin = self.member_manager.get_profile(ctx)
-            if isinstance(admin.member, int):
-                l, _ = self.member_manager.search(ctx=ctx, limit=1, filter_ = AbstractMember(username=admin.login))
-                admin.member = l[0]
+            user = self.member_manager.get_profile(ctx)
+            l, _ = self.member_manager.search(ctx=ctx, limit=1, filter_ = AbstractMember(username=user.login))
             return {'admin': {
-                'login': admin.login,
-                'member': serialize_response(admin.member),
-                'roles': admin.roles
+                'login': user.login,
+                'member': serialize_response(l[0]),
+                'roles': user.roles
             }}, 200
         except Exception as e:
             return handle_error(ctx, e)

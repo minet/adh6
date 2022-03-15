@@ -4,7 +4,7 @@ from pytest_lazyfixture import lazy_fixture
 
 from test.auth import TESTING_CLIENT
 from src.interface_adapter.sql.model.models import Device
-from test.integration.resource import logs_contains
+from test.integration.resource import TEST_HEADERS, logs_contains
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def client(wired_device,
 def test_device_log_create_wireless(client, caplog, device_dict):
     with caplog.at_level(logging.INFO):
         from test.integration.test_device import test_device_post
-        test_device_post(client, device_dict)
+        test_device_post(client, device_dict, TEST_HEADERS, 201)
 
     assert logs_contains(caplog,
                          'device_manager_update_or_create',
@@ -47,7 +47,7 @@ def test_device_log_create_wireless(client, caplog, device_dict):
 def test_device_log_update(client, caplog, device: Device, device_dict):
     with caplog.at_level(logging.INFO):
         from test.integration.test_device import test_device_patch
-        test_device_patch(client, device, device_dict)
+        test_device_patch(client, device, device_dict, TEST_HEADERS, 204)
 
     assert logs_contains(caplog,
                          'device_manager_partially_update',
@@ -62,9 +62,8 @@ def test_device_log_update(client, caplog, device: Device, device_dict):
 def test_device_log_delete(client, caplog, device: Device):
     with caplog.at_level(logging.INFO):
         from test.integration.test_device import test_device_delete
-        test_device_delete(client, device, 204)
+        test_device_delete(client, device, TEST_HEADERS, 204)
 
     assert logs_contains(caplog,
                          'device_manager_delete',
-                         user=TESTING_CLIENT,
                          device_id=device.id)

@@ -50,6 +50,8 @@ INVALID_MAC = [
 ]
 
 TEST_HEADERS = {"Authorization": "Bearer TEST_TOKEN"}
+TEST_HEADERS_SAMPLE = {"Authorization": "Bearer TEST_TOKEN_SAMPLE"}
+TEST_HEADERS_SAMPLE2 = {"Authorization": "Bearer TEST_TOKEN_SAMPLE2"}
 
 INVALID_TRANSACTION_VALUE = [
     "",

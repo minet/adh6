@@ -1,13 +1,11 @@
 # coding=utf-8
 from types import MappingProxyType
+from typing import Optional
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN, CTX_TESTING, CTX_REQUEST_ID, CTX_REQUEST_URL, CTX_ROLES
-from src.entity import Admin
 
-
-def build_context(ctx: MappingProxyType = None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None):
+def build_context(ctx: Optional[MappingProxyType]=None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None):
     """
-
     :rtype:
     """
     new_fields = {
@@ -29,13 +27,13 @@ def build_context(ctx: MappingProxyType = None, session=None, admin=None, testin
 
 
 def log_extra(context: MappingProxyType, **extra_fields):
-    admin_login = None
-    if (admin := context.get(CTX_ADMIN)) and isinstance(admin, Admin):
-        admin_login = admin.login
+    user_login = None
+    if (user := context.get(CTX_ADMIN)):
+        user_login = user.login
 
     infos = {
         'request_uuid': context.get(CTX_REQUEST_ID),
-        'user': admin_login,
+        'user': user_login,
         'testing': str(context.get(CTX_TESTING) or False),
         'url': context.get(CTX_REQUEST_URL),
         'roles': context.get(CTX_ROLES),

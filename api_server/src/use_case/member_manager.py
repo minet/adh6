@@ -41,7 +41,7 @@ from src.exceptions import (
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, owns, uses_security, User
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
@@ -59,19 +59,19 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Member.username == Admin.login) | Roles.ADMIN,
+        "read": owns(Member.id) | Roles.ADMIN,
         "admin": Roles.ADMIN,
         "profile": Roles.USER,
-        "password": (Member.username == Admin.login) | Roles.ADMIN,
-        "membership": (Member.username == Admin.login) | Roles.ADMIN,
-        "create": (Member.username == Admin.login) | Roles.ADMIN,
-        "update": (Member.username == Admin.login) | Roles.ADMIN,
+        "password": owns(Member.id) | Roles.ADMIN,
+        "membership": owns(Member.id) | Roles.ADMIN,
+        "create": owns(Member.id) | Roles.ADMIN,
+        "update": owns(Member.id) | Roles.ADMIN,
         "delete": Roles.ADMIN
     },
     collection={
-        "read": (Member.username == Admin.login) | Roles.ADMIN,
-        "create": (Member.username == Admin.login) | Roles.ADMIN,
-        "membership": (Member.username == Admin.login) | Roles.ADMIN
+        "read": owns(Member.id) | Roles.ADMIN,
+        "create": owns(Member.id) | Roles.ADMIN,
+        "membership": owns(Member.id) | Roles.ADMIN
     }
 ))
 class MemberManager(CRUDManager):
@@ -106,7 +106,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("profile", is_collection=False)
-    def get_profile(self, ctx) -> Admin:
+    def get_profile(self, ctx) -> User:
         admin = ctx.get(CTX_ADMIN)
 
         return admin

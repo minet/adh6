@@ -1,42 +1,82 @@
+import operator
 import os
 from functools import wraps
-from typing import Optional
+from typing import List, Optional
 
 import connexion
 
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
-from src.entity import Admin
 from src.entity.roles import Roles
+from src.entity.util.logic import BinaryExpression, Expression, TrueExpression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, UnauthorizedError
-from src.interface_adapter.sql.model.models import Adherent
+from src.interface_adapter.sql.model.models import Adherent, ApiKey
 from src.util.context import log_extra, build_context
 from src.util.log import LOG
 
+class User(object):
+    def __init__(self, id: Optional[int] = None, login: Optional[str] = None, roles: List[str] = []) -> None:
+        self._id = id
+        self._login = login
+        self._roles = roles
 
-def _find_admin(session: Session, username) -> Admin:
     """
-    The SQL table 'Utilisateurs' is not the source of truth for all the admins. That means that it is populated just so
-    we can use admin_id for the entries. This table is not used for access control at all!
+    The id is None when connection throught an api key
+    or is equal to the one of the user on the plateform
+    """
+    @property
+    def id(self):
+        return self._id
+    @id.setter
+    def id(self, id):
+        self._id = id
+   
+    """
+    Login of the user either connecting with an api key nor with a normal connexion
+    """
+    @property
+    def login(self):
+        return self._login
+    @login.setter
+    def login(self, login):
+        self._login = login
+    
+    """
+    Roles of the user in the plateform
+    """
+    @property
+    def roles(self):
+        return self._roles
+    @roles.setter
+    def roles(self, roles):
+        self._roles = roles
 
-    This means when a new admin connects to ADH, she/he is not in the table yet, and we must create it. Here we also
-    assume that the admin is authenticated before this function is called.
+
+def _find_user(session: Session, username) -> User:
+    """
+    If a user is found in the ApiKey or the Members return it. This function only 
+    fuse all the informations regarding the user that do the request, it does not
+    handle the authentication directly
     """
 
-    query = session.query(Adherent)
-    query = query.filter((Adherent.login == username) | (Adherent.ldap_login == username))
-    adherent: Optional[Adherent] = query.one_or_none()
+    adherent: Optional[Adherent] = session.query(Adherent).filter((Adherent.login == username) | (Adherent.ldap_login == username)).one_or_none()
+    api_user: Optional[ApiKey] = session.query(ApiKey).filter(ApiKey.name == username).one_or_none()
 
-    if adherent is not None:
-        roles = connexion.context["token_info"]["groups"]
-        if adherent.is_naina and "adh6_admin" not in roles:
-            roles += ["adh6_admin"]
-        if Roles.USER.value not in roles:
-            roles.append(Roles.USER.value)
-        return Admin(login=adherent.login, member=adherent.id, roles=roles)
-    else:
+    exists = adherent is not None or api_user is not None
+
+    if not exists:
         raise MemberNotFoundError(username)
+
+    user = User(login=username, roles=connexion.context["token_info"]["groups"])
+    if adherent is not None:
+        user.id = adherent.id
+        if adherent.is_naina and "adh6_admin" not in user.roles:
+            user.roles.append("adh6_admin")
+    
+    if Roles.USER.value not in user.roles:
+        user.roles.append(Roles.USER.value)
+    return user 
 
 
 class SecurityDefinition(dict):
@@ -71,7 +111,6 @@ def uses_security(action, is_collection=False):
             if token_info is None:
                 LOG.warning('could_not_extract_token_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("Not token informations")
-            
             user = connexion.context["user"] if "user" in connexion.context else (token_info["user"] if "user" in token_info else None)
             if user is None:
                 LOG.warning('could_not_extract_user_info_kwargs', extra=log_extra(ctx))
@@ -82,34 +121,46 @@ def uses_security(action, is_collection=False):
             arguments = {}
             authorized = False
             assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
-            admin = _find_admin(ctx.get(CTX_SQL_SESSION), user)
-            LOG.warning('found_roles', extra=log_extra(ctx, roles=admin.roles))
-
+            logged_user = _find_user(ctx.get(CTX_SQL_SESSION), user)
             obj = kwargs["filter_"] if "filter_" in kwargs else None
             arguments = merge_obj_to_dict(arguments, obj)
-            arguments = merge_obj_to_dict(arguments, admin)
-            arguments['Roles'] = admin.roles
-
+            arguments["User"] = logged_user
+            arguments['Roles'] = logged_user.roles
             if not hasattr(cls, '_security_definition'):
                 raise UnauthorizedError("You do not have enough permissions to access this")
             security_definition: SecurityDefinition = getattr(cls, '_security_definition')
-
+            print(arguments)
             if action not in security_definition.collection and action not in security_definition.item:
                 raise UnauthorizedError("The authentication has not been authorize on the server, please contact the administrator")
             if is_collection:
                 authorized = action in security_definition.collection and security_definition.collection[action](arguments)
             else:
                 authorized = action in security_definition.item and security_definition.item[action](arguments)
-            print(admin.roles) 
-            if admin.roles is not None and Roles.SUPERADMIN.value in admin.roles:
+            if logged_user.roles is not None and Roles.SUPERADMIN.value in logged_user.roles:
                 authorized = True
-            
+
             if not authorized:
                 raise UnauthorizedError("You do not have enough permissions to access this")
 
-            ctx = build_context(ctx=ctx, admin=admin, roles=admin.roles)
+            ctx = build_context(ctx=ctx, admin=logged_user, roles=logged_user.roles)
             return f(cls, ctx, *args, **kwargs)
 
         return wrapper
 
     return decorator
+
+class OwnsExpression(Expression):
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, arguments):
+        user: User = arguments['User']
+        return user.id
+
+
+def owns(*props: List[property]) -> Expression:
+    expression = TrueExpression()
+    for prop in props:
+        expression &= BinaryExpression(prop, OwnsExpression(), operator=operator.eq)
+    return expression
+
