@@ -1,9 +1,7 @@
-import {Injectable} from '@angular/core';
-import {AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService} from './api';
-import {Observable, of} from 'rxjs';
-import {map, share} from 'rxjs/operators';
-import {Ability, AbilityBuilder} from '@casl/ability';
-import Swal from 'sweetalert2';
+import { Injectable } from '@angular/core';
+import { AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService } from './api';
+import { Observable, of } from 'rxjs';
+import { map, share } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -34,11 +32,7 @@ export class AppConstantsService {
       // return the `Observable` for the ongoing request
       return this.currentMember$;
     } else {
-      return this.miscService.profile().pipe(
-        map(profile => {
-          return profile.admin.member as Member;
-        })
-      );
+      return this.miscService.profile();
     }
   }
 

@@ -1,13 +1,10 @@
 # coding=utf-8
-from src.constants import CTX_ADMIN
-from src.entity import AbstractDevice, Device, Member, Admin, device
-from src.entity.roles import Roles
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, UnauthorizedError, \
-    DeviceAlreadyExists, DevicesLimitReached
+from src.entity import AbstractDevice, Device
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, owns, uses_security
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IpAllocator
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
@@ -15,14 +12,14 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "update": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "delete": (Device.member.id == Admin.member) | (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "admin": Roles.ADMIN
+        "read": owns(Device.member.id) | owns(AbstractDevice.member) | is_admin(),
+        "update": owns(Device.member.id) | owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
+        "delete": owns(Device.member.id) | is_admin(),
+        "admin": is_admin()
     },
     collection={
-        "read": (AbstractDevice.member == Admin.member) | Roles.ADMIN,
-        "create": (Device.member == Admin.member) | Roles.ADMIN
+        "read": owns(AbstractDevice.member) | is_admin(),
+        "create": owns(Device.member) | is_admin()
     }
 ))
 class DeviceManager(CRUDManager):
@@ -87,15 +84,6 @@ class DeviceManager(CRUDManager):
 
             return {"vendorname": vendor}
 
-    @auto_raise
-    def delete_access_control_function(self, ctx, roles, f, args, kwargs):
-        admin = ctx.get(CTX_ADMIN)
-        if 'device_id' in kwargs:
-            device, count = self.repository.search_by(ctx, filter_=AbstractDevice(id=kwargs['device_id']))
-            if count >= 1:
-                if device[0].member.id == admin.id:
-                    return args, kwargs, True
-        return args, kwargs, False
 
     @log_call
     @auto_raise
@@ -128,8 +116,6 @@ class DeviceManager(CRUDManager):
         if is_member_active(device.member):
             if device.ipv4_address is None or override:
                 if device.connection_type == "wired":
-                    print(device)
-                    print(device.member)
                     taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
                         connection_type=device.connection_type
                     ))

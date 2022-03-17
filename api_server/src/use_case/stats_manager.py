@@ -1,16 +1,14 @@
 # coding=utf-8
-from src.entity import AbstractAccount
-from src.entity.roles import Roles
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, Roles, defines_security, has_any_role, uses_security
 from src.use_case.interface.logs_repository import LogsRepository
 
 
 @defines_security(SecurityDefinition(
     item={
-        "read": Roles.USER
+        "read": has_any_role([Roles.USER])
     },
     collection={
-        "read": Roles.USER
+        "read": has_any_role([Roles.USER])
     }
 ))
 class StatsManager:

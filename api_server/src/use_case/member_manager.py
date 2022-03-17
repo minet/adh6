@@ -4,7 +4,7 @@ from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
 import uuid
 
-from src.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -12,11 +12,9 @@ from src.entity import (
     AbstractAccount, Account,
     AbstractPaymentMethod, PaymentMethod,
     AccountType,
-    Admin
 )
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.null import Null
-from src.entity.roles import Roles
 from src.entity.transaction import Transaction
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
@@ -26,10 +24,10 @@ from src.exceptions import (
     PaymentMethodNotFoundError,
     AccountNotFoundError,
     MemberNotFoundError,
-    InvalidAdmin,
     MemberAlreadyExist,
     MembershipAlreadyExist,
     TransactionNotFoundError,
+    UnauthorizedError,
     UnknownPaymentMethod,
     LogFetchError,
     NoPriceAssignedToThatDuration,
@@ -41,7 +39,7 @@ from src.exceptions import (
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import SecurityDefinition, defines_security, uses_security
+from src.use_case.decorator.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, owns, uses_security, User
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
@@ -59,18 +57,19 @@ import re
 
 @defines_security(SecurityDefinition(
     item={
-        "read": (Member.id == Admin.member) | Roles.ADMIN,
-        "admin": Roles.ADMIN,
-        "profile": Roles.USER,
-        "password": (Member.id == Admin.member) | Roles.ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADMIN,
-        "update": (Member.id == Admin.member) | Roles.ADMIN
+        "read": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
+        "admin": is_admin(),
+        "profile": has_any_role([Roles.USER]),
+        "password": owns(Member.id) | is_admin(),
+        "membership": owns(Member.id) | is_admin(),
+        "create": owns(Member.id) | is_admin(),
+        "update": owns(Member.id) | is_admin(),
+        "delete": is_admin()
     },
     collection={
-        "read": (Member.id == Admin.member) | Roles.ADMIN,
-        "create": (Member.id == Admin.member) | Roles.ADMIN,
-        "membership": (Member.id == Admin.member) | Roles.ADMIN
+        "read": owns(Member.id) | is_admin(),
+        "create": owns(Member.id) | is_admin(),
+        "membership": owns(Member.id) | is_admin()
     }
 ))
 class MemberManager(CRUDManager):
@@ -105,11 +104,12 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("profile", is_collection=False)
-    def get_profile(self, ctx):
-        admin = ctx.get(CTX_ADMIN)
-        roles = ctx.get(CTX_ROLES)
-
-        return admin, roles
+    def get_profile(self, ctx) -> Member:
+        user: User = ctx.get(CTX_ADMIN)
+        m, _ = self.search(ctx, limit=1, filter_ = AbstractMember(id=user.id))
+        if not m:
+            raise UnauthorizedError("Not authorize to access this profile")
+        return m[0]
 
     @log_call
     @auto_raise
@@ -284,7 +284,6 @@ class MemberManager(CRUDManager):
         :raise IntMustBePositiveException
         :raise NoPriceAssignedToThatDurationException
         :raise MemberNotFound
-        :raise InvalidAdmin
         :raise UnknownPaymentMethod
         """
 
@@ -331,13 +330,8 @@ class MemberManager(CRUDManager):
 
         try:
             membership_created = self.membership_repository.create_membership(ctx, member_id, membership)
-        except InvalidAdmin:
-            LOG.warning("create_membership_record_admin_not_found", extra=log_extra(ctx))
-            raise
-
         except UnknownPaymentMethod:
-            LOG.warning("create_membership_record_unknown_payment_method",
-                        extra=log_extra(ctx, payment_method=membership.payment_method))
+            LOG.warning("create_membership_record_unknown_payment_method", extra=log_extra(ctx, payment_method=membership.payment_method))
             raise
 
         LOG.info("create_membership_record", extra=log_extra(

@@ -5,8 +5,9 @@ from src.entity.product import Product
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, CTX_ADMIN
-from src.exceptions import AccountNotFoundError, InvalidAdmin, MemberNotFoundError, UnknownPaymentMethod, MemberTransactionAmountMustBeGreaterThan
-from src.interface_adapter.sql.model.models import Admin, Adherent, PaymentMethod, Transaction, Account
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, UnknownPaymentMethod, MemberTransactionAmountMustBeGreaterThan
+from src.interface_adapter.sql.model.models import Adherent, PaymentMethod, Transaction, Account
+from src.use_case.decorator.security import User
 from src.use_case.interface.money_repository import MoneyRepository
 from src.util.context import log_extra
 from src.util.log import LOG
@@ -14,7 +15,7 @@ from src.util.log import LOG
 
 class MoneySQLRepository(MoneyRepository):
     def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str,
-                                  payment_method_name: str) -> None:
+                                  payment_method_name: str) -> None: #TODO: Add author as an argument, this function should not check the author with the context
         if amount_in_cents < 900:
             raise MemberTransactionAmountMustBeGreaterThan(str(amount_in_cents))
 
@@ -25,11 +26,11 @@ class MoneySQLRepository(MoneyRepository):
                                   payment_method=payment_method_name))
         now = datetime.now()
         session: Session = ctx.get(CTX_SQL_SESSION)
-        admin = ctx.get(CTX_ADMIN)
+        admin: User = ctx.get(CTX_ADMIN)
 
-        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
+        admin_sql = session.query(Adherent).filter(Adherent.id == admin.id).one_or_none()
         if admin_sql is None:
-            raise InvalidAdmin()
+            raise MemberNotFoundError(admin.login)
 
         adherent = session.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if adherent is None:

@@ -76,6 +76,11 @@ export class MiscService {
 
         let headers = this.defaultHeaders;
 
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
+
         // authentication (OAuth2) required
         if (this.configuration.accessToken) {
             const accessToken = typeof this.configuration.accessToken === 'function'
@@ -127,6 +132,11 @@ export class MiscService {
     public getLabels(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
 
         // authentication (OAuth2) required
         if (this.configuration.accessToken) {
@@ -199,7 +209,7 @@ export class MiscService {
 
     /**
      * Introspection endpoint
-     * This endpoint returns information about the currently logged-in user, such as their roles. 
+     * This endpoint returns information about the currently logged-in user. 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
@@ -210,6 +220,11 @@ export class MiscService {
     public profile(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
 
         // authentication (OAuth2) required
         if (this.configuration.accessToken) {
@@ -256,6 +271,11 @@ export class MiscService {
     public stats(observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         let headers = this.defaultHeaders;
+
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
 
         // authentication (OAuth2) required
         if (this.configuration.accessToken) {

@@ -2,13 +2,14 @@ from datetime import datetime
 from uuid import uuid4
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
-
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from test.integration.resource import api_key
+from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
+    ApiKey,
     Membership,
-    AccountType, Adherent, Admin, Chambre,
+    AccountType, Adherent, Chambre,
     PaymentMethod, Vlan, Device, Switch, Port
 )
 from test.integration.context import tomorrow
@@ -18,6 +19,8 @@ def prep_db(*args):
     _db.create_all()
     session = _db.session()
     session.add_all(args)
+    session.add(sample_member_admin())
+    session.add(sample_api_key())
     session.commit()
 
 def close_db():
@@ -128,11 +131,11 @@ def wired_device2(faker, sample_member):
 
 
 @pytest.fixture
-def wireless_device(faker, sample_member2):
+def wireless_device(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member2,
+        adherent=sample_member,
         type=DeviceType.wireless.value,
         ip=faker.ipv4_private(),
         ipv6=faker.ipv6(),
@@ -140,7 +143,7 @@ def wireless_device(faker, sample_member2):
 
 
 @pytest.fixture
-def wireless_device_dict(sample_member3):
+def wireless_device_dict(sample_member):
     '''
     Device that will be inserted/updated when tests are run.
     It is not present in the client by default
@@ -149,21 +152,21 @@ def wireless_device_dict(sample_member3):
         'mac': '01-23-45-67-89-AC',
         'connectionType': 'wireless',
         'type': 'wireless',
-        'member': sample_member3.id,
+        'member': sample_member.id,
         'ipv4Address': None,
         'ipv6Address': None
     }
 
 
 @pytest.fixture
-def wired_device_dict(sample_member3):
+def wired_device_dict(sample_member):
     yield {
         'mac': '01-23-45-67-89-AD',
         'ipv4Address': '127.0.0.1',
         'ipv6Address': 'dbb1:39b7:1e8f:1a2a:3737:9721:5d16:166',
         'connectionType': 'wired',
         'type': 'wired',
-        'member': sample_member3.id,
+        'member': sample_member.id,
     }
 
 
@@ -194,24 +197,22 @@ def sample_room2(sample_vlan):
     )
 
 
-@pytest.fixture
-def sample_admin():
-    yield Admin(
-        id=1,
-        roles=""
+def sample_member_admin():
+    return Adherent(
+        login=TESTING_CLIENT,
+        mail="test@example.com",
+        nom="Test",
+        prenom="test",
+        password="",
     )
 
-@pytest.fixture
-def sample_member_admin(sample_admin):
-    yield Adherent(
-                login=TESTING_CLIENT,
-                mail="test@example.com",
-                nom="Test",
-                prenom="test",
-                password="",
-                admin=sample_admin
-            )
 
+def sample_api_key():
+    return ApiKey(
+        name="api_key",
+        uuid=api_key,
+        role="adh6_superadmin"
+    )
 
 @pytest.fixture
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, ):
@@ -251,7 +252,7 @@ def sample_member(faker, sample_room1):
         nom='Dubois',
         prenom='Jean-Louis',
         mail='j.dubois@free.fr',
-        login='dubois_j',
+        login=SAMPLE_CLIENT,
         password='a',
         chambre=sample_room1,
         date_de_depart=tomorrow,
@@ -281,7 +282,7 @@ def sample_member3(sample_room1):
         nom='Dupont',
         prenom='Jean',
         mail='test@oyopmail.fr',
-        login='dupontje',
+        login=SAMPLE_CLIENT2,
         commentaires='abcdef',
         password='b',
         chambre=sample_room1,

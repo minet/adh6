@@ -3,23 +3,23 @@
 Implements everything related to SNMP-related actions
 """
 from src.constants import CTX_ROLES
-from src.entity.roles import Roles
 from src.entity.port import Port
 from src.entity.switch import Switch
 from src.exceptions import NetworkManagerReadError, UnauthorizedError
 from src.interface_adapter.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
 from src.use_case.decorator.auto_raise import auto_raise
-from src.use_case.decorator.security import defines_security, uses_security, SecurityDefinition
+from src.use_case.decorator.security import defines_security, has_any_role, uses_security, SecurityDefinition, Roles
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
 
 @defines_security(SecurityDefinition(
     item={
-        "vlan": Roles.SUPERADMIN | Roles.ADMIN,
+        "network": has_any_role([Roles.ADMIN, Roles.NETWORK]),
     },
 ))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
-
-    def get_port_status(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    @uses_security("network")
+    @auto_raise
+    def get_port_status(self, ctx, switch: Switch, port: Port) -> bool:
         """
         Retrieve the status of a port.
 
@@ -38,6 +38,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def update_port_status(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update the status of a port.
@@ -57,8 +59,9 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                 return set_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAdminStatus', port.oid, 1)
         except NetworkManagerReadError:
             raise
-        pass  # pragma: no cover
 
+    @uses_security("network")
+    @auto_raise
     def get_port_vlan(self, ctx, switch: Switch = None, port: Port = None) -> int:
         """
         Get the VLAN assigned to a port.
@@ -80,7 +83,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     
-    @uses_security("vlan")
+    @uses_security("network")
     @auto_raise
     def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> str:
         """
@@ -88,9 +91,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
 
         :raise PortNotFound
         """
-        #pass  # pragma: no cover
-        #LOG.debug("switch_network_manager_get_port_vlan_called", extra=log_extra(ctx, port=port))
-
         if switch is None:
             raise NetworkManagerReadError("SNMP read error: switch object was None")
         if port is None:
@@ -100,9 +100,12 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             roles = ctx.get(CTX_ROLES)
             vlan = int(vlan)
             if (
-                ((vlan == 3 or vlan == 103) and Roles.VLAN_DEV.value not in roles)
-                or ((vlan == 2 or vlan == 102) and Roles.VLAN_PROD.value not in roles)
-                or ((vlan == 104) and Roles.VLAN_HOSTING.value not in roles)
+                Roles.NETWORK.value not in roles and
+                (
+                    ((vlan == 3 or vlan == 103) and Roles.VLAN_DEV.value not in roles)
+                    or ((vlan == 2 or vlan == 102) and Roles.VLAN_PROD.value not in roles)
+                    or ((vlan == 104) and Roles.VLAN_HOSTING.value not in roles)
+                )
             ):
                 raise UnauthorizedError()
 
@@ -110,6 +113,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except Exception as e:
             raise e
 
+    @uses_security("network")
+    @auto_raise
     def get_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -130,6 +135,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def update_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> str:
         """
         Update whether MAB should be active on a port.
@@ -154,6 +161,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def get_port_auth(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -174,6 +183,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def update_port_auth(self, ctx, switch: Switch = None, port: Port = None) -> None:
         """
         Update whether MAB should be active on a port.
@@ -199,6 +210,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def get_port_use(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -219,6 +232,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def get_port_speed(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -239,6 +254,8 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
+    @uses_security("network")
+    @auto_raise
     def get_port_alias(self, ctx, switch: Switch = None, port: Port = None) -> bool:
         """
         Retrieve whether MAB is active on a port.

@@ -12,6 +12,13 @@ from src.interface_adapter.sql.util.rubydiff import rubydiff
 
 db = SQLAlchemy()
 
+class ApiKey(db.Model):
+    __tablename__ = 'api_keys'
+
+    uuid = Column(String(36), primary_key=True)
+    name = Column(String(255), nullable=False)
+    role = Column(String(255), nullable=False)
+
 class Vlan(db.Model):
     __tablename__ = 'vlans'
 
@@ -50,13 +57,14 @@ class Chambre(db.Model, RubyHashTrackable):
     def get_related_member(self):
         return self
 
-
+# Suppression of this model from adh6 because it is unused yet do not do the migration yet
+"""
 class Admin(db.Model):
     __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
     roles = Column(String(255))
-
+"""
 
 class Adherent(db.Model, RubyHashTrackable):
     __tablename__ = 'adherents'
@@ -83,13 +91,13 @@ class Adherent(db.Model, RubyHashTrackable):
     ldap_login = Column(String(255))
     is_naina = Column(Boolean, default=False, nullable=False)
 
-    admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
+    # admin_id = Column(Integer, ForeignKey(Admin.id), nullable=True)
 
     datesignedminet = Column(DateTime, nullable=True)
     datesignedhosting = Column(DateTime, nullable=True)
     mailinglist = Column(Boolean, nullable=False, default=True)
 
-    admin = relationship('Admin', foreign_keys=[admin_id])
+    # admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])
     memberships = relationship(
         'Membership', 

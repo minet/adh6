@@ -1,22 +1,22 @@
-from flask import Flask
 from src.constants import MembershipStatus
 from src.entity.membership import Membership
 
 from pytest import fixture
 
-from src.entity import AccountType
-from src.entity.account import Account
-from src.entity.admin import Admin
-from src.entity.device import Device
-from src.entity.member import Member
-from src.entity.payment_method import PaymentMethod
-from src.entity.port import Port
-from src.entity.product import Product
-from src.entity.roles import Roles
-from src.entity.room import Room
-from src.entity.switch import Switch
-from src.entity.transaction import Transaction
-from src.interface_adapter.http_api.auth import TESTING_CLIENT
+from src.entity import (
+        AccountType,
+        Account,
+        Device,
+        Member,
+        PaymentMethod,
+        Port,
+        Product,
+        Room,
+        Switch,
+        Transaction
+)
+from src.use_case.decorator.security import User, Roles
+from test.auth import TESTING_CLIENT
 from src.util.context import build_context
 
 @fixture(autouse=True)
@@ -36,19 +36,23 @@ def mock_test_configuration(monkeypatch):
     monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois'})
 
 @fixture
-def ctx(sample_member):
+def ctx(sample_member: Member):
     return build_context(
-        admin=sample_member,
+        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
         testing=True,
         roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
     )
 
 
 @fixture
-def sample_admin():
-    return Admin(
-        login=TESTING_CLIENT,
-        roles=[]
+def sample_admin(faker):
+    yield Member(
+        id=faker.random_digit_not_null(),
+        username=TESTING_CLIENT,
+        email=faker.email(),
+        first_name=faker.first_name(),
+        last_name=faker.last_name(),
+        departure_date=faker.date_this_year(after_today=True).isoformat(),
     )
 
 
@@ -96,7 +100,7 @@ def sample_membership_duration_account_payment_method(sample_member, sample_acco
 
 
 @fixture
-def sample_member_no_room(faker, sample_room):
+def sample_member_no_room(faker):
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),

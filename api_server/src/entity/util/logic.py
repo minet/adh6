@@ -1,16 +1,18 @@
-class Expression:
+from abc import abstractmethod
 
+
+class Expression:
     def __init__(self, *terms):
         self._terms = terms
 
     def __call__(self, arguments):
         values = []
         for term in self._terms:
-
             if isinstance(term, property):
-                if term.fget.__qualname__ not in arguments:
-                    return False
-                values.append(arguments[term.fget.__qualname__])
+                if term.fget is not None:
+                    if term.fget.__qualname__ not in arguments:
+                        return False
+                    values.append(arguments[term.fget.__qualname__])
             elif isinstance(term, Expression):
                 values.append(term(arguments))
             else:
@@ -23,7 +25,8 @@ class Expression:
 
     def __or__(self, other):
         return BinaryExpression(self, other, operator=lambda x, y: x or y)
-
+    
+    @abstractmethod
     def _operate(self, *values):
         raise NotImplementedError
 
@@ -31,7 +34,8 @@ class Expression:
         ret = ""
         for term in self._terms:
             if isinstance(term, property):
-                ret += term.fget.__qualname__
+                if term.fget is not None:
+                    ret += term.fget.__qualname__
             elif isinstance(term, Expression):
                 ret += str(term)
             else:
@@ -72,3 +76,14 @@ class BinaryExpression(Expression):
 
     def __repr__(self):
         return "(" + str(self._terms[0]) + str(self._operator) + str(self._terms[1]) + ")"
+
+class TrueExpression(Expression):
+    def __init__(self):
+        super().__init__()
+
+    def _operate(self, *values):
+        return True
+
+    def __repr__(self):
+        return "(true)"
+

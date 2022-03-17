@@ -29,7 +29,6 @@ class VLANSQLRepository(VlanRepository):
         vlan = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
         if not vlan:
             raise VLANNotFoundError(vlan_number)
-        print(vlan)
         return _map_vlan_sql_to_entity(vlan)
 
 

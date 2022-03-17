@@ -56,17 +56,17 @@ paths:
     get:
       summary: Introspection endpoint
       description: >
-        This endpoint returns information about the currently logged-in user, such as their roles.
+        This endpoint returns information about the currently logged-in user.
       operationId: profile
       responses:
         200:
-          description: The statistics of ADH6
+          description: The current logged-in user
           content:
             application/json:
               schema:
                 properties:
-                  admin:
-                    $ref: '#/components/schemas/Admin'
+                  member:
+                    $ref: '#/components/schemas/Member'
         403:
           $ref: '#/components/responses/Unauthorized'
         default:
@@ -2475,28 +2475,6 @@ components:
             - mac
             - member
       type: object
-    Admin:
-      type: object
-      required:
-        - login
-        - roles
-      properties:
-        login:
-          description: The login of this administrator
-          example: PowerfulPotato
-          type: string
-        member:
-          description: The member associated with this admin
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
-          example: 4
-        roles:
-          description: The list of roles of this administrator
-          example: [ "adh6_user", "adh6_admin" ]
-          type: array
-          items:
-            type: string
     AbstractMember:
       type: object
       properties:
@@ -2748,9 +2726,14 @@ components:
           authorizationUrl: https://cas.minet.net/oidc/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
 
 security:
-- OAuth2: [profile]
+  - OAuth2: [profile]
+  - ApiKeyAuth: []
 
 tags:
 - description: Operations on members

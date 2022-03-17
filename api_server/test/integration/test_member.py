@@ -1,4 +1,5 @@
 import json
+from random import sample
 from dateutil import parser
 from pytest_lazyfixture import lazy_fixture
 import pytest
@@ -110,9 +111,9 @@ def test_member_filter_terms_email(client):
     assert len(response) == 1
 
 
-def test_member_filter_terms_login(client):
+def test_member_filter_terms_login(client, sample_member: Adherent):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "dubois_j"),
+        '{}/member/?terms={}'.format(base_url, sample_member.login),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -143,9 +144,9 @@ def test_member_filter_terms_nonexistant(client):
     assert len(response) == 0
 
 
-def test_member_filter_terms_test_upper_case(client):
+def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "DUBOIS_J"),
+        '{}/member/?terms={}'.format(base_url, sample_member.login.upper()),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -253,7 +254,7 @@ def test_member_post_member_create(client, sample_room1):
     assert_member_in_db(body)
 
 
-def test_member_patch_room(client, sample_member, sample_room2):
+def test_member_patch_room(client, sample_member: Adherent, sample_room2):
     body = {
         "room": sample_room2.id,
     }
@@ -272,7 +273,7 @@ def test_member_patch_room(client, sample_member, sample_room2):
         "comment": None,
         "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
-        "username": "dubois_j"
+        "username": sample_member.login
     })
 
 @pytest.fixture

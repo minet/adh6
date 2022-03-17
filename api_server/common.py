@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import os
-from shutil import ExecError
-from typing import Tuple
+import connexion
 
 from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 
 from src.resolver import ADHResolver
 from src.interface_adapter.http_api import (
@@ -42,9 +40,13 @@ def init() -> FlaskApp:
 
     # Connexion will use this function to authenticate and fetch the information of the user.
     os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'src.interface_adapter.http_api.auth.token_info')
+    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'src.interface_adapter.http_api.auth.apikey_auth')
 
     # Initialize the application
-    app = FlaskApp(__name__, specification_dir='openapi')
+    app = connexion.App(__name__, specification_dir='openapi')
+
+    if app.app is None:
+        raise Exception("Error when setting the flask application")
 
     # Setup the configuration
     app.app.config.from_object(config[environment])

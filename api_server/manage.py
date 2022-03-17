@@ -1,5 +1,5 @@
 import click
-from flask import Flask
+from flask import Flask, cli
 from sqlalchemy.engine.create import create_engine
 from src.constants import MembershipDuration, MembershipStatus
 import uuid
@@ -10,8 +10,10 @@ from common import init
 from faker import Faker
 
 import ipaddress
-from src.interface_adapter.sql.model.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Admin, Caisse, Account, Device, Product
+from src.use_case.decorator.security import Roles
+from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
+assert application.app is not None, "No flask application"
 manager: Flask = application.app
 
 @manager.cli.command("check_subnet")
@@ -312,6 +314,25 @@ def check_migration_from_adh5():
         print(f'{i} adherent, {j} transactions, {total} €')
 
 
+@manager.cli.command("api_key")
+@click.argument("login")
+def api_key(login: str = "dev-api-key"):
+    """Add seed data to the database."""
+    session: Session = db.session
+
+    print("Generate api key")
+    api_key = (str(uuid.uuid4()), login, Roles.SUPERADMIN.value)
+    session.add(
+        ApiKey(
+            uuid=api_key[0],
+            name=api_key[1],
+            role=api_key[2]
+        )
+    )
+    session.commit()
+    print(f"generated key: {api_key[0]}")
+
+
 @manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
@@ -410,15 +431,6 @@ def seed():
         ) for i in range(1, 30)
     ])
 
-    print("Seeding Roles")
-    roles = [1, "adh6_user,adh6_admin,adh6_treso,adh6_super_admin"],
-    session.bulk_save_objects([
-        Admin(
-            id=e[0],
-            roles=e[1]
-        ) for e in roles
-    ])
-
     session.commit()
 
 
@@ -433,7 +445,6 @@ def fake(login):
 
     now = datetime.now()
     adherent = Adherent(
-        id=1,
         nom=fake.last_name_nonbinary(),
         prenom=fake.first_name_nonbinary(),
         mail=fake.email(),
@@ -441,7 +452,6 @@ def fake(login):
         ldap_login=login,
         password="",
         chambre_id=1,
-        admin_id=1,
         datesignedminet=now,
         date_de_depart=now + dt.timedelta(days=365),
         subnet="10.0.42.0/28",

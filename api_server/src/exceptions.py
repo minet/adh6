@@ -1,6 +1,9 @@
 # coding=utf-8
 
 
+from typing import Optional
+
+
 class UserInputError(ValueError):
     """
     Type of error thrown when the user input is responsible for the failure of the flow.
@@ -48,10 +51,6 @@ class InvalidEmail(ValidationError):
 class InvalidDate(ValidationError):
     def __init__(self, value):
         super().__init__(f'"{value}" is not a valid date')
-
-
-class InvalidAdmin(ValidationError):
-    pass  # pragma: no cover
 
 
 class InvalidMembershipDuration(ValidationError):
@@ -132,14 +131,9 @@ class NotFoundError(UserInputError):
     Error thrown when something is not found.
     """
 
-    def __init__(self, what, v: str = None):
+    def __init__(self, what, v: Optional[str] = None):
         err_msg = what + ' ' + str(v) + ' was not found'
         super().__init__(err_msg)
-
-
-class AdminNotFoundError(NotFoundError):
-    def __init__(self, v=None):
-        super().__init__('admin', v)
 
 
 class AccountNotFoundError(NotFoundError):

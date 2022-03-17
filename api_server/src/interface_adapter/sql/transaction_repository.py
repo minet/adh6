@@ -13,12 +13,11 @@ from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from src.entity import AbstractTransaction, Transaction, Product
-from src.exceptions import AccountNotFoundError, InvalidAdmin, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, AdminNotFoundError, ProductNotFoundError, \
-    TransactionNotFoundError, UnknownPaymentMethod
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, ProductNotFoundError, TransactionNotFoundError, UnknownPaymentMethod
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
 from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.model.models import Admin, Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
+from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
 from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -76,12 +75,10 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_id = ctx.get(CTX_ADMIN).id
-        author_ref = session.query(Adherent).join(Admin) \
-            .filter(Adherent.id == admin_id) \
-            .filter(Adherent.admin is not None).one_or_none()
+        admin_id = ctx.get(CTX_ADMIN).member
+        author_ref = session.query(Adherent).filter(Adherent.id == admin_id).one_or_none()
         if not author_ref:
-            raise AdminNotFoundError(abstract_transaction.author)
+            raise MemberNotFoundError(abstract_transaction.author)
 
         account_src = None
         if abstract_transaction.src is not None:
@@ -162,11 +159,6 @@ class TransactionSQLRepository(TransactionRepository):
                                   payment_method=payment_method_name))
         now = datetime.now()
         session: Session = ctx.get(CTX_SQL_SESSION)
-        admin = ctx.get(CTX_ADMIN)
-
-        admin_sql = session.query(Adherent).join(Admin).filter(Adherent.id == admin.id).filter(Adherent.admin_id is not None).one_or_none()
-        if admin_sql is None:
-            raise InvalidAdmin()
 
         adherent = session.query(Adherent).filter(Adherent.login == member_username).one_or_none()
         if adherent is None:
