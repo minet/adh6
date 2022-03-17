@@ -10,7 +10,7 @@ from common import init
 from faker import Faker
 
 import ipaddress
-from src.entity.roles import Roles
+from src.use_case.decorator.security import Roles
 from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"
@@ -452,7 +452,6 @@ def fake(login):
         ldap_login=login,
         password="",
         chambre_id=1,
-        admin_id=1,
         datesignedminet=now,
         date_de_depart=now + dt.timedelta(days=365),
         subnet="10.0.42.0/28",
