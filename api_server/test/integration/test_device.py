@@ -6,7 +6,7 @@ from pytest_lazyfixture import lazy_fixture
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import Adherent, db, Device
 from .resource import (
-    TEST_HEADERS_SAMPLE, TEST_HEADERS_SAMPLE2, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
+    TEST_HEADERS_API_KEY, TEST_HEADERS_LIST, TEST_HEADERS_SAMPLE, TEST_HEADERS_SAMPLE2, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created)
 
 
@@ -76,7 +76,9 @@ def test_device_filter_all_devices(client):
     assert len(response) == 4
 
 @pytest.mark.parametrize('member,header,expected, code', [
-    (lazy_fixture('sample_member'), TEST_HEADERS, 4, 200),
+    (lazy_fixture('sample_member'), TEST_HEADERS_API_KEY, 4, 200),
+    (lazy_fixture('sample_member'), TEST_HEADERS_API_KEY, 4, 200),
+    (lazy_fixture('sample_member3'), TEST_HEADERS, 0, 200),
     (lazy_fixture('sample_member3'), TEST_HEADERS, 0, 200),
     (lazy_fixture('sample_member'), TEST_HEADERS_SAMPLE, 4, 200),
     (lazy_fixture('sample_member3'), TEST_HEADERS_SAMPLE, 0, 403),
@@ -95,6 +97,7 @@ def test_device_filter_wired_by_member(client, header, member, expected, code):
     'headers, status_code',
     [
         (TEST_HEADERS, 200),
+        (TEST_HEADERS_API_KEY, 200),
         (TEST_HEADERS_SAMPLE, 403),
     ]
 )
@@ -124,6 +127,7 @@ def test_device_filter_by_terms(client, terms, expected, headers, status_code):
     'headers, status_code',
     [
         (TEST_HEADERS, 400),
+        (TEST_HEADERS_API_KEY, 400),
         (TEST_HEADERS_SAMPLE, 403),
     ]
 )
@@ -138,6 +142,7 @@ def test_device_filter_invalid_limit(client, headers, status_code: int):
 @pytest.mark.parametrize(
     'headers, status_code',
     [
+        (TEST_HEADERS_API_KEY, 200),
         (TEST_HEADERS, 200),
         (TEST_HEADERS_SAMPLE, 403),
     ]
@@ -305,11 +310,7 @@ def test_device_patch(client, device_to_patch: Device, value, headers, status_co
 
 @pytest.mark.parametrize(
     'headers',
-    [
-        (TEST_HEADERS),
-        (TEST_HEADERS_SAMPLE),
-        (TEST_HEADERS_SAMPLE2),
-    ]
+    TEST_HEADERS_LIST
 )
 @pytest.mark.parametrize(
     'device, status_code',

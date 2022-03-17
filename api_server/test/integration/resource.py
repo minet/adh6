@@ -1,8 +1,10 @@
 from logging import LogRecord
+import uuid
 
 from src.interface_adapter.sql.model.models import Modification
 
 base_url = "api"
+api_key = str(uuid.uuid4())
 device_cazal = {
     'mac': 'FF-FF-FF-FF-FF-FF',
     'ipAddress': '127.0.0.1',
@@ -52,6 +54,14 @@ INVALID_MAC = [
 TEST_HEADERS = {"Authorization": "Bearer TEST_TOKEN"}
 TEST_HEADERS_SAMPLE = {"Authorization": "Bearer TEST_TOKEN_SAMPLE"}
 TEST_HEADERS_SAMPLE2 = {"Authorization": "Bearer TEST_TOKEN_SAMPLE2"}
+TEST_HEADERS_API_KEY = {"X-API-KEY": api_key}
+
+TEST_HEADERS_LIST = [
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    TEST_HEADERS_SAMPLE2,
+    TEST_HEADERS_API_KEY
+]
 
 INVALID_TRANSACTION_VALUE = [
     "",

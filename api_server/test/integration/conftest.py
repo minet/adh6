@@ -2,11 +2,12 @@ from datetime import datetime
 from uuid import uuid4
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
-
+from test.integration.resource import api_key
 from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.interface_adapter.sql.model.models import (
     Account,
+    ApiKey,
     Membership,
     AccountType, Adherent, Chambre,
     PaymentMethod, Vlan, Device, Switch, Port
@@ -19,6 +20,7 @@ def prep_db(*args):
     session = _db.session()
     session.add_all(args)
     session.add(sample_member_admin())
+    session.add(sample_api_key())
     session.commit()
 
 def close_db():
@@ -204,6 +206,13 @@ def sample_member_admin():
         password="",
     )
 
+
+def sample_api_key():
+    return ApiKey(
+        name="api_key",
+        uuid=api_key,
+        role="adh6_superadmin"
+    )
 
 @pytest.fixture
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, ):
