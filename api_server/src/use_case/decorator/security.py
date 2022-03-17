@@ -90,7 +90,7 @@ def _find_user(session: Session, username) -> User:
 
 
 class SecurityDefinition(dict):
-    def __init__(self, item=None, collection=None):
+    def __init__(self, item={}, collection={}):
         dict.__init__(self, item=item, collection=collection)
         self.item = item
         self.collection = collection
