@@ -10,7 +10,7 @@ import { authConfig } from '../config/auth.config';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  navBarStatus = false;
+  public isMenuActive: boolean = false;
 
   constructor(
     private oauthService: OAuthService,

@@ -4,14 +4,15 @@
       <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
     </a>
 
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+    <a role="button" class="navbar-burger" [ngClass]="{'is-active': isMenuActive}" aria-label="menu"
+      aria-expanded="false" data-target="navbarADH6" (click)="isMenuActive = !isMenuActive">
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
     </a>
   </div>
 
-  <div id="navbarBasicExample" class="navbar-menu">
+  <div id="navbarADH6" class="navbar-menu" [ngClass]="{'is-active': isMenuActive}">
     <div class="navbar-start">
       <a *ngIf="'manage' | able: 'Transaction';" class="navbar-item" [routerLinkActive]="['active']"
         [routerLink]="['transaction/add']">Transaction</a>
