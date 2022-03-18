@@ -1,44 +1,61 @@
-<table class="w-100">
-    <tr (click)="toogleDeviceDetails()">
-        <td colspan="3">{{ device.mac | uppercase }}
-            <span style="position: absolute; right: 30px">
-                {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
-            </span>
-        </td>
-    </tr>
-    <tr *ngIf="!isCollapse" class="device_details_area">
-      <td>
-        <div>
-          <dl class="row">
-            <dt class="col-sm-6">Type</dt>
-            <dd class="col-sm-6" style="font-style: italic">{{ device.connectionType }}</dd>
-
-            <dt class="col-sm-6">IPv4</dt>
-            <dd class="col-sm-6">{{ device.ipv4Address == null ? "-" : device.ipv4Address }}</dd>
-
-            <dt class="col-sm-6">IPv6</dt>
-            <dd class="col-sm-6">{{ device.ipv6Address == null ? "-" : device.ipv6Address }}</dd>
-
-            <dt class="col-sm-6" i18n="device list manufacturer">Fabricant</dt>
-            <dd class="col-sm-6">
-              <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
-            </dd>
-            <ng-container *ngIf="('manage' | able: 'Device')">
-                <dt class="col-sm-6">MAB</dt>
-                <dd class="col-sm-6">
-                    <a>
-                        <button class="btn btn-primary" (click)="updateMAB()">MAB: {{ mab$|async }}</button>
-                    </a>
-                </dd>
-            </ng-container>
-          </dl>
+<table class="table full-width">
+  <tr (click)="toogleDeviceDetails()">
+    <td colspan="3">{{ device.mac | uppercase }}
+      <span style="position: absolute; right: 30px">
+        {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
+      </span>
+    </td>
+  </tr>
+  <tr *ngIf="!isCollapse" class="device_details_area">
+    <td>
+      <div class="columns">
+        <div class="column">
+          <strong>Type</strong>
         </div>
-
-        <div>
-          <a (click)="deviceDelete(device.id)">
-            <button class="btn btn-danger" i18n="@@delete">Supprimer</button>
-          </a>
+        <div class="column">
+          <i>{{ device.connectionType }}</i>
         </div>
-      </td>
-    </tr>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <strong>IPv4</strong>
+        </div>
+        <div class="column">
+          {{ device.ipv4Address == null ? "-" : device.ipv4Address }}
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <strong>IPv6</strong>
+        </div>
+        <div class="column">
+          {{ device.ipv6Address == null ? "-" : device.ipv6Address }}
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <strong>
+            <div class="col-sm-6" i18n="device list manufacturer">Fabricant</div>
+          </strong>
+        </div>
+        <div class="column">
+          <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
+        </div>
+      </div>
+      <div class="columns" *ngIf="('manage' | able: 'Device')">
+        <div class="column">
+          <strong>MAB</strong>
+        </div>
+        <div class="column">
+          <button class="button is-primary" (click)="updateMAB()">MAB: {{ mab$|async }}</button>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <button (click)="deviceDelete(device.id)" class="button is-danger" i18n="@@delete">Supprimer</button>
+        </div>
+      </div>
+    </td>
+  </tr>
 </table>
