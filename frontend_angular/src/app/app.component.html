@@ -1,8 +1,8 @@
-<title>MiNET - ADH6</title>
+<!--<title>MiNET - ADH6</title>-->
 <app-navbar></app-navbar>
 <div *ngIf="isAuthenticated(); else elseBlock">
-  <div class="modal fade" bsModal #bugReportModal="bs-modal"
-       tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
+  <div class="modal fade" bsModal #bugReportModal="bs-modal" tabindex="-1" role="dialog"
+    aria-labelledby="bug-report-modal-name">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -19,12 +19,12 @@
                 <div class="input-group-text">Titre</div>
               </div>
               <input formControlName="bugTitle" type="text" class="form-control" id="bugTitle"
-                     value="{{ getCurrentComponent() }} : ">
+                value="{{ getCurrentComponent() }} : ">
             </div>
             <label class="sr-only" for="bugDescription">Description</label>
             <div class="form-group">
               <textarea formControlName="bugDescription" class="form-control" id="bugDescription" rows="3"
-                        placeholder="Description"></textarea>
+                placeholder="Description"></textarea>
             </div>
             <button type="submit" class="btn btn-primary w-100">Envoyer</button>
           </form>

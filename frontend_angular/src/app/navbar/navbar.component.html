@@ -1,79 +1,83 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark color-white">
-  <a class="navbar-brand" [routerLink]="['dashboard']">
-    <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
-    MiNET - ADH6
-  </a>
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" [routerLink]="['/dashboard']">
+      <img src="../assets/minet_light.png" height="30" class="d-inline-block align-top" alt="">
+    </a>
 
-  <div class="collapse navbar-collapse justify-content-end" [ngClass]="{ 'show': navBarStatus }">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item" *ngIf="'manage' | able: 'all'; ">
-        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['member/add']">Inscription</a>
-      </li>
-      <li class="nav-item" *ngIf="'manage' | able: 'Transaction'; ">
-        <a class="nav-item nav-link" [routerLinkActive]="['active']"
-           [routerLink]="['transaction/add']">Transaction</a>
-      </li>
-      <li class="nav-item" *ngIf="'manage' | able: 'switch_local'; ">
-        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['switch_local']">Switch Local</a>
-      </li>
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
 
-      <li class="nav-item dropdown" dropdown *ngIf="
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a *ngIf="'manage' | able: 'Transaction';" class="navbar-item" [routerLinkActive]="['active']"
+        [routerLink]="['transaction/add']">Transaction</a>
+      <a class="navbar-item" *ngIf="'manage' | able: 'switch_local'" [routerLinkActive]="['active']"
+        [routerLink]="['switch_local']">Switch Local</a>
+      <div class="navbar-item has-dropdown is-hoverable" *ngIf="
         ('manage' | able: 'Member') ||
         ('manage' | able: 'Room') ||
         ('manage' | able: 'Device') ||
         ('manage' | able: 'Switch') ||
         ('manage' | able: 'Port')
-      ">
-        <a class="nav-link" dropdownToggle href="#" (click)="false" id="navbarAdhDropdown"
-           role="button" aria-controls="navbarAdhDropdown" aria-haspopup="true" aria-expanded="false">Gestion
-          adhérents</a>
-        <ul class="dropdown-menu" *dropdownMenu aria-labelledby="navbarAdhDropdown">
-          <li class="menuitem" *ngIf="'manage' | able: 'Member';"><a class="dropdown-item"
-                                  [routerLink]="['member/search']">Adhérents</a></li>
-          <li class="menuitem" *ngIf="'manage' | able: 'Room';"><a class="dropdown-item"
-                                  [routerLink]="['room/search']">Chambres</a></li>
-          <li class="menuitem" *ngIf="'manage' | able: 'Device';"><a class="dropdown-item"
-                                  [routerLink]="['device/search']">Appareils</a></li>
-          <li class="divider dropdown-divider" *ngIf="('manage' | able: 'Switch') || ('manage' | able: 'Port')"></li>
-          <li class="menuitem" *ngIf="'manage' | able: 'Switch';"><a class="dropdown-item"
-                                  [routerLink]="['switch/search']">Switches</a></li>
-          <li class="menuitem" *ngIf="'manage' | able: 'Port';"><a class="dropdown-item"
-                                  [routerLink]="['port/search']">Ports</a></li>
-        </ul>
-      </li>
-      <li class="nav-item dropdown" dropdown  *ngIf="'manage' | able: 'treasury'; ">
-        <a class="nav-link" dropdownToggle href="#" (click)="false"
-           id="navbarTrezDropdown"
-           role="button" aria-controls="navbarTrezDropdown" aria-haspopup="true"
-           aria-expanded="false">Gestion trésorerie</a>
-        <ul class="dropdown-menu" *dropdownMenu aria-labelledby="navbarTrezDropdown">
-          <li class="menuitem"><a class="dropdown-item"
-                                  [routerLink]="['treasury']">Trésorerie</a></li>
-          <li class="divider dropdown-divider"></li>
-          <li class="menuitem"><a class="dropdown-item"
-                                  [routerLink]="['account/search']">Comptes</a></li>
-          <li class="menuitem"><a class="dropdown-item"
-                                  [routerLink]="['product/search']">Produits</a></li>
-        </ul>
-      </li>
+        ">
+        <a class="navbar-link">
+          Gestion Adhérents
+        </a>
 
+        <div class="navbar-dropdown">
+          <a class="navbar-item" *ngIf="'manage' | able: 'Member'" [routerLink]="['member/search']">Adhérents</a>
+          <a class="navbar-item" *ngIf="'manage' | able: 'Room';" [routerLink]="['room/search']">Chambres</a>
+          <a class="navbar-item" *ngIf="'manage' | able: 'Device';" [routerLink]="['device/search']">Appareils</a>
+          <hr class="dropdown-divider">
+          <a class="navbar-item" *ngIf="'manage' | able: 'Switch';" [routerLink]="['switch/search']">Switches</a>
+          <a class="navbar-item" *ngIf="'manage' | able: 'Port';" [routerLink]="['port/search']">Ports</a>
+        </div>
+      </div>
+      <div class="navbar-item has-dropdown is-hoverable" *ngIf="'manage' | able: 'treasury'">
+        <a class="navbar-link">
+          Gestion Trésorerie
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item" [routerLink]="['treasury']">Trésorerie</a>
+          <hr class="dropdown-divider">
+          <a class="navbar-item" [routerLink]="['account/search']">Comptes</a>
+          <a class="navbar-item" [routerLink]="['product/search']">Produits</a>
+        </div>
+      </div>
+    </div>
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown is-hoverable" *ngIf="'manage' | able: 'treasury'">
+        <a class="navbar-link" i18n="@@language">
+          Langue
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/fr/">Français</a>
+          <a class="navbar-item" href="/en/">English</a>
+        </div>
+      </div>
+      <div class="navbar-item" *ngIf="isAuthenticated()">
+        <div class="buttons">
+          <a class="button is-danger" (click)="logout()" i18n="@@disconnect">Déconnexion</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<!--
     </ul>
     <form class="form-inline" *ngIf="'manage' | able: 'all'; ">
       <app-global-search></app-global-search>
     </form>
     <ul class="navbar-nav">
-      <li class="nav-item dropdown" dropdown>
-        <a class="nav-link dropdown-toggle" role="button" dropdownToggle i18n="@@language">
-          Langue
-        </a>
-        <div class="dropdown-menu" *dropdownMenu>
-          <a class="dropdown-item" href="/fr/">Français</a>
-          <a class="dropdown-item" href="/en/">English</a>
-        </div>
-      </li>
       <li class="nav-item" *ngIf="isAuthenticated()">
         <a class="nav-item nav-link" (click)="logout()" style="cursor: pointer;" i18n="@@disconnect">Déconnexion</a>
       </li>
     </ul>
   </div>
 </nav>
+-->

@@ -1,13 +1,13 @@
-import {Component} from '@angular/core';
-import {AppComponent} from '../app.component';
-import {OAuthService} from 'angular-oauth2-oidc';
-import {authConfig} from '../config/auth.config';
+import { Component } from '@angular/core';
+import { AppComponent } from '../app.component';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { authConfig } from '../config/auth.config';
 
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
   navBarStatus = false;
