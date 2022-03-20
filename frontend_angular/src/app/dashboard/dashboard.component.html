@@ -1,7 +1,9 @@
 <div class="container">
-  <figure>
-    <img src="../assets/adh6-logo.svg">
-  </figure>
+  <div class="columns column is-centered">
+    <figure>
+      <img src="../assets/adh6-logo.svg">
+    </figure>
+  </div>
   <ng-container *ngIf="member$ | async as member">
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
     <div class="tabs is-centered is-large">
@@ -15,7 +17,7 @@
       </ul>
     </div>
     <ng-container *ngIf="currentTab=='account'">
-      <div class="box">
+      <div class="box has-text-centered">
         <h4 *ngIf="isDepartureDateFuture, else invalidDate"
           i18n="dashboard active subscription|Describes until when a subscription is active">
           Votre abonnement est actif jusqu'au <strong>{{ member.departureDate | date }}</strong>
@@ -35,10 +37,11 @@
           </a>
         </div>
       </div>
-      <div class="box">
+      <div class="box has-text-centered">
         <hr>
-        <p i18n="dashboard email address|Shows a user their email address">Addresse mail : <code>{{ member.email
-            }}</code></p>
+        <p i18n="dashboard email address|Shows a user their email address">
+          Addresse mail : <code>{{ member.email }}</code>
+        </p>
         <p *ngIf="member.room != null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">
           Vous êtes incrit dans la chambre <b>{{member.room.description}}</b>
         </p>
