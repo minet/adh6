@@ -1,61 +1,61 @@
-<table class="table full-width">
-  <tr (click)="toogleDeviceDetails()">
-    <td colspan="3">{{ device.mac | uppercase }}
+<div class="card">
+  <header class="card-header" (click)="toogleDeviceDetails()">
+    <p class="card-header-title" class="card-header-icon" aria-label="more options">
+      {{ device.mac | uppercase }}
       <span style="position: absolute; right: 30px">
         {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
       </span>
-    </td>
-  </tr>
-  <tr *ngIf="!isCollapse" class="device_details_area">
-    <td>
-      <div class="columns">
-        <div class="column">
-          <strong>Type</strong>
+    </p>
+  </header>
+  <ng-container *ngIf="!isCollapse">
+    <div class="card-content">
+      <div class="content">
+        <div class="columns">
+          <div class="column">
+            <strong>Type</strong>
+          </div>
+          <div class="column">
+            <i>{{ device.connectionType }}</i>
+          </div>
         </div>
-        <div class="column">
-          <i>{{ device.connectionType }}</i>
+        <div class="columns">
+          <div class="column">
+            <strong>IPv4</strong>
+          </div>
+          <div class="column">
+            {{ device.ipv4Address == null ? "-" : device.ipv4Address }}
+          </div>
         </div>
-      </div>
-
-      <div class="columns">
-        <div class="column">
-          <strong>IPv4</strong>
+        <div class="columns">
+          <div class="column">
+            <strong>IPv6</strong>
+          </div>
+          <div class="column">
+            {{ device.ipv6Address == null ? "-" : device.ipv6Address }}
+          </div>
         </div>
-        <div class="column">
-          {{ device.ipv4Address == null ? "-" : device.ipv4Address }}
+        <div class="columns">
+          <div class="column">
+            <strong>
+              <div class="col-sm-6" i18n="device list manufacturer">Fabricant</div>
+            </strong>
+          </div>
+          <div class="column">
+            <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
+          </div>
         </div>
-      </div>
-      <div class="columns">
-        <div class="column">
-          <strong>IPv6</strong>
-        </div>
-        <div class="column">
-          {{ device.ipv6Address == null ? "-" : device.ipv6Address }}
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column">
-          <strong>
-            <div class="col-sm-6" i18n="device list manufacturer">Fabricant</div>
-          </strong>
-        </div>
-        <div class="column">
-          <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
-        </div>
-      </div>
-      <div class="columns" *ngIf="('manage' | able: 'Device')">
-        <div class="column">
-          <strong>MAB</strong>
-        </div>
-        <div class="column">
-          <button class="button is-primary" (click)="updateMAB()">MAB: {{ mab$|async }}</button>
-        </div>
-      </div>
-      <div class="columns">
-        <div class="column">
-          <button (click)="deviceDelete(device.id)" class="button is-danger" i18n="@@delete">Supprimer</button>
+        <div class="columns" *ngIf="('manage' | able: 'Device')">
+          <div class="column">
+            <strong>MAB</strong>
+          </div>
+          <div class="column">
+            <button class="button is-primary" (click)="updateMAB()">MAB: {{ mab$|async }}</button>
+          </div>
         </div>
       </div>
-    </td>
-  </tr>
-</table>
+    </div>
+    <footer class="card-footer">
+      <a (click)="deviceDelete(device.id)" class="card-footer-item is-danger">Delete</a>
+    </footer>
+  </ng-container>
+</div>

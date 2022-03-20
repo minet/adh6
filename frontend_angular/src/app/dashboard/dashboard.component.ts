@@ -1,10 +1,10 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {OAuthService} from 'angular-oauth2-oidc';
-import {Configuration, Member} from '../api';
-import {localize_link} from '../config/links.config';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { Configuration, Member } from '../api';
+import { localize_link } from '../config/links.config';
 import { LOCALE_ID, Inject } from '@angular/core';
-import {AppConstantsService} from '../app-constants.service';
-import {Observable} from 'rxjs';
+import { AppConstantsService } from '../app-constants.service';
+import { Observable } from 'rxjs';
 import { ListComponent } from '../member-device/list/list.component';
 
 @Component({
@@ -13,8 +13,8 @@ import { ListComponent } from '../member-device/list/list.component';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  @ViewChild(ListComponent) wiredList:ListComponent;
-  @ViewChild(ListComponent) wirelessList:ListComponent;
+  @ViewChild(ListComponent) wiredList: ListComponent;
+  @ViewChild(ListComponent) wirelessList: ListComponent;
 
   localize_link = localize_link;
 
@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   isDepartureDateFuture = false;
   isAssociationMode = false;
   member$: Observable<Member> = this.appConstantsService.getCurrentMember();
+  currentTab = "device";
 
   constructor(
     private oauthService: OAuthService,

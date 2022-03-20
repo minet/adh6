@@ -1,88 +1,110 @@
-<div class="dashboard">
-  <img class="mt-5" src="../assets/adh6_dark.png">
-  <h1 *ngIf="name" i18n="dashboard hello|Greets the user on the dashboard" class="mb-5">Bonjour {{ name }}</h1>
-  <ng-container>
-    <ng-container *ngIf="member$ | async as member">
-    <div class="card mb-3">
-      <div class="card-body">
-        <h4 *ngIf="isDepartureDateFuture, else invalidDate" i18n="dashboard active subscription|Describes until when a subscription is active">Votre abonnement est actif jusqu'au {{ member.departureDate | date }}</h4>
-        <ng-template #invalidDate><h4 class="text-danger" i18n="dashboard expired subscription|Describes when a subscription has expired">Votre abonnement a expiré le {{ member.departureDate | date }}</h4></ng-template>
-        <hr>
-        <p i18n="dashboard email address|Shows a user their email address">Addresse mail : <code>{{ member.email }}</code></p>
-        <p *ngIf="member.room != null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">Vous êtes incrit dans la chambre <b>{{ member.room.description}}</b>
-        </p>
-        <ng-template #noRoom><p class="text-danger" i18n="dashboard no room|Tells a user they have no room">Vous n'avez pas de chambre attribuée</p></ng-template>
-        <ng-container *ngIf="member.ip != null && member.subnet != null">
-          <hr>
-          <p i18n="dashboard public ipv4|Shows a user their public IPv4">Votre adresse IPv4 publique est : <code>{{ member.ip }}</code></p>
-          <p i18n="dashboard private subnetv4|Shows a user their private IPv4 subnet">Votre sous-réseau IPv4 privé est : <code>{{ member.subnet }}</code></p>
-        </ng-container>
-      </div>
+<div class="container">
+  <figure>
+    <img src="../assets/adh6-logo.svg">
+  </figure>
+  <ng-container *ngIf="member$ | async as member">
+    <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
+    <div class="tabs is-centered is-large">
+      <ul>
+        <li [ngClass]="{'is-active': currentTab=='device'}">
+          <a i18n="own devices" (click)="currentTab='device'">Mes appareils</a>
+        </li>
+        <li [ngClass]="{'is-active': currentTab=='account'}">
+          <a i18n="own account" (click)="currentTab='account'">Mon compte</a>
+        </li>
+      </ul>
     </div>
-
-    <div class="card">
-      <div class="card-body">
-        <h4 i18n="dashboard account manage">Gérer mon compte</h4>
+    <ng-container *ngIf="currentTab=='account'">
+      <div class="box">
+        <h4 *ngIf="isDepartureDateFuture, else invalidDate"
+          i18n="dashboard active subscription|Describes until when a subscription is active">
+          Votre abonnement est actif jusqu'au <strong>{{ member.departureDate | date }}</strong>
+        </h4>
+        <ng-template #invalidDate>
+          <h4 class="text-danger" i18n="dashboard expired subscription|Describes when a subscription has expired">
+            Votre abonnement a expiré le <strong>{{ member.departureDate | date }}</strong></h4>
+        </ng-template>
         <hr>
-        <div class="btn-group">
-          <a href="//payment.minet.net" role="button" class="btn btn-primary" i18n="dashboard account renew">
+        <div class="buttons has-addons is-centered">
+          <a href="//payment.minet.net" role="button" class="button is-success" i18n="dashboard account renew">
             Renouveler mon abonnement
           </a>
-          <a [routerLink]="['/password/', member.id ]" role="button" class="btn btn-danger" i18n="dashboard account password change">
-            Changer mon mot de passe
+          <a [routerLink]="['/password/', member.id ]" role="button" class="button is-danger"
+            i18n="dashboard account password change">
+            Changer le mot de passe
           </a>
         </div>
       </div>
-    </div>
-    <ng-container *ngIf="isAssociationMode">
-      <div class="alert alert-info mt-4">
-        <h4 i18n="dashboard association-mode">Association automatique</h4>
-        <p class="text-left" i18n="dashboard association-mode desc">
-          Vous êtes actuellement en mode association automatique, jusqu'au {{member.associationMode | date: 'shortDate'}} à {{member.associationMode | date: 'shortTime'}}.
-          Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
+      <div class="box">
+        <hr>
+        <p i18n="dashboard email address|Shows a user their email address">Addresse mail : <code>{{ member.email
+            }}</code></p>
+        <p *ngIf="member.room != null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">
+          Vous êtes incrit dans la chambre <b>{{member.room.description}}</b>
         </p>
+        <ng-template #noRoom>
+          <p class="text-danger" i18n="dashboard no room|Tells a user they have no room">Vous n'avez pas de chambre
+            attribuée</p>
+        </ng-template>
+        <ng-container *ngIf="member.ip != null && member.subnet != null">
+          <hr>
+          <p i18n="dashboard public ipv4|Shows a user their public IPv4">Votre adresse IPv4 publique est : <code>{{
+              member.ip }}</code></p>
+          <p i18n="dashboard private subnetv4|Shows a user their private IPv4 subnet">Votre sous-réseau IPv4 privé est
+            : <code>{{ member.subnet }}</code></p>
+        </ng-container>
       </div>
     </ng-container>
-
-    <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
-
-    <div class="alert alert-warning mt-4">
-      <h4 i18n="dashboard help problem|Is the user encountering any issue ?">Un problème ?</h4>
-      <ol class="text-left">
-        <li i18n="dashboard help tutorials|Has the user taken a look at the tutorials ?">Avez-vous bien regardé <a class="alert-link" href="{{ localize_link('tutorials', locale) }}">les tutoriels</a>
-          ?
-        </li>
-        <li i18n="dashboard help tickets|The user may send a ticket">Envoyez-nous <a class="alert-link" href="{{ localize_link('tickets', locale) }}">un ticket</a></li>
-        <li i18n="dashboard help helpdesk|The user may come see us directly">Éventuellement, passez au local pendant <a class="alert-link" href="{{ localize_link('website', locale) }}">une
-          des permanences</a> !
-        </li>
-      </ol>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <h4 i18n="own devices">Mes appareils</h4>
-        <hr>
-        <app-device-new [member_id]="member.id"
-                        (added)="$event.connectionType == 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()"></app-device-new>
-        <hr>
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <h4 class="table-title my-0" i18n="@@wired">Filaire</h4>
-            <app-member-device-list #wiredList
-                                    [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
-            ></app-member-device-list>
+    <ng-container *ngIf="currentTab=='device'">
+      <div>
+        <ng-container *ngIf="isAssociationMode">
+          <div class="alert alert-info mt-4">
+            <h4 i18n="dashboard association-mode">Association automatique</h4>
+            <p class="text-left" i18n="dashboard association-mode desc">
+              Vous êtes actuellement en mode association automatique, jusqu'au {{member.associationMode | date:
+              'shortDate'}} à {{member.associationMode | date: 'shortTime'}}.
+              Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de
+              connexion réussie !
+            </p>
+          </div>
+        </ng-container>
+      </div>
+      <app-device-new [member_id]="member.id"
+        (added)="$event.connectionType == 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()">
+      </app-device-new>
+      <br />
+      <div class="content">
+        <div class="columns">
+          <div class="column">
+            <h4 i18n="@@wired">Filaire</h4>
+            <app-member-device-list #wiredList [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}">
+            </app-member-device-list>
           </div>
 
-          <div class="col-md-6">
-            <h4 class="table-title my-0" i18n="@@wireless">Wifi</h4>
+          <div class="column">
+            <h4 i18n="@@wireless">Wifi</h4>
             <app-member-device-list #wirelessList
-                                    [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
-            ></app-member-device-list>
+              [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}">
+            </app-member-device-list>
           </div>
         </div>
+        <div class="notification is-warning">
+          <h4 class="title is-4" i18n="dashboard help problem|Is the user encountering any issue ?">Un problème ?</h4>
+          <ol class="text-left">
+            <li i18n="dashboard help tutorials|Has the user taken a look at the tutorials ?">Avez-vous bien regardé <a
+                class="alert-link" href="{{ localize_link('tutorials', locale) }}">les tutoriels</a>
+              ?
+            </li>
+            <li i18n="dashboard help tickets|The user may send a ticket">Envoyez-nous <a class="alert-link"
+                href="{{ localize_link('tickets', locale) }}">un ticket</a></li>
+            <li i18n="dashboard help helpdesk|The user may come see us directly">
+              Éventuellement, passez au local pendant <a class="alert-link"
+                href="{{ localize_link('website', locale) }}">une
+                des permanences</a> !
+            </li>
+          </ol>
+        </div>
       </div>
-    </div>
     </ng-container>
   </ng-container>
 </div>

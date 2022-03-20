@@ -227,6 +227,13 @@
     glob "7.1.7"
     yargs "^17.0.0"
 
+"@angular/material@^13.3.0":
+  version "13.3.0"
+  resolved "https://registry.yarnpkg.com/@angular/material/-/material-13.3.0.tgz#dd40233d5c307839f516a606a87372c5a4cb784c"
+  integrity sha512-g9WRuzUo0HPeEZKQi3uRZU3lfFwcdVqdXL8F9vxpR6fg0u9jNF+Wm+sIlsADS93h/zS0IZXYecge0NU8T7Kd0g==
+  dependencies:
+    tslib "^2.3.0"
+
 "@angular/platform-browser-dynamic@~12.2.11":
   version "12.2.16"
   resolved "https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-12.2.16.tgz"
@@ -8064,7 +8071,7 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.0, tslib@^2.1.0, tslib@^2.2.0, tslib@^2.3.1:
+tslib@^2.0.0, tslib@^2.1.0, tslib@^2.2.0, tslib@^2.3.0, tslib@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
