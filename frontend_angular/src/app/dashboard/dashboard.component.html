@@ -59,33 +59,30 @@
       </div>
     </ng-container>
     <ng-container *ngIf="currentTab=='device'">
-      <div>
-        <ng-container *ngIf="isAssociationMode">
-          <div class="alert alert-info mt-4">
-            <h4 i18n="dashboard association-mode">Association automatique</h4>
-            <p class="text-left" i18n="dashboard association-mode desc">
-              Vous êtes actuellement en mode association automatique, jusqu'au {{member.associationMode | date:
-              'shortDate'}} à {{member.associationMode | date: 'shortTime'}}.
-              Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de
-              connexion réussie !
-            </p>
-          </div>
-        </ng-container>
-      </div>
+      <ng-container *ngIf="isAssociationMode">
+        <div class="alert alert-info mt-4">
+          <h4 i18n="dashboard association-mode">Association automatique</h4>
+          <p class="text-left" i18n="dashboard association-mode desc">
+            Vous êtes actuellement en mode association automatique, jusqu'au {{member.associationMode | date:
+            'shortDate'}} à {{member.associationMode | date: 'shortTime'}}.
+            Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de
+            connexion réussie !
+          </p>
+        </div>
+      </ng-container>
       <app-device-new [member_id]="member.id"
         (added)="$event.connectionType == 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()">
       </app-device-new>
       <br />
       <div class="content">
         <div class="columns">
-          <div class="column">
-            <h4 i18n="@@wired">Filaire</h4>
+          <div class="column has-text-centered">
+            <h4 class="title is-4" i18n="@@wired">Filaire</h4>
             <app-member-device-list #wiredList [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}">
             </app-member-device-list>
           </div>
-
-          <div class="column">
-            <h4 i18n="@@wireless">Wifi</h4>
+          <div class="column has-text-centered">
+            <h4 class="title is-4" i18n="@@wireless">Wifi</h4>
             <app-member-device-list #wirelessList
               [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}">
             </app-member-device-list>

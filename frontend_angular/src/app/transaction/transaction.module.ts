@@ -7,6 +7,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TransactionListModule } from '../transaction-list/transaction-list.module';
 import { ClickOutsideDirective } from './clickOutside.directive';
+import { AccountSearchComponent } from './account-search/account-search.component';
 
 
 
@@ -14,6 +15,7 @@ import { ClickOutsideDirective } from './clickOutside.directive';
   declarations: [
     TransactionNewComponent,
     ClickOutsideDirective,
+    AccountSearchComponent,
   ],
   imports: [
     ReactiveFormsModule,
