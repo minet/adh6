@@ -2,27 +2,29 @@
 <br />
 
 <!-- Search box -->
-<div class="box" *ngIf="maxItems$ | async as maxItems">
+<div class="box">
   <input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
     class="input is-fullwidth" type="text" />
-  <!-- Device list -->
-  <table class="table is-hoverable is-fullwidth" *ngIf="result$ | async as result" (click)="isCollapsed = !isCollapsed"
-    [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
-    <thead>
-      <tr>
-        <th>Utilisateur</th>
-        <th>MAC de l'appareil</th>
-        <th>Type d'appareil</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member.id]"
-        [queryParams]="{highlight: device.mac}">
-        <td>{{ device.member.username }}</td>
-        <td>{{ device.mac }}</td>
-        <td>{{ device.connectionType }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+  <ng-container *ngIf="maxItems$ | async as maxItems">
+    <!-- Device list -->
+    <table class="table is-hoverable is-fullwidth" *ngIf="result$ | async as result"
+      (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>MAC de l'appareil</th>
+          <th>Type d'appareil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member.id]"
+          [queryParams]="{highlight: device.mac}">
+          <td>{{ device.member.username }}</td>
+          <td>{{ device.mac }}</td>
+          <td>{{ device.connectionType }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+  </ng-container>
 </div>
