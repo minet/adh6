@@ -1,12 +1,12 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {SearchPage} from '../search-page';
-import {Observable} from 'rxjs';
-import {PaymentMethod, Transaction, TransactionService, AbstractTransaction} from '../api';
-import {PagingConf} from '../paging.config';
-import {map} from 'rxjs/operators';
-import {IconDefinition} from '@fortawesome/free-solid-svg-icons';
-import {AppConstantsService} from '../app-constants.service';
-import {faClock} from '@fortawesome/free-solid-svg-icons';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { SearchPage } from '../search-page';
+import { Observable } from 'rxjs';
+import { PaymentMethod, Transaction, TransactionService, AbstractTransaction } from '../api';
+import { PagingConf } from '../paging.config';
+import { map } from 'rxjs/operators';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { AppConstantsService } from '../app-constants.service';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
 
 export interface TransactionListResult {
   transactions?: Array<Transaction>;
@@ -43,11 +43,11 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   filterType: string;
 
   constructor(public transactionService: TransactionService,
-              public appConstantsService: AppConstantsService) {
+    public appConstantsService: AppConstantsService) {
     super();
   }
 
-  updateTypeFilter(type) {
+  updateTypeFilter(type: string) {
     this.filterType = type;
     this.loadData();
   }

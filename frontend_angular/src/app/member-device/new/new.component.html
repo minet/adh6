@@ -1,30 +1,33 @@
 <div class="box">
-  <div class="field has-addons has-addons-centered" [formGroup]="deviceForm" (ngSubmit)="onSubmit()" novalidate>
-    <p class="control">
-      <span class="select">
-        <select formControlName="connectionType">
-          <option value="" i18n="@@device_type">-- Type d'appareil --</option>
-          <option value="wired" i18n="@@wired">Filaire</option>
-          <option value="wireless" i18n="@@wireless">Wi-Fi</option>
-        </select>
-      </span>
-    </p>
-    <p class="control">
-      <input class="input" formControlName="mac" type="text" placeholder="11-22-33-AA-BB-CC">
-    </p>
-    <p class="control">
-      <button [disabled]="deviceForm.status == 'INVALID'" class="button is-primary" type="submit"
-        i18n="device new add|Add a new device">Ajouter l'appareil
-      </button>
-    </p>
-  </div>
-  <div class="columns">
-    <div class="column has-text-right">
-      <p class="text-secondary text-right">
-        <a href="{{ localize_link('tutorials', locale) }}" i18n="device new where mac">Où trouver mon adresse MAC ?</a>
+  <form [formGroup]="deviceForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field has-addons has-addons-centered">
+      <p class="control">
+        <span class="select">
+          <select formControlName="connectionType">
+            <option value="" i18n="@@device_type">-- Type d'appareil --</option>
+            <option value="wired" i18n="@@wired">Filaire</option>
+            <option value="wireless" i18n="@@wireless">Wi-Fi</option>
+          </select>
+        </span>
+      </p>
+      <p class="control">
+        <input class="input" formControlName="mac" type="text" placeholder="11-22-33-AA-BB-CC">
+      </p>
+      <p class="control">
+        <button [disabled]="deviceForm.status == 'INVALID'" class="button is-primary" type="submit"
+          i18n="device new add|Add a new device">Ajouter l'appareil
+        </button>
       </p>
     </div>
-  </div>
+    <div class="columns">
+      <div class="column has-text-right">
+        <p class="text-secondary text-right">
+          <a href="{{ localize_link('tutorials', locale) }}" i18n="device new where mac">Où trouver mon adresse MAC
+            ?</a>
+        </p>
+      </div>
+    </div>
+  </form>
 </div>
 <!--
 <form [formGroup]="deviceForm" (ngSubmit)="onSubmit()" novalidate>

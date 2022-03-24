@@ -1,43 +1,28 @@
-  <h2 class="text-left">Liste des appareils</h2>
-  <br/>
+<h2 class="title is-2">Liste des appareils</h2>
+<br />
 
-  <!-- Search box -->
-  <div class="row">
-    <div class="col-md-12">
-      <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="form-control" type="text"/>
-    </div>
-  </div>
-
-  <br/>
-
+<!-- Search box -->
+<div class="box" *ngIf="maxItems$ | async as maxItems">
+  <input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
+    class="input is-fullwidth" type="text" />
   <!-- Device list -->
-  <div class="row">
-    <div class="col-md-12">
-      <table class="table clickable-table" *ngIf="result$ | async as result" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
-        <thead>
-          <tr>
-            <th>Utilisateur</th>
-            <th>MAC de l'appareil</th>
-            <th>Type d'appareil</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let device of result.devices | paginate: {
-            id: 'pagination', 
-            itemsPerPage: result.items_per_page, 
-            currentPage: result.current_page, 
-            totalItems: result.item_count
-          }"
-          [routerLink]="['../../member/view' , device.member.id]"
-          [queryParams]="{highlight: device.mac}">
-            <td>{{ device.member.username }}</td>
-            <td>{{ device.mac }}</td>
-            <td>{{ device.connectionType }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="d-flex align-items-center justify-content-center">
-    <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
-  </div>
+  <table class="table is-hoverable is-fullwidth" *ngIf="result$ | async as result" (click)="isCollapsed = !isCollapsed"
+    [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
+    <thead>
+      <tr>
+        <th>Utilisateur</th>
+        <th>MAC de l'appareil</th>
+        <th>Type d'appareil</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member.id]"
+        [queryParams]="{highlight: device.mac}">
+        <td>{{ device.member.username }}</td>
+        <td>{{ device.mac }}</td>
+        <td>{{ device.connectionType }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+</div>

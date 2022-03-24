@@ -1,6 +1,7 @@
 <div class="row">
   <div class="col-md-6">
-    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher" class="form-control mb-3" type="text"/>
+    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher"
+      class="form-control mb-3" type="text" />
   </div>
   <div class="col-md-6">
     <div class="input-group mb-3">
@@ -11,7 +12,7 @@
     </div>
   </div>
 </div>
-<table class="table table-responsive-lg" *ngIf="result$ | async as result">
+<table class="table" *ngIf="result$ | async as result">
   <thead>
     <tr>
       <th>Date</th>
@@ -30,8 +31,7 @@
       itemsPerPage: result.items_per_page, 
       currentPage: result.current_page, 
       totalItems: result.item_count
-    }"
-    [ngClass]="{
+    }" [ngClass]="{
       'table-success' : asAccount && transactionResult.dst.id==this.asAccount, 
       'table-danger' : asAccount && transactionResult.dst.id!=this.asAccount,
       'text-muted': transactionResult.pendingValidation
@@ -42,27 +42,32 @@
         <small>{{ transactionResult.timestamp | date:"yyy" }}</small>
       </td>
       <td class="text-right text-nowrap align-middle">
-        <h5>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }} €</h5>
+        <h5>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }} €
+        </h5>
       </td>
       <td class="align-middle">{{ transactionResult.name }}</td>
-      <td class="align-middle">{{ ( transactionResult.src.id==asAccount ? transactionResult.dst.name : transactionResult.src.name ) }}</td>
+      <td class="align-middle">{{ ( transactionResult.src.id==asAccount ? transactionResult.dst.name :
+        transactionResult.src.name ) }}</td>
       <td class="align-middle" *ngIf="!asAccount">{{ transactionResult.dst.name }}</td>
-      <td class="align-middle" tooltip="{{ transactionResult.author?.username }}">{{ transactionResult.paymentMethod.name }}</td>
+      <td class="align-middle" tooltip="{{ transactionResult.author?.username }}">{{
+        transactionResult.paymentMethod.name }}</td>
       <td *ngIf="actions" class="text-right align-middle">
         <div class="btn-group" role="group" aria-label="actions">
           <div *ngFor="let action of actions">
-        <button type="button"
-                class="btn btn-sm ml-1 {{ action.class }}"
-                (click)="onAction.emit({name: action.name, transaction: transactionResult})"
-                *ngIf="action.condition(transactionResult)"
-          placement="bottom" tooltip="{{action.name}}">
-          <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon></button>
+            <button type="button" class="btn btn-sm ml-1 {{ action.class }}"
+              (click)="onAction.emit({name: action.name, transaction: transactionResult})"
+              *ngIf="action.condition(transactionResult)" placement="bottom" tooltip="{{action.name}}">
+              <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon>
+            </button>
           </div>
         </div>
       </td>
     </tr>
   </tbody>
 </table>
-<div class="container d-flex align-items-center justify-content-center">
-  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
+<div class="container">
+  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true"
+    (pageChange)="handlePageChange($event)"></pagination-controls>
 </div>
+
+<app-pagination (pageChange)="handlePageChange($event)"></app-pagination>

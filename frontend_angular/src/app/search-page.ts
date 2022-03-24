@@ -1,5 +1,5 @@
-import {BehaviorSubject, combineLatest, merge, Observable} from 'rxjs';
-import {debounceTime, distinctUntilChanged, map, switchMap} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, merge, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { OnInit, Directive } from '@angular/core';
 
 @Directive()
