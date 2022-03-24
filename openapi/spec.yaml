@@ -572,6 +572,35 @@ paths:
       summary: Filter members
       tags:
       - member
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractMember'
+        style: deepObject
+        explode: true
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter members
+      tags:
+      - member
     post:
       parameters: []
       requestBody:
@@ -1064,6 +1093,25 @@ paths:
       summary: Filter payment methods
       tags:
       - transaction
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          description: Invalid input
+      summary: Filter payment methods
+      tags:
+      - transaction
   /payment_method/{payment_method_id}:
     parameters:
       - in: path
@@ -1113,6 +1161,39 @@ paths:
                 items:
                   $ref: '#/components/schemas/Port'
                 type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter ports
+      tags:
+      - port
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractPort'
+          required: []
+        style: deepObject
+        explode: true
+      responses:
+        200:
           description: Success
           headers:
             X-Total-Count:
@@ -1588,6 +1669,37 @@ paths:
       summary: Filter rooms
       tags:
       - room
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractRoom'
+          required: []
+        style: deepObject
+        explode: true
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter rooms
+      tags:
+      - room
     post:
       parameters: []
       requestBody:
@@ -1854,6 +1966,38 @@ paths:
                 items:
                   $ref: '#/components/schemas/Transaction'
                 type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 0
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter transactions
+      tags:
+      - transaction
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractTransaction'
+        style: deepObject
+        explode: true
+      responses:
+        '200':
           description: Success
           headers:
             X-Total-Count:
