@@ -5,19 +5,12 @@ import { AppComponent } from './app.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule, Device, Member, Room, Port, ModelSwitch, Transaction, Account, Configuration, ConfigurationParameters } from './api';
-import { GlobalSearchComponent } from './global-search/global-search.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthConfig, OAuthModule, OAuthService, OAuthStorage } from 'angular-oauth2-oidc';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NotifInterceptor } from './http-interceptor/notif-interceptor';
 import { environment } from '../environments/environment';
-import { ModalModule } from 'ngx-bootstrap/modal';
-import { ButtonsModule } from 'ngx-bootstrap/buttons';
-import { TypeaheadModule } from 'ngx-bootstrap/typeahead';
-import { NgToggleModule } from '@nth-cloud/ng-toggle';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { PortailComponent } from './portail/portail.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { Ability, AbilityClass, InferSubjects, PureAbility } from '@casl/ability';
@@ -47,7 +40,6 @@ function load(oAuthService: OAuthService): Configuration {
 @NgModule({
   declarations: [
     AppComponent,
-    GlobalSearchComponent,
     NavbarComponent,
     PortailComponent,
     ErrorPageComponent,
@@ -63,14 +55,8 @@ function load(oAuthService: OAuthService): Configuration {
     FormsModule,
     BrowserAnimationsModule,
     OAuthModule.forRoot(),
-    BsDropdownModule.forRoot(),
     HttpClientModule,
-    ModalModule.forRoot(),
-    ButtonsModule.forRoot(),
-    TypeaheadModule.forRoot(),
-    NgToggleModule,
-    TooltipModule.forRoot(),
-    AbilityModule,
+    AbilityModule
   ],
   providers: [
     AppComponent,

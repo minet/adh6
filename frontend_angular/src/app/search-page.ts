@@ -11,6 +11,15 @@ export class SearchPage implements OnInit {
     this.changePage(1);
   }
 
+  protected getSearchHeader(f: (term: string) => Observable<number>): Observable<number> {
+    return this.searchTerm$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+      )
+      .pipe(switchMap((term, _) => f(term)));
+  }
+
   protected getSearchResult(f: (term: string, page: number) => Observable<any>): Observable<any> {
 
     // Stream of terms debounced
