@@ -1830,6 +1830,37 @@ paths:
       summary: Filter switches
       tags:
       - switch
+    head:
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/skipParam'
+      - $ref: '#/components/parameters/searchTermParam'
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/AbstractSwitch'
+          required: []
+        style: deepObject
+        explode: true
+      responses:
+        200:
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter switches
+      tags:
+      - switch
     post:
       parameters: []
       requestBody:
