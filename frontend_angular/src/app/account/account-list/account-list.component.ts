@@ -1,22 +1,14 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Account, AccountService, AccountType} from '../../api';
-import {SearchPage} from '../../search-page';
-import {PagingConf} from '../../paging.config';
-import {map} from 'rxjs/operators';
-import {AbstractAccount} from '../../api/model/abstractAccount';
-import {AppConstantsService} from '../../app-constants.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Account, AccountService, AccountType } from '../../api';
+import { SearchPage } from '../../search-page';
+import { PagingConf } from '../../paging.config';
+import { map } from 'rxjs/operators';
+import { AbstractAccount } from '../../api/model/abstractAccount';
+import { AppConstantsService } from '../../app-constants.service';
 
-import {faThumbtack, faBan} from '@fortawesome/free-solid-svg-icons';
-import {ActivatedRoute} from '@angular/router';
-
-class AccountListResponse {
-  accounts?: Array<Account>;
-  page_number?: number;
-  item_count?: number;
-  item_per_page?: number;
-}
-
+import { faThumbtack, faBan } from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-account-list',
@@ -27,24 +19,28 @@ export class AccountListComponent extends SearchPage implements OnInit {
   faThumbtack = faThumbtack;
   faBan = faBan;
 
-  result$: Observable<AccountListResponse>;
+  result$: Observable<Array<Account>>;
+  maxItems$: Observable<number>;
   accountTypes: Array<AccountType>;
   specificSearch = false;
   @Input() abstractAccountFilter: AbstractAccount = {};
 
-  constructor(public accountService: AccountService,
-              private route: ActivatedRoute,
-              public appConstantsService: AppConstantsService) {
+  constructor(
+    private accountService: AccountService,
+    private route: ActivatedRoute,
+    private appConstantsService: AppConstantsService
+  ) {
     super();
   }
 
-  updateTypeFilter(type) {
+  updateTypeFilter(type: string) {
     if (type === '') { delete this.abstractAccountFilter.accountType; } else { this.abstractAccountFilter.accountType = Number(type); }
     this.updateSearch();
   }
 
   updateSearch() {
     this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
+    this.maxItems$ = this.getSearchHeader((terms) => this.accountService.accountHead(1, 0, terms, this.abstractAccountFilter, 'response').pipe(map((response) => { return (response) ? +response.headers.get("x-total-count") : 0 })));
   }
 
   ngOnInit() {
@@ -81,20 +77,10 @@ export class AccountListComponent extends SearchPage implements OnInit {
     const n = +PagingConf.item_count;
     this.specificSearch = (terms !== '');
 
-    return this.accountService.accountGet(n, (page - 1) * n, terms, this.abstractAccountFilter, 'response')
-      .pipe(
-        // switch to new search observable each time the term changes
-        map((response) => <AccountListResponse>{
-          accounts: response.body,
-          item_count: +response.headers.get('x-total-count'),
-          page_number: page,
-          item_per_page: n,
-        }),
-      );
+    return this.accountService.accountGet(n, (page - 1) * n, terms, this.abstractAccountFilter)
   }
 
   handlePageChange(page: number) {
     this.changePage(page);
-    this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
   }
 }

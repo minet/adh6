@@ -7,15 +7,15 @@
       <li><a class="pagination-link is-current" aria-label="Goto page 1">1</a></li>
     </ul>
     <ng-template #greaterThan1>
-      <ul class="pagination-list" *ngIf="numberOfPages == deltaPage">
+      <ul class="pagination-list" *ngIf="numberOfPages <= deltaPage">
         <li><a class="pagination-link" (click)="addPage(-page+1)" [ngClass]="{'is-current': page == 1}"
             aria-label="Goto page 1">1</a></li>
         <li><a class="pagination-link" (click)="addPage(-page+2)" [ngClass]="{'is-current': page == 2}"
             aria-label="Goto page 2">2</a></li>
-        <li><a class="pagination-link" (click)="addPage(-page+3)" [ngClass]="{'is-current': page == 3}"
-            aria-label="Goto page 3">3</a></li>
+        <li><a class="pagination-link" *ngIf="numberOfPages == 3" (click)="addPage(-page+3)"
+            [ngClass]="{'is-current': page == 3}" aria-label="Goto page 3">3</a></li>
       </ul>
-      <ul class="pagination-list" *ngIf="numberOfPages != deltaPage">
+      <ul class="pagination-list" *ngIf="numberOfPages > deltaPage">
         <li><a class="pagination-link" (click)="addPage(-(page-1))" [ngClass]="{'is-current': page == 1}"
             aria-label="Goto page 1">1</a></li>
         <ng-container *ngIf="page < deltaPage">

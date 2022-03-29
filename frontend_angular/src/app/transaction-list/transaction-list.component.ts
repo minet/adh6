@@ -8,13 +8,6 @@ import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { AppConstantsService } from '../app-constants.service';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 
-export interface TransactionListResult {
-  transactions?: Array<Transaction>;
-  item_count?: number;
-  current_page?: number;
-  items_per_page?: number;
-}
-
 class Action {
   name: string;
   buttonText: string;
@@ -36,8 +29,8 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   @Input() actions: Array<Action>;
 
   faClock = faClock;
-
-  result$: Observable<TransactionListResult>;
+  maxItems$: Observable<number>;
+  result$: Observable<Array<Transaction>>;
   paymentMethods: Array<PaymentMethod>;
 
   filterType: string;
@@ -70,10 +63,26 @@ export class TransactionListComponent extends SearchPage implements OnInit {
   }
 
   loadData() {
+    this.maxItems$ = this.getSearchHeader((terms) => this.fetchTransactionHead(terms));
     this.result$ = this.getSearchResult((terms, page) => this.fetchTransaction(terms, page));
   }
 
-  private fetchTransaction(terms: string, page: number): Observable<TransactionListResult> {
+  private fetchTransactionHead(terms: string): Observable<number> {
+    let abstractTransaction: AbstractTransaction = {};
+    if (this.asAccount) {
+      abstractTransaction = {
+        src: this.asAccount,
+        dst: this.asAccount
+      };
+    }
+    if (this.filterType != null && this.filterType !== '') {
+      abstractTransaction.paymentMethod = Number(this.filterType);
+    }
+    return this.transactionService.transactionHead(1, 0, terms, abstractTransaction, 'response')
+      .pipe(map((response) => { return (response) ? +response.headers.get("x-total-count") : 0 }));
+  }
+
+  private fetchTransaction(terms: string, page: number): Observable<Array<Transaction>> {
     const n = +PagingConf.item_count;
     let abstractTransaction: AbstractTransaction = {};
     if (this.asAccount) {
@@ -82,25 +91,13 @@ export class TransactionListComponent extends SearchPage implements OnInit {
         dst: this.asAccount
       };
     }
-
     if (this.filterType != null && this.filterType !== '') {
       abstractTransaction.paymentMethod = Number(this.filterType);
     }
-    return this.transactionService.transactionGet(n, (page - 1) * n, terms, abstractTransaction, 'response')
-      .pipe(
-        map((response) => {
-          return <TransactionListResult>{
-            transactions: response.body,
-            item_count: +response.headers.get('x-total-count'),
-            current_page: page,
-            items_per_page: n,
-          };
-        }),
-      );
+    return this.transactionService.transactionGet(n, (page - 1) * n, terms, abstractTransaction);
   }
 
   handlePageChange(page: number) {
     this.changePage(page);
-    this.result$ = this.getSearchResult((terms, page) => this.fetchTransaction(terms, page));
   }
 }

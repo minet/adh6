@@ -46,6 +46,7 @@ export class PaginationComponent implements OnInit {
     } else {
       this.page += inc;
     }
+    this.pageChange.emit(this.page);
   }
 
   setPage(page: number): void {

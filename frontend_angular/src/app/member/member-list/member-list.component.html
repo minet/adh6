@@ -12,7 +12,7 @@
     </div>
   </div>
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-fullwidth" *ngIf="result$ | async as result">
+    <table class="table is-hoverable is-fullwidth">
       <thead>
         <tr>
           <th>Nom</th>
@@ -20,7 +20,7 @@
           <th class="roomNumberRow">Chambre</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody *ngIf="result$ | async as result">
         <tr *ngFor="let member of result" [routerLink]="['../view', member.id]">
           <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
           <td>{{ member.username }}</td>

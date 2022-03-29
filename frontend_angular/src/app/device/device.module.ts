@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { DeviceListComponent } from './device-list/device-list.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { PaginationModule } from '../pagination/pagination.module';
 
 
@@ -13,7 +12,6 @@ import { PaginationModule } from '../pagination/pagination.module';
     DeviceListComponent,
   ],
   imports: [
-    NgxPaginationModule,
     ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([

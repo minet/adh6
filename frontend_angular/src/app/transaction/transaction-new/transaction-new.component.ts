@@ -30,10 +30,10 @@ export class TransactionNewComponent implements OnInit {
   faExchangeAlt = faExchangeAlt;
   faClock = faClock;
   actions = [
-    { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
-    { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
-    { name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'btn-success', buttonIcon: faCheck, condition: (transaction: Transaction) => transaction.pendingValidation },
-    { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'btn-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
+    { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'is-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'is-success', buttonIcon: faCheck, condition: (transaction: Transaction) => transaction.pendingValidation },
+    { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
   paymentMethods: Array<PaymentMethod>;
   selectedSrcAccount: Account;

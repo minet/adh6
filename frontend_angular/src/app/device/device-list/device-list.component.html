@@ -1,14 +1,10 @@
 <h2 class="title is-2">Liste des appareils</h2>
-<br />
-
-<!-- Search box -->
 <div class="box">
   <input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
     class="input is-fullwidth" type="text" />
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <!-- Device list -->
-    <table class="table is-hoverable is-fullwidth" *ngIf="result$ | async as result"
-      (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
+    <table class="table is-hoverable is-fullwidth" (click)="isCollapsed = !isCollapsed"
+      [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
       <thead>
         <tr>
           <th>Utilisateur</th>
@@ -16,7 +12,7 @@
           <th>Type d'appareil</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody *ngIf="result$ | async as result">
         <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member.id]"
           [queryParams]="{highlight: device.mac}">
           <td>{{ device.member.username }}</td>
