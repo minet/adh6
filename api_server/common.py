@@ -21,7 +21,8 @@ from src.interface_adapter.http_api import (
     PaymentMethodHandler,
     ProductHandler,
     RoomHandler,
-    SwitchHandler
+    SwitchHandler,
+    AccountTypeHandler
 )
 
 from src.interface_adapter.sql.model.models import db
@@ -66,7 +67,7 @@ def init() -> FlaskApp:
             'room': obj_graph.provide(RoomHandler),
             'switch': obj_graph.provide(SwitchHandler),
             'port': obj_graph.provide(PortHandler),
-            'account_type': obj_graph.provide(AccountHandler),
+            'account_type': obj_graph.provide(AccountTypeHandler),
             'payment_method': obj_graph.provide(PaymentMethodHandler),
             'account': obj_graph.provide(AccountHandler),
             'product': obj_graph.provide(ProductHandler),
