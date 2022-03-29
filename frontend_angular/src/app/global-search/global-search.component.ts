@@ -1,8 +1,7 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
-import {concat, EMPTY, from, merge, Observable, Subject} from 'rxjs';
-import {debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap} from 'rxjs/operators';
-import {TypeaheadMatch} from 'ngx-bootstrap/typeahead';
+import { concat, EMPTY, from, merge, Observable, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, mergeMap, scan, switchMap } from 'rxjs/operators';
 
 import {
   Account,
@@ -18,7 +17,7 @@ import {
   RoomService,
   SwitchService
 } from '../api';
-import {Router} from '@angular/router';
+import { Router } from '@angular/router';
 
 class QueryParams {
   highlight: string;
@@ -124,7 +123,7 @@ export class GlobalSearchComponent implements OnInit {
             'device',
             obj.mac,
             ['/member/view/', '' + (obj.member as Member).id],
-            {'highlight': obj.mac}
+            { 'highlight': obj.mac }
           )),
         );
 
