@@ -149,7 +149,7 @@ export class TransactionNewComponent implements OnInit {
       paymentMethod: +v.paymentMethod,
       value: +v.value,
       cashbox: v.caisse,
-      pendingValidation: v.pending_validation
+      pendingValidation: (v.pending_validation == null) ? false : v.pending_validation
     };
     if (!varTransaction.cashbox) {
       varTransaction.cashbox = 'direct';

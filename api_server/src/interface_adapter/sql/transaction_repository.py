@@ -27,7 +27,7 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 class TransactionSQLRepository(TransactionRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractTransaction = None) -> Tuple[List[Transaction], int]:
+                  filter_:  AbstractTransaction = None) -> Tuple[List[Transaction], int]:
         session: Session= ctx.get(CTX_SQL_SESSION)
 
         account_source = aliased(Account)
@@ -75,7 +75,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_id = ctx.get(CTX_ADMIN).member
+        admin_id = ctx.get(CTX_ADMIN).id
         author_ref = session.query(Adherent).filter(Adherent.id == admin_id).one_or_none()
         if not author_ref:
             raise MemberNotFoundError(abstract_transaction.author)
