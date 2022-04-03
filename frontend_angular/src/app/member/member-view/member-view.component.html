@@ -150,18 +150,19 @@
     <app-device-new [member_id]="member.id"
       (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()">
     </app-device-new>
-
-    <div class="container">
-      <div class="row">
-        <div class="col-auto mr-auto p-0">
-          <h3>Journal</h3>
-        </div>
-        <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
-          <button (click)="refreshLog()" class="button is-primary" title="Actualiser le journal">&#x27F3;</button>
-        </div>
+    <br />
+    <div class="columns">
+      <div class="column">
+        <h3 class="title is-3">Journal</h3>
+      </div>
+      <div class="column">
+        <button (click)="refreshLog()" class="button is-primary" title="Actualiser le journal">&#x27F3;</button>
       </div>
     </div>
-
+    <label class="checkbox">
+      <input (change)="getDhcp = !getDhcp" type="checkbox">
+      Logs DHCP
+    </label>
     <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
       <ul class="list-unstyled is-fullwidth">
         <li *ngFor="let log of log$ | async">
@@ -169,11 +170,6 @@
             [innerHtml]="extractMsgFromLog(log)"></span>
         </li>
       </ul>
-    </div>
-
-    <div class="form-check mt-3 mb-3">
-      <input (change)="getDhcp = !getDhcp" class="input" id="logsDhcp" type="checkbox">
-      <label class="form-check-label" for="logsDhcp">Logs DHCP</label>
     </div>
   </ng-container>
 </div>
