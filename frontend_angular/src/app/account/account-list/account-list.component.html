@@ -8,7 +8,7 @@
         </p>
         <p class="control">
           <select class="input" (change)="updateTypeFilter($event.target.value)">
-            <option value="">Tout type</option>
+            <option value="">-- Tout type --</option>
             <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
           </select>
         </p>

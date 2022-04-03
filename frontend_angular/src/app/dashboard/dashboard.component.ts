@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { Configuration, Member } from '../api';
+import { Member } from '../api';
 import { localize_link } from '../config/links.config';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { AppConstantsService } from '../app-constants.service';

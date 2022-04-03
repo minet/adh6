@@ -1,150 +1,110 @@
-<div *ngIf="room$ | async as room">
-  <div class="col-md-12">
-    <h2>{{ room.description }}</h2>
-
-    <h3>Adhérents</h3>
-    <button class="w-100 btn btn-warning mb-3" (click)="onEmmenager()">
-      Emménagement
-    </button>
-
-    <div *ngIf="isEmmenager">
-      <h3>Emménager</h3>
-      <form [formGroup]="EmmenagerForm" (ngSubmit)="onSubmitComeInRoom()" novalidate class="mb-3">
-        <p>Login DISI du nouvel adhérent</p>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <input class="w-100 form-control" type="text" formControlName="username"/>
-          </div>
-          <div class="form-group col-md-4">
-            <button
-              class="w-100 btn btn-primary"
-              [disabled]="disabled || EmmenagerForm.status == 'INVALID'"
-            >
-              Valider
-            </button>
-          </div>
+<div class="container mt-5" *ngIf="room$ | async as room">
+  <div class="columns">
+    <div class="column is-one-quarter box">
+      <h4 class="title is-4 has-text-centered">Informations</h4>
+      <p><strong>Chambre : </strong>{{ room.roomNumber }}</p>
+      <p><strong>VLAN assigné : </strong>{{ room.vlan.number }}</p>
+      <br />
+      <div class="field is-grouped is-grouped-centered">
+        <div class="control">
+          <a [routerLink]="['/room/edit', room.id]">
+            <button class="button is-primary">Éditer</button>
+          </a>
         </div>
-      </form>
+        <div class="control">
+          <button class="button is-danger" (click)="onDelete()" disabled>Supprimer</button>
+        </div>
+      </div>
+      <hr />
+      <h4 class="title is-4 has-text-centered">Ports</h4>
+      <ul>
+        <ng-container *ngFor="let portRes of ports$ | async">
+          <p><strong>{{ portRes.switchObj.description }}: {{ portRes.portNumber }}</strong></p>
+          <a class="button is-primary is-fullwidth is-small" [routerLink]="['/port',portRes.switchObj.id,portRes.id]">
+            Configurer
+          </a>
+        </ng-container>
+      </ul>
     </div>
-
-    <ul class="list-group">
-      <li *ngFor="let member of members$ | async" class="list-group-item">
-        <div class="row">
-          <div class="col-md-1 my-auto ">
-            <img
-              class="w-100"
-              src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"
-            />
-          </div>
-
-          <div class="col-md-11">
-            <strong>{{ member.firstName }} {{ member.lastName }}</strong>
-            <br/><br/>
-
-            <div class="row">
-              <div class="col-md-4">
-                <a [routerLink]="['/member/view', member.id]">
-                  <button
-                    class="w-100 btn btn-primary mb-3"
-                    [disabled]="enabled"
-                  >
-                    Consulter le profil
-                  </button>
-                </a>
-              </div>
-              <div class="col-md-4">
-                <button
-                  class="w-100 btn btn-primary mb-3"
-                  (click)="onDemenager(member.username)"
-                  [disabled]="enabled"
-                >
-                  Déménager
+    <div class="column">
+      <h4 class="title is-4 has-text-centered">Adhérents</h4>
+      <div class="columns is-vcentered">
+        <div class="column is-one-quarter">
+          <h4 class="title is-5">Emménagement</h4>
+        </div>
+        <div class="column">
+          <form [formGroup]="EmmenagerForm" (ngSubmit)="onSubmitComeInRoom()" novalidate>
+            <div class="field has-addons has-addons-fullwidth">
+              <p class="control">
+                <input class="input is-fullwidth" type="text" placeholder="Identifiant MiNET de l'adhérent"
+                  formControlName="username" />
+              </p>
+              <p class="control">
+                <button class="button is-primary" [disabled]="disabled || EmmenagerForm.status == 'INVALID'">
+                  Valider
                 </button>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="box">
+        <ng-container *ngIf="members$ | async as members">
+          <ng-container *ngFor="let member of members">
+            <div class="columns is-vcentered">
+              <div class="column is-one-fifth">
+                <strong>{{ member.firstName }} {{ member.lastName }}</strong>
               </div>
-              <div class="col-md-4">
-                <a (click)="onRemoveFromRoom(member.username)">
-                  <button class="w-100 btn btn-danger" [disabled]="enabled">
-                    Supprimer de la chambre
-                  </button>
-                </a>
+              <div class="column">
+                <div class="field is-grouped is-grouped-centered">
+                  <div class="control">
+                    <a [routerLink]="['/member/view', member.id]">
+                      <button class="button is-primary" [disabled]="enabled">
+                        Consulter le profil
+                      </button>
+                    </a>
+                  </div>
+                  <div class="control">
+                    <button class="button is-primary" (click)="onDemenager(member.username)" [disabled]="enabled">
+                      Déménager
+                    </button>
+                  </div>
+                  <div class="control">
+                    <a (click)="onRemoveFromRoom(member.username)">
+                      <button class="button is-danger" [disabled]="enabled">
+                        Supprimer de la chambre
+                      </button>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div *ngIf="isDemenager">
-          <div *ngIf="ref == member.username">
-            <hr>
-            <h3>Déménager</h3>
-            <p>Nouveau numéro de chambre</p>
-            <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(member.username)" novalidate>
-              <div class="row">
-                <div class="col-md-3">
-                  <input
-                    class="w-100 form-control mb-3"
-                    type="number"
-                    formControlName="roomNumberNew"
-                  />
-                </div>
-                <div class="col-md-3">
-                  <button
-                    class="w-100 btn btn-primary"
-                    [disabled]="disabled || roomForm.status == 'INVALID'"
-                  >
-                    Valider
-                  </button>
-                </div>
+            <div *ngIf="isDemenager">
+              <div *ngIf="ref == member.username">
+                <hr>
+                <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(member.username)" novalidate>
+                  <div class="field has-addons has-addons-fullwidth">
+                    <div class="control">
+                      <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
+                        placeholder="Nouveau numéro de chambre" />
+                    </div>
+                    <div class="control">
+                      <button type="submit" class="button is-primary"
+                        [disabled]="disabled || roomForm.status == 'INVALID'">
+                        Valider
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-      </li>
-    </ul>
-
-    <h3 id="port">Ports</h3>
-    <ul>
-      <li *ngFor="let portRes of ports$ | async">
-        <strong
-        >Switch {{ portRes.switchObj.description }} port {{ portRes.portNumber }}</strong
-        >
-        <br/><br/>
-        <div class="row">
-          <div class="col-md-3 mb-3">
-            <button class="w-100 btn btn-success" (click)="etat()">Etat</button>
-          </div>
-          <div class="col-md-3 mb-3">
-            <button class="w-100 btn btn-primary" (click)="auth()">Authentification</button>
-          </div>
-          <div class="col-md-3 mb-3">
-            <a
-              [routerLink]="[
-                  '/port',
-                  portRes.switchObj.id,
-                  portRes.id
-                ]"
-            >
-              <button class="w-100 btn btn-primary">Configurer</button>
-            </a>
-          </div>
-        </div>
-      </li>
-    </ul>
-
-    <h3>Informations</h3>
-    <ul>
-      <li><strong>Numéro de chambre : </strong>{{ room.roomNumber }}</li>
-      <li><strong>VLAN assigné : </strong>{{ room.vlan.number }}</li>
-    </ul>
-    <div class="row">
-      <div class="col-md-3">
-        <a [routerLink]="['/room/edit', room.id]">
-          <button class="w-100 btn btn-primary mb-3">Éditer</button>
-        </a>
-      </div>
-      <div class="col-md-3">
-        <button class="w-100 btn btn-danger" (click)="onDelete()">Supprimer</button>
+              <hr>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="members.length == 0">
+            <h6 class="title is-6 has-text-centered">Aucun adhérent dans la chambre</h6>
+          </ng-container>
+        </ng-container>
       </div>
     </div>
   </div>
 </div>
-

@@ -1,10 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom} from '../../api';
-import {takeWhile} from 'rxjs/operators';
-import {Location} from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom } from '../../api';
+import { takeWhile } from 'rxjs/operators';
+import { Location } from '@angular/common';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -15,14 +15,12 @@ import { NotificationService } from '../../notification.service';
 export class RoomDetailsComponent implements OnInit, OnDestroy {
 
   disabled = false;
-  authenth = false;
   room$: Observable<Room>;
   ports$: Observable<Array<Port>>;
   members$: Observable<Array<Member>>;
   room_id: number;
   roomForm: FormGroup;
   EmmenagerForm: FormGroup;
-  public isEmmenager = false;
   public isDemenager = false;
   public ref: string;
   private alive = true;
@@ -51,23 +49,15 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  auth() {
-    this.authenth = !this.authenth;
-  }
-
-  onEmmenager() {
-    this.isEmmenager = !this.isEmmenager;
-  }
-
-  onDemenager(username) {
+  onDemenager(username: string) {
     this.ref = username;
     this.isDemenager = !this.isDemenager;
   }
 
   refreshInfo() {
     this.room$ = this.roomService.roomRoomIdGet(this.room_id);
-    this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{room: this.room_id});
-    this.members$ = this.memberService.memberGet(undefined, undefined, '', <AbstractMember>{room: this.room_id});
+    this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{ room: this.room_id });
+    this.members$ = this.memberService.memberGet(undefined, undefined, '', <AbstractMember>{ room: this.room_id });
   }
 
   onSubmitComeInRoom() {
@@ -79,27 +69,26 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
         member.room = this.room_id;
         this.memberService.memberMemberIdPut(member, member.id, 'response')
           .pipe(takeWhile(() => this.alive))
-          .subscribe((response) => {
+          .subscribe((_) => {
             this.refreshInfo();
             this.notificationService.successNotification();
-            this.onEmmenager();
           });
-      }, (member) => {
+      }, (_) => {
         this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
       });
   }
 
-  onSubmitMoveRoom(username) {
+  onSubmitMoveRoom(username: string) {
     const v = this.roomForm.value;
 
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: v.roomNumberNew})
+    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumberNew })
       .subscribe(rooms => {
         if (rooms.length == 0) {
           this.notificationService.errorNotification(404, undefined, "The room with number: " + v.roomNumberNew + " does not exists");
           return
         }
         const room: Room = rooms[0];
-        this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
+        this.memberService.memberGet(1, 0, undefined, <AbstractMember>{ username: username })
           .subscribe((members) => {
             if (members.length == 0) {
               this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
@@ -107,19 +96,19 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
             }
             const member: Member = members[0];
             console.log(member);
-            this.memberService.memberMemberIdPatch(<AbstractMember>{room: room.id}, member.id, 'response')
-              .subscribe((response) => {
+            this.memberService.memberMemberIdPatch(<AbstractMember>{ room: room.id }, member.id, 'response')
+              .subscribe((_) => {
                 this.refreshInfo();
                 this.onDemenager(username);
-                this.router.navigate(['room', v.roomNumberNew]);
+                this.router.navigate(['room', 'view', v.roomNumberNew]);
                 this.notificationService.successNotification();
               });
           });
       })
   }
 
-  onRemoveFromRoom(username) {
-    this.memberService.memberGet(1, 0, undefined, <AbstractMember>{username: username})
+  onRemoveFromRoom(username: string) {
+    this.memberService.memberGet(1, 0, undefined, <AbstractMember>{ username: username })
       .subscribe((members) => {
         if (members.length == 0) {
           this.notificationService.errorNotification(404, undefined, 'Member ' + username + ' does not exists');
@@ -127,8 +116,8 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
         }
         const member: Member = members[0];
 
-        this.memberService.memberMemberIdPatch(<AbstractMember>{room: -1}, member.id, 'response')
-          .subscribe((response) => {
+        this.memberService.memberMemberIdPatch(<AbstractMember>{ room: -1 }, member.id, 'response')
+          .subscribe((_) => {
             this.refreshInfo();
             this.location.back();
             this.notificationService.successNotification();
@@ -139,7 +128,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   onDelete() {
     this.roomService.roomRoomIdDelete(this.room_id, 'response')
       .pipe(takeWhile(() => this.alive))
-      .subscribe((response) => {
+      .subscribe((_) => {
         this.router.navigate(['room']);
         this.notificationService.successNotification();
       });

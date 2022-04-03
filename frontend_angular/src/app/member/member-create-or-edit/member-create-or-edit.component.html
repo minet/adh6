@@ -1,49 +1,45 @@
-<h2 *ngIf="!create" class="text-left">Édition d'un membre</h2>
-<h2 *ngIf="create" class="text-left">Création d'un membre</h2>
-<hr>
+<h2 *ngIf="!create" class="title is-2">Édition d'un membre</h2>
+<h2 *ngIf="create" class="title is-2">Création d'un membre</h2>
 <form [formGroup]="memberEdit" (ngSubmit)="editMember()" novalidate>
-  <div class="form-row">
-    <div class="form-group col-md">
-      <label>Prénom / First name :</label>
-      <input class="w-100 form-control" type="text" formControlName="firstName">
-    </div>
-    <div class="form-group col-md">
-      <label>Nom / Last name :</label>
-      <input class="w-100 form-control" type="text" formControlName="lastName">
-    </div>
+  <div class="field">
+    <label class="label">Prénom / First name :</label>
+    <input class="input is-fullwidth" type="text" formControlName="firstName">
+  </div>
+  <div class="field">
+    <label class="label">Nom / Last name :</label>
+    <input class="input is-fullwidth" type="text" formControlName="lastName">
   </div>
 
-  <div class="form-group">
-    <label>Login DISI :</label>
-    <input class="w-100 form-control" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" formControlName="username">
-    <div *ngIf="memberEdit.controls['username'].invalid && memberEdit.controls['username'].dirty && memberEdit.controls['username'].touched">
-      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.minlength">Le nom d'utilisateur doit contenir au moins 7 caractères.</span>
-      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.maxlength">Le nom d'utilisateur doit contenir moins de 8 caractères.</span>
-    </div>
+  <div class="field">
+    <label class="label">Login :</label>
+    <input class="input is-fullwidth" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"
+      spellcheck="false" formControlName="username">
+    <p *ngIf="memberEdit.controls['username'].invalid && memberEdit.controls['username'].dirty && memberEdit.controls['username'].touched"
+      class="help is-danger">
+      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.minlength">Le nom d'utilisateur doit
+        contenir
+        au moins 7 caractères.</span>
+      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.maxlength">Le nom d'utilisateur doit
+        contenir
+        moins de 8 caractères.</span>
+    </p>
+  </div>
+  <div class="field">
+    <label class="label">Mail :</label>
+    <input class="input is-fullwidth" type="email" formControlName="email">
   </div>
 
-  <div class="form-group">
-    <label>Mail :</label>
-    <input class="w-100 form-control" type="email" formControlName="email">
+  <div class="field">
+    <label class="label">Numéro de chambre / Room number :</label>
+    <input class="input is-fullwidth" formControlName="roomNumber" type="number">
   </div>
-
-  <div class="form-group">
-    <label>Numéro de chambre / Room number :</label>
-    <input class="w-100 form-control" formControlName="roomNumber" type="number">
-  </div>
-
-  <br/>
-  <button type="submit"
-          [disabled]="disabled || memberEdit.status == 'INVALID'"
-          class="w-100 btn btn-primary"
-  ><span *ngIf="!create">Éditer</span><span *ngIf="create">Créer</span>
+  <button type="submit" [disabled]="disabled || memberEdit.status == 'INVALID'"
+    class="button is-primary is-fullwidth"><span *ngIf="!create">Éditer</span><span *ngIf="create">Créer</span>
   </button>
 </form>
-
+<br />
 <a (click)="memberUsernameDelete()" *ngIf="!create">
-  <button
-    [disabled]="disabled"
-    class="w-100 btn btn-danger mt-3">
+  <button [disabled]="disabled" class="button is-danger is-fullwidth">
     Supprimer
   </button>
 </a>
