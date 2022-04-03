@@ -1,10 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {PortService, Port} from '../../api';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { finalize, Observable, of } from 'rxjs';
+import { PortService, Port, Room } from '../../api';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -21,16 +20,21 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   changeVlanVisible = false;
   selectedVlan: number = 1;
 
-  portSpeed: string ;
+  portSpeed: string;
 
   private sub: any;
 
-  public mab: boolean;
   public auth: boolean;
   public use: string;
-  public status: boolean;
   public alias: string;
   public vlan: number;
+
+  public mab$: Observable<boolean>;
+  public auth$: Observable<boolean>;
+  public use$: Observable<string>;
+  public status$: Observable<boolean>;
+  public alias$: Observable<string>;
+  public vlan$: Observable<number>;
 
   constructor(
     private portService: PortService,
@@ -38,7 +42,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private notificationService: NotificationService
-  ) { 
+  ) {
     this.createForm();
   }
 
@@ -66,59 +70,56 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus(): void {
-    this.portService.portPortIdStatePut(this.portID)
-      .subscribe(value => {
-        this.status = value;
+    this.status$ = this.portService.portPortIdStatePut(this.portID)
+      .pipe(finalize(() => {
         this.notificationService.successNotification("État du port modifié");
-      });
+      }));
   }
 
   public toggleMAB(): void {
-    this.portService.portPortIdMabPut(this.portID)
-      .subscribe(value => {
-        this.mab = value;
+    this.mab$ = this.portService.portPortIdMabPut(this.portID)
+      .pipe(finalize(() => {
         this.notificationService.successNotification("MAB modifié");
-      });
+      }));
   }
 
-  public toggleAuth(): void {
-    this.portService.portPortIdAuthPut(this.portID)
-      .subscribe(value => {
-        this.notificationService.successNotification("Authentification modifiée");
-        if (!value) {
-          Swal.fire({
-            title: 'Entrer le VLAN',
-            icon: 'question',
-            input: 'number',
-            inputLabel: 'VLAN 1',
-            inputPlaceholder: 'Entrer le VLAN',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.auth = value;
-              console.log(result);
-              this.submitVLAN(result.value);
-              return;
-            }
-            if (result.isDenied) {
-              this.toggleAuth();
-            }
-          });
-        } else {
-          this.auth = value;
-          this.submitVLAN(1);
+  public toggleAuth(currentValue: boolean): void {
+    if (currentValue) {
+      Swal.fire({
+        title: 'Entrer le VLAN',
+        icon: 'question',
+        input: 'number',
+        inputLabel: 'VLAN 1',
+        inputPlaceholder: 'Entrer le VLAN',
+        showCancelButton: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.auth$ = this.portService.portPortIdAuthPut(this.portID)
+            .pipe(finalize(() => {
+              this.notificationService.successNotification("Authentification modifiée");
+            }));
+          this.submitVLAN(result.value);
+          return;
         }
       });
+    } else {
+      this.auth$ = this.portService.portPortIdAuthPut(this.portID)
+        .pipe(finalize(() => {
+          this.notificationService.successNotification("Authentification modifiée");
+        }));
+      this.vlan$ = this.portService.vlanGet(this.portID);
+    }
   }
 
   submitVLAN(vlan: number) {
     this.portService.portPortIdVlanPut(vlan, this.portID)
-      .subscribe(() => {
+      .pipe(finalize(() => {
         this.notificationService.successNotification("VLAN modifié: " + vlan);
-        this.vlan = vlan;
-      });
+      }));
+    this.vlan$ = of(vlan);
   }
 
-  IfRoomExists(roomNumber) {
+  IfRoomExists(roomNumber: Room) {
     console.log(roomNumber);
     if (roomNumber == null) {
       this.notificationService.errorNotification(
@@ -146,29 +147,11 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   refreshInfo(): void {
-    this.portService.authGet(this.portID)
-      .subscribe(value => {
-        this.auth = value;
-      });
-    this.portService.stateGet(this.portID)
-      .subscribe(value => {
-        this.status = value;
-      });
-    this.portService.mabGet(this.portID)
-      .subscribe(value => {
-        this.mab = value;
-      });
-    this.portService.useGet(this.portID)
-      .subscribe(value => {
-        this.use = value;
-      });
-    this.portService.vlanGet(this.portID)
-      .subscribe(value => {
-        this.vlan = value;
-      });
-    this.portService.aliasGet(this.portID)
-      .subscribe(alias => {
-        this.alias = alias;
-      });
+    this.auth$ = this.portService.authGet(this.portID);
+    this.status$ = this.portService.stateGet(this.portID);
+    this.mab$ = this.portService.mabGet(this.portID);
+    this.use$ = this.portService.useGet(this.portID);
+    this.vlan$ = this.portService.vlanGet(this.portID);
+    this.alias$ = this.portService.aliasGet(this.portID);
   }
 }

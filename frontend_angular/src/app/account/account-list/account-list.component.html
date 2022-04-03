@@ -1,69 +1,74 @@
-<div class="row">
-  <div class="col-md-6">
-    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher" class="form-control mb-3" type="text"/>
-  </div>
-  <div class="col-md-3">
-    <div class="input-group mb-3">
-      <select class="custom-select" (change)="updateTypeFilter($event.target.value)">
-        <option value="">Tout type</option>
-        <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
-      </select>
-      <div class="input-group-append">
-        <button type="button" class="btn btn-danger"
-                tooltip="Inactif"
-                [value]="this.abstractAccountFilter.actif === false" (click)="updateBooleanFilter('actif', false, null)" btnCheckbox>
-          <fa-icon [icon]="faBan"></fa-icon>
-        </button>
-        <button type="button" class="btn btn-secondary"
-                tooltip="Épinglé"
-                [value]="this.abstractAccountFilter.pinned === true" (click)="updateBooleanFilter('pinned', true, null)" btnCheckbox>
-          <fa-icon [icon]="faThumbtack"></fa-icon>
-        </button>
-        <button type="button" class="btn btn-secondary"
-                tooltip="Sur le compte courant"
-                [value]="this.abstractAccountFilter.compteCourant === true" (click)="updateBooleanFilter('compteCourant', true, null)" btnCheckbox>
-          CAV
-        </button>
+<div class="box">
+  <div class="field is-horizontal">
+    <div class="field-body">
+      <div class="field is-grouped">
+        <p class="control is-expanded">
+          <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..." class="input"
+            type="text" />
+        </p>
+        <p class="control">
+          <select class="input" (change)="updateTypeFilter($event.target.value)">
+            <option value="">-- Tout type --</option>
+            <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
+          </select>
+        </p>
+        <div class="control">
+          <div class="field has-addons has-addons-centered">
+            <p class="control">
+              <button type="button" class="button is-danger" tooltip="Inactif"
+                [value]="this.abstractAccountFilter.actif === false"
+                (click)="updateBooleanFilter('actif', false, null)">
+                <fa-icon [icon]="faBan"></fa-icon>
+              </button>
+            </p>
+            <p class="control">
+              <button type="button" class="button is-primary" tooltip="Épinglé"
+                [value]="this.abstractAccountFilter.pinned === true"
+                (click)="updateBooleanFilter('pinned', true, null)">
+                <fa-icon [icon]="faThumbtack"></fa-icon>
+              </button>
+            </p>
+            <p class="control">
+              <button type="button" class="button is-primary" tooltip="Sur le compte courant"
+                [value]="this.abstractAccountFilter.compteCourant === true"
+                (click)="updateBooleanFilter('compteCourant', true, null)">
+                CAV
+              </button>
+            </p>
+          </div>
+        </div>
+        <p class="control">
+          <a [routerLink]="['/account/add']">
+            <button class="button is-primary">Nouveau compte</button>
+          </a>
+        </p>
       </div>
     </div>
   </div>
-  <div class="col-md-3">
-    <a [routerLink]="['/account/add']">
-      <button class="w-100 btn btn-primary">Nouveau compte</button>
-    </a>
-  </div>
-</div>
-<br/>
-
-<div style="overflow-x:auto;" class="u-max-full-width">
-  <table class="table clickable-table table-sm" *ngIf="result$ | async as result">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Actif</th>
-        <th>Type</th>
-        <th>Solde</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let accountResult of result.accounts | ObjectFilter: filter:!specificSearch | paginate : {
-        id: 'pagination',
-        itemsPerPage: result.item_per_page,
-        currentPage: result.page_number,
-        totalItems: result.item_count
-      }"
-      [routerLink]="['/account/view', accountResult.id]">
-        <td class="align-middle">
-          {{ accountResult.name }}
-        </td>
-        <td class="align-middle">{{ accountResult.actif  == true ? 'Oui' : 'Non' }}</td>
-        <td class="align-middle">{{ accountResult.accountType.name }}</td>
-        <td class="align-middle">{{ accountResult.balance }} €</td>
-        <ng-template #noBalance><td class="align-middle">-</td></ng-template>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="container d-flex align-items-center justify-content-center">
-  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
+  <ng-container *ngIf="maxItems$ | async as maxItems">
+    <table class="table is-hoverable is-striped is-fullwidth">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Actif</th>
+          <th>Type</th>
+          <th>Solde</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="result$ | async as result">
+        <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
+          <td class="align-middle">
+            {{ accountResult.name }}
+          </td>
+          <td class="align-middle">{{ accountResult.actif == true ? 'Oui' : 'Non' }}</td>
+          <td class="align-middle">{{ accountResult.accountType.name }}</td>
+          <td class="align-middle">{{ accountResult.balance }} €</td>
+          <ng-template #noBalance>
+            <td class="align-middle">-</td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
+    <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+  </ng-container>
 </div>

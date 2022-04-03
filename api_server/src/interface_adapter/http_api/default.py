@@ -32,6 +32,22 @@ class DefaultHandler:
             return result, 200, headers
         except Exception as e:
             return handle_error(ctx, e)
+    
+    @with_context
+    @require_sql
+    @log_call
+    def head(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+        try:
+            filter_ = deserialize_request(filter_, self.abstract_entity_class)
+            _, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
+                                                           filter_=filter_)
+            headers = {
+                "X-Total-Count": str(total_count),
+                'access-control-expose-headers': 'X-Total-Count'
+            }
+            return NoContent, 200, headers
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @require_sql

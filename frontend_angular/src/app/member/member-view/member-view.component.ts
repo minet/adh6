@@ -1,9 +1,9 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {BehaviorSubject, combineLatest, Observable, timer} from 'rxjs';
-import {AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember} from '../../api';
-import {ActivatedRoute} from '@angular/router';
-import {finalize, first, flatMap, map, share, switchMap, tap} from 'rxjs/operators';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
+import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
+import { ActivatedRoute } from '@angular/router';
+import { finalize, first, flatMap, map, share, switchMap, tap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 import { ListComponent } from '../../member-device/list/list.component';
 
@@ -14,8 +14,10 @@ import { ListComponent } from '../../member-device/list/list.component';
 })
 
 export class MemberViewComponent implements OnInit, OnDestroy {
-  @ViewChild(ListComponent) wiredList:ListComponent;
-  @ViewChild(ListComponent) wirelessList:ListComponent;
+  @ViewChild(ListComponent) wiredList: ListComponent;
+  @ViewChild(ListComponent) wirelessList: ListComponent;
+
+  currentTab = "profile";
 
   cotisation = false;
   submitDisabled = false;
@@ -52,7 +54,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   public parseMembershipStatus(membership: Membership): string {
-    switch(membership.status) {
+    switch (membership.status) {
       case AbstractMembership.StatusEnum.PENDINGRULES:
         return "en attente de la signature de la charte"
       case AbstractMembership.StatusEnum.PENDINGPAYMENTINITIAL:
@@ -81,7 +83,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
     this.member$ = refresh$.pipe(
       switchMap(member_id => this.memberService.memberMemberIdGet(member_id)),
-      tap((user) => this.commentForm.setValue({comment: (user.comment === undefined) ? '' : user.comment})),
+      tap((user) => this.commentForm.setValue({ comment: (user.comment === undefined) ? '' : user.comment })),
       share(),
     );
 
@@ -290,7 +292,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     const v = this.moveInForm.value;
     this.member_id$
       .subscribe(memberId => {
-        this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber: +v.roomNumber})
+        this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: +v.roomNumber })
           .subscribe(rooms => {
             if (rooms.length == 0) {
               this.notificationService.errorNotification(
@@ -302,7 +304,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
             }
             const room: Room = rooms[0];
 
-            this.memberService.memberMemberIdPatch(<AbstractMember>{room: room.id}, memberId, 'response')
+            this.memberService.memberMemberIdPatch(<AbstractMember>{ room: room.id }, memberId, 'response')
               .subscribe((response) => {
                 this.refreshInfo();
                 this.moveIn = false;

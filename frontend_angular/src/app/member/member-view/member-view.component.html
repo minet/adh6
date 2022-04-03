@@ -1,192 +1,175 @@
-
 <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
-  <div *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'" class="row">
-    <div class="col-md-3"></div>
-    <div class="col-md-9">
-      <div class="alert alert-info" role="alert"><h4 class="text-center"><strong>Cotisation en cours:</strong><br />aucune modification sur l'adhérent (comme la chambre) ne peut-être faite</h4></div>
-    </div>
+  <div
+    *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'"
+    class="notification is-info is-light">
+    <h4 class="title is-4">Cotisation en cours:</h4>
+    <p>Aucune modification sur l'adhérent (comme la chambre) ne peut-être faite.</p>
   </div>
 </ng-container>
 <div *ngIf="(member$ | async) as member" class="row">
-  <div class="col-md-3"></div>
-  <div class="col-md-9"><h2><span
-    class="capitalize">{{ member.firstName | lowercase }}</span> {{ member.lastName | uppercase }}</h2>
+  <h3 class="title is-3 has-text-centered">
+    <span class="capitalize">{{ member.firstName | lowercase }}</span> {{member.lastName | uppercase }}
+  </h3>
+  <div class="tabs is-centered is-large">
+    <ul>
+      <li [ngClass]="{'is-active': currentTab=='profile'}">
+        <a (click)="currentTab='profile'">Profile</a>
+      </li>
+      <li [ngClass]="{'is-active': currentTab=='device'}">
+        <a (click)="currentTab='device'">Appareils</a>
+      </li>
+    </ul>
   </div>
-</div><div *ngIf="(member$ | async) as member" class="row">
-  <!-- Left column -->
-  <div class="col-md-3">
-    <div class="card shadow" style="position: sticky; top: 10px;">
-      <div class="card-body">
-        <!-- Comment -->
-        <div [ngClass]="{'commentaire': member.comment!=null}" class="w-100 mb-3">{{ member.comment }}</div>
-        <!-- DISI picture -->
-        <img class="w-100 image-disi" src="https://trombi.imtbs-tsp.eu/photo.php?uid={{ member.username }}&h=320&w=240"
-             style="max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-        <!-- Association button -->
-        <button class="btn btn-primary w-100 association-button mt-3">Association des périphériques</button>
-        <ng-container *ngIf="latestMembership$ | async as latestMembership">
-          <button class="w-100 btn btn-success mt-3" (click)="validatePayment(latestMembership.uuid, latestMembership.status, member.id)" *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-
-  <!-- Right column -->
-  <div class="col-md-9">
-    <table class="w-100 shift-content-right">
-      <thead>
-      <tr>
-        <th colspan="2"><h3 class="table-title">Profil</h3></th>
-      </tr>
-      </thead>
+  <ng-container *ngIf="currentTab=='profile'">
+    <table class="table is-fullwidth">
       <tbody>
-      <tr>
-        <td class="profile-field">Identifiant DISI</td>
-        <td class="pb-2">{{ member.username }}</td>
-      </tr>
-      <tr>
-        <td class="profile-field">Mail</td>
-        <td class="pb-2"><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
-      </tr>
-      <tr>
-        <td class="profile-field">Date de départ</td>
-        <td class="pb-2">{{ member.departureDate | date:'dd/MM/y' }}</td>
-      </tr>
-      <tr>
-        <td class="profile-field">IP Publique Wifi</td>
-        <td class="pb-2">{{ member.ip }}</td>
-      </tr>
-      <tr>
-        <td class="profile-field">Subnet Wifi</td>
-        <td class="pb-2">{{ member.subnet }}</td>
-      </tr>
-      <tr>
-        <td class="profile-field">Chambre</td>
-        <td class="pb-2">
-          <ng-container *ngIf="member.room != null; else elseNoRoom">
-            <a [routerLink]='["/room/view/", member.room.id]'>
-              <button [disabled]="member.room.id == null" class="btn btn-primary">
-                {{ member.room.roomNumber }}
-              </button>
+        <tr>
+          <td>Identifiant MiNET</td>
+          <td>{{ member.username }}</td>
+        </tr>
+        <tr>
+          <td>Mail</td>
+          <td><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
+        </tr>
+        <tr>
+          <td>Date de départ</td>
+          <td>{{ member.departureDate | date:'dd/MM/y' }}</td>
+        </tr>
+        <tr>
+          <td>IP Wifi</td>
+          <td>{{ member.ip }}</td>
+        </tr>
+        <tr>
+          <td>Subnet Wifi</td>
+          <td>{{ member.subnet }}</td>
+        </tr>
+        <tr>
+          <td>Chambre</td>
+          <td>
+            <a *ngIf="member.room != null; else elseNoRoom" [routerLink]='["/room/view/", member.room.id]'>
+              {{ member.room.roomNumber }}
             </a>
-          </ng-container>
-          <ng-template #elseNoRoom>
-            <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
-              <button class="btn btn-warning" (click)="collapseMoveIn()" [disabled]="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'">
-                Emmenager
-              </button>
-            </ng-container>
-          </ng-template>
-        </td>
-      </tr>
+            <ng-template #elseNoRoom>
+              <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
+                <button class="button is-warning" (click)="collapseMoveIn()"
+                  [disabled]="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'">
+                  Emmenager
+                </button>
+              </ng-container>
+            </ng-template>
+          </td>
+        </tr>
       </tbody>
     </table>
 
+    <!-- Comment
+    <div [ngClass]="{'commentaire': member.comment!=null}" class="w-100 mb-3">{{ member.comment }}</div>
+    -->
+    <ng-container *ngIf="latestMembership$ | async as latestMembership">
+      <button class="button is-success is-fullwidth"
+        (click)="validatePayment(latestMembership.uuid, latestMembership.status, member.id)"
+        *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
+      <br />
+    </ng-container>
+
+    <!-- Right column -->
     <div *ngIf="moveIn">
-      <h3>Emmenagement</h3>
       <form (ngSubmit)="submitRoom()" [formGroup]="moveInForm">
-        <div class="form-group">
-          <label>Numéro de Chambre</label>
-          <input class="w-100 form-control" formControlName="roomNumber" type="number"/>
-        </div>
-        <div class="form-group">
-          <button class="w-100 btn btn-success mt-3" type="submit" [disabled]="moveInDisabled">Valider</button>
-        </div>
+        <input class="input is-fullwidth" formControlName="roomNumber" type="number"
+          placeholder="Numéro de chambre..." />
+        <button class="button is-success is-fullwidth" type="submit" [disabled]="moveInDisabled">Valider</button>
       </form>
     </div>
-    <div class="row mt-3">
-      <div class="col-md-6">
+    <div class="columns">
+      <div class="column">
         <a [routerLink]="['/member/edit/', member.id ]">
-          <button class="w-100 btn btn-primary mb-3">Éditer le profil</button>
+          <button class="button is-primary is-fullwidth">Éditer le profil</button>
         </a>
       </div>
-      <div class="col-md-6">
-        <button [routerLink]="['/account/search' ]" [queryParams]="{ member: member.id }" class="w-100 btn btn-primary mb-3">
+      <div class="column">
+        <button [routerLink]="['/account/search' ]" [queryParams]="{ member: member.id }"
+          class="button is-primary is-fullwidth">
           Comptes liés
         </button>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6">
+    <div class="columns">
+      <div class="column">
         <a [routerLink]="['/password', member.id ]">
-          <button class="w-100 btn btn-danger mb-3">Changer mot de passe</button>
+          <button class="button is-danger is-fullwidth">Changer mot de passe</button>
         </a>
       </div>
-      <div class="col-md-6">
+      <div class="column">
         <ng-container *ngIf="latestMembership$ | async as latestMembership; else waitingMembership">
           <a [routerLink]="['charter']">
-            <button class="w-100 btn btn-danger mb-3" *ngIf="latestMembership.status == 'PENDING_RULES'">Signer la charte</button>
+            <button class="button is-danger is-fullwidth" *ngIf="latestMembership.status == 'PENDING_RULES'">Signer la
+              charte</button>
           </a>
-          <button class="w-100 btn btn-success mb-3" (click)="newMembership(member.id)" *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Cotiser / Recotiser</button>
-          <button class="w-100 btn btn-primary mb-3" (click)="toggleCotisationMenu()" *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE' && latestMembership.status != 'PENDING_RULES'">Cotiser / Recotiser</button>
+          <button class="button is-success is-fullwidth" (click)="newMembership(member.id)"
+            *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Cotiser
+            / Recotiser</button>
+          <button class="button is-primary is-fullwidth" (click)="toggleCotisationMenu()"
+            *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE' && latestMembership.status != 'PENDING_RULES'">Cotiser
+            / Recotiser</button>
         </ng-container>
         <ng-template #waitingMembership>
-          <button class="w-100 btn btn-primary mb-3" disabled>Attente...</button>
+          <button class="button is-primary is-fullwidth" disabled>Attente...</button>
         </ng-template>
       </div>
     </div>
     <div *ngIf="cotisation">
       <ng-container *ngIf="latestMembership$ | async as latestMembership">
         <ng-container *ngIf="member_id$ | async as memberId">
-          <app-cotisation (membershipUpdated)="refreshMembership($event)" [member]="member" [memberId]="memberId" [membership]="latestMembership"></app-cotisation>  
+          <app-cotisation (membershipUpdated)="refreshMembership($event)" [member]="member" [memberId]="memberId"
+            [membership]="latestMembership"></app-cotisation>
         </ng-container>
       </ng-container>
     </div>
-    <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
-    <hr/>
-
-
-    <!-- Device list -->
-
-    <h3 class="my-0">Appareils</h3>
-
-    <br>
-    <h4 class="table-title my-0">Filaire</h4>
-    <app-member-device-list #wiredList
-                            [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
-                            [macHighlighted]="macHighlighted$"></app-member-device-list>
-
-    <br>
-    <h4 class="table-title my-0">Wifi</h4>
-    <app-member-device-list #wirelessList
-                            [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
-                            [macHighlighted]="macHighlighted$"></app-member-device-list>
-
-    <app-device-new [member_id]="member.id" (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()"></app-device-new>
-
-    <h3>Commentaire</h3>
+    <h3 class="title is-3">Commentaire</h3>
     <form (ngSubmit)="submitComment()" [formGroup]="commentForm" novalidate>
-      <div class="form-group">
-        <textarea class="w-100 form-control" formControlName="comment"></textarea>
-      </div>
-      <div class="form-group">
-        <button [disabled]="submitDisabled" class="w-100 btn btn-primary"
-                type="submit">Envoyer
-        </button>
-      </div>
+      <textarea class="input is-fullwidth" formControlName="comment"></textarea>
+      <button [disabled]="submitDisabled" class="button is-primary is-fullwidth" type="submit">
+        Envoyer
+      </button>
     </form>
-
-    <div class="container">
-      <div class="row">
-        <div class="col-auto mr-auto p-0"><h3>Journal</h3></div>
-        <div class="col-auto p-0" style="margin-top: 1em; margin-bottom: .5em;">
-          <button (click)="refreshLog()" class="btn btn-primary" title="Actualiser le journal">&#x27F3;</button>
-        </div>
+  </ng-container>
+  <ng-container *ngIf="currentTab=='device'">
+    <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
+    <div class="columns">
+      <div class="column">
+        <h4 class="title is-4">Filaire</h4>
+        <app-member-device-list #wiredList [abstractDeviceFilter]="{member: member.id, connectionType: 'wired'}"
+          [macHighlighted]="macHighlighted$"></app-member-device-list>
+      </div>
+      <div class="column">
+        <h4 class="title is-4">Wifi</h4>
+        <app-member-device-list #wirelessList [abstractDeviceFilter]="{member: member.id, connectionType: 'wireless'}"
+          [macHighlighted]="macHighlighted$"></app-member-device-list>
       </div>
     </div>
-
+    <app-device-new [member_id]="member.id"
+      (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()">
+    </app-device-new>
+    <br />
+    <div class="columns">
+      <div class="column">
+        <h3 class="title is-3">Journal</h3>
+      </div>
+      <div class="column">
+        <button (click)="refreshLog()" class="button is-primary" title="Actualiser le journal">&#x27F3;</button>
+      </div>
+    </div>
+    <label class="checkbox">
+      <input (change)="getDhcp = !getDhcp" type="checkbox">
+      Logs DHCP
+    </label>
     <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
-      <ul class="list-unstyled u-max-full-width">
+      <ul class="list-unstyled is-fullwidth">
         <li *ngFor="let log of log$ | async">
           <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span
-          [innerHtml]="extractMsgFromLog(log)"></span>
+            [innerHtml]="extractMsgFromLog(log)"></span>
         </li>
       </ul>
     </div>
-
-    <div class="form-check mt-3 mb-3">
-      <input (change)="getDhcp = !getDhcp" class="form-check-input" id="logsDhcp" type="checkbox">
-      <label class="form-check-label" for="logsDhcp">Logs DHCP</label>
-    </div>
-  </div>
+  </ng-container>
 </div>

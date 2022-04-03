@@ -1,52 +1,40 @@
-<title>MiNET - ADH6</title>
+<!--<title>MiNET - ADH6</title>-->
 <app-navbar></app-navbar>
 <div *ngIf="isAuthenticated(); else elseBlock">
-  <div class="modal fade" bsModal #bugReportModal="bs-modal"
-       tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 id="bug-report-modal-name" class="modal-title pull-left">Signaler un bug</h4>
-          <button type="button" class="close pull-right" aria-label="Close" (click)="bugReportModal.hide()">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="submitBugForm" (ngSubmit)="onSubmitBug()" novalidate>
-            <label class="sr-only" for="bugTitle">Title</label>
-            <div class="input-group mb-2">
-              <div class="input-group-prepend">
-                <div class="input-group-text">Titre</div>
-              </div>
-              <input formControlName="bugTitle" type="text" class="form-control" id="bugTitle"
-                     value="{{ getCurrentComponent() }} : ">
-            </div>
-            <label class="sr-only" for="bugDescription">Description</label>
-            <div class="form-group">
-              <textarea formControlName="bugDescription" class="form-control" id="bugDescription" rows="3"
-                        placeholder="Description"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
-          </form>
-        </div>
+  <div class="modal" [ngClass]="{'is-active': bugModal}" *ngIf="bugModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <div class="modal-card-head">
+        <p class="modal-card-title">Signaler un bug</p>
+        <button class="delete" aria-label="close" (click)="toogleModal()"></button>
+      </div>
+      <div class="modal-card-body">
+        <form [formGroup]="submitBugForm" (ngSubmit)="onSubmitBug()" novalidate>
+          <div class="field">
+            <input formControlName="bugTitle" class="input" type="text" placeholder="Titre"
+              value="{{ getCurrentComponent() }} : ">
+          </div>
+          <div class="field">
+            <textarea formControlName="bugDescription" class="textarea" rows="3" placeholder="Description"></textarea>
+          </div>
+          <div class="field">
+            <button type="submit" class="button is-primary is-fullwidth">Envoyer</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-  <div class="container mb-3 mt-2">
+  <div class="container">
     <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
     <ng-template #elseRouter>
       <router-outlet></router-outlet>
     </ng-template>
   </div>
 
-  <button id="reportBug" type="button" class="btn btn-primary" (click)="bugReportModal.show()">
+  <button id="reportBug" type="button" class="button is-primary" (click)="toogleModal()">
     <fa-icon [icon]="faBug"></fa-icon>
   </button>
-  <simple-notifications></simple-notifications>
-
 </div>
 <ng-template #elseBlock>
-  <div class="container mb-3 mt-2">
-    <app-portail></app-portail>
-  </div>
+  <app-portail></app-portail>
 </ng-template>

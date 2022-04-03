@@ -1,18 +1,18 @@
-import {Component, EventEmitter, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { Component, EventEmitter, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import {Observable} from 'rxjs';
-import {filter, map, switchMap, takeWhile} from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, map, switchMap, takeWhile } from 'rxjs/operators';
 
-import {Account, AccountService, PaymentMethod, Transaction, TransactionService} from '../../api';
+import { Account, AccountService, PaymentMethod, Transaction, TransactionService } from '../../api';
 
-import {SearchPage} from '../../search-page';
-import {faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock} from '@fortawesome/free-solid-svg-icons';
-import {ActivatedRoute} from '@angular/router';
-import {AppConstantsService} from '../../app-constants.service';
+import { SearchPage } from '../../search-page';
+import { faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute } from '@angular/router';
+import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
 
-export {ClickOutsideDirective} from '../clickOutside.directive';
+export { ClickOutsideDirective } from '../clickOutside.directive';
 
 export interface AccountListResult {
   accounts?: Array<Account>;
@@ -23,81 +23,66 @@ export interface AccountListResult {
   templateUrl: './transaction-new.component.html',
   styleUrls: ['./transaction-new.component.css']
 })
-export class TransactionNewComponent extends SearchPage implements OnInit {
+export class TransactionNewComponent implements OnInit {
+  public transactionModal = false;
   transactionDetails: FormGroup;
-  displaySrc = false;
-  displayDst = false;
   reverting = false;
   faExchangeAlt = faExchangeAlt;
   faClock = faClock;
   actions = [
-    {name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'btn-primary', buttonIcon: faArrowUp, condition: (transaction) => !transaction.pendingValidation},
-    {name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'btn-danger', buttonIcon: faUndo, condition: (transaction) => !transaction.pendingValidation},
-    {name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'btn-success', buttonIcon: faCheck, condition: (transaction) => transaction.pendingValidation},
-    {name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'btn-danger', buttonIcon: faTrash, condition: (transaction) => transaction.pendingValidation}
+    { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'is-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'is-success', buttonIcon: faCheck, condition: (transaction: Transaction) => transaction.pendingValidation },
+    { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
   paymentMethods: Array<PaymentMethod>;
-  srcSearchResult$: Observable<Array<Account>>;
-  dstSearchResult$: Observable<Array<Account>>;
   selectedSrcAccount: Account;
   selectedDstAccount: Account;
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
   private alive = true;
 
   constructor(private fb: FormBuilder,
-              public transactionService: TransactionService,
-              public appConstantService: AppConstantsService,
-              private accountService: AccountService,
-              private notificationService: NotificationService,
-              private route: ActivatedRoute) {
-    super();
+    public transactionService: TransactionService,
+    public appConstantService: AppConstantsService,
+    private accountService: AccountService,
+    private notificationService: NotificationService,
+    private route: ActivatedRoute) {
     this.createForm();
   }
 
-  useTransaction(event: { name, transaction }) {
+  public toogleModal(): void {
+    this.transactionModal = !this.transactionModal;
+  }
+
+  useTransaction(event: { name: string, transaction: Transaction }) {
     if (event.name === 'validate') {
       this.transactionService.validate(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
-        .subscribe((res) => {
+        .subscribe((_) => {
           this.notificationService.successNotification('Ok!', 'Transaction validée avec succès !');
-          this.refreshTransactions.next({action: 'refresh'});
+          this.refreshTransactions.next({ action: 'refresh' });
         });
     } else if (event.name === 'delete') {
       this.transactionService.transactionTransactionIdDelete(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
-        .subscribe((res) => {
+        .subscribe((_) => {
           this.notificationService.successNotification('Ok!', 'Transaction supprimée avec succès !');
-          this.refreshTransactions.next({action: 'refresh'});
+          this.refreshTransactions.next({ action: 'refresh' });
         });
     }
     this.transactionDetails.reset();
-    let source = true;
-    if (event.name === 'revert') {
-      source = false;
-      this.reverting = true;
-    } else {
-      this.reverting = false;
-    }
-    this.setSelectedAccount(event.transaction.src, source);
-    this.setSelectedAccount(event.transaction.dst, !source);
     this.transactionDetails.patchValue(event.transaction);
     if (event.name === 'revert') {
-      this.transactionDetails.patchValue({'name': 'ANNULATION: ' + event.transaction.name});
+      this.selectedDstAccount = event.transaction.src as Account;
+      this.selectedSrcAccount = event.transaction.dst as Account;
+      this.transactionDetails.patchValue({ 'name': 'ANNULATION: ' + event.transaction.name });
+      this.reverting = true;
+    } else {
+      this.selectedDstAccount = event.transaction.dst as Account;
+      this.selectedSrcAccount = event.transaction.src as Account;
+      this.reverting = false;
     }
-    this.transactionDetails.patchValue({'paymentMethod': event.transaction.paymentMethod.id});
-  }
-
-  srcSearch(terms: string) {
-    this.srcSearchResult$ = this.getSearchResult((x) => {
-      return this.accountService.accountGet(5, 0, terms).pipe(
-        map((response) => {
-          this.displaySrc = true;
-          return <AccountListResult>{
-            accounts: response
-          };
-        }),
-      );
-    });
+    this.transactionDetails.patchValue({ 'paymentMethod': (event.transaction.paymentMethod as PaymentMethod).id });
   }
 
   getPaymentMethodNameById(id: number) {
@@ -110,39 +95,22 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
     return 'Unknown';
   }
 
-  dstSearch(terms: string) {
-    this.dstSearchResult$ = this.getSearchResult((x) => {
-      return this.accountService.accountGet(5, 0, terms).pipe(
-        map((response) => {
-          this.displayDst = true;
-          return <AccountListResult>{
-            accounts: response
-          };
-        }),
-      );
-    });
-  }
-
   exchangeAccounts() {
     const srcAccount = this.selectedSrcAccount;
-    this.setSelectedAccount(this.selectedDstAccount, true);
-    this.setSelectedAccount(srcAccount, false);
-  }
-
-  setSelectedAccount(account, src) {
-    if (src === true) {
-      this.srcSearchResult$ = undefined;
-      this.selectedSrcAccount = account;
-    } else {
-      this.dstSearchResult$ = undefined;
-      this.selectedDstAccount = account;
-    }
-    this.displayDst = false;
-    this.displaySrc = false;
+    this.selectedSrcAccount = this.selectedDstAccount;
+    this.selectedDstAccount = srcAccount;
   }
 
   isFormInvalid() {
     return this.selectedSrcAccount === undefined || this.selectedDstAccount === undefined;
+  }
+
+  get caisse(): string {
+    return this.transactionDetails.get('caisse').value as string;
+  }
+
+  setCaisse(value: string): void {
+    this.transactionDetails.patchValue({ 'caisse': value });
   }
 
   createForm() {
@@ -158,15 +126,11 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
   }
 
   ngOnInit() {
-    super.ngOnInit();
-
     this.route.params.pipe(
       map(params => params['account_id']),
       filter(id => id),
       switchMap(id => this.accountService.accountAccountIdGet(id))
-    ).subscribe(
-      account => this.setSelectedAccount(account, true)
-    );
+    ).subscribe(account => this.selectedSrcAccount = account);
 
     this.appConstantService.getPaymentMethods().subscribe(
       data => {
@@ -185,17 +149,17 @@ export class TransactionNewComponent extends SearchPage implements OnInit {
       paymentMethod: +v.paymentMethod,
       value: +v.value,
       cashbox: v.caisse,
-      pendingValidation: v.pending_validation
+      pendingValidation: (v.pending_validation == null) ? false : v.pending_validation
     };
     if (!varTransaction.cashbox) {
       varTransaction.cashbox = 'direct';
     }
     this.transactionService.transactionPost(varTransaction)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
+      .subscribe((_) => {
         this.transactionDetails.reset();
         this.notificationService.successNotification('Ok!', 'Transaction créée avec succès !');
-        this.refreshTransactions.next({action: 'refresh'});
+        this.refreshTransactions.next({ action: 'refresh' });
       });
   }
 }

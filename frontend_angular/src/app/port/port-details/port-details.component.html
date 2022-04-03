@@ -1,39 +1,61 @@
-<div *ngIf="(port$ | async) as port">
-  <h2>Port {{ port.portNumber }}</h2>
-  <center><h3><i>{{ alias }}</i></h3></center>
-  <h3>Informations</h3>
-  <div class="row">
-    <div class="col-4">
-      <button class="w-100 btn btn-primary" [disabled]="port.room == null"(click)="IfRoomExists(port.room)">
-        <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.roomNumber]" style="color:white;">Chambre {{ port.room.roomNumber }}</a>
+<div class="container mt-5" *ngIf="(port$ | async) as port">
+  <div class="columns">
+    <div class="column is-one-quarter box">
+      <h4 class="title is-4 has-text-centered">Informations</h4>
+      <p><strong>Numéro : </strong>{{ port.portNumber }}</p>
+      <p><strong>Switch : </strong>
+        <a [routerLink]="['/switch', port.switchObj.id, 'view']">
+          {{ port.switchObj.description }}
+        </a>
+      </p>
+      <p><strong>Chambre : </strong>
+        <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.roomNumber]">
+          {{port.room.roomNumber}}
+        </a>
         <a *ngIf="port.room == null">Aucune chambre</a>
-      </button>
+      </p>
+      <p><strong>VLAN actuel : </strong>{{(vlan$ | async)}}</p>
     </div>
-    <div class="col-4">
-      <a [routerLink]="['/switch', port.switchObj.id, 'view']">
-        <button class="w-100 btn btn-primary">{{ port.switchObj.description }}</button>
-      </a>
+    <div class="column">
+      <h4 class="title is-4 has-text-centered">Configuration</h4>
+      <div class="columns has-text-centered">
+        <div class="column">
+          <ng-container *ngIf="{value: (status$ | async)} as context">
+            <ng-container *ngIf="context.value !== null; else loadingButton">
+              <p><strong>Port: {{getStatus(context.value)}}</strong></p>
+              <button class="button is-fullwidth" [ngClass]="{true:'is-success', false:'is-danger'}[!context.value]"
+                (click)="toggleStatus()">
+                {{ getAction(!context.value) }}
+              </button>
+            </ng-container>
+          </ng-container>
+        </div>
+        <div class="column">
+          <ng-container *ngIf="{value: (auth$ | async)} as context">
+            <ng-container *ngIf="context.value !== null; else loadingButton">
+              <p><strong>Authentification: {{getState(context.value)}}</strong></p>
+              <button class="button is-fullwidth" [ngClass]="{true:'is-success', false:'is-danger'}[!context.value]"
+                (click)="toggleAuth(context.value)">
+                {{ getAction(!context.value) }}
+              </button>
+            </ng-container>
+          </ng-container>
+        </div>
+        <div class="column">
+          <ng-container *ngIf="{value: (mab$ | async)} as context">
+            <ng-container *ngIf="context.value !== null; else loadingButton">
+              <p><strong>MAB: {{getState(context.value)}}</strong></p>
+              <button class="button is-fullwidth" [ngClass]="{true:'is-success', false:'is-danger'}[!context.value]"
+                (click)="toggleMAB()">
+                {{ getAction(!context.value) }}
+              </button>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
     </div>
   </div>
-  <h3>Configuration</h3>
-  <div class=row>
-    <div class="col-4">
-      <strong>Port: {{getStatus(status)}}</strong><br/>
-      <button class="w-100 btn" [ngClass]="{true:'btn-success', false:'btn-danger'}[!status]" (click)="toggleStatus()">
-        {{ getAction(!status) }}
-      </button>
-    </div>
-    <div class="col-4">
-      <strong>Authentification: {{getState(auth)}} - VLAN: {{ vlan }}</strong><br/>
-      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!auth]" (click)="toggleAuth()">
-        {{ getAction(!auth) }}
-      </button>
-    </div>
-    <div class="col-4">
-      <strong>MAB: {{getState(mab)}}</strong><br/>
-      <button class="w-100 btn btn-primary" [ngClass]="{true:'btn-success', false:'btn-danger'}[!mab]" (click)="toggleMAB()">
-        {{ getAction(!mab) }}
-      </button>
-    </div>
-  </div>
-</div>
+  <ng-template #loadingButton>
+    <p><strong>Chargement...</strong></p>
+    <button class="button is-loading is-primary is-fullwidth">loading</button>
+  </ng-template>

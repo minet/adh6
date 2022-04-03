@@ -1,17 +1,14 @@
-<div class="modal fade" bsModal #transactionModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="bug-report-modal-name">
-  <div class="modal-dialog modal-mg">
-    <div class="modal-content" *ngIf="transactionModal.isShown">
-      <div class="modal-header">
-        <h4 id="bug-report-modal-name" class="modal-title pull-left">Récapitulatif d'une transaction</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="transactionModal.hide()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered">
-            <tbody>
+<div class="modal" [ngClass]="{'is-active': transactionModal}" *ngIf="transactionModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <div class="modal-card-head">
+      <p class="modal-card-title">Récapitulatif d'une transaction</p>
+      <button class="delete" aria-label="close" (click)="toogleModal()"></button>
+    </div>
+    <div class="modal-card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          <tbody>
             <tr>
               <th scope="row">Depuis</th>
               <td>{{ selectedSrcAccount.name }}</td>
@@ -32,143 +29,140 @@
               <th scope="row">Description</th>
               <td>{{ transactionDetails.get('name').value }}</td>
             </tr>
-            </tbody>
-          </table>
-          <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value != 'direct'">
-            Vous avez déclaré {{ transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
-            dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }}, assurez-vous de bien le faire effectivement !
-          </div>
-          <button type="button" class="btn btn-primary w-100" (click)="onSubmit(); transactionModal.hide()">Valider
-          </button>
+          </tbody>
+        </table>
+        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value != 'direct'">
+          Vous avez déclaré {{ transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
+          dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }},
+          assurez-vous de bien le faire effectivement !
         </div>
+        <button type="button" class="button is-primary" (click)="onSubmit(); toogleModal()">
+          Valider
+        </button>
       </div>
     </div>
   </div>
 </div>
 
-<h2 class="text-left">Nouvelle transaction</h2>
+<h2 class="title is-2">Nouvelle transaction</h2>
 <hr>
 
-<form [formGroup]="transactionDetails" (ngSubmit)="onSubmit()">
-  <div class="card-deck">
-    <div class="card mb-4">
-      <div class="card-header text-white bg-danger">Compte source</div>
-      <div class="card-body">
-        <div class="suggestion">
-          <input type="text" placeholder="Rechercher..." class="w-100 form-control" #srcAccount
-                 [value]="selectedSrcAccount != undefined ? selectedSrcAccount.name : ''"
-                 (keyup)="srcSearch(srcAccount.value)"/>
-          <input type="hidden" formControlName="srcAccount"
-                 [value]="selectedSrcAccount != undefined ? selectedSrcAccount.id : ''">
-          <div class="list-group w-100" [hidden]="!displaySrc"
-               (clickOutside)="displaySrc = false"
-               *ngIf="srcSearchResult$ | async as srcSearchResult">
-            <a
-              (click)="setSelectedAccount(account, true)"
-              class="list-group-item"
-              *ngFor="let account of srcSearchResult.accounts"
-            >
-              {{ account.name }}
-            </a>
-          </div>
-          <hr>
-          <div *ngIf="selectedSrcAccount != undefined">
-            <p><span class="font-weight-bold">Actif :</span> {{ selectedSrcAccount.actif }}</p>
-            <p><span class="font-weight-bold">
-              Solde :</span> {{ selectedSrcAccount.balance }}</p>
+<form [formGroup]="transactionDetails">
+  <div class="columns">
+    <div class="column">
+      <div class="card">
+        <div class="card-header">
+          <p class="card-header-title">Compte source</p>
+        </div>
+        <div class="card-content">
+          <div class="content">
+            <app-account-search [selectedAccount]="selectedSrcAccount" (accountSelected)="selectedSrcAccount=$event">
+            </app-account-search>
+            <input type="hidden" formControlName="srcAccount"
+              [value]="selectedSrcAccount != undefined ? selectedSrcAccount.id : ''">
           </div>
         </div>
-      </div>
-      <div class="card-footer">Ce compte sera <span class="font-weight-bold">débité</span></div>
-    </div>
-    <div class="w-100 d-none d-sm-block d-md-block d-lg-none"><!-- wrap on md--></div>
-    <div class="card mb-4">
-      <div class="card-header">Transaction
-        <button class="btn btn-primary btn-sm float-right" type="button" (click)="exchangeAccounts()">
-          <fa-icon [icon]="faExchangeAlt"></fa-icon>
-        </button>
-      </div>
-      <div class="card-body">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button type="button" class="btn btn-outline-secondary"
-                    tooltip="À valider"
-                    formControlName="pending_validation" btnCheckbox>
-              <fa-icon [icon]="faClock"></fa-icon>
-            </button>
-          </div>
-          <input type="text" class="form-control" aria-label="Description" placeholder="Description"
-                 formControlName="name">
-        </div>
-        <div class="form-group">
-          <label for="paidBy">Payé par :</label>
-          <select class="w-100 form-control" formControlName="paymentMethod" id="paidBy">
-            <option *ngFor="let pm of paymentMethods" [value]="pm.id">{{ pm.name }}</option>
-          </select>
-        </div>
-        <div class="form-group text-center">
-          <div class="btn-group" btnRadioGroup formControlName="caisse">
-            <label btnRadio="to" class="btn btn-primary"
-                   tabindex="0" role="button">Ajouter caisse</label>
-            <label btnRadio="direct" class="btn btn-primary"
-                   tabindex="1" role="button">Sans caisse</label>
-            <label btnRadio="from" class="btn btn-primary"
-                   tabindex="2" role="button">Sortir caisse</label>
-          </div>
-          <div class="alert alert-warning" *ngIf="reverting">
-            <small>Attention à bien inverser l'opération dans la caisse en cas d'annulation d'une transaction liquide passée !</small>
-          </div>
-        </div>
-        <div class="input-group input-group-lg">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="value">€</span>
-          </div>
-          <input type="text" class="form-control" aria-label="value" aria-describedby="value" formControlName="value"
-                 type="number">
-        </div>
+        <footer class="card-footer">
+          <p class="card-footer-item">Ce compte sera <b>débité</b></p>
+        </footer>
       </div>
     </div>
-    <div class="w-100 d-none d-sm-block d-md-block d-lg-none"><!-- wrap on md--></div>
-    <div class="card mb-4">
-      <div class="card-header text-white bg-success">Compte destination</div>
-      <div class="card-body">
-        <div class="suggestion">
-          <input type="text" placeholder="Rechercher..." class="w-100 form-control" #dstAccount
-                 [value]="selectedDstAccount != undefined ? selectedDstAccount.name : ''"
-                 (keyup)="dstSearch(dstAccount.value)"/>
-          <input type="hidden" formControlName="dstAccount"
-                 [value]="selectedDstAccount != undefined ? selectedDstAccount.id : ''">
-          <div class="list-group w-100" style="position: absolute; z-index: 42" [hidden]="!displayDst"
-               (clickOutside)="displayDst = false"
-               *ngIf="dstSearchResult$ | async as dstSearchResult">
-            <a
-              (click)="setSelectedAccount(account, false)"
-              class="list-group-item"
-              *ngFor="let account of dstSearchResult.accounts"
-            >
-              {{ account.name }}
-            </a>
-          </div>
-          <hr>
-          <div *ngIf="selectedDstAccount != undefined">
-            <p><span class="font-weight-bold">Actif :</span> {{ selectedDstAccount.actif }}</p>
-            <p><span class="font-weight-bold">
-              Solde :</span> {{ selectedDstAccount.balance }}</p>
+    <div class="column">
+      <div class="card">
+        <div class="card-header">
+          <p class="card-header-title">Transaction</p>
+          <button class="card-header-icon" type="button" (click)="exchangeAccounts()">
+            <span class="icon">
+              <fa-icon [icon]="faExchangeAlt"></fa-icon>
+            </span>
+          </button>
+        </div>
+        <div class="card-content">
+          <div class="content">
+            <div class="field has-addons">
+              <p class="control">
+                <button type="button" class="button" tooltip="À valider" formControlName="pending_validation">
+                  <fa-icon [icon]="faClock"></fa-icon>
+                </button>
+              </p>
+              <p class="control">
+                <input type="text" class="input" aria-label="Description" placeholder="Description"
+                  formControlName="name">
+              </p>
+            </div>
+            <div class="field">
+              <div class="control">
+                <div class="select">
+                  <select formControlName="paymentMethod" id="paidBy">
+                    <option value="">-- Payer par --</option>
+                    <option *ngFor="let pm of paymentMethods" [value]="pm.id">{{ pm.name }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field has-addons">
+              <p class="control">
+                <button class="button" (click)="setCaisse('to')" [ngClass]="{'is-primary': caisse=='to'}">
+                  <span>Ajouter Caisse</span>
+                </button>
+              </p>
+              <p class="control">
+                <button class="button" (click)="setCaisse('direct')" [ngClass]="{'is-primary': caisse=='direct'}">
+                  <span>Sans Caisse</span>
+                </button>
+              </p>
+              <p class="control">
+                <button class="button" (click)="setCaisse('from')" [ngClass]="{'is-primary': caisse=='from'}">
+                  <span>Sortir Caisse</span>
+                </button>
+              </p>
+            </div>
+            <div class="notification is-warning" *ngIf="reverting">
+              <small>Attention à bien inverser l'opération dans la caisse en cas d'annulation d'une transaction
+                liquide
+                passée !</small>
+            </div>
+            <div class="field has-addons">
+              <p class="control">
+                <span class="input" id="value">€</span>
+              </p>
+              <p class="control">
+                <input type="text" class="input" aria-label="value" aria-describedby="value" formControlName="value"
+                  type="number">
+              </p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="card-footer">Ce compte sera <span class="font-weight-bold">crédité</span></div>
+    </div>
+    <div class="column">
+      <div class="card">
+        <div class="card-header">
+          <p class="card-header-title">Compte destination</p>
+        </div>
+        <div class="card-content">
+          <div class=content>
+            <app-account-search [selectedAccount]="selectedDstAccount" (accountSelected)="selectedDstAccount=$event">
+            </app-account-search>
+            <input type="hidden" formControlName="dstAccount"
+              [value]="selectedDstAccount != undefined ? selectedDstAccount.id : ''">
+          </div>
+        </div>
+        <footer class="card-footer">
+          <p class="card-footer-item">Ce compte sera <b>crédité</b></p>
+        </footer>
+      </div>
     </div>
   </div>
 
   <br>
-  <button type="button" (click)="transactionModal.show()" class="btn btn-primary w-100"
-          [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer
+  <button type="button" (click)="toogleModal()" class="button is-primary"
+    [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer
   </button>
 
 </form>
 
 <br>
 <h3 class="text-left">Transactions récentes</h3>
-<app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)"
-                      [actions]="actions"></app-transaction-list>
+<app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)" [actions]="actions">
+</app-transaction-list>

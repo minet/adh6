@@ -1,39 +1,24 @@
-<h2 class="text-left">Liste des produits</h2>
-<br/>
+<h2 class="title is-2">Liste des produits</h2>
+<br />
 
-<div class="row">
-  <div class="col-md-12">
-    <input
-      #searchBox
-      id="search-box"
-      (keyup)="search(searchBox.value)"
-      class="w-100 form-control mb-3"
-      type="text"
-    />
-  </div>
-</div>
+<div class="box">
+  <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..."
+    class="input is-fullwidth" type="text" />
 
-  <table class="table clickable-table table-sm" *ngIf="result$ | async as result">
+  <table class="table is-hoverable is-striped is-fullwidth">
     <thead>
-    <tr>
-      <th>Nom</th>
-      <th>Prix d'achat</th>
-      <th>Prix de vente</th>
-    </tr>
+      <tr>
+        <th>Nom</th>
+        <th>Prix d'achat</th>
+        <th>Prix de vente</th>
+      </tr>
     </thead>
-    <tbody>
-      <tr *ngFor="let productResult of result.products | paginate : {
-        id: 'pagination',
-        itemsPerPage: result.items_per_page,
-        currentPage: result.current_page,
-        totalItems: result.item_count
-      }">
+    <tbody *ngIf="result$ | async as result">
+      <tr *ngFor="let productResult of result.products">
         <td class="align-middle">{{ productResult.name }}</td>
         <td class="align-middle">{{ productResult.buying_price*0.01 }}</td>
         <td class="align-middle">{{ productResult.selling_price*0.01 }}</td>
-    </tr>
-  </tbody>
-</table>
-<div class="container d-flex align-items-center justify-content-center">
-  <pagination-controls id="pagination" previousLabel="Prev" nextLabel="Next" responsive="true" (pageChange)="handlePageChange($event)"></pagination-controls>
+      </tr>
+    </tbody>
+  </table>
 </div>

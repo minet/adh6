@@ -1,11 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import {AbstractMember, AbstractRoom, Member, MemberService, MembershipService, RoomService} from '../../api';
-import {finalize, first, mergeMap} from 'rxjs/operators';
-import {EMPTY, of} from 'rxjs';
-import { AppConstantsService } from '../../app-constants.service';
+import { AbstractMember, AbstractRoom, Member, MemberService, MembershipService, RoomService } from '../../api';
+import { finalize, first, mergeMap } from 'rxjs/operators';
+import { EMPTY, of } from 'rxjs';
 import { NotificationService } from '../../notification.service';
 
 
@@ -15,7 +14,6 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./member-create-or-edit.component.css'],
 })
 export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
-
   disabled = true;
   create = false;
   memberEdit: FormGroup;
@@ -28,7 +26,6 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
-    private appConstantService: AppConstantsService,
     private notificationService: NotificationService,
   ) {
     this.createForm();
@@ -45,34 +42,16 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
   }
 
   editMember() {
-    /*
-    FLOW:
-                +-------------+ update username  +-------------+ is allowed to +--------------------+
-                |             | or create member |             |   put member  |                    |
-    editMember-->  A) create  +------------------>  B) has404  +--------+------>  C) PATCH request  |
-                |             |                  |             |        ^      |                    |
-                +------+------+                  +-------------+        |      +--------------------+
-                       |                                                |
-                       +--------------------(true)----------------------+
-                          regular update (does not update username)
-
-     A) create value is transformed into an observable
-        create = True means the formGroup is for creation of a member
-        create = False is to update a member
-     B) has404 checks that a member with that username does not exist already.
-     */
-
-
     this.disabled = true;
     const v = this.memberEdit.value;
 
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{roomNumber:v.roomNumber})
+    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumber })
       .subscribe((rooms) => {
         if (rooms.length == 0) {
           this.notificationService.errorNotification(
             404,
             'Room not Found',
-            "Room "+v.roomNumber+" has not be found"
+            "Room " + v.roomNumber + " has not be found"
           );
           return undefined
         }
@@ -99,11 +78,10 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
           };
           this.memberService.memberPost(req, 'body')
             .subscribe((member) => {
-              this.router.navigate(['member/password', member.id]);
+              this.router.navigate(['/password', member.id]);
             });
         }
-      })
-
+      });
   }
 
   memberUsernameDelete() {
@@ -113,7 +91,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
         first(),
         finalize(() => this.disabled = false),
       )
-      .subscribe((response) => {
+      .subscribe((_) => {
         this.router.navigate(['member/search']);
         this.notificationService.successNotification();
       });

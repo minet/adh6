@@ -1,74 +1,80 @@
-<div *ngIf="(account$ | async) as account">
-  <div class="row mb-2">
-    <div class="col-lg-4">
-      <button class="btn btn-primary mb-3 w-100" (click)="goBack()">Retour</button>
+<ng-container *ngIf="(account$ | async) as account">
+  <div class="columns">
+    <div class="column is-one-third">
+      <button class="button is-primary is-fullwidth" (click)="goBack()">Retour</button>
     </div>
-    <div class="col-lg-8">
-      <h2>{{ account.name }}</h2>
+    <div class="column is-centered">
+      <h2 class="title is-2">{{ account.name }}</h2>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-lg-4">
-      <div class="card shadow" style="position: sticky; top: 10px;">
-        <div class="card-header text-white" [ngClass]="{true:'bg-success', false:'bg-danger'}[account.balance>0]">
-          <h3 class="text-center">{{ account.balance }} €</h3>
-          <p class="text-center"><em>({{ account.pendingBalance }} €)</em></p>
+  <div class="columns">
+    <div class="column is-one-third">
+      <div class="card">
+        <div class="card-header"
+          [ngClass]="{true:'has-background-success', false:'has-background-danger'}[account.balance>0]">
+          <h3 class="card-header-title title is-3 has-text-light is-centered">{{ account.balance }} €</h3>
         </div>
-        <div class="card-body">
-          <dl class="row">
-            <dt class="col-6">Type</dt>
-            <dd class="col-6">{{ account.accountType.name }}</dd>
-
-            <dt class="col-6">Date de création</dt>
-            <dd class="col-6">{{account.creationDate | date:"dd/MM/yyy HH:mm"}}</dd>
-
-            <dt class="col-6">Actif</dt>
-            <dd class="col-6">
-              <div class="btn-group" btnRadioGroup>
-                <label btnRadio="true" class="btn btn-sm"
-                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.actif]"
-                       tabindex="0" role="button">OUI</label>
-                <label btnRadio="false" class="btn btn-sm"
-                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.actif]"
-                       tabindex="0" role="button">NON</label>
+        <div class="card-content">
+          <div class="content">
+            <div class="columns is-vcentered">
+              <div class="column">
+                <label class="label">Actif</label>
               </div>
-            </dd>
-
-            <dt class="col-6">Compte courant</dt>
-            <dd class="col-6">
-              <div class="btn-group" btnRadioGroup>
-                <label btnRadio="true" class="btn btn-sm"
-                       [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.compteCourant]"
-                       tabindex="0" role="button">OUI</label>
-                <label btnRadio="false" class="btn btn-sm"
-                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.compteCourant]"
-                       tabindex="0" role="button">NON</label>
+              <div class="column">
+                <input id="actif" type="checkbox" name="actif" class="switch is-success is-medium" checked="checked"
+                  [(ngModel)]="account.actif" disabled>
+                <label for="actif"></label>
               </div>
-            </dd>
-
-            <dt class="col-6">Épinglé</dt>
-            <dd class="col-6">
-              <div class="btn-group" btnRadioGroup>
-                <label btnRadio="true" class="btn btn-sm"
-                  [ngClass]="{true: 'btn-success', false: 'btn-secondary'}[account.pinned]"
-                  tabindex="0" role="button">OUI</label>
-                <label btnRadio="false" class="btn btn-sm"
-                       [ngClass]="{false: 'btn-danger', true: 'btn-secondary'}[account.pinned]"
-                       tabindex="0" role="button">NON</label>
+            </div>
+            <div class="columns is-vcentered">
+              <div class="column">
+                <label class="label">Compte Courant</label>
               </div>
-            </dd>
-
-          </dl>
-          <button class="btn btn-warning mt-3 w-100" [routerLink]="['/account/edit', account.id]">Modifier le compte
-          </button>
-          <button class="btn btn-primary mt-3 w-100" [routerLink]="['/transaction/add', account.id]">Ajouter une écriture
-          </button>
+              <div class="column">
+                <input id="compteCourant" type="checkbox" name="actif" class="switch is-success is-medium"
+                  checked="checked" [(ngModel)]="account.compteCourant" disabled>
+                <label for="compteCourant"></label>
+              </div>
+            </div>
+            <div class="columns is-vcentered">
+              <div class="column">
+                <label class="label">Épinglé</label>
+              </div>
+              <div class="column">
+                <input id="epingle" type="checkbox" name="actif" class="switch is-success is-medium" checked="checked"
+                  [(ngModel)]="account.epingle" disabled>
+                <label for="epingle"></label>
+              </div>
+            </div>
+            <div class="columns is-vcentered">
+              <div class="column">
+                <label class="label">Type</label>
+              </div>
+              <div class="column">
+                {{ account.accountType.name }}
+              </div>
+            </div>
+            <div class="columns is-vcentered">
+              <div class="column">
+                <label class="label">Date de création</label>
+              </div>
+              <div class="column">
+                {{account.creationDate | date:"dd/MM/yyy HH:mm"}}
+              </div>
+            </div>
+            <button class="button is-warning is-fullwidth" [routerLink]="['/account/edit', account.id]">Modifier le
+              compte
+            </button>
+            <br />
+            <button class="button is-primary is-fullwidth" [routerLink]="['/transaction/add', account.id]">Ajouter une
+              écriture
+            </button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-8">
+    <div class="column">
       <app-transaction-list [asAccount]="account.id"></app-transaction-list>
     </div>
   </div>
-</div>
+</ng-container>

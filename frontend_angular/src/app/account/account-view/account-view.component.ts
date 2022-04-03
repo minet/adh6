@@ -1,12 +1,12 @@
-import {Component, OnInit} from '@angular/core';
-import {combineLatest, Observable} from 'rxjs';
-import {map, share, switchMap} from 'rxjs/operators';
-import {AbstractTransaction, Account, AccountService, AccountType, Transaction, TransactionService} from '../../api';
-import {ActivatedRoute} from '@angular/router';
-import {PagingConf} from '../../paging.config';
+import { Component, OnInit } from '@angular/core';
+import { combineLatest, Observable } from 'rxjs';
+import { map, share, switchMap } from 'rxjs/operators';
+import { AbstractTransaction, Account, AccountService, AccountType, Transaction, TransactionService } from '../../api';
+import { ActivatedRoute } from '@angular/router';
+import { PagingConf } from '../../paging.config';
 
-import {SearchPage} from '../../search-page';
-import {AppConstantsService} from '../../app-constants.service';
+import { SearchPage } from '../../search-page';
+import { AppConstantsService } from '../../app-constants.service';
 import { Location } from '@angular/common';
 
 export interface TransactionListResult {
@@ -19,7 +19,7 @@ export interface TransactionListResult {
 @Component({
   selector: 'app-account-view',
   templateUrl: './account-view.component.html',
-  styleUrls: ['./account-view.component.css']
+  styleUrls: ['./account-view.component.scss']
 })
 export class AccountViewComponent extends SearchPage implements OnInit {
   account$: Observable<Account>;
@@ -59,7 +59,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
     );
 
     this.result$ = refresh$.pipe(
-      switchMap(account => <Observable<TransactionListResult>>this.getSearchResult((terms, page) => this.fetchTransaction(account, page) )),
+      switchMap(account => <Observable<TransactionListResult>>this.getSearchResult((terms, page) => this.fetchTransaction(account, page))),
       share(),
     );
   }

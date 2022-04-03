@@ -1,20 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import {Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 
 
-import {MemberService, Member} from '../../api';
-import {PagingConf} from '../../paging.config';
+import { MemberService, Member } from '../../api';
+import { PagingConf } from '../../paging.config';
 
-import {map} from 'rxjs/operators';
-import {SearchPage} from '../../search-page';
-
-class MemberListResponse {
-  members?: Array<Member>;
-  page_number?: number;
-  item_count?: number;
-  item_per_page?: number;
-}
+import { map } from 'rxjs/operators';
+import { SearchPage } from '../../search-page';
 
 @Component({
   selector: 'app-members',
@@ -22,33 +15,25 @@ class MemberListResponse {
   styleUrls: ['./member-list.component.css']
 })
 export class MemberListComponent extends SearchPage implements OnInit {
-
-  result$: Observable<MemberListResponse>;
+  maxItems$: Observable<number>;
+  result$: Observable<Array<Member>>;
 
   constructor(public memberService: MemberService) {
     super();
   }
+
   ngOnInit() {
     super.ngOnInit();
+    this.maxItems$ = this.getSearchResult((term, _) => this.memberService.memberHead(1, 0, term, undefined, 'response').pipe(map((response) => { return (response) ? +response.headers.get('x-total-count') : 0 })))
     this.result$ = this.getSearchResult((terms, page) => this.fetchMembers(terms, page));
   }
 
   private fetchMembers(terms: string, page: number) {
     const n = +PagingConf.item_count;
-    return this.memberService.memberGet(n, (page - 1) * n, terms, undefined, 'response')
-      .pipe(
-        // switch to new search observable each time the term changes
-        map((response) => <MemberListResponse>{
-          members: response.body,
-          item_count: +response.headers.get('x-total-count'),
-          page_number: page,
-          item_per_page: n,
-        }),
-      );
+    return this.memberService.memberGet(n, (page - 1) * n, terms);
   }
 
   handlePageChange(page: number) {
     this.changePage(page);
-    this.result$ = this.getSearchResult((terms, page) => this.fetchMembers(terms, page));
   }
 }

@@ -20,8 +20,8 @@ RUN cat auth.config.template.ts | envsubst | tee auth.config.ts
 FROM alpine:latest AS certs
 RUN apk add --update openssl
 RUN openssl genrsa -out /tmp/adh6.key 2048 \
-    && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
+  && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
+  && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
 
 
 ###############################################################################
@@ -36,12 +36,12 @@ COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
 # Make TLS self-signed certificate and change its owner to the angular user.
 RUN groupadd -r angular && useradd --no-log-init -r -m -g angular angular \
-    && chmod 600 /etc/ssl/private/adh6.key \
-    && chmod 600 /etc/ssl/certs/adh6.crt \
-    && chown angular:angular /etc/ssl/private/adh6.key \
-    && chown angular:angular /etc/ssl/certs/adh6.crt \
-    && mkdir -p /adh6/frontend_angular \
-    && chown angular:angular /adh6/frontend_angular
+  && chmod 600 /etc/ssl/private/adh6.key \
+  && chmod 600 /etc/ssl/certs/adh6.crt \
+  && chown angular:angular /etc/ssl/private/adh6.key \
+  && chown angular:angular /etc/ssl/certs/adh6.crt \
+  && mkdir -p /adh6/frontend_angular \
+  && chown angular:angular /adh6/frontend_angular
 
 # Install angular system-wide
 RUN NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1

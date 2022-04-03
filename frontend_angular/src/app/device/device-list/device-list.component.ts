@@ -1,19 +1,10 @@
-import {Component, OnInit} from '@angular/core';
-import {map} from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
 
-import {Device, DeviceService} from '../../api';
+import { Device, DeviceService } from '../../api';
 
-import {PagingConf} from '../../paging.config';
-import {Observable} from 'rxjs';
-import {SearchPage} from '../../search-page';
-
-
-export interface DeviceListResult {
-  devices?: Array<Device>;
-  item_count?: number;
-  current_page?: number;
-  items_per_page?: number;
-}
+import { PagingConf } from '../../paging.config';
+import { map, Observable } from 'rxjs';
+import { SearchPage } from '../../search-page';
 
 @Component({
   selector: 'app-device-list',
@@ -21,8 +12,9 @@ export interface DeviceListResult {
   styleUrls: ['./device-list.component.css']
 })
 export class DeviceListComponent extends SearchPage implements OnInit {
-
-  result$: Observable<DeviceListResult>;
+  maxItems$: Observable<number>;
+  result$: Observable<Array<Device>>;
+  currentPage: number = 1;
 
   constructor(public deviceService: DeviceService) {
     super();
@@ -30,24 +22,17 @@ export class DeviceListComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     super.ngOnInit();
+    this.maxItems$ = this.getSearchHeader((terms) => this.deviceService.deviceHead(1, 0, terms, undefined, 'response').pipe(map((response) => { return (response) ? +response.headers.get('x-total-count') : 0 })));
     this.result$ = this.getSearchResult((terms, page) => this.fetchDevices(terms, page));
   }
 
-  private fetchDevices(term: string, page: number) {
+  private fetchDevices(term: string, page: number): Observable<Array<Device>> {
     const n: number = +PagingConf.item_count;
-    return this.deviceService.deviceGet(n, (page - 1) * n, term, undefined, 'response')
-      .pipe(
-        map(response => <DeviceListResult>{
-          devices: response.body,
-          item_count: +response.headers.get('x-total-count'),
-          current_page: page,
-          items_per_page: n,
-        }),
-      );
+    return this.deviceService.deviceGet(n, (page - 1) * n, term);
   }
 
   handlePageChange(page: number) {
     this.changePage(page);
-    this.result$ = this.getSearchResult((terms, page) => this.fetchDevices(terms, page));
+    this.currentPage = page;
   }
 }
