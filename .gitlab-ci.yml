@@ -76,7 +76,7 @@ python_test:
   script:
   - cd api_server/
   - apt update -q
-  - apt install -qy sqlite3 libmariadbclient-dev
+  - apt install -qy sqlite3
   - pytest -vvv --cov-fail-under=70 --cov-report=term
   artifacts:
     paths:
