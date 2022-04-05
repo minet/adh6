@@ -46,7 +46,7 @@ angular_build_prod:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
     - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
-    - npm install
+    - yarn install
   script:
     - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
     - rm src/app/config/auth.config.template.ts
