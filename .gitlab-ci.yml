@@ -50,7 +50,7 @@ angular_build_prod:
   script:
     - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
     - rm src/app/config/auth.config.template.ts
-    - ng build --prod
+    - ng build --configuration production
   artifacts:
     paths:
     - frontend_angular/dist/
