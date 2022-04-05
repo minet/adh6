@@ -17,7 +17,7 @@
         "sourceLocale": "fr",
         "locales": {
           "en": {
-            "translation": "src/i18n/messages.en.xlf"
+            "translation": "src/local/messages.en.xlf"
           }
         }
       },
@@ -25,10 +25,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "localize": [
-              "en",
-              "fr"
-            ],
             "aot": true,
             "outputPath": "dist/adh6",
             "index": "src/index.html",
@@ -46,6 +42,10 @@
           },
           "configurations": {
             "production": {
+              "localize": [
+                "fr",
+                "en"
+              ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -73,76 +73,27 @@
               ]
             },
             "en": {
-              "aot": true,
-              "outputPath": "dist/adh6-en",
-              "i18nFile": "src/i18n/messages.en.xlf",
-              "i18nFormat": "xlf",
-              "i18nLocale": "en"
-            }
-          }
-        },
-        "build-en": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "localize": [
-              "en"
-            ],
-            "aot": true,
-            "outputPath": "dist/adh6",
-            "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
+              "localize": [
+                "en"
               ],
-              "optimization": true,
-              "outputHashing": "all",
-              "extractCss": true,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ]
+              "outputPath": "dist/adh6-en",
+              "i18nMissingTranslation": "error"
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "adh6:build-en",
             "port": 8443,
             "host": "0.0.0.0",
             "ssl": true
           },
           "configurations": {
             "production": {
-              "browserTarget": "adh6:build-en:production"
+              "browserTarget": "adh6:build:production"
+            },
+            "fr": {
+              "browserTarget": "adh6:build:fr"
             },
             "en": {
               "browserTarget": "adh6:build:en"
@@ -152,7 +103,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "adh6:build"
+            "browserTarget": "adh6:build:production"
           }
         },
         "test": {

@@ -1,4 +1,4 @@
-image: python:3.9-slim-buster
+image: python:3.9-slim-bullseye
 
 cache:
   paths:
@@ -19,7 +19,7 @@ stages:
 
 angular_try_build:
   stage: build
-  image: node:14-buster-slim
+  image: node:16-bullseye-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
@@ -41,7 +41,7 @@ angular_try_build:
 
 angular_build_prod:
   stage: build
-  image: node:14-buster-slim
+  image: node:16-bullseye-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/

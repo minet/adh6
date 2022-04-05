@@ -4,12 +4,15 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:fr": "ng serve --configuration=fr",
+    "start:en": "ng serve --configuration=en",
     "build": "ng build",
+    "build:fr": "ng build --configuration=fr",
+    "build:en": "ng build --configuration=en",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "extract-i18n": "ng xi18n adh6 --i18n-format xlf --output-path i18n --i18n-locale fr && ng run adh6:xliffmerge",
-    "start-en": "ng serve --configuration=en"
+    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local"
   },
   "private": true,
   "dependencies": {
@@ -46,8 +49,6 @@
     "@angular/compiler-cli": "^12.2.11",
     "@angular/language-service": "^12.2.11",
     "@angular/localize": "^12.2.11",
-    "@ngx-i18nsupport/ngx-i18nsupport": "^1.1.6",
-    "@ngx-i18nsupport/tooling": "^8.0.3",
     "@types/jasmine": "~3.10.1",
     "@types/jasminewd2": "~2.0.10",
     "@types/node": "^16.11.4",

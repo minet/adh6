@@ -1,10 +1,9 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Device, DeviceService} from '../../api';
-import {takeWhile} from 'rxjs/operators';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Device, DeviceService } from '../../api';
+import { takeWhile } from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
-import {localize_link} from '../../config/links.config';
-import { AppConstantsService } from '../../app-constants.service';
+import { localize_link } from '../../config/links.config';
 import { NotificationService } from '../../notification.service';
 
 @Component({

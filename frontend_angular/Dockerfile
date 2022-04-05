@@ -27,7 +27,7 @@ RUN openssl genrsa -out /tmp/adh6.key 2048 \
 ###############################################################################
 # 3rd stage, launch the app
 ###############################################################################
-FROM node:14-buster-slim
+FROM node:16-bullseye-slim
 
 EXPOSE 8443
 
@@ -53,7 +53,7 @@ COPY frontend_angular/package*.json ./
 
 # Need angular user to install package
 USER angular
-RUN npm install
+RUN yarn install
 USER root
 
 # Copy source code
@@ -68,5 +68,5 @@ RUN rm ./src/app/config/auth.config.template.ts
 
 USER angular
 # We use /bin/sh to be able to use ENV vars...
-CMD ["/bin/sh", "-c", "ng serve --watch --host 0.0.0.0 --disable-host-check"]
+CMD ["/bin/sh", "-c", "yarn start:en --watch --host 0.0.0.0 --disable-host-check"]
 
