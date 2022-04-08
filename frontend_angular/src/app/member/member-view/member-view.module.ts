@@ -18,7 +18,7 @@ import { MemberDeviceModule } from '../../member-device/member-device-list.modul
     ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([
-      {path: '', component: MemberViewComponent},
+      { path: '', component: MemberViewComponent },
       {
         path: 'charter',
         canActivate: [RedirectGuard],

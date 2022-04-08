@@ -3,9 +3,13 @@ from typing import Any, Dict, Optional
 import requests
 import requests.exceptions
 from flask import current_app
+from flask_caching import Cache
 from src.interface_adapter.sql.model.models import ApiKey, db
 from connexion.exceptions import OAuthProblem
 
+cache = Cache()
+
+@cache.memoize(300)
 def apikey_auth(token: str, required_scopes):
     exist: Optional[ApiKey] = db.session().query(ApiKey).filter(ApiKey.uuid == token).one_or_none()
     if exist is None:
@@ -30,6 +34,7 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
         "groups": groups
     }
 
+@cache.memoize(300)
 def get_sso_groups(token):
     try:
         headers = {"Authorization": "Bearer " + token}

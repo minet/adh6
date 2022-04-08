@@ -15,7 +15,7 @@
             </tr>
             <tr>
               <th scope="row">Montant</th>
-              <td>{{ transactionDetails.get('value').value }} €</td>
+              <td>{{ transactionDetails.get('value').value | number:'':'fr' }} €</td>
             </tr>
             <tr>
               <th scope="row">Via</th>

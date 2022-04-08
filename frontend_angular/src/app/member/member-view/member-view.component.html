@@ -155,21 +155,26 @@
       <div class="column">
         <h3 class="title is-3">Journal</h3>
       </div>
-      <div class="column">
+      <div class="column has-text-right">
         <button (click)="refreshLog()" class="button is-primary" title="Actualiser le journal">&#x27F3;</button>
+        <button (click)="showLogs = !showLogs" class="button"
+          [ngClass]="{'is-warning': !showLogs, 'is-danger': showLogs}" title="Afficher/Masquer le journal">{{showLogs ?
+          "Cacher" : "Afficher"}}</button>
       </div>
     </div>
-    <label class="checkbox">
-      <input (change)="getDhcp = !getDhcp" type="checkbox">
-      Logs DHCP
-    </label>
-    <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
-      <ul class="list-unstyled is-fullwidth">
-        <li *ngFor="let log of log$ | async">
-          <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span
-            [innerHtml]="extractMsgFromLog(log)"></span>
-        </li>
-      </ul>
-    </div>
+    <ng-container *ngIf="showLogs">
+      <label class="checkbox">
+        <input (change)="getDhcp = !getDhcp" type="checkbox">
+        Logs DHCP
+      </label>
+      <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
+        <ul class="list-unstyled is-fullwidth">
+          <li *ngFor="let log of log$ | async">
+            <span style="color:blue">{{ extractDateFromLog(log) | date:"dd/MM/yyy HH:mm:ss" }}</span> <span
+              [innerHtml]="extractMsgFromLog(log)"></span>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
   </ng-container>
 </div>
