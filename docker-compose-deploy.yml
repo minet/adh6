@@ -3,8 +3,7 @@ services:
   # frontend_angular is a web server that provides the JS to the clients.
   frontend_angular:
     build:
-      context: ./
-      dockerfile: ./frontend_angular/Dockerfile
+      context: frontend_angular
       args:
         # SSO URL for getting a token.
         SSO_OAUTH2: "https://cas.minet.net/oidc"
