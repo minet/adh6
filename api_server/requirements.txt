@@ -4,13 +4,13 @@
 #
 #    pip-compile requirements.in
 #
-alembic==1.7.6
+alembic==1.7.7
     # via flask-migrate
 attrs==21.4.0
     # via
     #   jsonschema
     #   pytest
-authlib==0.15.5
+authlib==1.0.1
     # via -r requirements.in
 certifi==2021.10.8
     # via
@@ -20,7 +20,7 @@ cffi==1.15.0
     # via cryptography
 charset-normalizer==2.0.12
     # via requests
-click==8.0.3
+click==8.1.2
     # via
     #   clickclick
     #   flask
@@ -28,28 +28,31 @@ clickclick==20.10.2
     # via connexion
 connexion @ git+https://github.com/minet/connexion.git
     # via -r requirements.in
-coverage[toml]==6.3.1
+coverage[toml]==6.3.2
     # via pytest-cov
-cryptography==36.0.1
+cryptography==36.0.2
     # via
     #   -r requirements.in
     #   authlib
-decopatch==1.4.9
+decopatch==1.4.10
     # via pytest-cases
 decorator==5.1.1
     # via pinject
-elastic-transport==8.0.1
+elastic-transport==8.1.1
     # via elasticsearch
-elasticsearch==8.0.0
+elasticsearch==8.1.2
     # via -r requirements.in
-faker==12.3.3
+faker==13.3.4
     # via -r requirements.in
-flask==2.0.3
+flask==2.1.1
     # via
     #   -r requirements.in
     #   connexion
+    #   flask-caching
     #   flask-migrate
     #   flask-sqlalchemy
+flask-caching==1.10.1
+    # via -r requirements.in
 flask-migrate==3.1.0
     # via -r requirements.in
 flask-sqlalchemy==2.5.1
@@ -62,9 +65,9 @@ inflection==0.5.1
     # via connexion
 iniconfig==1.1.1
     # via pytest
-itsdangerous==2.0.1
+itsdangerous==2.1.2
     # via flask
-jinja2==3.0.3
+jinja2==3.1.1
     # via
     #   -r requirements.in
     #   flask
@@ -79,9 +82,9 @@ makefun==1.13.1
     # via
     #   decopatch
     #   pytest-cases
-mako==1.1.6
+mako==1.2.0
     # via alembic
-markupsafe==2.0.1
+markupsafe==2.1.1
     # via
     #   jinja2
     #   mako
@@ -115,12 +118,12 @@ pysmi==0.3.4
     # via pysnmp
 pysnmp==4.4.12
     # via -r requirements.in
-pytest==7.0.1
+pytest==7.1.1
     # via
     #   -r requirements.in
     #   pytest-cov
     #   pytest-lazy-fixture
-pytest-cases==3.6.9
+pytest-cases==3.6.11
     # via -r requirements.in
 pytest-cov==3.0.0
     # via -r requirements.in
@@ -130,9 +133,9 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   faker
-python-dotenv==0.19.2
+python-dotenv==0.20.0
     # via -r requirements.in
-python-gitlab==3.1.1
+python-gitlab==3.3.0
     # via -r requirements.in
 pyyaml==6.0
     # via
@@ -153,7 +156,7 @@ six==1.16.0
     #   jsonschema
     #   pinject
     #   python-dateutil
-sqlalchemy==1.4.31
+sqlalchemy==1.4.35
     # via
     #   -r requirements.in
     #   alembic
@@ -164,13 +167,13 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-urllib3==1.26.8
+urllib3==1.26.9
     # via
     #   elastic-transport
     #   requests
 uwsgi==2.0.20
     # via -r requirements.in
-werkzeug==2.0.3
+werkzeug==2.1.1
     # via flask
 
 # The following packages are considered to be unsafe in a requirements file:
