@@ -1,5 +1,5 @@
 import click
-from flask import Flask, cli
+from flask import Flask
 from sqlalchemy.engine.create import create_engine
 from src.constants import MembershipDuration, MembershipStatus
 import uuid
