@@ -36,7 +36,6 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
 
 @cache.memoize(300)
 def get_sso_groups(token):
-    print("-------------------- jbqsdibqsdioqbd ----------------------------------")
     try:
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(
