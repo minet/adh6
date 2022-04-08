@@ -1,14 +1,15 @@
-import {Component, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import {finalize, first, map, switchMap, tap} from 'rxjs/operators';
-import {Observable} from 'rxjs';
-import {MemberService} from '../api';
+import { Component, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize, first, map, switchMap, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { MemberService } from '../api';
 import { md4 } from 'hash-wasm';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 import { NotificationService } from '../notification.service';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
-function passwordConfirming(c: AbstractControl): ValidationErrors|null {
+function passwordConfirming(c: AbstractControl): ValidationErrors | null {
   if (!c || !c.value) {
     return;
   }
@@ -19,7 +20,7 @@ function passwordConfirming(c: AbstractControl): ValidationErrors|null {
     return;
   }
   if (pwd !== cpwd) {
-    return {invalid: true};
+    return { invalid: true };
   }
 }
 
@@ -29,6 +30,11 @@ function passwordConfirming(c: AbstractControl): ValidationErrors|null {
   styleUrls: ['./member-password-edit.component.css']
 })
 export class MemberPasswordEditComponent implements OnInit {
+  public showPassword: boolean = false;
+  public showConfirmPassword: boolean = false;
+
+  faEye = faEye;
+  faEyeSlash = faEyeSlash;
 
   constructor(
     private fb: FormBuilder,
@@ -70,20 +76,20 @@ export class MemberPasswordEditComponent implements OnInit {
 
   changePassword(): void {
     md4(this.strEncodeUTF16(this.memberPassword.value.password)).then((hashedPassword) => {
-    this.getMemberId()
-      .pipe(
-        first(),
-        switchMap(member_id => this.updatePasswordOfUser(member_id, hashedPassword)),
-        finalize(() => this.disabled = false)
-      )
-      .subscribe((_) => {
-      });
+      this.getMemberId()
+        .pipe(
+          first(),
+          switchMap(member_id => this.updatePasswordOfUser(member_id, hashedPassword)),
+          finalize(() => this.disabled = false)
+        )
+        .subscribe((_) => {
+        });
     });
   }
 
   private updatePasswordOfUser(member_id: string, hashedPasswordVar: string) {
     return this.memberService.memberMemberIdPasswordPut(
-      {hashedPassword: hashedPasswordVar},
+      { hashedPassword: hashedPasswordVar },
       +member_id,
       'response')
       .pipe(

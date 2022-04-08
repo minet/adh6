@@ -79,14 +79,14 @@
               "outputPath": "dist/adh6-en",
               "i18nMissingTranslation": "error"
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "port": 8443,
-            "host": "0.0.0.0",
-            "ssl": true
+            "port": 80,
+            "host": "0.0.0.0"
           },
           "configurations": {
             "production": {
@@ -98,7 +98,8 @@
             "en": {
               "browserTarget": "adh6:build:en"
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -146,21 +147,6 @@
           "configurations": {
             "production": {
               "devServerTarget": "adh6:serve:production"
-            }
-          }
-        },
-        "xliffmerge": {
-          "builder": "@ngx-i18nsupport/tooling:xliffmerge",
-          "options": {
-            "xliffmergeOptions": {
-              "i18nFormat": "xlf",
-              "srcDir": "src/i18n",
-              "genDir": "src/i18n",
-              "defaultLanguage": "fr",
-              "languages": [
-                "fr",
-                "en"
-              ]
             }
           }
         }

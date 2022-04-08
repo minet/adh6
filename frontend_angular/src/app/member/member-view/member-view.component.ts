@@ -30,6 +30,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   newMembershipDisabled = false;
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
+  public showLogs = false;
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;

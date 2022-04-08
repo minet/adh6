@@ -12,7 +12,8 @@
       <div class="card">
         <div class="card-header"
           [ngClass]="{true:'has-background-success', false:'has-background-danger'}[account.balance>0]">
-          <h3 class="card-header-title title is-3 has-text-light is-centered">{{ account.balance }} €</h3>
+          <h3 class="card-header-title title is-3 has-text-light is-centered">{{ account.balance | number:'':'fr' }} €
+          </h3>
         </div>
         <div class="card-content">
           <div class="content">

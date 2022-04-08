@@ -61,14 +61,14 @@ angular_build_prod:
   only:
     - production
 
-python_check_for_vuln_deps:
-  stage: test
+#python_check_for_vuln_deps:
+#  stage: test
   # <<: *before_test_job # We reference our previous anchor
-  script:
-  - cd api_server/
-  - pip install safety
-  - safety check -r requirements.txt
-  - safety check
+#  script:
+#  - cd api_server/
+#  - pip install safety
+#  - safety check -r requirements.txt
+#  - safety check
 
 python_test:
   stage: test

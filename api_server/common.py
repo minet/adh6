@@ -26,6 +26,7 @@ from src.interface_adapter.http_api import (
 )
 
 from src.interface_adapter.sql.model.models import db
+from src.interface_adapter.http_api.auth import cache
 
 config = {
     'production': 'config.configuration.ProductionConfig',
@@ -82,6 +83,8 @@ def init() -> FlaskApp:
     )
 
     db.init_app(app.app)
+    cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
+
     
     Migrate(app.app, db)
 

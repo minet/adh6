@@ -37,7 +37,8 @@
             <small>{{ transactionResult.timestamp | date:"yyy" }}</small>
           </td>
           <td class="text-right text-nowrap align-middle">
-            <h5>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') + transactionResult.value }} €
+            <h5>{{ (asAccount ? ( transactionResult.dst.id==asAccount ? '+' : '-' ) : '') }}{{ transactionResult.value |
+              number:'':'fr' }} €
             </h5>
           </td>
           <td class="align-middle">{{ transactionResult.name }}</td>

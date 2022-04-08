@@ -1,12 +1,10 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Observable } from 'rxjs';
 import { filter, map, switchMap, takeWhile } from 'rxjs/operators';
 
 import { Account, AccountService, PaymentMethod, Transaction, TransactionService } from '../../api';
 
-import { SearchPage } from '../../search-page';
 import { faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
 import { AppConstantsService } from '../../app-constants.service';

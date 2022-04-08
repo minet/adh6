@@ -39,6 +39,7 @@ requests
 
 python-gitlab
 Flask-Migrate
+Flask-Caching
 authlib
 
 # Enforced requirements for security reasons

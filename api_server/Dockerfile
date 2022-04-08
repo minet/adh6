@@ -23,8 +23,8 @@ RUN cat .env.template | envsubst | tee .env
 FROM alpine:latest AS certs
 RUN apk add --update openssl
 RUN openssl genrsa -out /tmp/adh6.key 2048 \
-    && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
-    && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
+  && openssl req -new -key /tmp/adh6.key -out /tmp/adh6.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=frontend" \
+  && openssl x509 -req -days 365 -in /tmp/adh6.csr -signkey /tmp/adh6.key -out /tmp/adh6.crt
 
 
 FROM python:3.9-slim
@@ -37,16 +37,16 @@ COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
 # Install dependencies
 RUN apt update \
-    && apt install -y \
-    build-essential \
-    python3-dev \
-    libpcre3 \
-    libpcre3-dev \
-    libssl-dev \
-    libmariadb-dev \
-    git \
-    wget \
-    && useradd uwsgi
+  && apt install -y \
+  build-essential \
+  python3-dev \
+  libpcre3 \
+  libpcre3-dev \
+  libssl-dev \
+  libmariadb-dev \
+  git \
+  wget \
+  && useradd uwsgi
 
 # Download the latest OUI list from the IEEE
 RUN wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
@@ -65,7 +65,6 @@ RUN chown -R uwsgi:www-data /root/.pysnmp
 COPY ./openapi/spec.yaml ../openapi/
 COPY ./api_server ./
 COPY --from=config /tmp/.env config/
-RUN cat config/.env
 
 # Launch the app 
 CMD ["uwsgi", "--ini", "uwsgi.ini"]
