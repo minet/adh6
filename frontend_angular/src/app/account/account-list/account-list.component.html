@@ -62,7 +62,7 @@
           </td>
           <td class="align-middle">{{ accountResult.actif == true ? 'Oui' : 'Non' }}</td>
           <td class="align-middle">{{ accountResult.accountType.name }}</td>
-          <td class="align-middle">{{ accountResult.balance }} €</td>
+          <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
           <ng-template #noBalance>
             <td class="align-middle">-</td>
           </ng-template>
