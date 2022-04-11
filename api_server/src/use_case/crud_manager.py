@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Optional, Tuple
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.exceptions import IntMustBePositive, ValidationError
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -9,8 +9,7 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 class CRUDManager:
 
-    def __init__(self, name, repository: CRUDRepository, abstract_entity, not_found_exception):
-        self.name = name
+    def __init__(self, repository: CRUDRepository, abstract_entity, not_found_exception):
         self.repository = repository
         self.abstract_entity = abstract_entity
         self.not_found_exception = not_found_exception
@@ -38,16 +37,10 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    def get_by_id(self, ctx, **kwargs):
-        if self.name + '_id' not in kwargs or kwargs[self.name + '_id'] is None:
-            raise ValidationError('Parameter ' + self.name + '_id is required')
-
-        object_id = kwargs[self.name + '_id']
-
-        result, _ = self._search(ctx,
-                                 filter_=self.abstract_entity(id=object_id))
+    def get_by_id(self, ctx, id: int):
+        result, _ = self._search(ctx, filter_=self.abstract_entity(id=id))
         if not result:
-            raise self.not_found_exception(object_id)
+            raise self.not_found_exception(id)
 
         @uses_security("read", is_collection=False)
         def _get_by_id(cls, ctx, filter_=None):
@@ -57,13 +50,10 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    def update_or_create(self, ctx, obj, **kwargs):
+    def update_or_create(self, ctx, obj, id: Optional[int] = None):
         current_object = None
-        if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
-            try:
-                current_object = self.get_by_id(ctx, **kwargs)
-            except:
-                raise
+        if id is not None:
+            current_object = self.get_by_id(ctx, id)
 
         if current_object is None:
             @uses_security("create", is_collection=True)
@@ -81,20 +71,13 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    def partially_update(self, ctx, obj, override=False, **kwargs):
+    def partially_update(self, ctx, obj, id: int, override=False):
         current_object = None
-        if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
-            object_id = kwargs[self.name + '_id']
-
-            result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=object_id))
-            if not result:
-                raise self.not_found_exception(object_id)
-            current_object = next(iter(result), None)
-        else:
-            raise ValidationError('Parameter ' + self.name + '_id is required')
-
-        object_id = kwargs[self.name + '_id']
-        obj.id = object_id
+        result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=id))
+        if not result:
+            raise self.not_found_exception(id)
+        current_object = next(iter(result), None)
+        obj.id = id
 
         @uses_security("update", is_collection=False)
         def _partially_update(cls, ctx, filter_=None):
@@ -104,22 +87,14 @@ class CRUDManager:
 
     @log_call
     @auto_raise
-    def delete(self, ctx, **kwargs):
+    def delete(self, ctx, id: int):
         current_object = None
-        if self.name + '_id' in kwargs and kwargs[self.name + '_id'] is not None:
-            object_id = kwargs[self.name + '_id']
+        result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=id))
 
-            result, _ = self.repository.search_by(ctx, filter_=self.abstract_entity(id=object_id))
-
-            if not result:
-                raise self.not_found_exception(object_id)
-            current_object = next(iter(result), None)
-        else:
-            raise ValidationError('Parameter ' + self.name + '_id is required')
-
-        object_id = kwargs[self.name + '_id']
-
+        if not result:
+            raise self.not_found_exception(id)
+        current_object = next(iter(result), None)
         @uses_security("delete", is_collection=False)
         def _delete(cls, ctx, filter_=None):
-            self.repository.delete(ctx, object_id)
+            self.repository.delete(ctx, id)
         return _delete(self, ctx, filter_=current_object)

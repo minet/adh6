@@ -49,10 +49,7 @@ def test_device_log_update(client, caplog, device: Device, device_dict):
         from test.integration.test_device import test_device_patch
         test_device_patch(client, device, device_dict, TEST_HEADERS, 204)
 
-    assert logs_contains(caplog,
-                         'device_manager_partially_update',
-                         user=TESTING_CLIENT,
-                         device_id=device.id)
+    assert logs_contains(caplog, 'device_manager_partially_update')
 
 
 @pytest.mark.parametrize(
@@ -66,4 +63,4 @@ def test_device_log_delete(client, caplog, device: Device):
 
     assert logs_contains(caplog,
                          'device_manager_delete',
-                         device_id=device.id)
+                         id=device.id)

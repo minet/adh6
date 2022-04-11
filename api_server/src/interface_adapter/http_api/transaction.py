@@ -23,9 +23,9 @@ class TransactionHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def validate(self, ctx, transaction_id=None):
+    def validate(self, ctx, id_=None):
         try:
-            self.main_manager.validate(ctx, transaction_id=transaction_id)
+            self.main_manager.validate(ctx, id=id_)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
