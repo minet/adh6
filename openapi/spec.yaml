@@ -165,15 +165,9 @@ paths:
       summary: Create an account
       tags:
       - account
-  /account/{account_id}:
+  /account/{id}:
     parameters:
-      - description: The id of the account that needs to be fetched.
-        in: path
-        name: account_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       responses:
         200:
@@ -241,14 +235,9 @@ paths:
       summary: Filter account types
       tags:
       - account
-  /account_type/{account_type_id}:
+  /account_type/{id}:
     parameters:
-      - in: path
-        name: account_type_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       responses:
         200:
@@ -358,15 +347,9 @@ paths:
       summary: Create device
       tags:
       - device
-  /device/{device_id}:
+  /device/{id}:
     parameters:
-      - description: The unique identifier of the device
-        in: path
-        name: device_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     delete:
       responses:
         204:
@@ -451,17 +434,11 @@ paths:
       summary: Partially update a device
       tags:
       - device
-  /device/{device_id}/vendor:
+  /device/{id}/vendor:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: vendor_get
-      parameters:
-      - description: The unique identifier of the device
-        in: path
-        name: device_id
-        required: true
-        schema:
-          type: integer
-          example: 0
       responses:
         200:
           content:
@@ -485,15 +462,9 @@ paths:
       summary: Retrieve the vendor of a device based on its MAC
       tags:
       - device
-  /device/{device_id}/mab/:
+  /device/{id}/mab/:
     parameters:
-    - description: The unique identifier of the device
-      in: path
-      name: device_id
-      required: true
-      schema:
-        type: integer
-        example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: device_mab_get
       responses:
@@ -626,15 +597,9 @@ paths:
       summary: Create a member
       tags:
       - member
-  /member/{member_id}:
+  /member/{id}:
     parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     delete:
       responses:
         204:
@@ -713,16 +678,11 @@ paths:
       summary: Update a member
       tags:
       - member
-  /member/{member_id}/logs/:
+  /member/{id}/logs/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
     get:
       parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
       - description: Whether to fetch DHCP logs
         in: query
         name: dhcp
@@ -748,16 +708,10 @@ paths:
       summary: Retrieve the most recent logs of a member
       tags:
       - member
-  /member/{member_id}/statuses/:
+  /member/{id}/statuses/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
     get:
-      parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
       responses:
         200:
           content:
@@ -776,16 +730,10 @@ paths:
       summary: Retrieves some common status updates concerning a member
       tags:
       - member
-  /member/{member_id}/password/:
+  /member/{id}/password/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
     put:
-      parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
       requestBody:
         content:
           application/json:
@@ -818,17 +766,9 @@ paths:
       summary: Update the password of a member
       tags:
       - member
-  /member/{member_id}/charter/{charter_id}:
-    get:
-      operationId: charter_get
-      parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+  /member/{id}/charter/{charter_id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
       - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
         in: path
         name: charter_id
@@ -838,6 +778,8 @@ paths:
           enum:
             - 1
             - 2
+    get:
+      operationId: charter_get
       responses:
         200:
           content:
@@ -857,23 +799,6 @@ paths:
       - member
     put:
       operationId: charter_put
-      parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
-      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
-        in: path
-        name: charter_id
-        required: true
-        schema:
-          type: integer
-          enum:
-            - 1
-            - 2
       responses:
         204:
           description: Updated
@@ -923,15 +848,9 @@ paths:
       summary: Filter memberships
       tags:
       - membership
-  /member/{member_id}/membership/:
+  /member/{id}/membership/:
     parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: get_latest_membership
       responses:
@@ -976,15 +895,9 @@ paths:
       summary: Add a membership record for a member
       tags:
       - membership
-  /member/{member_id}/membership/{uuid}:
+  /member/{id}/membership/{uuid}:
     parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
       - description: The UUID associated with this membership request
         in: path
         name: uuid
@@ -1034,15 +947,9 @@ paths:
       summary: Partially update a membership
       tags:
       - membership
-  /member/{member_id}/membership/{uuid}/validate:
+  /member/{id}/membership/{uuid}/validate:
     parameters:
-      - description: The unique identifier of the member
-        in: path
-        name: member_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
       - description: The UUID associated with this membership request
         in: path
         name: uuid
@@ -1112,14 +1019,9 @@ paths:
       summary: Filter payment methods
       tags:
       - transaction
-  /payment_method/{payment_method_id}:
+  /payment_method/{id}:
     parameters:
-      - in: path
-        name: payment_method_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       responses:
         200:
@@ -1150,7 +1052,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractPort'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1189,7 +1090,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractPort'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1239,14 +1139,9 @@ paths:
       summary: Create a port
       tags:
       - port
-  /port/{port_id}:
+  /port/{id}:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     delete:
       responses:
         204:
@@ -1299,14 +1194,9 @@ paths:
       summary: Update a port
       tags:
       - port
-  /port/{port_id}/mab/:
+  /port/{id}/mab/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: mab_get
       responses:
@@ -1346,14 +1236,9 @@ paths:
       summary: Update the state of MAB on a port
       tags:
       - port
-  /port/{port_id}/alias/:
+  /port/{id}/alias/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: alias_get
       responses:
@@ -1374,14 +1259,9 @@ paths:
       summary: Retrieve the alias on a port
       tags:
       - port
-  /port/{port_id}/use/:
+  /port/{id}/use/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: use_get
       responses:
@@ -1402,14 +1282,9 @@ paths:
       summary: Retrieve the current use of a port
       tags:
       - port
-  /port/{port_id}/speed/:
+  /port/{id}/speed/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: speed_get
       responses:
@@ -1430,14 +1305,9 @@ paths:
       summary: Retrieve the speed on a port
       tags:
       - port
-  /port/{port_id}/auth/:
+  /port/{id}/auth/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: auth_get
       responses:
@@ -1477,14 +1347,9 @@ paths:
       summary: Update the state of authentication on a port
       tags:
       - port
-  /port/{port_id}/state/:
+  /port/{id}/state/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: state_get
       responses:
@@ -1524,14 +1389,9 @@ paths:
       summary: Update the state of a port
       tags:
       - port
-  /port/{port_id}/vlan/:
+  /port/{id}/vlan/:
     parameters:
-      - in: path
-        name: port_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: vlan_get
       responses:
@@ -1603,15 +1463,9 @@ paths:
       summary: Filter products
       tags:
       - treasury
-  /product/{product_id}:
+  /product/{id}:
     parameters:
-      - description: The id of the product that needs to be fetched.
-        in: path
-        name: product_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       responses:
         200:
@@ -1642,7 +1496,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractRoom'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1679,7 +1532,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractRoom'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1725,15 +1577,9 @@ paths:
       summary: Create a room
       tags:
       - room
-  /room/{room_id}:
+  /room/{id}:
     parameters:
-      - in: path
-        description: The unique identifier of this room
-        name: room_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     delete:
       responses:
         204:
@@ -1803,7 +1649,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractSwitch'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1840,7 +1685,6 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/AbstractSwitch'
-          required: []
         style: deepObject
         explode: true
       responses:
@@ -1886,14 +1730,9 @@ paths:
       summary: Create a switch
       tags:
       - switch
-  /switch/{switch_id}:
+  /switch/{id}:
     parameters:
-      - in: path
-        name: switch_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     delete:
       responses:
         204:
@@ -2074,15 +1913,9 @@ paths:
       summary: Create a transaction
       tags:
       - transaction
-  /transaction/{transaction_id}/upload/:
+  /transaction/{id}/upload/:
     parameters:
-      - description: The unique identifier of the transaction
-        in: path
-        name: transaction_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     post:
       requestBody:
         content:
@@ -2104,15 +1937,9 @@ paths:
       summary: Upload an attachment to a transaction
       tags:
       - transaction
-  /transaction/{transaction_id}/validate:
+  /transaction/{id}/validate:
     parameters:
-      - description: The unique identifier of the transaction
-        in: path
-        name: transaction_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       operationId: validate
       responses:
@@ -2129,15 +1956,9 @@ paths:
       summary: Validate a pending transaction
       tags:
       - transaction
-  /transaction/{transaction_id}:
+  /transaction/{id}:
     parameters:
-      - description: The unique identifier of the transaction that needs to be fetched
-        in: path
-        name: transaction_id
-        required: true
-        schema:
-          type: integer
-          example: 0
+      - $ref: '#/components/parameters/idPath'
     get:
       responses:
         200:
@@ -2314,6 +2135,14 @@ components:
       required: false
       schema:
         type: string
+    idPath:
+      description: The id of the account that needs to be fetched.
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        example: 0
   responses:
     NotFound:
       description: The specified resource was not found
@@ -2992,3 +2821,4 @@ tags:
   name: treasury
 - description: Miscellaneous endpoints
   name: misc
+

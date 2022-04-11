@@ -63,7 +63,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             username: v.username,
             room: rooms[0].id
           };
-          this.memberService.memberMemberIdPatch(abstractMember, this.member_id, 'body')
+          this.memberService.memberIdPatch(abstractMember, this.member_id, 'body')
             .subscribe((_) => {
               this.router.navigate(['member/view', this.member_id]);
             });
@@ -86,7 +86,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
 
   memberUsernameDelete() {
     this.disabled = true;
-    this.memberService.memberMemberIdDelete(this.member_id, 'response')
+    this.memberService.memberIdDelete(this.member_id, 'response')
       .pipe(
         first(),
         finalize(() => this.disabled = false),
@@ -110,7 +110,7 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
             return EMPTY;
           }
         }),
-        mergeMap((member_id) => this.memberService.memberMemberIdGet(+member_id)),
+        mergeMap((member_id) => this.memberService.memberIdGet(+member_id)),
         first(),
       )
       .subscribe((member: Member) => {

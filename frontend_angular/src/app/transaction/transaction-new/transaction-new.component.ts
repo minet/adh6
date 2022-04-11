@@ -61,7 +61,7 @@ export class TransactionNewComponent implements OnInit {
           this.refreshTransactions.next({ action: 'refresh' });
         });
     } else if (event.name === 'delete') {
-      this.transactionService.transactionTransactionIdDelete(event.transaction.id)
+      this.transactionService.transactionIdDelete(event.transaction.id)
         .pipe(takeWhile(() => this.alive))
         .subscribe((_) => {
           this.notificationService.successNotification('Ok!', 'Transaction supprimée avec succès !');
@@ -127,7 +127,7 @@ export class TransactionNewComponent implements OnInit {
     this.route.params.pipe(
       map(params => params['account_id']),
       filter(id => id),
-      switchMap(id => this.accountService.accountAccountIdGet(id))
+      switchMap(id => this.accountService.accountIdGet(id))
     ).subscribe(account => this.selectedSrcAccount = account);
 
     this.appConstantService.getPaymentMethods().subscribe(

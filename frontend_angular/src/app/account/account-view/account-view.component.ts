@@ -54,7 +54,7 @@ export class AccountViewComponent extends SearchPage implements OnInit {
         map(([x]) => x),
       );
     this.account$ = refresh$.pipe(
-      switchMap(id => this.accountService.accountAccountIdGet(id)),
+      switchMap(id => this.accountService.accountIdGet(id)),
       share()
     );
 
