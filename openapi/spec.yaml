@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: ADH6 API
   description: >
@@ -76,9 +76,9 @@ paths:
   /account/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -112,9 +112,9 @@ paths:
       - account
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -212,9 +212,9 @@ paths:
   /account_type/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       responses:
         200:
           content:
@@ -260,9 +260,9 @@ paths:
   /device/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -295,9 +295,9 @@ paths:
       - device
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -510,9 +510,9 @@ paths:
   /member/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -526,7 +526,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Member'
+                  $ref: '#/components/schemas/AbstractMember'
                 type: array
           description: Success
           headers:
@@ -545,9 +545,9 @@ paths:
       - member
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -815,9 +815,9 @@ paths:
     get:
       operationId: membership_search
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -977,9 +977,9 @@ paths:
   /payment_method/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       responses:
         200:
           content:
@@ -1002,9 +1002,9 @@ paths:
       - transaction
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       responses:
         200:
           description: Success
@@ -1044,9 +1044,9 @@ paths:
   /port/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1082,9 +1082,9 @@ paths:
       - port
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1440,9 +1440,9 @@ paths:
   /product/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       responses:
         200:
           content:
@@ -1488,9 +1488,9 @@ paths:
   /room/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1524,9 +1524,9 @@ paths:
       - room
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1641,9 +1641,9 @@ paths:
   /switch/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1677,9 +1677,9 @@ paths:
       - switch
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1818,9 +1818,9 @@ paths:
   /transaction/:
     get:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -1856,9 +1856,9 @@ paths:
       - transaction
     head:
       parameters:
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/skipParam'
-      - $ref: '#/components/parameters/searchTermParam'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/searchTerm'
       - description: Filters by various properties
         in: query
         name: filter
@@ -2112,7 +2112,7 @@ paths:
 
 components:
   parameters:
-    limitParam:
+    limit:
       description: Limit the number of results returned
       in: query
       name: limit
@@ -2120,7 +2120,7 @@ components:
       schema:
         default: 25
         type: integer
-    skipParam:
+    skip:
       description: Skip the first n results
       in: query
       name: offset
@@ -2128,7 +2128,7 @@ components:
       schema:
         default: 0
         type: integer
-    searchTermParam:
+    searchTerm:
       description: The generic search terms (will search in any field)
       in: query
       name: terms
@@ -2379,7 +2379,7 @@ components:
         dst:
           description: The destination account of this transaction
           oneOf:
-            - $ref: '#/components/schemas/Account'  
+            - $ref: '#/components/schemas/Account'
             - type: integer
           example: 1
         timestamp:

@@ -2,7 +2,6 @@
 """ Use cases (business rule layer) of everything related to members. """
 from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
-import uuid
 
 from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
@@ -11,11 +10,9 @@ from src.entity import (
     AbstractDevice, MemberStatus,
     AbstractAccount, Account,
     AbstractPaymentMethod, PaymentMethod,
-    AccountType,
+    AccountType
 )
-from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.null import Null
-from src.entity.transaction import Transaction
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
     AccountTypeNotFoundError,
@@ -26,7 +23,6 @@ from src.exceptions import (
     MemberNotFoundError,
     MemberAlreadyExist,
     MembershipAlreadyExist,
-    TransactionNotFoundError,
     UnauthorizedError,
     UnknownPaymentMethod,
     LogFetchError,
@@ -114,7 +110,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("create", is_collection=True)
-    def new_member(self, ctx, member: Member) -> Member:
+    def new_member(self, ctx, member: AbstractMember) -> Member:
         LOG.debug("create_member_records", extra=log_extra(ctx, username=member.username))
         # Check that the user exists in the system.
         fetched_member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(username=member.username))
@@ -123,9 +119,10 @@ class MemberManager(CRUDManager):
 
         fetched_account_type, _ = self.account_type_repository.search_by(ctx, filter_=AccountType(name="Adhérent"))
         if not fetched_account_type:
-            raise AccountTypeNotFoundError("Adhérent")
+            raise AccountTypeNotFoundError("Adhérent") 
+ 
         created_member: Member = self.member_repository.create(ctx, member)
-        _: Account = self.account_repository.create(ctx, Account(
+        _: Account = self.account_repository.create(ctx, AbstractAccount(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,

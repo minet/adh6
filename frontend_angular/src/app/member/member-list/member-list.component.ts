@@ -24,8 +24,8 @@ export class MemberListComponent extends SearchPage implements OnInit {
 
   ngOnInit() {
     super.ngOnInit();
-    this.maxItems$ = this.getSearchResult((term, _) => this.memberService.memberHead(1, 0, term, undefined, 'response').pipe(map((response) => { return (response) ? +response.headers.get('x-total-count') : 0 })))
-    this.result$ = this.getSearchResult((terms, page) => this.fetchMembers(terms, page));
+    this.maxItems$ = this.getSearchResult((term, _) => this.memberService.memberHead(1, 0, (term) ? term : undefined, undefined, 'response').pipe(map((response) => { return (response) ? +response.headers.get('x-total-count') : 0 })))
+    this.result$ = this.getSearchResult((terms, page) => this.fetchMembers((terms) ? terms : undefined, page));
   }
 
   private fetchMembers(terms: string, page: number) {

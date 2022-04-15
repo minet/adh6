@@ -191,9 +191,9 @@ export class MemberService {
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<Member>>;
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<Member>>>;
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<Member>>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<AbstractMember>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<AbstractMember>>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<AbstractMember>>>;
     public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
 
@@ -248,7 +248,7 @@ export class MemberService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Array<Member>>('get',`${this.basePath}/member/`,
+        return this.httpClient.request<Array<AbstractMember>>('get',`${this.basePath}/member/`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
