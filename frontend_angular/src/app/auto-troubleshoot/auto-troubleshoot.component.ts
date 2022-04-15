@@ -1,6 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Member, MemberService, MemberStatus} from '../api';
+import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Member, MemberService, MemberStatus } from '../api';
 
 @Component({
   selector: 'app-auto-troubleshoot',
@@ -15,7 +15,7 @@ export class AutoTroubleshootComponent implements OnInit {
   constructor(private memberService: MemberService) { }
 
   ngOnInit(): void {
-    this.statuses$ = this.memberService.memberMemberIdStatusesGet(this.member.id, 'body', false, false);
+    this.statuses$ = this.memberService.memberIdStatusesGet(this.member.id, 'body', false, false);
   }
 
 }

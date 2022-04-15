@@ -32,7 +32,7 @@ class TreasuryHandler:
 
     @with_context
     @require_sql
-    def put(self, ctx, transaction_id, body):
+    def put(self, ctx, id_, body):
         pass
 
     @with_context

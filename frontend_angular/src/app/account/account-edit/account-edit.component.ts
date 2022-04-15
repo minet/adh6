@@ -1,11 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import {AbstractAccount, Account, AccountService, AccountType} from '../../api';
-import {Observable} from 'rxjs';
-import {switchMap, takeWhile} from 'rxjs/operators';
-import { AppConstantsService } from '../../app-constants.service';
+import { AbstractAccount, Account, AccountService, AccountType } from '../../api';
+import { Observable } from 'rxjs';
+import { switchMap, takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -53,7 +52,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
       accountType: parseInt(v.type),
     };
 
-    this.accountService.accountAccountIdPut(accountPatch, this.account.id, 'response')
+    this.accountService.accountIdPut(accountPatch, this.account.id, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((response) => {
         this.router.navigate(['/account/view', this.account.id]);
@@ -68,7 +67,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
 
     this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.accountService.accountAccountIdGet(+params.get('account_id'))),
+        switchMap((params: ParamMap) => this.accountService.accountIdGet(+params.get('account_id'))),
         takeWhile(() => this.alive),
       )
       .subscribe((data: Account) => {

@@ -59,18 +59,18 @@ export class PortService {
     /**
      * Retrieve the alias on a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public aliasGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
-    public aliasGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
-    public aliasGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
-    public aliasGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public aliasGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public aliasGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public aliasGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
+    public aliasGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling aliasGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling aliasGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -102,7 +102,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/alias/`,
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/alias/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -115,18 +115,18 @@ export class PortService {
     /**
      * Retrieve whether authentication is enabled on this port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public authGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public authGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public authGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public authGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public authGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public authGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public authGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public authGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling authGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling authGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -158,7 +158,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
+        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/auth/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -171,18 +171,18 @@ export class PortService {
     /**
      * Retrieve whether MAB is enabled on this port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public mabGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public mabGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public mabGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public mabGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public mabGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public mabGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public mabGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public mabGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling mabGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling mabGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -214,7 +214,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/mab/`,
+        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/mab/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -385,18 +385,18 @@ export class PortService {
     /**
      * Update the state of authentication on a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdAuthPut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public portPortIdAuthPut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public portPortIdAuthPut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public portPortIdAuthPut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdAuthPut(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portIdAuthPut(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portIdAuthPut(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portIdAuthPut(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdAuthPut.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdAuthPut.');
         }
 
         let headers = this.defaultHeaders;
@@ -428,7 +428,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/auth/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(id))}/auth/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -441,18 +441,18 @@ export class PortService {
     /**
      * Delete a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdDelete(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdDelete(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdDelete(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdDelete(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdDelete(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public portIdDelete(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public portIdDelete(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public portIdDelete(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdDelete.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdDelete.');
         }
 
         let headers = this.defaultHeaders;
@@ -484,7 +484,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('delete',`${this.basePath}/port/${encodeURIComponent(String(portId))}`,
+        return this.httpClient.request<any>('delete',`${this.basePath}/port/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -497,18 +497,18 @@ export class PortService {
     /**
      * Retrieve a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Port>;
-    public portPortIdGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Port>>;
-    public portPortIdGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Port>>;
-    public portPortIdGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Port>;
+    public portIdGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Port>>;
+    public portIdGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Port>>;
+    public portIdGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -540,7 +540,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Port>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}`,
+        return this.httpClient.request<Port>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -553,18 +553,18 @@ export class PortService {
     /**
      * Update the state of MAB on a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdMabPut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public portPortIdMabPut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public portPortIdMabPut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public portPortIdMabPut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdMabPut(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portIdMabPut(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portIdMabPut(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portIdMabPut(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdMabPut.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdMabPut.');
         }
 
         let headers = this.defaultHeaders;
@@ -596,7 +596,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/mab/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(id))}/mab/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -610,22 +610,22 @@ export class PortService {
      * Update a port
      * 
      * @param body The new values for this port
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdPut(body: AbstractPort, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdPut(body: AbstractPort, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdPut(body: AbstractPort, id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public portIdPut(body: AbstractPort, id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public portIdPut(body: AbstractPort, id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public portIdPut(body: AbstractPort, id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling portPortIdPut.');
+            throw new Error('Required parameter body was null or undefined when calling portIdPut.');
         }
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdPut.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdPut.');
         }
 
         let headers = this.defaultHeaders;
@@ -661,7 +661,7 @@ export class PortService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}`,
+        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(id))}`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -675,18 +675,18 @@ export class PortService {
     /**
      * Update the state of a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdStatePut(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public portPortIdStatePut(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public portPortIdStatePut(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public portPortIdStatePut(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdStatePut(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public portIdStatePut(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public portIdStatePut(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public portIdStatePut(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdStatePut.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdStatePut.');
         }
 
         let headers = this.defaultHeaders;
@@ -718,7 +718,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/state/`,
+        return this.httpClient.request<boolean>('put',`${this.basePath}/port/${encodeURIComponent(String(id))}/state/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -732,22 +732,22 @@ export class PortService {
      * Update the VLAN assigned to a port
      * 
      * @param body The VLAN to assign. Set to &#x60;null&#x60; to simply restore to the default VLAN
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public portPortIdVlanPut(body: number, portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public portPortIdVlanPut(body: number, portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public portPortIdVlanPut(body: number, portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public portPortIdVlanPut(body: number, portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public portIdVlanPut(body: number, id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public portIdVlanPut(body: number, id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public portIdVlanPut(body: number, id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public portIdVlanPut(body: number, id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling portPortIdVlanPut.');
+            throw new Error('Required parameter body was null or undefined when calling portIdVlanPut.');
         }
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling portPortIdVlanPut.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdVlanPut.');
         }
 
         let headers = this.defaultHeaders;
@@ -784,7 +784,7 @@ export class PortService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(portId))}/vlan/`,
+        return this.httpClient.request<any>('put',`${this.basePath}/port/${encodeURIComponent(String(id))}/vlan/`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -860,18 +860,18 @@ export class PortService {
     /**
      * Retrieve the speed on a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public speedGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
-    public speedGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
-    public speedGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
-    public speedGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public speedGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public speedGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public speedGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
+    public speedGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling speedGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling speedGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -903,7 +903,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/speed/`,
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/speed/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -916,18 +916,18 @@ export class PortService {
     /**
      * Retrieve the state of a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public stateGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
-    public stateGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
-    public stateGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
-    public stateGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public stateGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<boolean>;
+    public stateGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<boolean>>;
+    public stateGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<boolean>>;
+    public stateGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling stateGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling stateGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -959,7 +959,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/state/`,
+        return this.httpClient.request<boolean>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/state/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -972,18 +972,18 @@ export class PortService {
     /**
      * Retrieve the current use of a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public useGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
-    public useGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
-    public useGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
-    public useGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public useGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<string>;
+    public useGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<string>>;
+    public useGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<string>>;
+    public useGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling useGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling useGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -1015,7 +1015,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/use/`,
+        return this.httpClient.request<string>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/use/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -1028,18 +1028,18 @@ export class PortService {
     /**
      * Retrieve the VLAN assigned to a port
      * 
-     * @param portId 
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public vlanGet(portId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<number>;
-    public vlanGet(portId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<number>>;
-    public vlanGet(portId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<number>>;
-    public vlanGet(portId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public vlanGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<number>;
+    public vlanGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<number>>;
+    public vlanGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<number>>;
+    public vlanGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (portId === null || portId === undefined) {
-            throw new Error('Required parameter portId was null or undefined when calling vlanGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling vlanGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -1071,7 +1071,7 @@ export class PortService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<number>('get',`${this.basePath}/port/${encodeURIComponent(String(portId))}/vlan/`,
+        return this.httpClient.request<number>('get',`${this.basePath}/port/${encodeURIComponent(String(id))}/vlan/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

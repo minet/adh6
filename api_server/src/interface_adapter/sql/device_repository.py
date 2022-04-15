@@ -118,13 +118,13 @@ class DeviceSQLRepository(DeviceRepository):
         return _map_device_sql_to_entity(new_device)
 
     @log_call
-    def delete(self, ctx, device_id) -> None:
+    def delete(self, ctx, id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
-        device = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        device = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
 
         if device is None:
-            raise DeviceNotFoundError(device_id)
+            raise DeviceNotFoundError(id)
 
         with track_modifications(ctx, session, device):
             session.delete(device)
@@ -146,18 +146,18 @@ class DeviceSQLRepository(DeviceRepository):
         return list(map(lambda x: x[0], r)), count
     
 
-    def get_mab(self, ctx, device_id: int) -> bool:
+    def get_mab(self, ctx, id: int) -> bool:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
         if not device:
-            raise DeviceNotFoundError(str(device_id))
+            raise DeviceNotFoundError(str(id))
         return device.mab
 
-    def put_mab(self, ctx, device_id: int, mab: bool) -> bool:
+    def put_mab(self, ctx, id: int, mab: bool) -> bool:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == device_id).one_or_none()
+        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
         if not device:
-            raise DeviceNotFoundError(str(device_id))
+            raise DeviceNotFoundError(str(id))
         
         device.mab = mab
 

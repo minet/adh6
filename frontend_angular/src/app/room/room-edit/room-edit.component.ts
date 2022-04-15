@@ -1,12 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 
-import {Room, RoomService, VlanService} from '../../api';
-import {finalize, first, switchMap, tap} from 'rxjs/operators';
+import { Room, RoomService, VlanService } from '../../api';
+import { finalize, first, switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -54,7 +53,7 @@ export class RoomEditComponent implements OnInit {
           vlan: vlan.id,
           description: v.description
         };
-        this.roomService.roomRoomIdPut(room, v.id)
+        this.roomService.roomIdPut(room, v.id)
           .subscribe(() => {
             this.router.navigate(['/room/view', v.roomNumber]);
             this.notificationService.successNotification();
@@ -65,12 +64,12 @@ export class RoomEditComponent implements OnInit {
   ngOnInit() {
     this.room$ = this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.roomService.roomRoomIdGet(+params.get('room_id'))),
+        switchMap((params: ParamMap) => this.roomService.roomIdGet(+params.get('room_id'))),
         tap(room => this.roomEdit.patchValue({
           id: room.id,
           roomNumber: room.roomNumber,
           description: room.description,
-          vlan: (typeof(room.vlan) === 'number') ? room.vlan : room.vlan.number
+          vlan: (typeof (room.vlan) === 'number') ? room.vlan : room.vlan.number
         }))
       );
   }
