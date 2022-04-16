@@ -1,12 +1,14 @@
 <div class="card">
-  <header class="card-header" (click)="toogleDeviceDetails()">
-    <p class="card-header-title" class="card-header-icon" aria-label="more options">
-      <strong>{{ device.mac | uppercase }}</strong>
-      <span style="position: absolute; right: 30px">
-        {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
-      </span>
-    </p>
-  </header>
+  <a (click)="toogleDeviceDetails()">
+    <header class="card-header">
+      <p class="card-header-title has-text-centered" aria-label="more options">
+        <strong>{{ device.mac | uppercase }}</strong>
+        <span style="position: absolute; right: 30px">
+          {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
+        </span>
+      </p>
+    </header>
+  </a>
   <ng-container *ngIf="!isCollapse">
     <div class="card-content">
       <table class="table is-fullwidth is-vcentered">
@@ -62,3 +64,4 @@
     </footer>
   </ng-container>
 </div>
+<br *ngIf="!isCollapse" />

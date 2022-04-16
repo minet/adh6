@@ -1,12 +1,9 @@
-<div class="content" *ngIf="result$ | async as result">
+<div *ngIf="result$ | async as result">
   <p *ngIf="result.devices.length == 0; else theDevices" class="title"
     i18n="device list none|Tells the user they have no registered devices">Aucun appareil enregistré</p>
   <ng-template #theDevices>
-    <div *ngFor="let device of result.devices" class="device_row"
-      [ngClass]="{'mac_highlighted': device.mac == (macHighlighted | async)}">
-      <div class="content">
-        <app-element [device]="device" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
-      </div>
+    <div *ngFor="let device of result.devices" [ngClass]="{'mac_highlighted': device.mac == (macHighlighted | async)}">
+      <app-element [device]="device" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
     </div>
   </ng-template>
 </div>

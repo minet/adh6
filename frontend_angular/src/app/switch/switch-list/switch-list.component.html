@@ -14,7 +14,7 @@
     </div>
   </div>
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-striped is-fullwidth" *ngIf="result$ | async as result">
+    <table class="table is-hoverable is-striped is-fullwidth is-clickable" *ngIf="result$ | async as result">
       <thead>
         <tr>
           <th>Description</th>

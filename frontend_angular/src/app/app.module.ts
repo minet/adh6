@@ -45,12 +45,10 @@ function load(oAuthService: OAuthService): Configuration {
     AutoTroubleshootComponent,
   ],
   imports: [
-    FontAwesomeModule,
     BrowserModule,
     AppRoutingModule,
     ApiModule,
     ReactiveFormsModule,
-    FormsModule,
     BrowserAnimationsModule,
     OAuthModule.forRoot(),
     HttpClientModule,

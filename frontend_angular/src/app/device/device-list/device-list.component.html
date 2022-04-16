@@ -3,8 +3,7 @@
   <input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
     class="input is-fullwidth" type="text" />
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-fullwidth" (click)="isCollapsed = !isCollapsed"
-      [attr.aria-expanded]="!isCollapsed" aria-controls="collapseBasic">
+    <table class="table is-hoverable is-fullwidth is-clickable" (click)="isCollapsed = !isCollapsed">
       <thead>
         <tr>
           <th>Utilisateur</th>

@@ -2,7 +2,7 @@
   <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="input is-fullwidth" type="text"
     placeholder="Rechercher..." />
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-fullwidth is-hoverable is-striped">
+    <table class="table is-fullwidth is-hoverable is-striped is-clickable">
       <thead>
         <tr>
           <th class="center">Switch</th>

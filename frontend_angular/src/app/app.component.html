@@ -27,7 +27,9 @@
   <div class="container">
     <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
     <ng-template #elseRouter>
-      <router-outlet></router-outlet>
+      <div class="section">
+        <router-outlet></router-outlet>
+      </div>
     </ng-template>
   </div>
 
@@ -35,6 +37,43 @@
     <fa-icon [icon]="faBug"></fa-icon>
   </button>
 </div>
+<footer class="footer">
+  <div class="content has-text-centered">
+    <div class="columns">
+      <div class="column">
+        <a href="//minet.net">
+          <figure>
+            <img src="../assets/minet_dark.png" width="50%" class="d-inline-block align-top" alt="">
+          </figure>
+        </a>
+        <p>
+          <i class="fa-brands fa-facebook-f">Facebook</i> |
+          <i class="fab fa-twitter">Twitter</i> |
+          <i class="fab fa-discord">Discord</i>
+        </p>
+      </div>
+      <div class="column is-half">
+        <h5 class="title is-5">À propos</h5>
+        <p>
+          Cette plateforme (adh6) est la 6ème version des plateformes de gestion d'adhérents de MiNET dont le
+          développement a commencé à partir de 2016 pour remplacer adh5 (2011). Vous pouvez à tout moment regarder le
+          code source de l'application : <a href="//github.com/minet/adh6">https://github.com/minet/adh6</a> (il s'agit
+          d'un mirroir de notre projet gitlab).
+        </p>
+      </div>
+      <div class="column">
+        <h5 class="title is-5">Nous contacter</h5>
+        <label class="label">Permanences</label>
+        <p>du Lundi au Jeudi : de 18h à 19h30</p>
+        <hr>
+        <p>
+          <b><a href="//tickets.minet.net">ticket</a></b> /
+          <b><a href="//tickets.minet.net">mail</a></b>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
 <ng-template #elseBlock>
   <app-portail></app-portail>
 </ng-template>

@@ -12,7 +12,7 @@
     </div>
   </div>
   <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-fullwidth">
+    <table class="table is-hoverable is-fullwidth is-clickable">
       <thead>
         <tr>
           <th>Nom</th>
@@ -25,9 +25,10 @@
           <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
           <td>{{ member.username }}</td>
           <td class="roomNumberRow">
-            <a *ngIf="member.room != null" [routerLink]="['/room/view', member.room.id]">{{ member.room.roomNumber
-              }}</a>
-            <a *ngIf="member.room == null">Aucune</a>
+            <p *ngIf="member.room != null">
+              {{ member.room.roomNumber }}
+            </p>
+            <p *ngIf="member.room == null">Aucune</p>
           </td>
         </tr>
       </tbody>

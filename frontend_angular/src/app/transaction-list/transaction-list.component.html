@@ -12,7 +12,7 @@
     </div>
   </div>
   <ng-container *ngIf="maxItems$ | async as maxItems; else noTransaction">
-    <table class="table is-hoverable is-striped is-fullwidth" *ngIf="result$ | async as result">
+    <table class="table is-striped is-fullwidth" *ngIf="result$ | async as result">
       <thead>
         <tr>
           <th>Date</th>

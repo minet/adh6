@@ -15,7 +15,7 @@ class DeviceListReponse {
 @Component({
   selector: 'app-member-device-list',
   templateUrl: './list.component.html',
-  styleUrls: ['./list.component.css']
+  styleUrls: ['./list.component.scss']
 })
 export class ListComponent extends SearchPage implements OnInit {
   @Input() filter: any;
