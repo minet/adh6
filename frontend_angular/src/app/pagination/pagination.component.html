@@ -1,8 +1,9 @@
 <ng-container [ngTemplateOutlet]="pagination"></ng-container>
 <ng-template #pagination>
   <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-    <a class="pagination-previous" [ngClass]="{'is-disabled': page==1}" (click)="addPage(-1)">Previous</a>
-    <a class="pagination-next" [ngClass]="{'is-disabled': page==numberOfPages}" (click)="addPage(+1)">Next page</a>
+    <a class="pagination-previous is-disabled" (click)="addPage(-1)"
+      [attr.disabled]="page==1 ? true : null">Previous</a>
+    <a class="pagination-next" (click)="addPage(+1)" [attr.disabled]="page==numberOfPages ? true : null">Next page</a>
     <ul class="pagination-list" *ngIf="numberOfPages == 1; else greaterThan1">
       <li><a class="pagination-link is-current" aria-label="Goto page 1">1</a></li>
     </ul>
@@ -43,7 +44,7 @@
             </li>
           </ng-container>
         </ng-container>
-        <li><a class="pagination-link" (click)="addPage((numberOfPage-page))"
+        <li><a class="pagination-link" (click)="addPage(numberOfPages-page)"
             [ngClass]="{'is-current': page == numberOfPages}"
             aria-label="Goto page {{numberOfPages}}">{{numberOfPages}}</a></li>
       </ul>
