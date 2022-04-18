@@ -11,23 +11,27 @@
       </a>
     </div>
   </div>
-  <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-striped is-fullwidth is-clickable">
-      <thead>
-        <tr>
-          <th>Numéro</th>
-          <th>Description</th>
-          <th>VLAN</th>
-        </tr>
-      </thead>
-      <tbody *ngIf="result$ | async as result">
-        <tr *ngFor="let room of result" [routerLink]="['/room/view',room.id]">
-          <td>{{ room.roomNumber }}</td>
-          <td>{{ room.description }}</td>
-          <td>{{ room.vlan.number }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
-  </ng-container>
+  <table class="table is-hoverable is-striped is-fullwidth is-clickable"
+    *ngIf="result$ | async as result; else loadingTable">
+    <thead>
+      <tr>
+        <th>Numéro</th>
+        <th>Description</th>
+        <th>VLAN</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let room of result" [routerLink]="['/room/view',room.id]">
+        <td>{{ room.roomNumber }}</td>
+        <td>{{ room.description }}</td>
+        <td>{{ room.vlan.number }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+  <ng-template #loadingTable>
+    <div class="notification is-info is-light has-text-centered">
+      <h4 class="title is-4">Chargement ...</h4>
+    </div>
+  </ng-template>
 </div>

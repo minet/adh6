@@ -5,7 +5,7 @@
   <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..."
     class="input is-fullwidth" type="text" />
 
-  <table class="table is-hoverable is-striped is-fullwidth">
+  <table class="table is-hoverable is-striped is-fullwidth" *ngIf="result$ | async as result; else loadingTable">
     <thead>
       <tr>
         <th>Nom</th>
@@ -13,12 +13,17 @@
         <th>Prix de vente</th>
       </tr>
     </thead>
-    <tbody *ngIf="result$ | async as result">
-      <tr *ngFor="let productResult of result.products">
+    <tbody>
+      <tr *ngFor="let productResult of result">
         <td class="align-middle">{{ productResult.name }}</td>
         <td class="align-middle">{{ productResult.buying_price*0.01 }}</td>
         <td class="align-middle">{{ productResult.selling_price*0.01 }}</td>
       </tr>
     </tbody>
   </table>
+  <ng-template #loadingTable>
+    <div class="notification is-info is-light has-text-centered">
+      <h4 class="title is-4">Chargement ...</h4>
+    </div>
+  </ng-template>
 </div>

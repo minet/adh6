@@ -1,12 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
-import { Observable } from 'rxjs';
-
-
 import { MemberService, Member } from '../../api';
-import { PagingConf } from '../../paging.config';
-
-import { map } from 'rxjs/operators';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -14,23 +7,13 @@ import { SearchPage } from '../../search-page';
   templateUrl: './member-list.component.html',
   styleUrls: ['./member-list.component.css']
 })
-export class MemberListComponent extends SearchPage implements OnInit {
-  maxItems$: Observable<number>;
-  result$: Observable<Array<Member>>;
-
+export class MemberListComponent extends SearchPage<Member> implements OnInit {
   constructor(public memberService: MemberService) {
-    super();
+    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response"));
   }
 
   ngOnInit() {
     super.ngOnInit();
-    this.maxItems$ = this.getSearchResult((term, _) => this.memberService.memberHead(1, 0, (term) ? term : undefined, undefined, 'response').pipe(map((response) => { return (response) ? +response.headers.get('x-total-count') : 0 })))
-    this.result$ = this.getSearchResult((terms, page) => this.fetchMembers((terms) ? terms : undefined, page));
-  }
-
-  private fetchMembers(terms: string, page: number) {
-    const n = +PagingConf.item_count;
-    return this.memberService.memberGet(n, (page - 1) * n, terms);
   }
 
   handlePageChange(page: number) {

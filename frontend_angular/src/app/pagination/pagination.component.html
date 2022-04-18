@@ -1,6 +1,6 @@
 <ng-container [ngTemplateOutlet]="pagination"></ng-container>
 <ng-template #pagination>
-  <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+  <nav class="pagination is-centered" role="navigation" aria-label="pagination" *ngIf="maxItems != undefined">
     <a class="pagination-previous is-disabled" (click)="addPage(-1)"
       [attr.disabled]="page==1 ? true : null">Previous</a>
     <a class="pagination-next" (click)="addPage(+1)" [attr.disabled]="page==numberOfPages ? true : null">Next page</a>

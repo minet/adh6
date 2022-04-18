@@ -12,10 +12,6 @@ import { NotificationService } from '../../notification.service';
 
 export { ClickOutsideDirective } from '../clickOutside.directive';
 
-export interface AccountListResult {
-  accounts?: Array<Account>;
-}
-
 @Component({
   selector: 'app-transaction-new',
   templateUrl: './transaction-new.component.html',

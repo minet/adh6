@@ -13,24 +13,28 @@
       </a>
     </div>
   </div>
-  <ng-container *ngIf="maxItems$ | async as maxItems">
-    <table class="table is-hoverable is-striped is-fullwidth is-clickable" *ngIf="result$ | async as result">
-      <thead>
-        <tr>
-          <th>Description</th>
-          <th>Adresse IP</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let switchResult of result" [routerLink]="['/switch', switchResult.id, 'view']">
-          <td>
-            {{ switchResult.description }}
-          </td>
-          <td>{{ switchResult.ip }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
-  </ng-container>
+  <table class="table is-hoverable is-striped is-fullwidth is-clickable"
+    *ngIf="result$ | async as result; else loadingTable">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Adresse IP</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let switchResult of result" [routerLink]="['/switch', switchResult.id, 'view']">
+        <td>
+          {{ switchResult.description }}
+        </td>
+        <td>{{ switchResult.ip }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+  <ng-template #loadingTable>
+    <div class="notification is-info is-light has-text-centered">
+      <h4 class="title is-4">Chargement ...</h4>
+    </div>
+  </ng-template>
 </div>
