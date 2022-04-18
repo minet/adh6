@@ -110,36 +110,6 @@ paths:
       summary: Filter accounts
       tags:
       - account
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractAccount'
-        style: deepObject
-        explode: true
-      responses:
-        200:
-          description: The list of accounts
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter accounts
-      tags:
-      - account
     post:
       parameters: []
       requestBody:
@@ -278,35 +248,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Device'
                 type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter devices
-      tags:
-      - device
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractDevice'
-        style: deepObject
-        explode: true
-      responses:
-        200:
           description: Success
           headers:
             X-Total-Count:
@@ -528,35 +469,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractMember'
                 type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter members
-      tags:
-      - member
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractMember'
-        style: deepObject
-        explode: true
-      responses:
-        200:
           description: Success
           headers:
             X-Total-Count:
@@ -1000,25 +912,6 @@ paths:
       summary: Filter payment methods
       tags:
       - transaction
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      responses:
-        200:
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        400:
-          description: Invalid input
-      summary: Filter payment methods
-      tags:
-      - transaction
   /payment_method/{id}:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -1062,38 +955,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Port'
                 type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter ports
-      tags:
-      - port
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractPort'
-        style: deepObject
-        explode: true
-      responses:
-        200:
           description: Success
           headers:
             X-Total-Count:
@@ -1522,36 +1383,6 @@ paths:
       summary: Filter rooms
       tags:
       - room
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractRoom'
-        style: deepObject
-        explode: true
-      responses:
-        200:
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter rooms
-      tags:
-      - room
     post:
       parameters: []
       requestBody:
@@ -1659,36 +1490,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Switch'
                 type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter switches
-      tags:
-      - switch
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractSwitch'
-        style: deepObject
-        explode: true
-      responses:
-        200:
           description: Success
           headers:
             X-Total-Count:
@@ -1836,38 +1637,6 @@ paths:
                 items:
                   $ref: '#/components/schemas/Transaction'
                 type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 0
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter transactions
-      tags:
-      - transaction
-    head:
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractTransaction'
-        style: deepObject
-        explode: true
-      responses:
-        '200':
           description: Success
           headers:
             X-Total-Count:
