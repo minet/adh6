@@ -1,9 +1,8 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import {Observable} from 'rxjs';
-import {finalize, first, map} from 'rxjs/operators';
-import {AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member} from '../../../api';
+import { Observable } from 'rxjs';
+import { finalize, first, map } from 'rxjs/operators';
+import { AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member } from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AppConstantsService } from '../../../app-constants.service';
 import { NotificationService } from '../../../notification.service';
 
 @Component({
@@ -26,7 +25,7 @@ export class CotisationComponent implements OnInit {
 
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
   private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
-  private options: Intl.DateTimeFormatOptions = {year: 'numeric', month: 'long', day: 'numeric'};
+  private options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   private date = new Date;
 
   constructor(
@@ -38,7 +37,7 @@ export class CotisationComponent implements OnInit {
     private treasuryService: TreasuryService,
     private fb: FormBuilder,
     private notificationService: NotificationService,
-  ) { 
+  ) {
     this.createForm();
   }
 
@@ -63,7 +62,7 @@ export class CotisationComponent implements OnInit {
     let paymentMethod: number = 0;
     if (this.membership.paymentMethod == undefined) {
       paymentMethod = 0;
-    } else if (typeof(this.membership.paymentMethod) === 'number') {
+    } else if (typeof (this.membership.paymentMethod) === 'number') {
       paymentMethod = this.membership.paymentMethod;
     } else {
       paymentMethod = this.membership.paymentMethod.id;
@@ -81,9 +80,9 @@ export class CotisationComponent implements OnInit {
         map(products => {
           products.forEach((product) => {
             this.productsFormArray.push(this.fb.group({
-              id: [{value: product.id}],
+              id: [{ value: product.id }],
               checked: [this.membership.products.indexOf(product.id) != -1 && canBeUpdated, [Validators.required]],
-              amount: [{value: product.sellingPrice}]
+              amount: [{ value: product.sellingPrice }]
             }))
           })
           return products;
@@ -136,7 +135,7 @@ export class CotisationComponent implements OnInit {
           paymentMethod: paymentMethod.id,
           hasRoom: +v.renewal !== 7
         }
-        this.membershipService.memberMemberIdMembershipUuidPatch(subscription, this.memberId, this.membership.uuid).subscribe(() => {
+        this.membershipService.memberIdMembershipUuidPatch(subscription, this.memberId, this.membership.uuid).subscribe(() => {
           this.membershipUpdated.emit(this.memberId);
           this.notificationService.successNotification(
             "Membership updated",

@@ -22,8 +22,6 @@ class SwitchManager(CRUDManager):
     Implements all the use cases related to switch management.
     """
 
-    def __init__(self,
-                 switch_repository: SwitchRepository,
-                 ):
-        super().__init__('switch', switch_repository, AbstractSwitch, SwitchNotFoundError)
+    def __init__(self, switch_repository: SwitchRepository):
+        super().__init__(switch_repository, AbstractSwitch, SwitchNotFoundError)
         self.switch_repository = switch_repository

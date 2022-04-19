@@ -16,5 +16,5 @@ from src.use_case.interface.payment_method_repository import PaymentMethodReposi
 ))
 class PaymentMethodManager(CRUDManager):
     def __init__(self, payment_method_repository: PaymentMethodRepository):
-        super().__init__('payment_method', payment_method_repository, AbstractPaymentMethod, PaymentMethodNotFoundError)
+        super().__init__(payment_method_repository, AbstractPaymentMethod, PaymentMethodNotFoundError)
         self.payment_method_repository = payment_method_repository

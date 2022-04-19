@@ -55,7 +55,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   }
 
   refreshInfo() {
-    this.room$ = this.roomService.roomRoomIdGet(this.room_id);
+    this.room$ = this.roomService.roomIdGet(this.room_id);
     this.ports$ = this.portService.portGet(undefined, undefined, '', <AbstractPort>{ room: this.room_id });
     this.members$ = this.memberService.memberGet(undefined, undefined, '', <AbstractMember>{ room: this.room_id });
   }
@@ -67,7 +67,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
       .subscribe((member_list) => {
         const member: Member = member_list[0];
         member.room = this.room_id;
-        this.memberService.memberMemberIdPut(member, member.id, 'response')
+        this.memberService.memberIdPut(member, member.id, 'response')
           .pipe(takeWhile(() => this.alive))
           .subscribe((_) => {
             this.refreshInfo();
@@ -96,7 +96,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
             }
             const member: Member = members[0];
             console.log(member);
-            this.memberService.memberMemberIdPatch(<AbstractMember>{ room: room.id }, member.id, 'response')
+            this.memberService.memberIdPatch(<AbstractMember>{ room: room.id }, member.id, 'response')
               .subscribe((_) => {
                 this.refreshInfo();
                 this.onDemenager(username);
@@ -116,7 +116,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
         }
         const member: Member = members[0];
 
-        this.memberService.memberMemberIdPatch(<AbstractMember>{ room: -1 }, member.id, 'response')
+        this.memberService.memberIdPatch(<AbstractMember>{ room: -1 }, member.id, 'response')
           .subscribe((_) => {
             this.refreshInfo();
             this.location.back();
@@ -126,7 +126,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   }
 
   onDelete() {
-    this.roomService.roomRoomIdDelete(this.room_id, 'response')
+    this.roomService.roomIdDelete(this.room_id, 'response')
       .pipe(takeWhile(() => this.alive))
       .subscribe((_) => {
         this.router.navigate(['room']);

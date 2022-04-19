@@ -9,7 +9,7 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 class TransactionRepository(CRUDRepository[Transaction, AbstractTransaction]):
     @abc.abstractmethod
-    def validate(self, ctx, transaction_id: id) -> None:
+    def validate(self, ctx, id: int) -> None:
         pass
 
     @abc.abstractmethod

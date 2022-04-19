@@ -1,9 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { Account, AccountService, AccountType } from '../../api';
 import { SearchPage } from '../../search-page';
-import { PagingConf } from '../../paging.config';
-import { map } from 'rxjs/operators';
 import { AbstractAccount } from '../../api/model/abstractAccount';
 import { AppConstantsService } from '../../app-constants.service';
 
@@ -15,14 +12,10 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './account-list.component.html',
   styleUrls: ['./account-list.component.css']
 })
-export class AccountListComponent extends SearchPage implements OnInit {
+export class AccountListComponent extends SearchPage<Account> implements OnInit {
   faThumbtack = faThumbtack;
   faBan = faBan;
-
-  result$: Observable<Array<Account>>;
-  maxItems$: Observable<number>;
   accountTypes: Array<AccountType>;
-  specificSearch = false;
   @Input() abstractAccountFilter: AbstractAccount = {};
 
   constructor(
@@ -30,17 +23,12 @@ export class AccountListComponent extends SearchPage implements OnInit {
     private route: ActivatedRoute,
     private appConstantsService: AppConstantsService
   ) {
-    super();
+    super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, "response"));
   }
 
   updateTypeFilter(type: string) {
     if (type === '') { delete this.abstractAccountFilter.accountType; } else { this.abstractAccountFilter.accountType = Number(type); }
-    this.updateSearch();
-  }
-
-  updateSearch() {
-    this.result$ = this.getSearchResult((terms, page) => this.fetchAccounts(terms, page));
-    this.maxItems$ = this.getSearchHeader((terms) => this.accountService.accountHead(1, 0, terms, this.abstractAccountFilter, 'response').pipe(map((response) => { return (response) ? +response.headers.get("x-total-count") : 0 })));
+    this.getSearchResult();
   }
 
   ngOnInit() {
@@ -49,10 +37,10 @@ export class AccountListComponent extends SearchPage implements OnInit {
       .subscribe(params => {
         if (params['member'] !== undefined) {
           this.abstractAccountFilter.member = +params['member'];
-          this.updateSearch();
+          this.getSearchResult();
         }
       });
-    this.updateSearch();
+    this.getSearchResult();
     this.appConstantsService.getAccountTypes().subscribe(
       data => {
         this.accountTypes = data;
@@ -70,14 +58,7 @@ export class AccountListComponent extends SearchPage implements OnInit {
     } else {
       this.abstractAccountFilter[property] = trueValue;
     }
-    this.updateSearch();
-  }
-
-  private fetchAccounts(terms: string, page: number) {
-    const n = +PagingConf.item_count;
-    this.specificSearch = (terms !== '');
-
-    return this.accountService.accountGet(n, (page - 1) * n, terms, this.abstractAccountFilter)
+    this.getSearchResult();
   }
 
   handlePageChange(page: number) {

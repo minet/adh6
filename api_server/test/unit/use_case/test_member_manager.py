@@ -568,7 +568,7 @@ class TestGetByID:
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
 
         # When...
-        result = member_manager.get_by_id(ctx, member_id=sample_member.id)
+        result = member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
         assert sample_member == result
@@ -586,7 +586,7 @@ class TestGetByID:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.get_by_id(ctx, member_id=sample_member.id)
+            member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
         mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
@@ -663,7 +663,7 @@ class TestCreateOrUpdate:
         req.last_name = "Dupuis"
 
         # When...
-        member_manager.update_or_create(ctx, req, member_id=sample_member.id)
+        member_manager.update_or_create(ctx, req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(ctx, req, override=True)
@@ -680,7 +680,7 @@ class TestUpdatePartially:
 
         # When...
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.partially_update(ctx, req, member_id=sample_member.id)
+        member_manager.partially_update(ctx, req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(ctx, req, override=False)
@@ -694,7 +694,7 @@ class TestUpdatePartially:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.partially_update(ctx, AbstractMember(id=sample_member.id), member_id=sample_member.id)
+            member_manager.partially_update(ctx, AbstractMember(id=sample_member.id), id=sample_member.id)
 
 
 class TestDelete:
@@ -704,7 +704,7 @@ class TestDelete:
                         member_manager: MemberManager):
         # When...
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.delete(ctx, member_id=sample_member.id)
+        member_manager.delete(ctx, id=sample_member.id)
 
         # Expect...
         mock_member_repository.delete.assert_called_once_with(ctx, sample_member.id)
@@ -719,7 +719,7 @@ class TestDelete:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.delete(ctx, member_id=sample_member.id)
+            member_manager.delete(ctx, id=sample_member.id)
 
 
 class TestGetLogs:

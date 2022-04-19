@@ -92,7 +92,7 @@ class TestUpdateOrCreate:
                                             AbstractDevice(
                                                 ipv6_address='this is not a valid ipv6',
                                             ),
-                                            device_id=sample_device.id)
+                                            id=sample_device.id)
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -124,7 +124,7 @@ class TestUpdateOrCreate:
                                             AbstractDevice(
                                                 ipv4_address='this is not a valid ipv4',
                                             ),
-                                            device_id=sample_device.id)
+                                            id=sample_device.id)
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -156,7 +156,7 @@ class TestUpdateOrCreate:
                                             AbstractDevice(
                                                 mac='this is not a valid mac',
                                             ),
-                                            device_id=sample_device.id)
+                                            id=sample_device.id)
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -182,7 +182,7 @@ class TestUpdateOrCreate:
         )
 
         # When...
-        device, created = device_manager.update_or_create(ctx, dev, device_id=sample_device.id)
+        device, created = device_manager.update_or_create(ctx, dev, id=sample_device.id)
 
         # Expect...
         assert created is False
@@ -242,7 +242,7 @@ class TestUpdateOrCreate:
                                             AbstractDevice(
                                                 member=4242,
                                             ),
-                                            device_id=sample_device.id)
+                                            id=sample_device.id)
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -264,7 +264,7 @@ class TestUpdateOrCreate:
                                             AbstractDevice(
                                                 connection_type='invalid',
                                             ),
-                                            device_id=sample_device.id)
+                                            id=sample_device.id)
 
             # Expect...
             mock_device_repository.create.assert_not_called()

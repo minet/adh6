@@ -70,14 +70,14 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   public toggleStatus(): void {
-    this.status$ = this.portService.portPortIdStatePut(this.portID)
+    this.status$ = this.portService.portIdStatePut(this.portID)
       .pipe(finalize(() => {
         this.notificationService.successNotification("État du port modifié");
       }));
   }
 
   public toggleMAB(): void {
-    this.mab$ = this.portService.portPortIdMabPut(this.portID)
+    this.mab$ = this.portService.portIdMabPut(this.portID)
       .pipe(finalize(() => {
         this.notificationService.successNotification("MAB modifié");
       }));
@@ -94,7 +94,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
         showCancelButton: true
       }).then((result) => {
         if (result.isConfirmed) {
-          this.auth$ = this.portService.portPortIdAuthPut(this.portID)
+          this.auth$ = this.portService.portIdAuthPut(this.portID)
             .pipe(finalize(() => {
               this.notificationService.successNotification("Authentification modifiée");
             }));
@@ -103,7 +103,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.auth$ = this.portService.portPortIdAuthPut(this.portID)
+      this.auth$ = this.portService.portIdAuthPut(this.portID)
         .pipe(finalize(() => {
           this.notificationService.successNotification("Authentification modifiée");
         }));
@@ -112,7 +112,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   submitVLAN(vlan: number) {
-    this.portService.portPortIdVlanPut(vlan, this.portID)
+    this.portService.portIdVlanPut(vlan, this.portID)
       .pipe(finalize(() => {
         this.notificationService.successNotification("VLAN modifié: " + vlan);
       }));
@@ -136,7 +136,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.sub = this.route.params.subscribe(params => {
       this.switchID = +params['switch_id'];
       this.portID = +params['port_id'];
-      this.port$ = this.portService.portPortIdGet(this.portID);
+      this.port$ = this.portService.portIdGet(this.portID);
     });
 
     this.refreshInfo();

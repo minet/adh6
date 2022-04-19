@@ -121,15 +121,15 @@ class TransactionSQLRepository(TransactionRepository):
         raise NotImplementedError
 
     @log_call
-    def validate(self, ctx, transaction_id) -> None:
+    def validate(self, ctx, id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query= session.query(SQLTransaction)
-        query= query.filter(SQLTransaction.id == transaction_id)
+        query= query.filter(SQLTransaction.id == id)
 
         transaction = query.one_or_none()
         if transaction is None:
-            raise TransactionNotFoundError(str(transaction_id))
+            raise TransactionNotFoundError(str(id))
 
         with track_modifications(ctx, session, transaction):
             transaction.pending_validation = False

@@ -33,12 +33,7 @@ def test_member_log_delete(client, sample_member, caplog):
         from test.integration.test_member import test_member_delete_existant
         test_member_delete_existant(client, sample_member)
 
-    assert logs_contains(
-        caplog,
-        'member_manager_delete',
-        user=TESTING_CLIENT,
-        member_id=sample_member.id,
-    )
+    assert logs_contains(caplog, 'member_manager_delete')
 
 
 def test_member_log_get_logs(client, sample_member, caplog):

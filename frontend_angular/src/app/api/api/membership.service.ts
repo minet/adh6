@@ -59,18 +59,18 @@ export class MembershipService {
     /**
      * Get the latest pending membership of a specific member
      * 
-     * @param memberId The unique identifier of the member
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public getLatestMembership(memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
-    public getLatestMembership(memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
-    public getLatestMembership(memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
-    public getLatestMembership(memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public getLatestMembership(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public getLatestMembership(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public getLatestMembership(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
+    public getLatestMembership(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling getLatestMembership.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getLatestMembership.');
         }
 
         let headers = this.defaultHeaders;
@@ -102,7 +102,7 @@ export class MembershipService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(id))}/membership/`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -116,22 +116,22 @@ export class MembershipService {
      * Add a membership record for a member
      * 
      * @param body The membership to create
-     * @param memberId The unique identifier of the member
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
-    public memberMemberIdMembershipPost(body: Membership, memberId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public memberIdMembershipPost(body: Membership, id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public memberIdMembershipPost(body: Membership, id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public memberIdMembershipPost(body: Membership, id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
+    public memberIdMembershipPost(body: Membership, id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling memberMemberIdMembershipPost.');
+            throw new Error('Required parameter body was null or undefined when calling memberIdMembershipPost.');
         }
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipPost.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling memberIdMembershipPost.');
         }
 
         let headers = this.defaultHeaders;
@@ -168,7 +168,7 @@ export class MembershipService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Membership>('post',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/`,
+        return this.httpClient.request<Membership>('post',`${this.basePath}/member/${encodeURIComponent(String(id))}/membership/`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -182,23 +182,23 @@ export class MembershipService {
     /**
      * Retrieve a membership
      * 
-     * @param memberId The unique identifier of the member
+     * @param id The id of the account that needs to be fetched.
      * @param uuid The UUID associated with this membership request
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
-    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
-    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
-    public memberMemberIdMembershipUuidGet(memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public memberIdMembershipUuidGet(id: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Membership>;
+    public memberIdMembershipUuidGet(id: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Membership>>;
+    public memberIdMembershipUuidGet(id: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Membership>>;
+    public memberIdMembershipUuidGet(id: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipUuidGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling memberIdMembershipUuidGet.');
         }
 
         if (uuid === null || uuid === undefined) {
-            throw new Error('Required parameter uuid was null or undefined when calling memberMemberIdMembershipUuidGet.');
+            throw new Error('Required parameter uuid was null or undefined when calling memberIdMembershipUuidGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -230,7 +230,7 @@ export class MembershipService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}`,
+        return this.httpClient.request<Membership>('get',`${this.basePath}/member/${encodeURIComponent(String(id))}/membership/${encodeURIComponent(String(uuid))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -244,27 +244,27 @@ export class MembershipService {
      * Partially update a membership
      * 
      * @param body The new values for this member
-     * @param memberId The unique identifier of the member
+     * @param id The id of the account that needs to be fetched.
      * @param uuid The UUID associated with this membership request
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public memberMemberIdMembershipUuidPatch(body: AbstractMembership, memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public memberIdMembershipUuidPatch(body: AbstractMembership, id: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public memberIdMembershipUuidPatch(body: AbstractMembership, id: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public memberIdMembershipUuidPatch(body: AbstractMembership, id: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public memberIdMembershipUuidPatch(body: AbstractMembership, id: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+            throw new Error('Required parameter body was null or undefined when calling memberIdMembershipUuidPatch.');
         }
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling memberIdMembershipUuidPatch.');
         }
 
         if (uuid === null || uuid === undefined) {
-            throw new Error('Required parameter uuid was null or undefined when calling memberMemberIdMembershipUuidPatch.');
+            throw new Error('Required parameter uuid was null or undefined when calling memberIdMembershipUuidPatch.');
         }
 
         let headers = this.defaultHeaders;
@@ -301,7 +301,7 @@ export class MembershipService {
         }
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('patch',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}`,
+        return this.httpClient.request<any>('patch',`${this.basePath}/member/${encodeURIComponent(String(id))}/membership/${encodeURIComponent(String(uuid))}`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -394,19 +394,19 @@ export class MembershipService {
     /**
      * Validate a pending transaction
      * 
-     * @param memberId The unique identifier of the member
+     * @param id The id of the account that needs to be fetched.
      * @param uuid The UUID associated with this membership request
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public membershipValidate(memberId: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public membershipValidate(memberId: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public membershipValidate(memberId: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public membershipValidate(memberId: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public membershipValidate(id: number, uuid: string, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public membershipValidate(id: number, uuid: string, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public membershipValidate(id: number, uuid: string, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public membershipValidate(id: number, uuid: string, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (memberId === null || memberId === undefined) {
-            throw new Error('Required parameter memberId was null or undefined when calling membershipValidate.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling membershipValidate.');
         }
 
         if (uuid === null || uuid === undefined) {
@@ -442,7 +442,7 @@ export class MembershipService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('get',`${this.basePath}/member/${encodeURIComponent(String(memberId))}/membership/${encodeURIComponent(String(uuid))}/validate`,
+        return this.httpClient.request<any>('get',`${this.basePath}/member/${encodeURIComponent(String(id))}/membership/${encodeURIComponent(String(uuid))}/validate`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

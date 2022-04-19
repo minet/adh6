@@ -76,8 +76,7 @@
               "localize": [
                 "en"
               ],
-              "outputPath": "dist/adh6-en",
-              "i18nMissingTranslation": "error"
+              "outputPath": "dist/adh6-en"
             }
           },
           "defaultConfiguration": "production"

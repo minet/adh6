@@ -6,10 +6,10 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
     @abc.abstractmethod
-    def put_mab(self, ctx, device_id: int, mab: bool) -> bool:
+    def put_mab(self, ctx, id: int, mab: bool) -> bool:
         pass
 
     @abc.abstractmethod
-    def get_mab(self, ctx, device_id: int) -> bool:
+    def get_mab(self, ctx, id: int) -> bool:
         pass
     pass

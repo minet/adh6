@@ -7,12 +7,11 @@ from typing import Tuple, Any
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractMember, Member, Membership, AbstractMembership, membership_request
-from src.exceptions import ValidationError
+from src.entity import AbstractMember, Member, Membership, AbstractMembership
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.default import DefaultHandler, _error
-from src.interface_adapter.http_api.util.error import bad_request, handle_error
+from src.interface_adapter.http_api.default import DefaultHandler
+from src.interface_adapter.http_api.util.error import handle_error
 from src.interface_adapter.http_api.util.serializer import serialize_response, deserialize_request
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.member_manager import MemberManager
@@ -39,11 +38,11 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def put(self, ctx, member_id, body):
+    def put(self, ctx, id_, body):
         try:
-            body['id'] = member_id  # Set a dummy id to pass the initial validation
+            body['id'] = id_  # Set a dummy id to pass the initial validation
             to_update = deserialize_request(body, self.entity_class)
-            self.member_manager.update_member(ctx, member_id, to_update, True)
+            self.member_manager.update_member(ctx, id_, to_update, True)
             return NoContent, 201
         except Exception as e:
             return handle_error(ctx, e)
@@ -51,11 +50,11 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def patch(self, ctx, member_id, body):
+    def patch(self, ctx, id_, body):
         try:
-            body['id'] = member_id  # Set a dummy id to pass the initial validation
+            body['id'] = id_  # Set a dummy id to pass the initial validation
             to_update = deserialize_request(body, self.abstract_entity_class)
-            self.member_manager.update_member(ctx, member_id, to_update, False)
+            self.member_manager.update_member(ctx, id_, to_update, False)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
@@ -63,16 +62,16 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_post(self, ctx, member_id: int, body):
+    def membership_post(self, ctx, id_: int, body):
         """ Add a membership record in the database """
-        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, member_id=member_id, request=body))
+        LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
             if 'uuid' not in body:
                 body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
             to_create: Membership = deserialize_request(body, Membership)
 
-            created_membership = self.member_manager.new_membership(ctx, member_id, to_create)
+            created_membership = self.member_manager.new_membership(ctx, id_, to_create)
             return serialize_response(created_membership), 200  # 200 OK
         except Exception as e:
             return handle_error(ctx, e)
@@ -80,11 +79,11 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def password_put(self, ctx, member_id, body):
+    def password_put(self, ctx, id_, body):
         """ Set the password of a member. """
 
         try:
-            self.member_manager.change_password(ctx, member_id, body.get('password'), body.get("hashedPassword"))
+            self.member_manager.change_password(ctx, id_, body.get('password'), body.get("hashedPassword"))
             return NoContent, 204  # 204 No Content
         except Exception as e:
             return handle_error(ctx, e)
@@ -92,19 +91,19 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def logs_search(self, ctx, member_id, dhcp=False):
+    def logs_search(self, ctx, id_, dhcp=False):
         """ Get logs from a member. """
         try:
-            return self.member_manager.get_logs(ctx, member_id, dhcp=dhcp), 200
+            return self.member_manager.get_logs(ctx, id_, dhcp=dhcp), 200
         except Exception as e:
             return handle_error(ctx, e)
 
     @with_context
     @require_sql
     @log_call
-    def statuses_search(self, ctx, member_id):
+    def statuses_search(self, ctx, id_: int):
         try:
-            return serialize_response(self.member_manager.get_statuses(ctx, member_id)), 200
+            return serialize_response(self.member_manager.get_statuses(ctx, id_)), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -114,8 +113,7 @@ class MemberHandler(DefaultHandler):
     def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
         try:
             filter_ = deserialize_request(filter_, AbstractMembership)
-            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms,
-                                                                        filter_=filter_)
+            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
             headers = {
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
@@ -128,10 +126,10 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def get_latest_membership(self, ctx, member_id: int) -> Membership:
+    def get_latest_membership(self, ctx, id_: int) -> Membership:
         try:
-            membership: Membership = self.member_manager.get_latest_membership(ctx, member_id)
-            LOG.debug("get_latest_membership", extra=log_extra(ctx,membership_uuid=membership.uuid))
+            membership: Membership = self.member_manager.get_latest_membership(ctx, id_)
+            LOG.debug("get_latest_membership", extra=log_extra(ctx, membership_uuid=membership.uuid))
             return serialize_response(membership), 200
         except Exception as e:
             LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
@@ -141,18 +139,18 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_get(self, ctx, member_id, uuid):
+    def membership_get(self, ctx, id_, uuid):
         pass
 
     @with_context
     @require_sql
     @log_call
-    def membership_patch(self, ctx, member_id, uuid, body):
+    def membership_patch(self, ctx, id_, uuid, body):
         try:
-            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, uuid=uuid, member_id=member_id))
+            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, uuid=uuid, id=id_))
             body['uuid'] = uuid
             to_update: AbstractMembership = deserialize_request(body, AbstractMembership)
-            self.member_manager.change_membership(ctx, member_id, uuid, to_update)
+            self.member_manager.change_membership(ctx, id_, uuid, to_update)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
@@ -160,9 +158,9 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_validate(self, ctx, member_id, uuid):
+    def membership_validate(self, ctx, id_, uuid):
         try:
-            self.member_manager.validate_membership(ctx, member_id, uuid)
+            self.member_manager.validate_membership(ctx, id_, uuid)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
@@ -170,18 +168,18 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def charter_get(self, ctx, member_id, charter_id) -> Tuple[str, int]:
+    def charter_get(self, ctx, id_, charter_id) -> Tuple[str, int]:
         try:
-            return self.member_manager.get_charter(ctx, member_id, charter_id), 200
+            return self.member_manager.get_charter(ctx, id_, charter_id), 200
         except Exception as e:
             return handle_error(ctx, e)
 
     @with_context
     @require_sql
     @log_call
-    def charter_put(self, ctx, member_id, charter_id) -> Tuple[Any, int]:
+    def charter_put(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
-            self.member_manager.update_charter(ctx, member_id, charter_id)
+            self.member_manager.update_charter(ctx, id_, charter_id)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

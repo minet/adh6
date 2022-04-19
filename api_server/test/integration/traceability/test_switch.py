@@ -34,23 +34,18 @@ def test_switch_log_create(client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_post_valid(client)
 
-    assert logs_contains(caplog, 'switch_manager_update_or_create',
-                         user=TESTING_CLIENT)
+    assert logs_contains(caplog, 'switch_manager_update_or_create')
 
 
 def test_switch_log_update(client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_update_existant_switch(client)
 
-    assert logs_contains(caplog, 'switch_manager_update',
-                         user=TESTING_CLIENT,
-                         switch_id=1)
+    assert logs_contains(caplog, 'switch_manager_update')
 
 
 def test_switch_log_delete(client, caplog):
     with caplog.at_level(logging.INFO):
         test_switch_delete_existant_switch(client)
 
-    assert logs_contains(caplog, 'switch_manager_delete',
-                         user=TESTING_CLIENT,
-                         switch_id=1)
+    assert logs_contains(caplog, 'switch_manager_delete')

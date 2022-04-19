@@ -40,7 +40,7 @@ class TestUpdateOrCreate:
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
         mock_room_repository.update = MagicMock(side_effect=VLANNotFoundError)
         with raises(VLANNotFoundError):
-            room_manager.update_or_create(ctx, mutation_request, **{"room_id": sample_room.id})
+            room_manager.update_or_create(ctx, mutation_request, **{"id": sample_room.id})
 
 
 @fixture

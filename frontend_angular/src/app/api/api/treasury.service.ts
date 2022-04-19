@@ -231,18 +231,18 @@ export class TreasuryService {
     /**
      * Retrieve a product
      * 
-     * @param productId The id of the product that needs to be fetched.
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public productProductIdGet(productId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Product>;
-    public productProductIdGet(productId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Product>>;
-    public productProductIdGet(productId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Product>>;
-    public productProductIdGet(productId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public productIdGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Product>;
+    public productIdGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Product>>;
+    public productIdGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Product>>;
+    public productIdGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-        if (productId === null || productId === undefined) {
-            throw new Error('Required parameter productId was null or undefined when calling productProductIdGet.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling productIdGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -274,7 +274,7 @@ export class TreasuryService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Product>('get',`${this.basePath}/product/${encodeURIComponent(String(productId))}`,
+        return this.httpClient.request<Product>('get',`${this.basePath}/product/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

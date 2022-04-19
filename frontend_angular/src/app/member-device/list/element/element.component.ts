@@ -28,7 +28,7 @@ export class ElementComponent implements OnInit {
   }
 
   public deviceDelete(deviceId: number) {
-    this.deviceService.deviceDeviceIdDelete(deviceId)
+    this.deviceService.deviceIdDelete(deviceId)
       .pipe(
         first(),
         map(() => {

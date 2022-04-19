@@ -1,21 +1,16 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, of } from 'rxjs';
 import { AccountService, Account } from '../../api';
 import { SearchPage } from '../../search-page';
 
 export { ClickOutsideDirective } from '../clickOutside.directive';
-
-export interface AccountListResult {
-  accounts?: Array<Account>;
-}
 
 @Component({
   selector: 'app-account-search',
   templateUrl: './account-search.component.html',
   styleUrls: ['./account-search.component.sass']
 })
-export class AccountSearchComponent extends SearchPage implements OnInit {
-  accountSearchResult$: Observable<Array<Account>>;
+export class AccountSearchComponent extends SearchPage<Account> implements OnInit {
   public display = false;
 
   @Input() selectedAccount: Account;
@@ -24,25 +19,28 @@ export class AccountSearchComponent extends SearchPage implements OnInit {
   constructor(
     private accountService: AccountService
   ) {
-    super();
+    super((terms: string, _) => this.accountService.accountGet(5, 0, terms, undefined, "response")
+      .pipe(
+        map((response) => {
+          this.display = true;
+          return response;
+        })
+      ), false);
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
+    this.result$ = of(undefined);
   }
-  srcSearch(terms: string) {
-    this.accountSearchResult$ = this.getSearchResult((_) => {
-      return this.accountService.accountGet(5, 0, terms).pipe(
-        map((response) => {
-          this.display = true;
-          return <AccountListResult>{
-            accounts: response
-          };
-        }),
-      );
-    });
+
+  search(terms: string): void {
+    console.log(terms)
+    super.search(terms);
+    this.getSearchResult();
   }
+
   setSelectedAccount(account): void {
-    this.accountSearchResult$ = undefined;
+    this.result$ = undefined;
     this.selectedAccount = account;
     this.display = false;
     this.accountSelected.emit(this.selectedAccount);

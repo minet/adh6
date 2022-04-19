@@ -96,8 +96,6 @@ def _records_contains_fields(record: LogRecord, fields: dict):
     return True
 
 
-
-
 def logs_contains(caplog, log_msg, **extra_fields):
     if any(log_msg in m for m in caplog.messages) is False:
         return False
