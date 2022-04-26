@@ -41,7 +41,7 @@ class Member(object):
         'email': 'str',
         'first_name': 'str',
         'last_name': 'str',
-        'room': 'Object',
+        'room_number': 'int',
         'ip': 'str',
         'subnet': 'str'
     }
@@ -57,14 +57,14 @@ class Member(object):
         'email': 'email',
         'first_name': 'firstName',
         'last_name': 'lastName',
-        'room': 'room',
+        'room_number': 'roomNumber',
         'ip': 'ip',
         'subnet': 'subnet'
     }
     if hasattr(AbstractMember, "attribute_map"):
         attribute_map.update(AbstractMember.attribute_map)
 
-    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room=None, ip=None, subnet=None, *args, **kwargs):  # noqa: E501
+    def __init__(self, id=None, username=None, association_mode=None, comment=None, departure_date=None, email=None, first_name=None, last_name=None, room_number=None, ip=None, subnet=None, *args, **kwargs):  # noqa: E501
         """Member - a model defined in Swagger"""  # noqa: E501
         AbstractMember.__init__(self, *args, **kwargs)
         self._id = None
@@ -75,7 +75,7 @@ class Member(object):
         self._email = None
         self._first_name = None
         self._last_name = None
-        self._room = None
+        self._room_number = None
         self._ip = None
         self._subnet = None
         self.discriminator = None
@@ -90,8 +90,8 @@ class Member(object):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
-        if room is not None:
-            self.room = room
+        if room_number is not None:
+            self.room_number = room_number
         if ip is not None:
             self.ip = ip
         if subnet is not None:
@@ -292,27 +292,27 @@ class Member(object):
         self._last_name = last_name
 
     @property
-    def room(self):
-        """Gets the room of this Member.  # noqa: E501
+    def room_number(self):
+        """Gets the room_number of this Member.  # noqa: E501
 
-        The room this member lives in  # noqa: E501
+        The number of the room this member lives in  # noqa: E501
 
-        :return: The room of this Member.  # noqa: E501
-        :rtype: Object
+        :return: The room_number of this Member.  # noqa: E501
+        :rtype: int
         """
-        return self._room
+        return self._room_number
 
-    @room.setter
-    def room(self, room):
-        """Sets the room of this Member.
+    @room_number.setter
+    def room_number(self, room_number):
+        """Sets the room_number of this Member.
 
-        The room this member lives in  # noqa: E501
+        The number of the room this member lives in  # noqa: E501
 
-        :param room: The room of this Member.  # noqa: E501
-        :type: Object
+        :param room_number: The room_number of this Member.  # noqa: E501
+        :type: int
         """
 
-        self._room = room
+        self._room_number = room_number
 
     @property
     def ip(self):

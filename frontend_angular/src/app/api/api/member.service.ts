@@ -187,14 +187,20 @@ export class MemberService {
      * @param offset Skip the first n results
      * @param terms The generic search terms (will search in any field)
      * @param filter Filters by various properties
+     * @param only Limit to specific attributes
+     * @param since Filter member that have departureDate after
+     * @param until Filter member that have departureDate before
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<AbstractMember>>;
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<AbstractMember>>>;
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<AbstractMember>>>;
-    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, only?: Array<string>, since?: Date, until?: Date, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Array<AbstractMember>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, only?: Array<string>, since?: Date, until?: Date, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Array<AbstractMember>>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, only?: Array<string>, since?: Date, until?: Date, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Array<AbstractMember>>>;
+    public memberGet(limit?: number, offset?: number, terms?: string, filter?: any, only?: Array<string>, since?: Date, until?: Date, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+
+
 
 
 
@@ -217,6 +223,15 @@ export class MemberService {
                   queryParameters = queryParameters.append('filter[' + key + ']', <any>value);
                 }
             }
+        }
+        if (only) {  
+            queryParameters = queryParameters.set('only', only.join(COLLECTION_FORMATS['csv']));
+        }
+        if (since !== undefined && since !== null) {
+            queryParameters = queryParameters.set('since', <any>since.toISOString());
+        }
+        if (until !== undefined && until !== null) {
+            queryParameters = queryParameters.set('until', <any>until.toISOString());
         }
 
         let headers = this.defaultHeaders;

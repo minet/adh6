@@ -9,7 +9,6 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Room } from './room';
 
 export interface AbstractMember { 
     __typename?: string;
@@ -46,9 +45,9 @@ export interface AbstractMember {
      */
     lastName?: string;
     /**
-     * The room this member lives in
+     * The number of the room this member lives in
      */
-    room?: Room | number;
+    roomNumber?: number;
     /**
      * The public ipv4 address assigned to this member
      */

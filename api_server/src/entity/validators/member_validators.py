@@ -15,7 +15,7 @@ def is_member_active(member: Member):
     else:
         member_departure = member.departure_date
     return member_departure > datetime.now().date() and not isinstance(
-        member.room,
+        member.room_number,
         Null)
 
 
