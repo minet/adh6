@@ -461,6 +461,31 @@ paths:
           $ref: '#/components/schemas/AbstractMember'
         style: deepObject
         explode: true
+      - description: Limit to specific attributes
+        in: query
+        name: only
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+              - username
+              - firstName
+              - lastName
+              - roomNumber
+        explode: false
+      - description: Filter member that have departureDate after
+        in: query
+        name: since
+        schema:
+          type: string
+          format: date-time
+      - description: Filter member that have departureDate before
+        in: query
+        name: until
+        schema:
+          type: string
+          format: date-time
       responses:
         200:
           content:
@@ -2346,12 +2371,10 @@ components:
           description: The last name of this member
           example: Martin
           type: string
-        room:
-          description: The room this member lives in
+        roomNumber:
+          description: The number of the room this member lives in
           nullable: true
-          oneOf:
-            - $ref: '#/components/schemas/Room'
-            - type: integer
+          type: integer
           example: 4
         ip:
           description: The public ipv4 address assigned to this member
