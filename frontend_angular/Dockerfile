@@ -9,7 +9,7 @@ ARG ADH6_URL="adh6.minet.net"
 ARG SSO_OAUTH2="adh6.minet.net/api/oauth2"
 ARG BYPASS_AUTH="false"
 
-COPY src/app/config/auth.config.template.ts .
+COPY src/app/config/auth.config.ts.template .
 
 RUN cat auth.config.ts.template | envsubst > auth.config.ts
 
