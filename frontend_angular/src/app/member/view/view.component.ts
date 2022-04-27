@@ -8,12 +8,12 @@ import { NotificationService } from '../../notification.service';
 import { ListComponent } from '../../member-device/list/list.component';
 
 @Component({
-  selector: 'app-member-details',
-  templateUrl: './member-view.component.html',
-  styleUrls: ['./member-view.component.css']
+  selector: 'app-details',
+  templateUrl: './view.component.html',
+  styleUrls: ['./view.component.css']
 })
 
-export class MemberViewComponent implements OnInit {
+export class ViewComponent implements OnInit {
   @ViewChild(ListComponent) wiredList: ListComponent;
   @ViewChild(ListComponent) wirelessList: ListComponent;
 

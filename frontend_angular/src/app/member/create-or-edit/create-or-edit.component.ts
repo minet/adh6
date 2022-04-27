@@ -9,11 +9,11 @@ import { NotificationService } from '../../notification.service';
 
 
 @Component({
-  selector: 'app-member-edit',
-  templateUrl: './member-create-or-edit.component.html',
-  styleUrls: ['./member-create-or-edit.component.css'],
+  selector: 'app-create-edit',
+  templateUrl: './create-or-edit.component.html',
+  styleUrls: ['./create-or-edit.component.css'],
 })
-export class MemberCreateOrEditComponent implements OnInit {
+export class CreateOrEditComponent implements OnInit {
   disabled = true;
   create = false;
   memberEdit: FormGroup;

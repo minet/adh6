@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CotisationComponent } from './cotisation/cotisation.component';
-import { MemberViewComponent } from './member-view.component';
+import { ViewComponent } from './view.component';
 import { RedirectGuard } from './redirect-guard/redirect-guard';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -12,13 +12,13 @@ import { MemberDeviceModule } from '../../member-device/member-device-list.modul
 @NgModule({
   declarations: [
     CotisationComponent,
-    MemberViewComponent
+    ViewComponent
   ],
   imports: [
     ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([
-      { path: '', component: MemberViewComponent },
+      { path: '', component: ViewComponent },
       {
         path: 'charter',
         canActivate: [RedirectGuard],
@@ -34,4 +34,4 @@ import { MemberDeviceModule } from '../../member-device/member-device-list.modul
     RedirectGuard,
   ]
 })
-export class MemberViewModule { }
+export class ViewModule { }
