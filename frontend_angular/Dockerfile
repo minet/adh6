@@ -11,7 +11,7 @@ ARG BYPASS_AUTH="false"
 
 COPY src/app/config/auth.config.ts.template .
 
-RUN cat auth.config.ts.template | envsubst > auth.config.ts
+RUN cat auth.config.ts.template | envsubst | auth.config.ts
 
 
 ###############################################################################
