@@ -167,7 +167,7 @@ class TestDelete:
 
 
 @fixture
-def transaction_manager(mock_transaction_repository, ):
+def transaction_manager(mock_transaction_repository, mock_payment_method_manager, mock_cashbox_manager):
     return TransactionManager(
         transaction_repository=mock_transaction_repository,
         payment_method_manager=mock_payment_method_manager,
@@ -183,8 +183,8 @@ def mock_payment_method_manager(mock_payment_method_repository):
 
 
 @fixture
-def mock_cashbox_manager(mock_cashbox_repository):
-    return CashboxManager(mock_cashbox_repository)
+def mock_cashbox_manager(mock_cashbox_repository, mock_transaction_repository: TransactionRepository):
+    return CashboxManager(cashbox_repository=mock_cashbox_repository, transaction_repository=mock_transaction_repository)
 
 
 @fixture

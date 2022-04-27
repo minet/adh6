@@ -49,8 +49,7 @@ def client(custom_device,
             wired_device,
             wired_device2,
             wireless_device,
-            sample_member3,
-            sample_member2):
+            sample_member3):
     from .context import app
     from .conftest import prep_db, close_db
     with app.app.test_client() as c:

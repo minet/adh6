@@ -21,7 +21,7 @@ def assert_member_in_db(body):
     assert r.prenom == body["firstName"]
     assert r.mail == body["email"]
     assert r.date_de_depart == parser.parse(body["departureDate"]).date()
-    assert r.chambre.id == body["room"]
+    assert r.chambre.numero == body["roomNumber"]
     assert r.commentaires == body["comment"]
     assert r.login == body["username"]
 
@@ -56,9 +56,9 @@ def test_member_filter_all_with_limit(client):
     assert len(response) == 1
 
 
-def test_member_filter_by_room_id(client, sample_member):
+def test_member_filter_by_room_number(client, sample_room1):
     r = client.get(
-        '{}/member/?filter[room]={}'.format(base_url, sample_member.chambre_id),
+        '{}/member/?filter[roomNumber]={}'.format(base_url, sample_room1.numero),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -69,7 +69,7 @@ def test_member_filter_by_room_id(client, sample_member):
 
 def test_member_filter_by_non_existant_id(client):
     r = client.get(
-        '{}/member/?filter[room]={}'.format(base_url, 6666),
+        '{}/member/?filter[roomNumber]={}'.format(base_url, 6666),
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -198,7 +198,7 @@ def test_member_post_member_create_invalid_email(client):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "room": 4592,
+        "roomNumber": 4592,
         "comment": "comment",
         "departureDate": "2000-01-23T04:56:07.000+00:00",
         "email": "INVALID_EMAIL",
@@ -217,7 +217,7 @@ def test_member_post_member_create_unknown_room(client):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "room": 9999,
+        "roomNumber": 9999,
         "comment": "comment",
         "departureDate": "2000-01-23T04:56:07.000+00:00",
         "email": "john.doe@gmail.com",
@@ -236,7 +236,7 @@ def test_member_post_member_create(client, sample_room1):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "room": sample_room1.id,
+        "roomNumber": sample_room1.numero,
         "comment": "comment",
         "departureDate": "2000-01-23T04:56:07.000+00:00",
         "email": "john.doe@gmail.com",
@@ -256,7 +256,7 @@ def test_member_post_member_create(client, sample_room1):
 
 def test_member_patch_room(client, sample_member: Adherent, sample_room2):
     body = {
-        "room": sample_room2.id,
+        "roomNumber": sample_room2.numero,
     }
     res = client.patch(
         '{}/member/{}'.format(base_url, sample_member.id),
@@ -269,7 +269,7 @@ def test_member_patch_room(client, sample_member: Adherent, sample_room2):
     assert_member_in_db({
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "room": sample_room2.id,
+        "roomNumber": sample_room2.numero,
         "comment": None,
         "departureDate": str(tomorrow),
         "email": "j.dubois@free.fr",
@@ -278,7 +278,7 @@ def test_member_patch_room(client, sample_member: Adherent, sample_room2):
 
 @pytest.fixture
 def sample_room_id(sample_room2: Chambre):
-    return sample_room2.id
+    return sample_room2.numero
 
 @pytest.mark.parametrize(
     'key, value',
@@ -288,7 +288,7 @@ def sample_room_id(sample_room2: Chambre):
         ("comment", "TEST"),
         ("email", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        ("room", lazy_fixture('sample_room_id')),
+        ("roomNumber", lazy_fixture('sample_room_id')),
         # pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
         # pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
     ]
@@ -308,7 +308,7 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,
-        "room": sample_member.chambre_id,
+        "roomNumber": sample_member.chambre.numero,
         "comment": sample_member.commentaires,
         "departureDate": str(sample_member.date_de_depart),
         "email": sample_member.mail,
@@ -347,7 +347,7 @@ def test_member_put_member_update(client, sample_member, sample_room1):
     body = {
         "firstName": "Jean-Louis",
         "lastName": "Dubois",
-        "room": sample_room1.id,
+        "roomNumber": sample_room1.numero,
         "comment": "comment",
         "departureDate": str(tomorrow),
         "email": "john.doe@gmail.com",
@@ -369,7 +369,7 @@ def test_member_put_member_membership_pending(client, sample_member2: Adherent, 
     body = {
         "firstName": sample_member2.prenom,
         "lastName": sample_member2.nom,
-        "room": sample_room1.id,
+        "roomNumber": sample_room1.numero,
         "comment": sample_member2.commentaires,
         "departureDate": str(sample_member2.date_de_depart),
         "email": sample_member2.mail,

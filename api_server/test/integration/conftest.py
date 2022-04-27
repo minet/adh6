@@ -330,7 +330,6 @@ def sample_port1(sample_switch1):
         oid="1.1.1",
         switch_obj=sample_switch1,
         chambre_id=0,
-
     )
 
 
