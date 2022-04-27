@@ -1,4 +1,4 @@
 <div *ngIf="(switch$ | async) as cur_switch">
   <h2 class="title is-2">{{ cur_switch.description }}</h2>
-  <app-port-list></app-port-list>
+  <app-port-list [switchId]="switchId"></app-port-list>
 </div>

@@ -18,17 +18,11 @@ def test_room_log_update_room(client, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
         test_room_put_update_room(client, sample_room1)
 
-    assert logs_contains(caplog,
-                         'room_manager_update_or_create',
-                         user=TESTING_CLIENT,
-                         room_id=sample_room1.id)
+    assert logs_contains(caplog, 'room_manager_update_or_create')
 
 
 def test_room_log_delete_room(client, sample_room1, caplog):
     with caplog.at_level(logging.INFO):
         test_room_delete_existant_room(client, sample_room1)
 
-    assert logs_contains(caplog,
-                         'room_manager_delete',
-                         user=TESTING_CLIENT,
-                         room_id=1)
+    assert logs_contains(caplog, 'room_manager_delete')

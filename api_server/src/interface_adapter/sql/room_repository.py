@@ -87,12 +87,12 @@ class RoomSQLRepository(RoomRepository):
         return _map_room_sql_to_entity(new_chambre)
 
     @log_call
-    def delete(self, ctx, room_id) -> None:
+    def delete(self, ctx, id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
-        room = session.query(Chambre).filter(Chambre.id == room_id).one_or_none()
+        room = session.query(Chambre).filter(Chambre.id == id).one_or_none()
         if room is None:
-            raise RoomNotFoundError(room_id)
+            raise RoomNotFoundError(id)
 
         with track_modifications(ctx, session, room):
             session.delete(room)

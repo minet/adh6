@@ -14,7 +14,7 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 ))
 class VlanManager(CRUDManager):
     def __init__(self, vlan_repository: VlanRepository):
-        super().__init__('vlan', vlan_repository, AbstractVlan, VLANNotFoundError)
+        super().__init__(vlan_repository, AbstractVlan, VLANNotFoundError)
         self.vlan_repository = vlan_repository
 
     @log_call

@@ -16,7 +16,7 @@ from src.use_case.interface.account_repository import AccountRepository
 ))
 class AccountManager(CRUDManager):
     def __init__(self, account_repository: AccountRepository):
-        super().__init__('account', account_repository, AbstractAccount, AccountNotFoundError)
+        super().__init__(account_repository, AbstractAccount, AccountNotFoundError)
         self.account_repository = account_repository
 
     @uses_security("read", is_collection=False)

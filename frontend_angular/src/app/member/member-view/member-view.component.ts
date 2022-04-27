@@ -31,6 +31,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
   public showLogs = false;
+  public room$: Observable<Room>;
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
@@ -83,7 +84,20 @@ export class MemberViewComponent implements OnInit, OnDestroy {
       );
 
     this.member$ = refresh$.pipe(
-      switchMap(member_id => this.memberService.memberMemberIdGet(member_id)),
+      switchMap(member_id => this.memberService.memberIdGet(member_id)
+        .pipe(map((user) => {
+          this.room$ = this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: user.roomNumber })
+            .pipe(
+              map(rooms => {
+                if (rooms.length != 1) {
+                  this.notificationService.errorNotification(404, "Room with number " + user.roomNumber + " not found")
+                  return undefined;
+                }
+                return rooms[0];
+              })
+            )
+          return user;
+        }))),
       tap((user) => this.commentForm.setValue({ comment: (user.comment === undefined) ? '' : user.comment })),
       share(),
     );
@@ -91,7 +105,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp, 'body', false, false))
+          switchMap(() => this.memberService.memberIdLogsGet(str, this.getDhcp, 'body', false, false))
         );
       }) // refresh every 10 secs
     );
@@ -127,7 +141,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberMemberIdLogsGet(str, this.getDhcp))
+          switchMap(() => this.memberService.memberIdLogsGet(str, this.getDhcp))
         );
       }) // refresh every 10 secs
     );
@@ -151,7 +165,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
   }
 
   newMembership(member_id: number): void {
-    this.latestMembership$ = this.membershipService.memberMemberIdMembershipPost(<Membership>{
+    this.latestMembership$ = this.membershipService.memberIdMembershipPost(<Membership>{
       member: member_id,
       status: AbstractMembership.StatusEnum.INITIAL
     }, member_id, 'body').pipe(
@@ -176,7 +190,7 @@ export class MemberViewComponent implements OnInit, OnDestroy {
         user.comment = newComment;
         return user;
       }),
-      flatMap(user => this.memberService.memberMemberIdPut(user, user.id)),
+      map(user => this.memberService.memberIdPut(user, user.id)),
       map(() => {
         this.refreshInfo();
         return null;
@@ -234,10 +248,10 @@ export class MemberViewComponent implements OnInit, OnDestroy {
 
   deviceDelete(device_id: number): void {
     this.submitDisabled = true;
-    this.deviceService.deviceDeviceIdDelete(device_id)
+    this.deviceService.deviceIdDelete(device_id)
       .pipe(
         first(),
-        flatMap(() => {
+        map(() => {
           this.refreshInfo();
           return null; // @TODO return the device ?
         }),
@@ -305,8 +319,8 @@ export class MemberViewComponent implements OnInit, OnDestroy {
             }
             const room: Room = rooms[0];
 
-            this.memberService.memberMemberIdPatch(<AbstractMember>{ room: room.id }, memberId, 'response')
-              .subscribe((response) => {
+            this.memberService.memberIdPatch(<AbstractMember>{ roomNumber: room.roomNumber }, memberId, 'response')
+              .subscribe((_) => {
                 this.refreshInfo();
                 this.moveIn = false;
                 this.notificationService.successNotification();

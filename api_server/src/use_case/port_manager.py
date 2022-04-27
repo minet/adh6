@@ -19,5 +19,5 @@ from src.use_case.decorator.security import SecurityDefinition, defines_security
 
 class PortManager(CRUDManager):
     def __init__(self, port_repository: PortRepository):
-        super().__init__('port', port_repository, AbstractPort, PortNotFoundError)
+        super().__init__(port_repository, AbstractPort, PortNotFoundError)
         self.port_repository = port_repository

@@ -29,8 +29,7 @@ class MembershipRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
+    def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
         """
         Add a membership.
         """

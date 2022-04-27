@@ -2,7 +2,6 @@ import json
 from typing import Optional
 
 import pytest
-from src.interface_adapter.http_api.util.serializer import serialize_response
 from src.interface_adapter.sql.model.models import Account, Adherent, Membership, PaymentMethod, db
 from test.integration.resource import (base_url, TEST_HEADERS)
 from src.constants import MembershipDuration, MembershipStatus
@@ -62,6 +61,7 @@ def test_membership_post_bad_initial_status(client, sample_member: Adherent, sta
 
     memberships: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == sample_member.id).all()
     
+    assert memberships is not None
     assert result.status_code == status_code
     assert (len(memberships) == 1 if status_code == 400 else len(memberships) == 2)
 
@@ -69,7 +69,7 @@ def test_membership_validate_membership_no_room(client, sample_member: Adherent,
     result = client.patch(
         f'{base_url}/member/{sample_member.id}',
         data=json.dumps({
-            "room": -1
+            "roomNumber": -1
         }),
         content_type='application/json',
         headers=TEST_HEADERS,

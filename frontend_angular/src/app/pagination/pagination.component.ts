@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { PagingConf } from '../paging.config';
 
 @Component({
@@ -6,7 +6,7 @@ import { PagingConf } from '../paging.config';
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.sass']
 })
-export class PaginationComponent implements OnInit {
+export class PaginationComponent implements OnInit, OnChanges {
   @Input() maxItems: number | undefined;
   @Input() itemsPerPage: number = PagingConf.item_count;
   @Input() page: number = 1;
@@ -19,25 +19,32 @@ export class PaginationComponent implements OnInit {
   pagesAfter: Array<number> = [];
   constructor() { }
 
-  ngOnInit(): void {
-    if (this.maxItems === undefined) {
-      throw new Error("MaxItems should be specified in the pagination module");
+  ngOnChanges(changes: SimpleChanges): void {
+    const maxItems = changes["maxItems"];
+    if (maxItems.currentValue != maxItems.previousValue) {
+      this.numberOfPages = Math.ceil(maxItems.currentValue / this.itemsPerPage);
+      for (let i = 2; i <= ((this.numberOfPages > this.deltaPage) ? this.deltaPage : this.numberOfPages); i++) {
+        this.pagesBefore.push(i);
+      }
+      for (let i = this.numberOfPages - this.deltaPage + 1; i <= this.numberOfPages - 1; i++) {
+        this.pagesAfter.push(i);
+      }
     }
+  }
+
+  ngOnInit(): void {
     if (this.itemsPerPage == 0) {
       throw new Error("At least one item per page should be shown");
-    }
-    this.numberOfPages = Math.ceil(this.maxItems / this.itemsPerPage);
-    for (let i = 2; i <= ((this.numberOfPages > this.deltaPage) ? this.deltaPage : this.numberOfPages); i++) {
-      this.pagesBefore.push(i);
-    }
-    for (let i = this.numberOfPages - this.deltaPage + 1; i <= this.numberOfPages - 1; i++) {
-      this.pagesAfter.push(i);
     }
   }
 
   addPage(inc: number): void {
+    console.log(inc);
     if (!inc) {
       return
+    }
+    if (inc < -this.numberOfPages || inc > this.numberOfPages) {
+      return;
     }
     if (this.page + inc < 1) {
       this.page = 1;

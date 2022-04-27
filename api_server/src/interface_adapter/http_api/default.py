@@ -32,29 +32,13 @@ class DefaultHandler:
             return result, 200, headers
         except Exception as e:
             return handle_error(ctx, e)
-    
-    @with_context
-    @require_sql
-    @log_call
-    def head(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
-        try:
-            filter_ = deserialize_request(filter_, self.abstract_entity_class)
-            _, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
-                                                           filter_=filter_)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            return NoContent, 200, headers
-        except Exception as e:
-            return handle_error(ctx, e)
 
     @with_context
     @require_sql
     @log_call
-    def get(self, ctx, **kwargs):
+    def get(self, ctx, id_: int):
         try:
-            return serialize_response(self.main_manager.get_by_id(ctx, **kwargs)), 200
+            return serialize_response(self.main_manager.get_by_id(ctx, id=id_)), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -76,32 +60,30 @@ class DefaultHandler:
     @with_context
     @require_sql
     @log_call
-    def put(self, ctx, *args, **kwargs):
-        return _update(ctx, self.main_manager.update_or_create, self.entity_class, *args, **kwargs)
+    def put(self, ctx, body, id_: int):
+        return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body, id=id_)
 
     @with_context
     @require_sql
     @log_call
-    def patch(self, ctx, *args, **kwargs):
-        return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, *args, **kwargs)
+    def patch(self, ctx, body, id_: int):
+        return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, body=body, id=id_)
 
     @with_context
     @require_sql
     @log_call
-    def delete(self, ctx, *args, **kwargs):
+    def delete(self, ctx, id_: int):
         try:
-            self.main_manager.delete(ctx, **kwargs)
+            self.main_manager.delete(ctx, id=id_)
             return NoContent, 204  # 204 No Content
         except Exception as e:
             return handle_error(ctx, e)
 
-
-def _update(ctx, function, klass, *args, **kwargs):
+def _update(ctx, function, klass, body, id: int):
     try:
-        body = kwargs.pop('body', None)
         body['id'] = 0  # Set a dummy id to pass the initial validation
         to_update = deserialize_request(body, klass)
-        the_object, created = function(ctx, to_update, *args, **kwargs)
+        the_object, created = function(ctx, to_update, id=id)
         if the_object:
             return serialize_response(the_object), 201 if created else 204
         else:

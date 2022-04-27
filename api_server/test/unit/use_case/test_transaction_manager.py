@@ -21,7 +21,7 @@ class TestGetByID:
                         transaction_manager: TransactionManager):
         print(sample_transaction)
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
-        result = transaction_manager.get_by_id(ctx, **{"transaction_id": sample_transaction.id})
+        result = transaction_manager.get_by_id(ctx, **{"id": sample_transaction.id})
 
         assert sample_transaction == result
         mock_transaction_repository.search_by.assert_called_once()
@@ -34,7 +34,7 @@ class TestGetByID:
         mock_transaction_repository.search_by = MagicMock(return_value=([], 0))
 
         with raises(TransactionNotFoundError):
-            transaction_manager.get_by_id(ctx, **{"transaction_id": faker.random_int})
+            transaction_manager.get_by_id(ctx, **{"id": faker.random_int})
 
 
 class TestSearch:
@@ -109,7 +109,7 @@ class TestValidate:
                         transaction_manager: TransactionManager):
         # When...
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction_pending], 1))
-        transaction_manager.validate(ctx, **{"transaction_id": sample_transaction_pending.id})
+        transaction_manager.validate(ctx, **{"id": sample_transaction_pending.id})
 
         # Expect...
         mock_transaction_repository.validate.assert_called_once_with(ctx, sample_transaction_pending.id)
@@ -122,7 +122,7 @@ class TestValidate:
         # When...
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
         with raises(UserInputError):
-            transaction_manager.validate(ctx, **{"transaction_id": sample_transaction.id})
+            transaction_manager.validate(ctx, **{"id": sample_transaction.id})
 
 
 class TestDelete:
@@ -133,7 +133,7 @@ class TestDelete:
                         transaction_manager: TransactionManager):
         # When...
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction_pending], 1))
-        transaction_manager.delete(ctx, **{"transaction_id": sample_transaction_pending.id})
+        transaction_manager.delete(ctx, **{"id": sample_transaction_pending.id})
 
         # Expect...
         mock_transaction_repository.delete.assert_called_once_with(ctx, sample_transaction_pending.id)
@@ -146,7 +146,7 @@ class TestDelete:
         # When...
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
         with raises(UserInputError):
-            transaction_manager.delete(ctx, **{"transaction_id": sample_transaction.id})
+            transaction_manager.delete(ctx, **{"id": sample_transaction.id})
 
 
     def test_object_not_found(self,
@@ -160,14 +160,14 @@ class TestDelete:
 
         # When...
         with raises(UserInputError):
-            transaction_manager.delete(ctx, **{"transaction_id": 0})
+            transaction_manager.delete(ctx, **{"id": 0})
 
         # Expect...
         #mock_repo.delete.assert_called_once_with(ctx, id)
 
 
 @fixture
-def transaction_manager(mock_transaction_repository, ):
+def transaction_manager(mock_transaction_repository, mock_payment_method_manager, mock_cashbox_manager):
     return TransactionManager(
         transaction_repository=mock_transaction_repository,
         payment_method_manager=mock_payment_method_manager,
@@ -183,8 +183,8 @@ def mock_payment_method_manager(mock_payment_method_repository):
 
 
 @fixture
-def mock_cashbox_manager(mock_cashbox_repository):
-    return CashboxManager(mock_cashbox_repository)
+def mock_cashbox_manager(mock_cashbox_repository, mock_transaction_repository: TransactionRepository):
+    return CashboxManager(cashbox_repository=mock_cashbox_repository, transaction_repository=mock_transaction_repository)
 
 
 @fixture

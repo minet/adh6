@@ -33,14 +33,14 @@ class TransactionManager(CRUDManager):
                  payment_method_manager: PaymentMethodManager,
                  cashbox_manager: CashboxManager
                  ):
-        super().__init__('transaction', transaction_repository, AbstractTransaction, TransactionNotFoundError)
+        super().__init__(transaction_repository, AbstractTransaction, TransactionNotFoundError)
         self.transaction_repository = transaction_repository
         self.payment_method_manager = payment_method_manager
         self.cashbox_manager = cashbox_manager
 
     @log_call
     @auto_raise
-    def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None):
+    def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, id=None):
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
         if abstract_transaction is not None and abstract_transaction.value <= 0:
@@ -53,7 +53,7 @@ class TransactionManager(CRUDManager):
                 obj.pending_validation = True
         _force_invalid(self, ctx, abstract_transaction)
 
-        transaction, created = super().update_or_create(ctx, abstract_transaction, transaction_id=transaction_id)
+        transaction, created = super().update_or_create(ctx, abstract_transaction, id=id)
 
         if created:
             if abstract_transaction.cashbox == "to":
@@ -67,8 +67,7 @@ class TransactionManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def partially_update(self, ctx, abstract_transaction: AbstractTransaction, transaction_id=None, override=False,
-                         **kwargs):
+    def partially_update(self, ctx, abstract_transaction: AbstractTransaction, id=None, override=False, **kwargs):
         if any(True for _ in filter(lambda e: e is not None, [
             abstract_transaction.value,
             abstract_transaction.src,
@@ -83,22 +82,22 @@ class TransactionManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def validate(self, ctx, transaction_id=None, **kwargs):
-        transaction: AbstractTransaction = self.get_by_id(ctx, transaction_id=transaction_id)
+    def validate(self, ctx, id=None, **kwargs):
+        transaction: AbstractTransaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to validate a transaction that is already validated")
 
         @uses_security("update", is_collection=False)
-        def _validate(cls, ctx, transaction_id):
-            self.transaction_repository.validate(ctx, transaction_id)
+        def _validate(cls, ctx, id):
+            self.transaction_repository.validate(ctx, id)
 
-        return _validate(self, ctx, transaction_id)
+        return _validate(self, ctx, id)
 
     @log_call
     @auto_raise
-    def delete(self, ctx, transaction_id=None, **kwargs):
-        transaction: AbstractTransaction = self.get_by_id(ctx, transaction_id=transaction_id)
+    def delete(self, ctx, id=None):
+        transaction: AbstractTransaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to delete a transaction that is already validated")
 
-        return super().delete(ctx, transaction_id=transaction_id)
+        return super().delete(ctx, id=id)

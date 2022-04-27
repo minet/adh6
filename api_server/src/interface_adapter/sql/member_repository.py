@@ -9,14 +9,13 @@ from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
-from src.entity import AbstractMember, Room
+from src.entity import AbstractMember
 from src.entity.member import Member
 from src.entity.null import Null
 from src.exceptions import InvalidMembershipDuration, RoomNotFoundError, MemberNotFoundError,\
     InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Adherent, Chambre, Membership as MembershipSQL
-from src.interface_adapter.sql.room_repository import _map_room_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.member_repository import MemberRepository
 
@@ -24,22 +23,17 @@ from src.use_case.interface.member_repository import MemberRepository
 class MemberSQLRepository(MemberRepository):
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> Tuple[List[Member], int]:
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> Tuple[List[AbstractMember], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(Adherent)
         query = query.outerjoin(Chambre, Chambre.id == Adherent.chambre_id)
 
         if filter_.username is not None:
             query = query.filter(Adherent.login == filter_.username)
-
-        if filter_.room is not None:
-            if isinstance(filter_.room, Room):
-                filter_.room = filter_.room.id
-            query = query.filter(Adherent.chambre_id == filter_.room)
-
+        if filter_.room_number is not None:
+            query = query.filter(Chambre.numero == filter_.room_number)
         if filter_.id is not None:
             query = query.filter(Adherent.id == filter_.id)
-
         if filter_.ip is not None:
             query = query.filter(Adherent.ip == filter_.ip)
 
@@ -58,7 +52,7 @@ class MemberSQLRepository(MemberRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(_map_member_sql_to_entity, r)), count
+        return list(map(_map_member_sql_to_abstract_entity, r)), count
 
     @log_call
     def get(self, ctx, member_id: int) -> Optional[Member]:
@@ -75,10 +69,10 @@ class MemberSQLRepository(MemberRepository):
         now = datetime.now()
 
         room = None
-        if abstract_member.room is not None:
-            room = session.query(Chambre).filter(Chambre.id == abstract_member.room).one_or_none()
+        if abstract_member.room_number is not None:
+            room = session.query(Chambre).filter(Chambre.numero == abstract_member.room_number).one_or_none()
             if not room:
-                raise RoomNotFoundError(abstract_member.room)
+                raise RoomNotFoundError(abstract_member.room_number)
 
         member: Adherent = Adherent(
             nom=abstract_member.last_name,
@@ -247,20 +241,37 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
         adherent.ip = entity.ip if entity.ip != "" else None
     if entity.subnet is not None or override:
         adherent.subnet = entity.subnet if entity.subnet != "" else None
-    if entity.room is not None:
-        if entity.room == -1:
+    if entity.room_number is not None:
+        if entity.room_number == -1:
             adherent.chambre_id = None
             adherent.chambre = None
         else:
             session: Session = ctx.get(CTX_SQL_SESSION)
-            room = session.query(Chambre).filter(Chambre.id == entity.room).one_or_none()
+            room = session.query(Chambre).filter(Chambre.numero == entity.room_number).one_or_none()
             if not room:
-                raise RoomNotFoundError(entity.room)
+                raise RoomNotFoundError(entity.room_number)
             adherent.chambre = room
 
     adherent.updated_at = now
     return adherent
 
+def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
+    """
+    Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
+    """
+    return AbstractMember(
+        id=adh.id,
+        username=adh.login,
+        email=adh.mail,
+        first_name=adh.prenom,
+        last_name=adh.nom,
+        departure_date=adh.date_de_depart,
+        comment=adh.commentaires,
+        association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
+        ip=adh.ip,
+        subnet=adh.subnet,
+        room_number=adh.chambre.numero if adh.chambre else Null(),
+    )
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
@@ -277,5 +288,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
-        room=_map_room_sql_to_entity(adh.chambre) if adh.chambre else Null(),
+        room_number=adh.chambre.numero if adh.chambre else Null(),
     )

@@ -1,3 +1,3 @@
 export const PagingConf = {
-  item_count: 25
+  item_count: 4
 };

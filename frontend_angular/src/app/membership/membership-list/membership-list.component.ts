@@ -1,31 +1,22 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {AbstractMembership, Membership, MembershipService} from '../../api';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {SearchPage} from '../../search-page';
-import {PagingConf} from '../../paging.config';
-
-class MembershipListResponse {
-  memberships?: Array<Membership>;
-  page_number?: number;
-  item_count?: number;
-  item_per_page?: number;
-}
+import { Component, Input, OnInit } from '@angular/core';
+import { AbstractMembership, Membership, MembershipService } from '../../api';
+import { Observable } from 'rxjs';
+import { SearchPage } from '../../search-page';
 
 @Component({
   selector: 'app-membership-list',
   templateUrl: './membership-list.component.html'
 })
-export class MembershipListComponent extends SearchPage implements OnInit {
+export class MembershipListComponent extends SearchPage<Membership> implements OnInit {
   @Input() abstractFilterMembership: AbstractMembership = {};
-  result$: Observable<MembershipListResponse>;
+  result$: Observable<Array<Membership>>;
 
   status_enum = ['INITIAL', 'PENDING_RULES', 'PENDING_PAYMENT_INITIAL', 'PENDING_PAYMENT', 'PENDING_PAYMENT_VALIDATION', 'COMPLETE', 'CANCELLED', 'ABORTED'];
 
   constructor(
     private membershipService: MembershipService,
   ) {
-    super();
+    super((terms, page) => this.membershipService.membershipSearch(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractFilterMembership, 'response'));
   }
 
   redirectLink(status: AbstractMembership.StatusEnum): string {
@@ -44,7 +35,7 @@ export class MembershipListComponent extends SearchPage implements OnInit {
         break
     }
     return "";
-}
+  }
 
   replaceUnderscoreStatus(status: string, replaceValue: string): string {
     return status.replace("_", replaceValue).replace("_", replaceValue);
@@ -56,34 +47,14 @@ export class MembershipListComponent extends SearchPage implements OnInit {
     } else {
       delete this.abstractFilterMembership.status;
     }
-    console.log(this.abstractFilterMembership);
-    this.updateSearch()
-  }
-  updateSearch(): void {
-    this.result$ = this.getSearchResult((term, page) => this.fetchMemberships(term, page));
+    this.getSearchResult()
   }
 
   ngOnInit(): void {
     super.ngOnInit();
-    this.updateSearch()
-  }
-
-  private fetchMemberships(terms: string, page: number) {
-    const n = +PagingConf.item_count;
-    return this.membershipService.membershipSearch(n, (page - 1) * n, terms, this.abstractFilterMembership, 'response')
-      .pipe(
-        // switch to new search observable each time the term changes
-        map((response) => <MembershipListResponse>{
-          memberships: response.body,
-          item_count: +response.headers.get('x-total-count'),
-          page_number: page,
-          item_per_page: n,
-        }),
-      );
   }
 
   handlePageChange(page: number) {
     this.changePage(page);
-    this.result$ = this.getSearchResult((terms, page) => this.fetchMemberships(terms, page));
   }
 }

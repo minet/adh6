@@ -99,7 +99,7 @@ export class GlobalSearchComponent implements OnInit {
 
         const LIMIT = 20;
 
-        const user$ = this.memberService.memberGet(LIMIT, undefined, terms, undefined, 'body', false, false).pipe(
+        const user$ = this.memberService.memberGet(LIMIT, undefined, terms, undefined, undefined, undefined, undefined, 'body', false, false).pipe(
           mergeMap((array: Array<Member>) => from(array)),
           map((obj: Member) => new SearchResult(
             'user',

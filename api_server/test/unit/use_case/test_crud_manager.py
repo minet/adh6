@@ -59,7 +59,7 @@ class TestGetByID:
                         ctx,
                         mock_repo, mock_object, mock_manager):
         mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
-        result = mock_manager.get_by_id(ctx, **{mock_manager.name + "_id": mock_object.id})
+        result = mock_manager.get_by_id(ctx, **{"id": mock_object.id})
 
         assert mock_object == result
         mock_repo.search_by.assert_called_once()
@@ -72,7 +72,7 @@ class TestGetByID:
         mock_repo.search_by = MagicMock(return_value=([], 0))
 
         with raises(UserInputError):
-            mock_manager.get_by_id(ctx, **{mock_manager.name + "_id": mock_object.id})
+            mock_manager.get_by_id(ctx, **{"id": mock_object.id})
 
 
 class TestSearch:
@@ -139,7 +139,7 @@ class TestUpdateOrCreate:
         mock_id = mock_object.id
 
         # When...
-        object, result = mock_manager.update_or_create(ctx, mock_object, **{mock_manager.name + "_id": mock_id})
+        object, result = mock_manager.update_or_create(ctx, mock_object, **{"id": mock_id})
 
         # Expect...
         assert mock_object == object
@@ -156,7 +156,7 @@ class TestUpdateOrCreate:
 
         # When...
         with raises(UserInputError):
-            mock_manager.update_or_create(ctx, mock_object, **{mock_manager.name + "_id": mock_id})
+            mock_manager.update_or_create(ctx, mock_object, **{"id": mock_id})
 
         # Expect...
         mock_repo.update.assert_not_called()
@@ -175,7 +175,7 @@ class TestPartiallyUpdate:
         mock_id = mock_object.id
 
         # When...
-        object, result = mock_manager.partially_update(ctx, mock_object, **{mock_manager.name + "_id": mock_id})
+        object, result = mock_manager.partially_update(ctx, mock_object, **{"id": mock_id})
 
         # Expect...
         assert mock_object == object
@@ -192,7 +192,7 @@ class TestDelete:
         # When...
         id = faker.random_int
         mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
-        mock_manager.delete(ctx, **{mock_manager.name + "_id": id})
+        mock_manager.delete(ctx, **{"id": id})
 
         # Expect...
         mock_repo.delete.assert_called_once_with(ctx, id)
@@ -209,7 +209,7 @@ class TestDelete:
 
         # When...
         with raises(UserInputError):
-            mock_manager.delete(ctx, **{mock_manager.name + "_id": id})
+            mock_manager.delete(ctx, **{"id": id})
 
         # Expect...
         #mock_repo.delete.assert_called_once_with(ctx, id)

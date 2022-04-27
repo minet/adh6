@@ -54,7 +54,7 @@ class TestUpdate:
 
         # When...
         with raises(RoomNotFoundError):
-                port_manager.update_or_create(ctx, sample_port, port_id=1)
+                port_manager.update_or_create(ctx, sample_port, id=1)
 
         # Expect..
         mock_port_repository.update.assert_called_once()
@@ -70,7 +70,7 @@ class TestUpdate:
 
         # When...
         with raises(SwitchNotFoundError):
-            port_manager.update_or_create(ctx, sample_port, port_id=1)
+            port_manager.update_or_create(ctx, sample_port, id=1)
 
         # Expect..
         mock_port_repository.update.assert_called_once()

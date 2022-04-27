@@ -58,129 +58,6 @@ export class AccountService {
 
 
     /**
-     * Retrieve an account
-     * 
-     * @param accountId The id of the account that needs to be fetched.
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
-     */
-    public accountAccountIdGet(accountId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Account>;
-    public accountAccountIdGet(accountId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Account>>;
-    public accountAccountIdGet(accountId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Account>>;
-    public accountAccountIdGet(accountId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling accountAccountIdGet.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // authentication (ApiKeyAuth) required
-        if (this.configuration.apiKeys["X-API-KEY"]) {
-            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
-        }
-
-        // authentication (OAuth2) required
-        if (this.configuration.accessToken) {
-            const accessToken = typeof this.configuration.accessToken === 'function'
-                ? this.configuration.accessToken()
-                : this.configuration.accessToken;
-            headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            'application/json'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<Account>('get',`${this.basePath}/account/${encodeURIComponent(String(accountId))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Udate an account
-     * 
-     * @param body The new values for this account
-     * @param accountId The id of the account that needs to be fetched.
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
-     */
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public accountAccountIdPut(body: AbstractAccount, accountId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling accountAccountIdPut.');
-        }
-
-        if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling accountAccountIdPut.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // authentication (ApiKeyAuth) required
-        if (this.configuration.apiKeys["X-API-KEY"]) {
-            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
-        }
-
-        // authentication (OAuth2) required
-        if (this.configuration.accessToken) {
-            const accessToken = typeof this.configuration.accessToken === 'function'
-                ? this.configuration.accessToken()
-                : this.configuration.accessToken;
-            headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            'application/json'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
-
-        headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('put',`${this.basePath}/account/${encodeURIComponent(String(accountId))}`,
-            {
-                body: body,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Filter accounts
      * 
      * @param limit Limit the number of results returned
@@ -260,42 +137,20 @@ export class AccountService {
     }
 
     /**
-     * Filter accounts
+     * Retrieve an account
      * 
-     * @param limit Limit the number of results returned
-     * @param offset Skip the first n results
-     * @param terms The generic search terms (will search in any field)
-     * @param filter Filters by various properties
+     * @param id The id of the account that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
      */
-    public accountHead(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
-    public accountHead(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
-    public accountHead(limit?: number, offset?: number, terms?: string, filter?: any, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
-    public accountHead(limit?: number, offset?: number, terms?: string, filter?: any, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+    public accountIdGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<Account>;
+    public accountIdGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<Account>>;
+    public accountIdGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<Account>>;
+    public accountIdGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
 
-
-
-
-
-        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-        if (limit !== undefined && limit !== null) {
-            queryParameters = queryParameters.set('limit', <any>limit);
-        }
-        if (offset !== undefined && offset !== null) {
-            queryParameters = queryParameters.set('offset', <any>offset);
-        }
-        if (terms !== undefined && terms !== null) {
-            queryParameters = queryParameters.set('terms', <any>terms);
-        }
-        if (filter) {
-            for (const key in filter) {
-                if (Object.prototype.hasOwnProperty.call(filter, key)) {
-                  const value = filter[key];
-                  queryParameters = queryParameters.append('filter[' + key + ']', <any>value);
-                }
-            }
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling accountIdGet.');
         }
 
         let headers = this.defaultHeaders;
@@ -327,9 +182,75 @@ export class AccountService {
         ];
 
         headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<any>('head',`${this.basePath}/account/`,
+        return this.httpClient.request<Account>('get',`${this.basePath}/account/${encodeURIComponent(String(id))}`,
             {
-                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Udate an account
+     * 
+     * @param body The new values for this account
+     * @param id The id of the account that needs to be fetched.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public accountIdPut(body: AbstractAccount, id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<any>;
+    public accountIdPut(body: AbstractAccount, id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<any>>;
+    public accountIdPut(body: AbstractAccount, id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<any>>;
+    public accountIdPut(body: AbstractAccount, id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling accountIdPut.');
+        }
+
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling accountIdPut.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<any>('put',`${this.basePath}/account/${encodeURIComponent(String(id))}`,
+            {
+                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -401,62 +322,6 @@ export class AccountService {
     }
 
     /**
-     * Retrieve an account type
-     * 
-     * @param accountTypeId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
-     */
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<AccountType>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<AccountType>>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<AccountType>>;
-    public accountTypeAccountTypeIdGet(accountTypeId: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
-
-        if (accountTypeId === null || accountTypeId === undefined) {
-            throw new Error('Required parameter accountTypeId was null or undefined when calling accountTypeAccountTypeIdGet.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // authentication (ApiKeyAuth) required
-        if (this.configuration.apiKeys["X-API-KEY"]) {
-            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
-        }
-
-        // authentication (OAuth2) required
-        if (this.configuration.accessToken) {
-            const accessToken = typeof this.configuration.accessToken === 'function'
-                ? this.configuration.accessToken()
-                : this.configuration.accessToken;
-            headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            'application/json'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        headers = headers.set('X-Critical-Error', ''+criticalError);
-        return this.httpClient.request<AccountType>('get',`${this.basePath}/account_type/${encodeURIComponent(String(accountTypeId))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
      * Filter account types
      * 
      * @param limit Limit the number of results returned
@@ -517,6 +382,62 @@ export class AccountService {
         return this.httpClient.request<Array<AccountType>>('get',`${this.basePath}/account_type/`,
             {
                 params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Retrieve an account type
+     * 
+     * @param id The id of the account that needs to be fetched.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param criticalError flag to set whether an error on this request should me considered critical for the application flow
+     */
+    public accountTypeIdGet(id: number, observe?: 'body', reportProgress?: boolean, criticalError?: boolean): Observable<AccountType>;
+    public accountTypeIdGet(id: number, observe?: 'response', reportProgress?: boolean, criticalError?: boolean): Observable<HttpResponse<AccountType>>;
+    public accountTypeIdGet(id: number, observe?: 'events', reportProgress?: boolean, criticalError?: boolean): Observable<HttpEvent<AccountType>>;
+    public accountTypeIdGet(id: number, observe: any = 'body', reportProgress: boolean = false, criticalError: boolean = true ): Observable<any> {
+
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling accountTypeIdGet.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (ApiKeyAuth) required
+        if (this.configuration.apiKeys["X-API-KEY"]) {
+            headers = headers.set('X-API-KEY', this.configuration.apiKeys["X-API-KEY"]);
+        }
+
+        // authentication (OAuth2) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'application/json'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        headers = headers.set('X-Critical-Error', ''+criticalError);
+        return this.httpClient.request<AccountType>('get',`${this.basePath}/account_type/${encodeURIComponent(String(id))}`,
+            {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

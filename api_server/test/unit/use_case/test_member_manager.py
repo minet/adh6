@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
+from src.use_case.interface.room_repository import RoomRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
 from src.use_case.interface.account_repository import AccountRepository
@@ -12,12 +13,13 @@ from unittest.mock import MagicMock
 from pytest import fixture, raises
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
-from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod
+from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room
 from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
 from src.use_case.interface.membership_repository import MembershipRepository
+from src.use_case.interface.vlan_repository import VlanRepository
 from src.use_case.member_manager import MemberManager
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.ip_allocator import IpAllocator
@@ -568,7 +570,7 @@ class TestGetByID:
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
 
         # When...
-        result = member_manager.get_by_id(ctx, member_id=sample_member.id)
+        result = member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
         assert sample_member == result
@@ -586,7 +588,7 @@ class TestGetByID:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.get_by_id(ctx, member_id=sample_member.id)
+            member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
         mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
@@ -636,7 +638,6 @@ class TestCreateOrUpdate:
 
     def test_create_happy_path(self, ctx,
                                mock_member_repository: MagicMock,
-                               sample_member,
                                sample_mutation_request: AbstractMember,
                                member_manager: MemberManager):
         # Given that there is not user in the DB (user will be created).
@@ -663,7 +664,7 @@ class TestCreateOrUpdate:
         req.last_name = "Dupuis"
 
         # When...
-        member_manager.update_or_create(ctx, req, member_id=sample_member.id)
+        member_manager.update_or_create(ctx, req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(ctx, req, override=True)
@@ -680,7 +681,7 @@ class TestUpdatePartially:
 
         # When...
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.partially_update(ctx, req, member_id=sample_member.id)
+        member_manager.partially_update(ctx, req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(ctx, req, override=False)
@@ -694,7 +695,7 @@ class TestUpdatePartially:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.partially_update(ctx, AbstractMember(id=sample_member.id), member_id=sample_member.id)
+            member_manager.partially_update(ctx, AbstractMember(id=sample_member.id), id=sample_member.id)
 
 
 class TestDelete:
@@ -704,7 +705,7 @@ class TestDelete:
                         member_manager: MemberManager):
         # When...
         mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.delete(ctx, member_id=sample_member.id)
+        member_manager.delete(ctx, id=sample_member.id)
 
         # Expect...
         mock_member_repository.delete.assert_called_once_with(ctx, sample_member.id)
@@ -719,7 +720,7 @@ class TestDelete:
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.delete(ctx, member_id=sample_member.id)
+            member_manager.delete(ctx, id=sample_member.id)
 
 
 class TestGetLogs:
@@ -769,7 +770,7 @@ class TestGetLogs:
 
 
 @fixture
-def sample_mutation_request(faker, sample_room):
+def sample_mutation_request(faker, sample_room: Room):
     return AbstractMember(
         username=faker.user_name(),
         email=faker.email(),
@@ -778,7 +779,7 @@ def sample_mutation_request(faker, sample_room):
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room=sample_room,
+        room_number=sample_room.room_number,
     )
 
 
@@ -861,12 +862,27 @@ def mock_ip_allocator():
     return MagicMock(spec=IpAllocator)
 
 @fixture
+def mock_vlan_repository():
+    return MagicMock(spec=VlanRepository)
+
+@fixture
+def mock_room_repository():
+    return MagicMock(spec=RoomRepository)
+
+@fixture
 def device_manager(
         mock_device_repository: DeviceRepository,
+        mock_member_repository: MemberRepository,
+        mock_ip_allocator: IpAllocator,
+        mock_vlan_repository: VlanRepository,
+        mock_room_repository: RoomRepository
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
-        ip_allocator=mock_ip_allocator
+        ip_allocator=mock_ip_allocator,
+        member_repository=mock_member_repository,
+        vlan_repository=mock_vlan_repository,
+        room_repository=mock_room_repository
     )
 
 @fixture
