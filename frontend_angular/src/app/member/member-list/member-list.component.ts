@@ -9,7 +9,7 @@ import { SearchPage } from '../../search-page';
 })
 export class MemberListComponent extends SearchPage<Member> implements OnInit {
   constructor(public memberService: MemberService) {
-    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response"));
+    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, ["username", "firstName", "lastName", "roomNumber"], undefined, undefined, "response"));
   }
 
   ngOnInit() {

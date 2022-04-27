@@ -45,43 +45,32 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
     this.disabled = true;
     const v = this.memberEdit.value;
 
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumber })
-      .subscribe((rooms) => {
-        if (rooms.length == 0) {
-          this.notificationService.errorNotification(
-            404,
-            'Room not Found',
-            "Room " + v.roomNumber + " has not be found"
-          );
-          return undefined
-        }
-        if (!this.create) {
-          const abstractMember: AbstractMember = {
-            email: v.email,
-            firstName: v.firstName,
-            lastName: v.lastName,
-            username: v.username,
-            room: rooms[0].id
-          };
-          this.memberService.memberIdPatch(abstractMember, this.member_id, 'body')
-            .subscribe((_) => {
-              this.router.navigate(['member/view', this.member_id]);
-            });
-        } else {
-          const req: Member = {
-            email: v.email,
-            firstName: v.firstName,
-            lastName: v.lastName,
-            username: v.username,
-            room: rooms[0].id,
-            departureDate: new Date(),
-          };
-          this.memberService.memberPost(req, 'body')
-            .subscribe((member) => {
-              this.router.navigate(['/password', member.id]);
-            });
-        }
-      });
+    if (!this.create) {
+      const abstractMember: AbstractMember = {
+        email: v.email,
+        firstName: v.firstName,
+        lastName: v.lastName,
+        username: v.username,
+        roomNumber: v.roomNumber
+      };
+      this.memberService.memberIdPatch(abstractMember, this.member_id, 'body')
+        .subscribe((_) => {
+          this.router.navigate(['member/view', this.member_id]);
+        });
+    } else {
+      const req: Member = {
+        email: v.email,
+        firstName: v.firstName,
+        lastName: v.lastName,
+        username: v.username,
+        roomNumber: v.roomNumber,
+        departureDate: new Date(),
+      };
+      this.memberService.memberPost(req, 'body')
+        .subscribe((member) => {
+          this.router.navigate(['/password', member.id]);
+        });
+    };
   }
 
   memberUsernameDelete() {

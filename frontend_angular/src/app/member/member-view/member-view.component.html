@@ -46,8 +46,8 @@
         <tr>
           <td>Chambre</td>
           <td>
-            <a *ngIf="member.room != null; else elseNoRoom" [routerLink]='["/room/view/", member.room.id]'>
-              {{ member.room.roomNumber }}
+            <a *ngIf="member.roomNumber != null; else elseNoRoom" [routerLink]='["/room/view/", (room$ | async)?.id]'>
+              {{ member.roomNumber }}
             </a>
             <ng-template #elseNoRoom>
               <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
