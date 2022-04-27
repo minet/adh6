@@ -15,8 +15,8 @@
         <td class="center">{{ port.switchObj.description }}</td>
         <td class="center">{{ port.portNumber }}</td>
         <td class="center">
-          <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.id]">{{ port.room.description }}</a>
-          <a *ngIf="port.room == null">Aucune chambre</a>
+          <a *ngIf="port.room !== null" [routerLink]="['/room/view', port.room.id]">{{ port.room.description }}</a>
+          <a *ngIf="port.room === null">Aucune chambre</a>
         </td>
       </tr>
     </tbody>

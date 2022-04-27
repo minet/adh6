@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Device, DeviceService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { NotificationService } from '../../notification.service';
   templateUrl: './new.component.html',
   styleUrls: ['./new.component.sass']
 })
-export class NewComponent implements OnInit {
+export class NewComponent {
   deviceForm: FormGroup;
   public localize_link = localize_link;
   private alive = true;
@@ -25,9 +25,6 @@ export class NewComponent implements OnInit {
     private notificationService: NotificationService,
     @Inject(LOCALE_ID) public locale: string) {
     this.createForm();
-  }
-
-  ngOnInit(): void {
   }
 
   onSubmit() {

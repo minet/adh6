@@ -1,6 +1,6 @@
 <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
   <div
-    *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'"
+    *ngIf="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE'"
     class="notification is-info is-light">
     <h4 class="title is-4">Cotisation en cours:</h4>
     <p>Aucune modification sur l'adhérent (comme la chambre) ne peut-être faite.</p>
@@ -12,15 +12,15 @@
   </h3>
   <div class="tabs is-centered is-large">
     <ul>
-      <li [ngClass]="{'is-active': currentTab=='profile'}">
+      <li [ngClass]="{'is-active': currentTab==='profile'}">
         <a (click)="currentTab='profile'">Profile</a>
       </li>
-      <li [ngClass]="{'is-active': currentTab=='device'}">
+      <li [ngClass]="{'is-active': currentTab==='device'}">
         <a (click)="currentTab='device'">Appareils</a>
       </li>
     </ul>
   </div>
-  <ng-container *ngIf="currentTab=='profile'">
+  <ng-container *ngIf="currentTab==='profile'">
     <table class="table is-fullwidth">
       <tbody>
         <tr>
@@ -46,13 +46,13 @@
         <tr>
           <td>Chambre</td>
           <td>
-            <a *ngIf="member.roomNumber != null; else elseNoRoom" [routerLink]='["/room/view/", (room$ | async)?.id]'>
+            <a *ngIf="member.roomNumber !== null; else elseNoRoom" [routerLink]='["/room/view/", (room$ | async)?.id]'>
               {{ member.roomNumber }}
             </a>
             <ng-template #elseNoRoom>
               <ng-container *ngIf="(latestMembership$ | async) as latestMembership">
                 <button class="button is-warning" (click)="collapseMoveIn()"
-                  [disabled]="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE'">
+                  [disabled]="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE'">
                   Emmenager
                 </button>
               </ng-container>
@@ -68,7 +68,7 @@
     <ng-container *ngIf="latestMembership$ | async as latestMembership">
       <button class="button is-success is-fullwidth"
         (click)="validatePayment(latestMembership.uuid, latestMembership.status, member.id)"
-        *ngIf="latestMembership.status == 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
+        *ngIf="latestMembership.status === 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
       <br />
     </ng-container>
 
@@ -102,14 +102,14 @@
       <div class="column">
         <ng-container *ngIf="latestMembership$ | async as latestMembership; else waitingMembership">
           <a [routerLink]="['charter']">
-            <button class="button is-danger is-fullwidth" *ngIf="latestMembership.status == 'PENDING_RULES'">Signer la
+            <button class="button is-danger is-fullwidth" *ngIf="latestMembership.status === 'PENDING_RULES'">Signer la
               charte</button>
           </a>
           <button class="button is-success is-fullwidth" (click)="newMembership(member.id)"
-            *ngIf="latestMembership.status == 'ABORTED' || latestMembership.status == 'CANCELLED' || latestMembership.status == 'COMPLETE'">Cotiser
+            *ngIf="latestMembership.status === 'ABORTED' || latestMembership.status === 'CANCELLED' || latestMembership.status === 'COMPLETE'">Cotiser
             / Recotiser</button>
           <button class="button is-primary is-fullwidth" (click)="toggleCotisationMenu()"
-            *ngIf="latestMembership.status != 'ABORTED' && latestMembership.status != 'CANCELLED' && latestMembership.status != 'COMPLETE' && latestMembership.status != 'PENDING_RULES'">Cotiser
+            *ngIf="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE' && latestMembership.status !== 'PENDING_RULES'">Cotiser
             / Recotiser</button>
         </ng-container>
         <ng-template #waitingMembership>
@@ -133,7 +133,7 @@
       </button>
     </form>
   </ng-container>
-  <ng-container *ngIf="currentTab=='device'">
+  <ng-container *ngIf="currentTab==='device'">
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
     <div class="columns">
       <div class="column">
@@ -148,7 +148,7 @@
       </div>
     </div>
     <app-device-new [member_id]="member.id"
-      (added)="$event.connectionType == 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()">
+      (added)="$event.connectionType === 'wired' ? wiredList.updateSearch(): wirelessList.updateSearch()">
     </app-device-new>
     <br />
     <nav class="level">

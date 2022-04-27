@@ -1,27 +1,27 @@
 <ng-container [ngTemplateOutlet]="pagination"></ng-container>
 <ng-template #pagination>
-  <nav class="pagination is-centered" role="navigation" aria-label="pagination" *ngIf="maxItems != undefined">
+  <nav class="pagination is-centered" role="navigation" aria-label="pagination" *ngIf="maxItems !== undefined">
     <a class="pagination-previous is-disabled" (click)="addPage(-1)"
-      [attr.disabled]="page==1 ? true : null">Previous</a>
-    <a class="pagination-next" (click)="addPage(+1)" [attr.disabled]="page==numberOfPages ? true : null">Next page</a>
-    <ul class="pagination-list" *ngIf="numberOfPages == 1; else greaterThan1">
+      [attr.disabled]="page===1 ? true : null">Previous</a>
+    <a class="pagination-next" (click)="addPage(+1)" [attr.disabled]="page===numberOfPages ? true : null">Next page</a>
+    <ul class="pagination-list" *ngIf="numberOfPages === 1; else greaterThan1">
       <li><a class="pagination-link is-current" aria-label="Goto page 1">1</a></li>
     </ul>
     <ng-template #greaterThan1>
       <ul class="pagination-list" *ngIf="numberOfPages <= deltaPage">
-        <li><a class="pagination-link" (click)="addPage(-page+1)" [ngClass]="{'is-current': page == 1}"
+        <li><a class="pagination-link" (click)="addPage(-page+1)" [ngClass]="{'is-current': page === 1}"
             aria-label="Goto page 1">1</a></li>
-        <li><a class="pagination-link" (click)="addPage(-page+2)" [ngClass]="{'is-current': page == 2}"
+        <li><a class="pagination-link" (click)="addPage(-page+2)" [ngClass]="{'is-current': page === 2}"
             aria-label="Goto page 2">2</a></li>
-        <li><a class="pagination-link" *ngIf="numberOfPages == 3" (click)="addPage(-page+3)"
-            [ngClass]="{'is-current': page == 3}" aria-label="Goto page 3">3</a></li>
+        <li><a class="pagination-link" *ngIf="numberOfPages === 3" (click)="addPage(-page+3)"
+            [ngClass]="{'is-current': page === 3}" aria-label="Goto page 3">3</a></li>
       </ul>
       <ul class="pagination-list" *ngIf="numberOfPages > deltaPage">
-        <li><a class="pagination-link" (click)="addPage(-(page-1))" [ngClass]="{'is-current': page == 1}"
+        <li><a class="pagination-link" (click)="addPage(-(page-1))" [ngClass]="{'is-current': page === 1}"
             aria-label="Goto page 1">1</a></li>
         <ng-container *ngIf="page < deltaPage">
           <ng-container *ngFor="let p of pagesBefore">
-            <li><a class="pagination-link" (click)="addPage(p-page)" [ngClass]="{'is-current': page == p}"
+            <li><a class="pagination-link" (click)="addPage(p-page)" [ngClass]="{'is-current': page === p}"
                 aria-label="Goto page {{p}}">{{p}}</a>
             </li>
           </ng-container>
@@ -39,13 +39,13 @@
         </ng-container>
         <ng-container *ngIf="page > numberOfPages - deltaPage + 1">
           <ng-container *ngFor="let p of pagesAfter">
-            <li><a class="pagination-link" (click)="addPage(p-page)" [ngClass]="{'is-current': page == p}"
+            <li><a class="pagination-link" (click)="addPage(p-page)" [ngClass]="{'is-current': page === p}"
                 aria-label="Goto page {{p}}">{{p}}</a>
             </li>
           </ng-container>
         </ng-container>
         <li><a class="pagination-link" (click)="addPage(numberOfPages-page)"
-            [ngClass]="{'is-current': page == numberOfPages}"
+            [ngClass]="{'is-current': page === numberOfPages}"
             aria-label="Goto page {{numberOfPages}}">{{numberOfPages}}</a></li>
       </ul>
     </ng-template>

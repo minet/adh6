@@ -25,7 +25,7 @@
   <div class="form-group">
     <button
       type="submit"
-      [disabled]="disabled || switchForm.status == 'INVALID'"
+      [disabled]="disabled || switchForm.status === 'INVALID'"
       class="w-100 btn btn-primary"
     >
       Créer

@@ -33,7 +33,7 @@
     <label class="label">Numéro de chambre / Room number :</label>
     <input class="input is-fullwidth" formControlName="roomNumber" type="number">
   </div>
-  <button type="submit" [disabled]="disabled || memberEdit.status == 'INVALID'"
+  <button type="submit" [disabled]="disabled || memberEdit.status === 'INVALID'"
     class="button is-primary is-fullwidth"><span *ngIf="!create">Éditer</span><span *ngIf="create">Créer</span>
   </button>
 </form>

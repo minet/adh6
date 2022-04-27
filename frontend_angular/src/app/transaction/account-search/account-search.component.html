@@ -3,8 +3,8 @@
     <div class="field">
       <p class="control is-expanded has-icons-right">
         <input class="input" type="search" placeholder="Search..." #account
-          [value]="selectedAccount != undefined ? selectedAccount.name : ''" (keyup)="search(account.value)"
-          (clickOutside)="display = false" />
+          [value]="selectedAccount !== undefined ? selectedAccount.name : ''" (keyup)="search(account.value)"
+          (appClickOutside)="display = false" />
         <span class="icon is-small is-right"><i class="fas fa-search"></i></span>
       </p>
     </div>

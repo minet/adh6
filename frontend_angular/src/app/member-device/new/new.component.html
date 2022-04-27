@@ -14,7 +14,7 @@
         <input class="input" formControlName="mac" type="text" placeholder="11-22-33-AA-BB-CC">
       </p>
       <p class="control">
-        <button [disabled]="deviceForm.status == 'INVALID'" class="button is-primary" type="submit"
+        <button [disabled]="deviceForm.status === 'INVALID'" class="button is-primary" type="submit"
           i18n="device new add|Add a new device">Ajouter l'appareil
         </button>
       </p>
