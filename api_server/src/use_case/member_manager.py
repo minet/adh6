@@ -157,7 +157,7 @@ class MemberManager(CRUDManager):
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        is_room_changed = abstract_member.room is not None and (isinstance(member.room, Null) or (not isinstance(member.room, Null) and abstract_member.room != member.room.id))
+        is_room_changed = abstract_member.room_number is not None and (isinstance(member.room_number, Null) or (not isinstance(member.room_number, Null) and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)
 
         if not is_member_active(member):
@@ -622,7 +622,7 @@ class MemberManager(CRUDManager):
         member = self.__member_not_found(ctx, member_id)
         self.member_repository.update(ctx, AbstractMember(
             id=member_id,
-            room=-1, 
+            room_number=-1, 
             ip="", 
             subnet=""
         ))

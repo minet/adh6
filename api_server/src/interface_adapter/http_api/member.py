@@ -2,7 +2,7 @@
 """
 Contain all the http http_api functions.
 """
-from typing import Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any
 
 from connexion import NoContent
 
@@ -23,6 +23,33 @@ class MemberHandler(DefaultHandler):
     def __init__(self, member_manager: MemberManager):
         super().__init__(Member, AbstractMember, member_manager)
         self.member_manager = member_manager
+
+    @with_context
+    @require_sql
+    @log_call
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
+        try:
+            def remove_test(entity: Dict[str, Any]) -> Dict[str, Any]:
+                if only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp.keys():
+                        if k not in only + ["id", "__typename"]:
+                            print(k)
+                            del entity[k]
+                print(entity)
+                return entity
+
+            filter_ = deserialize_request(filter_, self.abstract_entity_class)
+            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
+                                                           filter_=filter_)
+            headers = {
+                "X-Total-Count": str(total_count),
+                'access-control-expose-headers': 'X-Total-Count'
+            }
+            result = list(map(remove_test, map(serialize_response, result)))
+            return result, 200, headers 
+        except Exception as e:
+            return handle_error(ctx, e)  
 
     @with_context
     @require_sql

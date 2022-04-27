@@ -1,12 +1,15 @@
 # coding=utf-8
-from src.entity import AbstractDevice, Device
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached
+from src.entity import AbstractDevice, Device, Vlan, AbstractRoom, Member
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, RoomNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, owns, uses_security
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IpAllocator
+from src.use_case.interface.member_repository import MemberRepository
+from src.use_case.interface.room_repository import RoomRepository
+from src.use_case.interface.vlan_repository import VlanRepository
 from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 
@@ -30,10 +33,16 @@ class DeviceManager(CRUDManager):
     def __init__(self,
                  device_repository: DeviceRepository,
                  ip_allocator: IpAllocator,
+                 vlan_repository: VlanRepository,
+                 room_repository: RoomRepository,
+                 member_repository: MemberRepository
                  ):
         super().__init__(device_repository, AbstractDevice, DeviceNotFoundError)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
+        self.vlan_repository = vlan_repository
+        self.room_repository = room_repository
+        self.member_repository = member_repository
         self.oui_repository = {}
         self.load_mac_oui_dict()
 
@@ -121,7 +130,7 @@ class DeviceManager(CRUDManager):
                     ))
 
                     self.partially_update(ctx, AbstractDevice(
-                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, device.member.room.vlan.ipv4_network,
+                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, self.get_subnet_from_room_number(ctx, device.member.room_number),
                                                                       taken_ips, should_skip_reserved=True)
                     ), id=device.id, override=False)
                 elif device.connection_type == "wireless" and has_member_subnet(device.member):
@@ -140,7 +149,7 @@ class DeviceManager(CRUDManager):
                     ))
 
                     self.partially_update(ctx, AbstractDevice(
-                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, device.member.room.vlan.ipv6_network,
+                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, self.get_subnet_from_room_number(ctx, device.member.room_number, True),
                                                                       taken_ips, should_skip_reserved=True)
                     ), id=device.id, override=False)
 
@@ -157,3 +166,14 @@ class DeviceManager(CRUDManager):
                 self.partially_update(ctx, AbstractDevice(
                     ipv6_address='En attente'
                 ), id=device.id, override=False)
+
+    @log_call
+    @auto_raise
+    def get_subnet_from_room_number(self, ctx, room_number: int, is_ipv6: bool = False) -> str:
+        rooms, _ = self.room_repository.search_by(ctx=ctx, limit=1, filter_=AbstractRoom(room_number=room_number))
+        if len(rooms) == 0:
+            raise RoomNotFoundError(room_number)
+        if not isinstance(rooms[0].vlan, Vlan):
+            raise ValueError("No VLAN")
+
+        return rooms[0].vlan.ipv4_network if not is_ipv6 else rooms[0].vlan.ipv6_network

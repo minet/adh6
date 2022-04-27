@@ -9,7 +9,7 @@ from typing import List, Tuple
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractDevice, Member
+from src.entity import AbstractDevice, Member, AbstractMember
 from src.entity.device import Device
 from src.entity.null import Null
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
@@ -18,7 +18,6 @@ from src.interface_adapter.sql.member_repository import _map_member_sql_to_entit
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.device_repository import DeviceRepository
-from src.util.log import LOG
 
 
 class DeviceType(Enum):
@@ -37,7 +36,7 @@ class DeviceSQLRepository(DeviceRepository):
             if filter_.id is not None:
                 query = query.filter(SQLDevice.id == filter_.id)
             if filter_.member is not None:
-                if isinstance(filter_.member, Member):
+                if isinstance(filter_.member, AbstractMember) or isinstance(filter_.member, Member):
                     query = query.filter(Adherent.id == filter_.member.id)
                 else:
                     query = query.filter(Adherent.id == filter_.member)
