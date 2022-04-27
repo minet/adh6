@@ -11,5 +11,3 @@ export const authConfig: AuthConfig = {
   responseType: 'code',
   showDebugInformation: false,
 };
-
-export const authBypass = ${ BYPASS_AUTH };

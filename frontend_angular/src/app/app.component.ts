@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { authBypass } from './config/auth.config';
 import { Router, RoutesRecognized } from '@angular/router';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -56,7 +55,7 @@ export class AppComponent {
   }
 
   isAuthenticated() {
-    return (this.currentPageAuthBypass || authBypass || this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
+    return (this.currentPageAuthBypass || this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
   }
 
   onSubmitBug() {
