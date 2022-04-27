@@ -3,6 +3,7 @@ image: python:3.9-slim-bullseye
 cache:
   paths:
     - ~/.cache/pip 
+    - frontend_angular/node_modules
 
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
@@ -12,22 +13,34 @@ cache:
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
-stages:
-  - test
-  - build
-  - deploy
-
-angular_try_build:
-  stage: build
+.setup_angular_jobs: &before_angular_jobs
   image: node:16-bullseye-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
     - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
     - yarn install
+
+stages:
+  - test
+  - build
+  - deploy
+
+angular_lint:
+  stage: test
+  <<: *before_angular_jobs 
+  script:
+    - yarn lint
+
+
+angular_build_dev:
+  stage: build
+  <<: *before_angular_jobs
+  needs:
+    - angular_lint
   script:
     - cp src/app/config/auth.config.ts{.example,}
-    - rm src/app/config/auth.config.template.ts
+    - rm src/app/config/auth.config.ts.template
     - ng build --configuration production
   artifacts:
     paths:
@@ -39,17 +52,14 @@ angular_try_build:
   only:
     - master
 
-angular_build_prod:
+angular_build:
   stage: build
-  image: node:16-bullseye-slim
-  before_script:
-    - apt update && apt-get -y install gettext-base
-    - cd frontend_angular/
-    - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
-    - yarn install
+  needs:
+    - angular_lint
+  <<: *before_angular_jobs 
   script:
-    - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
-    - rm src/app/config/auth.config.template.ts
+    - cat src/app/config/auth.config.ts.template | envsubst | tee src/app/config/auth.config.ts
+    - rm src/app/config/auth.config.ts.template
     - ng build --configuration production
   artifacts:
     paths:
@@ -84,6 +94,9 @@ python_test:
 
 deploy_dev:
   stage: deploy
+  needs:
+    - angular_lint
+    - python_test
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
@@ -99,6 +112,8 @@ deploy_dev:
 deploy_prod_front:
   stage: deploy
   when: manual
+  needs:
+    - angular_build
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
   environment:
@@ -113,6 +128,8 @@ deploy_prod_front:
 deploy_prod_backend:
   stage: deploy
   when: manual
+  needs:
+    - python_test
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/

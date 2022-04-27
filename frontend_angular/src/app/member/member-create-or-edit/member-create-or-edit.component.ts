@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { AbstractMember, AbstractRoom, Member, MemberService, MembershipService, RoomService } from '../../api';
+import { AbstractMember, Member, MemberService, MembershipService, RoomService } from '../../api';
 import { finalize, first, mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
 import { NotificationService } from '../../notification.service';
@@ -13,7 +13,7 @@ import { NotificationService } from '../../notification.service';
   templateUrl: './member-create-or-edit.component.html',
   styleUrls: ['./member-create-or-edit.component.css'],
 })
-export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
+export class MemberCreateOrEditComponent implements OnInit {
   disabled = true;
   create = false;
   memberEdit: FormGroup;
@@ -108,8 +108,4 @@ export class MemberCreateOrEditComponent implements OnInit, OnDestroy {
         this.disabled = false;
       });
   }
-
-  ngOnDestroy() {
-  }
-
 }

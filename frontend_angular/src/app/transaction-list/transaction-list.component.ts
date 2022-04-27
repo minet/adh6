@@ -21,7 +21,7 @@ class Action {
 })
 export class TransactionListComponent extends SearchPage<Transaction> implements OnInit {
   @Input() asAccount: number;
-  @Output() onAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter<{ name; string, transaction: Transaction }>();
+  @Output() whenOnAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter<{ name; string, transaction: Transaction }>();
   @Input() refresh: EventEmitter<{ action: string }>;
 
   @Input() actions: Array<Action>;

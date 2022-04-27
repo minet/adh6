@@ -11,7 +11,7 @@ ARG BYPASS_AUTH="false"
 
 COPY src/app/config/auth.config.template.ts .
 
-RUN cat auth.config.template.ts | envsubst | tee auth.config.ts
+RUN cat auth.config.ts.template | envsubst > auth.config.ts
 
 
 ###############################################################################
@@ -31,7 +31,6 @@ RUN yarn install
 COPY . .
 # Copy the generated config files.
 COPY --from=config /tmp/auth.config.ts src/app/config/auth.config.ts
-RUN rm src/app/config/auth.config.template.ts
 
 RUN yarn build
 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
@@ -13,7 +13,7 @@ import { ListComponent } from '../../member-device/list/list.component';
   styleUrls: ['./member-view.component.css']
 })
 
-export class MemberViewComponent implements OnInit, OnDestroy {
+export class MemberViewComponent implements OnInit {
   @ViewChild(ListComponent) wiredList: ListComponent;
   @ViewChild(ListComponent) wirelessList: ListComponent;
 
@@ -122,9 +122,6 @@ export class MemberViewComponent implements OnInit, OnDestroy {
     this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
       this.refreshLatestMembership(memberID);
     });
-  }
-
-  ngOnDestroy() {
   }
 
   refreshInfo(): void {
