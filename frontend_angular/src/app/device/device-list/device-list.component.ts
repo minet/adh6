@@ -8,8 +8,10 @@ import { SearchPage } from '../../search-page';
   styleUrls: ['./device-list.component.css']
 })
 export class DeviceListComponent extends SearchPage<Device> implements OnInit {
-  constructor(public deviceService: DeviceService) {
-    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response"));
+  constructor(
+    private deviceService: DeviceService
+  ) {
+    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, undefined, "response"));
   }
 
   ngOnInit() {

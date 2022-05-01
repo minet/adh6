@@ -34,7 +34,7 @@ class AbstractRoom(object):
         'id': 'int',
         'description': 'str',
         'room_number': 'int',
-        'vlan': 'OneOfAbstractRoomVlan'
+        'vlan': 'int'
     }
 
     attribute_map = {
@@ -133,10 +133,10 @@ class AbstractRoom(object):
     def vlan(self):
         """Gets the vlan of this AbstractRoom.  # noqa: E501
 
-        The main vlan assigned to this room  # noqa: E501
+        The main vlan number assigned to this room  # noqa: E501
 
         :return: The vlan of this AbstractRoom.  # noqa: E501
-        :rtype: OneOfAbstractRoomVlan
+        :rtype: int
         """
         return self._vlan
 
@@ -144,10 +144,10 @@ class AbstractRoom(object):
     def vlan(self, vlan):
         """Sets the vlan of this AbstractRoom.
 
-        The main vlan assigned to this room  # noqa: E501
+        The main vlan number assigned to this room  # noqa: E501
 
         :param vlan: The vlan of this AbstractRoom.  # noqa: E501
-        :type: OneOfAbstractRoomVlan
+        :type: int
         """
 
         self._vlan = vlan

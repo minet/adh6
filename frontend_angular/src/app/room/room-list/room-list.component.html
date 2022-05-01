@@ -24,7 +24,7 @@
       <tr *ngFor="let room of result" [routerLink]="['/room/view',room.id]">
         <td>{{ room.roomNumber }}</td>
         <td>{{ room.description }}</td>
-        <td>{{ room.vlan.number }}</td>
+        <td>{{ room.vlan }}</td>
       </tr>
     </tbody>
   </table>

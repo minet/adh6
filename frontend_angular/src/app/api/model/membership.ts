@@ -10,10 +10,6 @@
  * Do not edit the class manually.
  */
 import { AbstractMembership } from './abstractMembership';
-import { Account } from './account';
-import { Member } from './member';
-import { PaymentMethod } from './paymentMethod';
-import { Product } from './product';
 
 export interface Membership extends AbstractMembership { 
     __typename?: string;

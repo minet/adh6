@@ -14,7 +14,6 @@ from src.entity.device import Device
 from src.entity.null import Null
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.device_repository import DeviceRepository
@@ -27,7 +26,7 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
 
-    def _search(self, ctx, session: Session, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
+    def _search(self, session: Session, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                 filter_: AbstractDevice = None, query=None):
         query = query or session.query(SQLDevice)
         query = query.join(Adherent, Adherent.id == SQLDevice.adherent_id)
@@ -67,7 +66,7 @@ class DeviceSQLRepository(DeviceRepository):
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                   filter_: AbstractDevice = None) -> Tuple[List[Device], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        r, count = self._search(ctx, session, limit, offset, terms, filter_)
+        r, count = self._search(session, limit, offset, terms, filter_)
         return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
@@ -140,7 +139,7 @@ class DeviceSQLRepository(DeviceRepository):
             query = query.filter((SQLDevice.ipv6 != None) &
                          (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
                          )
-        r, count = self._search(ctx, session, filter_=filter_, query=query, limit=0)
+        r, count = self._search(session, limit=0, filter_=filter_, query=query)
 
         return list(map(lambda x: x[0], r)), count
     
@@ -185,14 +184,14 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
     return device
 
 
-def _map_device_sql_to_entity(d) -> Device:
+def _map_device_sql_to_entity(d: SQLDevice) -> Device:
     """
     Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
     """
     return Device(
         id=d.id,
         mac=d.mac,
-        member=_map_member_sql_to_entity(d.adherent),
+        member=d.adherent_id,
         connection_type=DeviceType(d.type).name,
         ipv4_address=d.ip if d.ip != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
         ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme

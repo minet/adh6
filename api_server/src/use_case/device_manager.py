@@ -1,6 +1,6 @@
 # coding=utf-8
 from src.entity import AbstractDevice, Device, Vlan, AbstractRoom, Member
-from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, RoomNotFoundError
+from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.decorator.auto_raise import auto_raise
@@ -15,9 +15,9 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 
 @defines_security(SecurityDefinition(
     item={
-        "read": owns(Device.member.id) | owns(AbstractDevice.member) | is_admin(),
-        "update": owns(Device.member.id) | owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
-        "delete": owns(Device.member.id) | is_admin(),
+        "read": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
+        "update": owns(Device.member) | owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
+        "delete": owns(Device.member) | is_admin(),
         "admin": is_admin()
     },
     collection={
@@ -122,7 +122,8 @@ class DeviceManager(CRUDManager):
     @auto_raise
     def allocate_ip_addresses(self, ctx, device: Device, override: bool = False):
         from src.entity.validators.member_validators import is_member_active, has_member_subnet
-        if is_member_active(device.member):
+        member = self.get_user_from_username(ctx, device.member)
+        if is_member_active(member):
             if device.ipv4_address is None or override:
                 if device.connection_type == "wired":
                     taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
@@ -130,17 +131,17 @@ class DeviceManager(CRUDManager):
                     ))
 
                     self.partially_update(ctx, AbstractDevice(
-                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, self.get_subnet_from_room_number(ctx, device.member.room_number),
+                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, self.get_subnet_from_room_number(ctx, member.room_number),
                                                                       taken_ips, should_skip_reserved=True)
                     ), id=device.id, override=False)
-                elif device.connection_type == "wireless" and has_member_subnet(device.member):
+                elif device.connection_type == "wireless" and has_member_subnet(member):
                     taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
-                        member=device.member,
+                        member=member,
                         connection_type=device.connection_type
                     ))
 
                     self.partially_update(ctx, AbstractDevice(
-                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, device.member.subnet, taken_ips)
+                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, member.subnet, taken_ips)
                     ), id=device.id, override=False)
             if device.ipv6_address is None or override:
                 if device.connection_type == "wired":
@@ -149,7 +150,7 @@ class DeviceManager(CRUDManager):
                     ))
 
                     self.partially_update(ctx, AbstractDevice(
-                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, self.get_subnet_from_room_number(ctx, device.member.room_number, True),
+                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, self.get_subnet_from_room_number(ctx, member.room_number, True),
                                                                       taken_ips, should_skip_reserved=True)
                     ), id=device.id, override=False)
 
@@ -157,7 +158,8 @@ class DeviceManager(CRUDManager):
     @auto_raise
     def unallocate_ip_addresses(self, ctx, device: Device):
         from src.entity.validators.member_validators import is_member_active
-        if not is_member_active(device.member):
+        member = self.get_user_from_username(ctx, device.member)
+        if not is_member_active(member):
             if device.ipv4_address is not None:
                 self.partially_update(ctx, AbstractDevice(
                     ipv4_address='En attente'
@@ -173,7 +175,17 @@ class DeviceManager(CRUDManager):
         rooms, _ = self.room_repository.search_by(ctx=ctx, limit=1, filter_=AbstractRoom(room_number=room_number))
         if len(rooms) == 0:
             raise RoomNotFoundError(room_number)
-        if not isinstance(rooms[0].vlan, Vlan):
-            raise ValueError("No VLAN")
+        vlan = None
+        if rooms[0].vlan:
+            vlan = self.vlan_repository.get_vlan(ctx, rooms[0].vlan)
+        if vlan is None:
+            raise VLANNotFoundError(rooms[0].vlan)
+        return vlan.ipv4_network if not is_ipv6 else vlan.ipv6_network
 
-        return rooms[0].vlan.ipv4_network if not is_ipv6 else rooms[0].vlan.ipv6_network
+    @log_call
+    @auto_raise
+    def get_user_from_username(self, ctx, member_id: int) -> Member:
+        member = self.member_repository.get(ctx, member_id)
+        if member is None:
+            raise MemberNotFoundError(member_id)
+        return member

@@ -38,7 +38,7 @@ class Device(object):
         'ipv4_address': 'str',
         'ipv6_address': 'str',
         'mac': 'str',
-        'member': 'Object'
+        'member': 'float'
     }
     if hasattr(AbstractDevice, "swagger_types"):
         swagger_types.update(AbstractDevice.swagger_types)
@@ -204,10 +204,10 @@ class Device(object):
     def member(self):
         """Gets the member of this Device.  # noqa: E501
 
-        The member this device belongs to  # noqa: E501
+        The id of the member this device belongs to  # noqa: E501
 
         :return: The member of this Device.  # noqa: E501
-        :rtype: Object
+        :rtype: float
         """
         return self._member
 
@@ -215,10 +215,10 @@ class Device(object):
     def member(self, member):
         """Sets the member of this Device.
 
-        The member this device belongs to  # noqa: E501
+        The id of the member this device belongs to  # noqa: E501
 
         :param member: The member of this Device.  # noqa: E501
-        :type: Object
+        :type: float
         """
         if member is None:
             raise ValueError("Invalid value for `member`, must not be `None`")  # noqa: E501

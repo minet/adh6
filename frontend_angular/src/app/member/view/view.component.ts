@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, first, flatMap, map, share, switchMap, tap } from 'rxjs/operators';
+import { finalize, first, map, share, switchMap, tap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 import { ListComponent } from '../../member-device/list/list.component';
 
@@ -31,7 +31,7 @@ export class ViewComponent implements OnInit {
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
   public showLogs = false;
-  public room$: Observable<Room>;
+  public room$: Observable<number>;
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
@@ -86,14 +86,14 @@ export class ViewComponent implements OnInit {
     this.member$ = refresh$.pipe(
       switchMap(member_id => this.memberService.memberIdGet(member_id)
         .pipe(map((user) => {
-          this.room$ = this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: user.roomNumber })
+          this.room$ = this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: user.roomNumber }, ["id"])
             .pipe(
               map(rooms => {
                 if (rooms.length != 1) {
                   this.notificationService.errorNotification(404, "Room with number " + user.roomNumber + " not found")
                   return undefined;
                 }
-                return rooms[0];
+                return rooms[0].id;
               })
             )
           return user;
@@ -113,7 +113,7 @@ export class ViewComponent implements OnInit {
     this.paymentMethods$ = this.transactionService.paymentMethodGet();
 
     this.latestMembership$ = refresh$.pipe(
-      switchMap(member_id => this.membershipService.getLatestMembership(member_id, 'body'))
+      switchMap(member_id => this.membershipService.getLatestMembership(member_id, undefined, 'body'))
     )
   }
 
@@ -129,12 +129,6 @@ export class ViewComponent implements OnInit {
   }
 
   refreshLog(): void {
-    // stream, which will emit the username every time the profile needs to be refreshed
-    const refresh$ = combineLatest([this.member_id$, this.refreshInfoOrder$])
-      .pipe(
-        map(([x]) => x),
-      );
-
     this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
@@ -175,7 +169,7 @@ export class ViewComponent implements OnInit {
   }
 
   refreshLatestMembership(member_id: number): void {
-    this.latestMembership$ = this.membershipService.getLatestMembership(+member_id, 'body');
+    this.latestMembership$ = this.membershipService.getLatestMembership(+member_id, undefined, 'body');
   }
 
   submitComment(): void {
@@ -214,11 +208,11 @@ export class ViewComponent implements OnInit {
       });
   }
 
-  addDevice(member_id?: number, alreadyExists?: boolean) {
+  addDevice(member_id?: number) {
     if (member_id === undefined) {
       return this.member_id$
         .pipe(
-          flatMap((usr) => this.addDevice(usr))
+          map((usr) => this.addDevice(usr))
         );
     }
 
@@ -235,7 +229,7 @@ export class ViewComponent implements OnInit {
     // If the device does not then create it, and refresh the info
     return this.deviceService.devicePost(device)
       .pipe(
-        flatMap(() => {
+        map(() => {
           this.refreshInfo();
           return null; // @TODO return the device ?
         }),

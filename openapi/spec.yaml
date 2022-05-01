@@ -240,13 +240,14 @@ paths:
           $ref: '#/components/schemas/AbstractDevice'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyDevice'
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Device'
+                  $ref: '#/components/schemas/AbstractDevice'
                 type: array
           description: Success
           headers:
@@ -461,19 +462,7 @@ paths:
           $ref: '#/components/schemas/AbstractMember'
         style: deepObject
         explode: true
-      - description: Limit to specific attributes
-        in: query
-        name: only
-        schema:
-          type: array
-          items:
-            type: string
-            enum:
-              - username
-              - firstName
-              - lastName
-              - roomNumber
-        explode: false
+      - $ref: '#/components/parameters/onlyMember'
       - description: Filter member that have departureDate after
         in: query
         name: since
@@ -553,12 +542,14 @@ paths:
       tags:
       - member
     get:
+      parameters:
+        - $ref: '#/components/parameters/onlyMember'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Member'
+                $ref: '#/components/schemas/AbstractMember'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -762,13 +753,14 @@ paths:
           $ref: '#/components/schemas/AbstractMembership'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyMembership'
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Membership'
+                  $ref: '#/components/schemas/AbstractMembership'
                 type: array
           description: Success
           headers:
@@ -789,13 +781,15 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
+      parameters:
+        - $ref: '#/components/parameters/onlyMembership'
       operationId: get_latest_membership
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Membership'
+                $ref: '#/components/schemas/AbstractMembership'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1384,13 +1378,14 @@ paths:
           $ref: '#/components/schemas/AbstractRoom'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyRoom'
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Room'
+                  $ref: '#/components/schemas/AbstractRoom'
                 type: array
           description: Success
           headers:
@@ -1937,6 +1932,70 @@ components:
       schema:
         type: integer
         example: 0
+    onlyDevice:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - mac
+            - ipv4Address
+            - ipv6Address
+            - connectionType
+            - member
+      explode: false
+    onlyMember:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - username
+            - firstName
+            - lastName
+            - roomNumber
+      explode: false
+    onlyRoom:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - roomNumber
+            - vlan
+            - description
+      explode: false
+    onlyMembership:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - uuid
+            - duration
+            - hasRoom
+            - products
+            - firstTime
+            - paymentMethod
+            - account
+            - member
+            - status
+            - description
+      explode: false
   responses:
     NotFound:
       description: The specified resource was not found
@@ -2008,34 +2067,26 @@ components:
           type: boolean
           nullable: true
         products:
-          description: A list of products to buy
+          description: A list of the ids products to buy
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/Product'
-              - type: integer
+            type: integer
           example: [1, 2]
         firstTime:
           description: Whether this is the first membership request ever for this member
           type: boolean
           example: false
         paymentMethod:
-          description: The payment method to be used for the transaction
-          oneOf:
-            - $ref: '#/components/schemas/PaymentMethod'
-            - type: integer
+          description: The payment method id to be used for the transaction
+          type: integer
           example: 4
         account:
-          description: The source account from which to execute the transaction
-          oneOf:
-            - $ref: '#/components/schemas/Account'
-            - type: integer
+          description: The id of the source account from which to execute the transaction
+          type: integer
           example: 4
         member:
-          description: The member to whom this membership applies
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
+          description: The id of the member to whom this membership applies
+          type: integer
           example: 4
         status:
           type: string
@@ -2318,11 +2369,9 @@ components:
           format: mac
           type: string
         member:
-          description: The member this device belongs to
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
-          example: 4
+          description: The id of the member this device belongs to
+          type: number
+          example: 0
     Device:
       allOf:
         - $ref: '#/components/schemas/AbstractDevice'
@@ -2415,10 +2464,8 @@ components:
           example: 5110
           type: integer
         vlan:
-          description: The main vlan assigned to this room
-          oneOf:
-            - $ref: '#/components/schemas/Vlan'
-            - type: integer
+          description: The main vlan number assigned to this room
+          type: integer
           example: 4
     Room:
       allOf:

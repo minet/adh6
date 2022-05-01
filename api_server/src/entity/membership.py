@@ -36,11 +36,11 @@ class Membership(object):
         'uuid': 'str',
         'duration': 'int',
         'has_room': 'bool',
-        'products': 'list[Object]',
+        'products': 'list[int]',
         'first_time': 'bool',
-        'payment_method': 'Object',
-        'account': 'Object',
-        'member': 'Object',
+        'payment_method': 'int',
+        'account': 'int',
+        'member': 'int',
         'status': 'str',
         'created_at': 'datetime',
         'updated_at': 'datetime'
@@ -180,10 +180,10 @@ class Membership(object):
     def products(self):
         """Gets the products of this Membership.  # noqa: E501
 
-        A list of products to buy  # noqa: E501
+        A list of the ids products to buy  # noqa: E501
 
         :return: The products of this Membership.  # noqa: E501
-        :rtype: list[Object]
+        :rtype: list[int]
         """
         return self._products
 
@@ -191,10 +191,10 @@ class Membership(object):
     def products(self, products):
         """Sets the products of this Membership.
 
-        A list of products to buy  # noqa: E501
+        A list of the ids products to buy  # noqa: E501
 
         :param products: The products of this Membership.  # noqa: E501
-        :type: list[Object]
+        :type: list[int]
         """
 
         self._products = products
@@ -226,10 +226,10 @@ class Membership(object):
     def payment_method(self):
         """Gets the payment_method of this Membership.  # noqa: E501
 
-        The payment method to be used for the transaction  # noqa: E501
+        The payment method id to be used for the transaction  # noqa: E501
 
         :return: The payment_method of this Membership.  # noqa: E501
-        :rtype: Object
+        :rtype: int
         """
         return self._payment_method
 
@@ -237,10 +237,10 @@ class Membership(object):
     def payment_method(self, payment_method):
         """Sets the payment_method of this Membership.
 
-        The payment method to be used for the transaction  # noqa: E501
+        The payment method id to be used for the transaction  # noqa: E501
 
         :param payment_method: The payment_method of this Membership.  # noqa: E501
-        :type: Object
+        :type: int
         """
 
         self._payment_method = payment_method
@@ -249,10 +249,10 @@ class Membership(object):
     def account(self):
         """Gets the account of this Membership.  # noqa: E501
 
-        The source account from which to execute the transaction  # noqa: E501
+        The id of the source account from which to execute the transaction  # noqa: E501
 
         :return: The account of this Membership.  # noqa: E501
-        :rtype: Object
+        :rtype: int
         """
         return self._account
 
@@ -260,10 +260,10 @@ class Membership(object):
     def account(self, account):
         """Sets the account of this Membership.
 
-        The source account from which to execute the transaction  # noqa: E501
+        The id of the source account from which to execute the transaction  # noqa: E501
 
         :param account: The account of this Membership.  # noqa: E501
-        :type: Object
+        :type: int
         """
 
         self._account = account
@@ -272,10 +272,10 @@ class Membership(object):
     def member(self):
         """Gets the member of this Membership.  # noqa: E501
 
-        The member to whom this membership applies  # noqa: E501
+        The id of the member to whom this membership applies  # noqa: E501
 
         :return: The member of this Membership.  # noqa: E501
-        :rtype: Object
+        :rtype: int
         """
         return self._member
 
@@ -283,10 +283,10 @@ class Membership(object):
     def member(self, member):
         """Sets the member of this Membership.
 
-        The member to whom this membership applies  # noqa: E501
+        The id of the member to whom this membership applies  # noqa: E501
 
         :param member: The member of this Membership.  # noqa: E501
-        :type: Object
+        :type: int
         """
         if member is None:
             raise ValueError("Invalid value for `member`, must not be `None`")  # noqa: E501
