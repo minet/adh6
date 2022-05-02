@@ -2217,15 +2217,11 @@ components:
           type: string
         src:
           description: The source account of this transaction
-          oneOf:
-            - $ref: '#/components/schemas/Account'
-            - type: integer
+          type: integer
           example: 4
         dst:
           description: The destination account of this transaction
-          oneOf:
-            - $ref: '#/components/schemas/Account'
-            - type: integer
+          type: integer
           example: 1
         timestamp:
           description: The date-time at which this transaction was executed
@@ -2234,9 +2230,7 @@ components:
           type: string
         paymentMethod:
           description: The payment method used for this transaction
-          oneOf:
-            - $ref: "#/components/schemas/PaymentMethod"
-            - type: integer
+          type: integer
         value:
           description: The unsigned value of this transaction
           example: 42.0
@@ -2252,9 +2246,7 @@ components:
           example: [ "3b2f552df763bc9444f9f31a4fd831a3e3ace994" ]
         author:
           description: The member who executed this transaction
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
+          type: integer
           example: 6
         pendingValidation:
           description: Whether this transaction is awaiting confirmation from a member with higher privileges

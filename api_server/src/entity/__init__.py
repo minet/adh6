@@ -42,10 +42,6 @@ from src.entity.one_of_abstract_account_account_type import OneOfAbstractAccount
 from src.entity.one_of_abstract_account_member import OneOfAbstractAccountMember
 from src.entity.one_of_abstract_port_room import OneOfAbstractPortRoom
 from src.entity.one_of_abstract_port_switch_obj import OneOfAbstractPortSwitchObj
-from src.entity.one_of_abstract_transaction_author import OneOfAbstractTransactionAuthor
-from src.entity.one_of_abstract_transaction_dst import OneOfAbstractTransactionDst
-from src.entity.one_of_abstract_transaction_payment_method import OneOfAbstractTransactionPaymentMethod
-from src.entity.one_of_abstract_transaction_src import OneOfAbstractTransactionSrc
 from src.entity.payment_method import PaymentMethod
 from src.entity.port import Port
 from src.entity.product import Product

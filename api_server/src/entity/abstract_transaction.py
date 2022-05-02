@@ -33,13 +33,13 @@ class AbstractTransaction(object):
     swagger_types = {
         'id': 'int',
         'name': 'str',
-        'src': 'OneOfAbstractTransactionSrc',
-        'dst': 'OneOfAbstractTransactionDst',
+        'src': 'int',
+        'dst': 'int',
         'timestamp': 'datetime',
-        'payment_method': 'OneOfAbstractTransactionPaymentMethod',
+        'payment_method': 'int',
         'value': 'float',
         'attachments': 'list[str]',
-        'author': 'OneOfAbstractTransactionAuthor',
+        'author': 'int',
         'pending_validation': 'bool',
         'cashbox': 'str'
     }
@@ -148,7 +148,7 @@ class AbstractTransaction(object):
         The source account of this transaction  # noqa: E501
 
         :return: The src of this AbstractTransaction.  # noqa: E501
-        :rtype: OneOfAbstractTransactionSrc
+        :rtype: int
         """
         return self._src
 
@@ -159,7 +159,7 @@ class AbstractTransaction(object):
         The source account of this transaction  # noqa: E501
 
         :param src: The src of this AbstractTransaction.  # noqa: E501
-        :type: OneOfAbstractTransactionSrc
+        :type: int
         """
 
         self._src = src
@@ -171,7 +171,7 @@ class AbstractTransaction(object):
         The destination account of this transaction  # noqa: E501
 
         :return: The dst of this AbstractTransaction.  # noqa: E501
-        :rtype: OneOfAbstractTransactionDst
+        :rtype: int
         """
         return self._dst
 
@@ -182,7 +182,7 @@ class AbstractTransaction(object):
         The destination account of this transaction  # noqa: E501
 
         :param dst: The dst of this AbstractTransaction.  # noqa: E501
-        :type: OneOfAbstractTransactionDst
+        :type: int
         """
 
         self._dst = dst
@@ -217,7 +217,7 @@ class AbstractTransaction(object):
         The payment method used for this transaction  # noqa: E501
 
         :return: The payment_method of this AbstractTransaction.  # noqa: E501
-        :rtype: OneOfAbstractTransactionPaymentMethod
+        :rtype: int
         """
         return self._payment_method
 
@@ -228,7 +228,7 @@ class AbstractTransaction(object):
         The payment method used for this transaction  # noqa: E501
 
         :param payment_method: The payment_method of this AbstractTransaction.  # noqa: E501
-        :type: OneOfAbstractTransactionPaymentMethod
+        :type: int
         """
 
         self._payment_method = payment_method
@@ -286,7 +286,7 @@ class AbstractTransaction(object):
         The member who executed this transaction  # noqa: E501
 
         :return: The author of this AbstractTransaction.  # noqa: E501
-        :rtype: OneOfAbstractTransactionAuthor
+        :rtype: int
         """
         return self._author
 
@@ -297,7 +297,7 @@ class AbstractTransaction(object):
         The member who executed this transaction  # noqa: E501
 
         :param author: The author of this AbstractTransaction.  # noqa: E501
-        :type: OneOfAbstractTransactionAuthor
+        :type: int
         """
 
         self._author = author
