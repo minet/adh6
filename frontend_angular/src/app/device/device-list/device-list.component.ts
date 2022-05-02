@@ -45,7 +45,6 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
       .pipe(
         shareReplay(1),
         map(result => {
-          console.log("uhsivdfbuosdbfiusfbd")
           return result.username
         })
       );

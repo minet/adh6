@@ -36,16 +36,18 @@
           <small>{{ transactionResult.timestamp | date:"yyy" }}</small>
         </td>
         <td class="text-right text-nowrap align-middle">
-          <h5>{{ (asAccount ? ( transactionResult.dst.id===asAccount ? '+' : '-' ) : '') }}{{ transactionResult.value |
+          <h5>{{ (asAccount ? ( transactionResult.dst===asAccount ? '+' : '-' ) : '') }}{{ transactionResult.value |
             number:'':'fr' }} €
           </h5>
         </td>
         <td class="align-middle">{{ transactionResult.name }}</td>
-        <td class="align-middle">{{ ( transactionResult.src.id===asAccount ? transactionResult.dst.name :
-          transactionResult.src.name ) }}</td>
-        <td class="align-middle" *ngIf="!asAccount">{{ transactionResult.dst.name }}</td>
-        <td class="align-middle" tooltip="{{ transactionResult.author?.username }}">{{
-          transactionResult.paymentMethod.name }}</td>
+        <td class="align-middle">
+          {{ ((transactionResult.src===asAccount) ? (cachedAccountName.get(transactionResult.dst) | async) :
+          (cachedAccountName.get(transactionResult.src) | async)) }}</td>
+        <td class="align-middle" *ngIf="!asAccount">{{ cachedAccountName.get(transactionResult.dst) | async }}</td>
+        <td class="align-middle" tooltip="{{ cachedMemberUsername.get(transactionResult.author) | async }}">
+          {{ cachedPaymentMethodName.get(transactionResult.paymentMethod) | async }}
+        </td>
         <td *ngIf="actions" class="text-right align-middle">
           <div class="btn-group" role="group" aria-label="actions">
             <div class="field is-grouped">
