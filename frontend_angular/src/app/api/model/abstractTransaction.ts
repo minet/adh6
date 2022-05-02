@@ -9,9 +9,6 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Account } from './account';
-import { Member } from './member';
-import { PaymentMethod } from './paymentMethod';
 
 export interface AbstractTransaction { 
     __typename?: string;
@@ -26,11 +23,11 @@ export interface AbstractTransaction {
     /**
      * The source account of this transaction
      */
-    src?: Account | number;
+    src?: number;
     /**
      * The destination account of this transaction
      */
-    dst?: Account | number;
+    dst?: number;
     /**
      * The date-time at which this transaction was executed
      */
@@ -38,7 +35,7 @@ export interface AbstractTransaction {
     /**
      * The payment method used for this transaction
      */
-    paymentMethod?: PaymentMethod | number;
+    paymentMethod?: number;
     /**
      * The unsigned value of this transaction
      */
@@ -50,7 +47,7 @@ export interface AbstractTransaction {
     /**
      * The member who executed this transaction
      */
-    author?: Member | number;
+    author?: number;
     /**
      * Whether this transaction is awaiting confirmation from a member with higher privileges
      */

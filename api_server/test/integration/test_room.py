@@ -25,7 +25,7 @@ def assert_room_in_db(body):
     q = s.query(Chambre)
     q = q.filter(body["roomNumber"] == Chambre.numero)
     c = q.one()
-    assert body["vlan"] == c.vlan.id
+    assert body["vlan"] == c.vlan.numero
     assert body["description"] == c.description
 
 
@@ -103,7 +103,7 @@ def test_room_post_new_room_invalid_vlan(client):
 def test_room_post_new_room(client, sample_room1):
     room = {
         "roomNumber": 5111,
-        "vlan": sample_room1.vlan.id,
+        "vlan": sample_room1.vlan.numero,
         "description": "Chambre 5111",
     }
     r = client.post(
@@ -118,7 +118,7 @@ def test_room_post_new_room(client, sample_room1):
 
 def test_room_put_update_room(client, sample_room1):
     room = {
-        "vlan": sample_room1.vlan_id,
+        "vlan": sample_room1.vlan.numero,
         "roomNumber": 5111,
         "description": "Chambre 5111"
     }

@@ -36,7 +36,7 @@ class AbstractDevice(object):
         'ipv4_address': 'str',
         'ipv6_address': 'str',
         'mac': 'str',
-        'member': 'OneOfAbstractDeviceMember'
+        'member': 'float'
     }
 
     attribute_map = {
@@ -195,10 +195,10 @@ class AbstractDevice(object):
     def member(self):
         """Gets the member of this AbstractDevice.  # noqa: E501
 
-        The member this device belongs to  # noqa: E501
+        The id of the member this device belongs to  # noqa: E501
 
         :return: The member of this AbstractDevice.  # noqa: E501
-        :rtype: OneOfAbstractDeviceMember
+        :rtype: float
         """
         return self._member
 
@@ -206,10 +206,10 @@ class AbstractDevice(object):
     def member(self, member):
         """Sets the member of this AbstractDevice.
 
-        The member this device belongs to  # noqa: E501
+        The id of the member this device belongs to  # noqa: E501
 
         :param member: The member of this AbstractDevice.  # noqa: E501
-        :type: OneOfAbstractDeviceMember
+        :type: float
         """
 
         self._member = member

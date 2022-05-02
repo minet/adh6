@@ -34,11 +34,11 @@ class AbstractMembership(object):
         'uuid': 'str',
         'duration': 'int',
         'has_room': 'bool',
-        'products': 'OneOfAbstractMembershipProducts',
+        'products': 'list[int]',
         'first_time': 'bool',
-        'payment_method': 'OneOfAbstractMembershipPaymentMethod',
-        'account': 'OneOfAbstractMembershipAccount',
-        'member': 'OneOfAbstractMembershipMember',
+        'payment_method': 'int',
+        'account': 'int',
+        'member': 'int',
         'status': 'str',
         'created_at': 'datetime',
         'updated_at': 'datetime'
@@ -174,10 +174,10 @@ class AbstractMembership(object):
     def products(self):
         """Gets the products of this AbstractMembership.  # noqa: E501
 
-        A list of products to buy  # noqa: E501
+        A list of the ids products to buy  # noqa: E501
 
         :return: The products of this AbstractMembership.  # noqa: E501
-        :rtype: OneOfAbstractMembershipProducts
+        :rtype: list[int]
         """
         return self._products
 
@@ -185,10 +185,10 @@ class AbstractMembership(object):
     def products(self, products):
         """Sets the products of this AbstractMembership.
 
-        A list of products to buy  # noqa: E501
+        A list of the ids products to buy  # noqa: E501
 
         :param products: The products of this AbstractMembership.  # noqa: E501
-        :type: OneOfAbstractMembershipProducts
+        :type: list[int]
         """
 
         self._products = products
@@ -220,10 +220,10 @@ class AbstractMembership(object):
     def payment_method(self):
         """Gets the payment_method of this AbstractMembership.  # noqa: E501
 
-        The payment method to be used for the transaction  # noqa: E501
+        The payment method id to be used for the transaction  # noqa: E501
 
         :return: The payment_method of this AbstractMembership.  # noqa: E501
-        :rtype: OneOfAbstractMembershipPaymentMethod
+        :rtype: int
         """
         return self._payment_method
 
@@ -231,10 +231,10 @@ class AbstractMembership(object):
     def payment_method(self, payment_method):
         """Sets the payment_method of this AbstractMembership.
 
-        The payment method to be used for the transaction  # noqa: E501
+        The payment method id to be used for the transaction  # noqa: E501
 
         :param payment_method: The payment_method of this AbstractMembership.  # noqa: E501
-        :type: OneOfAbstractMembershipPaymentMethod
+        :type: int
         """
 
         self._payment_method = payment_method
@@ -243,10 +243,10 @@ class AbstractMembership(object):
     def account(self):
         """Gets the account of this AbstractMembership.  # noqa: E501
 
-        The source account from which to execute the transaction  # noqa: E501
+        The id of the source account from which to execute the transaction  # noqa: E501
 
         :return: The account of this AbstractMembership.  # noqa: E501
-        :rtype: OneOfAbstractMembershipAccount
+        :rtype: int
         """
         return self._account
 
@@ -254,10 +254,10 @@ class AbstractMembership(object):
     def account(self, account):
         """Sets the account of this AbstractMembership.
 
-        The source account from which to execute the transaction  # noqa: E501
+        The id of the source account from which to execute the transaction  # noqa: E501
 
         :param account: The account of this AbstractMembership.  # noqa: E501
-        :type: OneOfAbstractMembershipAccount
+        :type: int
         """
 
         self._account = account
@@ -266,10 +266,10 @@ class AbstractMembership(object):
     def member(self):
         """Gets the member of this AbstractMembership.  # noqa: E501
 
-        The member to whom this membership applies  # noqa: E501
+        The id of the member to whom this membership applies  # noqa: E501
 
         :return: The member of this AbstractMembership.  # noqa: E501
-        :rtype: OneOfAbstractMembershipMember
+        :rtype: int
         """
         return self._member
 
@@ -277,10 +277,10 @@ class AbstractMembership(object):
     def member(self, member):
         """Sets the member of this AbstractMembership.
 
-        The member to whom this membership applies  # noqa: E501
+        The id of the member to whom this membership applies  # noqa: E501
 
         :param member: The member of this AbstractMembership.  # noqa: E501
-        :type: OneOfAbstractMembershipMember
+        :type: int
         """
 
         self._member = member

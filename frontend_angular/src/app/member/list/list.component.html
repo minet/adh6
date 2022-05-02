@@ -32,8 +32,8 @@
         </tr>
       </tbody>
     </table>
-    <app-pagination (pageChange)="handlePageChange($event)" [maxItems]="maxItems"></app-pagination>
   </ng-container>
+  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
   <ng-template #loadingTable>
     <div class="notification is-info is-light has-text-centered">
       <h4 class="title is-4">Chargement ...</h4>

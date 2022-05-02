@@ -10,7 +10,6 @@
  * Do not edit the class manually.
  */
 import { AbstractDevice } from './abstractDevice';
-import { Member } from './member';
 
 export interface Device extends AbstractDevice { 
     __typename?: string;

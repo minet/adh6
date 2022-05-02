@@ -9,10 +9,6 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Account } from './account';
-import { Member } from './member';
-import { PaymentMethod } from './paymentMethod';
-import { Product } from './product';
 
 export interface AbstractMembership { 
     __typename?: string;
@@ -29,25 +25,25 @@ export interface AbstractMembership {
      */
     hasRoom?: boolean;
     /**
-     * A list of products to buy
+     * A list of the ids products to buy
      */
-    products?: Array<Product | number>;
+    products?: Array<number>;
     /**
      * Whether this is the first membership request ever for this member
      */
     firstTime?: boolean;
     /**
-     * The payment method to be used for the transaction
+     * The payment method id to be used for the transaction
      */
-    paymentMethod?: PaymentMethod | number;
+    paymentMethod?: number;
     /**
-     * The source account from which to execute the transaction
+     * The id of the source account from which to execute the transaction
      */
-    account?: Account | number;
+    account?: number;
     /**
-     * The member to whom this membership applies
+     * The id of the member to whom this membership applies
      */
-    member?: Member | number;
+    member?: number;
     /**
      * The current status of this membership request:  * `INITIAL` - Just created  * `PENDING_RULES` - Waiting for the member to sign the rules  * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow  * `PENDING_PAYMENT` - During the payment flow  * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation  * `COMPLETE` - The membership request is completed  * `CANCELLED` - The membership has been cancelled  * `ABORTED` - The membership request flow was aborted Do note that some of the steps may be skipped depending on the payment method, whether or not this is the member's first membership request etc. 
      */

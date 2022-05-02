@@ -10,7 +10,7 @@ import { SearchPage } from '../../search-page';
 
 export class RoomListComponent extends SearchPage<Room> implements OnInit {
   constructor(public roomService: RoomService) {
-    super((terms, page) => this.roomService.roomGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response"));
+    super((terms, page) => this.roomService.roomGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, undefined, "response"));
   }
 
   ngOnInit() {

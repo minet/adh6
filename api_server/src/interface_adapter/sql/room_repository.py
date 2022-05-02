@@ -14,7 +14,6 @@ from src.entity.room import Room
 from src.exceptions import RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Chambre, Vlan
-from src.interface_adapter.sql.vlan_repository import _map_vlan_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.room_repository import RoomRepository
 
@@ -44,7 +43,7 @@ class RoomSQLRepository(RoomRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(_map_room_sql_to_entity, r)), count
+        return list(map(_map_room_sql_to_abstract_entity, r)), count
 
     @log_call
     def create(self, ctx, abstract_room: Room) -> object:
@@ -53,7 +52,7 @@ class RoomSQLRepository(RoomRepository):
 
         vlan = None
         if abstract_room.vlan is not None:
-            vlan = session.query(Vlan).filter(Vlan.id == abstract_room.vlan).one_or_none()
+            vlan = session.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
             if not vlan:
                 raise VLANNotFoundError(str(abstract_room.vlan))
 
@@ -69,7 +68,7 @@ class RoomSQLRepository(RoomRepository):
             session.add(room)
         session.flush()
 
-        return _map_room_sql_to_entity(room)
+        return _map_room_sql_to_abstract_entity(room)
 
     @log_call
     def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
@@ -107,7 +106,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
         chambre.numero = entity.room_number
     if entity.vlan is not None:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        vlan = session.query(Vlan).filter(Vlan.id == entity.vlan).one_or_none()
+        vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
         chambre.vlan = vlan
@@ -115,11 +114,19 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
     chambre.updated_at = now
     return chambre
 
+def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
+    return AbstractRoom(
+        id=r.id,
+        room_number=r.numero,
+        description=r.description,
+        vlan=r.vlan.numero if r.vlan is not None else Null()
+    )
+
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
     return Room(
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=_map_vlan_sql_to_entity(r.vlan) if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else Null()
     )

@@ -12,9 +12,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member.id]"
+      <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member]"
         [queryParams]="{highlight: device.mac}">
-        <td>{{ device.member.username }}</td>
+        <td *ngIf=" getUsername(device.member) | async as username">{{ username }}</td>
         <td>{{ device.mac }}</td>
         <td>{{ device.connectionType }}</td>
       </tr>

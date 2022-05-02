@@ -10,9 +10,6 @@
  * Do not edit the class manually.
  */
 import { AbstractTransaction } from './abstractTransaction';
-import { Account } from './account';
-import { Member } from './member';
-import { PaymentMethod } from './paymentMethod';
 
 export interface Transaction extends AbstractTransaction { 
     __typename?: string;

@@ -9,7 +9,6 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Member } from './member';
 
 export interface AbstractDevice { 
     __typename?: string;
@@ -34,9 +33,9 @@ export interface AbstractDevice {
      */
     mac?: string;
     /**
-     * The member this device belongs to
+     * The id of the member this device belongs to
      */
-    member?: Member | number;
+    member?: number;
 }
 export namespace AbstractDevice {
     export type ConnectionTypeEnum = 'wired' | 'wireless';

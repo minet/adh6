@@ -36,7 +36,7 @@ class Room(object):
         'id': 'int',
         'description': 'str',
         'room_number': 'int',
-        'vlan': 'Object'
+        'vlan': 'int'
     }
     if hasattr(AbstractRoom, "swagger_types"):
         swagger_types.update(AbstractRoom.swagger_types)
@@ -142,10 +142,10 @@ class Room(object):
     def vlan(self):
         """Gets the vlan of this Room.  # noqa: E501
 
-        The main vlan assigned to this room  # noqa: E501
+        The main vlan number assigned to this room  # noqa: E501
 
         :return: The vlan of this Room.  # noqa: E501
-        :rtype: Object
+        :rtype: int
         """
         return self._vlan
 
@@ -153,10 +153,10 @@ class Room(object):
     def vlan(self, vlan):
         """Sets the vlan of this Room.
 
-        The main vlan assigned to this room  # noqa: E501
+        The main vlan number assigned to this room  # noqa: E501
 
         :param vlan: The vlan of this Room.  # noqa: E501
-        :type: Object
+        :type: int
         """
         if vlan is None:
             raise ValueError("Invalid value for `vlan`, must not be `None`")  # noqa: E501

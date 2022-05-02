@@ -16,7 +16,7 @@ export class MembershipListComponent extends SearchPage<Membership> implements O
   constructor(
     private membershipService: MembershipService,
   ) {
-    super((terms, page) => this.membershipService.membershipSearch(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractFilterMembership, 'response'));
+    super((terms, page) => this.membershipService.membershipSearch(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractFilterMembership, undefined, 'response'));
   }
 
   redirectLink(status: AbstractMembership.StatusEnum): string {
