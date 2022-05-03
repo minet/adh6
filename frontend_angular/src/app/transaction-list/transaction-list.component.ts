@@ -89,7 +89,7 @@ export class TransactionListComponent extends SearchPage<Transaction> implements
                 ));
               }
               if (i.author && !this.cachedMemberUsername.has(i.author)) {
-                this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author).pipe(
+                this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author, ["username"]).pipe(
                   shareReplay(1),
                   map(result => result.username)
                 ));
