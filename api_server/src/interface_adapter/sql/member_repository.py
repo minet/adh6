@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import AbstractMember
 from src.entity.member import Member
-from src.entity.null import Null
 from src.exceptions import InvalidMembershipDuration, RoomNotFoundError, MemberNotFoundError,\
     InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -270,7 +269,7 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
         association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
-        room_number=adh.chambre.numero if adh.chambre else Null(),
+        room_number=adh.chambre.numero if adh.chambre else None,
     )
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
@@ -288,5 +287,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
-        room_number=adh.chambre.numero if adh.chambre else Null(),
+        room_number=adh.chambre.numero if adh.chambre else None,
     )

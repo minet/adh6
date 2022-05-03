@@ -11,7 +11,6 @@ from sqlalchemy.orm.session import Session
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractDevice, Member, AbstractMember
 from src.entity.device import Device
-from src.entity.null import Null
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
@@ -193,6 +192,6 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         mac=d.mac,
         member=d.adherent_id,
         connection_type=DeviceType(d.type).name,
-        ipv4_address=d.ip if d.ip != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
-        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv4_address=d.ip if d.ip != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
     )

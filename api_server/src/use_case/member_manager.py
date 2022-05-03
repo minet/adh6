@@ -12,7 +12,6 @@ from src.entity import (
     AbstractPaymentMethod,
     AccountType
 )
-from src.entity.null import Null
 from src.entity.payment_method import PaymentMethod
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
@@ -158,7 +157,7 @@ class MemberManager(CRUDManager):
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        is_room_changed = abstract_member.room_number is not None and (isinstance(member.room_number, Null) or (not isinstance(member.room_number, Null) and abstract_member.room_number != member.room_number))
+        is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)
 
         if not is_member_active(member):

@@ -9,7 +9,6 @@ from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractRoom
-from src.entity.null import Null
 from src.entity.room import Room
 from src.exceptions import RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
@@ -119,7 +118,7 @@ def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else None
     )
 
 
@@ -128,5 +127,5 @@ def _map_room_sql_to_entity(r: Chambre) -> Room:
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else None
     )

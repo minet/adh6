@@ -1,5 +1,4 @@
 from datetime import datetime
-from src.entity.null import Null
 import uuid
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
@@ -13,9 +12,6 @@ from src.exceptions import AccountNotFoundError, MemberNotFoundError, Membership
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import Membership, PaymentMethod, AbstractMembership, Member, Account
 from src.interface_adapter.sql.model.models import Adherent, Membership as MembershipSQL, PaymentMethod as PaymentMethodSQL, Account as SQLAccount
-from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
-from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.interface.membership_repository import MembershipRepository
 
@@ -208,7 +204,7 @@ def _map_membership_sql_to_abstract_entity(obj_sql: MembershipSQL) -> AbstractMe
         first_time=obj_sql.first_time,
         payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
         account=obj_sql.account.id if obj_sql.account else None,
-        member=obj_sql.adherent.id if obj_sql.adherent else Null(),
+        member=obj_sql.adherent.id if obj_sql.adherent else None,
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 
@@ -224,7 +220,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         first_time=obj_sql.first_time,
         payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
         account=obj_sql.account.id if obj_sql.account else None,
-        member=obj_sql.adherent.id if obj_sql.adherent else Null(),
+        member=obj_sql.adherent.id if obj_sql.adherent else None,
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 

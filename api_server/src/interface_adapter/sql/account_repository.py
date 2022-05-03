@@ -14,7 +14,6 @@ from sqlalchemy import func, case, or_
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractAccount, Member
 from src.entity.account import Account
-from src.entity.null import Null
 from src.exceptions import AccountNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.account_type_repository import _map_account_type_sql_to_entity
@@ -133,7 +132,7 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         actif=a.actif,
         account_type=_map_account_type_sql_to_entity(a.account_type),
         creation_date=a.creation_date,
-        member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
+        member=_map_member_sql_to_entity(a.adherent) if a.adherent else None,
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,
