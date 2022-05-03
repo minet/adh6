@@ -61,6 +61,8 @@ frontend_api_generation:
   image: openjdk:11
   script:
     - java -jar openapi/swagger-codegen-cli.jar generate -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
+    - ls frontend_angular/src/app
+    - ls frontend_angular/src/app/api
     - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
   artifacts:
     paths:
@@ -72,6 +74,7 @@ frontend_assets_generation:
   image: node:16-alpine
   script:
     - yarn global add svgo
+    - cd frontend_angular/src/assets
     - svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
   artifacts:
     paths:
