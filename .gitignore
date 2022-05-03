@@ -4,14 +4,14 @@
 **/__pycache__
 **.pyc
 **.idea
-api_server/.cache/
-api_server/.coverage
-api_server/.pytest_cache/
-api_server/.swagger-codegen/
+**/.cache/
+**/.coverage
+**/.pytest_cache/
+**/.swagger-codegen/
 api_server/bin/
 api_server/include/
 api_server/lib/
-api_server/htmlcov/*
+**/htmlcov/*
 api_server/pip-selfcheck.json
 api_server/certs/
 api_server/config/CONFIGURATION.py
@@ -101,3 +101,8 @@ frontend_angular/src/app/api/.keep
 secrets/**
 .env
 .env.local
+frontend_angular/src/assets/*.min.svg
+
+# generated code by the openapi specification
+frontend_angular/src/app/api
+api_server/src/entity/*.py
