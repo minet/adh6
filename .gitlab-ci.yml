@@ -61,7 +61,7 @@ frontend_api_generation:
   image: openjdk:11
   script:
     - java -jar openapi/swagger-codegen-cli.jar generate -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
-    - 'sed -i "s: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
+    - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
   artifacts:
     paths:
     - frontend_angular/src/app/api
