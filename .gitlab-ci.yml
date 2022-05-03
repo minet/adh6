@@ -5,15 +5,23 @@ cache:
     - ~/.cache/pip 
     - frontend_angular/node_modules
 
+variables:
+  GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
+  GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
+
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
 .setup_test_jobs: &before_test_job
+  needs:
+    - backend_entity_generation
   before_script:
     - apt update
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
 .setup_angular_jobs: &before_angular_jobs
+  needs:
+    - frontend_api_generation
   image: node:16-bullseye-slim
   before_script:
     - apt update && apt-get -y install gettext-base
@@ -22,6 +30,7 @@ cache:
     - yarn install
 
 stages:
+  - generation
   - test
   - build
   - deploy
@@ -32,6 +41,28 @@ angular_lint:
   script:
     - yarn lint
 
+backend_entity_generation:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/
+    - cp -r tmpsrc/swagger_client/models/* api_server/src/entity/
+    - sed -i 's/swagger_client.models/src.entity/' api_server/src/entity/__init__.py
+  artifacts:
+    paths:
+    - api_server/src/entity
+    expire_in: 1 day
+
+frontend_api_generation:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
+    - "sed -i 's: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g' frontend_angular/src/app/api/api.module.ts"
+  artifacts:
+    paths:
+    - api_server/src/entity
+    expire_in: 1 day
 
 angular_build_dev:
   stage: build
