@@ -53,7 +53,7 @@ export class CreateOrEditComponent implements OnInit {
         username: v.username,
         roomNumber: v.roomNumber
       };
-      this.memberService.memberIdPatch(abstractMember, this.member_id, 'body')
+      this.memberService.memberIdPatch(abstractMember, this.member_id)
         .subscribe((_) => {
           this.router.navigate(['member/view', this.member_id]);
         });

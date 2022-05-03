@@ -27,33 +27,6 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
-        try:
-            def remove_test(entity: Dict[str, Any]) -> Dict[str, Any]:
-                if only is not None:
-                    entity_cp = entity.copy()
-                    for k in entity_cp.keys():
-                        if k not in only + ["id", "__typename"]:
-                            print(k)
-                            del entity[k]
-                print(entity)
-                return entity
-
-            filter_ = deserialize_request(filter_, self.abstract_entity_class)
-            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
-                                                           filter_=filter_)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            result = list(map(remove_test, map(serialize_response, result)))
-            return result, 200, headers 
-        except Exception as e:
-            return handle_error(ctx, e)  
-
-    @with_context
-    @require_sql
-    @log_call
     def post(self, ctx, body):
         try:
             body['id'] = 0  # Set a dummy id to pass the initial validation
@@ -137,15 +110,23 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
         try:
+            def remove(entity: Dict[str, Any]) -> Dict[str, Any]:
+                if only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp.keys():
+                        if k not in only + ["id", "__typename"]:
+                            del entity[k]
+                return entity
+
             filter_ = deserialize_request(filter_, AbstractMembership)
             result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
             headers = {
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            result = list(map(serialize_response, result))
+            result = list(map(remove, map(serialize_response, result)))
             return result, 200, headers
         except Exception as e:
             return handle_error(ctx, e)

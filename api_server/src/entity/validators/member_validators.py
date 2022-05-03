@@ -3,7 +3,6 @@ from datetime import datetime
 from sqlalchemy import false
 
 from src.entity import Member
-from src.entity.null import Null
 
 
 def is_member_active(member: Member):
@@ -14,9 +13,7 @@ def is_member_active(member: Member):
         member_departure = member.departure_date.date()
     else:
         member_departure = member.departure_date
-    return member_departure > datetime.now().date() and not isinstance(
-        member.room_number,
-        Null)
+    return member_departure > datetime.now().date() and member.room_number is not None
 
 
 def has_member_subnet(member: Member):

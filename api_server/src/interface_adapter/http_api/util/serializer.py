@@ -9,7 +9,6 @@ import tempfile
 import six
 
 import src.entity
-from src.entity.null import Null
 from src.exceptions import ValidationError
 
 PRIMITIVE_TYPES = (float, bool, bytes, six.text_type, decimal.Decimal) + six.integer_types
@@ -41,8 +40,6 @@ def serialize_response(obj):
     :return: The serialized form of data.
     """
     if obj is None:
-        return None
-    elif isinstance(obj, Null):
         return None
     elif isinstance(obj, PRIMITIVE_TYPES):
         return obj

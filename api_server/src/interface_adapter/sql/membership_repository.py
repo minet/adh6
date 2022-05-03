@@ -1,5 +1,4 @@
 from datetime import datetime
-from src.entity.null import Null
 import uuid
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
@@ -13,9 +12,6 @@ from src.exceptions import AccountNotFoundError, MemberNotFoundError, Membership
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from src.entity import Membership, PaymentMethod, AbstractMembership, Member, Account
 from src.interface_adapter.sql.model.models import Adherent, Membership as MembershipSQL, PaymentMethod as PaymentMethodSQL, Account as SQLAccount
-from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
-from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
-from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.interface.membership_repository import MembershipRepository
 
@@ -56,7 +52,7 @@ class MembershipSQLRepository(MembershipRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(_map_membership_sql_to_entity, r)), query.count()
+        return list(map(_map_membership_sql_to_abstract_entity, r)), query.count()
 
     @log_call
     def create_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
@@ -162,7 +158,7 @@ class MembershipSQLRepository(MembershipRepository):
         session.flush()
         
     @log_call
-    def get_latest_membership(self, ctx, member_id: int) -> Optional[Membership]:
+    def get_latest_membership(self, ctx, member_id: int) -> Optional[AbstractMembership]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(MembershipSQL).filter(MembershipSQL.adherent_id == member_id).filter(
                 or_(
@@ -186,7 +182,7 @@ class MembershipSQLRepository(MembershipRepository):
             if membership is None:
                 return None
         
-        return _map_membership_sql_to_entity(membership)
+        return _map_membership_sql_to_abstract_entity(membership)
 
 
 def _map_string_to_list(product_str: str) -> list:
@@ -195,6 +191,22 @@ def _map_string_to_list(product_str: str) -> list:
     session[-1] = session[-1][:-1]
     return [int(elem) for elem in session if elem != '']
 
+
+def _map_membership_sql_to_abstract_entity(obj_sql: MembershipSQL) -> AbstractMembership:
+    """
+    Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
+    """
+    return AbstractMembership(
+        uuid=str(obj_sql.uuid),
+        duration=obj_sql.duration,
+        has_room=obj_sql.has_room,
+        products=_map_string_to_list(obj_sql.products),
+        first_time=obj_sql.first_time,
+        payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
+        account=obj_sql.account.id if obj_sql.account else None,
+        member=obj_sql.adherent.id if obj_sql.adherent else None,
+        status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
+    )
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     """
@@ -206,9 +218,9 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         has_room=obj_sql.has_room,
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
-        payment_method=_map_payment_method_sql_to_entity(obj_sql.payment_method) if obj_sql.payment_method else None,
-        account=_map_account_sql_to_entity(obj_sql.account) if obj_sql.account else None,
-        member=_map_member_sql_to_entity(obj_sql.adherent) if obj_sql.adherent else Null(),
+        payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
+        account=obj_sql.account.id if obj_sql.account else None,
+        member=obj_sql.adherent.id if obj_sql.adherent else None,
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 

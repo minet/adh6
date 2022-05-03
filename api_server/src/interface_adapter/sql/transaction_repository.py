@@ -263,13 +263,13 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     """
     return Transaction(
         id=t.id,
-        src=_map_account_sql_to_entity(t.src_account),
-        dst=_map_account_sql_to_entity(t.dst_account),
+        src=t.src_account.id,
+        dst=t.dst_account.id,
         timestamp=str(t.timestamp),
         name=t.name,
         value=t.value,
-        payment_method=_map_payment_method_sql_to_entity(t.payment_method),
+        payment_method=t.payment_method.id,
         attachments=[],
-        author=_map_member_sql_to_entity(t.author),
+        author=t.author.id,
         pending_validation=t.pending_validation
     )
