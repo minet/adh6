@@ -72,7 +72,7 @@ frontend_assets_generation:
   image: node:16-alpine
   script:
     - yarn global add svgo
-    - /home/node/.yarn/bin/svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
+    - svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
   artifacts:
     paths:
     - frontend_angular/src/assets
