@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm.session import Session
 
@@ -16,10 +16,19 @@ from src.use_case.interface.switch_repository import SwitchRepository
 
 
 class SwitchSQLRepository(SwitchRepository):
+    def get_community(self, ctx, switch_id: int) -> str:
+        return super().get_community(ctx, switch_id)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractSwitch = None) -> Tuple[List[Switch], int]:
+    def get_by_id(self, ctx, object_id: int) -> AbstractSwitch:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
+        if obj is None:
+            raise SwitchNotFoundError(object_id)
+        return _map_switch_sql_to_abstract_entity(obj)
+
+    @log_call
+    def search_by(self, ctx, limit: int=DEFAULT_LIMIT, offset: int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractSwitch] = None) -> Tuple[List[AbstractSwitch], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLSwitch)
@@ -45,10 +54,10 @@ class SwitchSQLRepository(SwitchRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_switch_sql_to_entity(item), r)), count
+        return list(map(lambda item: _map_switch_sql_to_abstract_entity(item), r)), count
 
     @log_call
-    def create(self, ctx, abstract_switch: Switch) -> object:
+    def create(self, ctx, abstract_switch: Switch) -> Switch:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
@@ -76,7 +85,7 @@ class SwitchSQLRepository(SwitchRepository):
         switch = query.one_or_none()
         if switch is None:
             raise SwitchNotFoundError(str(object_to_update.id))
-        new_switch = _merge_sql_with_entity(ctx, object_to_update, switch, override)
+        new_switch = _merge_sql_with_entity(object_to_update, switch, override)
 
         return _map_switch_sql_to_entity(new_switch)
 
@@ -92,7 +101,7 @@ class SwitchSQLRepository(SwitchRepository):
         session.flush()
 
 
-def _merge_sql_with_entity(ctx, entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
+def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
     now = datetime.now()
     switch = sql_object
     if entity.ip is not None or override:
@@ -114,5 +123,14 @@ def _map_switch_sql_to_entity(a: SQLSwitch) -> Switch:
         id=a.id,
         description=a.description,
         ip=a.ip,
-        community=a.communaute,
+    )
+
+def _map_switch_sql_to_abstract_entity(a: SQLSwitch) -> AbstractSwitch:
+    """
+    Map a Switch object from SQLAlchemy to a Switch (from the entity folder/layer).
+    """
+    return AbstractSwitch(
+        id=a.id,
+        description=a.description,
+        ip=a.ip,
     )

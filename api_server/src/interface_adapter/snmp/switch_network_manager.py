@@ -2,10 +2,13 @@
 """
 Implements everything related to SNMP-related actions
 """
+from typing import Tuple
 from src.constants import CTX_ROLES
+from src.entity.abstract_port import AbstractPort
+from src.entity.abstract_switch import AbstractSwitch
 from src.entity.port import Port
 from src.entity.switch import Switch
-from src.exceptions import NetworkManagerReadError, UnauthorizedError
+from src.exceptions import NetworkManagerReadError, PortNotFoundError, SwitchNotFoundError, UnauthorizedError
 from src.interface_adapter.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import defines_security, has_any_role, uses_security, SecurityDefinition, Roles
@@ -275,3 +278,16 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                                   port.oid)
         except NetworkManagerReadError:
             raise
+"""
+    def get_switch_and_port_from_port_id(self, ctx, port_id) -> Tuple[Port, Switch]:
+        ports, _ = self.port_repository.search_by(ctx, limit=1, offset=0, filter_=AbstractPort(id=port_id))
+        if len(ports) != 1:
+            raise PortNotFoundError(port_id)
+        port = ports[0]
+        if port.switch_obj is None:
+            raise SwitchNotFoundError(port.switch_obj)
+        switchs, _ = self.switch_repository.search_by(ctx, limit=1, offset=0, filter_=AbstractSwitch(id=port.switch_obj))
+        if len(switchs) != 1:
+            raise SwitchNotFoundError(port.switch_obj)
+        return port, switchs[0]
+"""

@@ -9,7 +9,11 @@ AbstractT = TypeVar('AbstractT')
 
 class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
     @abc.abstractmethod
-    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None, filter_: Optional[AbstractT] = None) -> Tuple[List[T], int]:
+    def get_by_id(self, ctx, object_id: int) -> AbstractT:
+        pass
+
+    @abc.abstractmethod
+    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None, filter_: Optional[AbstractT] = None) -> Tuple[List[AbstractT], int]:
         pass
 
     @abc.abstractmethod

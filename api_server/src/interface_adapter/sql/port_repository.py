@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm.session import Session
 
@@ -12,16 +12,20 @@ from src.entity import AbstractPort, Port, Switch, Room
 from src.exceptions import RoomNotFoundError, SwitchNotFoundError, PortNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Port as SQLPort, Switch as SQLSwitch, Chambre as SQLChambre
-from src.interface_adapter.sql.room_repository import _map_room_sql_to_entity
-from src.interface_adapter.sql.switch_repository import _map_switch_sql_to_entity
 from src.use_case.interface.port_repository import PortRepository
 
 
 class PortSQLRepository(PortRepository):
+    @log_call
+    def get_by_id(self, ctx, object_id: int) -> AbstractPort:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
+        if obj is None:
+            raise PortNotFoundError(object_id)
+        return _map_port_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractPort = None) -> Tuple[List[Port], int]:
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None) -> Tuple[List[AbstractPort], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLPort)
@@ -55,10 +59,10 @@ class PortSQLRepository(PortRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_port_sql_to_entity(item), r)), count
+        return list(map(lambda item: _map_port_sql_to_abstract_entity(item), r)), count
 
     @log_call
-    def create(self, ctx, abstract_port: Port) -> object:
+    def create(self, ctx, abstract_port: Port) -> Port:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
@@ -149,6 +153,17 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         id=a.id,
         port_number=a.numero,
         oid=a.oid,
-        room=_map_room_sql_to_entity(a.chambre) if a.chambre is not None else None,
-        switch_obj=_map_switch_sql_to_entity(a.switch)
+        room=a.chambre.id if a.chambre is not None else None,
+        switch_obj=a.switch.id
+    )
+def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
+    """
+    Map a Port object from SQLAlchemy to a Port (from the entity folder/layer).
+    """
+    return AbstractPort(
+        id=a.id,
+        port_number=a.numero,
+        oid=a.oid,
+        room=a.chambre.id if a.chambre is not None else None,
+        switch_obj=a.switch.id
     )
