@@ -86,6 +86,7 @@ paths:
           $ref: '#/components/schemas/AbstractAccount'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyAccount'
       responses:
         200:
           description: The list of accounts
@@ -93,7 +94,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Account'
+                  $ref: '#/components/schemas/AbstractAccount'
                 type: array
           headers:
             X-Total-Count:
@@ -139,12 +140,14 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
+      parameters:
+      - $ref: '#/components/parameters/onlyAccount'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/AbstractAccount'
           description: The fetched account
         400:
           $ref: '#/components/responses/Invalid'
@@ -966,13 +969,14 @@ paths:
           $ref: '#/components/schemas/AbstractPort'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyPort'
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Port'
+                  $ref: '#/components/schemas/AbstractPort'
                 type: array
           description: Success
           headers:
@@ -1038,12 +1042,14 @@ paths:
       tags:
       - port
     get:
+      parameters:
+      - $ref: '#/components/parameters/onlyPort'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Port'
+                $ref: '#/components/schemas/AbstractPort'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1447,12 +1453,14 @@ paths:
       tags:
       - room
     get:
+      parameters:
+      - $ref: '#/components/parameters/onlyRoom'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Room'
+                $ref: '#/components/schemas/AbstractRoom'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1502,13 +1510,14 @@ paths:
           $ref: '#/components/schemas/AbstractSwitch'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlySwitch'
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Switch'
+                  $ref: '#/components/schemas/AbstractSwitch'
                 type: array
           description: Success
           headers:
@@ -1570,12 +1579,14 @@ paths:
       tags:
       - switch
     get:
+      parameters:
+      - $ref: '#/components/parameters/onlySwitch'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Switch'
+                $ref: '#/components/schemas/AbstractSwitch'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1620,12 +1631,13 @@ paths:
           type: integer
         required: true
         description: Number of the Vlan
+      - $ref: '#/components/parameters/onlyVlan'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vlan'
+                $ref: '#/components/schemas/AbstractVlan'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1649,13 +1661,14 @@ paths:
           $ref: '#/components/schemas/AbstractTransaction'
         style: deepObject
         explode: true
+      - $ref: '#/components/parameters/onlyTransaction'
       responses:
         '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Transaction'
+                  $ref: '#/components/schemas/AbstractTransaction'
                 type: array
           description: Success
           headers:
@@ -1749,12 +1762,14 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
+      parameters:
+      - $ref: '#/components/parameters/onlyTransaction'
       responses:
         200:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Transaction'
+                $ref: '#/components/schemas/AbstractTransaction'
           description: Success
         400:
           $ref: '#/components/responses/Invalid'
@@ -1941,6 +1956,7 @@ components:
         items:
           type: string
           enum:
+            - id
             - mac
             - ipv4Address
             - ipv6Address
@@ -1995,6 +2011,88 @@ components:
             - member
             - status
             - description
+      explode: false
+    onlyPort:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - oid
+            - portNumber
+            - room
+            - switchObj
+      explode: false
+    onlySwitch:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - ip
+            - description
+      explode: false
+    onlyVlan:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - attachment
+            - cashbox
+            - room
+      explode: false
+    onlyTransaction:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - attachment
+            - cashbox
+            - dst
+            - src
+            - name
+            - paymentMethod
+            - pendingValidation
+            - timestamp
+            - value
+      explode: false
+    onlyAccount:
+      description: Limit to specific attributes
+      in: query
+      name: only
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - id
+            - accountType
+            - actif
+            - balance
+            - compteCourant
+            - creationDate
+            - member
+            - name
+            - pendingBalance
+            - pinned
       explode: false
   responses:
     NotFound:
@@ -2488,15 +2586,11 @@ components:
         room:
           description: The room this port is in
           nullable: true
-          oneOf:
-            - $ref: '#/components/schemas/Room'
-            - type: integer
+          type: integer
           example: 4
         switchObj:
           description: The switch this port is a member of
-          oneOf:
-            - $ref: '#/components/schemas/Switch'
-            - type: integer
+          type: integer
           example: 4
     Port:
       allOf:
@@ -2536,7 +2630,6 @@ components:
         - required:
             - id
             - description
-            - community
             - ip
       type: object
     AbstractVlan:

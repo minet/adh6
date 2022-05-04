@@ -23,7 +23,7 @@ export class AccountListComponent extends SearchPage<Account> implements OnInit 
     private route: ActivatedRoute,
     private appConstantsService: AppConstantsService
   ) {
-    super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, "response"));
+    super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, ["name", "pendingBalance", "actif", "accountType"], "response"));
   }
 
   updateTypeFilter(type: string) {
