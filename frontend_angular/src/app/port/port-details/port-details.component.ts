@@ -98,8 +98,11 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
             .pipe(finalize(() => {
               this.notificationService.successNotification("Authentification modifiée");
             }));
-          console.log(result.value)
-          this.submitVLAN(result.value);
+          this.portService.portIdVlanPut(result.value, this.portID)
+            .subscribe(() => {
+              this.notificationService.successNotification("VLAN modifié: " + result.value);
+            });
+          this.vlan$ = of(result.value);
           return;
         }
       });
@@ -113,11 +116,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   submitVLAN(vlan: number) {
-    this.portService.portIdVlanPut(vlan, this.portID)
-      .pipe(finalize(() => {
-        this.notificationService.successNotification("VLAN modifié: " + vlan);
-      }));
-    this.vlan$ = of(vlan);
+    console.log(vlan)
   }
 
   IfRoomExists(roomNumber: Room) {
