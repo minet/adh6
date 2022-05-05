@@ -17,7 +17,9 @@ from src.use_case.interface.switch_repository import SwitchRepository
 
 class SwitchSQLRepository(SwitchRepository):
     def get_community(self, ctx, switch_id: int) -> str:
-        return super().get_community(ctx, switch_id)
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLSwitch.communaute).filter(SQLSwitch.id == switch_id).one_or_none()
+        return obj[0]
 
     @log_call
     def get_by_id(self, ctx, object_id: int) -> AbstractSwitch:

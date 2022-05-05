@@ -98,6 +98,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
             .pipe(finalize(() => {
               this.notificationService.successNotification("Authentification modifiée");
             }));
+          console.log(result.value)
           this.submitVLAN(result.value);
           return;
         }
