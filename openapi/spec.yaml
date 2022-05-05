@@ -1841,28 +1841,6 @@ paths:
       summary: Create a new bug report
       tags:
       - misc
-    get:
-      operationId: get_labels
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                properties:
-                  labels:
-                    items:
-                      type: string
-                    type: array
-                type: object
-                title: labels
-          description: Success
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the available Gitlab labels
-      tags:
-      - misc
   /treasury/cashbox:
     get:
       operationId: get_cashbox

@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from gitlab.v4.objects import ProjectIssue
+from typing import Any, Dict
 
 from src.interface_adapter.http_api.decorator.with_context import with_context
 from src.interface_adapter.http_api.util.error import handle_error
@@ -21,29 +21,17 @@ class BugReportHandler:
         LOG.debug("http_bug_report_post_called", extra=log_extra(ctx, request=body))
 
         try:
-            issue = self.bug_report_manager.create_issue(ctx, title=body.get("title"), description=body.get("description"),
-                                                         labels=body.get("labels"))
+            issue = self.bug_report_manager.create(title=body.get("title", ""), description=body.get("description", ""), labels=body.get("labels", None))
             return _map_project_issue_to_http_response(issue), 200
         except Exception as e:
             return handle_error(ctx, e)
 
-    @with_context
-    @require_sql
-    def get_labels(self, ctx):
-        """ List available labels from the gitlab project """
-        LOG.debug("http_bug_report_get_labels_called", extra=log_extra(ctx))
-
-        labels = self.bug_report_manager.get_labels(ctx)
-
-        return {'labels': [label.name for label in labels]}, 200
-
-
-def _map_project_issue_to_http_response(issue: ProjectIssue) -> dict:
+def _map_project_issue_to_http_response(issue: Dict[str, Any]) -> dict:
     fields = {
-        "title": issue.title,
-        "description": issue.description,
-        "labels": issue.labels,
-        "link": issue.web_url
+        "title": issue["title"],
+        "description": issue["description"],
+        "labels": issue["labels"],
+        "link": issue["web_url"]
     }
 
     return {k: v for k, v in fields.items() if v is not None}
