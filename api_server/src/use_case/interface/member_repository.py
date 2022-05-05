@@ -2,18 +2,12 @@
 
 import abc
 import ipaddress
-from typing import List, Optional, Tuple
-
-from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from typing import List
 from src.entity import Member, AbstractMember
 from src.use_case.interface.crud_repository import CRUDRepository
 
 
 class MemberRepository(CRUDRepository[Member, AbstractMember]):
-    @abc.abstractmethod
-    def get(self, ctx, member_id: int) -> Optional[Member]:
-        pass
-
     @abc.abstractmethod
     def add_duration(self, ctx, member_id: int, duration_in_mounth: int) -> None:
         pass

@@ -9,7 +9,7 @@ import { SearchPage } from '../../search-page';
 })
 export class SwitchListComponent extends SearchPage<ModelSwitch> implements OnInit {
   constructor(public switchService: SwitchService) {
-    super((terms, page) => this.switchService.switchGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response"));
+    super((terms, page) => this.switchService.switchGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, ["ip", "description"], "response"));
   }
 
   ngOnInit() {

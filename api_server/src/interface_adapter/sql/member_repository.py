@@ -22,19 +22,20 @@ from src.use_case.interface.member_repository import MemberRepository
 class MemberSQLRepository(MemberRepository):
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMember = None) -> Tuple[List[AbstractMember], int]:
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractMember] = None) -> Tuple[List[AbstractMember], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(Adherent)
         query = query.outerjoin(Chambre, Chambre.id == Adherent.chambre_id)
 
-        if filter_.username is not None:
-            query = query.filter(Adherent.login == filter_.username)
-        if filter_.room_number is not None:
-            query = query.filter(Chambre.numero == filter_.room_number)
-        if filter_.id is not None:
-            query = query.filter(Adherent.id == filter_.id)
-        if filter_.ip is not None:
-            query = query.filter(Adherent.ip == filter_.ip)
+        if filter_ is not None:
+            if filter_.username is not None:
+                query = query.filter(Adherent.login == filter_.username)
+            if filter_.room_number is not None:
+                query = query.filter(Chambre.numero == filter_.room_number)
+            if filter_.id is not None:
+                query = query.filter(Adherent.id == filter_.id)
+            if filter_.ip is not None:
+                query = query.filter(Adherent.ip == filter_.ip)
 
         if terms:
             query = query.filter(
@@ -54,11 +55,11 @@ class MemberSQLRepository(MemberRepository):
         return list(map(_map_member_sql_to_abstract_entity, r)), count
 
     @log_call
-    def get(self, ctx, member_id: int) -> Optional[AbstractMember]:
+    def get_by_id(self, ctx, object_id: int) -> AbstractMember:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        adh = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         if adh is None:
-            raise MemberNotFoundError(member_id)
+            raise MemberNotFoundError(object_id)
         return _map_member_sql_to_abstract_entity(adh)
 
     @log_call

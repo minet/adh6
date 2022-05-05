@@ -1,5 +1,5 @@
 # coding=utf-8
-from src.entity import AbstractDevice, Device, Vlan, AbstractRoom, Member
+from src.entity import AbstractDevice, Device, AbstractRoom, AbstractMember
 from src.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.use_case.crud_manager import CRUDManager
@@ -16,8 +16,8 @@ from src.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 @defines_security(SecurityDefinition(
     item={
         "read": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
-        "update": owns(Device.member) | owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
-        "delete": owns(Device.member) | is_admin(),
+        "update": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
+        "delete": owns(AbstractDevice.member) | is_admin(),
         "admin": is_admin()
     },
     collection={
@@ -136,7 +136,7 @@ class DeviceManager(CRUDManager):
                     ), id=device.id, override=False)
                 elif device.connection_type == "wireless" and has_member_subnet(member):
                     taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
-                        member=member,
+                        member=member.id,
                         connection_type=device.connection_type
                     ))
 
@@ -184,8 +184,8 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def get_user_from_username(self, ctx, member_id: int) -> Member:
-        member = self.member_repository.get(ctx, member_id)
+    def get_user_from_username(self, ctx, member_id: int) -> AbstractMember:
+        member = self.member_repository.get_by_id(ctx, member_id)
         if member is None:
             raise MemberNotFoundError(member_id)
         return member

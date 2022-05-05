@@ -19,33 +19,32 @@ from src.use_case.interface.membership_repository import MembershipRepository
 class MembershipSQLRepository(MembershipRepository):
     @log_call
     def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                             filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
-        LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx, filter_status=filter_.status))
+                             filter_: Optional[AbstractMembership] = None) -> Tuple[List[AbstractMembership], int]:
+        LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx))
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(MembershipSQL)
         query = query.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
-
-        if filter_.uuid is not None:
-            query = query.filter(MembershipSQL.uuid == filter_.uuid)
-        if filter_.status is not None:
-            LOG.debug(filter_.status)
-            query = query.filter(MembershipSQL.status == filter_.status)
-        if filter_.first_time is not None:
-            query = query.filter(MembershipSQL.first_time == filter_.first_time)
-        if filter_.duration is not None:
-            query = query.filter(MembershipSQL.duration == filter_.duration)
-        if filter_.payment_method is not None:
-            if isinstance(filter_.payment_method, PaymentMethod):
-                filter_.payment_method = filter_.payment_method.id
-            query = query.filter(MembershipSQL.payment_method == filter_.payment_method)
-        if filter_.account is not None:
-            if isinstance(filter_.account, Account):
-                filter_.account = filter_.account.id
-            query = query.filter(MembershipSQL.account == filter_.account)
-        if filter_.member is not None:
-            if isinstance(filter_.member, Member):
-                filter_.member = filter_.member.id
-            query = query.filter(MembershipSQL.adherent_id == filter_.member)
+        if filter_:
+            if filter_.uuid is not None:
+                query = query.filter(MembershipSQL.uuid == filter_.uuid)
+            if filter_.status is not None:
+                query = query.filter(MembershipSQL.status == filter_.status)
+            if filter_.first_time is not None:
+                query = query.filter(MembershipSQL.first_time == filter_.first_time)
+            if filter_.duration is not None:
+                query = query.filter(MembershipSQL.duration == filter_.duration)
+            if filter_.payment_method is not None:
+                if isinstance(filter_.payment_method, PaymentMethod):
+                    filter_.payment_method = filter_.payment_method.id
+                query = query.filter(MembershipSQL.payment_method == filter_.payment_method)
+            if filter_.account is not None:
+                if isinstance(filter_.account, Account):
+                    filter_.account = filter_.account.id
+                query = query.filter(MembershipSQL.account == filter_.account)
+            if filter_.member is not None:
+                if isinstance(filter_.member, Member):
+                    filter_.member = filter_.member.id
+                query = query.filter(MembershipSQL.adherent_id == filter_.member)
 
         query = query.order_by(MembershipSQL.uuid)
         query = query.offset(offset)

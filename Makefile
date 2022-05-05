@@ -12,7 +12,7 @@ CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 
 .PHONY: all
-all: generate run
+all: clean generate run
 
 .PHONY: run-dev
 run-dev:
@@ -31,7 +31,7 @@ generate-frontend:
 	$(CODEGEN) -l typescript-angular -o "$(FRONTEND_PATH)/src/app/api" -t "$(FRONTEND_GENERATOR_PATH)" --additional-properties ngVersion=7
 	sed -i 's/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g' "$(FRONTEND_PATH)/src/app/api/api.module.ts"
 
-.PHONY: generate-frontend-assets:
+.PHONY: generate-frontend-assets
 generate-frontend-assets:
 	docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(FRONTEND_PATH)/src/assets:/app node:16-alpine /bin/sh -c "yarn global add svgo && /home/node/.yarn/bin/svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg"
 
@@ -66,8 +66,8 @@ clean-frontend:
 	[ -d $(FRONTEND_PATH)/node_modules ] && rm -rf $(FRONTEND_PATH)/node_modules || echo "The frontend dependencies has not been downloads"
 	[ -d $(FRONTEND_PATH)/src/app/api ] && rm -rf $(FRONTEND_PATH)/src/app/api || echo "API module has not been generated"
 	[ -d $(FRONTEND_PATH)/dist ] && rm -rf $(FRONTEND_PATH)/dist || echo "No dist folder"
-	[ -f $(FRONTEND_PATH)/src/assets/adh6.min.svg ] && rm $(FRONTEND_PATH)/src/assets/adh6.min.svg || "File not found"
-	[ -f $(FRONTEND_PATH)/src/assets/minet.min.svg ] && rm $(FRONTEND_PATH)/src/assets/minet.min.svg || "File not found"
+	[ -f $(FRONTEND_PATH)/src/assets/adh6.min.svg ] && rm $(FRONTEND_PATH)/src/assets/adh6.min.svg || echo "File not found"
+	[ -f $(FRONTEND_PATH)/src/assets/minet.min.svg ] && rm $(FRONTEND_PATH)/src/assets/minet.min.svg || echo "File not found"
 
 .PHONY: clean-backend
 clean-backend:

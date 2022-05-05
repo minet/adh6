@@ -19,7 +19,7 @@ export class AccountSearchComponent extends SearchPage<Account> implements OnIni
   constructor(
     private accountService: AccountService
   ) {
-    super((terms: string, _) => this.accountService.accountGet(5, 0, terms, undefined, "response")
+    super((terms: string, _) => this.accountService.accountGet(5, 0, terms, undefined, undefined, "response")
       .pipe(
         map((response) => {
           this.display = true;

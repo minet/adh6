@@ -202,7 +202,7 @@ class MemberManager(CRUDManager):
     def get_latest_membership(self, ctx, id: int) -> Membership:
         LOG.debug("get_latest_membership_records", extra=log_extra(ctx, id=id))
         # Check that the user exists in the system.
-        member = self.member_repository.get(ctx, id)
+        member = self.member_repository.get_by_id(ctx, id)
         if not member:
             raise MemberNotFoundError(id)
         
@@ -444,10 +444,10 @@ class MemberManager(CRUDManager):
         member = member[0]
 
         @uses_security("admin", is_collection=False)
-        def _get_logs(cls, ctx, filter_=None):
+        def _get_logs(cls, ctx, filter_: AbstractMember):
             # Do the actual log fetching.
             try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_))[0]
+                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
                 logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=dhcp)
 
                 return list(map(
