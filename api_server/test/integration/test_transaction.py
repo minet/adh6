@@ -1,6 +1,5 @@
 import datetime
 import json
-from _pytest.outcomes import xfail
 
 import pytest
 
@@ -164,6 +163,38 @@ def test_transaction_get_all(client):
     t = json.loads(r.data.decode('utf-8'))
     assert t
     assert len(t) == 2
+
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("dst"),
+        ("src"),
+        ("name"),
+        ("paymentMethod"),
+        ("pendingValidation"),
+        ("timestamp"),
+        ("value"),
+    ])
+def test_transaction_search_with_only(client, sample_only: str):
+    r = client.get(
+        f'{base_url}/transaction/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 2
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+
+
+def test_transaction_search_with_unknown_only(client):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/transaction/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
 
 
 def test_transaction_validate_pending(client, sample_transaction_pending):

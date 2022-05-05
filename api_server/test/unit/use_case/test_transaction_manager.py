@@ -4,7 +4,7 @@ from pytest import fixture, raises
 
 from src.entity import AbstractTransaction, PaymentMethod
 from src.entity.transaction import Transaction
-from src.exceptions import TransactionNotFoundError, IntMustBePositive, UserInputError
+from src.exceptions import NotFoundError, TransactionNotFoundError, IntMustBePositive, UserInputError
 from src.use_case.interface.cashbox_repository import CashboxRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -19,19 +19,18 @@ class TestGetByID:
                         mock_transaction_repository,
                         sample_transaction,
                         transaction_manager: TransactionManager):
-        print(sample_transaction)
-        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         result = transaction_manager.get_by_id(ctx, **{"id": sample_transaction.id})
 
         assert sample_transaction == result
-        mock_transaction_repository.search_by.assert_called_once()
+        mock_transaction_repository.get_by_id.assert_called_once()
 
     def test_transaction_not_found(self,
                                    ctx,
                                    faker,
                                    mock_transaction_repository: TransactionRepository,
                                    transaction_manager: TransactionManager):
-        mock_transaction_repository.search_by = MagicMock(return_value=([], 0))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(None), side_effect=TransactionNotFoundError(""))
 
         with raises(TransactionNotFoundError):
             transaction_manager.get_by_id(ctx, **{"id": faker.random_int})
@@ -108,7 +107,7 @@ class TestValidate:
                         sample_transaction_pending: Transaction,
                         transaction_manager: TransactionManager):
         # When...
-        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction_pending], 1))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
         transaction_manager.validate(ctx, **{"id": sample_transaction_pending.id})
 
         # Expect...
@@ -120,7 +119,7 @@ class TestValidate:
                         sample_transaction: Transaction,
                         transaction_manager: TransactionManager):
         # When...
-        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
             transaction_manager.validate(ctx, **{"id": sample_transaction.id})
 
@@ -132,7 +131,7 @@ class TestDelete:
                         sample_transaction_pending: Transaction,
                         transaction_manager: TransactionManager):
         # When...
-        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction_pending], 1))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
         transaction_manager.delete(ctx, **{"id": sample_transaction_pending.id})
 
         # Expect...
@@ -144,7 +143,7 @@ class TestDelete:
                         sample_transaction: Transaction,
                         transaction_manager: TransactionManager):
         # When...
-        mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
             transaction_manager.delete(ctx, **{"id": sample_transaction.id})
 
@@ -155,11 +154,10 @@ class TestDelete:
                         sample_transaction: Transaction,
                         transaction_manager: TransactionManager):
         # Given
-        mock_transaction_repository.search_by = MagicMock(return_value=([], 0))
-        mock_transaction_repository.delete = MagicMock(side_effect=UserInputError)
+        mock_transaction_repository.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
 
         # When...
-        with raises(UserInputError):
+        with raises(NotFoundError):
             transaction_manager.delete(ctx, **{"id": 0})
 
         # Expect...
