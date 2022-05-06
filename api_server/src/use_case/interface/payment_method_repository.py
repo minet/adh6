@@ -4,4 +4,4 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 
 class PaymentMethodRepository(CRUDRepository[PaymentMethod, PaymentMethod]):
-    pass
+    pass  # pragma: no cover

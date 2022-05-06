@@ -14,15 +14,14 @@ class BugReportManager:
         from flask import current_app
         self.testing = current_app.config["TESTING"]
 
-        if not self.testing:
-            try:
-                self.gl = Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"], api_version="4")
-                self.gl.auth()
-                self.project = self.gl.projects.get(223)
-            except GitlabAuthenticationError:
-                logger.error("Could not authenticate against MiNET's Gitlab server, bug reporting will not be available.")
-                self.gl = None
-                self.project = None
+        try:
+            self.gl = Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"], api_version="4")
+            self.gl.auth()
+            self.project = self.gl.projects.get(223)
+        except GitlabAuthenticationError:
+            logger.error("Could not authenticate against MiNET's Gitlab server, bug reporting will not be available.")
+            self.gl = None
+            self.project = None
 
     def create(self, title: str = "", description: str = "", labels: Optional[List[str]] = None) -> Dict[str, Any]:
         if self.testing:

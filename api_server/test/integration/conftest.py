@@ -65,7 +65,7 @@ def account_type(faker):
     )
 
 @pytest.fixture
-def sample_account(faker, account_type: AccountType, sample_member: Adherent):
+def sample_account(account_type: AccountType, sample_member: Adherent):
     yield Account(
         type=account_type.id,
         creation_date=datetime.now(),
@@ -88,7 +88,7 @@ def sample_account_frais_asso(account_type: AccountType):
     )
 
 @pytest.fixture
-def sample_account_frais_techniques(faker, account_type: AccountType):
+def sample_account_frais_techniques(account_type: AccountType):
     yield Account(
         type=account_type.id,
         creation_date=datetime.now(),
@@ -328,31 +328,8 @@ def sample_port1(sample_switch1):
         rcom=1,
         numero="0/0/1",
         oid="1.1.1",
-        switch_obj=sample_switch1,
-        chambre_id=0,
-    )
-
-
-@pytest.fixture
-def sample_port2(sample_switch2):
-    yield Port(
-        rcom=2,
-        numero="0/0/2",
-        oid="1.1.2",
-        switch=sample_switch2,
-        chambre_id=0,
-    )
-
-
-@pytest.fixture
-def sample_port1(sample_switch1):
-    yield Port(
-        rcom=1,
-        numero="0/0/1",
-        oid="1.1.1",
         switch=sample_switch1,
         chambre_id=1,
-
     )
 
 

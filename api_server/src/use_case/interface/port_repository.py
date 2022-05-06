@@ -4,4 +4,4 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 
 class PortRepository(CRUDRepository[Port, AbstractPort]):
-    pass
+    pass  # pragma: no cover

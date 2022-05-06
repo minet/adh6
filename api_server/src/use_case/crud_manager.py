@@ -50,7 +50,6 @@ class CRUDManager:
         current_object = None
         if id is not None:
             current_object = self.repository.get_by_id(ctx, id)
-        print(current_object)
 
         if current_object is None:
             @uses_security("create", is_collection=True)

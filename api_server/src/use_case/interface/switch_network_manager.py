@@ -4,10 +4,6 @@ Switch network manager interface.
 """
 import abc
 
-from src.entity.port import Port
-from src.entity.switch import Switch
-
-
 class SwitchNetworkManager(abc.ABC):
     """
     Abstract interface to manipulate the members.
