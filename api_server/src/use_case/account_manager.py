@@ -8,10 +8,10 @@ from src.use_case.interface.account_repository import AccountRepository
 
 @defines_security(SecurityDefinition(
     item={
-        "read": owns(Account.member.id) | owns(AbstractAccount.member.id) | is_admin()
+        "read": owns(Account.member.id) | owns(AbstractAccount.member) | is_admin()
     },
     collection={
-        "read": owns(AbstractAccount.member.id) | is_admin()
+        "read": owns(AbstractAccount.member) | is_admin()
     }
 ))
 class AccountManager(CRUDManager):

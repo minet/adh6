@@ -39,6 +39,9 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_RECORD_QUERIES = True
 
+    GITLAB_ACCESS_TOKEN = os.environ.get("GITLAB_ACCESS_TOKEN")
+    AUTH_PROFILE_ADDRESS = '{}/profile'.format(os.environ.get("OAUTH2_BASE_PATH"))
+
 
 class DeployedConfig(BaseConfig):
     DEBUG = False

@@ -43,34 +43,14 @@ class InvalidMACAddress(ValidationError):
         super().__init__(f'"{v}" is not a valid MAC address')
 
 
-class InvalidEmail(ValidationError):
-    def __init__(self, v):
-        super().__init__(f'"{v}" is not a valid email')
-
-
-class InvalidDate(ValidationError):
-    def __init__(self, value):
-        super().__init__(f'"{value}" is not a valid date')
-
-
 class InvalidMembershipDuration(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" is not a valid membership duration')
 
 
-class PasswordTooShortError(ValidationError):
-    def __init__(self):
-        super().__init__('password is too short')
-
-
 class IntMustBePositive(ValidationError):
     def __init__(self, msg):
         super().__init__(f'{msg} must be positive')
-
-
-class StringMustNotBeEmpty(ValidationError):
-    def __init__(self, msg):
-        super().__init__(f'{msg} must not be empty')
 
 
 class MemberTransactionAmountMustBeGreaterThan(ValidationError):
@@ -81,26 +61,6 @@ class MemberTransactionAmountMustBeGreaterThan(ValidationError):
 class NoPriceAssignedToThatDuration(ValidationError):
     def __init__(self, duration):
         super().__init__(f'there is no price assigned to that duration ({duration} mounths)')
-
-
-class UsernameMismatchError(ValidationError):
-    """
-    Thrown when you try to create a member given a username and a mutation request and in the mutation request the
-    username does not match the first argument.
-    """
-
-    def __init__(self):
-        super().__init__('cannot create member with 2 different usernames')
-
-
-class RoomNumberMismatchError(ValidationError):
-    """
-    Thrown when you try to create a room given a room_number and a mutation request and in the mutation request the
-    room_number does not match the first argument.
-    """
-
-    def __init__(self):
-        super().__init__('cannot create room with 2 different room_numbers')
 
 
 class InvalidCharterID(ValidationError):
@@ -115,14 +75,6 @@ class CharterAlreadySigned(ValidationError):
 class CharterNotSigned(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" charter not signed yet')
-class MemberInactiveError(ValidationError):
-    """
-    Thrown when you try to create a room given a room_number and a mutation request and in the mutation request the
-    room_number does not match the first argument.
-    """
-
-    def __init__(self, member_id):
-        super().__init__(f'The member {member_id} is inactive and has been reset')
 
 
 # NOT FOUND ERROR.

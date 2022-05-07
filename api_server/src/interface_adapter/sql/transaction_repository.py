@@ -15,10 +15,7 @@ from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_AD
 from src.entity import AbstractTransaction, Transaction, Product
 from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, ProductNotFoundError, TransactionNotFoundError, UnknownPaymentMethod
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.sql.account_repository import _map_account_sql_to_entity
-from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
-from src.interface_adapter.sql.payment_method_repository import _map_payment_method_sql_to_entity
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
 
@@ -26,8 +23,15 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_:  AbstractTransaction = None) -> Tuple[List[Transaction], int]:
+    def get_by_id(self, ctx, object_id: int) -> AbstractTransaction:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
+        if obj is None:
+            raise TransactionNotFoundError(object_id)
+        return _map_transaction_sql_to_abstract_entity(obj)
+
+    @log_call
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_:  Optional[AbstractTransaction] = None) -> Tuple[List[AbstractTransaction], int]:
         session: Session= ctx.get(CTX_SQL_SESSION)
 
         account_source = aliased(Account)
@@ -37,29 +41,28 @@ class TransactionSQLRepository(TransactionRepository):
         query= query.join(account_source, account_source.id == SQLTransaction.dst)
         query= query.join(account_destination, account_destination.id == SQLTransaction.src)
 
-        if filter_.id is not None:
-            query= query.filter(SQLTransaction.id == filter_.id)
-        if filter_.payment_method is not None:
-            if isinstance(filter_.payment_method, PaymentMethod):
-                filter_.payment_method = filter_.payment_method.id
-            query= query.filter(SQLTransaction.type == filter_.payment_method)
-        if terms:
-            query= query.filter(
-                (SQLTransaction.name.contains(terms))
-            )
-        if filter_.pending_validation is not None:
-            query= query.filter(
-                (SQLTransaction.pending_validation == filter_.pending_validation)
-            )
-        if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-            query= query.filter(
-                (SQLTransaction.src == filter_.src) |
-                (SQLTransaction.dst == filter_.dst)
-            )
-        elif filter_.src is not None:
-            query= query.filter(SQLTransaction.src == filter_.src)
-        elif filter_.dst is not None:
-            query= query.filter(SQLTransaction.dst == filter_.dst)
+        if filter_:
+            if filter_.id is not None:
+                query= query.filter(SQLTransaction.id == filter_.id)
+            if filter_.payment_method is not None:
+                query= query.filter(SQLTransaction.type == filter_.payment_method)
+            if terms:
+                query= query.filter(
+                    (SQLTransaction.name.contains(terms))
+                )
+            if filter_.pending_validation is not None:
+                query= query.filter(
+                    (SQLTransaction.pending_validation == filter_.pending_validation)
+                )
+            if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
+                query= query.filter(
+                    (SQLTransaction.src == filter_.src) |
+                    (SQLTransaction.dst == filter_.dst)
+                )
+            elif filter_.src is not None:
+                query= query.filter(SQLTransaction.src == filter_.src)
+            elif filter_.dst is not None:
+                query= query.filter(SQLTransaction.dst == filter_.dst)
 
         count = query.count()
         query= query.order_by(SQLTransaction.timestamp.desc())
@@ -67,7 +70,7 @@ class TransactionSQLRepository(TransactionRepository):
         query= query.limit(limit)
         r = query.all()
 
-        return list(map(_map_transaction_sql_to_entity, r)), count
+        return list(map(_map_transaction_sql_to_abstract_entity, r)), count
 
     @log_call
     def create(self, ctx, abstract_transaction: AbstractTransaction) -> object:
@@ -263,13 +266,30 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     """
     return Transaction(
         id=t.id,
-        src=_map_account_sql_to_entity(t.src_account),
-        dst=_map_account_sql_to_entity(t.dst_account),
+        src=t.src_account.id,
+        dst=t.dst_account.id,
         timestamp=str(t.timestamp),
         name=t.name,
         value=t.value,
-        payment_method=_map_payment_method_sql_to_entity(t.payment_method),
+        payment_method=t.payment_method.id,
         attachments=[],
-        author=_map_member_sql_to_entity(t.author),
+        author=t.author.id,
+        pending_validation=t.pending_validation
+    )
+
+def _map_transaction_sql_to_abstract_entity(t: SQLTransaction) -> AbstractTransaction:
+    """
+    Map a Transaction object from SQLAlchemy to a Transaction (from the entity folder/layer).
+    """
+    return AbstractTransaction(
+        id=t.id,
+        src=t.src_account.id,
+        dst=t.dst_account.id,
+        timestamp=str(t.timestamp),
+        name=t.name,
+        value=t.value,
+        payment_method=t.payment_method.id,
+        attachments=[],
+        author=t.author.id,
         pending_validation=t.pending_validation
     )

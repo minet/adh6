@@ -2,6 +2,7 @@ version: '3.2'
 services:
   # frontend_angular is a web server that provides the JS to the clients.
   frontend_angular:
+    container_name: adh6_frontend
     build:
       context: frontend_angular
       dockerfile: Dockerfile.dev
@@ -23,6 +24,7 @@ services:
   
   # api_server is the API that actually does action on the database.
   api_server:
+    container_name: adh6_backend
     build:
       context: ./
       dockerfile: ./api_server/Dockerfile
@@ -43,19 +45,16 @@ services:
     environment:
       ENVIRONMENT: "development"
      
-  # The reverse proxy is used to gather the api and the frontend behind the same
-  # host. We can also use it to cache requests.
   reverse_proxy:
+    container_name: adh6_reverse_proxy
     build: 
       context: "./reverse_proxy"
       args:
-        ADH6_URL: "localhost" # Host of the reverse proxy.
+        ADH6_URL: "localhost"
 
-        # adh6.minet.net/api/... requests will be redirected to this IP/host + port.
         API_HOST: "api_server" 
         API_PORT: "443"        
 
-        # adh6.minet.net/... requests will be proxied to this IP/host + port.
         FRONTEND_HOST: "frontend_angular"
         FRONTEND_PORT: "80"
     links:
@@ -65,15 +64,15 @@ services:
       - "443:443"
       - "80:80" # Redirect to 443.
     command: ['nginx-debug', '-g', 'daemon off;'] # More logging!
-
-  # The RDBMS of the project.
+  
   database:
-    build: "database"
+    container_name: adh6_database
+    image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_DATABASE: "adh6"
       MYSQL_USER: "adh6"
-      MYSQL_PASSWORD: "adh6_pass" # Please change this password on prod'.
+      MYSQL_PASSWORD: "adh6_pass"
     expose:
       - "3306"
     ports:

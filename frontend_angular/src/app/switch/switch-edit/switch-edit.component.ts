@@ -1,14 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ModelSwitch, SwitchService} from '../../api';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ModelSwitch, SwitchService } from '../../api';
 
 @Component({
   selector: 'app-switch-edit',
   templateUrl: './switch-edit.component.html',
   styleUrls: ['./switch-edit.component.css']
 })
-export class SwitchEditComponent implements OnInit {
+export class SwitchEditComponent {
 
   switches$: Observable<Array<ModelSwitch>>;
   switchForm: FormGroup;
@@ -25,9 +25,4 @@ export class SwitchEditComponent implements OnInit {
       ip: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(15)]],
     });
   }
-
-  ngOnInit() {
-    // this.switches$ = this.switchService.switchGet();
-  }
-
 }

@@ -1,10 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import { Component, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 
-import {Room, RoomService} from '../../api';
-import {takeWhile} from 'rxjs/operators';
+import { Room, RoomService } from '../../api';
+import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -13,7 +13,7 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./room-new.component.css']
 })
 
-export class RoomNewComponent implements OnInit, OnDestroy {
+export class RoomNewComponent implements OnDestroy {
 
   disabled = false;
   roomForm: FormGroup;
@@ -22,7 +22,6 @@ export class RoomNewComponent implements OnInit, OnDestroy {
   constructor(
     public roomService: RoomService,
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private router: Router,
     private notificationService: NotificationService,
   ) {
@@ -48,18 +47,14 @@ export class RoomNewComponent implements OnInit, OnDestroy {
 
     this.roomService.roomPost(room)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
+      .subscribe((_) => {
         this.router.navigate(['/room/view', v.roomNumber]);
         this.notificationService.successNotification();
       });
     this.disabled = false;
   }
 
-  ngOnInit() {
-  }
-
   ngOnDestroy() {
     this.alive = false;
   }
-
 }

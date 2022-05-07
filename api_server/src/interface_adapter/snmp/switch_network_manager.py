@@ -2,14 +2,15 @@
 """
 Implements everything related to SNMP-related actions
 """
+from typing import Tuple
 from src.constants import CTX_ROLES
-from src.entity.port import Port
-from src.entity.switch import Switch
-from src.exceptions import NetworkManagerReadError, UnauthorizedError
+from src.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
 from src.interface_adapter.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import defines_security, has_any_role, uses_security, SecurityDefinition, Roles
+from src.use_case.interface.port_repository import PortRepository
 from src.use_case.interface.switch_network_manager import SwitchNetworkManager
+from src.use_case.interface.switch_repository import SwitchRepository
 
 @defines_security(SecurityDefinition(
     item={
@@ -17,85 +18,66 @@ from src.use_case.interface.switch_network_manager import SwitchNetworkManager
     },
 ))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
+    def __init__(self, port_repository: PortRepository, switch_repository: SwitchRepository) -> None:
+        self.switch_repository = switch_repository
+        self.port_repository = port_repository
+
     @uses_security("network")
     @auto_raise
-    def get_port_status(self, ctx, switch: Switch, port: Port) -> bool:
+    def get_port_status(self, ctx, port_id: int) -> bool:
         """
         Retrieve the status of a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_status_called", extra=log_extra(ctx, port=port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAdminStatus', port.oid)
+            return get_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def update_port_status(self, ctx, switch: Switch = None, port: Port = None) -> str:
+    def update_port_status(self, ctx, port_id: int) -> str:
         """
         Update the status of a port.
 
         :raise PortNotFound
         """
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            port_state =  get_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAdminStatus', port.oid)
+            port_state =  get_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid)
             if port_state == "up" :
-                return set_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAdminStatus', port.oid, 2)
+                return set_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid, 2)
             else :
-                return set_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAdminStatus', port.oid, 1)
+                return set_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid, 1)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def get_port_vlan(self, ctx, switch: Switch = None, port: Port = None) -> int:
+    def get_port_vlan(self, ctx, port_id: int) -> int:
         """
         Get the VLAN assigned to a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_vlan_called", extra=log_extra(ctx, port=port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', oid)
         except NetworkManagerReadError:
             raise
 
     
     @uses_security("network")
     @auto_raise
-    def update_port_vlan(self, ctx, switch: Switch = None, port: Port = None, vlan=None) -> str:
+    def update_port_vlan(self, ctx, port_id: int, vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 
         :raise PortNotFound
         """
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
             roles = ctx.get(CTX_ROLES)
             vlan = int(vlan)
@@ -109,169 +91,127 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             ):
                 raise UnauthorizedError()
 
-            return set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', port.oid, vlan)
+            return set_SNMP_value(community, ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', oid, vlan)
         except Exception as e:
             raise e
 
     @uses_security("network")
     @auto_raise
-    def get_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    def get_port_mab(self, ctx, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_mab_called", extra=log_extra(port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def update_port_mab(self, ctx, switch: Switch = None, port: Port = None) -> str:
+    def update_port_mab(self, ctx, port_id: int) -> str:
         """
         Update whether MAB should be active on a port.
 
         :raise PortNotFound
         """
-        #pass  # pragma: no cover
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            mab_state = get_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
-                                  port.oid)
+            mab_state = get_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid)
             if mab_state == "false" :
-                return set_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
-                                      port.oid, 1)
+                return set_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid, 1)
             else :
-                return set_SNMP_value(switch.community, switch.ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled',
-                                  port.oid, 2)
+                return set_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid, 2)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def get_port_auth(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    def get_port_auth(self, ctx, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_mab_called", extra=log_extra(port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def update_port_auth(self, ctx, switch: Switch = None, port: Port = None) -> None:
+    def update_port_auth(self, ctx, port_id: int) -> None:
         """
         Update whether MAB should be active on a port.
 
         :raise PortNotFound
         """
-        #pass  # pragma: no cover
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            auth_state = get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                  port.oid)
+            auth_state = get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid)
             if auth_state == "auto" : #auth activée
-                return set_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                      port.oid, 3)
+                return set_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid, 3)
             else :
-                set_SNMP_value(switch.community, switch.ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', port.oid, 1)
-                return set_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl',
-                                  port.oid, 2)
+                set_SNMP_value(community, ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', oid, 1)
+                return set_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid, 2)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def get_port_use(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    def get_port_use(self, ctx, port_id: int) -> bool:
         """
-        Retrieve whether MAB is active on a port.
+        Retrieve usage of a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_mab_called", extra=log_extra(port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortStatus',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortStatus',oid)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def get_port_speed(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    def get_port_speed(self, ctx, port_id: int) -> int:
         """
-        Retrieve whether MAB is active on a port.
+        Retrieve speed of a port.
 
         :raise PortNotFound
         """
-
-        #LOG.debug("switch_network_manager_get_port_mab_called", extra=log_extra(port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifSpeed',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'IF-MIB', 'ifSpeed', oid)
         except NetworkManagerReadError:
             raise
 
     @uses_security("network")
     @auto_raise
-    def get_port_alias(self, ctx, switch: Switch = None, port: Port = None) -> bool:
+    def get_port_alias(self, ctx, port_id: int) -> str:
         """
-        Retrieve whether MAB is active on a port.
+        Retrieve alias of a port.
 
         :raise PortNotFound
         """
 
-        #LOG.debug("switch_network_manager_get_port_mab_called", extra=log_extra(port))
-
-        if switch is None:
-            raise NetworkManagerReadError("SNMP read error: switch object was None")
-        if port is None:
-            raise NetworkManagerReadError("SNMP read error: port object was None")
-
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
         try:
-            return get_SNMP_value(switch.community, switch.ip, 'IF-MIB', 'ifAlias',
-                                  port.oid)
+            return get_SNMP_value(community, ip, 'IF-MIB', 'ifAlias', oid)
         except NetworkManagerReadError:
             raise
+
+    @auto_raise
+    def get_oid_switch_ipand_community_from_port_id(self, ctx, port_id) -> Tuple[str, str, str]:
+        port = self.port_repository.get_by_id(ctx, object_id=port_id)
+        if port.oid is None or not isinstance(port.oid, str):
+            raise NetworkManagerReadError(f"oidc for port {port_id} is unknown")
+        if port.switch_obj is None:
+            raise SwitchNotFoundError(port.switch_obj)
+        switch = self.switch_repository.get_by_id(ctx, object_id=port.switch_obj)
+        community = self.switch_repository.get_community(ctx, switch_id=port.switch_obj)
+        if switch.ip is None or not isinstance(switch.ip, str):
+            raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")
+        return port.oid, switch.ip, community

@@ -84,7 +84,7 @@
           <div class="form-group">
             <button
               type="AC"
-              [disabled]="disabled || fundManagementForm.status == 'INVALID'"
+              [disabled]="disabled || fundManagementForm.status === 'INVALID'"
               class="w-100 btn btn-primary"
             >
               Transférer

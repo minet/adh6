@@ -1,29 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MemberListComponent } from './member-list/member-list.component';
-import { MemberCreateOrEditComponent } from './member-create-or-edit/member-create-or-edit.component';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
-import { PaginationModule } from '../pagination/pagination.module';
 
 
 
 @NgModule({
-  declarations: [
-    MemberCreateOrEditComponent,
-    MemberCreateOrEditComponent,
-    MemberListComponent,
-  ],
+  declarations: [],
   imports: [
-    ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([
-      { path: 'search', component: MemberListComponent },
-      { path: 'add', component: MemberCreateOrEditComponent },
-      { path: 'view/:member_id', loadChildren: () => import('./member-view/member-view.module').then(m => m.MemberViewModule) },
-      { path: 'edit/:member_id', component: MemberCreateOrEditComponent },
-    ]),
-    PaginationModule
+      { path: 'search', loadChildren: () => import('./list/list.module').then(m => m.ListModule) },
+      { path: 'add', loadChildren: () => import('./create-or-edit/create-or-edit.module').then(m => m.CreateOrEditModule) },
+      { path: 'view/:member_id', loadChildren: () => import('./view/view.module').then(m => m.ViewModule) },
+      { path: 'edit/:member_id', loadChildren: () => import('./create-or-edit/create-or-edit.module').then(m => m.CreateOrEditModule) },
+    ])
   ]
 })
 export class MemberModule { }

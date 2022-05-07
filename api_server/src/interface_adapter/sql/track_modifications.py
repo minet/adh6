@@ -9,7 +9,9 @@ from datetime import datetime
 from src.constants import CTX_ADMIN
 from src.interface_adapter.sql.model.models import Adherent, Modification
 from src.interface_adapter.sql.model.trackable import RubyHashTrackable
-from src.use_case.decorator.security import User
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.use_case.decorator.security import User
 
 
 @contextmanager
@@ -28,7 +30,7 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
             return  # No modification.
 
         now = datetime.now()
-        user: User = ctx.get(CTX_ADMIN)
+        user: 'User' = ctx.get(CTX_ADMIN)
         admin: Adherent = session.query(Adherent).filter((Adherent.login == user.login) | (Adherent.ldap_login == user.login)).one_or_none()
         member = obj.get_related_member()
 

@@ -9,10 +9,10 @@
         </a>
       </p>
       <p><strong>Chambre : </strong>
-        <a *ngIf="port.room != null" [routerLink]="['/room/view', port.room.roomNumber]">
+        <a *ngIf="port.room !== null" [routerLink]="['/room/view', port.room.roomNumber]">
           {{port.room.roomNumber}}
         </a>
-        <a *ngIf="port.room == null">Aucune chambre</a>
+        <a *ngIf="port.room === null">Aucune chambre</a>
       </p>
       <p><strong>VLAN actuel : </strong>{{(vlan$ | async)}}</p>
     </div>

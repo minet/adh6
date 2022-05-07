@@ -3,16 +3,16 @@
 from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
 
-from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
     AbstractDevice, MemberStatus,
     AbstractAccount, Account,
-    AbstractPaymentMethod, PaymentMethod,
+    AbstractPaymentMethod,
     AccountType
 )
-from src.entity.null import Null
+from src.entity.payment_method import PaymentMethod
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
     AccountTypeNotFoundError,
@@ -157,7 +157,7 @@ class MemberManager(CRUDManager):
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        is_room_changed = abstract_member.room_number is not None and (isinstance(member.room_number, Null) or (not isinstance(member.room_number, Null) and abstract_member.room_number != member.room_number))
+        is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)
 
         if not is_member_active(member):
@@ -202,7 +202,7 @@ class MemberManager(CRUDManager):
     def get_latest_membership(self, ctx, id: int) -> Membership:
         LOG.debug("get_latest_membership_records", extra=log_extra(ctx, id=id))
         # Check that the user exists in the system.
-        member = self.member_repository.get(ctx, id)
+        member = self.member_repository.get_by_id(ctx, id)
         if not member:
             raise MemberNotFoundError(id)
         
@@ -361,7 +361,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def validate_membership(self, ctx, member_id: int, uuid: str):
-        self.__member_not_found(ctx, member_id)
+        member = self.__member_not_found(ctx, member_id)
 
         fethed_membership, _ = self.membership_repository.membership_search_by(
             ctx=ctx,
@@ -371,31 +371,30 @@ class MemberManager(CRUDManager):
         if not fethed_membership:
             raise MembershipNotFoundError(uuid)
         if fethed_membership[0].status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
-            raise MembershipStatusNotAllowed(fethed_membership[0].status, "status cannot be used to validate a membership") 
+            raise MembershipStatusNotAllowed(fethed_membership[0].status, "status cannot be used to validate a membership")
 
         @uses_security("admin", is_collection=False)
         def _validate(cls, ctx, membership_uuid: str) -> None:
             self.membership_repository.validate_membership(ctx, membership_uuid)
 
             membership = fethed_membership[0]
-            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account.id, products=membership.products))
+            payment_method = self.__payment_method_not_found(ctx, membership.payment_method)
+            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account, products=membership.products))
             price = self.duration_price[int(membership.duration)]  # Expressed in EUR.
             if price == 50 and not membership.has_room:
                 price = 9
             price_in_cents = price * 100  # Expressed in cents of EUR.
             duration_str = self.duration_string.get(int(membership.duration), '')
             title = f'Internet - {duration_str}'
-            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, membership.member.username, membership.payment_method.name, membership.uuid)
-            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, membership.payment_method.name, membership_uuid)
+            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, member.username, payment_method.name, membership.uuid)
+            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, payment_method.name, membership_uuid)
             self.member_repository.add_duration(ctx, member_id, membership.duration)
             self.update_subnet(ctx, member_id)
 
         return _validate(self, ctx, uuid)
 
 
-    def __account_not_found(self, ctx, account: Union[int, Account]) -> None:
-        if isinstance(account, Account):
-            account = account.id
+    def __account_not_found(self, ctx, account: int) -> None:
         _account, _ = self.account_repository.search_by(
             ctx=ctx,
             limit=1,
@@ -404,20 +403,17 @@ class MemberManager(CRUDManager):
         if not _account:
             raise AccountNotFoundError(str(account))
 
-    def __payment_method_not_found(self, ctx, payment_method: Union[int, PaymentMethod]) -> None:
-        if isinstance(payment_method, PaymentMethod):
-            payment_method = payment_method.id
+    def __payment_method_not_found(self, ctx, payment_method: int) -> PaymentMethod:
         _payment_method, _ = self.payment_method_repository.search_by(
             ctx=ctx,
             limit=1,
             filter_=AbstractPaymentMethod(id=payment_method)
         )
-        if not _payment_method:
+        if not _payment_method or len(_payment_method) == 0:
             raise PaymentMethodNotFoundError(str(payment_method))
+        return _payment_method[0]
     
-    def __member_not_found(self, ctx, member: Union[int, Member]) -> Member:
-        if isinstance(member, Member):
-            member = member.id
+    def __member_not_found(self, ctx, member: int) -> Member:
         _member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member))
         if not _member:
             raise MemberNotFoundError(str(member))
@@ -448,10 +444,10 @@ class MemberManager(CRUDManager):
         member = member[0]
 
         @uses_security("admin", is_collection=False)
-        def _get_logs(cls, ctx, filter_=None):
+        def _get_logs(cls, ctx, filter_: AbstractMember):
             # Do the actual log fetching.
             try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_))[0]
+                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
                 logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=dhcp)
 
                 return list(map(

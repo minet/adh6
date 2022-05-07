@@ -1,10 +1,3 @@
-# Testing
-pytest
-pytest-cov
-pytest-cases
-pytest-lazy-fixture
-faker
-
 # HTTP API
 Flask
 git+https://github.com/minet/connexion.git

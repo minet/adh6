@@ -1,4 +1,5 @@
 # coding=utf-8
+from typing import Any, Dict, List, Optional
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -19,8 +20,15 @@ class DefaultHandler:
     @with_context
     @require_sql
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
         try:
+            def remove(entity: Any) -> Any:
+                if isinstance(entity, dict) and only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp.keys():
+                        if k not in only + ["id", "__typename"]:
+                            del entity[k]
+                return entity
             filter_ = deserialize_request(filter_, self.abstract_entity_class)
             result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
                                                            filter_=filter_)
@@ -28,7 +36,7 @@ class DefaultHandler:
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            result = list(map(serialize_response, result))
+            result = list(map(remove, map(serialize_response, result)))
             return result, 200, headers
         except Exception as e:
             return handle_error(ctx, e)
@@ -36,9 +44,16 @@ class DefaultHandler:
     @with_context
     @require_sql
     @log_call
-    def get(self, ctx, id_: int):
+    def get(self, ctx, id_: int, only: Optional[List[str]]=None):
         try:
-            return serialize_response(self.main_manager.get_by_id(ctx, id=id_)), 200
+            def remove(entity: Any) -> Any:
+                if isinstance(entity, dict) and only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp.keys():
+                        if k not in only + ["id", "__typename"]:
+                            del entity[k]
+                return entity
+            return remove(serialize_response(self.main_manager.get_by_id(ctx, id=id_))), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -46,16 +61,7 @@ class DefaultHandler:
     @require_sql
     @log_call
     def post(self, ctx, body):
-        try:
-            body['id'] = 0  # Set a dummy id to pass the initial validation
-            to_create = deserialize_request(body, self.entity_class)
-            object, created = self.main_manager.update_or_create(ctx, to_create)
-            if created:
-                return serialize_response(object), 201
-            else:
-                return _error(500, "The server encountered an unexpected error"), 500
-        except Exception as e:
-            return handle_error(ctx, e)
+        return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body)
 
     @with_context
     @require_sql
@@ -79,14 +85,11 @@ class DefaultHandler:
         except Exception as e:
             return handle_error(ctx, e)
 
-def _update(ctx, function, klass, body, id: int):
+def _update(ctx, function, klass, body, id: Optional[int] = None):
     try:
         body['id'] = 0  # Set a dummy id to pass the initial validation
         to_update = deserialize_request(body, klass)
         the_object, created = function(ctx, to_update, id=id)
-        if the_object:
-            return serialize_response(the_object), 201 if created else 204
-        else:
-            return _error(500, "The server encountered an unexpected error"), 500
+        return serialize_response(the_object), 201 if created else 204
     except Exception as e:
         return handle_error(ctx, e)

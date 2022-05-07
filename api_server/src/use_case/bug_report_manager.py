@@ -1,8 +1,7 @@
-import gitlab
-from gitlab.v4.objects import ProjectIssue
+from typing import Any, Dict, List, Optional
+from gitlab.client import Gitlab
 from gitlab.exceptions import GitlabAuthenticationError
 
-from src.exceptions import MissingRequiredField
 from src.util.log import logger
 
 
@@ -15,39 +14,35 @@ class BugReportManager:
         from flask import current_app
         self.testing = current_app.config["TESTING"]
 
-        if not self.testing:
-            try:
-                self.gl = gitlab.Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"])
-                self.gl.auth()
-                self.project = self.gl.projects.get(223)
-            except GitlabAuthenticationError:
-                logger.error("Could not authenticate against MiNET's Gitlab server, bug reporting will not be available.")
-                self.gl = None
-                self.project = None
+        try:
+            self.gl = Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"], api_version="4")
+            self.gl.auth()
+            self.project = self.gl.projects.get(223)
+        except GitlabAuthenticationError:
+            logger.error("Could not authenticate against MiNET's Gitlab server, bug reporting will not be available.")
+            self.gl = None
+            self.project = None
 
-    def create_issue(self, ctx, title="", description="", labels=None) -> ProjectIssue:
+    def create(self, title: str = "", description: str = "", labels: Optional[List[str]] = None) -> Dict[str, Any]:
         if self.testing:
-            return None
+            return {
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "web_url": ""
+            }
 
         if self.gl is None or self.project is None:
             raise RuntimeError("Gitlab initialisation failed, bug reporting is unavailable.")
 
         if labels is None:
             labels = []
-        if not title:
-            raise MissingRequiredField("title")
-        if not description:
-            raise MissingRequiredField("description")
 
-        return self.project.issues.create({'title': title,
-                                           'description': description,
-                                           'labels': labels})
+        return self.project.issues.create(
+            {
+                'title': title,
+                'description': description,
+                'labels': labels
+            }
+        ).attributes
 
-    def get_labels(self, ctx) -> list:
-        if self.testing:
-            return []
-
-        if self.gl is None or self.project is None:
-            raise RuntimeError("Gitlab initialisation failed, bug reporting is unavailable.")
-
-        return self.project.labels.list()

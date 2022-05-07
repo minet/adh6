@@ -13,7 +13,7 @@ export class ListComponent extends SearchPage<Device> implements OnInit {
   @Input() macHighlighted: Observable<string>;
   @Input() abstractDeviceFilter: AbstractDevice = {};
   constructor(public deviceService: DeviceService) {
-    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractDeviceFilter, 'response'));
+    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractDeviceFilter, undefined, 'response'));
   }
 
   ngOnInit() {

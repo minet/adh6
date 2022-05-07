@@ -40,7 +40,7 @@
                   formControlName="username" />
               </p>
               <p class="control">
-                <button class="button is-primary" [disabled]="disabled || EmmenagerForm.status == 'INVALID'">
+                <button class="button is-primary" [disabled]="disabled || EmmenagerForm.status === 'INVALID'">
                   Valider
                 </button>
               </p>
@@ -80,7 +80,7 @@
               </div>
             </div>
             <div *ngIf="isDemenager">
-              <div *ngIf="ref == member.username">
+              <div *ngIf="ref === member.username">
                 <hr>
                 <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(member.username)" novalidate>
                   <div class="field has-addons has-addons-fullwidth">
@@ -90,7 +90,7 @@
                     </div>
                     <div class="control">
                       <button type="submit" class="button is-primary"
-                        [disabled]="disabled || roomForm.status == 'INVALID'">
+                        [disabled]="disabled || roomForm.status === 'INVALID'">
                         Valider
                       </button>
                     </div>
@@ -100,7 +100,7 @@
               <hr>
             </div>
           </ng-container>
-          <ng-container *ngIf="members.length == 0">
+          <ng-container *ngIf="members.length === 0">
             <h6 class="title is-6 has-text-centered">Aucun adhérent dans la chambre</h6>
           </ng-container>
         </ng-container>

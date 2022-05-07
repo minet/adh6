@@ -1,12 +1,10 @@
-from dataclasses import asdict
 from unittest.mock import MagicMock
 
-from pytest import fixture, raises, mark
+from pytest import fixture, raises
 
 from src.entity import AbstractRoom
 from src.entity.room import Room
-from src.exceptions import RoomNotFoundError, VLANNotFoundError, RoomNumberMismatchError, MissingRequiredField, \
-    IntMustBePositive
+from src.exceptions import VLANNotFoundError
 from src.use_case.interface.room_repository import RoomRepository
 from src.use_case.room_manager import RoomManager
 

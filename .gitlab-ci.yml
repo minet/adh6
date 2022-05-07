@@ -3,31 +3,92 @@ image: python:3.9-slim-bullseye
 cache:
   paths:
     - ~/.cache/pip 
+    - frontend_angular/node_modules
+
+variables:
+  GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
+  GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_UPDATE_FLAGS: --remote --jobs 4
 
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
 .setup_test_jobs: &before_test_job
+  needs:
+    - backend_entity_generation
   before_script:
     - apt update
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
-stages:
-  - test
-  - build
-  - deploy
-
-angular_try_build:
-  stage: build
+.setup_angular_jobs: &before_angular_jobs
+  needs:
+    - frontend_api_generation
+    - frontend_assets_generation
   image: node:16-bullseye-slim
   before_script:
     - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
     - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
     - yarn install
+
+stages:
+  - generation
+  - test
+  - build
+  - deploy
+
+angular_lint:
+  stage: test
+  <<: *before_angular_jobs 
+  script:
+    - yarn lint
+
+backend_entity_generation:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/
+    - cp -r tmpsrc/swagger_client/models/* api_server/src/entity/
+    - sed -i 's/swagger_client.models/src.entity/' api_server/src/entity/__init__.py
+  artifacts:
+    paths:
+    - api_server/src/entity
+    expire_in: 1 day
+
+frontend_api_generation:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
+    - ls frontend_angular/src/app
+    - ls frontend_angular/src/app/api
+    - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
+  artifacts:
+    paths:
+    - frontend_angular/src/app/api
+    expire_in: 1 day
+
+frontend_assets_generation:
+  stage: generation
+  image: node:16-alpine
+  script:
+    - yarn global add svgo
+    - cd frontend_angular/src/assets
+    - svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
+  artifacts:
+    paths:
+    - frontend_angular/src/assets
+    expire_in: 1 day
+
+angular_build_dev:
+  stage: build
+  <<: *before_angular_jobs
+  needs:
+    - angular_lint
   script:
     - cp src/app/config/auth.config.ts{.example,}
-    - rm src/app/config/auth.config.template.ts
+    - rm src/app/config/auth.config.ts.template
     - ng build --configuration production
   artifacts:
     paths:
@@ -39,17 +100,14 @@ angular_try_build:
   only:
     - master
 
-angular_build_prod:
+angular_build:
   stage: build
-  image: node:16-bullseye-slim
-  before_script:
-    - apt update && apt-get -y install gettext-base
-    - cd frontend_angular/
-    - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
-    - yarn install
+  needs:
+    - angular_lint
+  <<: *before_angular_jobs 
   script:
-    - cat src/app/config/auth.config.template.ts | envsubst | tee src/app/config/auth.config.ts
-    - rm src/app/config/auth.config.template.ts
+    - cat src/app/config/auth.config.ts.template | envsubst | tee src/app/config/auth.config.ts
+    - rm src/app/config/auth.config.ts.template
     - ng build --configuration production
   artifacts:
     paths:
@@ -84,6 +142,9 @@ python_test:
 
 deploy_dev:
   stage: deploy
+  needs:
+    - angular_lint
+    - python_test
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
@@ -99,6 +160,8 @@ deploy_dev:
 deploy_prod_front:
   stage: deploy
   when: manual
+  needs:
+    - angular_build
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
   environment:
@@ -113,6 +176,8 @@ deploy_prod_front:
 deploy_prod_backend:
   stage: deploy
   when: manual
+  needs:
+    - python_test
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/

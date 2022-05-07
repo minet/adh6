@@ -25,7 +25,7 @@ def assert_room_in_db(body):
     q = s.query(Chambre)
     q = q.filter(body["roomNumber"] == Chambre.numero)
     c = q.one()
-    assert body["vlan"] == c.vlan.id
+    assert body["vlan"] == c.vlan.numero
     assert body["description"] == c.description
 
 
@@ -37,6 +37,54 @@ def test_room_filter_all_rooms(client):
     assert r.status_code == 200
     response = json.loads(r.data.decode())
     assert len(response) == 2
+
+
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("roomNumber"),
+        ("vlan"),
+        ("description"),
+    ])
+def test_room_search_with_only(client, sample_only: str):
+    r = client.get(
+        f'{base_url}/room/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 2
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+
+
+def test_room_search_with_unknown_only(client):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/room/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_member_filter_all_with_invalid_limit(client):
+    r = client.get(
+        '{}/member/?limit={}'.format(base_url, -1),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_member_filter_all_with_limit(client):
+    r = client.get(
+        '{}/member/?limit={}'.format(base_url, 1),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
 
 
 def test_room_filter_all_rooms_limit_invalid(client):
@@ -103,7 +151,7 @@ def test_room_post_new_room_invalid_vlan(client):
 def test_room_post_new_room(client, sample_room1):
     room = {
         "roomNumber": 5111,
-        "vlan": sample_room1.vlan.id,
+        "vlan": sample_room1.vlan.numero,
         "description": "Chambre 5111",
     }
     r = client.post(
@@ -118,7 +166,7 @@ def test_room_post_new_room(client, sample_room1):
 
 def test_room_put_update_room(client, sample_room1):
     room = {
-        "vlan": sample_room1.vlan_id,
+        "vlan": sample_room1.vlan.numero,
         "roomNumber": 5111,
         "description": "Chambre 5111"
     }

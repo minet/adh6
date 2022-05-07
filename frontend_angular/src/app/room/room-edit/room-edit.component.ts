@@ -69,7 +69,7 @@ export class RoomEditComponent implements OnInit {
           id: room.id,
           roomNumber: room.roomNumber,
           description: room.description,
-          vlan: (typeof (room.vlan) === 'number') ? room.vlan : room.vlan.number
+          vlan: room.vlan
         }))
       );
   }

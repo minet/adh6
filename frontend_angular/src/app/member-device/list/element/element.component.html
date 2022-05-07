@@ -26,7 +26,7 @@
               <strong>IPv4</strong>
             </td>
             <td>
-              {{ device.ipv4Address == null ? "-" : device.ipv4Address }}
+              {{ device.ipv4Address === null ? "-" : device.ipv4Address }}
             </td>
           </tr>
           <tr>
@@ -34,7 +34,7 @@
               <strong>IPv6</strong>
             </td>
             <td>
-              {{ device.ipv6Address == null ? "-" : device.ipv6Address }}
+              {{ device.ipv6Address === null ? "-" : device.ipv6Address }}
             </td>
           </tr>
           <tr>
@@ -47,7 +47,7 @@
               <app-mac-vendor device_id="{{ device.id }}"></app-mac-vendor>
             </td>
           </tr>
-          <tr *ngIf="('manage' | able: 'Device') && device.connectionType == 'wired'">
+          <tr *ngIf="('manage' | able: 'Device') && device.connectionType === 'wired'">
             <td>
               <strong>MAB</strong>
             </td>

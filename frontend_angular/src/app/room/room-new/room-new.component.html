@@ -25,7 +25,7 @@
 
   <button
     type="submit"
-    [disabled]="disabled || roomForm.status == 'INVALID'"
+    [disabled]="disabled || roomForm.status === 'INVALID'"
     class="w-100 btn btn-primary mt-4"
   >
     Créer

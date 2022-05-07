@@ -9,9 +9,9 @@ ARG ADH6_URL="adh6.minet.net"
 ARG SSO_OAUTH2="adh6.minet.net/api/oauth2"
 ARG BYPASS_AUTH="false"
 
-COPY src/app/config/auth.config.template.ts .
+COPY src/app/config/auth.config.ts.template .
 
-RUN cat auth.config.template.ts | envsubst | tee auth.config.ts
+RUN cat auth.config.ts.template | envsubst | tee auth.config.ts
 
 
 ###############################################################################
@@ -31,7 +31,6 @@ RUN yarn install
 COPY . .
 # Copy the generated config files.
 COPY --from=config /tmp/auth.config.ts src/app/config/auth.config.ts
-RUN rm src/app/config/auth.config.template.ts
 
 RUN yarn build
 

@@ -1,21 +1,21 @@
 <div class="columns column is-centered">
   <figure>
-    <img src="../assets/adh6-logo.svg">
+    <img src="../assets/adh6.min.svg">
   </figure>
 </div>
 <ng-container *ngIf="member$ | async as member">
   <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>
   <div class="tabs is-centered is-large">
     <ul>
-      <li [ngClass]="{'is-active': currentTab=='device'}">
+      <li [ngClass]="{'is-active': currentTab==='device'}">
         <a i18n="own devices" (click)="currentTab='device'">Mes appareils</a>
       </li>
-      <li [ngClass]="{'is-active': currentTab=='account'}">
+      <li [ngClass]="{'is-active': currentTab==='account'}">
         <a i18n="own account" (click)="currentTab='account'">Mon compte</a>
       </li>
     </ul>
   </div>
-  <ng-container *ngIf="currentTab=='account'">
+  <ng-container *ngIf="currentTab==='account'">
     <div class="box has-text-centered">
       <h4 *ngIf="isDepartureDateFuture, else invalidDate"
         i18n="dashboard active subscription|Describes until when a subscription is active">
@@ -41,14 +41,14 @@
       <p i18n="dashboard email address|Shows a user their email address">
         Addresse mail : <code>{{ member.email }}</code>
       </p>
-      <p *ngIf="member.room != null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">
+      <p *ngIf="member.room !== null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">
         Vous êtes incrit dans la chambre <b>{{member.room.description}}</b>
       </p>
       <ng-template #noRoom>
         <p class="text-danger" i18n="dashboard no room|Tells a user they have no room">Vous n'avez pas de chambre
           attribuée</p>
       </ng-template>
-      <ng-container *ngIf="member.ip != null && member.subnet != null">
+      <ng-container *ngIf="member.ip !== null && member.subnet !== null">
         <hr>
         <p i18n="dashboard public ipv4|Shows a user their public IPv4">Votre adresse IPv4 publique est : <code>{{
             member.ip }}</code></p>
@@ -57,7 +57,7 @@
       </ng-container>
     </div>
   </ng-container>
-  <ng-container *ngIf="currentTab=='device'">
+  <ng-container *ngIf="currentTab==='device'">
     <ng-container *ngIf="isAssociationMode">
       <div class="alert alert-info mt-4">
         <h4 i18n="dashboard association-mode">Association automatique</h4>
@@ -70,7 +70,7 @@
       </div>
     </ng-container>
     <app-device-new [member_id]="member.id"
-      (added)="$event.connectionType == 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()">
+      (added)="$event.connectionType === 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()">
     </app-device-new>
     <br />
     <div class="content">

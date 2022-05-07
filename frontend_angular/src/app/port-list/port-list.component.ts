@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractPort, Port, PortService } from '../api';
+import { map, Observable, shareReplay } from 'rxjs';
+import { AbstractPort, Port, PortService, RoomService, SwitchService } from '../api';
 import { SearchPage } from '../search-page';
 
 @Component({
@@ -9,10 +10,35 @@ import { SearchPage } from '../search-page';
 })
 export class PortListComponent extends SearchPage<Port> implements OnInit {
   @Input() switchId: number | undefined;
+  cachedSwitchDescription: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
+  cachedRoomDescription: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
 
   private filter: AbstractPort | undefined;
-  constructor(public portService: PortService) {
-    super((terms, page) => this.portService.portGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.filter, 'response'));
+  constructor(
+    private portService: PortService,
+    private roomService: RoomService,
+    private switchService: SwitchService
+  ) {
+    super((terms, page) => this.portService.portGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.filter, ["portNumber", "room", "switchObj"], 'response')
+      .pipe(
+        map(response => {
+          for (let p of response.body) {
+            if (p.room && !this.cachedRoomDescription.has(p.room)) {
+              this.cachedRoomDescription.set(p.room, this.roomService.roomIdGet(p.room).pipe(
+                shareReplay(1),
+                map(room => room.description)
+              ));
+            }
+            if (p.switchObj && !this.cachedSwitchDescription.has(p.switchObj)) {
+              this.cachedSwitchDescription.set(p.switchObj, this.switchService.switchIdGet(p.switchObj).pipe(
+                shareReplay(1),
+                map(s => s.description)
+              ));
+            }
+          }
+          return response;
+        })
+      ));
   }
 
   ngOnInit() {

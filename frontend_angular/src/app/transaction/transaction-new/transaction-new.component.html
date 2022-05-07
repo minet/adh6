@@ -31,8 +31,8 @@
             </tr>
           </tbody>
         </table>
-        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value != 'direct'">
-          Vous avez déclaré {{ transactionDetails.get('caisse').value == 'to' ? 'ajouter' : 'prendre' }} de l'argent
+        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value !== 'direct'">
+          Vous avez déclaré {{ transactionDetails.get('caisse').value === 'to' ? 'ajouter' : 'prendre' }} de l'argent
           dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }},
           assurez-vous de bien le faire effectivement !
         </div>
@@ -59,7 +59,7 @@
             <app-account-search [selectedAccount]="selectedSrcAccount" (accountSelected)="selectedSrcAccount=$event">
             </app-account-search>
             <input type="hidden" formControlName="srcAccount"
-              [value]="selectedSrcAccount != undefined ? selectedSrcAccount.id : ''">
+              [value]="selectedSrcAccount !== undefined ? selectedSrcAccount.id : ''">
           </div>
         </div>
         <footer class="card-footer">
@@ -102,17 +102,17 @@
             </div>
             <div class="field has-addons">
               <p class="control">
-                <button class="button" (click)="setCaisse('to')" [ngClass]="{'is-primary': caisse=='to'}">
+                <button class="button" (click)="setCaisse('to')" [ngClass]="{'is-primary': caisse==='to'}">
                   <span>Ajouter Caisse</span>
                 </button>
               </p>
               <p class="control">
-                <button class="button" (click)="setCaisse('direct')" [ngClass]="{'is-primary': caisse=='direct'}">
+                <button class="button" (click)="setCaisse('direct')" [ngClass]="{'is-primary': caisse==='direct'}">
                   <span>Sans Caisse</span>
                 </button>
               </p>
               <p class="control">
-                <button class="button" (click)="setCaisse('from')" [ngClass]="{'is-primary': caisse=='from'}">
+                <button class="button" (click)="setCaisse('from')" [ngClass]="{'is-primary': caisse==='from'}">
                   <span>Sortir Caisse</span>
                 </button>
               </p>
@@ -145,7 +145,7 @@
             <app-account-search [selectedAccount]="selectedDstAccount" (accountSelected)="selectedDstAccount=$event">
             </app-account-search>
             <input type="hidden" formControlName="dstAccount"
-              [value]="selectedDstAccount != undefined ? selectedDstAccount.id : ''">
+              [value]="selectedDstAccount !== undefined ? selectedDstAccount.id : ''">
           </div>
         </div>
         <footer class="card-footer">
@@ -157,12 +157,12 @@
 
   <br>
   <button type="button" (click)="toogleModal()" class="button is-primary"
-    [disabled]="transactionDetails.status == 'INVALID' || isFormInvalid()">Créer
+    [disabled]="transactionDetails.status === 'INVALID' || isFormInvalid()">Créer
   </button>
 
 </form>
 
 <br>
 <h3 class="title is-3">Transactions récentes</h3>
-<app-transaction-list [refresh]="refreshTransactions" (onAction)="useTransaction($event)" [actions]="actions">
+<app-transaction-list [refresh]="refreshTransactions" (whenOnAction)="useTransaction($event)" [actions]="actions">
 </app-transaction-list>

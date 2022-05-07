@@ -12,7 +12,7 @@ class DeviceHandler(DefaultHandler):
     def __init__(self, device_manager: DeviceManager):
         super().__init__(Device, AbstractDevice, device_manager)
         self.device_manager = device_manager
-
+    
     @with_context
     @require_sql
     @log_call
