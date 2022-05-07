@@ -18,6 +18,11 @@ api_server/config/CONFIGURATION.py
 api_server/config/MANAGE_CONFIGURATION.py
 api_server/venv
 **/.pytest_cache
+api_server/mypy-report
+**/pylint-report
+**/pylint.json
+**/flake8-report.txt
+**/.mypy_cache
 
 # API GATEWAY
 api_gateway/.cache/
