@@ -9,7 +9,7 @@ import connexion
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
-from src.entity.util.logic import BinaryExpression, Expression, TrueExpression
+from src.entity.util.logic import BinaryExpression, Expression, FalseExpression, TrueExpression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, UnauthorizedError
 from src.interface_adapter.sql.model.models import Adherent, ApiKey
 from src.util.context import log_extra, build_context
@@ -181,7 +181,7 @@ class HasRoleExpression(Expression):
         return self.enum_element.value in roles
 
 def has_any_role(roles: List[Roles]) -> Expression:
-    expression = TrueExpression()
+    expression = FalseExpression()
     for role in roles:
         expression |= HasRoleExpression(role)
     return expression

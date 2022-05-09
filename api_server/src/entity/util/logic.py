@@ -87,3 +87,13 @@ class TrueExpression(Expression):
     def __repr__(self):
         return "(true)"
 
+class FalseExpression(Expression):
+    def __init__(self):
+        super().__init__()
+
+    def _operate(self, *values):
+        return False
+
+    def __repr__(self):
+        return "(false)"
+
