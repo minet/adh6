@@ -81,26 +81,14 @@ angular_lint:
   script:
     - yarn lint
 
-python_black:
+python_lint:
   stage: lint
   needs:
     - backend_entity_generation
   before_script:
-    - pip install black
+    - pip install black isort
   script:
     - black . --extend-exclude migrations,venv
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - api_server/
-
-python_isort:
-  stage: lint
-  needs:
-    - backend_entity_generation
-  before_script:
-    - pip install isort
-  script:
     - isort . --skip venv --skip migrations
   artifacts:
     expire_in: 1 day
@@ -110,8 +98,7 @@ python_isort:
 python_test:
   stage: test
   needs:
-    - python_black
-    - python_isort
+    - python_lint
   <<: *before_python_jobs # We reference our previous anchor
   script:
   - cd api_server/
