@@ -82,6 +82,7 @@ angular_lint:
     - yarn lint
 
 python_lint:
+  image: python:3.9-slim
   stage: lint
   needs:
     - backend_entity_generation

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 import { BugReport, MiscService } from '../api';
@@ -9,7 +9,7 @@ import { NotificationService } from '../notification.service';
   templateUrl: './bug-reporter.component.html',
   styleUrls: ['./bug-reporter.component.sass']
 })
-export class BugReporterComponent implements OnInit {
+export class BugReporterComponent {
   faBug = faBug;
   submitBugForm: FormGroup;
   bugModal: boolean = false;
@@ -20,9 +20,6 @@ export class BugReporterComponent implements OnInit {
     private fb: FormBuilder,
   ) {
     this.createForm();
-  }
-
-  ngOnInit(): void {
   }
 
   public toogleModal(): void {
