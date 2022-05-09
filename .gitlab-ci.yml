@@ -1,4 +1,3 @@
-image: python:3.9-slim-bullseye
 
 cache:
   paths:
@@ -6,6 +5,7 @@ cache:
     - frontend_angular/node_modules
 
 variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
   GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
   GIT_SUBMODULE_STRATEGY: recursive
@@ -13,7 +13,8 @@ variables:
 
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
-.setup_test_jobs: &before_test_job
+.setup_test_jobs: &before_python_jobs
+  image: python:3.9-slim
   needs:
     - backend_entity_generation
   before_script:
@@ -25,24 +26,47 @@ variables:
   needs:
     - frontend_api_generation
     - frontend_assets_generation
-  image: node:16-bullseye-slim
+  image: node:18-alpine
   before_script:
-    - apt update && apt-get -y install gettext-base
+    - apk update && apk add gettext
     - cd frontend_angular/
     - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
     - yarn install
 
 stages:
   - generation
+  - lint
   - test
   - build
   - deploy
 
 angular_lint:
-  stage: test
+  stage: lint
   <<: *before_angular_jobs 
   script:
     - yarn lint
+
+python_black:
+  stage: lint
+  before_script:
+    - pip install black
+  script:
+    - black . --extend-exclude migrations,venv
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api_server/
+
+python_isort:
+  stage: lint
+  before_script:
+    - pip install isort
+  script:
+    - isort . --skip venv --skip migrations
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api_server/
 
 backend_entity_generation:
   stage: generation
@@ -130,7 +154,10 @@ angular_build:
 
 python_test:
   stage: test
-  <<: *before_test_job # We reference our previous anchor
+  needs:
+    - python_black
+    - python_isort
+  <<: *before_python_jobs # We reference our previous anchor
   script:
   - cd api_server/
   - apt update -q

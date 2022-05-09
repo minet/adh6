@@ -17,7 +17,7 @@ RUN cat auth.config.ts.template | envsubst | tee auth.config.ts
 ###############################################################################
 # 2nd stage, build the app
 ###############################################################################
-FROM node:16-alpine as build
+FROM node:18-alpine as build
 WORKDIR /adh6/frontend_angular
 
 # Install angular system-wide
