@@ -29,6 +29,9 @@ RUN yarn install
 
 # Copy source code
 COPY . .
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Copy the generated config files.
 COPY --from=config /tmp/auth.config.ts src/app/config/auth.config.ts
 

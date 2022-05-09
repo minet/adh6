@@ -85,9 +85,8 @@ python_lint:
   stage: lint
   needs:
     - backend_entity_generation
-  before_script:
-    - pip install black isort
   script:
+    - pip install black isort
     - black . --extend-exclude migrations,venv
     - isort . --skip venv --skip migrations
   artifacts:
@@ -115,6 +114,7 @@ angular_build_dev:
   needs:
     - angular_lint
   script:
+    - export NODE_OPTIONS=--openssl-legacy-provider
     - cp src/app/config/auth.config.ts{.example,}
     - rm src/app/config/auth.config.ts.template
     - ng build --configuration production
@@ -134,6 +134,7 @@ angular_build:
     - angular_lint
   <<: *before_angular_jobs 
   script:
+    - export NODE_OPTIONS=--openssl-legacy-provider
     - cat src/app/config/auth.config.ts.template | envsubst | tee src/app/config/auth.config.ts
     - rm src/app/config/auth.config.ts.template
     - ng build --configuration production

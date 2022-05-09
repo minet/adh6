@@ -30,5 +30,7 @@ RUN yarn install
 COPY . .
 COPY --from=config /tmp/auth.config.ts src/app/config/auth.config.ts
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 CMD ["yarn", "start:en", "--watch", "--host", "0.0.0.0", "--disable-host-check"]
 
