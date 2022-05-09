@@ -54,7 +54,7 @@ $(BACKEND_ENV_PATH): $(BACKEND_PATH)/requirements.txt
 	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install -r requirements.txt
 
 $(FRONTEND_ENV_PATH): $(FRONTEND_PATH)/package.json
-	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(FRONTEND_PATH):/app node:16-alpine yarn install
+	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH):/app node:16-alpine yarn install
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
@@ -75,7 +75,7 @@ $(FRONTEND_PATH)/src/assets/*.min.svg: $(FRONTEND_PATH)/src/assets/*.svg
 
 ### Generate database fixture, only for test purpose
 .PHONY: generate-database-fixtures
-generate-database-fixtures: dev-environment-backend
+generate-database-fixtures: $(BACKEND_ENV_PATH)
 	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh db upgrade
 	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh seed
 	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)

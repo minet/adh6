@@ -18,6 +18,9 @@ import { authConfig } from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
+import { FooterComponent } from './footer/footer.component';
+import { BugReporterComponent } from './bug-reporter/bug-reporter.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete';
 type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> | "all";
@@ -42,6 +45,8 @@ function load(oAuthService: OAuthService): Configuration {
     PortailComponent,
     ErrorPageComponent,
     AutoTroubleshootComponent,
+    FooterComponent,
+    BugReporterComponent,
   ],
   imports: [
     BrowserModule,
@@ -51,7 +56,8 @@ function load(oAuthService: OAuthService): Configuration {
     BrowserAnimationsModule,
     OAuthModule.forRoot(),
     HttpClientModule,
-    AbilityModule
+    AbilityModule,
+    FontAwesomeModule
   ],
   providers: [
     AppComponent,
