@@ -15,17 +15,12 @@ variables:
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
 .setup_test_jobs: &before_python_jobs
   image: python:3.9-slim
-  needs:
-    - backend_entity_generation
   before_script:
     - apt update
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
 .setup_angular_jobs: &before_angular_jobs
-  needs:
-    - frontend_api_generation
-    - frontend_assets_generation
   image: node:18-alpine
   before_script:
     - apk update && apk add gettext
@@ -39,34 +34,6 @@ stages:
   - test
   - build
   - deploy
-
-angular_lint:
-  stage: lint
-  <<: *before_angular_jobs 
-  script:
-    - yarn lint
-
-python_black:
-  stage: lint
-  before_script:
-    - pip install black
-  script:
-    - black . --extend-exclude migrations,venv
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - api_server/
-
-python_isort:
-  stage: lint
-  before_script:
-    - pip install isort
-  script:
-    - isort . --skip venv --skip migrations
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - api_server/
 
 backend_entity_generation:
   stage: generation
@@ -104,6 +71,56 @@ frontend_assets_generation:
     paths:
     - frontend_angular/src/assets
     expire_in: 1 day
+
+angular_lint:
+  stage: lint
+  needs:
+    - frontend_api_generation
+    - frontend_assets_generation
+  <<: *before_angular_jobs 
+  script:
+    - yarn lint
+
+python_black:
+  stage: lint
+  needs:
+    - backend_entity_generation
+  before_script:
+    - pip install black
+  script:
+    - black . --extend-exclude migrations,venv
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api_server/
+
+python_isort:
+  stage: lint
+  needs:
+    - backend_entity_generation
+  before_script:
+    - pip install isort
+  script:
+    - isort . --skip venv --skip migrations
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api_server/
+
+python_test:
+  stage: test
+  needs:
+    - python_black
+    - python_isort
+  <<: *before_python_jobs # We reference our previous anchor
+  script:
+  - cd api_server/
+  - apt update -q
+  - apt install -qy sqlite3
+  - pytest -vvv --cov-fail-under=70 --cov-report=term
+  artifacts:
+    paths:
+      - api_server/htmlcov/
 
 angular_build_dev:
   stage: build
@@ -151,21 +168,6 @@ angular_build:
 #  - pip install safety
 #  - safety check -r requirements.txt
 #  - safety check
-
-python_test:
-  stage: test
-  needs:
-    - python_black
-    - python_isort
-  <<: *before_python_jobs # We reference our previous anchor
-  script:
-  - cd api_server/
-  - apt update -q
-  - apt install -qy sqlite3
-  - pytest -vvv --cov-fail-under=70 --cov-report=term
-  artifacts:
-    paths:
-      - api_server/htmlcov/
 
 deploy_dev:
   stage: deploy
