@@ -121,6 +121,16 @@ class PortSQLRepository(PortRepository):
         session.flush()
 
 
+    def get_rcom(self, ctx, id) -> Optional[int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+
+        port = session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
+        if port is None:
+            raise PortNotFoundError(id)
+
+        return port[0]
+
+
 def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
     now = datetime.now()
     port = sql_object
