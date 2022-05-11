@@ -39,8 +39,8 @@ semgrep:
   stage: conformity
   image: returntocorp/semgrep
   script: semgrep ci --exclude api_server/src/use_case/member_manager.py --exclude reverse_proxy/adh6.template.conf --exclude frontend_angular/yarn.lock --exclude api_server/manage.py
-    #rules:
-    #- if: $CI_MERGE_REQUEST_IID
+  rules:
+  - if: $CI_MERGE_REQUEST_IID
   variables:
     SEMGREP_RULES: >- 
       p/security-audit
