@@ -51,16 +51,19 @@ dev-environment: $(BACKEND_ENV_PATH) $(FRONTEND_ENV_PATH)
 
 $(BACKEND_ENV_PATH): $(BACKEND_PATH)/requirements.txt
 	python3 -m venv $(BACKEND_VENV_PATH)
-	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install -r requirements.txt
+	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install --ignore-pipfile -r requirements.txt
 
 $(FRONTEND_ENV_PATH): $(FRONTEND_PATH)/package.json
-	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH):/app node:18-alpine yarn install
+	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH):/app node:18-alpine yarn install --frozen-lockfile
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
 generate: $(BACKEND_PATH)/src/entity/*.py $(FRONTEND_PATH)/src/app/api $(FRONTEND_PATH)/src/assets/*.min.svg
 
-$(BACKEND_PATH)/src/entity/*.py: $(OPENAPI_SPEC_PATH)
+$(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
+	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
+
+$(BACKEND_PATH)/src/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
 	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l python -t $(BACKEND_GENERATOR_PATH) -o tmpsrc $(BACKEND_GENERATION_ARGS)
 	cp -r tmpsrc/src/entity/* $(BACKEND_PATH)/src/entity/
 	rm -rf tmpsrc
@@ -93,7 +96,7 @@ check: $(BACKEND_PATH)/src/entity/*.py $(BACKEND_ENV_PATH) test-install-environm
 
 .PHONY: test-environment-python
 test-install-environment-python:
-	cd $(CURDIR)/api_server && source venv/bin/activate && pip install pytest pytest-cov pytest-lazy-fixture faker
+	cd $(CURDIR)/api_server && source venv/bin/activate && pip3 install --ignore-pipfile pytest pytest-cov pytest-lazy-fixture faker
 
 .PHONY: test-environment-python
 test-uninstall-environment-python:
@@ -105,7 +108,7 @@ test-backend: dev-environment-backend generate-backend
 
 .PHONY: lint-backend
 lint-backend:
-	cd $(CURDIR)/api_server && source venv/bin/activate && pip install black isort
+	cd $(CURDIR)/api_server && source venv/bin/activate && pip3 install --ignore-pipfile black isort
 	cd $(CURDIR)/api_server && source venv/bin/activate && black . --extend-exclude migrations,venv
 	cd $(CURDIR)/api_server && source venv/bin/activate && isort . --skip venv --skip migrations
 #	cd $(CURDIR)/api_server && source venv/bin/activate && flake8 .

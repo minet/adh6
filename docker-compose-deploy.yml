@@ -61,14 +61,3 @@ services:
       - "443:443"
       - "80:80" # Redirect to 443.
     command: ['nginx-debug', '-g', 'daemon off;'] # More logging!
-
-  # The RDBMS of the project.
-  database:
-    build: "database"
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "adh6"
-      MYSQL_USER: "adh6"
-      MYSQL_PASSWORD: "adh6_pass" # Please change this password on prod'.
-    expose:
-      - "3306"

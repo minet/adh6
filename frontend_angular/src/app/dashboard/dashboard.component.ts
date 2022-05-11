@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Member } from '../api';
-import { localize_link } from '../config/links.config';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { AppConstantsService } from '../app-constants.service';
 import { Observable } from 'rxjs';
@@ -15,8 +14,6 @@ import { ListComponent } from '../member-device/list/list.component';
 export class DashboardComponent implements OnInit {
   @ViewChild(ListComponent) wiredList: ListComponent;
   @ViewChild(ListComponent) wirelessList: ListComponent;
-
-  localize_link = localize_link;
 
   date = new Date();
   isDepartureDateFuture = false;

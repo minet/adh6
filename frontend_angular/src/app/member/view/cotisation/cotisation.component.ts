@@ -127,7 +127,7 @@ export class CotisationComponent implements OnInit {
           if (elem.id == +v.paidWith) { paymentMethod = elem }
         })
         const subscription: AbstractMembership = {
-          duration: this.subscriptionDuration[v.renewal],
+          duration: this.subscriptionDuration.at(v.renewal),
           account: account.id,
           products: products,
           paymentMethod: paymentMethod.id,
@@ -146,7 +146,7 @@ export class CotisationComponent implements OnInit {
 
   updateAmount() {
     this.amountToPay = 0;
-    this.amountToPay = this.amountToPay + this.subscriptionPrices[this.subscriptionForm.value.renewal];
+    this.amountToPay = this.amountToPay + this.subscriptionPrices.at(this.subscriptionForm.value.renewal);
 
     for (let i = 0; i < this.productsFormArray.length; i++) {
       if (this.productsFormArray.at(i).value.checked === true) {

@@ -18,15 +18,14 @@ variables:
   before_script:
     - apt update
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
-    - pip install -r api_server/requirements.txt
+    - pip install --ignore-pipfile -r api_server/requirements.txt
 
 .setup_angular_jobs: &before_angular_jobs
   image: node:18-alpine
   before_script:
     - apk update && apk add gettext
     - cd frontend_angular/
-    - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
-    - yarn install
+    - yarn install --frozen-lockfile
 
 stages:
   - generation
@@ -34,6 +33,29 @@ stages:
   - test
   - build
   - deploy
+
+semgrep:
+  image: returntocorp/semgrep
+  script: semgrep ci --exclude api_server/src/use_case/member_manager.py --exclude reverse_proxy/adh6.template.conf --exclude frontend_angular/yarn.lock --exclude api_server/manage.py
+    #rules:
+    #- if: $CI_MERGE_REQUEST_IID
+  variables:
+    SEMGREP_RULES: >- 
+      p/security-audit
+      p/secrets
+      p/dockerfile
+      p/docker-compose
+      p/eslint-plugin-security
+      p/nodejsscan
+      p/flask
+      p/xss
+      p/jwt
+      p/command-injection
+      p/r2c-ci
+      p/r2c-security-audit
+      p/owasp-top-ten
+      p/gitlab-bandit
+      p/gitlab-eslint
 
 backend_entity_generation:
   stage: generation
@@ -87,7 +109,7 @@ python_lint:
   needs:
     - backend_entity_generation
   script:
-    - pip install black isort
+    - pip install --ignore-pipfile black isort
     - black . --extend-exclude migrations,venv
     - isort . --skip venv --skip migrations
   artifacts:
@@ -154,7 +176,7 @@ angular_build:
   # <<: *before_test_job # We reference our previous anchor
 #  script:
 #  - cd api_server/
-#  - pip install safety
+#  - pip install --ignore-pipfile safety
 #  - safety check -r requirements.txt
 #  - safety check
 

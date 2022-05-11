@@ -66,14 +66,21 @@ services:
     command: ['nginx-debug', '-g', 'daemon off;'] # More logging!
   
   database:
+    read_only: true
     container_name: adh6_database
     image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "adh6"
-      MYSQL_USER: "adh6"
-      MYSQL_PASSWORD: "adh6_pass"
+      MYSQL_DATABASE: ${DATABASE_DB_NAME}
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
     expose:
       - "3306"
     ports:
       - "3306:3306"
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /var/lib/mysql:rw
+      - /tmp:rw
+      - /run/mysqld/:rw

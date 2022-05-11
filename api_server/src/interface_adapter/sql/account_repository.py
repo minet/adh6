@@ -68,7 +68,7 @@ class AccountSQLRepository(AccountRepository):
     @log_call
     def get_by_id(self, ctx, object_id: int) -> AbstractAccount:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        obj = session.query(SQLAccount).filter(SQLAccount.id == id).one_or_none()
+        obj = session.query(SQLAccount).filter(SQLAccount.id == object_id).one_or_none()
         if not obj:
             raise AccountNotFoundError(object_id)
         return _map_account_sql_to_abstract_entity(obj)

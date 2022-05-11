@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { AppComponent } from '../app.component';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { authConfig } from '../config/auth.config';
 
 
 @Component({
@@ -19,7 +18,6 @@ export class NavbarComponent {
 
   logout() {
     this.oauthService.logOut();
-    window.location.href = authConfig.logoutUrl;
   }
 
   isAuthenticated() {

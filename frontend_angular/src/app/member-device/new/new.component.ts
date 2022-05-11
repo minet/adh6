@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Device, DeviceService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
-import { localize_link } from '../../config/links.config';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -13,7 +12,6 @@ import { NotificationService } from '../../notification.service';
 })
 export class NewComponent {
   deviceForm: FormGroup;
-  public localize_link = localize_link;
   private alive = true;
 
   @Input() member_id: number;

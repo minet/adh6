@@ -262,11 +262,11 @@ export class ViewComponent implements OnInit {
 
     if (this.content.includes('Login OK')) {
       return this.content.replace(new RegExp('Login OK:', 'gi'), match => {
-        return '<font color="green">' + match + '</font>';
+        return '<font color="green">'.concat(match).concat('</font>');
       });
     } else if (this.content.includes('Login incorrect')) {
       return this.content.replace(new RegExp('Login incorrect', 'gi'), match => {
-        return '<font color="red">' + match + '</font>';
+        return '<font color="red">'.concat(match).concat('</font>');
       });
     } else {
       return this.content;

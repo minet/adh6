@@ -16,22 +16,22 @@
           <div class="field has-addons has-addons-centered">
             <p class="control">
               <button type="button" class="button is-danger" tooltip="Inactif"
-                [value]="this.abstractAccountFilter.actif === false"
-                (click)="updateBooleanFilter('actif', false, null)">
+                [value]="abstractAccountFilter.actif === false"
+                (click)="(abstractAccountFilter.actif) ? undefined : false; updateSearch()">
                 <fa-icon [icon]="faBan"></fa-icon>
               </button>
             </p>
             <p class="control">
               <button type="button" class="button is-primary" tooltip="Épinglé"
-                [value]="this.abstractAccountFilter.pinned === true"
-                (click)="updateBooleanFilter('pinned', true, null)">
+                [value]="abstractAccountFilter.pinned === true"
+                (click)="(abstractAccountFilter.pinned) ? undefined : true; updateSearch()">
                 <fa-icon [icon]="faThumbtack"></fa-icon>
               </button>
             </p>
             <p class="control">
               <button type="button" class="button is-primary" tooltip="Sur le compte courant"
-                [value]="this.abstractAccountFilter.compteCourant === true"
-                (click)="updateBooleanFilter('compteCourant', true, null)">
+                [value]="abstractAccountFilter.compteCourant === true"
+                (click)="(abstractAccountFilter.compteCourant) ? undefined : true; updateSearch()">
                 CAV
               </button>
             </p>

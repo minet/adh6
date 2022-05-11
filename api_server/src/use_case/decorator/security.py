@@ -130,7 +130,8 @@ def uses_security(action, is_collection=False):
             
             arguments = {}
             authorized = False
-            assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
+            if ctx.get(CTX_SQL_SESSION) is None:
+                raise UnauthorizedError('You need SQL for authentication.')
             logged_user = _find_user(ctx.get(CTX_SQL_SESSION), username)
             obj = kwargs["filter_"] if "filter_" in kwargs else None
             arguments = merge_obj_to_dict(arguments, obj)

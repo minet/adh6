@@ -96,7 +96,7 @@
         </div>
         <div class="column">
           <ng-container *ngIf="latestMembership; else waitingMembership">
-            <a [routerLink]="['charter']">
+            <a href="//chartes.minet.net">
               <button class="button is-danger is-fullwidth" *ngIf="latestMembership.status === 'PENDING_RULES'">Signer
                 la
                 charte</button>

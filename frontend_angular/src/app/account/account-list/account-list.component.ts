@@ -48,16 +48,7 @@ export class AccountListComponent extends SearchPage<Account> implements OnInit 
     );
   }
 
-  public updateBooleanFilter(property: any, trueValue: any, falseValue: any): any {
-    if (this.abstractAccountFilter[property] === trueValue) {
-      if (falseValue == null) {
-        delete this.abstractAccountFilter[property];
-      } else {
-        this.abstractAccountFilter[property] = falseValue;
-      }
-    } else {
-      this.abstractAccountFilter[property] = trueValue;
-    }
+  updateSearch() {
     this.getSearchResult();
   }
 
