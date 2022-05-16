@@ -1,0 +1,13 @@
+CVE-2021-33026
+
+### Patch when docker image of nginx with alpine is updated
+# curl / libcurl
+CVE-2022-22576
+CVE-2022-27774
+CVE-2022-27775
+CVE-2022-27776
+# ----
+CVE-2022-27404
+CVE-2022-29824
+CVE-2022-1271
+###

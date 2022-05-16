@@ -6,12 +6,6 @@ services:
     build:
       context: frontend_angular
       dockerfile: Dockerfile.dev
-      args:
-        # SSO URL for getting a token.
-        SSO_OAUTH2: "https://cas.minet.net/oidc"
-        # URL of ADH6, the SSO will redirect to that URL after login.
-        ADH6_URL: "https://adh6-local.minet.net/dashboard" # Do not forget the trailing slash!
-        BYPASS_AUTH: "false"
     expose:
       - "80" # app does not start as root here
     volumes:
@@ -20,50 +14,43 @@ services:
         source: "./frontend_angular/src"
         target: "/adh6/frontend_angular/src/"
         read_only: true
-      - "/adh6/frontend_angular/src/app/config"
-  
   # api_server is the API that actually does action on the database.
   api_server:
     container_name: adh6_backend
-    build:
-      context: ./
-      dockerfile: ./api_server/Dockerfile
-      args:
-        # The API will make a request to this URL to verify the authetication token.
-        OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
-        AUTH_CONSENT_ADDRESS: "https://adh6-local.minet.net/authorize"
-        DATABASE_HOST: ${DATABASE_HOST}
-        DATABASE_PORT: ${DATABASE_PORT}
-        DATABASE_USERNAME: ${DATABASE_USERNAME}
-        DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-        DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-        GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
+    build: api_server
     links:
       - database
     expose:
-      - "443"
+      - "8080"
     environment:
       ENVIRONMENT: "development"
+      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
+      AUTH_CONSENT_ADDRESS: "https://adh6-local.minet.net/authorize"
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_DB_NAME: ${DATABASE_DB_NAME}
+      GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
      
   reverse_proxy:
     container_name: adh6_reverse_proxy
-    build: 
-      context: "./reverse_proxy"
-      args:
-        ADH6_URL: "localhost"
-
-        API_HOST: "api_server" 
-        API_PORT: "443"        
-
-        FRONTEND_HOST: "frontend_angular"
-        FRONTEND_PORT: "80"
+    build: reverse_proxy
     links:
       - frontend_angular
       - api_server
     ports:
       - "443:443"
-      - "80:80" # Redirect to 443.
-    command: ['nginx-debug', '-g', 'daemon off;'] # More logging!
+      - "80:80"
+    volumes:
+      - ./reverse_proxy:/etc/nginx/templates
+    environment:
+      ADH6_URL: "adh6-local.minet.net"
+      API_HOST: "api_server" 
+      API_PORT: "8080"        
+      FRONTEND_HOST: "frontend_angular"
+      FRONTEND_PORT: "80"
+    command: ['nginx-debug', '-g', 'daemon off;']
   
   database:
     read_only: true
@@ -74,10 +61,6 @@ services:
       MYSQL_DATABASE: ${DATABASE_DB_NAME}
       MYSQL_USER: ${DATABASE_USERNAME}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
-    expose:
-      - "3306"
-    ports:
-      - "3306:3306"
     security_opt:
       - no-new-privileges:true
     tmpfs:

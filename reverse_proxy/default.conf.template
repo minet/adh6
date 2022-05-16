@@ -15,7 +15,6 @@ server {
         listen          80;
         listen          [::]:80;
         server_name     ${ADH6_URL};
-
         rewrite         ^(.*)$ https://$host$1 permanent;
 }
 
@@ -58,11 +57,16 @@ server {
 	gzip_disable        "MSIE [1-6]\.";
 	gzip_vary           on;
   location /api {
-    proxy_pass https://adh6_api;
-    proxy_redirect     off;
+    include uwsgi_params;
+		uwsgi_request_buffering off;
+		uwsgi_pass adh6_api;
+		
+		# Force nginx a aussi passer les headers
+		# Authorization est le header contenant le token pour authentifier les utilisateurs
+		include uwsgi_params;
+		uwsgi_pass_header Authorization;
+		uwsgi_pass_request_headers on;
 
-    proxy_pass_request_headers      on;
-		proxy_pass_header Authorization;
   }
   location = / {
 		return 302      /$lang/;

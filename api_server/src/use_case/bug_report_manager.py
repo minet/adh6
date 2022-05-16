@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List, Optional
 from gitlab.client import Gitlab
 from gitlab.exceptions import GitlabAuthenticationError
@@ -11,11 +12,10 @@ class BugReportManager:
     """
 
     def __init__(self):
-        from flask import current_app
-        self.testing = current_app.config["TESTING"]
+        self.testing = os.environ.get('ENVIRONMENT', 'default').lower() == "testing"
 
         try:
-            self.gl = Gitlab('https://gitlab.minet.net', private_token=current_app.config["GITLAB_ACCESS_TOKEN"], api_version="4")
+            self.gl = Gitlab('https://gitlab.minet.net', private_token=os.environ.get("GITLAB_ACCESS_TOKEN"), api_version="4")
             self.gl.auth()
             self.project = self.gl.projects.get(223)
         except GitlabAuthenticationError:
