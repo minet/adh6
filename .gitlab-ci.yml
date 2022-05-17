@@ -179,7 +179,10 @@ angular_build:
 
 build_docker_images:
   stage: conformity
-  image: moby/buildkit:master-rootless
+  image: 
+    name: moby/buildkit:master-rootless
+    entrypoint: 
+      - buildctl-daemonless.sh
   script:
     - build --frontend dockerfile.v0 --local context=api_server --local dockerfile=api_server
 
