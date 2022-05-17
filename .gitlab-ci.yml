@@ -179,8 +179,6 @@ angular_build:
 
 build_docker_images:
   stage: conformity
-  needs:
-    - backend_entity_generation
   services:
   - alias: buildkitd
     name: moby/buildkit:rootless
