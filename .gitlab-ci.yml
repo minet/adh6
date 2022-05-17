@@ -182,7 +182,7 @@ build_docker_images:
   image: 
     name: moby/buildkit:master-rootless
     entrypoint: 
-      - buildctl-daemonless.sh
+      - "/bin/sh -c buildctl-daemonless.sh"
   script:
     - build --frontend dockerfile.v0 --local context=api_server --local dockerfile=api_server
 
