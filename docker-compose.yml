@@ -25,7 +25,6 @@ services:
     environment:
       ENVIRONMENT: "development"
       OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
-      AUTH_CONSENT_ADDRESS: "https://adh6-local.minet.net/authorize"
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
@@ -61,6 +60,8 @@ services:
       MYSQL_DATABASE: ${DATABASE_DB_NAME}
       MYSQL_USER: ${DATABASE_USERNAME}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - 3306:3306
     security_opt:
       - no-new-privileges:true
     tmpfs:

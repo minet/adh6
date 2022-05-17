@@ -5,6 +5,7 @@ import requests.exceptions
 from flask_caching import Cache
 from src.interface_adapter.sql.model.models import ApiKey, db
 from connexion.exceptions import OAuthProblem
+import os
 
 cache = Cache()
 

@@ -33,7 +33,7 @@ RUN pip install -U pip \
 # 3rd stage, deploy the application
 ###############################################################################
 FROM base
-RUN apk add --no-cache --update mariadb-client
+RUN apk add --no-cache --update mariadb-connector-c
 
 EXPOSE 443
 WORKDIR /adh6/api_server

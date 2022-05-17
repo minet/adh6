@@ -4,11 +4,17 @@
 FROM node:18-alpine@sha256:f4d6916c5625853e81994b5cb53ad3eb27e5fec9451c579d298fee0c508fe621
 WORKDIR /adh6/frontend_angular
 
+RUN apk --no-cache --update add openssl
+
 COPY package.json .
 RUN yarn install --frozen-lockfile
 
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-CMD ["yarn", "start:en", "--watch", "--host", "0.0.0.0", "--disable-host-check"]
+CMD  openssl genrsa -out private.key 4096 \
+  && openssl req -new -key private.key -out private.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=reverse_proxy" \
+  && openssl x509 -req -days 365 -in private.csr -signkey private.key -out private.crt \
+  && yarn start:en --watch --host 0.0.0.0 --disable-host-check
+
 
