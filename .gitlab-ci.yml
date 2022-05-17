@@ -181,8 +181,7 @@ build_docker_images:
   stage: conformity
   image: 
     name: moby/buildkit:master-rootless
-    entrypoint: 
-      - "/bin/sh -c buildctl-daemonless.sh"
+    entrypoint: ["/bin/sh", "-c", "buildctl-daemonless.sh"]
   script:
     - build --frontend dockerfile.v0 --local context=api_server --local dockerfile=api_server
 
