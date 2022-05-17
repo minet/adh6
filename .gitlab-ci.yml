@@ -10,6 +10,8 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_SUBMODULE_UPDATE_FLAGS: --remote --jobs 4
   BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
+  BACKEND_DIR: $CI_PROJECT_DIR/api_server
+  FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
 
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
@@ -177,26 +179,50 @@ angular_build:
     expire_in: 1 day
 
 
-build_docker_images:
-  stage: conformity
-  services:
-  - alias: buildkitd
-    name: moby/buildkit:rootless
-    command:
-    - "--oci-worker-no-process-sandbox"
-    - "--addr"
-    - "tcp://0.0.0.0:1234"
-  variables:
-    BUILDKIT_HOST: tcp://buildkitd:1234
+#build_docker_images:
+#  stage: conformity
+#  services:
+#  - alias: buildkitd
+#    name: moby/buildkit:rootless
+#    command:
+#    - "--oci-worker-no-process-sandbox"
+#    - "--addr"
+#    - "tcp://0.0.0.0:1234"
+#  variables:
+#    BUILDKIT_HOST: tcp://buildkitd:1234
+#  image:
+#    name: moby/buildkit:rootless
+#    entrypoint: [ "sh", "-c" ]
+#  script:
+#  - |
+#    buildctl build \
+#        --frontend=dockerfile.v0 \
+#        --local context=api_server \
+#        --local dockerfile=api_server
+
+
+build_docker:
+  stage: build
+  needs:
+    - backend_entity_generation
+    - frontend_api_generation
+    - frontend_assets_generation
   image:
-    name: moby/buildkit:rootless
-    entrypoint: [ "sh", "-c" ]
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   script:
-  - |
-    buildctl build \
-        --frontend=dockerfile.v0 \
-        --local context=api_server \
-        --local dockerfile=api_server
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${BACKEND_DIR}"
+      --dockerfile "${BACKEND_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+    - >-
+      /kaniko/executor
+      --context "${FRONTEND_DIR}"
+      --dockerfile "${FRONTEND_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
 
 
 ###########################################
