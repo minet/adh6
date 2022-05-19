@@ -6,6 +6,7 @@ import { AppConstantsService } from '../../app-constants.service';
 
 import { faThumbtack, faBan } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
+import { map, Observable, shareReplay } from 'rxjs';
 
 @Component({
   selector: 'app-account-list',
@@ -17,13 +18,31 @@ export class AccountListComponent extends SearchPage<Account> implements OnInit 
   faBan = faBan;
   accountTypes: Array<AccountType>;
   @Input() abstractAccountFilter: AbstractAccount = {};
+  cachedAccountType: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
 
   constructor(
     private accountService: AccountService,
     private route: ActivatedRoute,
     private appConstantsService: AppConstantsService
   ) {
-    super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, ["name", "pendingBalance", "actif", "accountType"], "response"));
+    super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, ["name", "balance", "actif", "accountType"], "response")
+      .pipe(
+        map(response => {
+          for (let i of response.body) {
+            if (i.accountType && !this.cachedAccountType.has(i.accountType)) {
+              this.cachedAccountType.set(i.accountType, this.accountService.accountTypeIdGet(i.accountType).pipe(
+                shareReplay(1),
+                map(result => result.name)
+              ));
+            }
+          }
+          return response;
+        })
+      ));
+  }
+
+  getAccountTypeName(id: number) {
+    return this.cachedAccountType.get(id);
   }
 
   updateTypeFilter(type: string) {

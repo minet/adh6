@@ -59,7 +59,7 @@
       <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
         <td class="align-middle">{{ accountResult.name }}</td>
         <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
-        <td class="align-middle">{{ accountResult.accountType.name }}</td>
+        <td class="align-middle">{{ getAccountTypeName(accountResult.accountType) | async }}</td>
         <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
         <ng-template #noBalance>
           <td class="align-middle">-</td>

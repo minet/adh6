@@ -59,7 +59,7 @@
             <app-account-search [selectedAccount]="selectedSrcAccount" (accountSelected)="selectedSrcAccount=$event">
             </app-account-search>
             <input type="hidden" formControlName="srcAccount"
-              [value]="selectedSrcAccount !== undefined ? selectedSrcAccount.id : ''">
+              [value]="selectedSrcAccount !== undefined ? selectedSrcAccount : ''">
           </div>
         </div>
         <footer class="card-footer">
@@ -145,7 +145,7 @@
             <app-account-search [selectedAccount]="selectedDstAccount" (accountSelected)="selectedDstAccount=$event">
             </app-account-search>
             <input type="hidden" formControlName="dstAccount"
-              [value]="selectedDstAccount !== undefined ? selectedDstAccount.id : ''">
+              [value]="selectedDstAccount !== undefined ? selectedDstAccount : ''">
           </div>
         </div>
         <footer class="card-footer">

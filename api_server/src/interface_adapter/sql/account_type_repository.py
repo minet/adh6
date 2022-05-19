@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity.account_type import AccountType
-from src.exceptions import AccountTypeNotFoundError, PaymentMethodNotFoundError
+from src.exceptions import AccountTypeNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import AccountType as SQLAccountType
 from src.use_case.interface.account_type_repository import AccountTypeRepository

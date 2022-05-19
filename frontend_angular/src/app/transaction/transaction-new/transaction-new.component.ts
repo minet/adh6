@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { filter, map, switchMap, takeWhile } from 'rxjs/operators';
 
-import { Account, AccountService, PaymentMethod, Transaction, TransactionService } from '../../api';
+import { AccountService, PaymentMethod, Transaction, TransactionService } from '../../api';
 
 import { faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
@@ -30,8 +30,8 @@ export class TransactionNewComponent implements OnInit {
     { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
   paymentMethods: Array<PaymentMethod>;
-  selectedSrcAccount: Account;
-  selectedDstAccount: Account;
+  selectedSrcAccount: number;
+  selectedDstAccount: number;
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
   private alive = true;
 
@@ -67,13 +67,13 @@ export class TransactionNewComponent implements OnInit {
     this.transactionDetails.reset();
     this.transactionDetails.patchValue(event.transaction);
     if (event.name === 'revert') {
-      this.selectedDstAccount = event.transaction.src as Account;
-      this.selectedSrcAccount = event.transaction.dst as Account;
+      this.selectedDstAccount = event.transaction.src;
+      this.selectedSrcAccount = event.transaction.dst;
       this.transactionDetails.patchValue({ 'name': 'ANNULATION: ' + event.transaction.name });
       this.reverting = true;
     } else {
-      this.selectedDstAccount = event.transaction.dst as Account;
-      this.selectedSrcAccount = event.transaction.src as Account;
+      this.selectedDstAccount = event.transaction.dst;
+      this.selectedSrcAccount = event.transaction.src;
       this.reverting = false;
     }
     this.transactionDetails.patchValue({ 'paymentMethod': (event.transaction.paymentMethod as PaymentMethod).id });
@@ -111,8 +111,8 @@ export class TransactionNewComponent implements OnInit {
     this.transactionDetails = this.fb.group({
       name: ['', Validators.required],
       value: ['', Validators.required],
-      srcAccount: [''],
-      dstAccount: [''],
+      srcAccount: ['', Validators.required],
+      dstAccount: ['', Validators.required],
       paymentMethod: ['', Validators.required],
       caisse: ['direct'],
       pending_validation: [false],
@@ -124,7 +124,7 @@ export class TransactionNewComponent implements OnInit {
       map(params => params['account_id']),
       filter(id => id),
       switchMap(id => this.accountService.accountIdGet(id))
-    ).subscribe(account => this.selectedSrcAccount = account);
+    ).subscribe(account => this.selectedSrcAccount = account.id);
 
     this.appConstantService.getPaymentMethods().subscribe(
       data => {
@@ -137,9 +137,9 @@ export class TransactionNewComponent implements OnInit {
     const v = this.transactionDetails.value;
     const varTransaction: Transaction = {
       attachments: [],
-      dst: this.selectedDstAccount.id,
+      dst: this.selectedDstAccount,
       name: v.name,
-      src: this.selectedSrcAccount.id,
+      src: this.selectedSrcAccount,
       paymentMethod: +v.paymentMethod,
       value: +v.value,
       cashbox: v.caisse,

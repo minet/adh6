@@ -2221,9 +2221,7 @@ components:
           type: boolean
         accountType:
           description: The type of this account
-          oneOf:
-            - $ref: '#/components/schemas/AccountType'
-            - type: integer
+          type: integer
           example: 2
         creationDate:
           description: The date-time at which this account was first created
