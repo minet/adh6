@@ -172,7 +172,7 @@ angular_build:
     - angular_lint
   script:
     - export NODE_OPTIONS=--openssl-legacy-provider
-    - ng build --configuration production
+    - yarn build --configuration production
   artifacts:
     paths:
     - frontend_angular/dist/
