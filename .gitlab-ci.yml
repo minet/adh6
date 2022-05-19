@@ -74,9 +74,11 @@ backend_entity_generation:
   script:
     - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/ --additional-properties packageName=src --model-package entity
     - cp -r tmpsrc/src/entity/* api_server/src/entity/
+    - cp openapi/spec.yaml api_server/openapi/swagger.yaml
   artifacts:
     paths:
     - api_server/src/entity
+    - api_server/openapi
     expire_in: 1 day
 
 frontend_api_generation:
