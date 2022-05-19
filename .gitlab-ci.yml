@@ -25,7 +25,6 @@ variables:
 .setup_angular_jobs: &before_angular_jobs
   image: node:18-alpine
   before_script:
-    - apk update && apk add gettext
     - cd frontend_angular/
     - yarn install --frozen-lockfile
 
@@ -73,9 +72,8 @@ backend_entity_generation:
   stage: generation
   image: openjdk:11
   script:
-    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/ --additional-properties packageName=src --model-package entity
     - cp -r tmpsrc/swagger_client/models/* api_server/src/entity/
-    - sed -i 's/swagger_client.models/src.entity/' api_server/src/entity/__init__.py
   artifacts:
     paths:
     - api_server/src/entity
@@ -86,8 +84,6 @@ frontend_api_generation:
   image: openjdk:11
   script:
     - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
-    - ls frontend_angular/src/app
-    - ls frontend_angular/src/app/api
     - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
   artifacts:
     paths:
@@ -171,6 +167,8 @@ angular_build:
   needs:
     - angular_lint
   script:
+    - ls src/app/api
+    - ls .
     - export NODE_OPTIONS=--openssl-legacy-provider
     - yarn build --configuration production
   artifacts:
