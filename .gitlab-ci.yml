@@ -173,6 +173,9 @@ angular_build:
     - ls .
     - export NODE_OPTIONS=--openssl-legacy-provider
     - yarn build --configuration production
+  dependencies:
+    - frontend_api_generation
+    - frontend_assets_generation
   artifacts:
     paths:
     - frontend_angular/dist/
