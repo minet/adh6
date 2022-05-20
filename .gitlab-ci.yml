@@ -175,6 +175,7 @@ angular_build:
     - yarn build --configuration production
   artifacts:
     paths:
+    - frontend_angular/src/app/api
     - frontend_angular/dist/
     expire_in: 1 day
 
