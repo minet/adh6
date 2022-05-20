@@ -168,14 +168,13 @@ angular_build:
   <<: *before_angular_jobs
   needs:
     - angular_lint
+    - frontend_api_generation
+    - frontend_assets_generation
   script:
-    - ls src/app
-    - ls .
     - export NODE_OPTIONS=--openssl-legacy-provider
     - yarn build --configuration production
   artifacts:
     paths:
-    - frontend_angular/src/app/api
     - frontend_angular/dist/
     expire_in: 1 day
 
