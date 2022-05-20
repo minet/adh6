@@ -68,7 +68,7 @@ semgrep:
 ################################
 ########## Generation ##########
 ################################
-backend_entity_generation:
+generation:backend_entity:
   stage: generation
   image: openjdk:11
   script:
@@ -81,7 +81,7 @@ backend_entity_generation:
     - api_server/openapi
     expire_in: 1 day
 
-frontend_api_generation:
+generation:frontend_module:
   stage: generation
   image: openjdk:11
   script:
@@ -92,7 +92,7 @@ frontend_api_generation:
     - frontend_angular/src/app/api
     expire_in: 1 day
 
-frontend_assets_generation:
+generation:frontend_assets:
   stage: generation
   image: node:16-alpine
   script:
@@ -108,20 +108,20 @@ frontend_assets_generation:
 ##################################################
 ########## Linting frontend and backend ##########
 ##################################################
-angular_lint:
+lint:frontend:
   stage: lint
   needs:
-    - frontend_api_generation
-    - frontend_assets_generation
+    - generation:frontend_module
+    - generation:frontend_assets
   <<: *before_angular_jobs 
   script:
     - yarn lint
 
-python_lint:
+lint:backend:
   image: python:3.9-slim
   stage: lint
   needs:
-    - backend_entity_generation
+    - generation:backend_entity
   script:
     - pip install black isort
     - black . --extend-exclude migrations,venv
@@ -135,10 +135,10 @@ python_lint:
 ####################################
 ########## Backends Tests ##########
 ####################################
-python_test:
+test:backend:
   stage: test
   needs:
-    - python_lint
+    - lint:backend
   <<: *before_python_jobs # We reference our previous anchor
   script:
   - cd api_server/
@@ -149,27 +149,26 @@ python_test:
     paths:
       - api_server/htmlcov/
 
-#python_check_for_vuln_deps:
-#  stage: test
-  # <<: *before_test_job # We reference our previous anchor
-#  script:
-#  - cd api_server/
-#  - pip install safety
-#  - safety check -r requirements.txt
-#  - safety check
-
+test:python_check_for_vuln_deps:
+  stage: test
+  <<: *before_python_jobs # We reference our previous anchor
+  script:
+    - cd api_server/
+    - pip install safety
+    - safety check -r requirements.txt
+    - safety check
 
 
 ###########################
 ########## Build ##########
 ###########################
-angular_build:
+build:frontend:
   stage: build
   <<: *before_angular_jobs
   needs:
-    - angular_lint
-    - frontend_api_generation
-    - frontend_assets_generation
+    - lint:frontend
+    - generation:frontend_module
+    - generation:frontend_assets
   script:
     - export NODE_OPTIONS=--openssl-legacy-provider
     - yarn build --configuration production
@@ -182,13 +181,13 @@ angular_build:
 ###########################################
 ########## Deploy in development ##########
 ###########################################
-deploy_prerelease:
+development:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
-    - angular_lint
-    - python_test
+    - lint:frontend
+    - test:backend
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
@@ -203,14 +202,14 @@ deploy_prerelease:
 ##########################################
 ########## Deploy in production ##########
 ##########################################
-deploy_prod_front:
+production_frontend:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   when: manual
   needs:
-    - angular_build
+    - build:frontend
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
   environment:
@@ -220,14 +219,14 @@ deploy_prod_front:
     - adh6-prod
     - adh6-frontend
 
-deploy_prod_backend:
+production_backend:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   when: manual
   needs:
-    - python_test
+    - test:backend
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
