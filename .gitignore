@@ -14,8 +14,6 @@ api_server/lib/
 **/htmlcov/*
 api_server/pip-selfcheck.json
 api_server/certs/
-api_server/config/CONFIGURATION.py
-api_server/config/MANAGE_CONFIGURATION.py
 api_server/venv
 **/.pytest_cache
 api_server/mypy-report
@@ -23,34 +21,6 @@ api_server/mypy-report
 **/pylint.json
 **/flake8-report.txt
 **/.mypy_cache
-
-# API GATEWAY
-api_gateway/.cache/
-api_gateway/.coverage
-api_gateway/.pytest_cache/
-api_gateway/.swagger-codegen/
-api_gateway/bin/
-api_gateway/include/
-api_gateway/lib/
-api_gateway/htmlcov/*
-api_gateway/pip-selfcheck.json
-api_gateway/certs/
-api_gateway/config/CONFIGURATION.py
-api_gateway/venv
-
-# API OAUTH2
-api_oauth2/.cache/
-api_oauth2/.coverage
-api_oauth2/.pytest_cache/
-api_oauth2/.swagger-codegen/
-api_oauth2/bin/
-api_oauth2/include/
-api_oauth2/lib/
-api_oauth2/htmlcov/*
-api_oauth2/pip-selfcheck.json
-api_oauth2/certs/
-api_oauth2/config/CONFIGURATION.py
-api_oauth2/venv
 
 
 # FRONTEND (ANGULAR)
@@ -95,8 +65,6 @@ frontend_angular//e2e/*.map
 # System Files
 frontend_angular/.DS_Store
 frontend_angular/Thumbs.db
-
-frontend_angular/src/app/config/auth.config.ts
 
 # certificats
 frontend_angular/certs/
