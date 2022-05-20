@@ -149,14 +149,14 @@ test:backend:
     paths:
       - api_server/htmlcov/
 
-test:python_check_for_vuln_deps:
-  stage: test
-  <<: *before_python_jobs # We reference our previous anchor
-  script:
-    - cd api_server/
-    - pip install safety
-    - safety check -r requirements.txt
-    - safety check
+# test:python_check_for_vuln_deps:
+#   stage: test
+#   <<: *before_python_jobs # We reference our previous anchor
+#   script:
+#     - cd api_server/
+#     - pip install safety
+#     - safety check -r requirements.txt
+#     - safety check
 
 
 ###########################
@@ -210,8 +210,10 @@ production_frontend:
   when: manual
   needs:
     - build:frontend
+    - generation:frontend_assets
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
+    - cp -r frontend_angular/srv/assets /var/www/assets
   environment:
     name: production
     url: https://adh6.minet.net/
@@ -227,6 +229,7 @@ production_backend:
   when: manual
   needs:
     - test:backend
+    - lint:backend
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
