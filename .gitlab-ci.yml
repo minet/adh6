@@ -169,41 +169,14 @@ angular_build:
   needs:
     - angular_lint
   script:
-    - ls src/app/api
+    - ls src/app
     - ls .
     - export NODE_OPTIONS=--openssl-legacy-provider
     - yarn build --configuration production
-  dependencies:
-    - frontend_api_generation
-    - frontend_assets_generation
   artifacts:
     paths:
     - frontend_angular/dist/
     expire_in: 1 day
-
-
-#build_docker:
-#  stage: build
-#  needs:
-#    - backend_entity_generation
-#    - frontend_api_generation
-#    - frontend_assets_generation
-#  image:
-#    name: gcr.io/kaniko-project/executor:debug
-#    entrypoint: [""]
-#  script:
-#    - mkdir -p /kaniko/.docker
-#    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-#    - >-
-#      /kaniko/executor
-#      --context "${BACKEND_DIR}"
-#      --dockerfile "${BACKEND_DIR}/Dockerfile"
-#      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
-#    - >-
-#      /kaniko/executor
-#      --context "${FRONTEND_DIR}"
-#      --dockerfile "${FRONTEND_DIR}/Dockerfile"
-#      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
 
 
 ###########################################
