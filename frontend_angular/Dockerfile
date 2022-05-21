@@ -11,7 +11,7 @@ RUN yarn install --frozen-lockfile
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-RUN yarn build
+RUN yarn build --configuration development
 
 ###############################################################################
 # 2nd stage, host the app with nginx
