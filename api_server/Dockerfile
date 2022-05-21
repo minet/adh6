@@ -7,17 +7,14 @@ SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN apk add --no-cache --update wget \
   && wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
-FROM python:3.9-alpine@sha256:602cd35ea12a7abc69078f447be06634700bdea7a2642712f8d21cfc35792df0 AS base
-WORKDIR /wheels
-# Install dependencies
-RUN apk add --no-cache --update git
-
 ###############################################################################
 # 2nd stage, get wheel files
 ###############################################################################
-FROM base AS wheel
+FROM python:3.9-alpine@sha256:602cd35ea12a7abc69078f447be06634700bdea7a2642712f8d21cfc35792df0 AS wheel
+WORKDIR /wheels
 # Install dependencies
 RUN apk add --no-cache --update \
+  git \
   mariadb-dev \
   build-base \
   libffi-dev
@@ -26,14 +23,16 @@ WORKDIR /wheels
 
 # Install python requirements
 COPY requirements.txt .
-RUN pip install -U pip \
+RUN pip install --no-cache-dir -U pip \
   && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
 ###############################################################################
 # 3rd stage, deploy the application
 ###############################################################################
-FROM base
-RUN apk add --no-cache --update mariadb-connector-c
+FROM python:3.9-alpine@sha256:602cd35ea12a7abc69078f447be06634700bdea7a2642712f8d21cfc35792df0
+RUN apk add --no-cache --update \ 
+  git \
+  mariadb-connector-c
 
 EXPOSE 443
 WORKDIR /adh6/api_server
