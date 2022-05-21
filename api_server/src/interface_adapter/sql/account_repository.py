@@ -14,11 +14,8 @@ from sqlalchemy import func, case, or_
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractAccount, Member
 from src.entity.account import Account
-from src.entity.null import Null
 from src.exceptions import AccountNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.sql.account_type_repository import _map_account_type_sql_to_entity
-from src.interface_adapter.sql.member_repository import _map_member_sql_to_entity
 from src.interface_adapter.sql.model.models import Account as SQLAccount, Transaction, AccountType, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.account_repository import AccountRepository
@@ -27,8 +24,7 @@ from src.use_case.interface.account_repository import AccountRepository
 class AccountSQLRepository(AccountRepository):
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractAccount = None) -> Tuple[List[Account], int]:
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLAccount,
@@ -67,12 +63,15 @@ class AccountSQLRepository(AccountRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_account_sql_to_entity(item, True), r)), count
+        return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
 
     @log_call
-    def get(self, ctx, id: int) -> Optional[Account]:
+    def get_by_id(self, ctx, object_id: int) -> AbstractAccount:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        return session.query(Account).filter(Account.id == id).one_or_none()
+        obj = session.query(SQLAccount).filter(SQLAccount.id == object_id).one_or_none()
+        if not obj:
+            raise AccountNotFoundError(object_id)
+        return _map_account_sql_to_abstract_entity(obj)
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:
@@ -81,12 +80,16 @@ class AccountSQLRepository(AccountRepository):
 
         now = datetime.now()
 
+        account_type_query = session.query(AccountType)
         if abstract_account.account_type is not None:
             LOG.debug("sql_account_repository_search_account_type", extra=log_extra(ctx, account_type=abstract_account.account_type))
-            account_type = session.query(AccountType).filter(AccountType.id == abstract_account.account_type).one_or_none()
+            account_type_query = account_type_query.filter(AccountType.id == abstract_account.account_type)
+        else:
+            account_type_query = account_type_query.filter(AccountType.name == "Adherent")
 
-            if account_type is None:
-                raise AccountNotFoundError(abstract_account.account_type)
+        account_type = account_type_query.one_or_none()
+        if account_type is None:
+            raise AccountNotFoundError(abstract_account.account_type)
 
         adherent = None
         if abstract_account.member is not None:
@@ -131,9 +134,28 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         id=a.id,
         name=a.name,
         actif=a.actif,
-        account_type=_map_account_type_sql_to_entity(a.account_type),
+        account_type=a.account_type.id,
         creation_date=a.creation_date,
-        member=_map_member_sql_to_entity(a.adherent) if a.adherent else Null(),
+        member=a.adherent.id if a.adherent else None,
+        balance=balance or 0,
+        pending_balance=balance or 0,
+        compte_courant=a.compte_courant,
+        pinned=a.pinned
+    )
+def _map_account_sql_to_abstract_entity(a, has_balance=False) -> AbstractAccount:
+    """
+    Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
+    """
+    balance = None
+    if has_balance:
+        (a, balance) = a
+    return AbstractAccount(
+        id=a.id,
+        name=a.name,
+        actif=a.actif,
+        account_type=a.account_type.id,
+        creation_date=a.creation_date,
+        member=a.adherent.id if a.adherent else None,
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,

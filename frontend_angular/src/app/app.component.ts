@@ -1,12 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { Router, RoutesRecognized } from '@angular/router';
-import { faBug } from '@fortawesome/free-solid-svg-icons';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BugReport, MiscService, Configuration } from './api';
+import { Configuration } from './api';
 import { Subject } from 'rxjs';
 import { ErrorPageService } from './error-page.service';
-import { NotificationService } from './notification.service';
 import { SessionService } from './session.service';
 
 @Component({
@@ -15,24 +12,17 @@ import { SessionService } from './session.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  faBug = faBug;
-  submitBugForm: FormGroup;
   currentPageAuthBypass = false;
   hasError: Subject<boolean> = this.errorPageService.hasError;
-  bugModal: boolean = false;
 
   constructor(
-    private fb: FormBuilder,
     private oauthService: OAuthService,
     private configurationAPI: Configuration,
     private sessionService: SessionService,
     private router: Router,
-    private notificationService: NotificationService,
-    private miscService: MiscService,
     private errorPageService: ErrorPageService,
   ) {
     this.sessionService.checkSession();
-    this.createForm();
 
     router.events.subscribe(event => {
       if (event instanceof RoutesRecognized) {
@@ -43,33 +33,8 @@ export class AppComponent {
     });
   }
 
-  public toogleModal(): void {
-    this.bugModal = !this.bugModal;
-  }
-
-  createForm() {
-    this.submitBugForm = this.fb.group({
-      bugTitle: ['', Validators.required],
-      bugDescription: ['', Validators.required]
-    });
-  }
-
   isAuthenticated() {
     return (this.currentPageAuthBypass || this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
-  }
-
-  onSubmitBug() {
-    const bugReport: BugReport = {
-      title: this.submitBugForm.value.bugTitle,
-      description: this.submitBugForm.value.bugDescription,
-      labels: [],
-    };
-
-    this.miscService.bugReportPost(bugReport)
-      .subscribe(_ => {
-        this.submitBugForm.reset();
-        this.notificationService.successNotification('Ok!', 'Bug envoyé avec succès ');
-      });
   }
 
   getCurrentComponent() {

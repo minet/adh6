@@ -16,22 +16,22 @@
           <div class="field has-addons has-addons-centered">
             <p class="control">
               <button type="button" class="button is-danger" tooltip="Inactif"
-                [value]="this.abstractAccountFilter.actif === false"
-                (click)="updateBooleanFilter('actif', false, null)">
+                [value]="abstractAccountFilter.actif === false"
+                (click)="(abstractAccountFilter.actif) ? undefined : false; updateSearch()">
                 <fa-icon [icon]="faBan"></fa-icon>
               </button>
             </p>
             <p class="control">
               <button type="button" class="button is-primary" tooltip="Épinglé"
-                [value]="this.abstractAccountFilter.pinned === true"
-                (click)="updateBooleanFilter('pinned', true, null)">
+                [value]="abstractAccountFilter.pinned === true"
+                (click)="(abstractAccountFilter.pinned) ? undefined : true; updateSearch()">
                 <fa-icon [icon]="faThumbtack"></fa-icon>
               </button>
             </p>
             <p class="control">
               <button type="button" class="button is-primary" tooltip="Sur le compte courant"
-                [value]="this.abstractAccountFilter.compteCourant === true"
-                (click)="updateBooleanFilter('compteCourant', true, null)">
+                [value]="abstractAccountFilter.compteCourant === true"
+                (click)="(abstractAccountFilter.compteCourant) ? undefined : true; updateSearch()">
                 CAV
               </button>
             </p>
@@ -59,7 +59,7 @@
       <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
         <td class="align-middle">{{ accountResult.name }}</td>
         <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
-        <td class="align-middle">{{ accountResult.accountType.name }}</td>
+        <td class="align-middle">{{ getAccountTypeName(accountResult.accountType) | async }}</td>
         <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
         <ng-template #noBalance>
           <td class="align-middle">-</td>

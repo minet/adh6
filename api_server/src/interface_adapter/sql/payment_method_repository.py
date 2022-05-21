@@ -2,27 +2,34 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm.session import Session
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
 from src.entity.payment_method import PaymentMethod
+from src.exceptions import PaymentMethodNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import PaymentMethod as SQLPaymentMethod
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 
 
 class PaymentMethodSQLRepository(PaymentMethodRepository):
+    @log_call
+    def get_by_id(self, ctx, object_id: int) -> PaymentMethod:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLPaymentMethod).filter(SQLPaymentMethod.id == object_id).one_or_none()
+        if obj is None:
+            raise PaymentMethodNotFoundError(object_id)
+        return _map_payment_method_sql_to_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: PaymentMethod = None) -> Tuple[List[PaymentMethod], int]:
+    def search_by(self, ctx, limit:int=DEFAULT_LIMIT, offset:int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[PaymentMethod] = None) -> Tuple[List[PaymentMethod], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLPaymentMethod)
 
-        if filter_ is not None:
+        if filter_:
             if filter_.id:
                 query = query.filter(SQLPaymentMethod.id == filter_.id)
             if filter_.name:

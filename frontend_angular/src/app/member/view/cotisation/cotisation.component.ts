@@ -106,7 +106,7 @@ export class CotisationComponent implements OnInit {
     }
     this.accountService.accountGet(1, 0, undefined, <AbstractAccount>{
       member: this.memberId
-    }, 'response').pipe(
+    }, undefined, 'response').pipe(
       first(() => this.cotisationDisabled = true),
       finalize(() => {
         this.cotisationDisabled = false;
@@ -121,15 +121,13 @@ export class CotisationComponent implements OnInit {
         return;
       }
       const account: Account = response.body[0];
-      console.log(account);
       this.paymentMethods$.subscribe((paymentMethods) => {
         let paymentMethod: PaymentMethod;
         paymentMethods.forEach((elem) => {
           if (elem.id == +v.paidWith) { paymentMethod = elem }
         })
-        console.log(paymentMethod);
         const subscription: AbstractMembership = {
-          duration: this.subscriptionDuration[v.renewal],
+          duration: this.subscriptionDuration.at(v.renewal),
           account: account.id,
           products: products,
           paymentMethod: paymentMethod.id,
@@ -148,7 +146,7 @@ export class CotisationComponent implements OnInit {
 
   updateAmount() {
     this.amountToPay = 0;
-    this.amountToPay = this.amountToPay + this.subscriptionPrices[this.subscriptionForm.value.renewal];
+    this.amountToPay = this.amountToPay + this.subscriptionPrices.at(this.subscriptionForm.value.renewal);
 
     for (let i = 0; i < this.productsFormArray.length; i++) {
       if (this.productsFormArray.at(i).value.checked === true) {

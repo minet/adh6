@@ -4,4 +4,4 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 
 class ProductRepository(CRUDRepository[Product, Product]):
-    pass
+    pass  # pragma: no cover

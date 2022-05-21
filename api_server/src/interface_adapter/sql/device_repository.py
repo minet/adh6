@@ -4,14 +4,14 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Optional, Tuple
+from sqlalchemy.orm.query import Query
 
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractDevice, Member, AbstractMember
-from src.entity.device import Device
-from src.entity.null import Null
+from src.entity import AbstractDevice, Device
+from src.entity.member import Member
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
@@ -25,20 +25,23 @@ class DeviceType(Enum):
 
 
 class DeviceSQLRepository(DeviceRepository):
+    @log_call
+    def get_by_id(self, ctx, object_id: int) -> AbstractDevice:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
+        if obj is None:
+            raise DeviceNotFoundError(object_id)
+        return _map_device_sql_to_abstract_entity(obj)
 
-    def _search(self, session: Session, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                filter_: AbstractDevice = None, query=None):
-        query = query or session.query(SQLDevice)
-        query = query.join(Adherent, Adherent.id == SQLDevice.adherent_id)
-
+    @log_call
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractDevice] = None) -> Tuple[List[AbstractDevice], int]:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        query = session.query(SQLDevice).join(Adherent, Adherent.id == SQLDevice.adherent_id)
         if filter_ is not None:
             if filter_.id is not None:
                 query = query.filter(SQLDevice.id == filter_.id)
             if filter_.member is not None:
-                if isinstance(filter_.member, AbstractMember) or isinstance(filter_.member, Member):
-                    query = query.filter(Adherent.id == filter_.member.id)
-                else:
-                    query = query.filter(Adherent.id == filter_.member)
+                query = query.filter(Adherent.id == filter_.member)
             if filter_.mac:
                 query = query.filter(SQLDevice.mac == filter_.mac)
             if filter_.connection_type:
@@ -54,23 +57,11 @@ class DeviceSQLRepository(DeviceRepository):
             )
 
         count = query.count()
-        query = query.order_by(SQLDevice.created_at.asc())
-        query = query.offset(offset)
-        if limit > 0:
-            query = query.limit(limit)
-        r = query.all()
-
-        return r, count
+        r = query.offset(offset).limit(limit).all()
+        return list(map(_map_device_sql_to_abstract_entity, r)), count
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractDevice = None) -> Tuple[List[Device], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        r, count = self._search(session, limit, offset, terms, filter_)
-        return list(map(_map_device_sql_to_entity, r)), count
-
-    @log_call
-    def create(self, ctx, abstract_device: Device) -> object:
+    def create(self, ctx, abstract_device: AbstractDevice) -> Device:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
@@ -127,8 +118,12 @@ class DeviceSQLRepository(DeviceRepository):
         with track_modifications(ctx, session, device):
             session.delete(device)
 
-    def get_ip_address(self, ctx, type: str, filter_: AbstractDevice = None) -> Tuple[List[str], int]:
+    def get_ip_address(self, ctx, type: str, filter_: Optional[AbstractDevice] = None) -> Tuple[List[str], int]:
+        if type != "ipv4" and type != "ipv6":
+            raise ValueError("Type not found")
+
         session: Session = ctx.get(CTX_SQL_SESSION)
+        query = None
         if type == "ipv4":
             query = session.query(SQLDevice.ip)
             query = query.filter((SQLDevice.ip != None) &
@@ -139,8 +134,18 @@ class DeviceSQLRepository(DeviceRepository):
             query = query.filter((SQLDevice.ipv6 != None) &
                          (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
                          )
-        r, count = self._search(session, limit=0, filter_=filter_, query=query)
+        if filter_:
+            if filter_.id is not None:
+                query = query.filter(SQLDevice.id == filter_.id)
+            if filter_.member is not None:
+                query = query.filter(Adherent.id == filter_.member)
+            if filter_.mac:
+                query = query.filter(SQLDevice.mac == filter_.mac)
+            if filter_.connection_type:
+                query = query.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
 
+        count = query.count()
+        r = query.all()
         return list(map(lambda x: x[0], r)), count
     
 
@@ -193,6 +198,19 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         mac=d.mac,
         member=d.adherent_id,
         connection_type=DeviceType(d.type).name,
-        ipv4_address=d.ip if d.ip != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
-        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else Null(),  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv4_address=d.ip if d.ip != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+    )
+
+def _map_device_sql_to_abstract_entity(d: SQLDevice) -> AbstractDevice:
+    """
+    Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
+    """
+    return AbstractDevice(
+        id=d.id,
+        mac=d.mac,
+        member=d.adherent_id,
+        connection_type=DeviceType(d.type).name,
+        ipv4_address=d.ip if d.ip != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
     )

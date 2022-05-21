@@ -12,7 +12,7 @@ class LogsRepository(abc.ABC):
 
     @abc.abstractmethod
     def get_global_stats(self, ctx):
-        pass
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def get_logs(self, ctx, username=None, devices=None, dhcp=None):

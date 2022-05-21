@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { finalize, first, map, switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MemberService } from '../api';
@@ -38,7 +38,6 @@ export class MemberPasswordEditComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
     private notificationService: NotificationService,
     private route: ActivatedRoute,
     private memberService: MemberService,
@@ -55,7 +54,7 @@ export class MemberPasswordEditComponent implements OnInit {
     const buf = new ArrayBuffer(str.length * 2);
     const bufView = new Uint16Array(buf);
     for (let i = 0, strLen = str.length; i < strLen; i++) {
-      bufView[i] = str.charCodeAt(i);
+      bufView.set([str.charCodeAt(i)], i);
     }
     return bufView;
   }

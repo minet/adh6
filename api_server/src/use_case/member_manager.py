@@ -12,7 +12,6 @@ from src.entity import (
     AbstractPaymentMethod,
     AccountType
 )
-from src.entity.null import Null
 from src.entity.payment_method import PaymentMethod
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
@@ -158,7 +157,7 @@ class MemberManager(CRUDManager):
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        is_room_changed = abstract_member.room_number is not None and (isinstance(member.room_number, Null) or (not isinstance(member.room_number, Null) and abstract_member.room_number != member.room_number))
+        is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)
 
         if not is_member_active(member):
@@ -203,7 +202,7 @@ class MemberManager(CRUDManager):
     def get_latest_membership(self, ctx, id: int) -> Membership:
         LOG.debug("get_latest_membership_records", extra=log_extra(ctx, id=id))
         # Check that the user exists in the system.
-        member = self.member_repository.get(ctx, id)
+        member = self.member_repository.get_by_id(ctx, id)
         if not member:
             raise MemberNotFoundError(id)
         
@@ -445,10 +444,10 @@ class MemberManager(CRUDManager):
         member = member[0]
 
         @uses_security("admin", is_collection=False)
-        def _get_logs(cls, ctx, filter_=None):
+        def _get_logs(cls, ctx, filter_: AbstractMember):
             # Do the actual log fetching.
             try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_))[0]
+                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
                 logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=dhcp)
 
                 return list(map(

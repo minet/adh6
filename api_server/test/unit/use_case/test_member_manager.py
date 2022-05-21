@@ -563,38 +563,32 @@ class TestValidateMembership:
 
 class TestGetByID:
     def test_happy_path(self, ctx,
-                        mock_member_repository: MagicMock,
+                        mock_member_repository: MemberRepository,
                         sample_member: Member,
                         member_manager: MemberManager):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
 
         # When...
         result = member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
         assert sample_member == result
-        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
-                                                                 limit=DEFAULT_LIMIT,
-                                                                 offset=DEFAULT_OFFSET,
-                                                                 terms=None)
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, sample_member.id)
 
     def test_not_found(self, ctx,
                        sample_member,
-                       mock_member_repository: MagicMock,
+                       mock_member_repository: MemberRepository,
                        member_manager: MemberManager):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_by_id = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
 
         # When...
         with raises(MemberNotFoundError):
             member_manager.get_by_id(ctx, id=sample_member.id)
 
         # Expect...
-        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(id=sample_member.id),
-                                                                 limit=DEFAULT_LIMIT,
-                                                                 offset=DEFAULT_OFFSET,
-                                                                 terms=None)
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, sample_member.id)
 
 
 class TestSearch:

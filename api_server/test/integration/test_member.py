@@ -1,5 +1,4 @@
 import json
-from random import sample
 from dateutil import parser
 from pytest_lazyfixture import lazy_fixture
 import pytest
@@ -35,6 +34,36 @@ def test_member_filter_all(client):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 4 # 4 because of the admin user
+
+
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("username"),
+        ("firstName"),
+        ("lastName"),
+        ("roomNumber"),
+    ])
+def test_member_search_with_only(client, sample_only: str):
+    r = client.get(
+        f'{base_url}/member/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+
+
+def test_member_search_with_unknown_only(client):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/member/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
 
 
 def test_member_filter_all_with_invalid_limit(client):
@@ -153,6 +182,35 @@ def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 1
+
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("username"),
+        ("firstName"),
+        ("lastName"),
+        ("roomNumber"),
+    ])
+def test_member_get_with_only(client, sample_member, sample_only: str):
+    r = client.get(
+        f'{base_url}/member/{sample_member.id}?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response.keys()))
+
+
+def test_member_get_with_unknown_only(client, sample_member):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/member/{sample_member.id}?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
 
 
 def test_member_get_existant(client, sample_member):

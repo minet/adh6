@@ -1,6 +1,6 @@
 <div class="columns column is-centered">
   <figure>
-    <img src="../assets/adh6-logo.svg">
+    <img src="../assets/adh6.min.svg">
   </figure>
 </div>
 <ng-container *ngIf="member$ | async as member">
@@ -91,14 +91,13 @@
         <h4 class="title is-4" i18n="dashboard help problem|Is the user encountering any issue ?">Un problème ?</h4>
         <ol class="text-left">
           <li i18n="dashboard help tutorials|Has the user taken a look at the tutorials ?">Avez-vous bien regardé <a
-              class="alert-link" href="{{ localize_link('tutorials', locale) }}">les tutoriels</a>
+              class="alert-link" href="//www.minet.net/{{locale}}/tutoriels.html">les tutoriels</a>
             ?
           </li>
           <li i18n="dashboard help tickets|The user may send a ticket">Envoyez-nous <a class="alert-link"
-              href="{{ localize_link('tickets', locale) }}">un ticket</a></li>
+              href="//tickets.minet.net/?lang={{locale}}">un ticket</a></li>
           <li i18n="dashboard help helpdesk|The user may come see us directly">
-            Éventuellement, passez au local pendant <a class="alert-link"
-              href="{{ localize_link('website', locale) }}">une
+            Éventuellement, passez au local pendant <a class="alert-link" href="//www.minet.net/{{locale}}/">une
               des permanences</a> !
           </li>
         </ol>

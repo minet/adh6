@@ -2,10 +2,10 @@
 from typing import Any, Dict, Optional
 import requests
 import requests.exceptions
-from flask import current_app
 from flask_caching import Cache
 from src.interface_adapter.sql.model.models import ApiKey, db
 from connexion.exceptions import OAuthProblem
+import os
 
 cache = Cache()
 
@@ -39,7 +39,7 @@ def get_sso_groups(token):
     try:
         headers = {"Authorization": "Bearer " + token}
         r = requests.get(
-            current_app.config["AUTH_PROFILE_ADDRESS"],
+            '{}/profile'.format(os.environ.get("OAUTH2_BASE_PATH")),
             headers=headers,
             timeout=1,
             verify=True

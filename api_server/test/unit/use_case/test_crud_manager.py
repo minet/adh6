@@ -8,11 +8,12 @@ from pytest_lazyfixture import lazy_fixture
 from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType
 from src.entity.abstract_payment_method import AbstractPaymentMethod
 from src.entity.abstract_product import AbstractProduct
-from src.exceptions import IntMustBePositive, UserInputError
+from src.exceptions import IntMustBePositive, NotFoundError
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.account_type_repository import AccountTypeRepository
+from src.use_case.interface.crud_repository import CRUDRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.port_repository import PortRepository
 from src.use_case.interface.product_repository import ProductRepository
@@ -58,36 +59,36 @@ class TestGetByID:
     def test_happy_path(self,
                         ctx,
                         mock_repo, mock_object, mock_manager):
-        mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
+        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
         result = mock_manager.get_by_id(ctx, **{"id": mock_object.id})
 
         assert mock_object == result
-        mock_repo.search_by.assert_called_once()
+        mock_repo.get_by_id.assert_called_once_with(ctx, mock_object.id)
 
     def test_object_not_found(self,
                               ctx,
                               mock_repo,
                               mock_manager,
                               mock_object):
-        mock_repo.search_by = MagicMock(return_value=([], 0))
+        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
 
-        with raises(UserInputError):
+        with raises(NotFoundError):
             mock_manager.get_by_id(ctx, **{"id": mock_object.id})
+        
+        mock_repo.get_by_id.assert_called_once_with(ctx, mock_object.id)
 
 
 class TestSearch:
 
     def test_happy_path(self,
                         ctx,
-                        faker,
                         mock_repo, mock_object, mock_manager, abstract_object):
         # Given...
         terms = 'blah blah blah'
         mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
 
         # When...
-        result, count = mock_manager.search(ctx, limit=10, offset=1, filter_=abstract_object(id=mock_object.id),
-                                            terms=terms)
+        result, count = mock_manager.search(ctx, limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms)
 
         # Expect...
         assert [mock_object] == result
@@ -97,7 +98,6 @@ class TestSearch:
 
     def test_invalid_offset(self,
                             ctx,
-                            faker,
                             mock_manager):
         # When...
         with raises(IntMustBePositive):
@@ -105,7 +105,6 @@ class TestSearch:
 
     def test_invalid_limit(self,
                            ctx,
-                           faker,
                            mock_manager):
         # When...
         with raises(IntMustBePositive):
@@ -116,8 +115,7 @@ class TestUpdateOrCreate:
 
     def test_happy_path_create(self,
                                ctx,
-                               faker,
-                               mock_repo, mock_object, mock_manager, abstract_object):
+                               mock_repo, mock_object, mock_manager):
         # Given...
         mock_repo.create = MagicMock(return_value=mock_object)
 
@@ -131,11 +129,10 @@ class TestUpdateOrCreate:
 
     def test_happy_path_update(self,
                                ctx,
-                               faker,
                                mock_repo, mock_object, mock_manager):
         # Given...
         mock_repo.update = MagicMock(return_value=mock_object)
-        mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
+        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
         mock_id = mock_object.id
 
         # When...
@@ -147,18 +144,20 @@ class TestUpdateOrCreate:
         mock_repo.update.assert_called_once_with(ctx, mock_object, override=True)
 
     def test_happy_path_update_non_existing(self,
-                               ctx,
-                               faker,
-                               mock_repo, mock_object, mock_manager):
+                                            ctx,
+                                            mock_repo: CRUDRepository, 
+                                            mock_object, 
+                                            mock_manager):
         # Given...
-        mock_repo.search_by = MagicMock(return_value=([], 0))
+        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
         mock_id = mock_object.id
 
         # When...
-        with raises(UserInputError):
+        with raises(NotFoundError):
             mock_manager.update_or_create(ctx, mock_object, **{"id": mock_id})
 
         # Expect...
+        mock_repo.get_by_id.assert_called_once_with(ctx, mock_id)
         mock_repo.update.assert_not_called()
         mock_repo.create.assert_not_called()
 
@@ -167,7 +166,6 @@ class TestPartiallyUpdate:
 
     def test_happy_path(self,
                         ctx,
-                        faker,
                         mock_repo, mock_object, mock_manager):
         # Given...
         mock_repo.update = MagicMock(return_value=mock_object)
@@ -191,10 +189,11 @@ class TestDelete:
                         mock_manager):
         # When...
         id = faker.random_int
-        mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
+        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
         mock_manager.delete(ctx, **{"id": id})
 
         # Expect...
+        # mock_repo.get_by_id.assert_called_once_with(ctx, id)
         mock_repo.delete.assert_called_once_with(ctx, id)
 
     def test_object_not_found(self,
@@ -203,12 +202,11 @@ class TestDelete:
                               mock_repo,
                               mock_manager):
         # Given
-        mock_repo.search_by = MagicMock(return_value=([], 0))
-        mock_repo.delete = MagicMock(side_effect=UserInputError)
+        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
         id = faker.random_int
 
         # When...
-        with raises(UserInputError):
+        with raises(NotFoundError):
             mock_manager.delete(ctx, **{"id": id})
 
         # Expect...

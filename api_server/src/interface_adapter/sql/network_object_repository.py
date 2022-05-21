@@ -11,8 +11,8 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy import or_
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity.port import Port
-from src.entity.switch import Switch
+from src.entity.abstract_port import AbstractPort
+from src.entity.abstract_switch import AbstractSwitch
 from src.exceptions import SwitchNotFoundError, PortNotFoundError, RoomNotFoundError
 from src.interface_adapter.sql.model.models import Chambre
 from src.interface_adapter.sql.model.models import Port as PortSQL
@@ -26,7 +26,7 @@ from src.util.log import LOG
 class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
 
     def search_switches_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, switch_id: str = None,
-                           terms: str = None) -> Tuple[List[Switch], int]:
+                           terms: str = None) -> Tuple[List[AbstractSwitch], int]:
         """
         Search for a switch.
         """
@@ -52,7 +52,7 @@ class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
         query = query.limit(limit)
         result = query.all()
 
-        result = map(_map_switch_sql_to_entity, result)
+        result = map(_map_switch_sql_to_abstract_entity, result)
         result = list(result)
         return result, count
 
@@ -98,7 +98,7 @@ class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
 
     def search_port_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, port_id: str = None,
                        switch_id: str = None,
-                       room_number: str = None, terms: str = None) -> Tuple[List[Port], int]:
+                       room_number: str = None, terms: str = None) -> Tuple[List[AbstractPort], int]:
         """
         Search for a port.
         :return: the ports and the number of matches in the DB.
@@ -133,7 +133,7 @@ class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
         query = query.limit(limit)
         result = query.all()
 
-        result = map(_map_port_sql_to_entity, result)
+        result = map(_map_port_sql_to_abstract_entity, result)
         result = list(result)
         return result, count
 
@@ -224,20 +224,19 @@ class NetworkObjectSQLRepository(PortRepository, SwitchRepository):
         session.delete(port)
 
 
-def _map_switch_sql_to_entity(r: SwitchSQL) -> Switch:
-    return Switch(
+def _map_switch_sql_to_abstract_entity(r: SwitchSQL) -> AbstractSwitch:
+    return AbstractSwitch(
         id=str(r.id),
         description=r.description,
         ip=r.ip,
-        community=r.communaute,
     )
 
 
-def _map_port_sql_to_entity(r: PortSQL) -> Port:
-    return Port(
+def _map_port_sql_to_abstract_entity(r: PortSQL) -> AbstractPort:
+    return AbstractPort(
         id=str(r.id),
         port_number=r.numero,
-        room=r.chambre,
-        switch=r.switch,
+        room=r.chambre.id,
+        switch_obj=r.switch.id,
         oid=r.oid,
     )

@@ -1,88 +1,145 @@
-image: python:3.9-slim-bullseye
-
 cache:
   paths:
     - ~/.cache/pip 
     - frontend_angular/node_modules
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
+  GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_UPDATE_FLAGS: --remote --jobs 4
+  BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
+  BACKEND_DIR: $CI_PROJECT_DIR/api_server
+  FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
+
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
-.setup_test_jobs: &before_test_job
+.setup_test_jobs: &before_python_jobs
+  image: python:3.9-slim
   before_script:
     - apt update
     - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
     - pip install -r api_server/requirements.txt
 
 .setup_angular_jobs: &before_angular_jobs
-  image: node:16-bullseye-slim
+  image: node:18-alpine
   before_script:
-    - apt update && apt-get -y install gettext-base
     - cd frontend_angular/
-    - NG_CLI_ANALYTICS=ci npm install -g @angular/cli@8.0.1
-    - yarn install
+    - yarn install --frozen-lockfile
 
 stages:
+  - conformity
+  - generation
+  - lint
   - test
   - build
   - deploy
 
-angular_lint:
-  stage: test
+
+################################################
+########## Execute when merge request ##########
+################################################
+semgrep:
+  stage: conformity
+  image: returntocorp/semgrep
+  script: semgrep ci --exclude api_server/src/use_case/member_manager.py --exclude reverse_proxy/adh6.template.conf --exclude frontend_angular/yarn.lock --exclude api_server/manage.py
+  rules:
+  - if: $CI_MERGE_REQUEST_IID
+  variables:
+    SEMGREP_RULES: >- 
+      p/security-audit
+      p/secrets
+      p/dockerfile
+      p/docker-compose
+      p/eslint-plugin-security
+      p/nodejsscan
+      p/flask
+      p/xss
+      p/jwt
+      p/command-injection
+      p/r2c-ci
+      p/r2c-security-audit
+      p/owasp-top-ten
+      p/gitlab-bandit
+      p/gitlab-eslint
+
+
+################################
+########## Generation ##########
+################################
+generation:backend_entity:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/ --additional-properties packageName=src --model-package entity
+    - cp -r tmpsrc/src/entity/* api_server/src/entity/
+    - cp openapi/spec.yaml api_server/openapi/swagger.yaml
+  artifacts:
+    paths:
+    - api_server/src/entity
+    - api_server/openapi
+    expire_in: 1 day
+
+generation:frontend_module:
+  stage: generation
+  image: openjdk:11
+  script:
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
+    - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
+  artifacts:
+    paths:
+    - frontend_angular/src/app/api
+    expire_in: 1 day
+
+generation:frontend_assets:
+  stage: generation
+  image: node:16-alpine
+  script:
+    - yarn global add svgo
+    - cd frontend_angular/src/assets
+    - svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
+  artifacts:
+    paths:
+    - frontend_angular/src/assets
+    expire_in: 1 day
+
+
+##################################################
+########## Linting frontend and backend ##########
+##################################################
+lint:frontend:
+  stage: lint
+  needs:
+    - generation:frontend_module
+    - generation:frontend_assets
   <<: *before_angular_jobs 
   script:
     - yarn lint
 
-
-angular_build_dev:
-  stage: build
-  <<: *before_angular_jobs
+lint:backend:
+  image: python:3.9-slim
+  stage: lint
   needs:
-    - angular_lint
+    - generation:backend_entity
   script:
-    - cp src/app/config/auth.config.ts{.example,}
-    - rm src/app/config/auth.config.ts.template
-    - ng build --configuration production
+    - pip install black isort
+    - black . --extend-exclude migrations,venv
+    - isort . --skip venv --skip migrations
   artifacts:
-    paths:
-    - frontend_angular/dist/
     expire_in: 1 day
-  environment:
-    name: development
-    url: https://adh6-dev.minet.net/
-  only:
-    - master
-
-angular_build:
-  stage: build
-  needs:
-    - angular_lint
-  <<: *before_angular_jobs 
-  script:
-    - cat src/app/config/auth.config.ts.template | envsubst | tee src/app/config/auth.config.ts
-    - rm src/app/config/auth.config.ts.template
-    - ng build --configuration production
-  artifacts:
     paths:
-    - frontend_angular/dist/
-    expire_in: 1 day
-  environment:
-    name: production
-    url: https://adh6.minet.net/
-  only:
-    - production
+      - api_server/
 
-#python_check_for_vuln_deps:
-#  stage: test
-  # <<: *before_test_job # We reference our previous anchor
-#  script:
-#  - cd api_server/
-#  - pip install safety
-#  - safety check -r requirements.txt
-#  - safety check
 
-python_test:
+####################################
+########## Backends Tests ##########
+####################################
+test:backend:
   stage: test
-  <<: *before_test_job # We reference our previous anchor
+  needs:
+    - lint:backend
+  <<: *before_python_jobs # We reference our previous anchor
   script:
   - cd api_server/
   - apt update -q
@@ -92,44 +149,87 @@ python_test:
     paths:
       - api_server/htmlcov/
 
-deploy_dev:
-  stage: deploy
+# test:python_check_for_vuln_deps:
+#   stage: test
+#   <<: *before_python_jobs # We reference our previous anchor
+#   script:
+#     - cd api_server/
+#     - pip install safety
+#     - safety check -r requirements.txt
+#     - safety check
+
+
+###########################
+########## Build ##########
+###########################
+build:frontend:
+  stage: build
+  <<: *before_angular_jobs
   needs:
-    - angular_lint
-    - python_test
+    - lint:frontend
+    - generation:frontend_module
+    - generation:frontend_assets
+  script:
+    - export NODE_OPTIONS=--openssl-legacy-provider
+    - yarn build --configuration production
+  artifacts:
+    paths:
+    - frontend_angular/dist/
+    expire_in: 1 day
+
+
+###########################################
+########## Deploy in development ##########
+###########################################
+development:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
+    - lint:frontend
+    - test:backend
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
     - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
-  only:
-    - master
-  tags:
-    - dev
   environment:
     name: development
     url: https://adh6-dev.minet.net/
+  tags:
+    - dev
 
-deploy_prod_front:
+
+##########################################
+########## Deploy in production ##########
+##########################################
+production_frontend:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
   when: manual
   needs:
-    - angular_build
+    - build:frontend
+    - generation:frontend_assets
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
+    - cp -r frontend_angular/srv/assets /var/www/assets
   environment:
     name: production
     url: https://adh6.minet.net/
   tags:
     - adh6-prod
     - adh6-frontend
-  only:
-    - production
 
-deploy_prod_backend:
+production_backend:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
   when: manual
   needs:
-    - python_test
+    - test:backend
+    - lint:backend
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
     - cd api_server/
@@ -138,15 +238,12 @@ deploy_prod_backend:
     - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
     - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
     - cp ../openapi/spec.yaml ./openapi/spec.yaml
-    - cat config/.env.template | envsubst | tee config/.env
     - export FLASK_APP=manage:manager
     - ENVIRONMENT=production flask db upgrade
     - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
     - sudo rm /etc/uwsgi/vassals/adh6_api.ini
     - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
     - sudo systemctl start emperor.uwsgi.service
-  only:
-    - production
   environment:
     name: production
     url: https://adh6.minet.net/

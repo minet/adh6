@@ -3,14 +3,12 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from src.entity import AbstractRoom
-from src.entity.null import Null
-from src.entity.room import Room
+from src.entity import AbstractRoom, Room
 from src.exceptions import RoomNotFoundError, VLANNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Chambre, Vlan
@@ -19,22 +17,28 @@ from src.use_case.interface.room_repository import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):
+    @log_call
+    def get_by_id(self, ctx, object_id: int) -> AbstractRoom:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        obj = session.query(Chambre).filter(Chambre.id == object_id).one_or_none()
+        if obj is None:
+            raise RoomNotFoundError(object_id)
+        return _map_room_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                  filter_: AbstractRoom = None) -> Tuple[List[Room], int]:
+    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None) -> Tuple[List[AbstractRoom], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(Chambre)
-
-        if filter_.id is not None:
-            query = query.filter(Chambre.id == filter_.id)
-        if terms:
-            query = query.filter(Chambre.description.contains(terms))
-        if filter_.description:
-            query = query.filter(Chambre.description.contains(filter_.description))
-        if filter_.room_number is not None:
-            query = query.filter(Chambre.numero == filter_.room_number)
+        if filter_:
+            if filter_.id is not None:
+                query = query.filter(Chambre.id == filter_.id)
+            if terms:
+                query = query.filter(Chambre.description.contains(terms))
+            if filter_.description:
+                query = query.filter(Chambre.description.contains(filter_.description))
+            if filter_.room_number is not None:
+                query = query.filter(Chambre.numero == filter_.room_number)
 
 
         count = query.count()
@@ -46,7 +50,7 @@ class RoomSQLRepository(RoomRepository):
         return list(map(_map_room_sql_to_abstract_entity, r)), count
 
     @log_call
-    def create(self, ctx, abstract_room: Room) -> object:
+    def create(self, ctx, abstract_room: Room) -> Room:
         session: Session = ctx.get(CTX_SQL_SESSION)
         now = datetime.now()
 
@@ -68,7 +72,7 @@ class RoomSQLRepository(RoomRepository):
             session.add(room)
         session.flush()
 
-        return _map_room_sql_to_abstract_entity(room)
+        return _map_room_sql_to_entity(room)
 
     @log_call
     def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
@@ -119,7 +123,7 @@ def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else None
     )
 
 
@@ -128,5 +132,5 @@ def _map_room_sql_to_entity(r: Chambre) -> Room:
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else Null()
+        vlan=r.vlan.numero if r.vlan is not None else None
     )

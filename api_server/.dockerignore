@@ -1,0 +1,8 @@
+**/__pycache__
+venv/
+migrate.sh
+script.sh
+uwsgi-prod.template
+setup.cfg
+requirements.in
+htmlcov/

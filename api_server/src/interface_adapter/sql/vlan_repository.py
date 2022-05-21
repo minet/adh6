@@ -4,8 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 from sqlalchemy.orm.session import Session
 
-from src.entity import Vlan
-from src.entity.null import Null
+from src.entity import AbstractVlan
 from src.util.context import log_extra
 from src.util.log import LOG
 from src.constants import CTX_SQL_SESSION
@@ -17,7 +16,7 @@ from src.use_case.interface.vlan_repository import VlanRepository
 
 class VLANSQLRepository(VlanRepository):
     @log_call
-    def get_vlan(self, ctx, vlan_number: int) -> Vlan:
+    def get_vlan(self, ctx, vlan_number: int) -> AbstractVlan:
         """
         Get a VLAN.
 
@@ -29,13 +28,13 @@ class VLANSQLRepository(VlanRepository):
         vlan = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
         if not vlan:
             raise VLANNotFoundError(vlan_number)
-        return _map_vlan_sql_to_entity(vlan)
+        return _map_vlan_sql_to_abstract_entity(vlan)
 
 
-def _map_vlan_sql_to_entity(r: VlanSQL) -> Vlan:
-    return Vlan(
+def _map_vlan_sql_to_abstract_entity(r: VlanSQL) -> AbstractVlan:
+    return AbstractVlan(
         id=r.id,
         number=r.numero,
-        ipv4_network=r.adresses or Null(),
-        ipv6_network=r.adressesv6 or Null(),
+        ipv4_network=r.adresses,
+        ipv6_network=r.adressesv6,
     )

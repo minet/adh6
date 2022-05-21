@@ -9,7 +9,7 @@ import connexion
 from sqlalchemy.orm.session import Session
 
 from src.constants import CTX_SQL_SESSION
-from src.entity.util.logic import BinaryExpression, Expression, TrueExpression
+from src.entity.util.logic import BinaryExpression, Expression, FalseExpression, TrueExpression
 from src.exceptions import UnauthenticatedError, MemberNotFoundError, UnauthorizedError
 from src.interface_adapter.sql.model.models import Adherent, ApiKey
 from src.util.context import log_extra, build_context
@@ -130,7 +130,8 @@ def uses_security(action, is_collection=False):
             
             arguments = {}
             authorized = False
-            assert ctx.get(CTX_SQL_SESSION) is not None, 'You need SQL for authentication.'
+            if ctx.get(CTX_SQL_SESSION) is None:
+                raise UnauthorizedError('You need SQL for authentication.')
             logged_user = _find_user(ctx.get(CTX_SQL_SESSION), username)
             obj = kwargs["filter_"] if "filter_" in kwargs else None
             arguments = merge_obj_to_dict(arguments, obj)
@@ -181,7 +182,7 @@ class HasRoleExpression(Expression):
         return self.enum_element.value in roles
 
 def has_any_role(roles: List[Roles]) -> Expression:
-    expression = TrueExpression()
+    expression = FalseExpression()
     for role in roles:
         expression |= HasRoleExpression(role)
     return expression

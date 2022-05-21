@@ -35,8 +35,8 @@ def require_sql(f):
             result = f(cls, ctx, *args, **kwds)
 
             # It makes things clearer and less error-prone.
-            assert isinstance(result, tuple), "Please always pass the result AND the HTTP code."
-            assert len(result) > 1, "Please always pass the result AND the HTTP code."
+            if not isinstance(result, tuple) or len(result) <= 1:
+                raise ValueError("Please always pass the result AND the HTTP code.")
 
             status_code = result[1]
             msg = result[0]

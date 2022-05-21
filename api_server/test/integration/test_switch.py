@@ -72,6 +72,34 @@ def test_switch_post_valid(client):
     assert_switch_in_db(sample_switch1)
 
 
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("ip"),
+        ("description"),
+    ])
+def test_switch_search_with_only(client, sample_only: str):
+    r = client.get(
+        f'{base_url}/switch/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+
+
+def test_switch_search_with_unknown_only(client):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/switch/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
 def test_switch_get_all_invalid_limit(client):
     r = client.get(
         "{}/switch/?limit={}".format(base_url, -1),

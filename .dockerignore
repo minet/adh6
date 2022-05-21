@@ -19,6 +19,10 @@ api_server/pip-selfcheck.json
 api_server/certs/
 api_server/venv
 **/.pytest_cache
+api_server/mypy-report
+**/pylint-report
+**/pylint.json
+**/flake8-report.txt
 
 # compiled output
 frontend_angular/dist
@@ -60,5 +64,3 @@ frontend_angular//e2e/*.map
 frontend_angular/.DS_Store
 frontend_angular/Thumbs.db
 
-#api
-frontend_angular/src/app/api/*

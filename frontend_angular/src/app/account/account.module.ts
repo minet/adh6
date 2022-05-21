@@ -7,7 +7,6 @@ import { AccountListComponent } from './account-list/account-list.component';
 import { AccountCreateComponent } from './account-create/account-create.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ObjectFilterPipe } from './ObjectFilter.pipe';
 import { TransactionListModule } from '../transaction-list/transaction-list.module';
 import { PaginationModule } from '../pagination/pagination.module';
 
@@ -18,7 +17,6 @@ import { PaginationModule } from '../pagination/pagination.module';
     AccountViewComponent,
     AccountEditComponent,
     AccountListComponent,
-    ObjectFilterPipe,
   ],
   imports: [
     CommonModule,

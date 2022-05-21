@@ -66,7 +66,7 @@ export class TransactionListComponent extends SearchPage<Transaction> implements
       if (this.filterType != null && this.filterType !== '') {
         abstractTransaction.paymentMethod = Number(this.filterType);
       }
-      return this.transactionService.transactionGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, abstractTransaction, "response")
+      return this.transactionService.transactionGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, abstractTransaction, undefined, "response")
         .pipe(
           map(response => {
             for (let i of response.body) {
@@ -89,7 +89,7 @@ export class TransactionListComponent extends SearchPage<Transaction> implements
                 ));
               }
               if (i.author && !this.cachedMemberUsername.has(i.author)) {
-                this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author).pipe(
+                this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author, ["username"]).pipe(
                   shareReplay(1),
                   map(result => result.username)
                 ));

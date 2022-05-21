@@ -4,4 +4,4 @@ from src.use_case.interface.crud_repository import CRUDRepository
 
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):
-    pass
+    pass  # pragma: no cover

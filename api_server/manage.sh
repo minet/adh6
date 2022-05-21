@@ -1,8 +1,3 @@
-#!/bin/bash
-set -a
-source ../.env.local
-cat config/.env.template | envsubst > config/.env
-set +a
-
+#!/bin/sh
 export FLASK_APP=manage:manager
-flask $@
+flask "$@"

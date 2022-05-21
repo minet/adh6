@@ -1,7 +1,8 @@
 {
   "root": true,
   "ignorePatterns": [
-    "projects/**/*"
+    "projects/**/*",
+    "**/app/api/**/*"
   ],
   "overrides": [
     {
@@ -17,7 +18,8 @@
       },
       "extends": [
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates"
+        "plugin:@angular-eslint/template/process-inline-templates",
+        "plugin:security/recommended"
       ],
       "rules": {
         "@angular-eslint/component-selector": [

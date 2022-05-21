@@ -63,7 +63,6 @@ def client(custom_device,
         yield c
         close_db()
 
-
 def test_device_filter_all_devices(client):
     r = client.get(
         f'{base_url}/device/',
@@ -73,6 +72,36 @@ def test_device_filter_all_devices(client):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 4
+
+@pytest.mark.parametrize(
+    'sample_only', 
+    [
+        ("id"),
+        ("mac"),
+        ("ipv4Address"),
+        ("ipv6Address"),
+        ("connectionType"),
+        ("member"),
+        ("ipv4Address,ipv6Address"),
+    ])
+def test_device_search_with_only(client, sample_only: str):
+    r = client.get(
+        f'{base_url}/device/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
+    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+
+def test_device_search_with_unknown_only(client):
+    sample_only = "azerty"
+    r = client.get(
+        f'{base_url}/device/?only={sample_only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
 
 @pytest.mark.parametrize('member,header,expected, code', [
     (lazy_fixture('sample_member'), TEST_HEADERS_API_KEY, 4, 200),

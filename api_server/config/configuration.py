@@ -1,6 +1,4 @@
 import os
-from dotenv import load_dotenv
-load_dotenv("config/.env")
 
 class BaseConfig(object):
     DEBUG = True
@@ -21,7 +19,7 @@ class BaseConfig(object):
         'database': ':memory:',
     }
     SESSION_TYPE = 'memcached'
-    SECRET_KEY = 'TODO A CHANGER' #@TODO
+    SECRET_KEY = os.environ.get("SECRET_KEY")
 
     # IPs and ports for Elasticsearch nodes
     ELK_HOSTS = [
@@ -43,9 +41,6 @@ class TestingConfig(BaseConfig):
 class DeployedConfig(BaseConfig):
     DEBUG = False
     TESTING = False
-
-    GITLAB_ACCESS_TOKEN = os.environ.get("GITLAB_ACCESS_TOKEN")
-    AUTH_PROFILE_ADDRESS = '{}/profile'.format(os.environ.get("OAUTH2_BASE_PATH"))
 
     SQLALCHEMY_DATABASE_URI = "mysql+mysqldb://{}:{}@{}/{}".format(
         os.environ.get("DATABASE_USERNAME"),
