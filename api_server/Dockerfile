@@ -41,7 +41,7 @@ WORKDIR /adh6/api_server
 RUN adduser -s /bin/bash uwsgi -h /home/uwsgi -D
 COPY --from=wheel /wheels /wheels
 RUN chown uwsgi:uwsgi -R /wheels
-RUN pip install -U pip \
+RUN pip install --no-cache-dir -U pip \
   && pip install -r /wheels/requirements.txt \
   -f /wheels
 

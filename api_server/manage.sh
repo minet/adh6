@@ -1,7 +1,3 @@
-#!/bin/bash
-set -a
-source ../.env.local
-set +a
-
+#!/bin/sh
 export FLASK_APP=manage:manager
 flask "$@"

@@ -1,7 +1,5 @@
 **/__pycache__
 venv/
-manage.py
-manage.sh
 migrate.sh
 script.sh
 uwsgi-prod.template
