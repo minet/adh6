@@ -188,6 +188,9 @@ development:
   needs:
     - lint:frontend
     - test:backend
+    - generation:frontend_module
+    - generation:frontend_assets
+    - lint:backend
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
@@ -212,7 +215,7 @@ production_frontend:
     - generation:frontend_assets
   script:
     - cp -r frontend_angular/dist/adh6/* /var/www/
-    - cp -r frontend_angular/srv/assets /var/www/assets
+    - cp -r frontend_angular/src/assets /var/www/assets
   environment:
     name: production
     url: https://adh6.minet.net/
