@@ -1,7 +1,7 @@
 # coding: utf-8
 from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean, Date, DateTime, Integer, Numeric, Text, text
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import CHAR, Enum
+from sqlalchemy.sql.sqltypes import Enum
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -289,10 +289,10 @@ class Product(db.Model, RubyHashTrackable):
 class Account(db.Model, RubyHashTrackable):
     __tablename__ = 'accounts'
 
-    id = Column(Integer, primary_key=True, unique=True)
-    type = Column(ForeignKey('account_types.id'), nullable=False, index=True)
+    id =Column(Integer, primary_key=True, unique=True)
+    type= Column(ForeignKey('account_types.id'), nullable=False, index=True)
     creation_date = Column(DateTime, nullable=False)
-    name = Column(String(255), nullable=False)
+    name= Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False)
     compte_courant = Column(Boolean(), nullable=False, default=False)
     pinned = Column(Boolean(), nullable=False, default=False)

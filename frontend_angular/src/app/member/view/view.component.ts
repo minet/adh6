@@ -86,7 +86,7 @@ export class ViewComponent implements OnInit {
     this.member$ = refresh$.pipe(
       switchMap(member_id => this.memberService.memberIdGet(member_id)
         .pipe(map((user) => {
-          this.room$ = this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: user.roomNumber }, ["id"])
+          this.room$ = this.roomService.roomGet(1, 0, undefined, (user.roomNumber !== undefined) ? <AbstractRoom>{ roomNumber: user.roomNumber } : undefined, ["id"])
             .pipe(
               map(rooms => {
                 if (rooms.length != 1) {

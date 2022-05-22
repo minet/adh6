@@ -45,9 +45,11 @@
           <tr>
             <td>Chambre</td>
             <td>
-              <a *ngIf="member.roomNumber !== null; else elseNoRoom" [routerLink]='["/room/view/", (room$ | async)]'>
-                {{ member.roomNumber }}
-              </a>
+              <ng-container *ngIf="member.roomNumber !== undefined; else elseNoRoom">
+                <a [routerLink]='["/room/view/", (room$ | async)]'>
+                  {{ member.roomNumber }}
+                </a>
+              </ng-container>
               <ng-template #elseNoRoom>
                 <button class="button is-warning" (click)="collapseMoveIn()"
                   [disabled]="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE'">

@@ -8,6 +8,7 @@ from common import init
 from faker import Faker
 
 import ipaddress
+from src.constants import MembershipDuration, MembershipStatus
 from src.use_case.decorator.security import Roles
 from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
@@ -282,6 +283,22 @@ def fake(login):
     )
 
     session.add(account)
+
+    membership = Membership(
+        uuid=str(uuid.uuid4),
+        account=account,
+        adherent=adherent,
+        payment_method_id=3,
+        has_room=True,
+        first_time=True,
+        products="",
+        update_at=datetime.now(),
+        create_at=datetime.now(),
+        status=MembershipStatus.COMPLETE.value,
+        duration=MembershipDuration.ONE_YEAR.value
+    )
+
+    session.add(membership)
 
     session.add(Transaction(
         value=9,
