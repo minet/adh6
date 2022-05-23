@@ -659,17 +659,9 @@
         </context-group>
         <note priority="1" from="description">portail create account options</note>
       </trans-unit>
-      <trans-unit id="f74050a95fd9591e0ffc2920f475213394123cf5" datatype="html">
-        <source>
-          <x id="INTERPOLATION" equiv-text="{{ (oauthService.discoveryDocumentLoaded$
-          |
-          async) ? &quot;Se connecter&quot; : &quot;Veuillez patienter...&quot;}}" />
-        </source>
-        <target>
-          <x id="INTERPOLATION" equiv-text="{{ (oauthService.discoveryDocumentLoaded$
-          |
-          async) ? &quot;Connect &quot; : &quot;Please Wait...&quot;}}" />
-        </target>
+      <trans-unit id="ba8d35c460d5225ef0ad5f130fce8e27d1686a63" datatype="html">
+        <source> Se connecter </source>
+        <target> Connect </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
           <context context-type="linenumber">62,32</context>
