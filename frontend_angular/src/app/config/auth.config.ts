@@ -1,6 +1,6 @@
 import { AuthConfig } from 'angular-oauth2-oidc';
 const SSO_URL = "https://cas.minet.net/oidc";
-const REDIRECT_URL = "https://adh6-local.minet.net/dashboard";
+const REDIRECT_URL = window.location.toString();
 const CLIENT_ID = "adh6";
 const SCOPE = "profile";
 // const OIDC = "false";
