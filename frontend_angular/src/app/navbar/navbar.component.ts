@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { AppComponent } from '../app.component';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { Router } from '@angular/router';
+import { SessionService } from '../session.service';
 
 
 @Component({
@@ -13,14 +14,16 @@ export class NavbarComponent {
 
   constructor(
     private oauthService: OAuthService,
-    private appComponent: AppComponent
+    private router: Router,
+    private sessionService: SessionService
   ) { }
 
   logout() {
     this.oauthService.logOut();
+    this.router.navigate(['/portail']);
   }
 
   isAuthenticated() {
-    return this.appComponent.isAuthenticated();
+    return this.sessionService.isAuthenticated();
   }
 }

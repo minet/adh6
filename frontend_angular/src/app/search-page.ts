@@ -41,13 +41,11 @@ export class SearchPage<T> implements OnInit {
       .pipe(
         switchMap(data => {
           if (!this.cachedResult.has(data[1])) {
-            console.log("Begin caching data for page: " + data[1]);
             this.cachedResult.set(data[1], this.httpGetter(data[0], data[1])
               .pipe(
                 shareReplay(1),
                 map(response => {
                   const maxItems = +response.headers.get("x-total-count");
-                  console.log("Data cached: " + response.body);
                   if (this.maxItems != maxItems) {
                     this.maxItems = maxItems;
                   }
@@ -55,7 +53,6 @@ export class SearchPage<T> implements OnInit {
                 }),
               )
             )
-            console.log("End caching data for page: " + data[1]);
           }
           return this.cachedResult.get(data[1]);
         }),

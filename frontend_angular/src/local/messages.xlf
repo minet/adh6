@@ -1,325 +1,256 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
-      <trans-unit id="ec8cabd2b7d010ecdf686cce9714fd5b74cad322" datatype="html">
-        <source>
-          Vous avez essayé de vous connecter avec l&apos;appareil
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{status.comment}}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-          , mais cet appareil n&apos;est pas ajouté à votre compte (
-          <x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: &apos;short&apos;}}" />
-          )
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
-          <context context-type="linenumber">9,7</context>
-        </context-group>
-        <note priority="1" from="description">login incorrect wrong mac</note>
-      </trans-unit>
-      <trans-unit id="79730843ce84ff2d93311f32f53e4d1a12ea29c4" datatype="html">
-        <source>
-          Vous avez essayé de vous connecter avec votre appareil
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{status.comment}}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-          mais depuis un autre compte (
-          <x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: &apos;short&apos;}}" />
-          )
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
-          <context context-type="linenumber">14,8</context>
-        </context-group>
-        <note priority="1" from="description">login incorrect wrong user</note>
-      </trans-unit>
-      <trans-unit id="d084f1e45345196bce7ef7153becbea2a2db4d01" datatype="html">
-        <source>
-          L&apos;appareil
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{status.comment}}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-          est mal configuré, vérifiez la configuration via les tutoriels, en particulier la présence de MSCHAPv2 et la non-validation du certificat (
-          <x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: &apos;short&apos;}}" />
-          )
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
-          <context context-type="linenumber">14,9</context>
-        </context-group>
-        <note priority="1" from="description">login incorrect ssl error</note>
-      </trans-unit>
       <trans-unit id="d003fbf09f4e7ba5c0db64d37c3a182c37820006" datatype="html">
         <source>Dépannage automatique</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.ts</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
+          <context context-type="linenumber">3,6</context>
         </context-group>
         <note priority="1" from="description">dashboard auto troubleshoot</note>
       </trans-unit>
       <trans-unit id="bcd41c5944e7e2f1b6ae1ac69343beede9b7837a" datatype="html">
-        <source>
-          Mot de passe incorrect pour l&apos;appareil
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{status.comment}}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-          (
-          <x id="INTERPOLATION_1" equiv-text="{{status.lastTimestamp | date: &apos;short&apos;}}" />
-          )
-        </source>
+        <source>Mot de passe incorrect pour l&apos;appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{status.c"/><x id="INTERPOLATION" equiv-text="{{status.commen"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt; ({{status"/> (<x id="INTERPOLATION_1" equiv-text="{{status.lastTi"/>)</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.ts</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
+          <context context-type="linenumber">6</context>
         </context-group>
         <note priority="1" from="description">login incorrect wrong password</note>
       </trans-unit>
-      <trans-unit id="17cdb779db6b101385967e29189ff38972f12338" datatype="html">
-        <source>
-          Votre abonnement a expiré le
-          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{ member.departureDate | date }}" />
-          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;" />
-        </source>
+      <trans-unit id="ec8cabd2b7d010ecdf686cce9714fd5b74cad322" datatype="html">
+        <source>Vous avez essayé de vous connecter avec l&apos;appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{status.c"/><x id="INTERPOLATION" equiv-text="{{status.commen"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;, mais cet"/>, mais cet appareil n&apos;est pas ajouté à votre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTi"/>)</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">39,26</context>
+          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
+          <context context-type="linenumber">7</context>
         </context-group>
-        <note priority="1" from="description">Describes when a subscription has expired</note>
-        <note priority="1" from="meaning">dashboard expired subscription</note>
+        <note priority="1" from="description">login incorrect wrong mac</note>
       </trans-unit>
-      <trans-unit id="682265a12562b427a3dd1622232c04a4e5389973" datatype="html">
-        <source>
-          Vous êtes incrit dans la chambre
-          <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{member.room.description}}" />
-          <x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt;" />
-        </source>
+      <trans-unit id="79730843ce84ff2d93311f32f53e4d1a12ea29c4" datatype="html">
+        <source>Vous avez essayé de vous connecter avec votre appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{status.c"/><x id="INTERPOLATION" equiv-text="{{status.commen"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt; mais depu"/> mais depuis un autre compte (<x id="INTERPOLATION_1" equiv-text="{{status.lastTi"/>)</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">44,45</context>
+          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
+          <context context-type="linenumber">8</context>
         </context-group>
-        <note priority="1" from="description">Shows a user the room they are in</note>
-        <note priority="1" from="meaning">dashboard room description</note>
+        <note priority="1" from="description">login incorrect wrong user</note>
       </trans-unit>
-      <trans-unit id="1904c7e3b39f9c83ce2292017235e7329517ea03" datatype="html">
-        <source>
-          Votre abonnement est actif jusqu&apos;au
-          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{ member.departureDate | date }}" />
-          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;" />
-        </source>
+      <trans-unit id="d084f1e45345196bce7ef7153becbea2a2db4d01" datatype="html">
+        <source>L&apos;appareil <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{status.c"/><x id="INTERPOLATION" equiv-text="{{status.commen"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt; est mal c"/> est mal configuré, vérifiez la configuration via les tutoriels, en particulier la présence de MSCHAPv2 et la non-validation du certificat (<x id="INTERPOLATION_1" equiv-text="{{status.lastTi"/>)</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">55,22</context>
+          <context context-type="sourcefile">src/app/auto-troubleshoot/auto-troubleshoot.component.html</context>
+          <context context-type="linenumber">9</context>
         </context-group>
-        <note priority="1" from="description">Describes until when a subscription is active</note>
-        <note priority="1" from="meaning">dashboard active subscription</note>
-      </trans-unit>
-      <trans-unit id="d9ab16eea08d0c470dd4b2b806c990d78e3aeb3c" datatype="html">
-        <source>Vous n&apos;avez pas de chambre attribuée</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">55,65</context>
-        </context-group>
-        <note priority="1" from="description">Tells a user they have no room</note>
-        <note priority="1" from="meaning">dashboard no room</note>
-      </trans-unit>
-      <trans-unit id="wired" datatype="html">
-        <source>Filaire</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">65,67</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/new/new.component.ts</context>
-          <context context-type="linenumber">57</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="a741caab9f3b0505d20d743a2e426b86aed0c613" datatype="html">
-        <source>
-          Votre sous-réseau IPv4 privé est :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{ member.subnet }}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">67,56</context>
-        </context-group>
-        <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
-        <note priority="1" from="meaning">dashboard private subnetv4</note>
-      </trans-unit>
-      <trans-unit id="wireless" datatype="html">
-        <source>Wifi</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">78,81</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/new/new.component.ts</context>
-          <context context-type="linenumber">57</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="be2cbba2d86249d5ae2ca2246f234f7082661f21" datatype="html">
-        <source>
-          Votre adresse IPv4 publique est :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{
-            member.ip }}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">79,53</context>
-        </context-group>
-        <note priority="1" from="description">Shows a user their public IPv4</note>
-        <note priority="1" from="meaning">dashboard public ipv4</note>
-      </trans-unit>
-      <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
-        <source>Un problème ?</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">93,98</context>
-        </context-group>
-        <note priority="1" from="description">Is the user encountering any issue ?</note>
-        <note priority="1" from="meaning">dashboard help problem</note>
-      </trans-unit>
-      <trans-unit id="c5379721848895e438e4d4776a1eaf3b12e14fd0" datatype="html">
-        <source>
-          Envoyez-nous
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-link&quot;
-              href=&quot;{{ localize_link(&apos;tickets&apos;, locale) }}&quot;&gt;" />
-          un ticket
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">109,98</context>
-        </context-group>
-        <note priority="1" from="description">The user may send a ticket</note>
-        <note priority="1" from="meaning">dashboard help tickets</note>
-      </trans-unit>
-      <trans-unit id="705f5c152a3530c137d9c206d0047c099243acac" datatype="html">
-        <source>
-          Avez-vous bien regardé
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a
-              class=&quot;alert-link&quot; href=&quot;{{ localize_link(&apos;tutorials&apos;, locale) }}&quot;&gt;" />
-          les tutoriels
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-          ?
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">109,94</context>
-        </context-group>
-        <note priority="1" from="description">Has the user taken a look at the tutorials ?</note>
-        <note priority="1" from="meaning">dashboard help tutorials</note>
-      </trans-unit>
-      <trans-unit id="f25c95145136deec60d4966a109407dc6dfda0d9" datatype="html">
-        <source>
-          Éventuellement, passez au local pendant
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-link&quot;
-              href=&quot;{{ localize_link(&apos;website&apos;, locale) }}&quot;&gt;" />
-          une des permanences
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-          !
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">109,101</context>
-        </context-group>
-        <note priority="1" from="description">The user may come see us directly</note>
-        <note priority="1" from="meaning">dashboard help helpdesk</note>
-      </trans-unit>
-      <trans-unit id="fb983aa3c4971c42089bad7faadfc633c4b5d3bd" datatype="html">
-        <source>Association automatique</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">109</context>
-        </context-group>
-        <note priority="1" from="description">dashboard association-mode</note>
-      </trans-unit>
-      <trans-unit id="97ab018ab32a4d8c58d848944c7aacfe5cbc1040" datatype="html">
-        <source>
-          Vous êtes actuellement en mode association automatique, jusqu&apos;au
-          <x id="INTERPOLATION" equiv-text="{{member.associationMode | date:
-          &apos;shortDate&apos;}}" />
-          à
-          <x id="INTERPOLATION_1" equiv-text="{{member.associationMode | date: &apos;shortTime&apos;}}" />
-          . Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">109,66</context>
-        </context-group>
-        <note priority="1" from="description">dashboard association-mode desc</note>
+        <note priority="1" from="description">login incorrect ssl error</note>
       </trans-unit>
       <trans-unit id="6914414e915dca837863d28d2f0cfb3840b51e5d" datatype="html">
         <source>Mes appareils</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">41,47</context>
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">11,15</context>
         </context-group>
         <note priority="1" from="description">own devices</note>
       </trans-unit>
       <trans-unit id="00c682dae2403dca1126342856950a4784fff635" datatype="html">
         <source>Mon compte</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">14,20</context>
         </context-group>
         <note priority="1" from="description">own account</note>
+      </trans-unit>
+      <trans-unit id="1904c7e3b39f9c83ce2292017235e7329517ea03" datatype="html">
+        <source> Votre abonnement est actif jusqu&apos;au <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;{{ membe"/><x id="INTERPOLATION" equiv-text="{{ member.depar"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
+      &lt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+        <note priority="1" from="description">Describes until when a subscription is active</note>
+        <note priority="1" from="meaning">dashboard active subscription</note>
+      </trans-unit>
+      <trans-unit id="17cdb779db6b101385967e29189ff38972f12338" datatype="html">
+        <source> Votre abonnement a expiré le <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&lt;strong&gt;{{ membe"/><x id="INTERPOLATION" equiv-text="{{ member.depar"/><x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;&lt;/h4&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+        <note priority="1" from="description">Describes when a subscription has expired</note>
+        <note priority="1" from="meaning">dashboard expired subscription</note>
       </trans-unit>
       <trans-unit id="044e32a19f7c1e9ae376fe5973a14d853755ed35" datatype="html">
         <source> Renouveler mon abonnement </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">31,35</context>
         </context-group>
         <note priority="1" from="description">dashboard account renew</note>
       </trans-unit>
       <trans-unit id="e7e70d2142fb06b96ca33bdef08b48eab1d32506" datatype="html">
         <source> Changer le mot de passe </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">35,42</context>
         </context-group>
         <note priority="1" from="description">dashboard account password change</note>
       </trans-unit>
       <trans-unit id="57663d6cb14db65a0b80fa2c26269b98cb57ad60" datatype="html">
-        <source>
-          Addresse mail :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;" />
-          <x id="INTERPOLATION" equiv-text="{{ member.email }}" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;" />
-        </source>
+        <source> Addresse mail : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{ member.e"/><x id="INTERPOLATION" equiv-text="{{ member.email"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;
+      &lt;/p&gt;"/></source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.ts</context>
-          <context context-type="linenumber">47</context>
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">42</context>
         </context-group>
         <note priority="1" from="description">Shows a user their email address</note>
         <note priority="1" from="meaning">dashboard email address</note>
+      </trans-unit>
+      <trans-unit id="682265a12562b427a3dd1622232c04a4e5389973" datatype="html">
+        <source> Vous êtes incrit dans la chambre <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;{{member.room"/><x id="INTERPOLATION" equiv-text="{{member.room.d"/><x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt;
+      &lt;/p&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">45</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user the room they are in</note>
+        <note priority="1" from="meaning">dashboard room description</note>
+      </trans-unit>
+      <trans-unit id="d9ab16eea08d0c470dd4b2b806c990d78e3aeb3c" datatype="html">
+        <source>Vous n&apos;avez pas de chambre attribuée</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">48,53</context>
+        </context-group>
+        <note priority="1" from="description">Tells a user they have no room</note>
+        <note priority="1" from="meaning">dashboard no room</note>
+      </trans-unit>
+      <trans-unit id="be2cbba2d86249d5ae2ca2246f234f7082661f21" datatype="html">
+        <source>Votre adresse IPv4 publique est : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{"/><x id="INTERPOLATION" equiv-text="{{"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;&lt;/p&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">53,54</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user their public IPv4</note>
+        <note priority="1" from="meaning">dashboard public ipv4</note>
+      </trans-unit>
+      <trans-unit id="a741caab9f3b0505d20d743a2e426b86aed0c613" datatype="html">
+        <source>Votre sous-réseau IPv4 privé est : <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{ member."/><x id="INTERPOLATION" equiv-text="{{ member.subne"/><x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;&lt;/p&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">55,56</context>
+        </context-group>
+        <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
+        <note priority="1" from="meaning">dashboard private subnetv4</note>
+      </trans-unit>
+      <trans-unit id="fb983aa3c4971c42089bad7faadfc633c4b5d3bd" datatype="html">
+        <source>Association automatique</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
+        <note priority="1" from="description">dashboard association-mode</note>
+      </trans-unit>
+      <trans-unit id="97ab018ab32a4d8c58d848944c7aacfe5cbc1040" datatype="html">
+        <source> Vous êtes actuellement en mode association automatique, jusqu&apos;au <x id="INTERPOLATION" equiv-text="{{member.associ"/> à <x id="INTERPOLATION_1" equiv-text="{{member.associ"/>. Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie ! </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+        <note priority="1" from="description">dashboard association-mode desc</note>
+      </trans-unit>
+      <trans-unit id="wired" datatype="html">
+        <source>Filaire</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">79,82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
+          <context context-type="linenumber">8,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="wireless" datatype="html">
+        <source>Wifi</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">85,87</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
+          <context context-type="linenumber">9,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
+        <source>Un problème ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">91,94</context>
+        </context-group>
+        <note priority="1" from="description">Is the user encountering any issue ?</note>
+        <note priority="1" from="meaning">dashboard help problem</note>
+      </trans-unit>
+      <trans-unit id="705f5c152a3530c137d9c206d0047c099243acac" datatype="html">
+        <source>Avez-vous bien regardé <x id="START_LINK" ctype="x-a" equiv-text="&lt;a"/>les tutoriels<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;
+            ?"/> ? </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">93,94</context>
+        </context-group>
+        <note priority="1" from="description">Has the user taken a look at the tutorials ?</note>
+        <note priority="1" from="meaning">dashboard help tutorials</note>
+      </trans-unit>
+      <trans-unit id="c5379721848895e438e4d4776a1eaf3b12e14fd0" datatype="html">
+        <source>Envoyez-nous <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-l"/>un ticket<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;&lt;/li&gt;"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+        <note priority="1" from="description">The user may send a ticket</note>
+        <note priority="1" from="meaning">dashboard help tickets</note>
+      </trans-unit>
+      <trans-unit id="f25c95145136deec60d4966a109407dc6dfda0d9" datatype="html">
+        <source> Éventuellement, passez au local pendant <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-l"/>une des permanences<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt; !
+          &lt;"/> ! </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+        <note priority="1" from="description">The user may come see us directly</note>
+        <note priority="1" from="meaning">dashboard help helpdesk</note>
+      </trans-unit>
+      <trans-unit id="about" datatype="html">
+        <source>À propos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">18,20</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="26f18f9163f9a67f7bb3e5c05b8633d0214257ae" datatype="html">
+        <source> Cette plateforme (adh6) est la 6ème version des plateformes de gestion d&apos;adhérents de MiNET dont le développement a commencé à partir de 2016 pour remplacer adh5 (2011). Vous pouvez à tout moment regarder le code source de l&apos;application : <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//github"/>https://github.com/minet/adh6<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt; (il s&apos;agit"/> (il s&apos;agit d&apos;un mirroir de notre projet gitlab). </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+        <note priority="1" from="description"> tell the history of the application</note>
+        <note priority="1" from="meaning">about </note>
       </trans-unit>
       <trans-unit id="contact" datatype="html">
         <source>Nous contacter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">29,39</context>
+          <context context-type="linenumber">27,29</context>
         </context-group>
       </trans-unit>
       <trans-unit id="opening" datatype="html">
         <source>Permanences</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">28,32</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7d8069c6fe095b7a07ab9240ab5c7dd0ee5f8e36" datatype="html">
         <source>du Lundi au Jeudi : de 18h à 19h30</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">29,35</context>
         </context-group>
         <note priority="1" from="description"> describe the opening hours</note>
         <note priority="1" from="meaning">opening hours </note>
@@ -328,51 +259,29 @@
         <source>ticket</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">32,39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="email" datatype="html">
         <source>mail</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">39</context>
+          <context context-type="linenumber">33,39</context>
         </context-group>
-      </trans-unit>
-      <trans-unit id="about" datatype="html">
-        <source>À propos</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/footer/footer.component.ts</context>
-          <context context-type="linenumber">16</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="26f18f9163f9a67f7bb3e5c05b8633d0214257ae" datatype="html">
-        <source>
-          Cette plateforme (adh6) est la 6ème version des plateformes de gestion d&apos;adhérents de MiNET dont le développement a commencé à partir de 2016 pour remplacer adh5 (2011). Vous pouvez à tout moment regarder le code source de l&apos;application :
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//github.com/minet/adh6&quot;&gt;" />
-          https://github.com/minet/adh6
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-          (il s&apos;agit d&apos;un mirroir de notre projet gitlab).
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/footer/footer.component.ts</context>
-          <context context-type="linenumber">16</context>
-        </context-group>
-        <note priority="1" from="description"> tell the history of the application</note>
-        <note priority="1" from="meaning">about </note>
       </trans-unit>
       <trans-unit id="bb844c5477a4ee72992caa8e41c12cde1c017c93" datatype="html">
         <source>Fabricant</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/list/element/element.component.ts</context>
-          <context context-type="linenumber">36,49</context>
+          <context context-type="sourcefile">src/app/member-device/list/element/element.component.html</context>
+          <context context-type="linenumber">43,49</context>
         </context-group>
         <note priority="1" from="description">device list manufacturer</note>
       </trans-unit>
       <trans-unit id="2525e831872a53492e823d4474ac79ae21cb631e" datatype="html">
         <source>Aucun appareil enregistré</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/list/list.component.ts</context>
-          <context context-type="linenumber">23</context>
+          <context context-type="sourcefile">src/app/member-device/list/list.component.html</context>
+          <context context-type="linenumber">3,6</context>
         </context-group>
         <note priority="1" from="description">Tells the user they have no registered devices</note>
         <note priority="1" from="meaning">device list none</note>
@@ -380,15 +289,15 @@
       <trans-unit id="device_type" datatype="html">
         <source>-- Type d&apos;appareil --</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/new/new.component.ts</context>
-          <context context-type="linenumber">33,44</context>
+          <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
+          <context context-type="linenumber">7,10</context>
         </context-group>
       </trans-unit>
       <trans-unit id="e7303a19fd6e03c9f9fe4a292540c3c1a734a3fe" datatype="html">
         <source>Ajouter l&apos;appareil </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/new/new.component.ts</context>
-          <context context-type="linenumber">57</context>
+          <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
+          <context context-type="linenumber">18,25</context>
         </context-group>
         <note priority="1" from="description">Add a new device</note>
         <note priority="1" from="meaning">device new add</note>
@@ -396,171 +305,152 @@
       <trans-unit id="9bb0ea756c5a8b6894cbbfe4d74720be2435fda9" datatype="html">
         <source>Où trouver mon adresse MAC ?</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/new/new.component.ts</context>
-          <context context-type="linenumber">57</context>
+          <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
+          <context context-type="linenumber">25,32</context>
         </context-group>
         <note priority="1" from="description">device new where mac</note>
       </trans-unit>
       <trans-unit id="7e53308554a4dd536132ff233f0af5f227192a16" datatype="html">
         <source>Nouveau mot de passe</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.ts</context>
-          <context context-type="linenumber">55,69</context>
+          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">3,6</context>
         </context-group>
         <note priority="1" from="description">member new password</note>
-      </trans-unit>
-      <trans-unit id="d7f3ba7ce44ecc25e37d1d55a5d7f6bbf5e750fd" datatype="html">
-        <source>Confirmer le mot de passe</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.ts</context>
-          <context context-type="linenumber">83,96</context>
-        </context-group>
-        <note priority="1" from="description">member confirm password</note>
-      </trans-unit>
-      <trans-unit id="validate" datatype="html">
-        <source> Valider </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.ts</context>
-          <context context-type="linenumber">112</context>
-        </context-group>
       </trans-unit>
       <trans-unit id="edaa0b4dcbb0410f567dd722309f1f7a156bf556" datatype="html">
         <source>Le mot de passe doit contenir au moins 8 caractères.</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.ts</context>
-          <context context-type="linenumber">112</context>
+          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">14,19</context>
         </context-group>
         <note priority="1" from="description">member password height</note>
+      </trans-unit>
+      <trans-unit id="d7f3ba7ce44ecc25e37d1d55a5d7f6bbf5e750fd" datatype="html">
+        <source>Confirmer le mot de passe</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">18,21</context>
+        </context-group>
+        <note priority="1" from="description">member confirm password</note>
       </trans-unit>
       <trans-unit id="d8e3c6bba353c0b0c7f33ac5970b8189da8621bb" datatype="html">
         <source>Les mots de passe ne correspondent pas.</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.ts</context>
-          <context context-type="linenumber">112</context>
+          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">29,34</context>
         </context-group>
         <note priority="1" from="description">member password different</note>
+      </trans-unit>
+      <trans-unit id="validate" datatype="html">
+        <source> Valider </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
+          <context context-type="linenumber">35,38</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="language" datatype="html">
         <source> Langue </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/navbar/navbar.component.ts</context>
-          <context context-type="linenumber">29</context>
+          <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
+          <context context-type="linenumber">57,61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="disconnect" datatype="html">
         <source>Déconnexion</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/navbar/navbar.component.ts</context>
-          <context context-type="linenumber">29</context>
+          <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
+          <context context-type="linenumber">66,75</context>
         </context-group>
+      </trans-unit>
+      <trans-unit id="0b94bc7cd361daeb64254091241b75dc19429759" datatype="html">
+        <source>À propos de ce site</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">8,11</context>
+        </context-group>
+        <note priority="1" from="description">portail about</note>
+      </trans-unit>
+      <trans-unit id="d68704e16fb473e2a11e14df62c6f4c74655c081" datatype="html">
+        <source> Vous êtes sur <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//githu"/>ADH6<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;, la toute no"/>, la toute nouvelle plateforme de gestion de MiNET. Cette application est en version <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;beta&lt;/b&gt; et il"/>beta<x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt; et il est don"/> et il est donc possible que vous rencontriez des dysfonctionnements. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <note priority="1" from="description">portail about desc</note>
       </trans-unit>
       <trans-unit id="5793c16683951488360ae12fcfec2044b2f16ba1" datatype="html">
         <source> Si vous rencontrez le moindre problème lié à cette nouvelle interface, ou si vous avez des remarques à faire concernant la lisibilité, l&apos;accessibilité ou autre chose, n&apos;hésitez pas à nous le signaler ! </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">24,41</context>
+          <context context-type="linenumber">14,22</context>
         </context-group>
         <note priority="1" from="description">portail about contact</note>
-      </trans-unit>
-      <trans-unit id="921352c5e1eabd5fa0ff9b16a663c510878aee0e" datatype="html">
-        <source>Créer mon compte MiNET</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">44,53</context>
-        </context-group>
-        <note priority="1" from="description">portail create account</note>
       </trans-unit>
       <trans-unit id="3753971d8c35277cd1510cd26c9c493be4784a2b" datatype="html">
         <source>Gérer mon compte MiNET</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">54,62</context>
+          <context context-type="linenumber">21,25</context>
         </context-group>
         <note priority="1" from="description">portail manage account</note>
-      </trans-unit>
-      <trans-unit id="b09a3bb4912a91888e30f1b1e951ddce039c8c11" datatype="html">
-        <source> Venir directement au local MiNET dans le Foyer associatif </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62</context>
-        </context-group>
-        <note priority="1" from="description">portail create account physical</note>
-      </trans-unit>
-      <trans-unit id="180fcb44351bf802d10806bb9cf44379295bcbb2" datatype="html">
-        <source> Afin de naviguer sur Internet, vous devez préalablement vous inscrire à MiNET, l&apos;association étudiante qui gère le réseau interne des 800 chambres et studios du campus. </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62</context>
-        </context-group>
-        <note priority="1" from="description">portail create account desc</note>
       </trans-unit>
       <trans-unit id="122a6252e94e1b1546bab7238255fb1fbe067d6b" datatype="html">
         <source> Pour voir l&apos;état de votre cotisation et ajouter ou supprimer des appareils, connectez-vous à votre compte MiNET. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62</context>
+          <context context-type="linenumber">24,31</context>
         </context-group>
         <note priority="1" from="description">portail manage account desc</note>
+      </trans-unit>
+      <trans-unit id="ba8d35c460d5225ef0ad5f130fce8e27d1686a63" datatype="html">
+        <source> Se connecter </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">29,35</context>
+        </context-group>
+        <note priority="1" from="description">portail connection</note>
+      </trans-unit>
+      <trans-unit id="921352c5e1eabd5fa0ff9b16a663c510878aee0e" datatype="html">
+        <source>Créer mon compte MiNET</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">35,39</context>
+        </context-group>
+        <note priority="1" from="description">portail create account</note>
+      </trans-unit>
+      <trans-unit id="180fcb44351bf802d10806bb9cf44379295bcbb2" datatype="html">
+        <source> Afin de naviguer sur Internet, vous devez préalablement vous inscrire à MiNET, l&apos;association étudiante qui gère le réseau interne des 800 chambres et studios du campus. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">38,46</context>
+        </context-group>
+        <note priority="1" from="description">portail create account desc</note>
       </trans-unit>
       <trans-unit id="5b43d5afa9846dd2cfb94c5703dcf249f824ca69" datatype="html">
         <source> Pour créer votre compte, vous pouvez : </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62</context>
+          <context context-type="linenumber">44,49</context>
         </context-group>
         <note priority="1" from="description">portail create account options</note>
       </trans-unit>
-      <trans-unit id="f74050a95fd9591e0ffc2920f475213394123cf5" datatype="html">
-        <source>
-          <x id="INTERPOLATION" equiv-text="{{
-          (oauthService.discoveryDocumentLoaded$
-          |
-          async) ? &quot;Se connecter&quot; : &quot;Veuillez patienter...&quot;}}" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62,32</context>
-        </context-group>
-        <note priority="1" from="description">portail connection</note>
-      </trans-unit>
       <trans-unit id="2d9c344f0e573d2885ffdf296bfa901781c66651" datatype="html">
-        <source>
-          Utiliser
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//payment.minet.net/&quot;&gt;" />
-          le système en ligne
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-        </source>
+        <source> Utiliser <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//paymen"/>le système en ligne<x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;
+            &lt;"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">62,51</context>
+          <context context-type="linenumber">49</context>
         </context-group>
         <note priority="1" from="description">portail create account online</note>
       </trans-unit>
-      <trans-unit id="0b94bc7cd361daeb64254091241b75dc19429759" datatype="html">
-        <source>À propos de ce site</source>
+      <trans-unit id="b09a3bb4912a91888e30f1b1e951ddce039c8c11" datatype="html">
+        <source> Venir directement au local MiNET dans le Foyer associatif </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.ts</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="sourcefile">src/app/portail/portail.component.html</context>
+          <context context-type="linenumber">52,60</context>
         </context-group>
-        <note priority="1" from="description">portail about</note>
-      </trans-unit>
-      <trans-unit id="d68704e16fb473e2a11e14df62c6f4c74655c081" datatype="html">
-        <source>
-          Vous êtes sur
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//github.com/minet/adh6&quot;&gt;" />
-          ADH6
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;" />
-          , la toute nouvelle plateforme de gestion de MiNET. Cette application est en version
-          <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;" />
-          beta
-          <x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt;" />
-          et il est donc possible que vous rencontriez des dysfonctionnements.
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/portail/portail.component.ts</context>
-          <context context-type="linenumber">18</context>
-        </context-group>
-        <note priority="1" from="description">portail about desc</note>
+        <note priority="1" from="description">portail create account physical</note>
       </trans-unit>
     </body>
   </file>

@@ -1,8 +1,10 @@
 <!--<title>MiNET - ADH6</title>-->
-<app-navbar></app-navbar>
-<div class="container">
-  <div class="section">
-    <router-outlet></router-outlet>
+<ng-container *ngIf="oauthService.discoveryDocumentLoaded$ | async">
+  <app-navbar></app-navbar>
+  <div class="container">
+    <div class="section">
+      <router-outlet></router-outlet>
+    </div>
   </div>
-</div>
-<app-footer></app-footer>
+  <app-footer></app-footer>
+</ng-container>

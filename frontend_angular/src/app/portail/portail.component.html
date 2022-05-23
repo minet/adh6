@@ -25,11 +25,9 @@
           compte MiNET.
         </p>
         <br />
-        <button class="button is-primary" i18n="portail connection" (click)="login()"
-          [disabled]="(oauthService.discoveryDocumentLoaded$ | async) === undefined">{{
-          (oauthService.discoveryDocumentLoaded$
-          |
-          async) ? "Se connecter" : "Veuillez patienter..."}}</button>
+        <button class="button is-primary" i18n="portail connection" (click)="login()">
+          Se connecter
+        </button>
       </div>
     </div>
     <div class="column">

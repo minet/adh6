@@ -8,7 +8,7 @@ import { OAuthService } from 'angular-oauth2-oidc';
 })
 export class PortailComponent {
   constructor(
-    public oauthService: OAuthService,
+    public oauthService: OAuthService
   ) { }
 
   public login() {

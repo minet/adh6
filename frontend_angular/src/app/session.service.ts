@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Ability, AbilityBuilder } from '@casl/ability';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { filter } from 'rxjs';
@@ -15,6 +16,7 @@ export class SessionService {
     private configurationAPI: Configuration,
     private ability: Ability,
     private appConstantsService: AppConstantsService,
+    private router: Router
   ) { }
 
   checkSession(): void {
@@ -41,6 +43,7 @@ export class SessionService {
             if (_info === undefined) return
             this.loadProfileAndSetupAbilities(_info['attributes'])
           });
+        this.router.navigate(['/dashboard']);
       });
     this.oauthService.loadDiscoveryDocumentAndTryLogin();
   }
@@ -72,5 +75,9 @@ export class SessionService {
       this.ability.update(rules);
       this.appConstantsService.getCurrentMember();
     }
+  }
+
+  isAuthenticated(): boolean {
+    return (this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
   }
 }

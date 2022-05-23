@@ -3,8 +3,9 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { Member } from '../api';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { AppConstantsService } from '../app-constants.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ListComponent } from '../member-device/list/list.component';
+import { SessionService } from '../session.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,26 +19,25 @@ export class DashboardComponent implements OnInit {
   date = new Date();
   isDepartureDateFuture = false;
   isAssociationMode = false;
-  member$: Observable<Member> = this.appConstantsService.getCurrentMember();
+  member$: Observable<Member>;
   currentTab = "device";
 
   constructor(
     private oauthService: OAuthService,
     private appConstantsService: AppConstantsService,
+    private sessionService: SessionService,
     @Inject(LOCALE_ID) public locale: string
   ) { }
 
   ngOnInit() {
-    this.member$.subscribe(member => {
-      this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
-      this.isAssociationMode = new Date() < new Date(member.associationMode);
-    });
-  }
-
-  public get name() {
-    const claims: any = this.oauthService.getIdentityClaims();
-    if (!claims) { return null; }
-    if (!claims.attributes) { return null; }
-    return claims.attributes.displayName;
+    this.sessionService.checkSession();
+    if (this.oauthService.hasValidAccessToken) {
+      this.member$ = this.appConstantsService.getCurrentMember()
+        .pipe(map(member => {
+          this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
+          this.isAssociationMode = new Date() < new Date(member.associationMode);
+          return member;
+        }));
+    }
   }
 }
