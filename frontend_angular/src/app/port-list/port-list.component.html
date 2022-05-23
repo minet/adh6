@@ -17,8 +17,11 @@
         </td>
         <td class="center">{{ port.portNumber }}</td>
         <td class="center">
-          <a *ngIf="port.room !== null" [routerLink]="['/room/view', port.room.id]">
-            {{ cachedRoomDescription.get(port.room) | async }}</a>
+          <ng-container *ngIf="port.room !== undefined">
+            <a [routerLink]="['/room/view', port.room.id]">
+              {{ cachedRoomDescription.get(port.room) | async }}
+            </a>
+          </ng-container>
           <a *ngIf="port.room === null">Aucune chambre</a>
         </td>
       </tr>
