@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MemberDeviceModule } from '../member-device/member-device-list.module';
+import { AutoTroubleshootModule } from '../auto-troubleshoot/auto-troubleshoot.module';
 
 
 
@@ -17,7 +18,8 @@ import { MemberDeviceModule } from '../member-device/member-device-list.module';
     RouterModule.forChild([
       { path: '', component: DashboardComponent }
     ]),
-    MemberDeviceModule
+    MemberDeviceModule,
+    AutoTroubleshootModule
   ]
 })
 export class DashboardModule { }

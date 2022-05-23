@@ -1,5 +1,4 @@
-<div class="text-center">
-<img class="w-50" src="/assets/errors/{{ HANDLED_ERRORS.indexOf(error.code) !== -1  ? error.code : 'unknown' }}.jpg">
-<h1>{{ error.code }}</h1>
-<p>{{ error.message }}</p>
+<div class="text-center" *ngIf="error$ | async as error">
+  <img class="w-50" src="/assets/errors/{{ HANDLED_ERRORS.indexOf(error) !== -1  ? error.code : 'unknown' }}.jpg">
+  <h1>{{ error }}</h1>
 </div>

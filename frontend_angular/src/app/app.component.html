@@ -1,17 +1,8 @@
 <!--<title>MiNET - ADH6</title>-->
 <app-navbar></app-navbar>
-<div *ngIf="isAuthenticated(); else elseBlock">
-  <div class="container">
-    <app-error-page *ngIf="(hasError | async); else elseRouter"></app-error-page>
-    <ng-template #elseRouter>
-      <div class="section">
-        <router-outlet></router-outlet>
-      </div>
-    </ng-template>
+<div class="container">
+  <div class="section">
+    <router-outlet></router-outlet>
   </div>
-  <app-bug-reporter></app-bug-reporter>
 </div>
 <app-footer></app-footer>
-<ng-template #elseBlock>
-  <app-portail></app-portail>
-</ng-template>

@@ -1,23 +1,19 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule, Device, Member, Room, Port, ModelSwitch, Transaction, Account, Configuration, ConfigurationParameters } from './api';
 import { NavbarComponent } from './navbar/navbar.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthConfig, OAuthModule, OAuthService, OAuthStorage } from 'angular-oauth2-oidc';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NotifInterceptor } from './http-interceptor/notif-interceptor';
 import { environment } from '../environments/environment';
-import { PortailComponent } from './portail/portail.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { Ability, AbilityClass, InferSubjects, PureAbility } from '@casl/ability';
 import { AbilityModule } from '@casl/angular';
 import { authConfig } from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
-import { AutoTroubleshootComponent } from './auto-troubleshoot/auto-troubleshoot.component';
 import { FooterComponent } from './footer/footer.component';
 import { BugReporterComponent } from './bug-reporter/bug-reporter.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -42,22 +38,18 @@ function load(oAuthService: OAuthService): Configuration {
   declarations: [
     AppComponent,
     NavbarComponent,
-    PortailComponent,
     ErrorPageComponent,
-    AutoTroubleshootComponent,
     FooterComponent,
     BugReporterComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ApiModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
     OAuthModule.forRoot(),
     HttpClientModule,
     AbilityModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    ApiModule
   ],
   providers: [
     AppComponent,

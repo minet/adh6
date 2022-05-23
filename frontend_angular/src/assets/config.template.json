@@ -1,0 +1,10 @@
+{
+  "sso_url": "https://monsso.example.org/oidc",
+  "redirect_url": "https://example.org",
+  "client_id": "monid",
+  "scope": "profile",
+  "response_type": "code",
+  "oidc": true,
+  "debug": true,
+  "api_base_path": "https://example.org/api/"
+}

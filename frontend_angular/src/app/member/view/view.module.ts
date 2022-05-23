@@ -5,6 +5,7 @@ import { ViewComponent } from './view.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MemberDeviceModule } from '../../member-device/member-device-list.module';
+import { AutoTroubleshootModule } from '../../auto-troubleshoot/auto-troubleshoot.module';
 
 
 
@@ -17,7 +18,8 @@ import { MemberDeviceModule } from '../../member-device/member-device-list.modul
     ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([{ path: '', component: ViewComponent }]),
-    MemberDeviceModule
+    MemberDeviceModule,
+    AutoTroubleshootModule
   ],
 })
 export class ViewModule { }

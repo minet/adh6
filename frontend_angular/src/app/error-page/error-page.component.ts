@@ -1,20 +1,22 @@
-import {Component, OnInit} from '@angular/core';
-import {ErrorPageService} from '../error-page.service';
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-error-page',
   templateUrl: './error-page.component.html',
   styleUrls: ['./error-page.component.css']
 })
-export class ErrorPageComponent implements OnInit {
+export class ErrorPageComponent {
   HANDLED_ERRORS = [
-    403, 500, 404
+    403, 404, 500
   ];
-  error: any;
-  constructor(private errorPageService: ErrorPageService) { }
-
-  ngOnInit() {
-    this.errorPageService.currentError.subscribe(error => this.error = error);
+  error$: Observable<number>;
+  constructor(
+    private route: ActivatedRoute
+  ) {
+    this.error$ = this.route.params.pipe(
+      map((params) => params["error_id"])
+    );
   }
-
 }
