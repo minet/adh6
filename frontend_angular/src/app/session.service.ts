@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Ability, AbilityBuilder } from '@casl/ability';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { filter } from 'rxjs';
-import { Configuration } from './api';
-import { AppConstantsService } from './app-constants.service';
+import { filter, map, Observable } from 'rxjs';
+import { Configuration, Member, MiscService } from './api';
 
 @Injectable({
   providedIn: 'root'
@@ -15,15 +14,22 @@ export class SessionService {
     private oauthService: OAuthService,
     private configurationAPI: Configuration,
     private ability: Ability,
-    private appConstantsService: AppConstantsService,
-    private router: Router
+    private router: Router,
+    private miscService: MiscService
   ) { }
+
+  getUser(): Observable<Member> {
+    return this.miscService.profile().pipe(map(r => {
+      return r
+    }));
+  }
 
   checkSession(): void {
     if (this.oauthService.hasValidAccessToken()) {
       this.oauthService.loadDiscoveryDocumentAndTryLogin().then(_ => {
         this.oauthService.loadUserProfile()
           .then(v => {
+            console.log(v);
             const _info = v['info'];
             if (_info === undefined) return
             this.loadProfileAndSetupAbilities(_info['attributes'])
@@ -39,6 +45,7 @@ export class SessionService {
         this.configurationAPI.accessToken = this.oauthService.getAccessToken();
         this.oauthService.loadUserProfile()
           .then(v => {
+            console.log(v)
             const _info = v['info'];
             if (_info === undefined) return
             this.loadProfileAndSetupAbilities(_info['attributes'])
@@ -70,14 +77,13 @@ export class SessionService {
         }
       }
       else {
-        this.appConstantsService.getCurrentMember().subscribe(member => can('read', 'Member', { id: member.id }));
+        this.getUser().subscribe(member => can('read', 'Member', { id: member.id }));
       }
       this.ability.update(rules);
-      this.appConstantsService.getCurrentMember();
     }
   }
 
   isAuthenticated(): boolean {
-    return (this.oauthService.hasValidAccessToken()) && this.configurationAPI.accessToken != "";
+    return this.oauthService.hasValidAccessToken() && this.configurationAPI.accessToken != "";
   }
 }

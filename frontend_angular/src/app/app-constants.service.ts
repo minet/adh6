@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AccountService, AccountType, Member, MiscService, PaymentMethod, TransactionService } from './api';
+import { AccountService, AccountType, PaymentMethod, TransactionService } from './api';
 import { Observable, of } from 'rxjs';
 import { map, share } from 'rxjs/operators';
 
@@ -14,27 +14,10 @@ export class AppConstantsService {
   private paymentMethods: Array<PaymentMethod>;
   private paymentMethodsObservable: Observable<any>;
 
-  private currentMember: Member;
-  private currentMember$: Observable<Member>;
-
   constructor(
     private accountService: AccountService,
     private transactionService: TransactionService,
-    private miscService: MiscService,
   ) { }
-
-  getCurrentMember(): Observable<Member> {
-    if (this.currentMember) {
-      // if `data` is available just return it as `Observable`
-      return of(this.currentMember);
-    } else if (this.currentMember$) {
-      // if `this.observable` is set then the request is in progress
-      // return the `Observable` for the ongoing request
-      return this.currentMember$;
-    } else {
-      return this.miscService.profile();
-    }
-  }
 
   getPaymentMethods() {
     if (this.paymentMethods) {
