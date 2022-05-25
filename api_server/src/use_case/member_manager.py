@@ -100,12 +100,12 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("profile", is_collection=False)
-    def get_profile(self, ctx) -> Member:
+    def get_profile(self, ctx) -> Tuple[AbstractMember, List[str]]:
         user: User = ctx.get(CTX_ADMIN)
-        m, _ = self.member_repository.search_by(ctx, limit=1, filter_ = AbstractMember(id=user.id))
+        m = self.member_repository.get_by_id(ctx,user.id)
         if not m:
             raise UnauthorizedError("Not authorize to access this profile")
-        return m[0]
+        return m, [r.removeprefix("adh6_") for r in user.roles if (r in Roles._value2member_map_ and r != Roles.USER.value)]
 
     @log_call
     @auto_raise

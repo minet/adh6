@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  API_BASE_PATH: 'https://adh6-local.minet.net/api/',
+  API_BASE_PATH: "https://" + window.location.host.toString() + '/api',
 };

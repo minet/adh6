@@ -15,6 +15,7 @@ class ProfileHandler:
     @log_call
     def profile(self, ctx):
         try:
-            return serialize_response(self.member_manager.get_profile(ctx)), 200
+            member, roles = self.member_manager.get_profile(ctx)
+            return serialize_response({"member": member, "roles": roles}), 200
         except Exception as e:
             return handle_error(ctx, e)

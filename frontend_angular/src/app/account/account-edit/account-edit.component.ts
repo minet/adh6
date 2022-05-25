@@ -44,8 +44,6 @@ export class AccountEditComponent implements OnInit, OnDestroy {
     this.disabled = true;
     const v = this.editAccountForm.value;
 
-    console.log(v);
-
     const accountPatch: AbstractAccount = {
       name: v.name,
       actif: v.actif,
@@ -72,7 +70,6 @@ export class AccountEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((data: Account) => {
         this.account = data;
-        console.log(data);
         this.editAccountForm.patchValue(data);
       });
   }

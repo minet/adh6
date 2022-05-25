@@ -28,7 +28,6 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.member$ = this.sessionService.getUser()
       .pipe(map(member => {
-        console.log(member);
         this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
         this.isAssociationMode = new Date() < new Date(member.associationMode);
         return member;
