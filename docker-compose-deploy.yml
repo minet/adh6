@@ -20,6 +20,10 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
       GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
+      ELK_ENABLED: ${ELK_ENABLED}
+      ELK_HOSTS: ${ELK_HOSTS}
+      ELK_USER: ${ELK_USER}
+      ELK_SECRET: ${ELK_SECRET}
       
   # The reverse proxy is used to gather the api and the frontend behind the same
   # host. We can also use it to cache requests.

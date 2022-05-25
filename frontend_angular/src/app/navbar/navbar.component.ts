@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
-import { Router } from '@angular/router';
 import { SessionService } from '../session.service';
 
 
@@ -13,17 +11,10 @@ export class NavbarComponent {
   public isMenuActive: boolean = false;
 
   constructor(
-    private oauthService: OAuthService,
-    private router: Router,
-    private sessionService: SessionService
+    public sessionService: SessionService
   ) { }
 
   logout() {
-    this.oauthService.logOut();
-    this.router.navigate(['/portail']);
-  }
-
-  isAuthenticated() {
-    return this.sessionService.isAuthenticated();
+    this.sessionService.logout();
   }
 }

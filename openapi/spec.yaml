@@ -67,6 +67,10 @@ paths:
                 properties:
                   member:
                     $ref: '#/components/schemas/Member'
+                  roles:
+                    type: array
+                    items:
+                      type: string
         403:
           $ref: '#/components/responses/Unauthorized'
         default:

@@ -4,12 +4,12 @@ Logs repository.
 """
 
 
-import re
-
+from typing import List
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
 from src.constants import CTX_TESTING, LOG_DEFAULT_LIMIT
+from src.entity import Device
 
 from src.use_case.interface.logs_repository import LogsRepository
 from src.exceptions import LogFetchError
@@ -25,11 +25,18 @@ class ElasticSearchRepository(LogsRepository):
     def __init__(self):
         from flask import current_app
         self.config = current_app.config
+
+        if 'ELK_HOSTS' not in self.config:
+            return
+
         LOG.info('About to instantiate ElasticSearch')
         LOG.debug('ELK_HOSTS:' + str(self.config['ELK_HOSTS']))
-        self.es = Elasticsearch(self.config['ELK_HOSTS'])
+        self.es = Elasticsearch(self.config['ELK_HOSTS'], http_auth=(self.config['ELK_USER'], self.config['ELK_SECRET']))
 
     def get_global_stats(self, ctx):
+        if not self.config['ELK_HOSTS']:
+            raise LogFetchError('no elk host configured')
+
         query = {
                 "query": {
                 "range": {
@@ -58,9 +65,9 @@ class ElasticSearchRepository(LogsRepository):
                   }
                }
             }
-        return self.es.search(index="", body=query)["aggregations"]
+        return self.es.search(index="", query=query)["aggregations"]
 
-    def get_logs(self, ctx, limit=LOG_DEFAULT_LIMIT, username=None, devices=None, dhcp=False):
+    def get_logs(self, ctx, devices: List[Device], limit=LOG_DEFAULT_LIMIT, username=None, dhcp: bool = False):
         """
         Get the logs related to the username and to the devices.
         :param ctx:  context
@@ -70,11 +77,11 @@ class ElasticSearchRepository(LogsRepository):
         :param dhcp: allow to query DHCP logs or not
         :return: logs
         """
-        if not self.config['ELK_HOSTS']:
-            raise LogFetchError('no elk host configured')
-
         if ctx.get(CTX_TESTING):  # Do not actually query elasticsearch if testing...
             return [[1, "test_log"]]
+
+        if not self.config['ELK_HOSTS']:
+            raise LogFetchError('no elk host configured')
 
         # Prepare the elasticsearch query...
         if not dhcp:
@@ -135,7 +142,7 @@ class ElasticSearchRepository(LogsRepository):
                 query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
 
         LOG.info('About to query ElasticSearch')
-        res = self.es.search(index="", body=query)['hits']['hits']
+        res = self.es.search(index="", query=query)['hits']['hits']
 
         if not dhcp:
             for r in res:

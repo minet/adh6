@@ -28,7 +28,7 @@ function load(oAuthService: OAuthService): Configuration {
   let params: ConfigurationParameters =
   {
     basePath: environment.API_BASE_PATH,
-    accessToken: oAuthService.getAccessToken() || "",
+    accessToken: oAuthService.getAccessToken(),
     apiKeys: {}
   };
   return new Configuration(params);

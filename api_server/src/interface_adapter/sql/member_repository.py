@@ -145,7 +145,6 @@ class MemberSQLRepository(MemberRepository):
 
         membership: MembershipSQL = session.query(MembershipSQL) \
             .filter(MembershipSQL.adherent_id == member_id) \
-            .filter(MembershipSQL.status == MembershipStatus.PENDING_RULES) \
             .one_or_none()
 
         if membership is None:

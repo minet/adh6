@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { SessionService } from './session.service';
 
@@ -7,11 +7,13 @@ import { SessionService } from './session.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   constructor(
     private sessionService: SessionService,
     public oauthService: OAuthService,
-  ) {
+  ) { }
+
+  ngOnInit(): void {
     this.sessionService.checkSession();
   }
 }
