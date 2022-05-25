@@ -43,17 +43,18 @@ export class SessionService {
 
   public logout(): void {
     this.oauthService.logOut();
+    const { rules } = new AbilityBuilder(Ability);
+    this.ability.update(rules);
     this.router.navigate(['/portail'])
   }
 
   get isAuthenticated(): boolean {
-    return this.oauthService.hasValidIdToken();
+    return this.oauthService.hasValidAccessToken();
   }
 
   private refreshResponse(token?: string): void {
     this.configurationAPI.accessToken = (token) ? token : this.oauthService.getAccessToken();
     this.refreshRights();
-    this.refreshUser();
     if (window.location.pathname === "/portail") {
       this.router.navigate(['/dashboard']);
     }
