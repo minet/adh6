@@ -4,13 +4,13 @@
       <h4 class="title is-4 has-text-centered">Informations</h4>
       <p><strong>Numéro : </strong>{{ port.portNumber }}</p>
       <p><strong>Switch : </strong>
-        <a [routerLink]="['/switch', port.switchObj.id, 'view']">
-          {{ port.switchObj.description }}
+        <a [routerLink]="['/switch', port.switchObj, 'view']">
+          {{ switch_description$ | async }}
         </a>
       </p>
       <p><strong>Chambre : </strong>
         <span *ngIf="port.room !== undefined">
-          {{port.room.roomNumber}}
+          {{room_number$ | async}}
         </span>
         <span *ngIf="port.room === undefined">Aucune chambre</span>
       </p>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { finalize, Observable, of } from 'rxjs';
-import { PortService, Port, Room } from '../../api';
+import { finalize, map, Observable, of, shareReplay } from 'rxjs';
+import { PortService, Port, Room, RoomService, SwitchService } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -29,6 +29,8 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   public alias: string;
   public vlan: number;
 
+  public room_number$: Observable<number>;
+  public switch_description$: Observable<string>;
   public mab$: Observable<boolean>;
   public auth$: Observable<boolean>;
   public use$: Observable<string>;
@@ -38,6 +40,8 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private portService: PortService,
+    private roomService: RoomService,
+    private switchService: SwitchService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
@@ -136,7 +140,12 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.sub = this.route.params.subscribe(params => {
       this.switchID = +params['switch_id'];
       this.portID = +params['port_id'];
-      this.port$ = this.portService.portIdGet(this.portID);
+      this.port$ = this.portService.portIdGet(this.portID)
+        .pipe(map(p => {
+          this.room_number$ = this.roomService.roomIdGet(p.room).pipe(shareReplay(1), map(r => r.roomNumber));
+          this.switch_description$ = this.switchService.switchIdGet(p.switchObj).pipe(shareReplay(1), map(s => s.description));
+          return p;
+        }));
     });
 
     this.refreshInfo();
