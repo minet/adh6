@@ -3,6 +3,9 @@
 Logs repository interface.
 """
 import abc
+from typing import List, Optional
+
+from src.entity import AbstractDevice
 
 
 class LogsRepository(abc.ABC):
@@ -15,7 +18,7 @@ class LogsRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_logs(self, ctx, username=None, devices=None, dhcp=None):
+    def get_logs(self, ctx, username: Optional[str] = None, devices: Optional[List[AbstractDevice]] = None, dhcp: Optional[bool] = None):
         """
         Get all the logs concerning the provided username and MAC addresses.
         """

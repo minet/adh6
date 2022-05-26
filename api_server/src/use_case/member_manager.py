@@ -472,10 +472,10 @@ class MemberManager(CRUDManager):
         member = member[0]
 
         @uses_security("read", is_collection=False)
-        def _get_statuses(cls, ctx, filter_=None):
+        def _get_statuses(cls, ctx, filter_: AbstractMember):
             # Do the actual log fetching.
             try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_))[0]
+                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
                 logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=False)
                 device_to_statuses = {}
                 last_ok_login_mac = {}
@@ -501,11 +501,12 @@ class MemberManager(CRUDManager):
                             and (prev_log[0] - log[0]).total_seconds() < 1:
                         match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
                                           prev_log[1])
-                        login, mac = match.group(1), match.group(2).upper()
-                        if login != filter_.username:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                        else:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
+                        if match:
+                            login, mac = match.group(1), match.group(2).upper()
+                            if login != filter_.username:
+                                add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
+                            else:
+                                add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
                     if 'rlm_python' in log[1]:
                         match = re.search(r'.*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)', log[1])
                         if match is not None:
@@ -531,7 +532,7 @@ class MemberManager(CRUDManager):
 
                 all_statuses = []
                 for mac, statuses in device_to_statuses.items():
-                    for status, object in statuses.items():
+                    for _, object in statuses.items():
                         if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
                             continue
                         all_statuses.append(object)
@@ -544,7 +545,7 @@ class MemberManager(CRUDManager):
         return _get_statuses(self, ctx, filter_=member)
 
     @log_call
-    def change_password(self, ctx, member_id, password=None, hashed_password=None):
+    def change_password(self, ctx, member_id, password: str, hashed_password: Union[str, bytes]):
         # Check that the user exists in the system.
         member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
         if not member:
@@ -553,7 +554,7 @@ class MemberManager(CRUDManager):
         member = member[0]
 
         @uses_security("password", is_collection=False)
-        def _change_password(cls, ctx, filter_=None):
+        def _change_password(cls, ctx, filter_: AbstractMember):
             from binascii import hexlify
             import hashlib
 
@@ -580,7 +581,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("admin", is_collection=False)
-    def update_subnet(self, ctx, member_id) -> Tuple[IPv4Network, IPv4Address]:
+    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, IPv4Address]]:
         member = self.__member_not_found(ctx, member_id)
         if not is_member_active(member):
             return None
