@@ -142,8 +142,8 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.portID = +params['port_id'];
       this.port$ = this.portService.portIdGet(this.portID)
         .pipe(map(p => {
-          this.room_number$ = this.roomService.roomIdGet(p.room).pipe(shareReplay(1), map(r => r.roomNumber));
-          this.switch_description$ = this.switchService.switchIdGet(p.switchObj).pipe(shareReplay(1), map(s => s.description));
+          this.room_number$ = this.roomService.roomIdGet(p.room, ["roomNumber"]).pipe(shareReplay(1), map(r => r.roomNumber));
+          this.switch_description$ = this.switchService.switchIdGet(p.switchObj, ["description"]).pipe(shareReplay(1), map(s => s.description));
           return p;
         }));
     });
