@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, first, map } from 'rxjs/operators';
-import { AbstractAccount, AccountService, DeviceService, MemberService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member } from '../../../api';
+import { AbstractAccount, AccountService, Membership, Product, TransactionService, TreasuryService, PaymentMethod, AbstractMembership, MembershipService, Account, Member } from '../../../api';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../../notification.service';
 
@@ -67,7 +67,7 @@ export class CotisationComponent implements OnInit {
       paymentMethod = this.membership.paymentMethod;
     }
     this.subscriptionForm.patchValue({
-      renewal: this.subscriptionDuration.indexOf(this.membership.duration),
+      renewal: (this.membership.duration) ? this.subscriptionDuration.indexOf(this.membership.duration) : '',
       paidWith: (paymentMethod != 0) ? paymentMethod : ''
     });
     this.updateAmount();

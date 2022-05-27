@@ -3,23 +3,22 @@
 from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
 
-from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
     AbstractDevice, MemberStatus,
     AbstractAccount, Account,
-    AbstractPaymentMethod,
     AccountType
 )
+from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.payment_method import PaymentMethod
 from src.entity.validators.member_validators import is_member_active
 from src.exceptions import (
+    AccountNotFoundError,
     AccountTypeNotFoundError,
     MembershipNotFoundError,
     NoSubnetAvailable,
-    PaymentMethodNotFoundError,
-    AccountNotFoundError,
     MemberNotFoundError,
     MemberAlreadyExist,
     MembershipAlreadyExist,
@@ -134,7 +133,7 @@ class MemberManager(CRUDManager):
             pending_balance=0
         ))
 
-        _ = self.new_membership(ctx, created_member.id, Membership(
+        _ = self.new_membership(ctx, created_member.id, AbstractMembership(
             uuid="123e4567-e89b-12d3-a456-426614174000",
             status='INITIAL',
             member=created_member.id,
@@ -152,7 +151,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("update")
-    def update_member(self, ctx, id: int, abstract_member: Union[AbstractMember, Member], override: bool) -> None:
+    def update_member(self, ctx, id: int, abstract_member: AbstractMember, override: bool) -> None:
         member = self.__member_not_found(ctx, id)
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
@@ -178,19 +177,7 @@ class MemberManager(CRUDManager):
     @auto_raise
     @uses_security("read", is_collection=True)
     def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
-                          filter_: AbstractMembership = None) -> Tuple[List[Membership], int]:
-        if limit < 0:
-            raise IntMustBePositive('limit')
-
-        if offset < 0:
-            raise IntMustBePositive('offset')
-
-        return self._membership_search(ctx, limit=limit,
-                                       offset=offset,
-                                       terms=terms,
-                                       filter_=filter_)
-
-    def _membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[List[Membership], int]:
+                          filter_: Optional[AbstractMembership] = None) -> Tuple[List[AbstractMembership], int]:
         return self.membership_repository.membership_search_by(ctx, limit=limit,
                                                                offset=offset,
                                                                terms=terms,
@@ -219,7 +206,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("create", is_collection=True)
-    def new_membership(self, ctx, member_id: int, membership: Membership) -> Membership:
+    def new_membership(self, ctx, member_id: int, membership: AbstractMembership) -> Membership:
         """
         Core use case of ADH. Registers a membership.
 
@@ -304,7 +291,7 @@ class MemberManager(CRUDManager):
         if not membership_fetched:
             raise MembershipNotFoundError(uuid)
 
-        membership: Membership = membership_fetched[0]
+        membership: AbstractMembership = membership_fetched[0]
 
         if abstract_membership is None:
             LOG.debug("patch_membership_record_no_change")
@@ -376,48 +363,63 @@ class MemberManager(CRUDManager):
         @uses_security("admin", is_collection=False)
         def _validate(cls, ctx, membership_uuid: str) -> None:
             self.membership_repository.validate_membership(ctx, membership_uuid)
-
-            membership = fethed_membership[0]
-            payment_method = self.__payment_method_not_found(ctx, membership.payment_method)
-            LOG.debug("membership_patch_transaction", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account, products=membership.products))
-            price = self.duration_price[int(membership.duration)]  # Expressed in EUR.
-            if price == 50 and not membership.has_room:
-                price = 9
-            price_in_cents = price * 100  # Expressed in cents of EUR.
-            duration_str = self.duration_string.get(int(membership.duration), '')
-            title = f'Internet - {duration_str}'
-            self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, member.username, payment_method.name, membership.uuid)
-            self.member_repository.add_duration(ctx, member_id, membership.duration)
-            self.update_subnet(ctx, member_id)
+            self.add_membership_payment_record(ctx, fethed_membership[0])
+            self.member_repository.add_duration(ctx, member.id, fethed_membership[0].duration)
+            self.update_subnet(ctx, member_id) 
 
         return _validate(self, ctx, uuid)
 
+    @log_call
+    @auto_raise
+    @uses_security("admin")
+    def add_membership_payment_record(self, ctx, membership: AbstractMembership):
+        LOG.debug("membership_add_membership_payment_record", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account))
+
+        payment_method = self.payment_method_repository.get_by_id(ctx, membership.payment_method)
+        asso_account, _ = self.account_repository.search_by(ctx, limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
+        if len(asso_account) != 1:
+            raise AccountNotFoundError(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
+        tech_account, _ = self.account_repository.search_by(ctx, limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value))
+        if len(tech_account) != 1:
+            raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
+        src_account = self.account_repository.get_by_id(ctx, membership.account)
+        price = self.duration_price[membership.duration]  # Expressed in EUR.
+        if price == 50 and not membership.has_room:
+            price = 9
+        duration_str = self.duration_string.get(membership.duration)
+        title = f'Internet - {duration_str}'
+
+        self.transaction_repository.create(
+            ctx, 
+            AbstractTransaction(
+                value=9,
+                src=src_account.id,
+                dst=asso_account[0].id,
+                name=title,
+                payment_method=payment_method.id
+            )
+        )
+        if price > 9:
+            self.transaction_repository.create(
+                ctx, 
+                AbstractTransaction(
+                    value=price-9,
+                    src=src_account.id,
+                    dst=tech_account[0].id,
+                    name=title,
+                    payment_method=payment_method.id
+                )
+            )
+
 
     def __account_not_found(self, ctx, account: int) -> None:
-        _account, _ = self.account_repository.search_by(
-            ctx=ctx,
-            limit=1,
-            filter_=AbstractAccount(id=account)
-        )
-        if not _account:
-            raise AccountNotFoundError(str(account))
+        _ = self.account_repository.get_by_id(ctx, account)
 
     def __payment_method_not_found(self, ctx, payment_method: int) -> PaymentMethod:
-        _payment_method, _ = self.payment_method_repository.search_by(
-            ctx=ctx,
-            limit=1,
-            filter_=AbstractPaymentMethod(id=payment_method)
-        )
-        if not _payment_method or len(_payment_method) == 0:
-            raise PaymentMethodNotFoundError(str(payment_method))
-        return _payment_method[0]
+        return self.payment_method_repository.get_by_id(ctx, payment_method)
     
-    def __member_not_found(self, ctx, member: int) -> Member:
-        _member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member))
-        if not _member:
-            raise MemberNotFoundError(str(member))
-        
-        return _member[0]
+    def __member_not_found(self, ctx, member: int) -> AbstractMember:
+        return self.member_repository.get_by_id(ctx, member)
 
     @log_call
     @auto_raise
