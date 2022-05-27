@@ -387,7 +387,6 @@ class MemberManager(CRUDManager):
             duration_str = self.duration_string.get(int(membership.duration), '')
             title = f'Internet - {duration_str}'
             self.transaction_repository.add_member_payment_record(ctx, price_in_cents, title, member.username, payment_method.name, membership.uuid)
-            self.transaction_repository.add_products_payment_record(ctx, member_id, membership.products, payment_method.name, membership_uuid)
             self.member_repository.add_duration(ctx, member_id, membership.duration)
             self.update_subnet(ctx, member_id)
 

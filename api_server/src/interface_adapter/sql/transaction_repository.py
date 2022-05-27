@@ -18,6 +18,7 @@ from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
+from src.constants import KnownAccountExpense
 
 auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
@@ -158,8 +159,6 @@ class TransactionSQLRepository(TransactionRepository):
         if amount_in_cents < 900:
             raise MemberTransactionAmountMustBeGreaterThan(str(amount_in_cents))
 
-        minet_frais_asso_name: str = "MiNET frais asso"
-        minet_frais_techniques_name: str = "MiNET frais techniques"
         LOG.debug("sql_money_repository_add_payment_record",
                   extra=log_extra(ctx, amount=amount_in_cents / 100, title=title, username=member_username,
                                   payment_method=payment_method_name))
@@ -174,13 +173,13 @@ class TransactionSQLRepository(TransactionRepository):
         if account is None:
             raise AccountNotFoundError(member_username)
         
-        LOG.debug("sql_money_repository_get_minet_frais_asso_account", extra=log_extra(ctx, account_name=minet_frais_asso_name))
-        minet_asso_account: Account = session.query(Account).filter(Account.name == minet_frais_asso_name).filter(Account.pinned == True).one_or_none()
+        LOG.debug("sql_money_repository_get_minet_frais_asso_account", extra=log_extra(ctx, account_name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
+        minet_asso_account: Account = session.query(Account).filter(Account.name == KnownAccountExpense.ASSOCIATION_EXPENCE.value).filter(Account.pinned == True).one_or_none()
         if minet_asso_account is None:
-            raise AccountNotFoundError(minet_frais_asso_name)
-        minet_technique_account: Account = session.query(Account).filter(Account.name == minet_frais_techniques_name).filter(Account.pinned == True).one_or_none()
+            raise AccountNotFoundError(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
+        minet_technique_account: Account = session.query(Account).filter(Account.name == KnownAccountExpense.TECHNICAL_EXPENSE.value).filter(Account.pinned == True).one_or_none()
         if minet_technique_account is None:
-            raise AccountNotFoundError(minet_frais_techniques_name)
+            raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
 
         payment_method: PaymentMethod = session.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
         if payment_method is None:
@@ -220,51 +219,6 @@ class TransactionSQLRepository(TransactionRepository):
 
         session.flush()
     
-    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str] = None) -> None:
-        """
-        deprecated, payment record will be done in the manager
-        """
-        now = datetime.now()
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_money_repository_add_products_transaction_record", extra=log_extra(ctx, number_products=len(products)))
-
-        adherent: Adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        if adherent is None:
-            raise MemberNotFoundError(str(member_id))
-        member_account: Account = session.query(Account).filter(Account.adherent_id == member_id).one_or_none()
-        if member_account is None:
-            raise AccountNotFoundError(str(adherent.login))
-        minet_technique_account: Account = session.query(Account).filter(Account.name == "MiNET frais techniques").filter(Account.pinned == True).one_or_none()
-        if minet_technique_account is None:
-            raise AccountNotFoundError("MiNET frais techniques")
-        payment_method: PaymentMethod = session.query(PaymentMethod).filter(PaymentMethod.name == payment_method_name).one_or_none()
-        if payment_method is None:
-            raise UnknownPaymentMethod(payment_method_name)
-        for p in products:
-            if isinstance(p, Product):
-                p = p.id
-            
-            product: SQLProduct = session.query(SQLProduct).filter(SQLProduct.id == p).one_or_none()
-            if product is None:
-                ProductNotFoundError(str(p))
-            
-            p_transaction: SQLTransaction = SQLTransaction(
-                value=product.selling_price,
-                timestamp=now,
-                src_account=member_account,
-                dst_account=minet_technique_account,
-                author=adherent,
-                pending_validation=payment_method.name not in auto_validate_payment_method,
-                name=product.name,
-                attachments="",
-                payment_method=payment_method,
-                membership_uuid=membership_uuid,
-                is_archive=False
-            )
-
-            session.add(p_transaction)
-        session.flush()
-
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     """

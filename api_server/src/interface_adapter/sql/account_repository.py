@@ -22,7 +22,6 @@ from src.use_case.interface.account_repository import AccountRepository
 
 
 class AccountSQLRepository(AccountRepository):
-
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
