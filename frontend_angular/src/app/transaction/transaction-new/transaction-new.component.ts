@@ -19,7 +19,7 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
-  transactionDetails: FormGroup;
+  public transactionDetails: FormGroup;
   reverting = false;
   faExchangeAlt = faExchangeAlt;
   faClock = faClock;
@@ -30,22 +30,68 @@ export class TransactionNewComponent implements OnInit {
     { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
   paymentMethods: Array<PaymentMethod>;
-  selectedSrcAccount: number;
-  selectedDstAccount: number;
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
   private alive = true;
 
-  constructor(private fb: FormBuilder,
+  constructor(
+    private fb: FormBuilder,
     public transactionService: TransactionService,
     public appConstantService: AppConstantsService,
-    private accountService: AccountService,
     private notificationService: NotificationService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute
+  ) {
     this.createForm();
+  }
+
+  ngOnInit() {
+    this.route.params.pipe(
+      map(params => params['account_id']),
+    ).subscribe(account => this.srcAccount = account.id);
+    this.appConstantService.getPaymentMethods().subscribe(
+      data => {
+        this.paymentMethods = data;
+      }
+    );
   }
 
   public toogleModal(): void {
     this.transactionModal = !this.transactionModal;
+  }
+
+  createForm() {
+    this.transactionDetails = this.fb.group({
+      name: ['', Validators.required],
+      value: ['', Validators.required],
+      srcAccount: ['', Validators.required],
+      dstAccount: ['', Validators.required],
+      paymentMethod: ['', Validators.required],
+      caisse: ['direct'],
+      pendingValidation: [false],
+    });
+  }
+
+  get caisse(): string {
+    return this.transactionDetails.get('caisse').value as string;
+  }
+
+  set caisse(value: string) {
+    this.transactionDetails.patchValue({ 'caisse': value });
+  }
+
+  get srcAccount(): number {
+    return this.transactionDetails.get("srcAccount").value as number
+  }
+
+  set srcAccount(account_id: number) {
+    this.transactionDetails.patchValue({ 'srcAccount': account_id });
+  }
+
+  get dstAccount(): number {
+    return this.transactionDetails.get("dstAccount").value as number
+  }
+
+  set dstAccount(account_id: number) {
+    this.transactionDetails.patchValue({ 'dstAccount': account_id });
   }
 
   useTransaction(event: { name: string, transaction: Transaction }) {
@@ -67,13 +113,13 @@ export class TransactionNewComponent implements OnInit {
     this.transactionDetails.reset();
     this.transactionDetails.patchValue(event.transaction);
     if (event.name === 'revert') {
-      this.selectedDstAccount = event.transaction.src;
-      this.selectedSrcAccount = event.transaction.dst;
+      this.dstAccount = event.transaction.src;
+      this.srcAccount = event.transaction.dst;
       this.transactionDetails.patchValue({ 'name': 'ANNULATION: ' + event.transaction.name });
       this.reverting = true;
     } else {
-      this.selectedDstAccount = event.transaction.dst;
-      this.selectedSrcAccount = event.transaction.src;
+      this.dstAccount = event.transaction.dst;
+      this.srcAccount = event.transaction.src;
       this.reverting = false;
     }
     this.transactionDetails.patchValue({ 'paymentMethod': (event.transaction.paymentMethod as PaymentMethod).id });
@@ -90,56 +136,18 @@ export class TransactionNewComponent implements OnInit {
   }
 
   exchangeAccounts() {
-    const srcAccount = this.selectedSrcAccount;
-    this.selectedSrcAccount = this.selectedDstAccount;
-    this.selectedDstAccount = srcAccount;
-  }
-
-  isFormInvalid() {
-    return this.selectedSrcAccount === undefined || this.selectedDstAccount === undefined;
-  }
-
-  get caisse(): string {
-    return this.transactionDetails.get('caisse').value as string;
-  }
-
-  setCaisse(value: string): void {
-    this.transactionDetails.patchValue({ 'caisse': value });
-  }
-
-  createForm() {
-    this.transactionDetails = this.fb.group({
-      name: ['', Validators.required],
-      value: ['', Validators.required],
-      srcAccount: ['', Validators.required],
-      dstAccount: ['', Validators.required],
-      paymentMethod: ['', Validators.required],
-      caisse: ['direct'],
-      pending_validation: [false],
-    });
-  }
-
-  ngOnInit() {
-    this.route.params.pipe(
-      map(params => params['account_id']),
-      filter(id => id),
-      switchMap(id => this.accountService.accountIdGet(id))
-    ).subscribe(account => this.selectedSrcAccount = account.id);
-
-    this.appConstantService.getPaymentMethods().subscribe(
-      data => {
-        this.paymentMethods = data;
-      }
-    );
+    const srcAccount = this.srcAccount;
+    this.srcAccount = this.dstAccount;
+    this.dstAccount = srcAccount;
   }
 
   onSubmit() {
     const v = this.transactionDetails.value;
     const varTransaction: Transaction = {
       attachments: [],
-      dst: this.selectedDstAccount,
+      dst: +v.dstAccount,
       name: v.name,
-      src: this.selectedSrcAccount,
+      src: +v.srcAccount,
       paymentMethod: +v.paymentMethod,
       value: +v.value,
       cashbox: v.caisse,
