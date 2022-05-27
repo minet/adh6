@@ -14,7 +14,7 @@ export class CotisationComponent implements OnInit {
   @Input() member: Member;
   @Input() membership: Membership;
 
-  @Output() membershipUpdated: EventEmitter<number> = new EventEmitter<number>();
+  @Output() memberPaymentUpdated: EventEmitter<number> = new EventEmitter<number>();
 
   public subscriptionForm: FormGroup;
   public products$: Observable<Product[]>;
@@ -43,7 +43,7 @@ export class CotisationComponent implements OnInit {
   ngOnInit() {
     this.paymentMethods$ = this.transactionService.paymentMethodGet();
     const canBeUpdated = this.membership.status != AbstractMembership.StatusEnum.ABORTED && this.membership.status != AbstractMembership.StatusEnum.CANCELLED && this.membership.status != AbstractMembership.StatusEnum.COMPLETE;
-    this.setupProducts(canBeUpdated);
+    this.resetProducts();
     if (canBeUpdated) this.updateForm();
   }
 
@@ -70,17 +70,17 @@ export class CotisationComponent implements OnInit {
       renewal: (this.membership.duration) ? this.subscriptionDuration.indexOf(this.membership.duration) : '',
       paidWith: (paymentMethod != 0) ? paymentMethod : ''
     });
-    this.updateAmount();
   }
 
-  private setupProducts(canBeUpdated: boolean): void {
+  private resetProducts(): void {
     this.products$ = this.treasuryService.productGet(100, 0, undefined, "body")
       .pipe(
         map(products => {
+          this.productsFormArray.clear();
           products.forEach((product) => {
             this.productsFormArray.push(this.fb.group({
               id: [{ value: product.id }],
-              checked: [this.membership.products.indexOf(product.id) != -1 && canBeUpdated, [Validators.required]],
+              checked: [''],
               amount: [{ value: product.sellingPrice }]
             }))
           })
@@ -97,80 +97,61 @@ export class CotisationComponent implements OnInit {
   public submitSubscription() {
     const v = this.subscriptionForm.value;
     let isMembershipFinished = this.membership.status === AbstractMembership.StatusEnum.ABORTED || this.membership.status === AbstractMembership.StatusEnum.CANCELLED || this.membership.status === AbstractMembership.StatusEnum.COMPLETE;
-
-    if (v.renewal) {
-      // Case where there is no subscription
-      this.accountService.accountGet(1, 0, undefined, <AbstractAccount>{
-        member: this.member.id
-      }, undefined, 'response').pipe(
-        first(() => this.cotisationDisabled = true),
-        finalize(() => {
-          this.cotisationDisabled = false;
-        }),
-      ).subscribe((response) => {
-        if (+response.headers.get('x-total-count') == 0) {
-          this.notificationService.errorNotification(
-            404,
-            "No Account",
-            "There is no account selected for this subscription"
-          );
-          return;
-        }
-        const account: Account = response.body[0];
-        this.paymentMethods$.subscribe((paymentMethods) => {
-          let paymentMethod: PaymentMethod;
-          paymentMethods.forEach((elem) => {
-            if (elem.id == +v.paidWith) { paymentMethod = elem }
-          })
-          if (isMembershipFinished) {
-            const subscription: Membership = {
-              duration: this.subscriptionDuration.at(v.renewal),
-              account: account.id,
-              products: [],
-              paymentMethod: paymentMethod.id,
-              hasRoom: +v.renewal !== 7,
-              status: AbstractMembership.StatusEnum.INITIAL,
-              member: this.member.id
-            }
-            this.membershipService.memberIdMembershipPost(subscription, this.member.id, 'body')
-              .subscribe(m => {
-                if (m.status === AbstractMembership.StatusEnum.PENDINGRULES) {
-                  this.needSignature = true
-                }
-                if (m.status === AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION) {
-                  this.needSignature = true
-                }
-                this.membership = m;
-              });
-          } else {
-            const subscription: AbstractMembership = {
-              duration: this.subscriptionDuration.at(v.renewal),
-              account: account.id,
-              products: [],
-              paymentMethod: paymentMethod.id,
-              hasRoom: +v.renewal !== 7
-            }
-            this.membershipService.memberIdMembershipUuidPatch(subscription, this.member.id, this.membership.uuid).subscribe(m => {
-              console.log(m);
-              //this.membershipUpdated.emit(this.member.id);
-              this.notificationService.successNotification(
-                "Inscription mise à jour",
-                "L'inscription pour cet adhérent a été mise à jour"
-              );
-            })
-          }
-        });
-      });
+    if (!v.renewal && isMembershipFinished) {
+      this.buyProducts();
+      return;
     }
-    this.buyProducts();
+
+    // Case where there is no subscription
+    this.accountService.accountGet(1, 0, undefined, <AbstractAccount>{
+      member: this.member.id
+    }, undefined, 'response').pipe(
+      first(() => this.cotisationDisabled = true),
+      finalize(() => {
+        this.cotisationDisabled = false;
+      }),
+    ).subscribe((response) => {
+      if (+response.headers.get('x-total-count') == 0) {
+        this.notificationService.errorNotification(
+          404,
+          "No Account",
+          "There is no account selected for this subscription"
+        );
+        return;
+      }
+      const account: Account = response.body[0];
+      this.paymentMethods$.subscribe((paymentMethods) => {
+        let paymentMethod: PaymentMethod;
+        paymentMethods.forEach((elem) => {
+          if (elem.id == +v.paidWith) { paymentMethod = elem }
+        })
+        if (isMembershipFinished) {
+          const subscription: Membership = {
+            duration: this.subscriptionDuration.at(v.renewal),
+            account: account.id,
+            products: [],
+            paymentMethod: paymentMethod.id,
+            hasRoom: +v.renewal !== 7,
+            status: AbstractMembership.StatusEnum.INITIAL,
+            member: this.member.id
+          }
+          this.membershipService.memberIdMembershipPost(subscription, this.member.id, 'body')
+            .subscribe(m => {
+              if (m.status === AbstractMembership.StatusEnum.PENDINGRULES) {
+                this.needSignature = true
+              }
+              if (m.status === AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION) {
+                this.needSignature = true
+              }
+              this.membership = m;
+            });
+        }
+      });
+    });
   }
 
   private buyProducts(): void {
     const v = this.subscriptionForm.value;
-    const isMembershipFinished = this.membership.status === AbstractMembership.StatusEnum.ABORTED || this.membership.status === AbstractMembership.StatusEnum.CANCELLED || this.membership.status === AbstractMembership.StatusEnum.COMPLETE;
-    if (!isMembershipFinished || !+v.paidWith) {
-      return
-    }
     let products = [];
     for (let i = 0; i < this.productsFormArray.length; i++) {
       if (this.productsFormArray.at(i).value.checked === true) {
@@ -182,17 +163,21 @@ export class CotisationComponent implements OnInit {
     }
 
     this.treasuryService.productBuyPost(this.member.id, products, +v.paidWith).subscribe(
-      () => this.notificationService.successNotification("Produits achetés")
+      () => {
+        this.notificationService.successNotification("Produits achetés");
+        this.resetProducts();
+      }
     );
   }
 
   public validatePayment(): void {
     this.membershipService.membershipValidate(this.member.id, this.membership.uuid).subscribe(() => {
-      this.buyProducts();
       this.notificationService.successNotification(
         "Inscription finie",
         "L'inscription pour cet adhérent est finie"
-      )
+      );
+      this.memberPaymentUpdated.emit(this.member.id);
+      this.buyProducts();
     });
   }
 

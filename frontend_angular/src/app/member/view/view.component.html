@@ -104,7 +104,7 @@
           Paiement
         </h3>
         <hr />
-        <app-cotisation (membershipUpdated)="refreshMembership($event)" [member]="member"
+        <app-cotisation (memberPaymentUpdated)="refreshMembership($event)" [member]="member"
           [membership]="latestMembership"></app-cotisation>
       </ng-container>
       <ng-container *ngIf="currentTab==='device'">
