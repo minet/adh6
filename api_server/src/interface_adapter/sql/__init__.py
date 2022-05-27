@@ -6,7 +6,6 @@ from .device_repository import DeviceSQLRepository
 from .ip_allocator import IPSQLAllocator
 from .member_repository import MemberSQLRepository
 from .membership_repository import MembershipSQLRepository
-from .money_repository import MoneySQLRepository
 from .payment_method_repository import PaymentMethodSQLRepository
 from .ping_repository import PingSQLRepository
 from .product_repository import ProductSQLRepository
@@ -30,7 +29,6 @@ repositories = [
     RoomSQLRepository,
     SwitchSQLRepository,
     TransactionSQLRepository,
-    MoneySQLRepository,
     PortSQLRepository,
     VLANSQLRepository
 ]

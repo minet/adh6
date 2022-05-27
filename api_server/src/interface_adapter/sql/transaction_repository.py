@@ -152,6 +152,9 @@ class TransactionSQLRepository(TransactionRepository):
         session.flush()
 
     def add_member_payment_record(self, ctx, amount_in_cents: int, title: str, member_username: str, payment_method_name: str, membership_uuid: str) -> None:
+        """
+        deprecated, payment record will be done in the manager
+        """
         if amount_in_cents < 900:
             raise MemberTransactionAmountMustBeGreaterThan(str(amount_in_cents))
 
@@ -217,7 +220,10 @@ class TransactionSQLRepository(TransactionRepository):
 
         session.flush()
     
-    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str]) -> None:
+    def add_products_payment_record(self, ctx, member_id: int, products: List[Union[Product, int]], payment_method_name: str, membership_uuid: Optional[str] = None) -> None:
+        """
+        deprecated, payment record will be done in the manager
+        """
         now = datetime.now()
         session: Session = ctx.get(CTX_SQL_SESSION)
         LOG.debug("sql_money_repository_add_products_transaction_record", extra=log_extra(ctx, number_products=len(products)))

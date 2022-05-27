@@ -5,9 +5,7 @@ import pytest
 from pytest_cases import unpack_fixture
 from pytest_lazyfixture import lazy_fixture
 
-from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType
-from src.entity.abstract_payment_method import AbstractPaymentMethod
-from src.entity.abstract_product import AbstractProduct
+from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType, AbstractPaymentMethod
 from src.exceptions import IntMustBePositive, NotFoundError
 from src.use_case.account_manager import AccountManager
 from src.use_case.account_type_manager import AccountTypeManager
@@ -16,12 +14,10 @@ from src.use_case.interface.account_type_repository import AccountTypeRepository
 from src.use_case.interface.crud_repository import CRUDRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.port_repository import PortRepository
-from src.use_case.interface.product_repository import ProductRepository
 from src.use_case.interface.room_repository import RoomRepository
 from src.use_case.interface.switch_repository import SwitchRepository
 from src.use_case.payment_method_manager import PaymentMethodManager
 from src.use_case.port_manager import PortManager
-from src.use_case.product_manager import ProductManager
 from src.use_case.room_manager import RoomManager
 from src.use_case.switch_manager import SwitchManager
 
@@ -32,7 +28,6 @@ from src.use_case.switch_manager import SwitchManager
         (PortRepository, PortManager, AbstractPort, lazy_fixture('sample_port')),
         (RoomRepository, RoomManager, AbstractRoom, lazy_fixture('sample_room')),
         (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
-        (ProductRepository, ProductManager, AbstractProduct, lazy_fixture('sample_product')),
         (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
         (AccountTypeRepository, AccountTypeManager, AccountType, lazy_fixture('sample_account_type')),
     ]
