@@ -54,6 +54,12 @@ class MembershipDuration(enum.IntEnum):
     SIX_MONTH = 6
     ONE_YEAR = 12
 
+
+class KnownAccountExpense(enum.Enum):
+    TECHNICAL_EXPENSE = "MiNET frais techniques"
+    ASSOCIATION_EXPENCE = "MiNET frais asso"
+
+
 PUBLIC_RANGE = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
 
 def dictionnary_subnet_public_ip_wireless() -> Dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:

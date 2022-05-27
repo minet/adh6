@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
-import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
+import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember, TreasuryService } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, first, map, share, switchMap, tap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
@@ -27,7 +27,6 @@ export class ViewComponent implements OnInit {
   latestMembership$: Observable<Membership>;
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
-  newMembershipDisabled = false;
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
   public showLogs = false;
@@ -117,13 +116,6 @@ export class ViewComponent implements OnInit {
     )
   }
 
-  validatePayment(membershipUUID: string, status: AbstractMembership.StatusEnum, memberID: number): void {
-    this.cotisation = false;
-    this.membershipService.membershipValidate(+memberID, membershipUUID).subscribe(() => {
-      this.refreshLatestMembership(memberID);
-    });
-  }
-
   refreshInfo(): void {
     this.refreshInfoOrder$.next(null);
   }
@@ -153,19 +145,6 @@ export class ViewComponent implements OnInit {
     this.moveInForm = this.fb.group({
       roomNumber: ['', [Validators.required, Validators.min(-1), Validators.max(9999)]]
     });
-  }
-
-  newMembership(member_id: number): void {
-    this.latestMembership$ = this.membershipService.memberIdMembershipPost(<Membership>{
-      member: member_id,
-      status: AbstractMembership.StatusEnum.INITIAL
-    }, member_id, 'body').pipe(
-      finalize(() => {
-        this.newMembershipDisabled = false;
-        this.refreshLatestMembership(member_id);
-      }),
-      first(() => this.newMembershipDisabled = true)
-    );
   }
 
   refreshLatestMembership(member_id: number): void {

@@ -1,19 +1,19 @@
 from src.constants import MembershipStatus
-from src.entity.membership import Membership
 
 from pytest import fixture
 
 from src.entity import (
-        AccountType,
-        Account,
-        Device,
-        Member,
-        PaymentMethod,
-        Port,
-        Product,
-        Room,
-        Switch,
-        Transaction
+    AccountType,
+    Account,
+    Device,
+    Member,
+    PaymentMethod,
+    Port,
+    Product,
+    Room,
+    Switch,
+    Transaction,
+    AbstractMembership
 )
 from src.use_case.decorator.security import User, Roles
 from test.auth import TESTING_CLIENT
@@ -72,7 +72,7 @@ def sample_member(faker, sample_room: Room):
 
 @fixture
 def sample_membership_empty(sample_member):
-    return Membership(
+    return AbstractMembership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value
@@ -80,7 +80,7 @@ def sample_membership_empty(sample_member):
 
 @fixture
 def sample_membership_duration_no_account(sample_member):
-    return Membership(
+    return AbstractMembership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value,
@@ -89,7 +89,7 @@ def sample_membership_duration_no_account(sample_member):
 
 @fixture
 def sample_membership_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
-    return Membership(
+    return AbstractMembership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value,

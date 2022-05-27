@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { map, of } from 'rxjs';
-import { AccountService, Account } from '../../api';
+import { AccountService, Account, AbstractAccount } from '../../api';
 import { SearchPage } from '../../search-page';
 
 export { ClickOutsideDirective } from '../clickOutside.directive';
@@ -12,9 +12,9 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 })
 export class AccountSearchComponent extends SearchPage<Account> implements OnInit {
   public display = false;
-
-  @Input() selectedAccount: Account;
-  @Output() accountSelected = new EventEmitter<Account>();
+  public selectedAccount: Account;
+  @Input() inputAccountId: number | undefined;
+  @Output() selectedAccountId = new EventEmitter<number>();
 
   constructor(
     private accountService: AccountService
@@ -29,20 +29,23 @@ export class AccountSearchComponent extends SearchPage<Account> implements OnIni
   }
 
   ngOnInit(): void {
+    console.log(this.inputAccountId);
     super.ngOnInit();
+    if (this.inputAccountId) {
+      this.accountService.accountIdGet(this.inputAccountId).subscribe(account => this.selectedAccount = account);
+    }
     this.result$ = of(undefined);
   }
 
   search(terms: string): void {
-    console.log(terms)
     super.search(terms);
     this.getSearchResult();
   }
 
-  setSelectedAccount(account): void {
+  setSelectedAccount(account: AbstractAccount): void {
     this.result$ = undefined;
     this.selectedAccount = account;
     this.display = false;
-    this.accountSelected.emit(this.selectedAccount);
+    this.selectedAccountId.emit(this.selectedAccount.id);
   }
 }

@@ -1,9 +1,23 @@
+<div class="notification">
+  <p>Dans le cas d'une cotisation ou d'une recotisation, une validation manuelle est nécessaire.</p>
+</div>
+<div class="notification is-danger is-light" *ngIf="membership.status === 'PENDING_RULES'">
+  <p>
+    La charte n'est pas signée: <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer">aller sur
+      charte</a>
+  </p>
+</div>
+<button class="button is-success is-fullwidth" (click)="validatePayment()"
+  *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
+<ng-template #waitingMembership>
+  <button class="button is-primary is-fullwidth" disabled>Attente...</button>
+</ng-template>
 <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
   <div class="field">
-    <label class="label">Renouvellement pour</label>
+    <label class="label">Durée de cotisation</label>
     <div class="control">
       <select (change)="updateAmount()" class="input is-fullwidth" formControlName="renewal" type="text">
-        <option value="0">Aucun</option>
+        <option value="">Pas de cotisation</option>
         <option value="7">sans chambre (9€) - {{ formatDate(12) }}</option>
         <option value="1">1 mois (9€) - {{ formatDate(1) }}</option>
         <option value="2">2 mois (18€) - {{ formatDate(2) }}</option>
@@ -31,10 +45,13 @@
     <label class="label">Montant : {{ amountToPay }} €</label>
     <div class="control">
       <select class="input is-fullwidth" formControlName="paidWith" type="text">
-        <option value="">-- Choisir moyen de paiement --</option>
+        <option value="">-- Moyen de paiement --</option>
         <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
       </select>
     </div>
+    <p *ngIf="subscriptionForm.controls['paidWith'].invalid && subscriptionForm.controls['paidWith'].touched"
+      class="help is-danger">Moyen de paiement invalide
+    </p>
   </div>
-  <button class="button is-success is-fullwidth" type="submit" [disabled]="cotisationDisabled">Valider</button>
+  <button class="button is-success is-fullwidth" type="submit" [disabled]="subscriptionForm.invalid">Valider</button>
 </form>

@@ -1375,6 +1375,44 @@ paths:
       summary: Retrieve a product
       tags:
       - treasury
+  /product/buy:
+    parameters:
+      - description: Member that buy th products
+        in: query
+        name: memberId
+        required: true
+        schema:
+          type: integer
+      - description: List of the products to add in the transaction
+        in: query
+        name: products
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: false
+      - description: Payment Method used to buy the products
+        in: query
+        name: paymentMethod
+        required: true
+        schema:
+          type: integer
+    post:
+      responses:
+        204:
+          description: Success
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Generate a new transaction for a product
+      tags:
+      - treasury
   /room/:
     get:
       parameters:

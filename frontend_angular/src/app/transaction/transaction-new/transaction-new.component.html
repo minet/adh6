@@ -46,7 +46,6 @@
 
 <h2 class="title is-2">Nouvelle transaction</h2>
 <hr>
-
 <form [formGroup]="transactionDetails">
   <div class="columns">
     <div class="column">
@@ -56,10 +55,9 @@
         </div>
         <div class="card-content">
           <div class="content">
-            <app-account-search [selectedAccount]="selectedSrcAccount" (accountSelected)="selectedSrcAccount=$event">
+            <app-account-search [inputAccountId]="srcAccount" (selectedAccountId)="srcAccount=$event">
             </app-account-search>
-            <input type="hidden" formControlName="srcAccount"
-              [value]="selectedSrcAccount !== undefined ? selectedSrcAccount : ''">
+            <input type="hidden" formControlName="srcAccount">
           </div>
         </div>
         <footer class="card-footer">
@@ -81,7 +79,8 @@
           <div class="content">
             <div class="field has-addons">
               <p class="control">
-                <button type="button" class="button" tooltip="À valider" formControlName="pending_validation">
+                <button type="button" class="button" tooltip="À valider">
+                  <input type="hidden" formControlName="pendingValidation" />
                   <fa-icon [icon]="faClock"></fa-icon>
                 </button>
               </p>
@@ -102,17 +101,17 @@
             </div>
             <div class="field has-addons">
               <p class="control">
-                <button class="button" (click)="setCaisse('to')" [ngClass]="{'is-primary': caisse==='to'}">
+                <button class="button" (click)="caisse = 'to'" [ngClass]="{'is-primary': caisse==='to'}">
                   <span>Ajouter Caisse</span>
                 </button>
               </p>
               <p class="control">
-                <button class="button" (click)="setCaisse('direct')" [ngClass]="{'is-primary': caisse==='direct'}">
+                <button class="button" (click)="caisse = 'direct'" [ngClass]="{'is-primary': caisse==='direct'}">
                   <span>Sans Caisse</span>
                 </button>
               </p>
               <p class="control">
-                <button class="button" (click)="setCaisse('from')" [ngClass]="{'is-primary': caisse==='from'}">
+                <button class="button" (click)="caisse = 'from'" [ngClass]="{'is-primary': caisse==='from'}">
                   <span>Sortir Caisse</span>
                 </button>
               </p>
@@ -142,25 +141,22 @@
         </div>
         <div class="card-content">
           <div class=content>
-            <app-account-search [selectedAccount]="selectedDstAccount" (accountSelected)="selectedDstAccount=$event">
+            <app-account-search [inputAccountId]="dstAccount" (selectedAccountId)="dstAccount=$event">
             </app-account-search>
-            <input type="hidden" formControlName="dstAccount"
-              [value]="selectedDstAccount !== undefined ? selectedDstAccount : ''">
+            <input type="hidden" formControlName="dstAccount">
           </div>
         </div>
         <footer class="card-footer">
-          <p class="card-footer-item">Ce compte sera <b>crédité</b></p>
+          <p class="card-footer-item">Ce compte sera crédité</p>
         </footer>
       </div>
     </div>
   </div>
-
-  <br>
-  <button type="button" (click)="toogleModal()" class="button is-primary"
-    [disabled]="transactionDetails.status === 'INVALID' || isFormInvalid()">Créer
-  </button>
-
+  <br />
+  <button type="button" (click)="toogleModal()" class="button is-primary" [disabled]="">Créer</button>
 </form>
+
+{{ transactionDetails.value | json }}
 
 <br>
 <h3 class="title is-3">Transactions récentes</h3>

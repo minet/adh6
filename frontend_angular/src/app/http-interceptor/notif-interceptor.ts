@@ -35,7 +35,7 @@ export class NotifInterceptor implements HttpInterceptor {
           this.router.navigate(['/portail'])
         } else {
           if (req.method === 'GET' && req.headers.get('x-critical-error') === 'true') {
-            this.router.navigate(['/error', err.code]);
+            //this.router.navigate(['/error', err.code]);
           } else {
             this.notificationService.errorNotification(+err.code, err.code + ' on ' + req.url, err.message, 3000);
           }
