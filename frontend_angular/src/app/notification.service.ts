@@ -17,7 +17,7 @@ export class NotificationService {
 
   errorNotification(errorCode: number, title?: string, message?: string, timer?: number): void {
     let notifTitle = "";
-    switch(errorCode) {
+    switch (errorCode) {
       case 400:
         notifTitle = "Bad Request"
       case 401:
@@ -29,12 +29,12 @@ export class NotificationService {
       case 500:
         notifTitle = "Internal server Error"
 
-      this.Toast.fire({
-        title: notifTitle + " - " + title,
-        text: message,
-        icon: 'error',
-        timer: timer
-      })
+        this.Toast.fire({
+          title: notifTitle + " - " + title,
+          text: message,
+          icon: 'error',
+          timer: timer
+        })
     }
   }
 

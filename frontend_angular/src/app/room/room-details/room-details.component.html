@@ -19,8 +19,8 @@
       <h4 class="title is-4 has-text-centered">Ports</h4>
       <ul>
         <ng-container *ngFor="let portRes of ports$ | async">
-          <p><strong>{{ portRes.switchObj.description }}: {{ portRes.portNumber }}</strong></p>
-          <a class="button is-primary is-fullwidth is-small" [routerLink]="['/port',portRes.switchObj.id,portRes.id]">
+          <p><strong>{{ portRes.portNumber }}</strong></p>
+          <a class="button is-primary is-fullwidth is-small" [routerLink]="['/port',portRes.switchObj,portRes.id]">
             Configurer
           </a>
         </ng-container>

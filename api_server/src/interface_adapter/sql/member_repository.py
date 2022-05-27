@@ -143,11 +143,11 @@ class MemberSQLRepository(MemberRepository):
         if adherent is None:
             raise MemberNotFoundError(str(member_id))
 
-        membership: MembershipSQL = session.query(MembershipSQL) \
+        memberships: List[MembershipSQL] = session.query(MembershipSQL) \
             .filter(MembershipSQL.adherent_id == member_id) \
-            .one_or_none()
+            .all()
 
-        if membership is None:
+        if not memberships:
             raise MembershipNotFoundError(str(member_id))
 
         now = datetime.now()
@@ -156,7 +156,9 @@ class MemberSQLRepository(MemberRepository):
                 raise CharterAlreadySigned("MiNET")
             with track_modifications(ctx, session, adherent):
                 adherent.datesignedminet = now
-            membership.status = MembershipStatus.PENDING_PAYMENT_INITIAL
+            for m in memberships:
+                if m.status == MembershipStatus.PENDING_RULES:
+                    m.status = MembershipStatus.PENDING_PAYMENT_INITIAL
         elif charter_id == 2:
             if adherent.datesignedhosting is not None:
                 raise CharterAlreadySigned("Hosting")

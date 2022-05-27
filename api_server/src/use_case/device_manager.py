@@ -79,12 +79,15 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def get_mac_vendor(self, ctx, id=None):
-        devices, count = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=id))
+    def get_mac_vendor(self, ctx, id: int):
+        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=id))
 
-        if count == 0:
+        if not devices:
             raise DeviceNotFoundError(str(id))
         else:
+            if not devices[0].mac:
+                return {"vendorname": "-"}
+
             mac_address = devices[0].mac[:8].replace(":", "-")
             if mac_address not in self.oui_repository:
                 vendor = "-"
