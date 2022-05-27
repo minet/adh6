@@ -65,7 +65,7 @@ class ElasticSearchRepository(LogsRepository):
                   }
                }
             }
-        return self.es.search(index="", query=query)["aggregations"]
+        return self.es.search(index="", body=query)["aggregations"]
 
     def get_logs(self, ctx, devices: List[Device], limit=LOG_DEFAULT_LIMIT, username=None, dhcp: bool = False):
         """
@@ -142,7 +142,7 @@ class ElasticSearchRepository(LogsRepository):
                 query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
 
         LOG.info('About to query ElasticSearch')
-        res = self.es.search(index="", query=query)['hits']['hits']
+        res = self.es.search(index="", body=query)['hits']['hits']
 
         if not dhcp:
             for r in res:
