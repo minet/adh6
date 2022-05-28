@@ -143,13 +143,6 @@ class MemberHandler(DefaultHandler):
             LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
             return handle_error(ctx, e)
 
-
-    @with_context
-    @require_sql
-    @log_call
-    def membership_get(self, ctx, id_, uuid):
-        pass
-
     @with_context
     @require_sql
     @log_call
@@ -166,9 +159,9 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_validate(self, ctx, id_, uuid):
+    def membership_validate(self, ctx, id_: int, uuid: str, free: bool = False):
         try:
-            self.member_manager.validate_membership(ctx, id_, uuid)
+            self.member_manager.validate_membership(ctx, id_, uuid, free)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

@@ -1,14 +1,14 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
 from ipaddress import IPv4Address, IPv4Network
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 from src.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from src.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
     AbstractDevice, MemberStatus,
-    AbstractAccount, Account,
+    AbstractAccount,
     AccountType
 )
 from src.entity.abstract_transaction import AbstractTransaction
@@ -102,8 +102,6 @@ class MemberManager(CRUDManager):
     def get_profile(self, ctx) -> Tuple[AbstractMember, List[str]]:
         user: User = ctx.get(CTX_ADMIN)
         m = self.member_repository.get_by_id(ctx,user.id)
-        if not m:
-            raise UnauthorizedError("Not authorize to access this profile")
         return m, [r.removeprefix("adh6_") for r in user.roles]
 
     @log_call
@@ -121,7 +119,7 @@ class MemberManager(CRUDManager):
             raise AccountTypeNotFoundError("Adhérent") 
  
         created_member: Member = self.member_repository.create(ctx, member)
-        _: Account = self.account_repository.create(ctx, AbstractAccount(
+        _ = self.account_repository.create(ctx, AbstractAccount(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,
@@ -347,7 +345,7 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def validate_membership(self, ctx, member_id: int, uuid: str):
+    def validate_membership(self, ctx, member_id: int, uuid: str, free: bool):
         member = self.__member_not_found(ctx, member_id)
 
         fethed_membership, _ = self.membership_repository.membership_search_by(
@@ -363,7 +361,7 @@ class MemberManager(CRUDManager):
         @uses_security("admin", is_collection=False)
         def _validate(cls, ctx, membership_uuid: str) -> None:
             self.membership_repository.validate_membership(ctx, membership_uuid)
-            self.add_membership_payment_record(ctx, fethed_membership[0])
+            self.add_membership_payment_record(ctx, fethed_membership[0], free)
             self.member_repository.add_duration(ctx, member.id, fethed_membership[0].duration)
             self.update_subnet(ctx, member_id) 
 
@@ -372,8 +370,11 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     @uses_security("admin")
-    def add_membership_payment_record(self, ctx, membership: AbstractMembership):
+    def add_membership_payment_record(self, ctx, membership: AbstractMembership, free: bool):
         LOG.debug("membership_add_membership_payment_record", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account))
+
+        if free and not Roles.SUPERADMIN.value in ctx.get(CTX_ADMIN).roles:
+            raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
         payment_method = self.payment_method_repository.get_by_id(ctx, membership.payment_method)
         asso_account, _ = self.account_repository.search_by(ctx, limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
@@ -392,14 +393,14 @@ class MemberManager(CRUDManager):
         self.transaction_repository.create(
             ctx, 
             AbstractTransaction(
-                value=9,
+                value=9 if not free else 0,
                 src=src_account.id,
                 dst=asso_account[0].id,
-                name=title,
+                name=title + " (gratuit)",
                 payment_method=payment_method.id
             )
         )
-        if price > 9:
+        if price > 9 and not free:
             self.transaction_repository.create(
                 ctx, 
                 AbstractTransaction(
@@ -546,7 +547,7 @@ class MemberManager(CRUDManager):
         return _get_statuses(self, ctx, filter_=member)
 
     @log_call
-    def change_password(self, ctx, member_id, password: str, hashed_password: Union[str, bytes]):
+    def change_password(self, ctx, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
         member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
         if not member:

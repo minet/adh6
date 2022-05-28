@@ -844,25 +844,6 @@ paths:
           type: string
           format: uuid
           example: "123e4567-e89b-12d3-a456-426614174000"
-    get:
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Membership'
-          description: Success
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Retrieve a membership
-      tags:
-      - membership
     patch:
       requestBody:
         content:
@@ -896,6 +877,12 @@ paths:
           type: string
           format: uuid
           example: "123e4567-e89b-12d3-a456-426614174000"
+      - description: Should the membership be free
+        in: query
+        name: free
+        schema:
+          type: boolean
+          example: false
     get:
       operationId: membership_validate
       responses:
