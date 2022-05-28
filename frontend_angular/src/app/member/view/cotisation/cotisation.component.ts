@@ -23,6 +23,7 @@ export class CotisationComponent implements OnInit {
   public cotisationDisabled: boolean = false;
   public needSignature: boolean = false;
   public needValidation: boolean = false;
+  public isFree: boolean = false;
 
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
   private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
@@ -51,8 +52,7 @@ export class CotisationComponent implements OnInit {
     this.subscriptionForm = this.fb.group({
       renewal: [''],
       products: this.fb.array([]),
-      paidWith: ['', [Validators.required]],
-      isFree: [false]
+      paidWith: ['', [Validators.required]]
     });
     this.subscriptionForm.valid
   }
@@ -185,8 +185,7 @@ export class CotisationComponent implements OnInit {
   }
 
   public validatePayment(): void {
-    const v = this.subscriptionForm.value;
-    this.membershipService.membershipValidate(this.member.id, this.membership.uuid, (v.isFree) ? v.isFree : undefined).subscribe(() => {
+    this.membershipService.membershipValidate(this.member.id, this.membership.uuid, (this.isFree) ? this.isFree : undefined).subscribe(() => {
       this.notificationService.successNotification(
         "Inscription finie",
         "L'inscription pour cet adhérent est finie"

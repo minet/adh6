@@ -7,22 +7,22 @@
       charte</a>
   </p>
 </div>
-<form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
-  <ng-container *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">
-    <div class="field">
-      <div class="control">
-        <div class="form-check">
-          <label class="checkbox">
-            <input formControlName="isFree" type="checkbox">
-            Cocher pour faire une cotisation gratuite
-          </label>
-        </div>
+<ng-container *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">
+  <div class="field" *ngIf="('free' | able: 'Membership')">
+    <div class="control">
+      <div class="form-check">
+        <label class="checkbox">
+          <input [value]="isFree" type="checkbox">
+          Cocher pour faire une cotisation gratuite
+        </label>
       </div>
     </div>
-    <div class="field">
-      <button class="button is-success is-fullwidth" (click)="validatePayment()">Valider paiement</button>
-    </div>
-  </ng-container>
+  </div>
+  <div class="field">
+    <button class="button is-success is-fullwidth" (click)="validatePayment()">Valider paiement</button>
+  </div>
+</ng-container>
+<form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
   <div class="field">
     <label class="label">Durée de cotisation</label>
     <div class="control">
