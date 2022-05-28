@@ -2,10 +2,10 @@
 # from datetime import datetime
 import re
 from ipaddress import (
-    IPv4Address,IPv4Network,
-    IPv6Address,IPv6Network,AddressValueError
+    IPv4Address,
+    IPv6Address, 
+    AddressValueError
 )
-import dateutil
 
 MAC_REGEX = re.compile('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -33,12 +33,3 @@ def is_ip_v6(ip_address: str) -> bool:
     except AddressValueError:
         return False
     return True
-
-
-def is_date(date: str) -> bool:
-    try:
-        dateutil.parser.parse(date)
-        return True
-
-    except ValueError:
-        return False

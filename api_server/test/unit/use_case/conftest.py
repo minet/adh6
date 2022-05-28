@@ -182,38 +182,38 @@ def sample_account_type(faker):
 
 
 @fixture
-def sample_transaction(faker, sample_admin, sample_account1, sample_account2):
-    return Transaction(
+def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+    yield Transaction(
         id=faker.random_digit_not_null(),
-        src=sample_account1,
-        dst=sample_account2,
+        src=sample_account1.id,
+        dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
         attachments='',
         timestamp=faker.date_this_year(),
-        payment_method=sample_payment_method,
-        author=sample_admin
+        payment_method=sample_payment_method.id,
+        author=sample_admin.id
     )
 
 
 @fixture
-def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2):
-    return Transaction(
+def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+    yield Transaction(
         id=faker.random_digit_not_null(),
-        src=sample_account1,
-        dst=sample_account2,
+        src=sample_account1.id,
+        dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
         attachments='',
         timestamp=faker.date_this_year(),
-        payment_method=sample_payment_method,
-        author=sample_admin,
+        payment_method=sample_payment_method.id,
+        author=sample_admin.id,
         pending_validation=True
     )
 
 @fixture
 def sample_account1(faker, sample_member, sample_account_type):
-    return Account(
+    yield Account(
         id=faker.random_digit_not_null(),
         name=faker.word(),
         actif=faker.random_choices(elements=(True, False)),
