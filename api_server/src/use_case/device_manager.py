@@ -58,10 +58,6 @@ class DeviceManager(CRUDManager):
     @auto_raise
     @uses_security("admin")
     def put_mab(self, ctx, id: int) -> bool:
-        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=id))
-        if not devices:
-            raise DeviceNotFoundError(str(id))
-        
         mab = self.device_repository.get_mab(ctx, id)
         return self.device_repository.put_mab(ctx, id, not mab)
 
@@ -69,32 +65,24 @@ class DeviceManager(CRUDManager):
     @auto_raise
     @uses_security("admin")
     def get_mab(self, ctx, id: int) -> bool:
-        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=id))
-
-        if not devices:
-            raise DeviceNotFoundError(str(id))
-        
         return self.device_repository.get_mab(ctx, id)
 
 
     @log_call
     @auto_raise
     def get_mac_vendor(self, ctx, id: int):
-        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(id=id))
+        device = self.device_repository.get_by_id(ctx, id)
 
-        if not devices:
-            raise DeviceNotFoundError(str(id))
+        if not device.mac:
+            return {"vendorname": "-"}
+
+        mac_address = device.mac[:8].replace(":", "-")
+        if mac_address not in self.oui_repository:
+            vendor = "-"
         else:
-            if not devices[0].mac:
-                return {"vendorname": "-"}
+            vendor = self.oui_repository[mac_address]
 
-            mac_address = devices[0].mac[:8].replace(":", "-")
-            if mac_address not in self.oui_repository:
-                vendor = "-"
-            else:
-                vendor = self.oui_repository[mac_address]
-
-            return {"vendorname": vendor}
+        return {"vendorname": vendor}
 
 
     @log_call
