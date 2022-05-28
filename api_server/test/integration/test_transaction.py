@@ -74,6 +74,8 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
 def client(sample_transaction, sample_transaction_pending):
     from .context import app
     from .conftest import prep_db, close_db
+    if app.app is None:
+        return
     with app.app.test_client() as c:
         prep_db(
             sample_transaction,

@@ -123,7 +123,7 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def allocate_ip_addresses(self, ctx, device: Device, override: bool = False):
+    def allocate_ip_addresses(self, ctx, device: AbstractDevice, override: bool = False):
         from src.entity.validators.member_validators import is_member_active, has_member_subnet
         member = self.get_user_from_username(ctx, device.member)
         if is_member_active(member):
@@ -159,7 +159,7 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def unallocate_ip_addresses(self, ctx, device: Device):
+    def unallocate_ip_addresses(self, ctx, device: AbstractDevice):
         from src.entity.validators.member_validators import is_member_active
         member = self.get_user_from_username(ctx, device.member)
         if not is_member_active(member):

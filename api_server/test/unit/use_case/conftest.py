@@ -31,9 +31,9 @@ def app_context(monkeypatch):
 
 @fixture(autouse=True)
 def mock_test_configuration(monkeypatch):
-    from src.use_case import MemberManager
-    monkeypatch.setattr(MemberManager, "duration_price", {1:9})
-    monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois'})
+    from src.use_case.member_manager import MemberManager
+    monkeypatch.setattr(MemberManager, "duration_price", {1:9, 12: 50})
+    monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois', 12: '1 an'})
 
 @fixture
 def ctx(sample_member: Member):
@@ -41,6 +41,15 @@ def ctx(sample_member: Member):
         admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
         testing=True,
         roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
+    )
+
+
+@fixture
+def ctx_only_admin(sample_member: Member):
+    return build_context(
+        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value]),
+        testing=True,
+        roles=[Roles.USER.value, Roles.ADMIN.value]
     )
 
 

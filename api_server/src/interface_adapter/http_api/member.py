@@ -62,14 +62,14 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_post(self, ctx, id_: int, body):
+    def membership_post(self, ctx, id_: int, body: dict):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
             if 'uuid' not in body:
                 body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
-            to_create: Membership = deserialize_request(body, Membership)
+            to_create: AbstractMembership = deserialize_request(body, AbstractMembership)
 
             created_membership = self.member_manager.new_membership(ctx, id_, to_create)
             return serialize_response(created_membership), 200  # 200 OK
@@ -134,7 +134,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def get_latest_membership(self, ctx, id_: int) -> Membership:
+    def get_latest_membership(self, ctx, id_: int):
         try:
             membership: Membership = self.member_manager.get_latest_membership(ctx, id_)
             LOG.debug("get_latest_membership", extra=log_extra(ctx, membership_uuid=membership.uuid))
@@ -142,13 +142,6 @@ class MemberHandler(DefaultHandler):
         except Exception as e:
             LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
             return handle_error(ctx, e)
-
-
-    @with_context
-    @require_sql
-    @log_call
-    def membership_get(self, ctx, id_, uuid):
-        pass
 
     @with_context
     @require_sql
@@ -166,9 +159,9 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def membership_validate(self, ctx, id_, uuid):
+    def membership_validate(self, ctx, id_: int, uuid: str, free: bool = False):
         try:
-            self.member_manager.validate_membership(ctx, id_, uuid)
+            self.member_manager.validate_membership(ctx, id_, uuid, free)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
@@ -176,7 +169,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
-    def charter_get(self, ctx, id_, charter_id) -> Tuple[str, int]:
+    def charter_get(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
             return self.member_manager.get_charter(ctx, id_, charter_id), 200
         except Exception as e:

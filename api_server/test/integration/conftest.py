@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 import pytest
 from src.constants import MembershipDuration, MembershipStatus
+from src.use_case.decorator.security import Roles
 from test.integration.resource import api_key
 from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
 from src.interface_adapter.sql.device_repository import DeviceType
@@ -35,6 +36,8 @@ def client(sample_member, sample_member2, sample_member13,
         account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
         sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
+    if app.app is None:
+        return
     with app.app.test_client() as c:
         prep_db(
             sample_member,
@@ -211,7 +214,7 @@ def sample_api_key():
     return ApiKey(
         name="api_key",
         uuid=api_key,
-        role="adh6_superadmin"
+        role=Roles.SUPERADMIN.value
     )
 
 @pytest.fixture

@@ -56,7 +56,7 @@ class Roles(Enum):
     USER = "adh6_user"
     NETWORK = "network"
     ADMIN = "adh6_admin"
-    SUPERADMIN = "adh6_superadmin"
+    SUPERADMIN = "adh6_superuser"
     TRESO = "adh6_treso"
     VLAN_PROD = "cluster-prod"
     VLAN_DEV = "cluster-dev"
@@ -78,7 +78,7 @@ def _find_user(session: Session, username) -> User:
     if not exists:
         raise MemberNotFoundError(username)
 
-    user = User(login=username, roles=connexion.context["token_info"]["groups"])
+    user = User(login=username, roles=[r for r in connexion.context["token_info"]["groups"] if (r in Roles._value2member_map_ and r != Roles.USER.value)])
     if adherent is not None:
         user.id = adherent.id
         if adherent.is_naina and "adh6_admin" not in user.roles:

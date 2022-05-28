@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MemberDeviceModule } from '../../member-device/member-device-list.module';
 import { AutoTroubleshootModule } from '../../auto-troubleshoot/auto-troubleshoot.module';
+import { AbilityModule } from '@casl/angular';
 
 
 
@@ -19,7 +20,8 @@ import { AutoTroubleshootModule } from '../../auto-troubleshoot/auto-troubleshoo
     CommonModule,
     RouterModule.forChild([{ path: '', component: ViewComponent }]),
     MemberDeviceModule,
-    AutoTroubleshootModule
+    AutoTroubleshootModule,
+    AbilityModule,
   ],
 })
 export class ViewModule { }

@@ -56,7 +56,7 @@ class DeployedConfig(BaseConfig):
             {
                 'scheme': s.group('scheme'), 
                 'host': s.group('host'), 
-                'port': s.group('port')
+                'port': int(s.group('port'))
             } 
             for s in [
                 re.search(

@@ -186,7 +186,7 @@ def seed():
     ])
 
     print("Seeding payment methods")
-    payment_methods = [1,"Liquide"],[2,"Chèque"],[3,"Carte bancaire"],[4,"Virement"],[5,"Stripe"]
+    payment_methods = [1,"Liquide"],[2,"Chèque"],[3,"Carte bancaire"],[4,"Virement"],[5,"Stripe"],[6,"Aucun"]
     session.bulk_save_objects([
         PaymentMethod(
             id=e[0],

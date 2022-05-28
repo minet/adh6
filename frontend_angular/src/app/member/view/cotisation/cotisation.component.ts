@@ -23,6 +23,7 @@ export class CotisationComponent implements OnInit {
   public cotisationDisabled: boolean = false;
   public needSignature: boolean = false;
   public needValidation: boolean = false;
+  public isFree: boolean = false;
 
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
   private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
@@ -51,7 +52,7 @@ export class CotisationComponent implements OnInit {
     this.subscriptionForm = this.fb.group({
       renewal: [''],
       products: this.fb.array([]),
-      paidWith: ['', [Validators.required]],
+      paidWith: ['', [Validators.required]]
     });
     this.subscriptionForm.valid
   }
@@ -145,6 +146,19 @@ export class CotisationComponent implements OnInit {
               }
               this.membership = m;
             });
+        } else {
+          const subscription: AbstractMembership = {
+            duration: this.subscriptionDuration.at(v.renewal),
+            account: account.id,
+            products: [],
+            paymentMethod: paymentMethod.id,
+            hasRoom: +v.renewal !== 7,
+            member: this.member.id
+          }
+          this.membershipService.memberIdMembershipUuidPatch(subscription, this.member.id, this.membership.uuid)
+            .subscribe(() => this.notificationService.successNotification(
+              "Inscription mise à jour"
+            ))
         }
       });
     });
@@ -171,7 +185,7 @@ export class CotisationComponent implements OnInit {
   }
 
   public validatePayment(): void {
-    this.membershipService.membershipValidate(this.member.id, this.membership.uuid).subscribe(() => {
+    this.membershipService.membershipValidate(this.member.id, this.membership.uuid, (this.isFree) ? this.isFree : undefined).subscribe(() => {
       this.notificationService.successNotification(
         "Inscription finie",
         "L'inscription pour cet adhérent est finie"

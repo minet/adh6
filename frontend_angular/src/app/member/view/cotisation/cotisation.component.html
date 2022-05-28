@@ -7,11 +7,21 @@
       charte</a>
   </p>
 </div>
-<button class="button is-success is-fullwidth" (click)="validatePayment()"
-  *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">Valider paiement</button>
-<ng-template #waitingMembership>
-  <button class="button is-primary is-fullwidth" disabled>Attente...</button>
-</ng-template>
+<ng-container *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">
+  <div class="field" *ngIf="('free' | able: 'Membership')">
+    <div class="control">
+      <div class="form-check">
+        <label class="checkbox">
+          <input [value]="isFree" type="checkbox">
+          Cocher pour faire une cotisation gratuite
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-success is-fullwidth" (click)="validatePayment()">Valider paiement</button>
+  </div>
+</ng-container>
 <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
   <div class="field">
     <label class="label">Durée de cotisation</label>
@@ -46,12 +56,16 @@
     <div class="control">
       <select class="input is-fullwidth" formControlName="paidWith" type="text">
         <option value="">-- Moyen de paiement --</option>
-        <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">{{ pm.name }}</option>
+        <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">
+          {{ (pm.name === "Aucun") ? "Aucun (ex : gratuit ou summer school)" : pm.name }}
+        </option>
       </select>
     </div>
     <p *ngIf="subscriptionForm.controls['paidWith'].invalid && subscriptionForm.controls['paidWith'].touched"
       class="help is-danger">Moyen de paiement invalide
     </p>
   </div>
-  <button class="button is-success is-fullwidth" type="submit" [disabled]="subscriptionForm.invalid">Valider</button>
+  <div class="field">
+    <button class="button is-success is-fullwidth" type="submit" [disabled]="subscriptionForm.invalid">Valider</button>
+  </div>
 </form>

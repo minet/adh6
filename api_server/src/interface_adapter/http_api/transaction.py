@@ -13,6 +13,7 @@ from src.use_case.transaction_manager import TransactionManager
 class TransactionHandler(DefaultHandler):
     def __init__(self, transaction_manager: TransactionManager):
         super().__init__(Transaction, AbstractTransaction, transaction_manager)
+        self.transaction_manager = transaction_manager
 
     @with_context
     @require_sql
@@ -25,7 +26,7 @@ class TransactionHandler(DefaultHandler):
     @log_call
     def validate(self, ctx, id_=None):
         try:
-            self.main_manager.validate(ctx, id=id_)
+            self.transaction_manager.validate(ctx, id=id_)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

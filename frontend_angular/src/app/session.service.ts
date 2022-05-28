@@ -83,6 +83,9 @@ export class SessionService {
         can('manage', 'treasury');
         can('manage', 'Transaction');
       }
+      if (r.roles.indexOf('superuser') !== -1) {
+        can('free', 'Membership');
+      }
       can('read', 'Member', { id: r.member.id });
       this.ability.update(rules);
     })
