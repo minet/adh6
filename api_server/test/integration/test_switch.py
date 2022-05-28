@@ -183,6 +183,72 @@ def test_switch_filter_by_term_nonexistant(client):
     assert not result
 
 
+def test_member_filter_by_switch_id(client, sample_switch1: Switch):
+    r = client.get(
+        '{}/switch/?filter[id]={}'.format(base_url, sample_switch1.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
+def test_member_filter_by_unknown_switch_id(client):
+    r = client.get(
+        '{}/switch/?filter[id]={}'.format(base_url, 100000),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 0
+
+
+def test_member_filter_by_switch_ip(client, sample_switch1: Switch):
+    r = client.get(
+        '{}/switch/?filter[ip]={}'.format(base_url, sample_switch1.ip),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
+def test_member_filter_by_unknown_switch_ip(client):
+    r = client.get(
+        '{}/switch/?filter[ip]={}'.format(base_url, "192.168.102.1"),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 0
+
+
+def test_member_filter_by_switch_description(client, sample_switch1: Switch):
+    r = client.get(
+        '{}/switch/?filter[description]={}'.format(base_url, sample_switch1.description),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
+def test_member_filter_by_unknown_switch_description(client):
+    r = client.get(
+        '{}/switch/?filter[description]={}'.format(base_url, "192.168.102.1"),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 0
+
+
 @pytest.mark.parametrize("test_ip", INVALID_IP)
 def test_switch_update_switch_invalid_ip(client, test_ip):
     sample_switch1 = {

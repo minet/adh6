@@ -203,6 +203,54 @@ def test_device_filter_hit_limit(client, sample_member: Adherent, headers, statu
         response = json.loads(r.data.decode('utf-8'))
         assert len(response) == LIMIT
 
+
+@pytest.mark.parametrize(
+    'headers, status_code, quantity',
+    [
+        (TEST_HEADERS_API_KEY, 200, 1),
+        (TEST_HEADERS, 200, 1),
+        (TEST_HEADERS_SAMPLE, 403, 0),
+    ]
+)
+@pytest.mark.parametrize(
+    'device',
+    [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
+)
+def test_device_filter_by_id(client, device: Device, headers, status_code: int, quantity: int):
+    r = client.get(
+        '{}/device/?filter[id]={}'.format(base_url, device.id),
+        headers=headers,
+    )
+    assert r.status_code == status_code
+
+    if status_code == 200:
+        response = json.loads(r.data.decode('utf-8'))
+        assert len(response) == quantity
+
+
+@pytest.mark.parametrize(
+    'headers, status_code',
+    [
+        (TEST_HEADERS_API_KEY, 200),
+        (TEST_HEADERS, 200),
+        (TEST_HEADERS_SAMPLE, 403),
+    ]
+)
+@pytest.mark.parametrize(
+    'device',
+    [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
+)
+def test_device_filter_by_connection_type(client, device: Device, headers, status_code: int):
+    r = client.get(
+        '{}/device/?filter[connectionType]={}'.format(base_url, "wireless" if device.type == DeviceType.wireless.value else "wired"),
+        headers=headers,
+    )
+    assert r.status_code == status_code
+
+    if status_code == 200:
+        response = json.loads(r.data.decode('utf-8'))
+        assert len(response) == 1 if device.type == DeviceType.wireless.value else 3
+
 @pytest.mark.parametrize(
     'headers, status_code',
     [

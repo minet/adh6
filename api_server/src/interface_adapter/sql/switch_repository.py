@@ -35,19 +35,15 @@ class SwitchSQLRepository(SwitchRepository):
 
         query = session.query(SQLSwitch)
 
-
         if terms:
-            query = query.filter(SQLSwitch.description.contains(terms) |
-                         SQLSwitch.ip.contains(terms))
+            query = query.filter(SQLSwitch.description.contains(terms) | SQLSwitch.ip.contains(terms))
         if filter_:
-            if filter_.id is not None:
+            if filter_.id:
                 query = query.filter(SQLSwitch.id == filter_.id)
             if filter_.description:
                 query = query.filter(SQLSwitch.description.contains(filter_.description))
             if filter_.ip is not None:
                 query = query.filter(SQLSwitch.ip == filter_.ip)
-            if filter_.community is not None:
-                query = query.filter(SQLSwitch.communaute == filter_.community)
 
 
         count = query.count()

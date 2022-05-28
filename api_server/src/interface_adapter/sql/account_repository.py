@@ -48,12 +48,8 @@ class AccountSQLRepository(AccountRepository):
             if filter_.pinned is not None:
                 query = query.filter(SQLAccount.pinned == filter_.pinned)
             if filter_.account_type is not None:
-                if isinstance(filter_.account_type, AccountType):
-                    filter_.account_type = filter_.account_type.id
                 query = query.filter(SQLAccount.type == filter_.account_type)
             if filter_.member is not None:
-                if isinstance(filter_.member, Member):
-                    filter_.member = filter_.member.id
                 query = query.filter(SQLAccount.adherent_id == filter_.member)
 
         count = query.count()

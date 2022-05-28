@@ -171,6 +171,7 @@ class DeviceManager(CRUDManager):
             vlan = self.vlan_repository.get_vlan(ctx, rooms[0].vlan)
         if vlan is None:
             raise VLANNotFoundError(rooms[0].vlan)
+        print(vlan)
         return vlan.ipv4_network if not is_ipv6 else vlan.ipv6_network
 
     @log_call

@@ -280,3 +280,53 @@ def test_transaction_filter_by_term_nonexistant(client):
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert not result
+
+
+def test_transaction_filter_by_id(client, sample_transaction: Transaction):
+    r = client.get(
+        "{}/transaction/?filter[id]={}".format(base_url, sample_transaction.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 1
+
+
+def test_transaction_filter_by_payment_method(client, sample_transaction: Transaction):
+    r = client.get(
+        "{}/transaction/?filter[paymentMethod]={}".format(base_url, sample_transaction.payment_method.id),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 2
+
+
+def test_transaction_filter_by_pending_validation(client, sample_transaction: Transaction):
+    r = client.get(
+        "{}/transaction/?filter[pendingValidation]={}".format(base_url, sample_transaction.pending_validation),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 1
+
+
+def test_transaction_filter_by_src(client, sample_transaction: Transaction):
+    r = client.get(
+        "{}/transaction/?filter[src]={}".format(base_url, sample_transaction.src),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 2
+
+
+def test_transaction_filter_by_dst(client, sample_transaction: Transaction):
+    r = client.get(
+        "{}/transaction/?filter[dst]={}".format(base_url, sample_transaction.dst),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 2

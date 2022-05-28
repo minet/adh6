@@ -30,11 +30,13 @@ class RoomSQLRepository(RoomRepository):
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(Chambre)
+
+        if terms:
+            query = query.filter(Chambre.description.contains(terms))
+
         if filter_:
             if filter_.id is not None:
                 query = query.filter(Chambre.id == filter_.id)
-            if terms:
-                query = query.filter(Chambre.description.contains(terms))
             if filter_.description:
                 query = query.filter(Chambre.description.contains(filter_.description))
             if filter_.room_number is not None:

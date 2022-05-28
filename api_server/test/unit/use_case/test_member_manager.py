@@ -776,7 +776,7 @@ class TestNewMember:
             member_manager.new_member(ctx, member=sample_member)
 
         # Expect...
-        mock_account_type_repository.search_by.assert_called_once_with(ctx, filter_=AccountType(name="Adhérent"))
+        mock_account_type_repository.search_by.assert_called_once_with(ctx, terms="Adhérent")
 
 
 class TestCreateOrUpdate:

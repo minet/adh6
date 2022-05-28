@@ -114,7 +114,7 @@ class MemberManager(CRUDManager):
         if fetched_member:
             raise MemberAlreadyExist(fetched_member[0].username)
 
-        fetched_account_type, _ = self.account_type_repository.search_by(ctx, filter_=AccountType(name="Adhérent"))
+        fetched_account_type, _ = self.account_type_repository.search_by(ctx, terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  

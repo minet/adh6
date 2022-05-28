@@ -29,7 +29,6 @@ from src.use_case.switch_manager import SwitchManager
         (RoomRepository, RoomManager, AbstractRoom, lazy_fixture('sample_room')),
         (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
         (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
-        (AccountTypeRepository, AccountTypeManager, AccountType, lazy_fixture('sample_account_type')),
     ]
 )
 def data_set(request):
@@ -38,7 +37,7 @@ def data_set(request):
 
 @pytest.fixture(
     ids=[
-        "switch", "port", "room", "account", "product", "payment_method", "account_type"
+        "switch", "port", "room", "account", "payment_method"
     ]
 )
 def manager(data_set):

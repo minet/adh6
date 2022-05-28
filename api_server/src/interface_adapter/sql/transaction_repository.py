@@ -39,27 +39,21 @@ class TransactionSQLRepository(TransactionRepository):
         query= query.join(account_source, account_source.id == SQLTransaction.dst)
         query= query.join(account_destination, account_destination.id == SQLTransaction.src)
 
+        if terms:
+            query= query.filter((SQLTransaction.name.contains(terms)))
+
         if filter_:
             if filter_.id is not None:
                 query= query.filter(SQLTransaction.id == filter_.id)
             if filter_.payment_method is not None:
                 query= query.filter(SQLTransaction.type == filter_.payment_method)
-            if terms:
-                query= query.filter(
-                    (SQLTransaction.name.contains(terms))
-                )
             if filter_.pending_validation is not None:
                 query= query.filter(
                     (SQLTransaction.pending_validation == filter_.pending_validation)
                 )
-            if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-                query= query.filter(
-                    (SQLTransaction.src == filter_.src) |
-                    (SQLTransaction.dst == filter_.dst)
-                )
-            elif filter_.src is not None:
+            if filter_.src is not None:
                 query= query.filter(SQLTransaction.src == filter_.src)
-            elif filter_.dst is not None:
+            if filter_.dst is not None:
                 query= query.filter(SQLTransaction.dst == filter_.dst)
 
         count = query.count()
