@@ -102,3 +102,57 @@ def test_membership_validate_membership_no_room(client, sample_member: Adherent,
     )
     
     assert result.status_code == 204
+
+def test_membership_filter_by_uuid(client, sample_complete_membership: Membership):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[uuid]={sample_complete_membership.uuid}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 1
+
+def test_membership_filter_by_status(client, sample_complete_membership: Membership):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[status]={sample_complete_membership.status.value}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 1
+
+def test_membership_filter_by_payment_method(client, sample_payment_method):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[paymentMethod]={sample_payment_method.id}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 1
+
+def test_membership_filter_by_account(client, sample_account):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[account]={sample_account.id}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 1
+
+def test_membership_filter_by_member(client, sample_complete_membership: Membership):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[member]={sample_complete_membership.adherent.id}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 1
+
+def test_membership_filter_by_first_time(client, sample_complete_membership: Membership):
+    result = client.get(
+        f'{base_url}/member/membership/?filter[firstTime]={sample_complete_membership.first_time}',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert len(result.json) == 2

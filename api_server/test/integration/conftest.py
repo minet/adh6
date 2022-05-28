@@ -218,10 +218,10 @@ def sample_api_key():
     )
 
 @pytest.fixture
-def sample_complete_membership(sample_account: Account, sample_member: Adherent, ):
+def sample_complete_membership(sample_account: Account, sample_member: Adherent, sample_payment_method: PaymentMethod):
     yield Membership(
         uuid=str(uuid4()),
-        account_id=sample_account.id,
+        account=sample_account,
         create_at=datetime.now(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
@@ -229,7 +229,8 @@ def sample_complete_membership(sample_account: Account, sample_member: Adherent,
         adherent=sample_member,
         status=MembershipStatus.COMPLETE,
         update_at=datetime.now(),
-        products="[]"
+        products="[]",
+        payment_method=sample_payment_method,
     )
 
 @pytest.fixture

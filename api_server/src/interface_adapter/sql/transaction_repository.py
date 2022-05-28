@@ -51,9 +51,14 @@ class TransactionSQLRepository(TransactionRepository):
                 query= query.filter(
                     (SQLTransaction.pending_validation == filter_.pending_validation)
                 )
-            if filter_.src is not None:
+            if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
+                query= query.filter(
+                    (SQLTransaction.src == filter_.src) |
+                    (SQLTransaction.dst == filter_.dst)
+                )
+            elif filter_.src is not None:
                 query= query.filter(SQLTransaction.src == filter_.src)
-            if filter_.dst is not None:
+            elif filter_.dst is not None:
                 query= query.filter(SQLTransaction.dst == filter_.dst)
 
         count = query.count()

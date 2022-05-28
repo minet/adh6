@@ -34,16 +34,10 @@ class MembershipSQLRepository(MembershipRepository):
             if filter_.duration is not None:
                 query = query.filter(MembershipSQL.duration == filter_.duration)
             if filter_.payment_method is not None:
-                if isinstance(filter_.payment_method, PaymentMethod):
-                    filter_.payment_method = filter_.payment_method.id
-                query = query.filter(MembershipSQL.payment_method == filter_.payment_method)
+                query = query.filter(MembershipSQL.payment_method_id == filter_.payment_method)
             if filter_.account is not None:
-                if isinstance(filter_.account, Account):
-                    filter_.account = filter_.account.id
-                query = query.filter(MembershipSQL.account == filter_.account)
+                query = query.filter(MembershipSQL.account_id == filter_.account)
             if filter_.member is not None:
-                if isinstance(filter_.member, Member):
-                    filter_.member = filter_.member.id
                 query = query.filter(MembershipSQL.adherent_id == filter_.member)
 
         query = query.order_by(MembershipSQL.uuid)
