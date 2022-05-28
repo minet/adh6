@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises
+import pytest
 
 from src.entity import AbstractTransaction
 from src.entity.transaction import Transaction
@@ -235,6 +236,28 @@ class TestCreateOrCreate:
         )
         with raises(ValidationError):
             transaction_manager.update_or_create(ctx, req)
+
+
+class TestPartiallyUpdate:
+    def test_happy_path(self,
+                        ctx,
+                        transaction_manager: TransactionManager):
+        req = AbstractTransaction(
+            name='test',
+            attachments=None
+
+        )
+        with pytest.raises(NotImplementedError):
+            transaction_manager.partially_update(ctx, req)
+
+    def test_update_readonly_field(self,
+                        ctx,
+                        transaction_manager: TransactionManager):
+        req = AbstractTransaction(
+            author=1,
+        )
+        with pytest.raises(ValidationError):
+            transaction_manager.partially_update(ctx, req)
 
 
 class TestValidate:
