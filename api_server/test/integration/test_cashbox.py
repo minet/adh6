@@ -1,0 +1,41 @@
+from datetime import datetime
+import json
+import pytest
+
+from test.integration.resource import TEST_HEADERS, base_url
+
+from src.interface_adapter.sql.model.models import Caisse
+
+@pytest.fixture
+def sample_caisse():
+    return Caisse(
+        id = 1,
+        fond = 0,
+        coffre = 0,   
+        date = datetime.now()
+    )
+
+
+@pytest.fixture
+def client(sample_caisse):
+    from .context import app
+    from .conftest import prep_db, close_db
+    if app.app is None:
+        return
+    with app.app.test_client() as c:
+        prep_db(
+            sample_caisse,
+        )
+        yield c
+        close_db()
+
+
+def test_cashbox_get(client):
+    r = client.get(
+        f'{base_url}/treasury/cashbox',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert response["coffre"] == 0
+    assert response["fond"] == 0

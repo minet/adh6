@@ -46,13 +46,13 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         return list(map(_map_payment_method_sql_to_entity, r)), count
 
     def create(self, ctx, object_to_create: PaymentMethod) -> PaymentMethod:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def update(self, ctx, object_to_update: PaymentMethod, override: bool = False) -> PaymentMethod:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def delete(self, ctx, object_id: int) -> PaymentMethod:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 def _map_payment_method_sql_to_entity(a) -> PaymentMethod:

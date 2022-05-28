@@ -107,6 +107,17 @@ def test_member_filter_by_non_existant_id(client):
     assert len(response) == 0
 
 
+def test_member_filter_by_ip(client, sample_member: Adherent):
+    r = client.get(
+        '{}/member/?filter[ip]={}'.format(base_url, sample_member.ip),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
 def test_member_filter_terms_first_name(client):
     r = client.get(
         '{}/member/?terms={}'.format(base_url, "Jean"),

@@ -5,13 +5,13 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional, Tuple
-from sqlalchemy.orm.query import Query
 
 from sqlalchemy.orm.session import Session
+from sqlalchemy import select
+from sqlalchemy.sql.selectable import Select
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.entity import AbstractDevice, Device
-from src.entity.member import Member
 from src.exceptions import DeviceNotFoundError, MemberNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.sql.model.models import Device as SQLDevice, Adherent
@@ -25,6 +25,18 @@ class DeviceType(Enum):
 
 
 class DeviceSQLRepository(DeviceRepository):
+    def _filter(self, smt: Select, filter_: Optional[AbstractDevice] = None) -> Select:
+        if filter_ is not None:
+            if filter_.id is not None:
+                smt = smt.where(SQLDevice.id == filter_.id)
+            if filter_.member is not None:
+                smt = smt.where(Adherent.id == filter_.member)
+            if filter_.mac:
+                smt = smt.where(SQLDevice.mac == filter_.mac)
+            if filter_.connection_type:
+                smt = smt.where(SQLDevice.type == DeviceType[filter_.connection_type].value)
+        return smt
+
     @log_call
     def get_by_id(self, ctx, object_id: int) -> AbstractDevice:
         session: Session = ctx.get(CTX_SQL_SESSION)
@@ -36,28 +48,20 @@ class DeviceSQLRepository(DeviceRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractDevice] = None) -> Tuple[List[AbstractDevice], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        query = session.query(SQLDevice).join(Adherent, Adherent.id == SQLDevice.adherent_id)
-        if filter_ is not None:
-            if filter_.id is not None:
-                query = query.filter(SQLDevice.id == filter_.id)
-            if filter_.member is not None:
-                query = query.filter(Adherent.id == filter_.member)
-            if filter_.mac:
-                query = query.filter(SQLDevice.mac == filter_.mac)
-            if filter_.connection_type:
-                query = query.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
-
+        smt: Select = select(SQLDevice).join(SQLDevice.adherent)
         if terms:
-            query = query.filter(
+            smt = smt.where(
                 (SQLDevice.mac.contains(terms)) |
                 (SQLDevice.mac.contains(terms.replace("-", ":"))) |
                 (SQLDevice.ip.contains(terms)) |
                 (SQLDevice.ipv6.contains(terms)) |
                 (Adherent.login.contains(terms))
             )
+        smt = self._filter(smt, filter_)
 
-        count = query.count()
-        r = query.offset(offset).limit(limit).all()
+        count = len(session.execute(smt).all())
+        r = session.scalars(smt.offset(offset).limit(limit))
+
         return list(map(_map_device_sql_to_abstract_entity, r)), count
 
     @log_call
@@ -123,30 +127,16 @@ class DeviceSQLRepository(DeviceRepository):
             raise ValueError("Type not found")
 
         session: Session = ctx.get(CTX_SQL_SESSION)
-        query = None
         if type == "ipv4":
-            query = session.query(SQLDevice.ip)
-            query = query.filter((SQLDevice.ip != None) &
-                         (SQLDevice.ip != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
-                         )
+            smt = select(SQLDevice.ip).where((SQLDevice.ip != None) & (SQLDevice.ip != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme)
         elif type == "ipv6":
-            query = session.query(SQLDevice.ipv6)
-            query = query.filter((SQLDevice.ipv6 != None) &
-                         (SQLDevice.ipv6 != "En attente")  # @TODO retrocompatibilité ADH5, à retirer à terme
-                         )
-        if filter_:
-            if filter_.id is not None:
-                query = query.filter(SQLDevice.id == filter_.id)
-            if filter_.member is not None:
-                query = query.filter(Adherent.id == filter_.member)
-            if filter_.mac:
-                query = query.filter(SQLDevice.mac == filter_.mac)
-            if filter_.connection_type:
-                query = query.filter(SQLDevice.type == DeviceType[filter_.connection_type].value)
+            smt = select(SQLDevice.ipv6).where((SQLDevice.ipv6 != None) & (SQLDevice.ipv6 != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme) 
 
-        count = query.count()
-        r = query.all()
-        return list(map(lambda x: x[0], r)), count
+        smt = self._filter(smt, filter_)
+
+        count = len(session.execute(smt).all())
+        r = session.scalars(smt)
+        return list(map(lambda x: x, r)), count
     
 
     def get_mab(self, ctx, id: int) -> bool:

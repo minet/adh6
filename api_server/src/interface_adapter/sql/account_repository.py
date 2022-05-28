@@ -48,12 +48,8 @@ class AccountSQLRepository(AccountRepository):
             if filter_.pinned is not None:
                 query = query.filter(SQLAccount.pinned == filter_.pinned)
             if filter_.account_type is not None:
-                if isinstance(filter_.account_type, AccountType):
-                    filter_.account_type = filter_.account_type.id
                 query = query.filter(SQLAccount.type == filter_.account_type)
             if filter_.member is not None:
-                if isinstance(filter_.member, Member):
-                    filter_.member = filter_.member.id
                 query = query.filter(SQLAccount.adherent_id == filter_.member)
 
         count = query.count()
@@ -115,11 +111,11 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def update(self, ctx, object_to_update: AbstractAccount, override=False) -> object:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @log_call
     def delete(self, ctx, object_id) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 def _map_account_sql_to_entity(a, has_balance=False) -> Account:

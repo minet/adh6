@@ -1,11 +1,11 @@
 # coding=utf-8
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from connexion import NoContent
 
 from src.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.interface_adapter.http_api.decorator.with_context import with_context
-from src.interface_adapter.http_api.util.error import handle_error, _error
+from src.interface_adapter.http_api.util.error import handle_error
 from src.interface_adapter.http_api.util.serializer import deserialize_request, serialize_response
 from src.interface_adapter.sql.decorator.sql_session import require_sql
 from src.use_case.crud_manager import CRUDManager
@@ -20,7 +20,7 @@ class DefaultHandler:
     @with_context
     @require_sql
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
         try:
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
@@ -29,9 +29,8 @@ class DefaultHandler:
                         if k not in only + ["id", "__typename"]:
                             del entity[k]
                 return entity
-            filter_ = deserialize_request(filter_, self.abstract_entity_class)
-            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms,
-                                                           filter_=filter_)
+            filter_ = deserialize_request(filter_, self.abstract_entity_class) if filter_ else None
+            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
             headers = {
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'

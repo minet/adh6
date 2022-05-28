@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CotisationComponent } from './cotisation/cotisation.component';
 import { ViewComponent } from './view.component';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MemberDeviceModule } from '../../member-device/member-device-list.module';
 import { AutoTroubleshootModule } from '../../auto-troubleshoot/auto-troubleshoot.module';
 import { AbilityModule } from '@casl/angular';
@@ -17,6 +17,7 @@ import { AbilityModule } from '@casl/angular';
   ],
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     CommonModule,
     RouterModule.forChild([{ path: '', component: ViewComponent }]),
     MemberDeviceModule,

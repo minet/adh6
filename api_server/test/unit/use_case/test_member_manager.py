@@ -2,6 +2,7 @@
 import datetime
 
 import pytest
+from src.entity.account_type import AccountType
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.room_repository import RoomRepository
 from src.use_case.interface.transaction_repository import TransactionRepository
@@ -13,7 +14,7 @@ from pytest import fixture, raises
 
 from src.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipStatus
 from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room, AbstractMembership
-from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
+from src.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.logs_repository import LogsRepository
 from src.use_case.interface.member_repository import MemberRepository
@@ -731,7 +732,6 @@ class TestSearch:
         mock_member_repository.search_by.assert_called_once_with(ctx,
                                                                  limit=test_limit,
                                                                  offset=test_offset,
-                                                                 filter_=None,
                                                                  terms=test_terms)
 
     def test_invalid_limit(self, ctx,
@@ -745,6 +745,38 @@ class TestSearch:
         # When...
         with raises(IntMustBePositive):
             member_manager.search(ctx, limit=10, offset=-1)
+
+
+class TestNewMember:
+    def test_member_already_exist(self, ctx,
+                        mock_member_repository: MemberRepository,
+                        sample_member: AbstractMember,
+                        member_manager: MemberManager):
+        # Given...
+        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+
+        # When...
+        with pytest.raises(MemberAlreadyExist):
+            member_manager.new_member(ctx, member=sample_member)
+
+        # Expect...
+        mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(username=sample_member.username))
+
+    def test_no_account_type_adherent(self, ctx,
+                        mock_member_repository: MemberRepository,
+                        mock_account_type_repository: AccountTypeRepository,
+                        sample_member: AbstractMember,
+                        member_manager: MemberManager):
+        # Given...
+        mock_member_repository.search_by = MagicMock(return_value=([], 1))
+        mock_account_type_repository.search_by = MagicMock(return_value=([], 0))
+
+        # When...
+        with pytest.raises(AccountTypeNotFoundError):
+            member_manager.new_member(ctx, member=sample_member)
+
+        # Expect...
+        mock_account_type_repository.search_by.assert_called_once_with(ctx, terms="Adhérent")
 
 
 class TestCreateOrUpdate:

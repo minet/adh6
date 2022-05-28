@@ -17,12 +17,12 @@ from src.use_case.interface.cashbox_repository import CashboxRepository
 class CashboxSQLRepository(CashboxRepository):
 
     @log_call
-    def update_cashbox(self, ctx, value_modifier=None, transaction=None):
+    def update(self, ctx, value_modifier=None, transaction=None):
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         now = datetime.now()
 
-        fond, coffre = self.get_cashbox(ctx)
+        fond, coffre = self.get(ctx)
 
         fond += decimal.Decimal(value_modifier)
 
@@ -40,7 +40,7 @@ class CashboxSQLRepository(CashboxRepository):
         pass
 
     @log_call
-    def get_cashbox(self, ctx) -> Tuple[int, int]:
+    def get(self, ctx) -> Tuple[int, int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLCashbox)

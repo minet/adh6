@@ -216,7 +216,7 @@ class MemberSQLRepository(MemberRepository):
     
     def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        q = session.query(Adherent.ip).filter(Adherent.ip == None)
+        q = session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 

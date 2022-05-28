@@ -16,16 +16,11 @@ from src.use_case.interface.account_type_repository import AccountTypeRepository
 
 class AccountTypeSQLRepository(AccountTypeRepository):
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AccountType] = None) -> Tuple[List[AccountType], int]:
+    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AccountType], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
         query = session.query(SQLAccountType)
 
-        if filter_:
-            if filter_.id:
-                query = query.filter(SQLAccountType.id == filter_.id)
-            if filter_.name:
-                query = query.filter(SQLAccountType.name.contains(filter_.name))
         if terms:
             query = query.filter(SQLAccountType.name.contains(terms))
 
@@ -44,15 +39,6 @@ class AccountTypeSQLRepository(AccountTypeRepository):
         if obj is None:
             raise AccountTypeNotFoundError(object_id)
         return _map_account_type_sql_to_entity(obj)
-
-    def create(self, ctx, object_to_create: AccountType) -> AccountType:
-        raise NotImplementedError
-
-    def update(self, ctx, object_to_update: AccountType, override: bool = False) -> AccountType:
-        raise NotImplementedError
-
-    def delete(self, ctx, object_id: int) -> AccountType:
-        raise NotImplementedError
 
 
 def _map_account_type_sql_to_entity(a) -> AccountType:
