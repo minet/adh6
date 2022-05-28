@@ -9,7 +9,6 @@ from src.entity.device import Device
 from src.entity.member import Member
 from src.entity.room import Room
 from src.exceptions import InvalidMACAddress, InvalidIPv6, InvalidIPv4, MemberNotFoundError
-from src.exceptions import NoMoreIPAvailableException
 from src.use_case.device_manager import DeviceManager
 from src.use_case.interface.device_repository import DeviceRepository
 from src.use_case.interface.ip_allocator import IpAllocator
