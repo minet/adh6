@@ -396,7 +396,7 @@ class MemberManager(CRUDManager):
                 value=9 if not free else 0,
                 src=src_account.id,
                 dst=asso_account[0].id,
-                name=title + " (gratuit)",
+                name=title + " (gratuit)" if free else title,
                 payment_method=payment_method.id
             )
         )

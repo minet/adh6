@@ -2339,7 +2339,7 @@ components:
           example: 42.0
           format: double
           minimum: 0
-          exclusiveMinimum: true
+          exclusiveMinimum: false
           type: number
         attachments:
           description: The list of attachments linked with this transaction
