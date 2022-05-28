@@ -52,6 +52,7 @@ export class CotisationComponent implements OnInit {
       renewal: [''],
       products: this.fb.array([]),
       paidWith: ['', [Validators.required]],
+      isFree: [false]
     });
     this.subscriptionForm.valid
   }
@@ -145,6 +146,19 @@ export class CotisationComponent implements OnInit {
               }
               this.membership = m;
             });
+        } else {
+          const subscription: AbstractMembership = {
+            duration: this.subscriptionDuration.at(v.renewal),
+            account: account.id,
+            products: [],
+            paymentMethod: paymentMethod.id,
+            hasRoom: +v.renewal !== 7,
+            member: this.member.id
+          }
+          this.membershipService.memberIdMembershipUuidPatch(subscription, this.member.id, this.membership.uuid)
+            .subscribe(() => this.notificationService.successNotification(
+              "Inscription mise à jour"
+            ))
         }
       });
     });
@@ -171,7 +185,8 @@ export class CotisationComponent implements OnInit {
   }
 
   public validatePayment(): void {
-    this.membershipService.membershipValidate(this.member.id, this.membership.uuid).subscribe(() => {
+    const v = this.subscriptionForm.value;
+    this.membershipService.membershipValidate(this.member.id, this.membership.uuid, (v.isFree) ? v.isFree : undefined).subscribe(() => {
       this.notificationService.successNotification(
         "Inscription finie",
         "L'inscription pour cet adhérent est finie"
