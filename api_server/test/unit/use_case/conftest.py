@@ -13,7 +13,8 @@ from src.entity import (
     Room,
     Switch,
     Transaction,
-    AbstractMembership
+    AbstractMembership,
+    Vlan
 )
 from src.use_case.decorator.security import User, Roles
 from test.auth import TESTING_CLIENT
@@ -77,6 +78,16 @@ def sample_member(faker, sample_room: Room):
         comment=faker.sentence(),
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
         room_number=sample_room.room_number,
+    )
+
+
+@fixture
+def sample_vlan(faker):
+    return Vlan(
+        id=faker.random_digit_not_null(),
+        number=faker.random_digit_not_null(),
+        ipv4_network="157.159.41.0/24",
+        ipv6_network="fe80::/64"
     )
 
 @fixture

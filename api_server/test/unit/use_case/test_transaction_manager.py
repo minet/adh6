@@ -46,8 +46,7 @@ class TestSearch:
 
         assert [sample_transaction] == result
         assert 1 == count
-        mock_transaction_repository.search_by.assert_called_once_with(ctx, limit=42, offset=2, terms='abc',
-                                                                      filter_=None)
+        mock_transaction_repository.search_by.assert_called_once_with(ctx, limit=42, offset=2, terms='abc')
 
     def test_offset_negative(self,
                              ctx,

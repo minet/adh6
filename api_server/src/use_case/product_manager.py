@@ -1,13 +1,11 @@
 # coding=utf-8
 from typing import List
-from src.entity import AbstractProduct, payment_method
-from src.entity.abstract_account import AbstractAccount
-from src.entity.abstract_transaction import AbstractTransaction
+from src.entity import AbstractProduct, AbstractAccount, AbstractTransaction
 from src.interface_adapter.http_api.decorator.log_call import log_call
 from src.constants import KnownAccountExpense
 from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, uses_security
-from src.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, ProductNotFoundError
+from src.exceptions import AccountNotFoundError, ProductNotFoundError
 from src.use_case.crud_manager import CRUDManager
 from src.use_case.interface.account_repository import AccountRepository
 from src.use_case.interface.payment_method_repository import PaymentMethodRepository

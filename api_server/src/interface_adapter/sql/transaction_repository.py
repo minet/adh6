@@ -5,20 +5,17 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 
 from sqlalchemy.orm.session import Session
-from src.util.log import LOG
-from src.util.context import log_extra
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import aliased
 
 from src.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
-from src.entity import AbstractTransaction, Transaction, Product
-from src.exceptions import AccountNotFoundError, MemberNotFoundError, MemberTransactionAmountMustBeGreaterThan, PaymentMethodNotFoundError, ProductNotFoundError, TransactionNotFoundError, UnknownPaymentMethod
+from src.entity import AbstractTransaction, Transaction
+from src.exceptions import AccountNotFoundError, MemberNotFoundError, PaymentMethodNotFoundError, TransactionNotFoundError
 from src.interface_adapter.http_api.decorator.log_call import log_call
-from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Product as SQLProduct, Account, PaymentMethod, Adherent
+from src.interface_adapter.sql.model.models import Transaction as SQLTransaction, Account, PaymentMethod, Adherent
 from src.interface_adapter.sql.track_modifications import track_modifications
 from src.use_case.interface.transaction_repository import TransactionRepository
-from src.constants import KnownAccountExpense
 
 auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 

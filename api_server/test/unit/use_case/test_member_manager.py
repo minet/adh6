@@ -732,7 +732,6 @@ class TestSearch:
         mock_member_repository.search_by.assert_called_once_with(ctx,
                                                                  limit=test_limit,
                                                                  offset=test_offset,
-                                                                 filter_=None,
                                                                  terms=test_terms)
 
     def test_invalid_limit(self, ctx,

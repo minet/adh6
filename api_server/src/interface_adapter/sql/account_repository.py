@@ -115,11 +115,11 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def update(self, ctx, object_to_update: AbstractAccount, override=False) -> object:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @log_call
     def delete(self, ctx, object_id) -> None:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 def _map_account_sql_to_entity(a, has_balance=False) -> Account:

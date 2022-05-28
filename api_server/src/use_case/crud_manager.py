@@ -17,7 +17,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     @uses_security("read", is_collection=True)
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[list, int]:
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -27,13 +27,13 @@ class CRUDManager:
         return self._search(ctx, limit=limit,
                             offset=offset,
                             terms=terms,
-                            filter_=filter_)
+                            **kwargs)
 
-    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None) -> Tuple[list, int]:
+    def _search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
         return self.repository.search_by(ctx, limit=limit,
                                          offset=offset,
                                          terms=terms,
-                                         filter_=filter_)
+                                         **kwargs)
 
     @log_call
     @auto_raise
