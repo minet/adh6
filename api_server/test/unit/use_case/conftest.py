@@ -31,7 +31,7 @@ def app_context(monkeypatch):
 
 @fixture(autouse=True)
 def mock_test_configuration(monkeypatch):
-    from src.use_case import MemberManager
+    from src.use_case.member_manager import MemberManager
     monkeypatch.setattr(MemberManager, "duration_price", {1:9})
     monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois'})
 

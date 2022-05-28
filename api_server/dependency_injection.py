@@ -3,8 +3,78 @@ import abc
 
 from src.interface_adapter.http_api.default import DefaultHandler
 
-from src.use_case import managers
-from src.interface_adapter.http_api import handlers
+from src.interface_adapter.http_api.default import DefaultHandler
+from src.interface_adapter.http_api.bug_report import BugReportHandler
+from src.interface_adapter.http_api.device import DeviceHandler
+from src.interface_adapter.http_api.health import HealthHandler
+from src.interface_adapter.http_api.profile import ProfileHandler
+from src.interface_adapter.http_api.member import MemberHandler
+from src.interface_adapter.http_api.port import PortHandler
+from src.interface_adapter.http_api.stats import StatsHandler
+from src.interface_adapter.http_api.transaction import TransactionHandler
+from src.interface_adapter.http_api.treasury import TreasuryHandler
+from src.interface_adapter.http_api.vlan import VLANHandler
+from src.interface_adapter.http_api.account_type import AccountTypeHandler
+from src.interface_adapter.http_api.account import AccountHandler
+from src.interface_adapter.http_api.payment_method import PaymentMethodHandler
+from src.interface_adapter.http_api.product import ProductHandler
+from src.interface_adapter.http_api.room import RoomHandler
+from src.interface_adapter.http_api.switch import SwitchHandler
+
+handlers = [
+    AccountHandler,
+    AccountTypeHandler,
+    PaymentMethodHandler,
+    ProductHandler,
+    RoomHandler,
+    SwitchHandler,
+    HealthHandler,
+    StatsHandler,
+    ProfileHandler,
+    TransactionHandler,
+    MemberHandler,
+    DeviceHandler,
+    PortHandler,
+    BugReportHandler,
+    TreasuryHandler,
+    VLANHandler
+]
+
+from src.use_case.account_manager import AccountManager
+from src.use_case.account_type_manager import AccountTypeManager
+from src.use_case.bug_report_manager import BugReportManager
+from src.use_case.cashbox_manager import CashboxManager
+from src.use_case.crud_manager import CRUDManager
+from src.use_case.device_manager import DeviceManager
+from src.use_case.health_manager import HealthManager
+from src.use_case.member_manager import MemberManager
+from src.use_case.payment_method_manager import PaymentMethodManager
+from src.use_case.port_manager import PortManager
+from src.use_case.product_manager import ProductManager
+from src.use_case.room_manager import RoomManager
+from src.use_case.stats_manager import StatsManager
+from src.use_case.switch_manager import SwitchManager
+from src.use_case.transaction_manager import TransactionManager
+from src.use_case.vlan_manager import VlanManager
+
+managers = [
+    DeviceManager,
+    HealthManager,
+    StatsManager,
+    BugReportManager,
+    ProductManager,
+    CashboxManager,
+    AccountTypeManager,
+    AccountManager,
+    TransactionManager,
+    PaymentMethodManager,
+    MemberManager,
+    RoomManager,
+    PortManager,
+    SwitchManager,
+    VlanManager
+]
+
 from src.interface_adapter.sql import repositories as sql_repositories
 from src.interface_adapter.elasticsearch import ElasticSearchRepository
 from src.interface_adapter.snmp import SwitchSNMPNetworkManager

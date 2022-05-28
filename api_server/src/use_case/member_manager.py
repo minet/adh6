@@ -104,7 +104,7 @@ class MemberManager(CRUDManager):
         m = self.member_repository.get_by_id(ctx,user.id)
         if not m:
             raise UnauthorizedError("Not authorize to access this profile")
-        return m, [r.removeprefix("adh6_") for r in user.roles if (r in Roles._value2member_map_ and r != Roles.USER.value)]
+        return m, [r.removeprefix("adh6_") for r in user.roles]
 
     @log_call
     @auto_raise
