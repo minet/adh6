@@ -4,10 +4,6 @@ from src.util.context import log_extra
 from src.util.log import LOG
 
 
-def bad_request(err: ValueError):
-    return f'Bad request: {repr(err)}.'
-
-
 def _error(code, message):
     return {
         'code': code,

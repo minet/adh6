@@ -52,6 +52,8 @@ def client(custom_device,
             sample_member3):
     from .context import app
     from .conftest import prep_db, close_db
+    if app.app is None:
+        return
     with app.app.test_client() as c:
         prep_db(
             custom_device,

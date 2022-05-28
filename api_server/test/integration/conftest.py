@@ -36,6 +36,8 @@ def client(sample_member, sample_member2, sample_member13,
         account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
         sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
+    if app.app is None:
+        return
     with app.app.test_client() as c:
         prep_db(
             sample_member,

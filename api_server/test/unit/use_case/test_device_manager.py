@@ -271,41 +271,6 @@ class TestUpdateOrCreate:
             mock_device_repository.create.assert_not_called()
             mock_device_repository.update.assert_not_called()
 
-        @mark.skip(reason="IP address allocation isn't implemented yet")
-        def test_allocation_failed(self,
-                                   ctx,
-                                   faker,
-                                   mock_device_repository: MagicMock,
-                                   mock_member_repository: MagicMock,
-                                   mock_room_repository: MagicMock,
-                                   sample_member: Member,
-                                   sample_device: Device,
-                                   sample_room: Room,
-                                   device_manager: DeviceManager):
-            # Given...
-
-            # That the owner exists:
-            mock_member_repository.search_member_by = MagicMock(return_value=([sample_member], 1))
-
-            # That the device exists in the DB:
-            mock_room_repository.search_room_by = MagicMock(return_value=([sample_room], 1))
-
-            # That the device exists in the DB:
-            mock_device_repository.search_device_by = MagicMock(return_value=([sample_device], 1))
-
-            # When...
-            with raises(NoMoreIPAvailableException):
-                device_manager.update_or_create(ctx,
-                                                mac_address=sample_device.mac_address,
-                                                req=MutationRequest(
-                                                    owner_username=faker.user_name(),
-                                                    connection_type='wired',
-                                                    mac_address=TEST_MAC_ADDRESS1,
-                                                    ip_v4_address=None,
-                                                    ip_v6_address=None,
-                                                ),
-                                                )
-
 
 @fixture
 def mock_vlan_repository():
