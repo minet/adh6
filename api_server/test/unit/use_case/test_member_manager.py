@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.constants import CTX_ROLES, MembershipDuration, MembershipStatus
+from src.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipStatus
 from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room, AbstractMembership
 from src.exceptions import AccountNotFoundError, LogFetchError, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
 from src.use_case.interface.device_repository import DeviceRepository
@@ -664,7 +664,20 @@ class TestProfile:
         assert sample_member == m
         assert len(roles) == len([r.removeprefix("adh6_") for r in ctx.get(CTX_ROLES)])
         assert len(roles) == len(set(roles) & set([r.removeprefix("adh6_") for r in ctx.get(CTX_ROLES)]))
-        mock_member_repository.get_by_id.assert_called_once_with(ctx, sample_member.id)
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN).id)
+
+    def test_member_not_found(self, ctx,
+                        mock_member_repository: MemberRepository,
+                        member_manager: MemberManager):
+        # Given...
+        mock_member_repository.get_by_id = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
+
+        # When...
+        with pytest.raises(MemberNotFoundError):
+            member_manager.get_profile(ctx)
+
+        # Expect...
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN).id)
 
 
 class TestGetByID:
