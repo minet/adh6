@@ -20,7 +20,6 @@ from src.use_case.interface.member_repository import MemberRepository
 
 
 class MemberSQLRepository(MemberRepository):
-
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractMember] = None) -> Tuple[List[AbstractMember], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
@@ -133,6 +132,15 @@ class MemberSQLRepository(MemberRepository):
             adherent.password = hashed_password
 
     @log_call
+    def update_mailinglist(self, ctx, member_id: int, value: int) -> None:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        if adherent is None:
+            raise MemberNotFoundError(member_id)
+        with track_modifications(ctx, session, adherent):
+            adherent.mail_membership = value
+
+    @log_call
     def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
@@ -224,6 +232,8 @@ class MemberSQLRepository(MemberRepository):
 def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
     adherent = sql_object
+    if entity.mailinglist is not None or override:
+        adherent.mailinglist = entity.mailinglist
     if entity.email is not None or override:
         adherent.mail = entity.email
     if entity.comment is not None or override:
@@ -272,6 +282,7 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
         ip=adh.ip,
         subnet=adh.subnet,
         room_number=adh.chambre.numero if adh.chambre else None,
+        mailinglist=adh.mail_membership
     )
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
@@ -290,4 +301,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         ip=adh.ip,
         subnet=adh.subnet,
         room_number=adh.chambre.numero if adh.chambre else None,
+        mailinglist=adh.mail_membership
     )

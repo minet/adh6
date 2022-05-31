@@ -1,0 +1,22 @@
+<h3 class="title is-4"><span i18n="@@mailinglist">Listes de diffusion</span></h3>
+<hr>
+<div class="field">
+  <input id="mailMiNET" type="checkbox" name="mailMiNET" class="switch is-rounded is-info" [(ngModel)]="mailMiNET"
+    (change)="updateMailinglist()" checked="checked">
+  <label for="mailMiNET" i18n="mailinglist MiNET | Describe MiNET mailing list"><strong>MiNET : </strong> Problèmes
+    techniques et informations sur l'association</label>
+</div>
+<div class="field">
+  <input id="mailHosting" type="checkbox" name="mailHosting" class="switch is-rounded is-info" [(ngModel)]="mailHosting"
+    (change)="updateMailinglist()" checked="checked">
+  <label for="mailHosting" i18n="mailinglist hosting | Describe hosting mailing list"><strong>Hosting :</strong>
+    Problèmes techniques et informations complémentaires sur
+    l'hébergement</label>
+</div>
+<div class="field">
+  <input id="mailRouteur" type="checkbox" name="mailRouteur" class="switch is-rounded is-info" [(ngModel)]="mailRouteur"
+    (change)="updateMailinglist()" checked="checked">
+  <label for="mailRouteur" i18n="mailinglist routeur | Describe 'mini-routeur' mailing list"><strong>Mini-routeurs :
+    </strong> Information et mise à jour technique des
+    mini-routeurs</label>
+</div>

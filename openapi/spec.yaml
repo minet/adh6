@@ -482,6 +482,11 @@ paths:
         schema:
           type: string
           format: date-time
+      - description: Filter member by its membership in a specific mailing list
+        in: query
+        name: mailinglist
+        schema:
+          type: integer
       responses:
         200:
           content:
@@ -701,6 +706,32 @@ paths:
       summary: Update the password of a member
       tags:
       - member
+  /member/{id}/mailinglist:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example: '1'
+              type: integer
+        description: The member mailinglist will have the value of one and 'hosting' mailinglist will have 2 
+        required: true
+      responses:
+        204:
+          description: Updated
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update a member
+      tags:
+      - mailinglist
   /member/{id}/charter/{charter_id}:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -2518,6 +2549,10 @@ components:
         roomNumber:
           description: The number of the room this member lives in
           nullable: true
+          type: integer
+          example: 4
+        mailinglist:
+          description: The number of the room this member lives in
           type: integer
           example: 4
         ip:

@@ -17,6 +17,10 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
+    def update_mailinglist(self, ctx, member_id: int, value: int) -> None:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
     def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
         pass  # pragma: no cover
 

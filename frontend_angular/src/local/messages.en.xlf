@@ -725,6 +725,76 @@
         </context-group>
         <note priority="1" from="description">portail about desc</note>
       </trans-unit>
+      <trans-unit id="mailinglist" datatype="html">
+        <source>Listes de diffusion</source>
+        <source>Mailing lists</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
+          <context context-type="linenumber">1,5</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5e42b343328800aa53b2187ae977e281b17eeb5e" datatype="html">
+        <source>
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="ilHosting&quot; i18n=" />
+          MiNET :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Problèm" />
+          Problèmes techniques et informations sur l&apos;association
+        </source>
+        <target>
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="ilHosting&quot; i18n=" />
+          MiNET :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Problèm" />
+          Technical problems and information on the association
+        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
+          <context context-type="linenumber">6,12</context>
+        </context-group>
+        <note priority="1" from="description"> Describe MiNET mailing list</note>
+        <note priority="1" from="meaning">mailinglist MiNET </note>
+      </trans-unit>
+      <trans-unit id="96739f24686e7e3f7f942afd8047bca9fc663158" datatype="html">
+        <source>
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="eur&quot; i18n=&quot;mailin" />
+          Hosting :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
+    Prob" />
+          Problèmes techniques et informations complémentaires sur l&apos;hébergement
+        </source>
+        <target>
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="eur&quot; i18n=&quot;mailin" />
+          Hosting :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
+    Prob" />
+          Technical problems and information on hosting
+        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
+          <context context-type="linenumber">12,19</context>
+        </context-group>
+        <note priority="1" from="description"> Describe hosting mailing list</note>
+        <note priority="1" from="meaning">mailinglist hosting </note>
+      </trans-unit>
+      <trans-unit id="a63e5b1ad29bdfba460fa4cd5e8bb724065cb6fd" datatype="html">
+        <source>
+          <x id="START_TAG_STRONG" ctype="x-strong" />
+          Mini-routeurs :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Informat" />
+          Information et mise à jour technique des mini-routeurs
+        </source>
+        <target>
+          <x id="START_TAG_STRONG" ctype="x-strong" />
+          Mini-routeurs :
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Informat" />
+          Information and technical updates of the routers
+        </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
+          <context context-type="linenumber">19,23</context>
+        </context-group>
+        <note priority="1" from="description"> Describe &apos;mini-routeur&apos; mailing list</note>
+        <note priority="1" from="meaning">mailinglist routeur </note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

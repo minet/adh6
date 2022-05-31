@@ -9,7 +9,6 @@ from src.entity import (
     AbstractMembership, Membership,
     AbstractDevice, MemberStatus,
     AbstractAccount,
-    AccountType
 )
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.payment_method import PaymentMethod
@@ -29,7 +28,8 @@ from src.exceptions import (
     IntMustBePositive,
     MembershipStatusNotAllowed,
     CharterNotSigned,
-    UpdateImpossible
+    UpdateImpossible,
+    ValidationError
 )
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
@@ -58,7 +58,7 @@ import re
         "password": owns(Member.id) | is_admin(),
         "membership": owns(Member.id) | is_admin(),
         "create": owns(Member.id) | is_admin(),
-        "update": owns(Member.id) | is_admin(),
+        "update": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
         "delete": is_admin()
     },
     collection={
@@ -567,6 +567,22 @@ class MemberManager(CRUDManager):
             return True
 
         return _change_password(self, ctx, filter_=member)
+
+    @log_call
+    def update_mailinglist(self, ctx, member_id: int, value: int) -> None:
+        if value < 0:
+            raise IntMustBePositive(value)
+        if value > 255: # Allow subscription to 4 or less mailinglists
+            raise ValidationError("Number to high")
+
+        # Check that the user exists in the system.
+        member = self.member_repository.get_by_id(ctx, member_id)
+
+        @uses_security("update", is_collection=False)
+        def _update_mailinglist(cls, ctx, filter_):
+            return self.member_repository.update_mailinglist(ctx, member_id, value)
+
+        return _update_mailinglist(self, ctx, filter_=member)
 
     @log_call
     @auto_raise
