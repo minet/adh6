@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Member } from '../api';
+import { Member, RoomService } from '../api';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ListComponent } from '../member-device/list/list.component';

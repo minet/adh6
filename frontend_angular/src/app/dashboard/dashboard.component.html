@@ -41,13 +41,6 @@
       <p i18n="dashboard email address|Shows a user their email address">
         Addresse mail : <code>{{ member.email }}</code>
       </p>
-      <p *ngIf="member.room !== null; else noRoom" i18n="dashboard room description|Shows a user the room they are in">
-        Vous êtes incrit dans la chambre <b>{{member.room.description}}</b>
-      </p>
-      <ng-template #noRoom>
-        <p class="text-danger" i18n="dashboard no room|Tells a user they have no room">Vous n'avez pas de chambre
-          attribuée</p>
-      </ng-template>
       <ng-container *ngIf="member.ip !== null && member.subnet !== null">
         <hr>
         <p i18n="dashboard public ipv4|Shows a user their public IPv4">Votre adresse IPv4 publique est : <code>{{
