@@ -207,6 +207,7 @@ def sample_member_admin():
         nom="Test",
         prenom="test",
         password="",
+        mail_membership=1,
     )
 
 
@@ -262,7 +263,8 @@ def sample_member(faker, sample_room1):
         date_de_depart=tomorrow,
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
-        subnet=faker.ipv4('c')
+        subnet=faker.ipv4('c'),
+        mail_membership=1,
     )
 
 
@@ -277,6 +279,7 @@ def sample_member2(sample_room1):
         password='a',
         chambre=sample_room1,
         date_de_depart=tomorrow,
+        mail_membership=1,
     )
 
 
@@ -291,6 +294,7 @@ def sample_member3(sample_room1):
         password='b',
         chambre=sample_room1,
         date_de_depart=tomorrow,
+        mail_membership=1,
     )
 
 
@@ -305,6 +309,7 @@ def sample_member13():
         commentaires='a',
         password='a',
         date_de_depart=tomorrow,
+        mail_membership=1,
     )
 
 

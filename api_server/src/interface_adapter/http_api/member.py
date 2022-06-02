@@ -62,6 +62,17 @@ class MemberHandler(DefaultHandler):
     @with_context
     @require_sql
     @log_call
+    def mailinglist_put(self, ctx, id_: int, body: int):
+        LOG.debug("http_member_put_mailinglist_called", extra=log_extra(ctx, id=id_, request=body))
+        try:
+            self.member_manager.update_mailinglist(ctx, id_, body)
+            return None, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @require_sql
+    @log_call
     def membership_post(self, ctx, id_: int, body: dict):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))

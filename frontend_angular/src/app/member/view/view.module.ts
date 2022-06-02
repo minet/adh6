@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MemberDeviceModule } from '../../member-device/member-device-list.module';
 import { AutoTroubleshootModule } from '../../auto-troubleshoot/auto-troubleshoot.module';
 import { AbilityModule } from '@casl/angular';
+import { MailinglistModule } from '../../mailinglist/mailinglist.module';
 
 
 
@@ -23,6 +24,7 @@ import { AbilityModule } from '@casl/angular';
     MemberDeviceModule,
     AutoTroubleshootModule,
     AbilityModule,
+    MailinglistModule
   ],
 })
 export class ViewModule { }

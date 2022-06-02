@@ -322,29 +322,6 @@ def test_member_post_member_create(client, sample_room1):
 
     assert_member_in_db(body)
 
-
-def test_member_patch_room(client, sample_member: Adherent, sample_room2):
-    body = {
-        "roomNumber": sample_room2.numero,
-    }
-    res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 204
-    assert_modification_was_created(db.session())
-    assert_member_in_db({
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "roomNumber": sample_room2.numero,
-        "comment": None,
-        "departureDate": str(tomorrow),
-        "email": "j.dubois@free.fr",
-        "username": sample_member.login
-    })
-
 @pytest.fixture
 def sample_room_id(sample_room2: Chambre):
     return sample_room2.numero
@@ -358,8 +335,7 @@ def sample_room_id(sample_room2: Chambre):
         ("email", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
         ("roomNumber", lazy_fixture('sample_room_id')),
-        # pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
-        # pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+        ("mailinglist", 2),
     ]
 )
 def test_member_patch(client, sample_member: Adherent, key: str, value: str):
@@ -394,9 +370,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         ("comment", "TEST"),
         ("email", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        ("room", lazy_fixture('sample_room_id')),
-        #pytest.param("departureDate", str(tomorrow), marks=pytest.mark.skip), 
-        #pytest.param("associationMode", "1996-01-01T00:00:00Z", marks=pytest.mark.skip)
+        ("roomNumber", lazy_fixture('sample_room_id')),
+        ("mailinglist", 2),
     ]
 )
 def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
@@ -405,6 +380,24 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
     }
     res = client.patch(
         f'{base_url}/member/{sample_member2.id}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert res.status_code == 400
+
+@pytest.mark.parametrize(
+    'value',
+    [
+        -1, -2, -5, 256, 257
+    ]
+)
+def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: int):
+    body = {
+        "mailinglist": value,
+    }
+    res = client.patch(
+        f'{base_url}/member/{sample_member.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
