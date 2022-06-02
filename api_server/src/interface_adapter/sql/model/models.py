@@ -94,8 +94,8 @@ class Adherent(db.Model, RubyHashTrackable):
     is_naina = Column(Boolean, default=False, nullable=False)
     datesignedminet = Column(DateTime, nullable=True)
     datesignedhosting = Column(DateTime, nullable=True)
-    mail_membership = Column(Integer, nullable=False, default=1, server_default='1')
-    mailinglist = Column(Boolean, nullable=False, default=True)
+    mail_membership = Column(Integer, nullable=False, default=0, server_default='1')
+    mailinglist = Column(Boolean, nullable=True, default=True)
 
     # admin = relationship('Admin', foreign_keys=[admin_id])
     chambre = relationship('Chambre', foreign_keys=[chambre_id])

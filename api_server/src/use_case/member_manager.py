@@ -154,6 +154,12 @@ class MemberManager(CRUDManager):
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
+        if abstract_member.mailinglist:
+            if abstract_member.mailinglist < 0:
+                raise IntMustBePositive(abstract_member.mailinglist)
+            if abstract_member.mailinglist > 255: # Allow subscription to 4 or less mailinglists
+                raise ValidationError("Number to high")
+
         is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)
 
@@ -567,22 +573,6 @@ class MemberManager(CRUDManager):
             return True
 
         return _change_password(self, ctx, filter_=member)
-
-    @log_call
-    def update_mailinglist(self, ctx, member_id: int, value: int) -> None:
-        if value < 0:
-            raise IntMustBePositive(value)
-        if value > 255: # Allow subscription to 4 or less mailinglists
-            raise ValidationError("Number to high")
-
-        # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
-
-        @uses_security("update", is_collection=False)
-        def _update_mailinglist(cls, ctx, filter_):
-            return self.member_repository.update_mailinglist(ctx, member_id, value)
-
-        return _update_mailinglist(self, ctx, filter_=member)
 
     @log_call
     @auto_raise
