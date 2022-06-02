@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
-import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember, TreasuryService } from '../../api';
+import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, first, map, share, switchMap, tap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';

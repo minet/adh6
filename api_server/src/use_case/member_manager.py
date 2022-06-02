@@ -9,7 +9,6 @@ from src.entity import (
     AbstractMembership, Membership,
     AbstractDevice, MemberStatus,
     AbstractAccount,
-    AccountType
 )
 from src.entity.abstract_transaction import AbstractTransaction
 from src.entity.payment_method import PaymentMethod
@@ -29,7 +28,8 @@ from src.exceptions import (
     IntMustBePositive,
     MembershipStatusNotAllowed,
     CharterNotSigned,
-    UpdateImpossible
+    UpdateImpossible,
+    ValidationError
 )
 from src.interface_adapter.sql.device_repository import DeviceType
 from src.use_case.crud_manager import CRUDManager
@@ -58,7 +58,7 @@ import re
         "password": owns(Member.id) | is_admin(),
         "membership": owns(Member.id) | is_admin(),
         "create": owns(Member.id) | is_admin(),
-        "update": owns(Member.id) | is_admin(),
+        "update": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
         "delete": is_admin()
     },
     collection={
@@ -153,6 +153,12 @@ class MemberManager(CRUDManager):
         member = self.__member_not_found(ctx, id)
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
+
+        if abstract_member.mailinglist:
+            if abstract_member.mailinglist < 0:
+                raise IntMustBePositive(abstract_member.mailinglist)
+            if abstract_member.mailinglist > 255: # Allow subscription to 4 or less mailinglists
+                raise ValidationError("Number to high")
 
         is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
         member = self.member_repository.update(ctx, abstract_member, override)

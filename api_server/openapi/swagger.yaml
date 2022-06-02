@@ -482,6 +482,11 @@ paths:
         schema:
           type: string
           format: date-time
+      - description: Filter member by its membership in a specific mailing list
+        in: query
+        name: mailinglist
+        schema:
+          type: integer
       responses:
         200:
           content:
@@ -2518,6 +2523,10 @@ components:
         roomNumber:
           description: The number of the room this member lives in
           nullable: true
+          type: integer
+          example: 4
+        mailinglist:
+          description: The number of the room this member lives in
           type: integer
           example: 4
         ip:

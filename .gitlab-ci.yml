@@ -98,7 +98,7 @@ generation:frontend_assets:
   script:
     - yarn global add svgo
     - cd frontend_angular/src/assets
-    - svgo minet.svg adh6-logo.svg -o minet.min.svg adh6.min.svg
+    - svgo minet.svg adh6-logo.svg minet-dark.svg -o minet.min.svg adh6.min.svg minet-dark.min.svg
   artifacts:
     paths:
     - frontend_angular/src/assets

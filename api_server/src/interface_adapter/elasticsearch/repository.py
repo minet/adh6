@@ -38,7 +38,7 @@ class ElasticSearchRepository(LogsRepository):
             raise LogFetchError('no elk host configured')
 
         query = {
-                "query": {
+            "query": {
                 "range": {
                   "@timestamp": {
                     "gte": "now-1h",
