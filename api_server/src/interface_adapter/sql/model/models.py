@@ -21,6 +21,7 @@ class ApiKey(db.Model):
     name = Column(String(255), nullable=False)
     role = Column(String(255), nullable=False)
 
+
 class Vlan(db.Model):
     __tablename__ = 'vlans'
 
@@ -395,6 +396,7 @@ class MailTemplates(db.Model):
     template = Column(Text)
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+
 
 class Membership(db.Model):
     __tablename__ = "membership"

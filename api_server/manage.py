@@ -9,7 +9,7 @@ from faker import Faker
 
 import ipaddress
 from src.constants import MembershipDuration, MembershipStatus
-from src.use_case.decorator.security import Roles
+from src.default.decorator.security import Roles
 from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"

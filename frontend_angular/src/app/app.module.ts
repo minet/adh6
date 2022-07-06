@@ -15,7 +15,6 @@ import { authConfig } from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { FooterComponent } from './footer/footer.component';
-import { BugReporterComponent } from './bug-reporter/bug-reporter.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'free';
@@ -40,7 +39,6 @@ function load(oAuthService: OAuthService): Configuration {
     NavbarComponent,
     ErrorPageComponent,
     FooterComponent,
-    BugReporterComponent,
   ],
   imports: [
     BrowserModule,

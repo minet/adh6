@@ -9,13 +9,11 @@ from src.resolver import ADHResolver
 from src.plugins.treasury.interface_adapters.http import *
 from src.plugins.member.interface_adapters.http import *
 from src.plugins.device.interface_adapters.http import *
-from src.interface_adapter.http_api.bug_report import BugReportHandler
-from src.interface_adapter.http_api.health import HealthHandler
-from src.interface_adapter.http_api.port import PortHandler
-from src.interface_adapter.http_api.vlan import VLANHandler
-from src.interface_adapter.http_api.product import ProductHandler
-from src.interface_adapter.http_api.room import RoomHandler
-from src.interface_adapter.http_api.switch import SwitchHandler
+from src.plugins.metrics.interface_adapters.http.health import HealthHandler
+from src.plugins.network.interface_adapters.http.port import PortHandler
+from src.plugins.subnet.interface_adapters.http.vlan import VLANHandler
+from src.plugins.room.interface_adapters.http.room import RoomHandler
+from src.plugins.network.interface_adapters.http.switch import SwitchHandler
 
 from src.interface_adapter.sql.model.models import db
 from src.interface_adapter.http_api.auth import cache
@@ -63,7 +61,6 @@ def init() -> FlaskApp:
             'payment_method': obj_graph.provide(PaymentMethodHandler),
             'account': obj_graph.provide(AccountHandler),
             'product': obj_graph.provide(ProductHandler),
-            'bug_report': obj_graph.provide(BugReportHandler),
             'treasury': obj_graph.provide(TreasuryHandler),
             'vlan': obj_graph.provide(VLANHandler)
         }),

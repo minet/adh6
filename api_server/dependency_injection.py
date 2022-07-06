@@ -4,14 +4,12 @@ import abc
 from src.plugins.treasury.interface_adapters.http import *
 from src.plugins.member.interface_adapters.http import *
 from src.plugins.device.interface_adapters.http import *
-from src.interface_adapter.http_api.default import DefaultHandler
-from src.interface_adapter.http_api.bug_report import BugReportHandler
-from src.interface_adapter.http_api.health import HealthHandler
-from src.interface_adapter.http_api.port import PortHandler
-from src.interface_adapter.http_api.vlan import VLANHandler
-from src.interface_adapter.http_api.product import ProductHandler
-from src.interface_adapter.http_api.room import RoomHandler
-from src.interface_adapter.http_api.switch import SwitchHandler
+from src.default.http_handler import DefaultHandler
+from src.plugins.metrics.interface_adapters.http.health import HealthHandler
+from src.plugins.network.interface_adapters.http.port import PortHandler
+from src.plugins.subnet.interface_adapters.http.vlan import VLANHandler
+from src.plugins.room.interface_adapters.http.room import RoomHandler
+from src.plugins.network.interface_adapters.http.switch import SwitchHandler
 
 handlers = [
     AccountHandler,
@@ -26,7 +24,6 @@ handlers = [
     MemberHandler,
     DeviceHandler,
     PortHandler,
-    BugReportHandler,
     TreasuryHandler,
     VLANHandler
 ]
@@ -36,21 +33,19 @@ from src.plugins.treasury.use_cases.account_type_manager import AccountTypeManag
 from src.plugins.treasury.use_cases.cashbox_manager import CashboxManager
 from src.plugins.treasury.use_cases.payment_method_manager import PaymentMethodManager
 from src.plugins.treasury.use_cases.transaction_manager import TransactionManager
+from src.plugins.treasury.use_cases.product_manager import ProductManager
 from src.plugins.member.use_cases.member_manager import MemberManager
 from src.plugins.device.use_cases.device_manager import DeviceManager
-from src.use_case.bug_report_manager import BugReportManager
-from src.use_case.crud_manager import CRUDManager
-from src.use_case.health_manager import HealthManager
-from src.use_case.port_manager import PortManager
-from src.use_case.product_manager import ProductManager
-from src.use_case.room_manager import RoomManager
-from src.use_case.switch_manager import SwitchManager
-from src.use_case.vlan_manager import VlanManager
+from src.default.crud_manager import CRUDManager
+from src.plugins.metrics.use_cases.health_manager import HealthManager
+from src.plugins.network.use_cases.port_manager import PortManager
+from src.plugins.room.use_cases.room_manager import RoomManager
+from src.plugins.network.use_cases.switch_manager import SwitchManager
+from src.plugins.subnet.use_cases.vlan_manager import VlanManager
 
 managers = [
     DeviceManager,
     HealthManager,
-    BugReportManager,
     ProductManager,
     CashboxManager,
     AccountTypeManager,
@@ -79,15 +74,12 @@ from src.plugins.device.interface_adapters.storage import (
     DeviceSQLRepository,
     IPSQLAllocator
 )
-from src.interface_adapter.sql import repositories as sql_repositories
 from src.interface_adapter.elasticsearch import ElasticSearchRepository
-from src.interface_adapter.snmp import SwitchSNMPNetworkManager
-from src.use_case.crud_manager import CRUDManager
-from src.use_case.interface.crud_repository import CRUDRepository
+from src.plugins.network.interface_adapters.snmp import SwitchSNMPNetworkManager
+from src.default.crud_repository import CRUDRepository
 
 def get_obj_graph():
-    _global = sql_repositories+ \
-        managers+ \
+    _global = managers+ \
         handlers+ \
         [SwitchSNMPNetworkManager, ElasticSearchRepository]+ \
         [TransactionSQLRepository, AccountTypeSQLRepository, AccountSQLRepository, PaymentMethodSQLRepository, CashboxSQLRepository]+ \

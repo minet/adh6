@@ -1833,28 +1833,6 @@ paths:
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
       tags:
       - transaction
-  /bug_report/:
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BugReport'
-        description: The bug report to create
-        required: true
-      responses:
-        204:
-          description: Created
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Create a new bug report
-      tags:
-      - misc
   /treasury/cashbox:
     get:
       operationId: get_cashbox
@@ -2659,35 +2637,6 @@ components:
           - ipv4Network
           - ipv6Network
       type: object
-    BugReport:
-      type: object
-      required:
-        - title
-        - description
-        - labels
-      properties:
-        title:
-          description: The title of this bug report
-          type: string
-          example: Broken API calls
-        description:
-          description: The description of this bug report
-          type: string
-          example: All API calls are broken
-        labels:
-          description: The list of labels for this bug report
-          type: array
-          items:
-            type: string
-          example: [ "backend", "api" ]
-    Statistics:
-      type: object
-      properties:
-        activeAccounts:
-          description: The count of active accounts
-          type: integer
-          example: 5
-          readOnly: true
     Error:
       type: object
       properties:
