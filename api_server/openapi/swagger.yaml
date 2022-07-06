@@ -32,26 +32,6 @@ paths:
       security: []
       tags:
       - misc
-  /stats:
-    get:
-      summary: Retrieve global ADH6 statistics and trivia
-      description: >
-        This endpoint returns useful insights, statistics and data.
-        It *may* be used for monitoring, although its main purpose is to be displayed as part of a dashboard.
-      operationId: stats
-      responses:
-        200:
-          description: The statistics of ADH6
-          content:
-            application/json:
-              schema:
-                type: object
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      tags:
-      - misc
   /profile:
     get:
       summary: Introspection endpoint

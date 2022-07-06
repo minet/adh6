@@ -7,10 +7,10 @@ from src.use_case.decorator.auto_raise import auto_raise
 from src.use_case.decorator.security import SecurityDefinition, defines_security, is_admin, uses_security
 from src.exceptions import AccountNotFoundError, ProductNotFoundError
 from src.use_case.crud_manager import CRUDManager
-from src.use_case.interface.account_repository import AccountRepository
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
 from src.use_case.interface.product_repository import ProductRepository
-from src.use_case.interface.transaction_repository import TransactionRepository
+from src.plugins.treasury.interfaces.account_repository import AccountRepository
+from src.plugins.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from src.plugins.treasury.interfaces.transaction_repository import TransactionRepository
 
 @defines_security(SecurityDefinition(
     item={
