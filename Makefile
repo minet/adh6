@@ -49,7 +49,7 @@ clean-frontend:
 .PHONY: dev-environment
 dev-environment: $(BACKEND_ENV_PATH) $(FRONTEND_ENV_PATH)
 
-$(BACKEND_ENV_PATH): $(BACKEND_PATH)/requirements.txt
+$(BACKEND_VENV_PATH): $(BACKEND_PATH)/requirements.txt
 	python3 -m venv $(BACKEND_VENV_PATH)
 	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install --ignore-pipfile -r requirements.txt
 
