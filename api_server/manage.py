@@ -4,13 +4,13 @@ import uuid
 from datetime import date, datetime
 from typing import List
 from sqlalchemy.orm import Session
-from common import init
+from adh6.server import init
 from faker import Faker
 
 import ipaddress
-from src.constants import MembershipDuration, MembershipStatus
-from src.default.decorator.security import Roles
-from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
+from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.authentication.security import Roles
+from adh6.storage.sql.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app

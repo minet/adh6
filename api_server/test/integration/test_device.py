@@ -2,9 +2,9 @@ import json
 
 import pytest
 from pytest_lazyfixture import lazy_fixture
+from adh6.device.storage.device_repository import DeviceType
 
-from src.interface_adapter.sql.device_repository import DeviceType
-from src.interface_adapter.sql.model.models import Adherent, db, Device
+from adh6.storage.sql.models import Adherent, db, Device
 from .resource import (
     TEST_HEADERS_API_KEY, TEST_HEADERS_LIST, TEST_HEADERS_SAMPLE, TEST_HEADERS_SAMPLE2, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created)

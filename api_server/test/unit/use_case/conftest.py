@@ -1,8 +1,8 @@
-from src.constants import MembershipStatus
+from adh6.constants import MembershipStatus
 
 from pytest import fixture
 
-from src.entity import (
+from adh6.entity import (
     AccountType,
     Account,
     Device,
@@ -16,9 +16,9 @@ from src.entity import (
     AbstractMembership,
     Vlan
 )
-from src.use_case.decorator.security import User, Roles
+from adh6.authentication.security import User, Roles
 from test.auth import TESTING_CLIENT
-from src.util.context import build_context
+from adh6.util.context import build_context
 
 @fixture(autouse=True)
 def mock_missing_default_user(monkeypatch):
@@ -32,7 +32,7 @@ def app_context(monkeypatch):
 
 @fixture(autouse=True)
 def mock_test_configuration(monkeypatch):
-    from src.use_case.member_manager import MemberManager
+    from adh6.member.member_manager import MemberManager
     monkeypatch.setattr(MemberManager, "duration_price", {1:9, 12: 50})
     monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois', 12: '1 an'})
 
@@ -132,6 +132,7 @@ def sample_member_no_room(faker):
         association_mode=faker.date_time_this_year(after_now=True).isoformat(),
         room_number=None,
     )
+
 
 @fixture
 def sample_device(faker, sample_member):
@@ -241,7 +242,7 @@ def sample_account1(faker, sample_member, sample_account_type):
 @fixture
 def sample_account2(faker, sample_member, sample_account_type):
     return Account(
-        id=faker.random_digit_not_null(),
+        id=faker.random_digit_not_null() + 1024,
         name=faker.word(),
         actif=faker.random_choices(elements=(True, False)),
         creation_date=faker.date_this_year(),

@@ -4,8 +4,8 @@ from typing import Optional
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from src.interface_adapter.sql.model.models import  Switch, db
-from src.interface_adapter.sql.model.models import Port
+from adh6.storage.sql.models import  Switch, db
+from adh6.storage.sql.models import Port
 from test.integration.resource import TEST_HEADERS_API_KEY, TEST_HEADERS_SAMPLE, base_url, TEST_HEADERS
 
 

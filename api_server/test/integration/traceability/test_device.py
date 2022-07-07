@@ -3,7 +3,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 
 from test.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.models import Device
+from adh6.storage.sql.models import Device
 from test.integration.resource import TEST_HEADERS, logs_contains
 
 

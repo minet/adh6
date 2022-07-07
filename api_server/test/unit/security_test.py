@@ -1,5 +1,5 @@
 import pytest
-from src.use_case.decorator.security import HasRoleExpression, Roles, User, has_any_role, owns, OwnsExpression
+from adh6.authentication.security import HasRoleExpression, Roles, User, has_any_role, owns, OwnsExpression
 
 @pytest.fixture
 def sample_treso_user():

@@ -3,8 +3,8 @@ from dateutil import parser
 from pytest_lazyfixture import lazy_fixture
 import pytest
 
-from src.interface_adapter.sql.model.models import Chambre, db
-from src.interface_adapter.sql.model.models import Adherent
+from adh6.storage.sql.models import Chambre, db
+from adh6.storage.sql.models import Adherent
 from test.integration.resource import (
     base_url, TEST_HEADERS, assert_modification_was_created)
 from test.integration.context import tomorrow

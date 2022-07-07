@@ -4,7 +4,7 @@ import pytest
 
 from test.integration.resource import TEST_HEADERS, base_url
 
-from src.interface_adapter.sql.model.models import AccountType, Account, Adherent
+from adh6.storage.sql.models import AccountType, Account, Adherent
 
 @pytest.fixture
 def sample_account1(sample_member: Adherent):

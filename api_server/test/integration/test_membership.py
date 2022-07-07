@@ -2,9 +2,9 @@ import json
 from typing import Optional
 
 import pytest
-from src.interface_adapter.sql.model.models import Account, Adherent, Membership, PaymentMethod, db
+from adh6.storage.sql.models import Account, Adherent, Membership, PaymentMethod, db
 from test.integration.resource import (base_url, TEST_HEADERS)
-from src.constants import MembershipDuration, MembershipStatus
+from adh6.constants import MembershipDuration, MembershipStatus
 
 @pytest.fixture
 def sample_membership_pending_validation_payment_dict(sample_member: Adherent, sample_payment_method: PaymentMethod, sample_account: Account):

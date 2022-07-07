@@ -4,7 +4,7 @@ import pytest
 
 from test.integration.resource import TEST_HEADERS, base_url
 
-from src.interface_adapter.sql.model.models import Caisse
+from adh6.storage.sql.models import Caisse
 
 @pytest.fixture
 def sample_caisse():

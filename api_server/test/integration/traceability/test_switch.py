@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from test.auth import TESTING_CLIENT
-from src.interface_adapter.sql.model.models import Switch
+from adh6.storage.sql.models import Switch
 from test.integration.resource import logs_contains
 from test.integration.test_switch import test_switch_post_valid, test_switch_update_existant_switch, test_switch_delete_existant_switch
 

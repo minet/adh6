@@ -5,21 +5,19 @@ import pytest
 from pytest_cases import unpack_fixture
 from pytest_lazyfixture import lazy_fixture
 
-from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType, AbstractPaymentMethod
-from src.exceptions import IntMustBePositive, NotFoundError
-from src.use_case.account_manager import AccountManager
-from src.use_case.account_type_manager import AccountTypeManager
-from src.use_case.interface.account_repository import AccountRepository
-from src.use_case.interface.account_type_repository import AccountTypeRepository
-from src.use_case.interface.crud_repository import CRUDRepository
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.use_case.interface.port_repository import PortRepository
-from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.interface.switch_repository import SwitchRepository
-from src.use_case.payment_method_manager import PaymentMethodManager
-from src.use_case.port_manager import PortManager
-from src.use_case.room_manager import RoomManager
-from src.use_case.switch_manager import SwitchManager
+from adh6.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AbstractPaymentMethod
+from adh6.exceptions import IntMustBePositive, NotFoundError
+from adh6.default.crud_repository import CRUDRepository
+from adh6.treasury.account_manager import AccountManager
+from adh6.treasury.payment_method_manager import PaymentMethodManager
+from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.network.port_manager import PortManager
+from adh6.network.switch_manager import SwitchManager
+from adh6.network.interfaces.port_repository import PortRepository
+from adh6.network.interfaces.switch_repository import SwitchRepository
+from adh6.room.room_manager import RoomManager
+from adh6.room.interfaces.room_repository import RoomRepository
 
 
 @pytest.fixture(

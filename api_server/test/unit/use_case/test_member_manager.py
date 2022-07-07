@@ -2,27 +2,26 @@
 import datetime
 
 import pytest
-from src.entity.account_type import AccountType
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.interface.transaction_repository import TransactionRepository
-from src.use_case.interface.account_type_repository import AccountTypeRepository
-from src.use_case.interface.account_repository import AccountRepository
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipStatus
-from src.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room, AbstractMembership
-from src.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
-from src.use_case.interface.device_repository import DeviceRepository
-from src.use_case.interface.logs_repository import LogsRepository
-from src.use_case.interface.member_repository import MemberRepository
-from src.use_case.interface.membership_repository import MembershipRepository
-from src.use_case.interface.vlan_repository import VlanRepository
-from src.use_case.member_manager import MemberManager
-from src.use_case.device_manager import DeviceManager
-from src.use_case.interface.ip_allocator import IpAllocator
+from adh6.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipStatus
+from adh6.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room, AbstractMembership
+from adh6.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
+from adh6.device.interfaces.device_repository import DeviceRepository
+from adh6.device.device_manager import DeviceManager
+from adh6.device.interfaces.ip_allocator import IpAllocator
+from adh6.member.interfaces.logs_repository import LogsRepository
+from adh6.member.interfaces.member_repository import MemberRepository
+from adh6.member.interfaces.membership_repository import MembershipRepository
+from adh6.member.member_manager import MemberManager
+from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.treasury.interfaces.transaction_repository import TransactionRepository
+from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
+from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.room.interfaces.room_repository import RoomRepository
+from adh6.subnet.interfaces.vlan_repository import VlanRepository
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),

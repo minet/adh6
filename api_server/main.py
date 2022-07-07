@@ -1,5 +1,5 @@
 import sys
-from common import init
+from adh6.server import init
 
 if not hasattr(sys, '_called_from_test'):  # Make sure we never run this when unit testing.
 

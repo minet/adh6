@@ -1,8 +1,8 @@
 import json
 import pytest
 
-from src.interface_adapter.sql.model.models import  db
-from src.interface_adapter.sql.model.models import Switch
+from adh6.storage.sql.models import  db
+from adh6.storage.sql.models import Switch
 from test.integration.resource import TEST_HEADERS, INVALID_IP, base_url
 
 

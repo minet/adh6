@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock
 
 import pytest
-from src.entity import Vlan
-from src.exceptions import VLANNotFoundError
-from src.use_case.interface.vlan_repository import VlanRepository
-from src.use_case.vlan_manager import VlanManager
+from adh6.entity import Vlan
+from adh6.exceptions import VLANNotFoundError
+from adh6.subnet.interfaces.vlan_repository import VlanRepository
+from adh6.subnet.vlan_manager import VlanManager
 
 
 class TestGetFromNumber:

@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock
 
 import pytest
-from src.entity.account import Account
-from src.use_case.account_manager import AccountManager
-from src.use_case.interface.account_repository import AccountRepository
+from adh6.entity.account import Account
+from adh6.treasury.account_manager import AccountManager
+from adh6.treasury.interfaces.account_repository import AccountRepository
 
 
 class TestGetCAV:

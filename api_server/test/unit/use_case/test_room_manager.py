@@ -2,11 +2,11 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.entity import AbstractRoom
-from src.entity.room import Room
-from src.exceptions import VLANNotFoundError
-from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.room_manager import RoomManager
+from adh6.entity import AbstractRoom
+from adh6.entity.room import Room
+from adh6.exceptions import VLANNotFoundError
+from adh6.room.interfaces.room_repository import RoomRepository
+from adh6.room.room_manager import RoomManager
 
 
 class TestUpdateOrCreate:

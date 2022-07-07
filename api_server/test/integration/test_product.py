@@ -1,6 +1,6 @@
 import json
 import pytest
-from src.interface_adapter.sql.model.models import Product
+from adh6.storage.sql.models import Product
 from test.integration.resource import TEST_HEADERS, base_url
 
 

@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from src.use_case.decorator.security import Roles
+from adh6.authentication.security import Roles
 
 TESTING_CLIENT = 'TestingClient'
 SAMPLE_CLIENT = 'SampleClient'

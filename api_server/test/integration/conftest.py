@@ -1,12 +1,12 @@
 from datetime import datetime
 from uuid import uuid4
+from adh6.device.storage.device_repository import DeviceType
 import pytest
-from src.constants import MembershipDuration, MembershipStatus
-from src.use_case.decorator.security import Roles
+from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.authentication.security import Roles
 from test.integration.resource import api_key
 from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
-from src.interface_adapter.sql.device_repository import DeviceType
-from src.interface_adapter.sql.model.models import (
+from adh6.storage.sql.models import (
     Account,
     ApiKey,
     Membership,
@@ -16,7 +16,7 @@ from src.interface_adapter.sql.model.models import (
 from test.integration.context import tomorrow
 
 def prep_db(*args):
-    from src.interface_adapter.sql.model.models import db as _db
+    from adh6.storage.sql.models import db as _db
     _db.create_all()
     session = _db.session()
     session.add_all(args)
@@ -25,7 +25,7 @@ def prep_db(*args):
     session.commit()
 
 def close_db():
-    from src.interface_adapter.sql.model.models import db as _db
+    from adh6.storage.sql.models import db as _db
     _db.session.close()
     _db.drop_all()
 

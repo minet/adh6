@@ -4,17 +4,17 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises, mark
 
-from src.entity import AbstractDevice
-from src.entity.device import Device
-from src.entity.member import Member
-from src.entity.room import Room
-from src.exceptions import InvalidMACAddress, InvalidIPv6, InvalidIPv4, MemberNotFoundError
-from src.use_case.device_manager import DeviceManager
-from src.use_case.interface.device_repository import DeviceRepository
-from src.use_case.interface.ip_allocator import IpAllocator
-from src.use_case.interface.member_repository import MemberRepository
-from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.interface.vlan_repository import VlanRepository
+from adh6.entity import AbstractDevice
+from adh6.entity.device import Device
+from adh6.entity.member import Member
+from adh6.entity.room import Room
+from adh6.exceptions import InvalidMACAddress, InvalidIPv6, InvalidIPv4, MemberNotFoundError
+from adh6.device.device_manager import DeviceManager
+from adh6.device.interfaces.device_repository import DeviceRepository
+from adh6.device.interfaces.ip_allocator import IpAllocator
+from adh6.member.interfaces.member_repository import MemberRepository
+from adh6.room.interfaces.room_repository import RoomRepository
+from adh6.subnet.interfaces.vlan_repository import VlanRepository
 
 
 @fixture
@@ -59,7 +59,7 @@ class TestUpdateOrCreate:
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
 
         # When...
-        with mock.patch('src.entity.validators.member_validators.is_member_active', return_value=True):
+        with mock.patch('adh6.entity.validators.member_validators.is_member_active', return_value=True):
             device = device_manager.update_or_create(ctx, sample_device)
 
         # Expect...
@@ -217,7 +217,7 @@ class TestUpdateOrCreate:
         )
 
         # When...
-        with mock.patch('src.entity.validators.member_validators.is_member_active', return_value=False):
+        with mock.patch('adh6.entity.validators.member_validators.is_member_active', return_value=False):
             _, created = device_manager.update_or_create(ctx, dev)
 
         # Expect...

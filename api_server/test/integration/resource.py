@@ -1,7 +1,7 @@
 from logging import LogRecord
 import uuid
 
-from src.interface_adapter.sql.model.models import Modification
+from adh6.storage.sql.models import Modification
 
 base_url = "api"
 api_key = str(uuid.uuid4())
