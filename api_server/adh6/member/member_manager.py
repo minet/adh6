@@ -379,7 +379,7 @@ class MemberManager(CRUDManager):
     def add_membership_payment_record(self, ctx, membership: AbstractMembership, free: bool):
         LOG.debug("membership_add_membership_payment_record", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account))
 
-        if free and not Roles.SUPERADMIN.value in ctx.get(CTX_ADMIN).roles:
+        if free and not Roles.TRESO_WRITE.value in ctx.get(CTX_ADMIN).roles:
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
         payment_method = self.payment_method_repository.get_by_id(ctx, membership.payment_method)

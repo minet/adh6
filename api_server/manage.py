@@ -134,7 +134,7 @@ def api_key(login: str = "dev-api-key"):
     session: Session = db.session
 
     print("Generate api key")
-    api_key = (str(uuid.uuid4()), login, Roles.SUPERADMIN.value)
+    api_key = (str(uuid.uuid4()), login, Roles.ADMIN_READ.value)
     session.add(
         ApiKey(
             uuid=api_key[0],

@@ -1,4 +1,3 @@
-from enum import Enum
 import operator
 import os
 from functools import wraps
@@ -7,11 +6,12 @@ from typing import List, Optional
 import connexion
 
 from sqlalchemy.orm.session import Session
+from adh6.authentication import Roles
 
 from adh6.constants import CTX_SQL_SESSION
 from adh6.entity.util.logic import BinaryExpression, Expression, FalseExpression, TrueExpression
 from adh6.exceptions import UnauthenticatedError, MemberNotFoundError, UnauthorizedError
-from adh6.storage.sql.models import Adherent, ApiKey
+from adh6.storage.sql.models import Adherent
 from adh6.util.context import log_extra, build_context
 from adh6.util.log import LOG
 
@@ -52,37 +52,26 @@ class User(object):
     def roles(self, roles):
         self._roles = roles
 
-class Roles(Enum):
-    USER = "adh6_user"
-    NETWORK = "network"
-    ADMIN = "adh6_admin"
-    SUPERADMIN = "adh6_superuser"
-    TRESO = "adh6_treso"
-    VLAN_PROD = "cluster-prod"
-    VLAN_DEV = "cluster-dev"
-    VLAN_HOSTING = "cluster-hosting" 
 
-
-def _find_user(session: Session, username) -> User:
+def _find_user(session: Session, username: str) -> User:
     """
     If a user is found in the ApiKey or the Members return it. This function only 
     fuse all the informations regarding the user that do the request, it does not
     handle the authentication directly
     """
-
     adherent: Optional[Adherent] = session.query(Adherent).filter((Adherent.login == username) | (Adherent.ldap_login == username)).one_or_none()
-    api_user: Optional[ApiKey] = session.query(ApiKey).filter(ApiKey.name == username).one_or_none()
 
-    exists = adherent is not None or api_user is not None
-
-    if not exists:
+    if adherent is None:
         raise MemberNotFoundError(username)
 
-    user = User(login=username, roles=[r for r in connexion.context["token_info"]["groups"] if (r in Roles._value2member_map_ and r != Roles.USER.value)])
+    user = User(login=username, roles=[r for r in connexion.context["token_info"]["scope"] if (r in Roles._value2member_map_ and r != Roles.USER.value)])
     if adherent is not None:
         user.id = adherent.id
-        if adherent.is_naina and "adh6_admin" not in user.roles:
-            user.roles.append("adh6_admin")
+        if adherent.is_naina:
+            if Roles.ADMIN_READ.value not in user.roles:
+                user.roles.append(Roles.ADMIN_READ.value)
+            if Roles.ADMIN_WRITE.value not in user.roles:
+                user.roles.append(Roles.ADMIN_WRITE.value)
     
     if Roles.USER.value not in user.roles:
         user.roles.append(Roles.USER.value)
@@ -111,51 +100,46 @@ def merge_obj_to_dict(d, obj):
     return d
 
 
-def uses_security(action, is_collection=False):
+def uses_security(action: str, is_collection=False):
     def decorator(f):
         @wraps(f)
         def wrapper(cls, ctx, *args, **kwargs):
             if os.getenv("UNIT_TESTING"):
                 return f(cls, ctx, *args, **kwargs)
-            token_info = connexion.context["token_info"] if "token_info" in connexion.context else None
+
             username = connexion.context["user"] if "user" in connexion.context else None
-            if token_info is None:
+            if "token_info" not in connexion.context:
                 LOG.warning('could_not_extract_token_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("Not token informations")
             if username is None:
                 LOG.warning('could_not_extract_user_info_kwargs', extra=log_extra(ctx))
                 raise UnauthenticatedError("You are not authenticated correctly")
             
-            LOG.warning('auth_required_called', extra=log_extra(ctx, token_info=token_info))
-            
-            arguments = {}
-            authorized = False
+            LOG.warning('get_user_required_called', extra=log_extra(ctx))
             if ctx.get(CTX_SQL_SESSION) is None:
                 raise UnauthorizedError('You need SQL for authentication.')
             logged_user = _find_user(ctx.get(CTX_SQL_SESSION), username)
-            obj = kwargs["filter_"] if "filter_" in kwargs else None
-            arguments = merge_obj_to_dict(arguments, obj)
-            arguments["user"] = logged_user
-            if not hasattr(cls, '_security_definition'):
-                raise UnauthorizedError("You do not have enough permissions to access this")
-            security_definition: SecurityDefinition = getattr(cls, '_security_definition')
-            if action not in security_definition.collection and action not in security_definition.item:
-                raise UnauthorizedError("The authentication has not been authorize on the server, please contact the administrator")
-            if is_collection:
-                authorized = action in security_definition.collection and security_definition.collection[action](arguments)
-            else:
-                authorized = action in security_definition.item and security_definition.item[action](arguments)
-            if logged_user.roles is not None and Roles.SUPERADMIN.value in logged_user.roles:
-                authorized = True
 
-            if not authorized:
-                raise UnauthorizedError("You do not have enough permissions to access this")
+            if hasattr(cls, '_security_definition'):
+                arguments = {}
+                authorized = False
+                obj = kwargs["filter_"] if "filter_" in kwargs else None
+                arguments = merge_obj_to_dict(arguments, obj)
+                arguments["user"] = logged_user
+                security_definition: SecurityDefinition = getattr(cls, '_security_definition')
+                if action not in security_definition.collection and action not in security_definition.item:
+                    raise UnauthorizedError("The authentication has not been authorize on the server, please contact the administrator")
+                if is_collection:
+                    authorized = action in security_definition.collection and security_definition.collection[action](arguments)
+                else:
+                    authorized = action in security_definition.item and security_definition.item[action](arguments)
+
+                if not authorized:
+                    raise UnauthorizedError("You do not have enough permissions to access this")
 
             ctx = build_context(ctx=ctx, admin=logged_user, roles=logged_user.roles)
             return f(cls, ctx, *args, **kwargs)
-
         return wrapper
-
     return decorator
 
 class OwnsExpression(Expression):
@@ -188,4 +172,4 @@ def has_any_role(roles: List[Roles]) -> Expression:
     return expression
 
 def is_admin() -> Expression:
-    return HasRoleExpression(Roles.ADMIN)
+    return HasRoleExpression(Roles.ADMIN_READ)

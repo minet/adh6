@@ -6,7 +6,7 @@ from adh6.device.storage.device_repository import DeviceType
 
 from adh6.storage.sql.models import Adherent, db, Device
 from .resource import (
-    TEST_HEADERS_API_KEY, TEST_HEADERS_LIST, TEST_HEADERS_SAMPLE, TEST_HEADERS_SAMPLE2, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
+    TEST_HEADERS_SAMPLE, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created)
 
 
@@ -105,32 +105,20 @@ def test_device_search_with_unknown_only(client):
     )
     assert r.status_code == 400
 
-@pytest.mark.parametrize('member,header,expected, code', [
-    (lazy_fixture('sample_member'), TEST_HEADERS_API_KEY, 4, 200),
-    (lazy_fixture('sample_member'), TEST_HEADERS_API_KEY, 4, 200),
-    (lazy_fixture('sample_member3'), TEST_HEADERS, 0, 200),
-    (lazy_fixture('sample_member3'), TEST_HEADERS, 0, 200),
-    (lazy_fixture('sample_member'), TEST_HEADERS_SAMPLE, 4, 200),
-    (lazy_fixture('sample_member3'), TEST_HEADERS_SAMPLE, 0, 403),
+@pytest.mark.parametrize('member,header,expected', [
+    (lazy_fixture('sample_member3'), TEST_HEADERS, 0),
+    (lazy_fixture('sample_member'), TEST_HEADERS_SAMPLE, 4),
 ])
-def test_device_filter_wired_by_member(client, header, member, expected, code):
+def test_device_filter_wired_by_member(client, header, member, expected):
     r = client.get(
         f'{base_url}/device/?filter[member]={member.id}',
         headers=header
     )
-    assert r.status_code == code
-    if code == 200:
-        response = json.loads(r.data.decode('utf-8'))
-        assert len(response) == expected
+    print(r.text)
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == expected
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS, 200),
-        (TEST_HEADERS_API_KEY, 200),
-        (TEST_HEADERS_SAMPLE, 403),
-    ]
-)
 @pytest.mark.parametrize('terms,expected', [
     ('96-24-F6-D0-48-A7', 1),  # Should find sample wired device
     ('96-', 1),
@@ -141,43 +129,26 @@ def test_device_filter_wired_by_member(client, header, member, expected, code):
     ('-', 4),  # Should find everything
     ('00-', 0),  # Should find nothing
 ])
-def test_device_filter_by_terms(client, terms, expected, headers, status_code):
+def test_device_filter_by_terms(client, terms, expected):
     r = client.get(
         f'{base_url}/device/?terms={terms}',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
+    assert r.status_code == 200
     
-    if status_code == 200:
-        response = json.loads(r.data.decode('utf-8'))
-        assert len(response) == expected
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == expected
 
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS, 400),
-        (TEST_HEADERS_API_KEY, 400),
-        (TEST_HEADERS_SAMPLE, 403),
-    ]
-)
-def test_device_filter_invalid_limit(client, headers, status_code: int):
+def test_device_filter_invalid_limit(client):
     r = client.get(
         f'{base_url}/device/?limit={-1}',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
+    assert r.status_code == 400
 
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS_API_KEY, 200),
-        (TEST_HEADERS, 200),
-        (TEST_HEADERS_SAMPLE, 403),
-    ]
-)
-def test_device_filter_hit_limit(client, sample_member: Adherent, headers, status_code: int):
+def test_device_filter_hit_limit(client, sample_member: Adherent):
     s = db.session()
     LIMIT = 10
 
@@ -196,102 +167,63 @@ def test_device_filter_hit_limit(client, sample_member: Adherent, headers, statu
 
     r = client.get(
         f'{base_url}/device/?limit={LIMIT}',
-        headers=headers,
+        headers=TEST_HEADERS,
     )
-    assert r.status_code == status_code
-    if status_code == 200:
-        response = json.loads(r.data.decode('utf-8'))
-        assert len(response) == LIMIT
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == LIMIT
 
 
-@pytest.mark.parametrize(
-    'headers, status_code, quantity',
-    [
-        (TEST_HEADERS_API_KEY, 200, 1),
-        (TEST_HEADERS, 200, 1),
-        (TEST_HEADERS_SAMPLE, 403, 0),
-    ]
-)
 @pytest.mark.parametrize(
     'device',
     [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
 )
-def test_device_filter_by_id(client, device: Device, headers, status_code: int, quantity: int):
+def test_device_filter_by_id(client, device: Device):
     r = client.get(
         '{}/device/?filter[id]={}'.format(base_url, device.id),
-        headers=headers,
+        headers=TEST_HEADERS,
     )
-    assert r.status_code == status_code
-
-    if status_code == 200:
-        response = json.loads(r.data.decode('utf-8'))
-        assert len(response) == quantity
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
 
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS_API_KEY, 200),
-        (TEST_HEADERS, 200),
-        (TEST_HEADERS_SAMPLE, 403),
-    ]
-)
 @pytest.mark.parametrize(
     'device',
     [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
 )
-def test_device_filter_by_connection_type(client, device: Device, headers, status_code: int):
+def test_device_filter_by_connection_type(client, device: Device):
     r = client.get(
         '{}/device/?filter[connectionType]={}'.format(base_url, "wireless" if device.type == DeviceType.wireless.value else "wired"),
-        headers=headers,
+        headers=TEST_HEADERS,
     )
-    assert r.status_code == status_code
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1 if device.type == DeviceType.wireless.value else 3
 
-    if status_code == 200:
-        response = json.loads(r.data.decode('utf-8'))
-        assert len(response) == 1 if device.type == DeviceType.wireless.value else 3
-
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS, 201),
-        (TEST_HEADERS_SAMPLE, 201),
-        (TEST_HEADERS_SAMPLE2, 403),
-    ]
-)
 @pytest.mark.parametrize(
     'device_to_add',
     [lazy_fixture('wireless_device_dict'), lazy_fixture('wired_device_dict')]
 )
-def test_device_post(client, device_to_add, headers, status_code):
+def test_device_post(client, device_to_add):
     """ Can create a valid device """
     r = client.post(
         f'{base_url}/device/',
         data=json.dumps(device_to_add),
         content_type='application/json',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
+    assert r.status_code == 201
+    assert_modification_was_created(db.session())
 
-    if status_code != 403:
-        assert_modification_was_created(db.session())
-
-        s = db.session()
-        q = s.query(Device)
-        q = q.filter(Device.type == (DeviceType.wireless.value if device_to_add['connectionType'] == 'wireless' else DeviceType.wired.value))
-        q = q.filter(Device.mac == device_to_add['mac'])
-        _ = q.one()
+    s = db.session()
+    q = s.query(Device)
+    q = q.filter(Device.type == (DeviceType.wireless.value if device_to_add['connectionType'] == 'wireless' else DeviceType.wired.value))
+    q = q.filter(Device.mac == device_to_add['mac'])
+    _ = q.one()
 
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS, 201),
-        (TEST_HEADERS_SAMPLE, 201),
-        (TEST_HEADERS_SAMPLE2, 403),
-    ]
-)
-def test_device_post_create_wired_without_ip(client, wired_device_dict, headers, status_code):
+def test_device_post_create_wired_without_ip(client, wired_device_dict):
     """
     Can create a valid wired device? Create two devices and check the IP
     """
@@ -302,71 +234,49 @@ def test_device_post_create_wired_without_ip(client, wired_device_dict, headers,
         f'{base_url}/device/',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
-    if status_code != 403:
-        assert_modification_was_created(db.session())
+    assert r.status_code == 201
+    assert_modification_was_created(db.session())
 
     wired_device_dict["mac"] = "AB-CD-EF-01-23-45"
     r = client.post(
         f'{base_url}/device/',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
-    
-    if status_code != 403:
-        assert_modification_was_created(db.session())
+    assert r.status_code == 201
+    assert_modification_was_created(db.session())
 
-        s = db.session()
-        q = s.query(Device)
-        q = q.filter(Device.type == DeviceType.wired.value)
-        q = q.filter(Device.mac == wired_device_dict["mac"])
-        dev = q.one()
-        assert dev.ip == '192.168.42.12'
-        assert dev.ipv6 == 'fe80::c'
+    s = db.session()
+    q = s.query(Device)
+    q = q.filter(Device.type == DeviceType.wired.value)
+    q = q.filter(Device.mac == wired_device_dict["mac"])
+    dev = q.one()
+    assert dev.ip == '192.168.42.12'
+    assert dev.ipv6 == 'fe80::c'
 
 
-@pytest.mark.parametrize(
-    'headers',
-    [
-        (TEST_HEADERS),
-        (TEST_HEADERS_SAMPLE),
-        (TEST_HEADERS_SAMPLE2),
-    ]
-)
 @pytest.mark.parametrize(
     'key,value,status_code', 
     [
         ('mac', INVALID_MAC, 400), # Create with invalid mac address
         ('ipv6Address', INVALID_IPv6, 400), # Create with invalid ipv6 address
         ('ipv4Address', INVALID_IP, 400), # Create with invalid ipv4 address
-        ('member', 4242, 403), # Create with invalid member
+        ('member', 4242, 404), # Create with invalid member
     ]
 )
-def test_device_post_create_invalid(client, key, value, status_code, wired_device_dict, headers):
+def test_device_post_create_invalid(client, key, value, wired_device_dict, status_code):
     wired_device_dict[key] = value
     r = client.post(
         f'{base_url}/device/',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
-        headers=headers,
+        headers=TEST_HEADERS,
     )
-    if headers == TEST_HEADERS and key == 'member':
-        assert r.status_code == 404
-    else:
-        assert r.status_code == status_code
+    assert r.status_code == status_code
 
-@pytest.mark.parametrize(
-    'headers, status_code',
-    [
-        (TEST_HEADERS, 204),
-        (TEST_HEADERS_SAMPLE, 204),
-        (TEST_HEADERS_SAMPLE2, 403),
-    ]
-)
 @pytest.mark.parametrize(
     'device_to_patch',
     [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
@@ -375,21 +285,16 @@ def test_device_post_create_invalid(client, key, value, status_code, wired_devic
     'value',
     [lazy_fixture('wireless_device_dict'), lazy_fixture('wired_device_dict')]
 )
-def test_device_patch(client, device_to_patch: Device, value, headers, status_code):
+def test_device_patch(client, device_to_patch: Device, value):
     r = client.patch(
         f'{base_url}/device/{device_to_patch.id}',
         data=json.dumps(value),
         content_type='application/json',
-        headers=headers
+        headers=TEST_HEADERS
     )
-    assert r.status_code == status_code
-    if status_code != 403:
-        assert_modification_was_created(db.session())
+    assert r.status_code == 204
+    assert_modification_was_created(db.session())
 
-@pytest.mark.parametrize(
-    'headers',
-    TEST_HEADERS_LIST
-)
 @pytest.mark.parametrize(
     'device, status_code',
     [
@@ -398,24 +303,15 @@ def test_device_patch(client, device_to_patch: Device, value, headers, status_co
         (lazy_fixture('unknown_device'), 404),
     ]
 )
-def test_device_get_valid(client, device, status_code, headers):
-    if headers == TEST_HEADERS_SAMPLE2 and db.session.query(Device).filter(Device.id == device.id).one_or_none() is not None:
-        status_code = 403
+def test_device_get_valid(client, device, status_code):
     r = client.get(
         f'{base_url}/device/{device.id}',
-        headers=headers,
+        headers=TEST_HEADERS,
     )
     assert r.status_code == status_code
     if status_code != 403:
         assert json.loads(r.data.decode('utf-8'))
 
-@pytest.mark.parametrize(
-    'header',
-    [
-        (TEST_HEADERS),
-        (TEST_HEADERS_SAMPLE)
-    ]
-)
 @pytest.mark.parametrize(
     'device, status_code',
     [
@@ -424,10 +320,10 @@ def test_device_get_valid(client, device, status_code, headers):
         (lazy_fixture('unknown_device'), 404),
     ]
 )
-def test_device_delete(client, device: Device, header, status_code: int):
+def test_device_delete(client, device: Device, status_code: int):
     r = client.delete(
         f'{base_url}/device/{device.id}',
-        headers=header,
+        headers=TEST_HEADERS,
     )
     assert r.status_code == status_code
     if status_code == 204:

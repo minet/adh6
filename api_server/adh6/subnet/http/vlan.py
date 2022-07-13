@@ -1,6 +1,4 @@
 # coding=utf-8
-from connexion import NoContent
-
 from adh6.default.util.serializer import serialize_response
 from adh6.default.util.error import handle_error
 from adh6.entity import AbstractVlan, Vlan

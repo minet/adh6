@@ -1,6 +1,6 @@
 # HTTP API
 Flask
-git+https://github.com/minet/connexion.git
+connexion
 swagger-ui-bundle
 uWSGI
 

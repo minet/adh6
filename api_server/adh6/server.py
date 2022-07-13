@@ -147,8 +147,8 @@ def init() -> FlaskApp:
         raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development, testing")
 
     # Connexion will use this function to authenticate and fetch the information of the user.
-    os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'adh6.authentication.auth.token_info')
-    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.auth.apikey_auth')
+    os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'adh6.authentication.oidc_manager.token_info')
+    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.api_keys_manager.apikey_auth')
 
     # Initialize the application
     app = connexion.App(__name__, specification_dir='../openapi')

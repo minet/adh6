@@ -3,20 +3,31 @@ from typing import Any, Dict
 from adh6.authentication.security import Roles
 
 TESTING_CLIENT = 'TestingClient'
-SAMPLE_CLIENT = 'SampleClient'
-SAMPLE_CLIENT2 = 'SampleClient2'
+SAMPLE_CLIENT = 'SampleMember'
 
 def token_info(token) -> Dict[str, Any]:
-    return {
-        "uid": TESTING_CLIENT if token == "TEST_TOKEN" else (SAMPLE_CLIENT if token == "TEST_TOKEN_SAMPLE" else SAMPLE_CLIENT2),
-        "scope": ["profile"],
-        "groups": [
-            Roles.SUPERADMIN.value,
-            Roles.ADMIN.value,
-            Roles.ADMIN.TRESO.value,
-            Roles.USER.value,
-            Roles.VLAN_DEV.value,
-            Roles.VLAN_HOSTING.value,
-            Roles.VLAN_PROD.value
-        ] if token == "TEST_TOKEN" else []
-    }
+    print(token)
+    if token == "TEST_TOKEN":
+        return {
+            "uid": TESTING_CLIENT,
+            "scope": [
+                Roles.ADMIN_READ.value,
+                Roles.ADMIN_WRITE.value,
+                Roles.TRESO_READ.value,
+                Roles.TRESO_WRITE.value,
+                Roles.USER.value,
+                Roles.NETWORK_READ.value,
+                Roles.NETWORK_WRITE.value,
+                Roles.NETWORK_DEV.value,
+                Roles.NETWORK_HOSTING.value,
+                Roles.NETWORK_PROD.value
+            ]
+        }
+    else:
+        return {
+            "uid": SAMPLE_CLIENT,
+            "scope": [
+                Roles.USER.value
+            ]
+        }
+

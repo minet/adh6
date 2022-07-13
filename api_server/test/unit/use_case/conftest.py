@@ -39,18 +39,18 @@ def mock_test_configuration(monkeypatch):
 @fixture
 def ctx(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
+        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value]),
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value]
     )
 
 
 @fixture
 def ctx_only_admin(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value]),
+        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value]),
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value]
     )
 
 

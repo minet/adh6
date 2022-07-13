@@ -25,7 +25,7 @@ def with_context(f, session_handler = None):
     """
 
     @wraps(f)
-    def wrapper(cls, *args, **kwds):
+    def wrapper(*args, **kwds):
         """
         Wrap http_api function.
         """
@@ -37,9 +37,9 @@ def with_context(f, session_handler = None):
             url=request.url
         )
         ctx = build_context(session=s, ctx=ctx)
-
+        kwds["ctx"] = ctx
         try:
-            result = f(cls, ctx, *args, **kwds)
+            result = f(*args, **kwds)
 
             # It makes things clearer and less error-prone.
             if not isinstance(result, tuple) or len(result) <= 1:

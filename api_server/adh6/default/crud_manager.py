@@ -69,7 +69,6 @@ class CRUDManager:
     @auto_raise
     def partially_update(self, ctx, obj, id: int, override=False):
         current_object = self.repository.get_by_id(ctx, id)
-        print(current_object)
         obj.id = id
         @uses_security("update", is_collection=False)
         def _partially_update(cls, ctx, filter_=None):
@@ -81,7 +80,6 @@ class CRUDManager:
     @auto_raise
     def delete(self, ctx, id: int):
         current_object = self.repository.get_by_id(ctx, id)
-        print(current_object)
         @uses_security("delete", is_collection=False)
         def _delete(cls, ctx, filter_=None):
             self.repository.delete(ctx, id)

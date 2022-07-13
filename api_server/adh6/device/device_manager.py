@@ -4,7 +4,7 @@ from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6,
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import SecurityDefinition, defines_security, is_admin, owns, uses_security
+from adh6.authentication.security import SecurityDefinition, defines_security, is_admin, owns
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
 from adh6.room.interfaces.room_repository import RoomRepository
@@ -18,7 +18,6 @@ from adh6.member.interfaces.member_repository import MemberRepository
         "read": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
         "update": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
         "delete": owns(AbstractDevice.member) | is_admin(),
-        "admin": is_admin()
     },
     collection={
         "read": owns(AbstractDevice.member) | is_admin(),
@@ -56,14 +55,12 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("admin")
     def put_mab(self, ctx, id: int) -> bool:
         mab = self.device_repository.get_mab(ctx, id)
         return self.device_repository.put_mab(ctx, id, not mab)
 
     @log_call
     @auto_raise
-    @uses_security("admin")
     def get_mab(self, ctx, id: int) -> bool:
         return self.device_repository.get_mab(ctx, id)
 
@@ -171,7 +168,6 @@ class DeviceManager(CRUDManager):
             vlan = self.vlan_repository.get_vlan(ctx, rooms[0].vlan)
         if vlan is None:
             raise VLANNotFoundError(rooms[0].vlan)
-        print(vlan)
         return vlan.ipv4_network if not is_ipv6 else vlan.ipv6_network
 
     @log_call

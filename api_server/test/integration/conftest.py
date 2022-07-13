@@ -1,18 +1,19 @@
 from datetime import datetime
 from uuid import uuid4
+from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
-from test.integration.resource import api_key
-from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
+from test.integration.resource import TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER
+from test.auth import TESTING_CLIENT, SAMPLE_CLIENT
 from adh6.storage.sql.models import (
     Account,
-    ApiKey,
     Membership,
     AccountType, Adherent, Chambre,
     PaymentMethod, Vlan, Device, Switch, Port
 )
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow
 
 def prep_db(*args):
@@ -20,8 +21,29 @@ def prep_db(*args):
     _db.create_all()
     session = _db.session()
     session.add_all(args)
+    """
+    session.add_all(
+        [
+            api_key_admin(), 
+            api_key_network(), 
+            api_key_network_dev(), 
+            api_key_network_prod(), 
+            api_key_network_hosting(), 
+            api_key_treso(), 
+            api_key_user()
+        ] +
+        [
+            api_key_admin_roles(), 
+            api_key_network_roles(), 
+            api_key_network_dev_roles(), 
+            api_key_network_prod_roles(), 
+            api_key_network_hosting_roles(), 
+            api_key_treso_roles(), 
+            api_key_user_roles()
+        ]
+    )
+    """
     session.add(sample_member_admin())
-    session.add(sample_api_key())
     session.commit()
 
 def close_db():
@@ -210,13 +232,111 @@ def sample_member_admin():
         mail_membership=1,
     )
 
-
-def sample_api_key():
+"""
+def api_key_user():
     return ApiKey(
-        name="api_key",
-        uuid=api_key,
-        role=Roles.SUPERADMIN.value
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
     )
+
+
+def api_key_user_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
+        role=Roles.USER
+    )
+
+
+def api_key_admin():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+    )
+
+
+def api_key_admin_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+        role=Roles.ADMIN
+    )
+
+
+def api_key_network():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_NETWORK["X-API-KEY"],
+    )
+
+
+def api_key_network_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_NETWORK["X-API-KEY"],
+        role=Roles.NETWORK    
+    )
+
+
+def api_key_network_dev():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"],
+    )
+
+
+def api_key_network_dev_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"],
+        role=Roles.VLAN_DEV
+    )
+
+
+def api_key_network_prod():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"],
+    )
+
+
+def api_key_network_prod_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"],
+        role=Roles.VLAN_PROD
+    )
+
+
+def api_key_network_hosting():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"],
+    )
+
+
+def api_key_network_hosting_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"],
+        role=Roles.VLAN_HOSTING
+    )
+
+
+def api_key_treso():
+    return ApiKey(
+        name=TESTING_CLIENT,
+        uuid=TEST_HEADERS_API_KEY_TRESO["X-API-KEY"],
+    )
+
+
+def api_key_treso_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        name=TEST_HEADERS_API_KEY_TRESO["X-API-KEY"],
+        role=Roles.TRESO
+    )
+"""
 
 @pytest.fixture
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, sample_payment_method: PaymentMethod):
@@ -289,7 +409,7 @@ def sample_member3(sample_room1):
         nom='Dupont',
         prenom='Jean',
         mail='test@oyopmail.fr',
-        login=SAMPLE_CLIENT2,
+        login="jamaislememe",
         commentaires='abcdef',
         password='b',
         chambre=sample_room1,

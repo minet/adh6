@@ -6,14 +6,6 @@ from adh6.authentication.security import defines_security, SecurityDefinition, R
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 
 
-@defines_security(SecurityDefinition(
-    item={
-        "read": has_any_role([Roles.USER])
-    },
-    collection={
-        "read": has_any_role([Roles.USER])
-    }
-))
 class PaymentMethodManager(CRUDManager):
     def __init__(self, payment_method_repository: PaymentMethodRepository):
         super().__init__(payment_method_repository, AbstractPaymentMethod, PaymentMethodNotFoundError)
