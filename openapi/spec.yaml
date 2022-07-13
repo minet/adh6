@@ -54,7 +54,12 @@ paths:
         403:
           $ref: '#/components/responses/Unauthorized'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/Unexpected'      
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
       tags:
       - misc
   /account/:
@@ -93,6 +98,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter accounts
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
     post:
@@ -118,6 +128,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create an account
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - account
   /account/{id}:
@@ -142,6 +157,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
     put:
@@ -164,6 +184,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Udate an account
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - account
   /account_type/:
@@ -190,6 +215,11 @@ paths:
         400:
           description: Invalid input
       summary: Filter account types
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
   /account_type/{id}:
@@ -212,6 +242,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account type
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
   /device/:
@@ -249,6 +284,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter devices
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
     post:
@@ -274,6 +316,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
   /device/{id}:
@@ -292,6 +341,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
     get:
@@ -311,6 +367,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
     put:
@@ -339,6 +402,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
     patch:
@@ -361,6 +431,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
   /device/{id}/vendor:
@@ -389,6 +466,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
   /device/{id}/mab/:
@@ -413,6 +497,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
+      security: 
+        - OAuth2:
+          - admin:read
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - device
     put:
@@ -434,6 +525,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
   /member/:
@@ -488,6 +584,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter members
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     post:
@@ -513,6 +614,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
   /member/{id}:
@@ -531,6 +637,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
     get:
@@ -552,6 +663,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     patch:
@@ -574,6 +692,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
     put:
@@ -596,6 +719,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
   /member/{id}/logs/:
@@ -626,6 +754,9 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the most recent logs of a member
+      security: 
+        - OAuth2:
+          - admin:read
       tags:
       - member
   /member/{id}/statuses/:
@@ -648,6 +779,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves some common status updates concerning a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
   /member/{id}/password/:
@@ -684,6 +822,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the password of a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
       tags:
       - member
   /member/{id}/charter/{charter_id}:
@@ -715,6 +858,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves if the hosting charter has been signed
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     put:
@@ -729,6 +877,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update if the hosting/MiNET charter has been signed
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
   /member/membership/:
@@ -767,6 +920,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter memberships
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - membership
   /member/{id}/membership/:
@@ -790,6 +948,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Get the latest pending membership of a specific member
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - membership
     post:
@@ -816,6 +979,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Add a membership record for a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
   /member/{id}/membership/{uuid}:
@@ -849,6 +1017,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a membership
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
   /member/{id}/membership/{uuid}/validate:
@@ -882,6 +1055,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
   /payment_method/:
@@ -908,6 +1086,11 @@ paths:
         400:
           description: Invalid input
       summary: Filter payment methods
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - transaction
   /payment_method/{id}:
@@ -930,6 +1113,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - transaction
   /port/:
@@ -970,6 +1158,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter ports
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - port
     post:
@@ -997,6 +1190,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
   /port/{id}:
@@ -1015,6 +1213,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
     get:
@@ -1036,6 +1239,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a port
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - port
     put:
@@ -1054,6 +1262,11 @@ paths:
         404:
           description: Not found
       summary: Update a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
   /port/{id}/mab/:
@@ -1077,6 +1290,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether MAB is enabled on this port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
@@ -1096,6 +1314,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of MAB on a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/alias/:
@@ -1119,6 +1342,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the alias on a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/use/:
@@ -1142,6 +1370,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the current use of a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/speed/:
@@ -1165,6 +1398,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the speed on a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/auth/:
@@ -1188,6 +1426,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether authentication is enabled on this port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
@@ -1207,6 +1450,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of authentication on a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/state/:
@@ -1230,6 +1478,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
@@ -1249,6 +1502,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/vlan/:
@@ -1273,6 +1531,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the VLAN assigned to a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
@@ -1297,6 +1560,25 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the VLAN assigned to a port
+      security: 
+        - OAuth2:
+          - network:write
+          - network:write:prod
+        - OAuth2:
+          - network:write
+          - network:write:dev
+        - OAuth2:
+          - network:write
+          - network:write:hosting
+        - ApiKeyAuth:
+          - network:write
+          - network:write:prod
+        - ApiKeyAuth:
+          - network:write
+          - network:write:dev
+        - ApiKeyAuth:
+          - network:write
+          - network:write:hosting
       tags:
       - port
   /product/:
@@ -1323,6 +1605,11 @@ paths:
         400:
           description: Invalid input
       summary: Filter products
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - treasury
   /product/{id}:
@@ -1345,6 +1632,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a product
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - treasury
   /product/buy:
@@ -1383,6 +1675,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Generate a new transaction for a product
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - treasury
   /room/:
@@ -1421,6 +1718,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter rooms
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - room
     post:
@@ -1446,6 +1748,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
   /room/{id}:
@@ -1464,6 +1771,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
     get:
@@ -1485,6 +1797,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a room
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - room
     put:
@@ -1509,6 +1828,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
   /switch/:
@@ -1547,6 +1871,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter switches
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     post:
@@ -1572,6 +1901,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a switch
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - switch
   /switch/{id}:
@@ -1590,6 +1924,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a switch
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     get:
@@ -1611,6 +1950,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a switch
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     put:
@@ -1633,6 +1977,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a switch
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - switch
   /vlan/:
@@ -1660,6 +2009,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter vlans
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - vlan
   /transaction/:
@@ -1700,6 +2054,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter transactions
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
     post:
@@ -1727,6 +2086,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
   /transaction/{id}/upload/:
@@ -1751,6 +2115,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Upload an attachment to a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
   /transaction/{id}/validate:
@@ -1770,6 +2139,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
   /transaction/{id}:
@@ -1794,6 +2168,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a transaction
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
     patch:
@@ -1816,6 +2195,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
     delete:
@@ -1831,6 +2215,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
   /treasury/cashbox:
@@ -1858,6 +2247,11 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of the cashbox
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - treasury
   /treasury/bank:
@@ -1881,9 +2275,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the expected state of MiNET's bank accounts
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - treasury
-
 components:
   parameters:
     limit:
@@ -2192,7 +2590,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractMembership'
         - required:
-            - uuid
             - member
             - status
       type: object
@@ -2222,9 +2619,7 @@ components:
         member:
           description: The member this account belongs to
           nullable: true
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
+          type: integer
           example: 4
         name:
           description: The name of this account
@@ -2253,7 +2648,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractAccount'
         - required:
-            - id
             - accountType
             - name
             - balance
@@ -2329,7 +2723,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractTransaction'
         - required:
-            - id
             - name
             - src
             - dst
@@ -2362,7 +2755,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPaymentMethod'
         - required:
-            - id
             - name
       type: object
     AbstractProduct:
@@ -2391,7 +2783,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractProduct'
         - required:
-            - id
             - name
             - sellingPrice
       type: object
@@ -2434,7 +2825,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractDevice'
         - required:
-            - id
             - connectionType
             - mac
             - member
@@ -2502,7 +2892,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractMember'
         - required:
-            - id
             - username
             - email
             - firstName
@@ -2533,7 +2922,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractRoom'
         - required:
-            - id
             - description
             - roomNumber
             - vlan
@@ -2568,7 +2956,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPort'
         - required:
-            - id
             - portNumber
             - oid
             - room
@@ -2600,7 +2987,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractSwitch'
         - required:
-            - id
             - description
             - ip
       type: object
@@ -2632,7 +3018,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractVlan'
         - required:
-          - id
           - number
           - ipv4Network
           - ipv6Network
@@ -2662,9 +3047,28 @@ components:
       name: X-API-KEY
 
 security:
-  - OAuth2: [profile]
-  - ApiKeyAuth: []
-
+  - OAuth2: 
+    - user
+    - admin:read
+    - admin:write
+    - treasurer:read
+    - treasurer:write
+    - network:read
+    - network:write
+    - network:write:prod
+    - network:write:dev
+    - network:write:hosting
+  - ApiKeyAuth: 
+    - user
+    - admin:read
+    - admin:write
+    - treasurer:read
+    - treasurer:write
+    - network:read
+    - network:write
+    - network:write:prod
+    - network:write:dev
+    - network:write:hosting
 tags:
 - description: Operations on members
   name: member
@@ -2688,4 +3092,3 @@ tags:
   name: treasury
 - description: Miscellaneous endpoints
   name: misc
-
