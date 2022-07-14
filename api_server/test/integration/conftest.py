@@ -6,7 +6,7 @@ import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
 from test.integration.resource import TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER
-from test.auth import TESTING_CLIENT, SAMPLE_CLIENT
+from test.auth import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
     Account,
     Membership,
@@ -20,11 +20,17 @@ def prep_db(*args):
     from adh6.storage.sql.models import db as _db
     _db.create_all()
     session = _db.session()
+    session.add(sample_member_admin())
     session.add_all(args)
-    """
     session.add_all(
         [
-            api_key_admin(), 
+            api_key_admin(),
+        ] + 
+        [
+            api_key_admin_roles(),
+        ]
+    )
+    """
             api_key_network(), 
             api_key_network_dev(), 
             api_key_network_prod(), 
@@ -43,7 +49,6 @@ def prep_db(*args):
         ]
     )
     """
-    session.add(sample_member_admin())
     session.commit()
 
 def close_db():
@@ -224,6 +229,7 @@ def sample_room2(sample_vlan):
 
 def sample_member_admin():
     return Adherent(
+        id=TESTING_CLIENT_ID,
         login=TESTING_CLIENT,
         mail="test@example.com",
         nom="Test",
@@ -232,7 +238,6 @@ def sample_member_admin():
         mail_membership=1,
     )
 
-"""
 def api_key_user():
     return ApiKey(
         name=TESTING_CLIENT,
@@ -259,10 +264,11 @@ def api_key_admin_roles():
     return AuthenticationRoleMapping(
         authentication=AuthenticationMethod.API_KEY,
         name=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
-        role=Roles.ADMIN
+        role=Roles.ADMIN_READ
     )
 
 
+"""
 def api_key_network():
     return ApiKey(
         name=TESTING_CLIENT,
@@ -374,6 +380,7 @@ def sample_pending_validation_membership(sample_account: Account, sample_member2
 @pytest.fixture
 def sample_member(faker, sample_room1):
     yield Adherent(
+        id=SAMPLE_CLIENT_ID,
         nom='Dubois',
         prenom='Jean-Louis',
         mail='j.dubois@free.fr',

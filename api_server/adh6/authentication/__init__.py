@@ -18,3 +18,8 @@ class AuthenticationMethod(Enum):
     NONE = 0
     API_KEY = 1
     OIDC = 2
+
+
+class Method(Enum):
+    READ = 0
+    WRITE = 1

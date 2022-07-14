@@ -2,7 +2,6 @@
 """ Use cases (business rule layer) of everything related to transactions. """
 from typing import Optional, Tuple
 from adh6.authentication import Roles
-from adh6.authentication.security import uses_security
 from adh6.constants import CTX_ROLES
 from adh6.entity import AbstractTransaction
 from adh6.entity.transaction import Transaction
@@ -71,7 +70,6 @@ class TransactionManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("")
     def validate(self, ctx, id: int):
         transaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:

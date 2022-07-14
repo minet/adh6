@@ -5,6 +5,7 @@ Contain all the http http_api functions.
 from typing import Dict, List, Optional, Tuple, Any
 
 from connexion import NoContent
+from adh6.authentication.security import with_security
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractMember, Member, Membership, AbstractMembership
@@ -34,6 +35,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def put(self, ctx, id_, body):
         try:
@@ -45,6 +47,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def patch(self, ctx, id_, body):
         try:
@@ -82,6 +85,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def password_put(self, ctx, id_, body):
         """ Set the password of a member. """
@@ -102,6 +106,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def statuses_search(self, ctx, id_: int):
         try:

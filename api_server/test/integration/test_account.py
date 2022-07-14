@@ -2,7 +2,7 @@ import datetime
 import json
 import pytest
 
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, base_url
 
 from adh6.storage.sql.models import AccountType, Account, Adherent
 
@@ -58,7 +58,7 @@ def client(sample_member, sample_room1, sample_account1, sample_account2):
 def test_account_filter_all_with_invalid_limit(client):
     r = client.get(
         '{}/account/?limit={}'.format(base_url, -1),
-        headers=TEST_HEADERS,
+        headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 400
 

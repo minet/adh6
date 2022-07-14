@@ -9,11 +9,10 @@ def apikey_auth(token: str, required_scopes):
     role_handler = RoleRepository()
     try:
         name = role_handler.get_api_key_user(api_key=token)
-        print("roles:", role_handler.get_roles(method=AuthenticationMethod.API_KEY, roles=[token]))
     except:
         raise Unauthorized('invalid api key')
     return {
-        "uid": name,
-        "scope": role_handler.get_roles(method=AuthenticationMethod.API_KEY, roles=[token])
+        "uid": role_handler.get_user_id(user_name=name),
+        "scope": role_handler.get_roles(method=AuthenticationMethod.API_KEY, roles=[token], user_name=name)
     }
 

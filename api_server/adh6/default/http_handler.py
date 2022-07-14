@@ -1,6 +1,8 @@
 # coding=utf-8
 from typing import Any, List, Optional
 from connexion import NoContent
+from adh6.authentication import Method
+from adh6.authentication.security import with_security
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.default.decorator.log_call import log_call
@@ -17,6 +19,7 @@ class DefaultHandler:
         self.main_manager = main_manager
 
     @with_context
+    @with_security(method=Method.READ, arg_name="filter_")
     @log_call
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
         try:
@@ -54,16 +57,19 @@ class DefaultHandler:
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def post(self, ctx, body):
         return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body)
 
     @with_context
+    @with_security()
     @log_call
     def put(self, ctx, body, id_: int):
         return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body, id=id_)
 
     @with_context
+    @with_security()
     def patch(self, ctx, body, id_: int):
         return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, body=body, id=id_)
 

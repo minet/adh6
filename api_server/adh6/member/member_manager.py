@@ -3,7 +3,7 @@
 from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple
 
-from adh6.constants import CTX_ADMIN, DEFAULT_LIMIT, DEFAULT_OFFSET, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from adh6.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
@@ -36,7 +36,7 @@ from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, owns, uses_security, User
+from adh6.authentication.security import Roles
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
@@ -50,23 +50,6 @@ from adh6.default.decorator.log_call import log_call
 import re
 
 
-@defines_security(SecurityDefinition(
-    item={
-        "read": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
-        "admin": is_admin(),
-        "profile": has_any_role([Roles.USER]),
-        "password": owns(Member.id) | is_admin(),
-        "membership": owns(Member.id) | is_admin(),
-        "create": owns(Member.id) | is_admin(),
-        "update": owns(Member.id) | owns(AbstractMember.id) | is_admin(),
-        "delete": is_admin()
-    },
-    collection={
-        "read": owns(Member.id) | is_admin(),
-        "create": owns(Member.id) | is_admin(),
-        "membership": owns(Member.id) | is_admin()
-    }
-))
 class MemberManager(CRUDManager):
     """
     Implements all the use cases related to member management.
@@ -98,15 +81,13 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("profile", is_collection=False)
     def get_profile(self, ctx) -> Tuple[AbstractMember, List[str]]:
-        user: User = ctx.get(CTX_ADMIN)
-        m = self.member_repository.get_by_id(ctx,user.id)
-        return m, [r.removeprefix("adh6_") for r in user.roles]
+        user = ctx.get(CTX_ADMIN)
+        m = self.member_repository.get_by_id(ctx, user)
+        return m, ctx.get(CTX_ROLES)
 
     @log_call
     @auto_raise
-    @uses_security("create", is_collection=True)
     def new_member(self, ctx, member: AbstractMember) -> Member:
         LOG.debug("create_member_records", extra=log_extra(ctx, username=member.username))
         # Check that the user exists in the system.
@@ -148,7 +129,6 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("update")
     def update_member(self, ctx, id: int, abstract_member: AbstractMember, override: bool) -> None:
         member = self.__member_not_found(ctx, id)
         if not self.__is_membership_finished(self.get_latest_membership(ctx, id)):
@@ -179,7 +159,6 @@ class MemberManager(CRUDManager):
     
     @log_call
     @auto_raise
-    @uses_security("read", is_collection=True)
     def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None,
                           filter_: Optional[AbstractMembership] = None) -> Tuple[List[AbstractMembership], int]:
         return self.membership_repository.membership_search_by(ctx, limit=limit,
@@ -189,7 +168,6 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("read", is_collection=True)
     def get_latest_membership(self, ctx, id: int) -> Membership:
         LOG.debug("get_latest_membership_records", extra=log_extra(ctx, id=id))
         # Check that the user exists in the system.
@@ -209,7 +187,6 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("create", is_collection=True)
     def new_membership(self, ctx, member_id: int, membership: AbstractMembership) -> Membership:
         """
         Core use case of ADH. Registers a membership.
@@ -283,7 +260,6 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("membership", is_collection=True)
     def change_membership(self, ctx, member_id: int, uuid: str, abstract_membership: Optional[AbstractMembership] = None) -> None:
         self.__member_not_found(ctx, member_id)
         
@@ -364,22 +340,17 @@ class MemberManager(CRUDManager):
         if fethed_membership[0].status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
             raise MembershipStatusNotAllowed(fethed_membership[0].status, "status cannot be used to validate a membership")
 
-        @uses_security("admin", is_collection=False)
-        def _validate(cls, ctx, membership_uuid: str) -> None:
-            self.membership_repository.validate_membership(ctx, membership_uuid)
-            self.add_membership_payment_record(ctx, fethed_membership[0], free)
-            self.member_repository.add_duration(ctx, member.id, fethed_membership[0].duration)
-            self.update_subnet(ctx, member_id) 
-
-        return _validate(self, ctx, uuid)
+        self.membership_repository.validate_membership(ctx, uuid)
+        self.add_membership_payment_record(ctx, fethed_membership[0], free)
+        self.member_repository.add_duration(ctx, member.id, fethed_membership[0].duration)
+        self.update_subnet(ctx, member_id) 
 
     @log_call
     @auto_raise
-    @uses_security("admin")
     def add_membership_payment_record(self, ctx, membership: AbstractMembership, free: bool):
         LOG.debug("membership_add_membership_payment_record", extra=log_extra(ctx, duration=membership.duration, membership_accoun=membership.account))
 
-        if free and not Roles.TRESO_WRITE.value in ctx.get(CTX_ADMIN).roles:
+        if free and not Roles.TRESO_WRITE.value in ctx.get(CTX_ROLES):
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
         payment_method = self.payment_method_repository.get_by_id(ctx, membership.payment_method)
@@ -449,25 +420,19 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(member_id)
 
-        member = member[0]
+        # Do the actual log fetching.
+        try:
+            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member[0].id))[0]
+            logs = self.logs_repository.get_logs(ctx, username=member[0].username, devices=devices, dhcp=dhcp)
 
-        @uses_security("admin", is_collection=False)
-        def _get_logs(cls, ctx, filter_: AbstractMember):
-            # Do the actual log fetching.
-            try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
-                logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=dhcp)
+            return list(map(
+                lambda x: "{} {}".format(x[0], x[1]),
+                logs
+            ))
 
-                return list(map(
-                    lambda x: "{} {}".format(x[0], x[1]),
-                    logs
-                ))
-
-            except LogFetchError:
-                LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=filter_.username))
-                return []  # We fail open here.
-
-        return _get_logs(self, ctx, filter_=member)
+        except LogFetchError:
+            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member[0].username))
+            return []  # We fail open here.
 
     @log_call
     @auto_raise
@@ -479,78 +444,75 @@ class MemberManager(CRUDManager):
 
         member = member[0]
 
-        @uses_security("read", is_collection=False)
-        def _get_statuses(cls, ctx, filter_: AbstractMember):
-            # Do the actual log fetching.
-            try:
-                devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=filter_.id))[0]
-                logs = self.logs_repository.get_logs(ctx, username=filter_.username, devices=devices, dhcp=False)
-                device_to_statuses = {}
-                last_ok_login_mac = {}
+        # Do the actual log fetching.
+        try:
+            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))[0]
+            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=False)
+            device_to_statuses = {}
+            last_ok_login_mac = {}
 
-                def add_to_statuses(status, timestamp, mac):
-                    if mac not in device_to_statuses:
-                        device_to_statuses[mac] = {}
-                    if status not in device_to_statuses[mac] or device_to_statuses[mac][
-                        status].last_timestamp < timestamp:
-                        device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp,
-                                                                       comment=mac)
+            def add_to_statuses(status, timestamp, mac):
+                if mac not in device_to_statuses:
+                    device_to_statuses[mac] = {}
+                if status not in device_to_statuses[mac] or device_to_statuses[mac][
+                    status].last_timestamp < timestamp:
+                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp,
+                                                                   comment=mac)
 
-                prev_log = ["", ""]
-                for log in logs:
-                    if "Login OK" in log[1]:
-                        match = re.search(r'.*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*', log[1])
-                        if match is not None:
-                            login, mac = match.group(1), match.group(2).upper()
-                            if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
-                                last_ok_login_mac[mac] = log[0]
-                    if "EAP sub-module failed" in prev_log[1] \
-                            and "mschap: MS-CHAP2-Response is incorrect" in log[1] \
-                            and (prev_log[0] - log[0]).total_seconds() < 1:
-                        match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
-                                          prev_log[1])
-                        if match:
-                            login, mac = match.group(1), match.group(2).upper()
-                            if login != filter_.username:
-                                add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                            else:
-                                add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
-                    if 'rlm_python' in log[1]:
-                        match = re.search(r'.*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)', log[1])
-                        if match is not None:
-                            login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
-                            if 'MAC not found and not association period' in reason:
-                                add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
-                            if 'Adherent not found' in reason:
-                                add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                    if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
-                        # @TODO a read access denied means the user is validating the certificate
-                        # @TODO a read/write protocol version is ???
-                        # @TODO a write unknown CA means the user is validating the certificate
-                        # @TODO a write decryption failed is ???
-                        # @TODO a read internal error is most likely not user-related
-                        # @TODO a write unexpected_message is ???
-                        match = re.search(
-                            r'.*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
-                            log[1])
-                        if match is not None:
-                            login, mac = match.group(1), match.group(2).upper()
-                            add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
-                    prev_log = log
+            prev_log = ["", ""]
+            for log in logs:
+                if "Login OK" in log[1]:
+                    match = re.search(r'.*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*', log[1])
+                    if match is not None:
+                        login, mac = match.group(1), match.group(2).upper()
+                        if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
+                            last_ok_login_mac[mac] = log[0]
+                if "EAP sub-module failed" in prev_log[1] \
+                        and "mschap: MS-CHAP2-Response is incorrect" in log[1] \
+                        and (prev_log[0] - log[0]).total_seconds() < 1:
+                    match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
+                                      prev_log[1])
+                    if match:
+                        login, mac = match.group(1), match.group(2).upper()
+                        if login != member.username:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
+                        else:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
+                if 'rlm_python' in log[1]:
+                    match = re.search(r'.*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)', log[1])
+                    if match is not None:
+                        login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
+                        if 'MAC not found and not association period' in reason:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
+                        if 'Adherent not found' in reason:
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
+                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
+                    # @TODO a read access denied means the user is validating the certificate
+                    # @TODO a read/write protocol version is ???
+                    # @TODO a write unknown CA means the user is validating the certificate
+                    # @TODO a write decryption failed is ???
+                    # @TODO a read internal error is most likely not user-related
+                    # @TODO a write unexpected_message is ???
+                    match = re.search(
+                        r'.*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
+                        log[1])
+                    if match is not None:
+                        login, mac = match.group(1), match.group(2).upper()
+                        add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
+                prev_log = log
 
-                all_statuses = []
-                for mac, statuses in device_to_statuses.items():
-                    for _, object in statuses.items():
-                        if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
-                            continue
-                        all_statuses.append(object)
-                return all_statuses
+            all_statuses = []
+            for mac, statuses in device_to_statuses.items():
+                for _, object in statuses.items():
+                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
+                        continue
+                    all_statuses.append(object)
+            return all_statuses
 
-            except LogFetchError:
-                LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=filter_.username))
-                return []  # We fail open here.
+        except LogFetchError:
+            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
+            return []  # We fail open here.
 
-        return _get_statuses(self, ctx, filter_=member)
 
     @log_call
     def change_password(self, ctx, member_id, password: str, hashed_password):
@@ -559,36 +521,27 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(member_id)
 
-        member = member[0]
+        from binascii import hexlify
+        import hashlib
 
-        @uses_security("password", is_collection=False)
-        def _change_password(cls, ctx, filter_: AbstractMember):
-            from binascii import hexlify
-            import hashlib
+        pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
-            pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
+        self.member_repository.update_password(ctx, member_id, pw)
 
-            self.member_repository.update_password(ctx, member_id, pw)
-
-            return True
-
-        return _change_password(self, ctx, filter_=member)
+        return True
 
     @log_call
     @auto_raise
-    @uses_security("profile", is_collection=False)
     def update_charter(self, ctx, member_id, charter_id: int) -> None:
         self.member_repository.update_charter(ctx, member_id, charter_id)
 
     @log_call
     @auto_raise
-    @uses_security("profile", is_collection=False)
     def get_charter(self, ctx, member_id, charter_id: int) -> str:
         return self.member_repository.get_charter(ctx, member_id, charter_id)
 
     @log_call
     @auto_raise
-    @uses_security("admin", is_collection=False)
     def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, IPv4Address]]:
         member = self.__member_not_found(ctx, member_id)
         if not is_member_active(member):
@@ -622,7 +575,6 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    @uses_security("admin", is_collection=False)
     def reset_member(self, ctx, member_id) -> None:
         member = self.__member_not_found(ctx, member_id)
         self.member_repository.update(ctx, AbstractMember(

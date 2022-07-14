@@ -4,7 +4,7 @@ from typing import Optional
 
 from adh6.constants import CTX_SQL_SESSION, CTX_ADMIN, CTX_TESTING, CTX_REQUEST_ID, CTX_REQUEST_URL, CTX_ROLES
 
-def build_context(ctx: Optional[MappingProxyType]=None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None):
+def build_context(ctx: Optional[MappingProxyType]=None, session=None, admin=None, testing=None, request_id=None, url=None, roles=None) -> MappingProxyType:
     """
     :rtype:
     """
@@ -29,7 +29,7 @@ def build_context(ctx: Optional[MappingProxyType]=None, session=None, admin=None
 def log_extra(context: MappingProxyType, **extra_fields):
     user_login = None
     if (user := context.get(CTX_ADMIN)):
-        user_login = user.login
+        user_login = user
 
     infos = {
         'request_uuid': context.get(CTX_REQUEST_ID),

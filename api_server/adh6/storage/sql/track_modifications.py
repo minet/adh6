@@ -7,11 +7,8 @@ from datetime import datetime
 
 
 from adh6.constants import CTX_ADMIN
-from adh6.storage.sql.models import Adherent, Modification
+from adh6.storage.sql.models import Modification
 from adh6.storage.sql.trackable import RubyHashTrackable
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from adh6.authentication.security import User
 
 
 @contextmanager
@@ -30,8 +27,7 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
             return  # No modification.
 
         now = datetime.now()
-        user: 'User' = ctx.get(CTX_ADMIN)
-        admin: Adherent = session.query(Adherent).filter((Adherent.login == user.login) | (Adherent.ldap_login == user.login)).one_or_none()
+        user = ctx.get(CTX_ADMIN)
         member = obj.get_related_member()
 
         m = Modification(
@@ -39,7 +35,7 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
             action=diff,
             created_at=now,
             updated_at=now,
-            utilisateur_id=admin.id,
+            utilisateur_id=user,
         )
         session.add(m)
 

@@ -14,13 +14,14 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
     if not infos:
         raise OAuthProblem('invalid access token, no info found')
 
+    print(infos)
     role_handler = RoleRepository()
     groups = ['adh6_user']
     if 'attributes' in infos and 'memberOf' in infos['attributes']:
         groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
     return {
-        "uid": infos["id"],
-        "scope": role_handler.get_roles(AuthenticationMethod.OIDC, groups)
+        "uid": role_handler.get_user_id(user_name=infos["id"]),
+        "scope": role_handler.get_roles(method=AuthenticationMethod.OIDC, roles=groups, user_name=infos["id"])
     }
 
 @cache.memoize(300)

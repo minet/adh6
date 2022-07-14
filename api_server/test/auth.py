@@ -3,13 +3,14 @@ from typing import Any, Dict
 from adh6.authentication.security import Roles
 
 TESTING_CLIENT = 'TestingClient'
+TESTING_CLIENT_ID = 28
 SAMPLE_CLIENT = 'SampleMember'
+SAMPLE_CLIENT_ID = 31
 
 def token_info(token) -> Dict[str, Any]:
-    print(token)
     if token == "TEST_TOKEN":
         return {
-            "uid": TESTING_CLIENT,
+            "uid": TESTING_CLIENT_ID,
             "scope": [
                 Roles.ADMIN_READ.value,
                 Roles.ADMIN_WRITE.value,
@@ -25,7 +26,7 @@ def token_info(token) -> Dict[str, Any]:
         }
     else:
         return {
-            "uid": SAMPLE_CLIENT,
+            "uid": SAMPLE_CLIENT_ID,
             "scope": [
                 Roles.USER.value
             ]

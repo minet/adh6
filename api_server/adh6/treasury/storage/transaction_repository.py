@@ -75,7 +75,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         now = datetime.now()
 
-        admin_id = ctx.get(CTX_ADMIN).id
+        admin_id = ctx.get(CTX_ADMIN)
         author_ref = session.query(Adherent).filter(Adherent.id == admin_id).one_or_none()
         if not author_ref:
             raise MemberNotFoundError(abstract_transaction.author)

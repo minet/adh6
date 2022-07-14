@@ -1,10 +1,9 @@
 # coding=utf-8
-from adh6.entity import AbstractDevice, Device, AbstractRoom, AbstractMember
+from adh6.entity import AbstractDevice, AbstractRoom, AbstractMember
 from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import SecurityDefinition, defines_security, is_admin, owns
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
 from adh6.room.interfaces.room_repository import RoomRepository
@@ -13,17 +12,6 @@ from adh6.util.validator import is_mac_address, is_ip_v4, is_ip_v6
 from adh6.member.interfaces.member_repository import MemberRepository
 
 
-@defines_security(SecurityDefinition(
-    item={
-        "read": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
-        "update": owns(Device.member) | owns(AbstractDevice.member) | is_admin(),
-        "delete": owns(AbstractDevice.member) | is_admin(),
-    },
-    collection={
-        "read": owns(AbstractDevice.member) | is_admin(),
-        "create": owns(Device.member) | is_admin()
-    }
-))
 class DeviceManager(CRUDManager):
     """
     Implements all the use cases related to device management.

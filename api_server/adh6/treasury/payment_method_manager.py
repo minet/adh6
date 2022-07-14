@@ -2,7 +2,6 @@
 from adh6.entity.abstract_payment_method import AbstractPaymentMethod
 from adh6.exceptions import PaymentMethodNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.authentication.security import defines_security, SecurityDefinition, Roles, has_any_role
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 
 
