@@ -22,8 +22,17 @@ import adh6
 from adh6.rest import ApiException
 from pprint import pprint
 
+# Configure API key authorization: ApiKeyAuth
+configuration = adh6.Configuration()
+configuration.api_key['X-API-KEY'] = 'YOUR_API_KEY'
+# Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+# configuration.api_key_prefix['X-API-KEY'] = 'Bearer'
+# Configure OAuth2 access token for authorization: OAuth2
+configuration = adh6.Configuration()
+configuration.access_token = 'YOUR_ACCESS_TOKEN'
+
 # create an instance of the API class
-api_instance = adh6.MiscApi()
+api_instance = adh6.MiscApi(adh6.ApiClient(configuration))
 
 try:
     # Retrieve the health of the API server
@@ -41,7 +50,7 @@ void (empty response body)
 
 ### Authorization
 
-No authorization required
+[ApiKeyAuth](../README.md#ApiKeyAuth), [OAuth2](../README.md#OAuth2)
 
 ### HTTP request headers
 
