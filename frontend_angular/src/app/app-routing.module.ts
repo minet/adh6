@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'portail', loadChildren: () => import('./portail/portail.module').then(m => m.PortailModule) },
   { path: 'password/:member_id', loadChildren: () => import('./member-password-edit/member-password-edit.module').then(m => m.MemberPasswordEditModule) },
   { path: 'product', loadChildren: () => import('./product-list/product-list.module').then(m => m.ProductListModule) },
   { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },

@@ -1,76 +1,74 @@
-<div class="box">
-  <div class="field is-horizontal">
-    <div class="field-body">
-      <div class="field is-grouped">
-        <p class="control is-expanded">
-          <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..." class="input"
-            type="text" />
-        </p>
-        <p class="control">
-          <select class="input" (change)="updateTypeFilter($event.target.value)">
-            <option value="">-- Tout type --</option>
-            <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
-          </select>
-        </p>
-        <div class="control">
-          <div class="field has-addons has-addons-centered">
-            <p class="control">
-              <button type="button" class="button is-danger" tooltip="Inactif"
-                [value]="abstractAccountFilter.actif === false"
-                (click)="(abstractAccountFilter.actif) ? undefined : false; updateSearch()">
-                <fa-icon [icon]="faBan"></fa-icon>
-              </button>
-            </p>
-            <p class="control">
-              <button type="button" class="button is-primary" tooltip="Épinglé"
-                [value]="abstractAccountFilter.pinned === true"
-                (click)="(abstractAccountFilter.pinned) ? undefined : true; updateSearch()">
-                <fa-icon [icon]="faThumbtack"></fa-icon>
-              </button>
-            </p>
-            <p class="control">
-              <button type="button" class="button is-primary" tooltip="Sur le compte courant"
-                [value]="abstractAccountFilter.compteCourant === true"
-                (click)="(abstractAccountFilter.compteCourant) ? undefined : true; updateSearch()">
-                CAV
-              </button>
-            </p>
-          </div>
+<div class="field is-horizontal">
+  <div class="field-body">
+    <div class="field is-grouped">
+      <p class="control is-expanded">
+        <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..." class="input"
+          type="text" />
+      </p>
+      <p class="control">
+        <select class="input" (change)="updateTypeFilter($event.target.value)">
+          <option value="">-- Tout type --</option>
+          <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
+        </select>
+      </p>
+      <div class="control">
+        <div class="field has-addons has-addons-centered">
+          <p class="control">
+            <button type="button" class="button is-danger" tooltip="Inactif"
+              [value]="abstractAccountFilter.actif === false"
+              (click)="(abstractAccountFilter.actif) ? undefined : false; updateSearch()">
+              <fa-icon [icon]="faBan"></fa-icon>
+            </button>
+          </p>
+          <p class="control">
+            <button type="button" class="button is-primary" tooltip="Épinglé"
+              [value]="abstractAccountFilter.pinned === true"
+              (click)="(abstractAccountFilter.pinned) ? undefined : true; updateSearch()">
+              <fa-icon [icon]="faThumbtack"></fa-icon>
+            </button>
+          </p>
+          <p class="control">
+            <button type="button" class="button is-primary" tooltip="Sur le compte courant"
+              [value]="abstractAccountFilter.compteCourant === true"
+              (click)="(abstractAccountFilter.compteCourant) ? undefined : true; updateSearch()">
+              CAV
+            </button>
+          </p>
         </div>
-        <p class="control">
-          <a [routerLink]="['/account/add']">
-            <button class="button is-primary">Nouveau compte</button>
-          </a>
-        </p>
       </div>
+      <p class="control">
+        <a [routerLink]="['/account/add']">
+          <button class="button is-primary">Nouveau compte</button>
+        </a>
+      </p>
     </div>
   </div>
-  <table class="table is-hoverable is-striped is-fullwidth is-clickable"
-    *ngIf="result$ | async as result; else loadingTable">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Actif</th>
-        <th>Type</th>
-        <th>Solde</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
-        <td class="align-middle">{{ accountResult.name }}</td>
-        <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
-        <td class="align-middle">{{ getAccountTypeName(accountResult.accountType) | async }}</td>
-        <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
-        <ng-template #noBalance>
-          <td class="align-middle">-</td>
-        </ng-template>
-      </tr>
-    </tbody>
-  </table>
-  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
-  <ng-template #loadingTable>
-    <div class="notification is-info is-light has-text-centered">
-      <h4 class="title is-4">Chargement ...</h4>
-    </div>
-  </ng-template>
 </div>
+<table class="table is-hoverable is-striped is-fullwidth is-clickable"
+  *ngIf="result$ | async as result; else loadingTable">
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Actif</th>
+      <th>Type</th>
+      <th>Solde</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
+      <td class="align-middle">{{ accountResult.name }}</td>
+      <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
+      <td class="align-middle">{{ getAccountTypeName(accountResult.accountType) | async }}</td>
+      <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
+      <ng-template #noBalance>
+        <td class="align-middle">-</td>
+      </ng-template>
+    </tr>
+  </tbody>
+</table>
+<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<ng-template #loadingTable>
+  <div class="notification is-info is-light has-text-centered">
+    <h4 class="title is-4">Chargement ...</h4>
+  </div>
+</ng-template>

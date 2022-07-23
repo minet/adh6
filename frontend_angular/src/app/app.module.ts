@@ -16,6 +16,8 @@ import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { FooterComponent } from './footer/footer.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { VerticalNavbarComponent } from './vertical-navbar/vertical-navbar.component';
+import { PortailComponent } from './portail/portail.component';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'free';
 type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> | InferSubjects<Membership> | "all";
@@ -39,6 +41,8 @@ function load(oAuthService: OAuthService): Configuration {
     NavbarComponent,
     ErrorPageComponent,
     FooterComponent,
+    VerticalNavbarComponent,
+    PortailComponent
   ],
   imports: [
     BrowserModule,
@@ -47,7 +51,7 @@ function load(oAuthService: OAuthService): Configuration {
     HttpClientModule,
     AbilityModule,
     FontAwesomeModule,
-    ApiModule
+    ApiModule,
   ],
   providers: [
     AppComponent,

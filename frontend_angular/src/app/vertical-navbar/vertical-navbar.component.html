@@ -1,0 +1,54 @@
+<div class="p-3">
+  <aside class="menu">
+    <p class="menu-label">
+      General
+    </p>
+    <ul class="menu-list">
+      <li><a [ngClass]="{'is-active': activeFromUrlPath('dashboard')}" [routerLink]="['dashboard']">Mon Compte</a></li>
+    </ul>
+    <p class="menu-label">
+      Administration
+    </p>
+    <ul class="menu-list">
+      <li>
+        Gestion Adhérents
+        <ul>
+          <li><a>Inscriptions</a></li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('member')}" [routerLink]="['member/search']">Adhérents</a>
+          </li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('device')}" [routerLink]="['device/search']">Appareils</a>
+          </li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('room')}" [routerLink]="['room/search']">Chambres</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        Gestion réseau
+        <ul>
+          <li><a [ngClass]="{'is-active': activeFromUrlPath('switch')}"
+              [routerLink]="['switch/search']">Commutateurs</a></li>
+          <li><a [ngClass]="{'is-active': activeFromUrlPath('port')}" [routerLink]="['port/search']">Ports</a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        Authentification
+        <ul>
+          <li><a>Roles</a></li>
+          <li><a>NainA</a></li>
+        </ul>
+      </li>
+    </ul>
+    <p class="menu-label" *ngIf="'manage' | able: 'treasury'">
+      Transactions
+    </p>
+    <ul class="menu-list" *ngIf="'manage' | able: 'treasury'">
+      <li><a [ngClass]="{'is-active': activeFromUrlPath('treasury')}" [routerLink]="['treasury']">Trésorerie</a></li>
+      <li><a [ngClass]="{'is-active': activeFromUrlPath('account')}" [routerLink]="['account/search']">Comptes</a></li>
+      <li><a [ngClass]="{'is-active': activeFromUrlPath('product')}" [routerLink]="['product/search']">Produit</a></li>
+    </ul>
+  </aside>
+</div>

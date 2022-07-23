@@ -1,29 +1,27 @@
-<h2 class="title is-2">Liste des appareils</h2>
-<div class="box">
-  <input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
-    class="input is-fullwidth" type="text" />
-  <table class="table is-hoverable is-fullwidth is-clickable" (click)="isCollapsed = !isCollapsed"
-    *ngIf="result$ | async as result; else loadingTable">
-    <thead>
-      <tr>
-        <th>Utilisateur</th>
-        <th>MAC de l'appareil</th>
-        <th>Type d'appareil</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let device of result" [routerLink]="['../../member/view' , device.member]"
-        [queryParams]="{highlight: device.mac}">
-        <td *ngIf=" getUsername(device.member) | async as username">{{ username }}</td>
-        <td>{{ device.mac }}</td>
-        <td>{{ device.connectionType }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
-  <ng-template #loadingTable>
-    <div class="notification is-info is-light has-text-centered">
-      <h4 class="title is-4">Chargement ...</h4>
-    </div>
-  </ng-template>
-</div>
+<input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)"
+  class="input is-fullwidth" type="text" />
+<br>
+<table class="table is-hoverable is-fullwidth is-clickable" (click)="isCollapsed = !isCollapsed"
+  *ngIf="result$ | async as result; else loadingTable">
+  <thead>
+    <tr>
+      <th>Utilisateur</th>
+      <th>MAC de l'appareil</th>
+      <th>Type d'appareil</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let device of result" [routerLink]="['/member/view' , device.member]"
+      [queryParams]="{highlight: device.mac}">
+      <td *ngIf=" getUsername(device.member) | async as username">{{ username }}</td>
+      <td>{{ device.mac }}</td>
+      <td>{{ device.connectionType }}</td>
+    </tr>
+  </tbody>
+</table>
+<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<ng-template #loadingTable>
+  <div class="notification is-info is-light has-text-centered">
+    <h4 class="title is-4">Chargement ...</h4>
+  </div>
+</ng-template>

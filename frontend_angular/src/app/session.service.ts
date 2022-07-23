@@ -45,7 +45,6 @@ export class SessionService {
     this.oauthService.logOut();
     const { rules } = new AbilityBuilder(Ability);
     this.ability.update(rules);
-    this.router.navigate(['/portail'])
   }
 
   get isAuthenticated(): boolean {
@@ -55,9 +54,6 @@ export class SessionService {
   private refreshResponse(token?: string): void {
     this.configurationAPI.accessToken = (token) ? token : this.oauthService.getAccessToken();
     this.refreshRights();
-    if (window.location.pathname === "/portail") {
-      this.router.navigate(['/dashboard']);
-    }
   }
 
   private refreshUser(): void {
@@ -70,21 +66,14 @@ export class SessionService {
   private refreshRights(): void {
     this.miscService.profile().subscribe(r => {
       const { can, rules } = new AbilityBuilder(Ability);
-      if (r.roles.indexOf("admin") !== -1) {
-        can('manage', 'Member');
-        can('manage', 'Device');
-        can('manage', 'Room');
-        can('manage', 'Port');
-        can('manage', 'Switch');
-        can('manage', 'search');
-        can('manage', 'switch_local');
+      if (r.roles.indexOf("admin:read") !== -1 && r.roles.indexOf("admin:write") !== -1) {
+        can('manage', 'admin');
       }
-      if (r.roles.indexOf('treso') !== -1) {
-        can('manage', 'treasury');
-        can('manage', 'Transaction');
-      }
-      if (r.roles.indexOf('superuser') !== -1) {
+      if (r.roles.indexOf('treasurer:write') !== -1) {
         can('free', 'Membership');
+      }
+      if (r.roles.indexOf('treasurer:read') !== -1 && r.roles.indexOf('treasurer:write') !== -1) {
+        can('manage', 'treasury');
       }
       can('read', 'Member', { id: r.member.id });
       this.ability.update(rules);
