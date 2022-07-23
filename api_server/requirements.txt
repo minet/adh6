@@ -4,11 +4,13 @@
 #
 #    pip-compile requirements.in
 #
-alembic==1.8.0
+alembic==1.8.1
     # via flask-migrate
 attrs==21.4.0
     # via jsonschema
 authlib==1.0.1
+    # via -r requirements.in
+bcrypt==3.2.2
     # via -r requirements.in
 cachelib==0.9.0
     # via flask-caching
@@ -17,7 +19,9 @@ certifi==2022.6.15
     #   elastic-transport
     #   requests
 cffi==1.15.1
-    # via cryptography
+    # via
+    #   bcrypt
+    #   cryptography
 charset-normalizer==2.1.0
     # via requests
 click==8.1.3

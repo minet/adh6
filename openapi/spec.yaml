@@ -29,7 +29,11 @@ paths:
           description: ADH6 is alive!
         503:
           description: Database is down.
-      security: []
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - misc
   /profile:
@@ -2282,6 +2286,176 @@ paths:
           - treasurer:read
       tags:
       - treasury
+  /role/:
+    get:
+      parameters:
+      - description: Filters by various properties
+        in: query
+        name: filter
+        schema:
+          $ref: '#/components/schemas/RoleMapping'
+        style: deepObject
+        explode: true
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Role'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter roles
+      security: 
+        - OAuth2:
+          - admin:read
+          - admin:prod
+      tags:
+      - authentication
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+                login:
+                  description: Login of the user that need the role
+                  type: string
+                  example: jenkins
+        description: The role to create
+        required: true
+      responses:
+        201:
+          description: OK
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create a temporary role for a user
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
+  /api_keys/:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - description: The login of the user
+        in: query
+        name: login
+        required: false
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ApiKey'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List api keys
+      security: 
+        - OAuth2:
+          - admin:read
+          - admin:prod
+      tags:
+      - authentication
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - roles
+              properties:
+                login:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Role'
+        description: The room to create
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+          description: The value of the Api Key
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create an ApiKey
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
+  /api_keys/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    delete:
+      responses:
+        204:
+          description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Delete an Api Key
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
 components:
   parameters:
     limit:
@@ -3033,6 +3207,52 @@ components:
           description: The friendly description of the error
           type: string
           example: Not found
+    ApiKey:
+      type: object
+      required:
+        - id
+        - login
+      properties:
+        id:
+          description: The unique identifier of this api key
+          type: integer
+          example: 0
+          readOnly: true
+        login:
+          description: The login of the user link to the api key
+          type: string
+          example: "jenkins"
+          nullable: false
+    RoleMapping:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        authentication:
+          type: string
+          enum:
+            - oidc
+            - api_key
+            - user
+        identifier:
+          description: The login of the user link to the api key
+          type: string
+          example: "jenkins"
+          nullable: false
+    Role:
+      type: string
+      enum:
+        - user
+        - admin:read
+        - admin:write
+        - admin:prod
+        - treasurer:read
+        - treasurer:write
+        - network:read
+        - network:write
+        - network:write:prod
+        - network:write:dev
+        - network:write:hosting
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -3051,6 +3271,7 @@ security:
     - user
     - admin:read
     - admin:write
+    - admin:prod
     - treasurer:read
     - treasurer:write
     - network:read

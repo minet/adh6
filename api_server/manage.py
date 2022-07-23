@@ -4,13 +4,15 @@ import uuid
 from datetime import date, datetime
 from typing import List
 from sqlalchemy.orm import Session
+from adh6.authentication import AuthenticationMethod
 from adh6.server import init
 from faker import Faker
 
 import ipaddress
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
-from adh6.storage.sql.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
+from adh6.storage.sql.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app
@@ -243,6 +245,26 @@ def seed():
             chambre_id=i
         ) for i in range(1, 30)
     ])
+    print("Seeding role mapping for oidc")
+    session.bulk_save_objects(
+        [
+            AuthenticationRoleMapping(
+                identifier="adh6_admin",
+                role=i,
+                authentication=AuthenticationMethod.OIDC
+            ) for i in [Roles.ADMIN_READ, Roles.ADMIN_WRITE, Roles.NETWORK_READ, Roles.NETWORK_WRITE]
+        ] 
+    )
+
+    session.bulk_save_objects(
+        [
+            AuthenticationRoleMapping(
+                identifier="adh6_treso",
+                role=i,
+                authentication=AuthenticationMethod.OIDC
+            ) for i in [Roles.TRESO_READ, Roles.TRESO_WRITE]
+        ] 
+    )
 
     session.commit()
 

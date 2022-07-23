@@ -17,7 +17,7 @@ from adh6.entity import (
     Vlan
 )
 from adh6.authentication.security import Roles
-from test.auth import TESTING_CLIENT
+from test import TESTING_CLIENT
 from adh6.util.context import build_context
 
 @fixture(autouse=True)

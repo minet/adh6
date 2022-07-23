@@ -6,7 +6,7 @@ import pytest
 from adh6.storage.sql.models import Chambre, db
 from adh6.storage.sql.models import Adherent
 from test.integration.resource import (
-    base_url, TEST_HEADERS, assert_modification_was_created)
+    TEST_HEADERS_SAMPLE, base_url, TEST_HEADERS, assert_modification_was_created)
 from test.integration.context import tomorrow
 
 
@@ -194,6 +194,15 @@ def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 1
 
+
+def test_member_filter_unauthorized(client):
+    r = client.get(
+        f'{base_url}/member/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 @pytest.mark.parametrize(
     'sample_only', 
     [
@@ -241,6 +250,14 @@ def test_member_get_nonexistant(client):
     assert r.status_code == 404
 
 
+def test_member_get_unauthorized(client):
+    r = client.get(
+        f'{base_url}/member/{4242}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 def test_member_delete_existant(client, sample_member):
     r = client.delete(
         '{}/member/{}'.format(base_url, sample_member.id),
@@ -261,6 +278,14 @@ def test_member_delete_non_existant(client):
         headers=TEST_HEADERS
     )
     assert r.status_code == 404
+
+
+def test_member_delete_unauthorized(client):
+    r = client.delete(
+        f'{base_url}/member/{4242}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
 
 
 def test_member_post_member_create_invalid_email(client):
@@ -322,9 +347,29 @@ def test_member_post_member_create(client, sample_room1):
 
     assert_member_in_db(body)
 
+
+def test_member_post_unauthorized(client):
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "comment": "comment",
+        "departureDate": "2000-01-23T04:56:07.000+00:00",
+        "email": "john.doe@gmail.com",
+        "username": "doe_john"
+    }
+    r = client.post(
+        f'{base_url}/member/',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 @pytest.fixture
 def sample_room_id(sample_room2: Chambre):
     return sample_room2.numero
+
 
 @pytest.mark.parametrize(
     'key, value',
@@ -386,12 +431,7 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
     )
     assert res.status_code == 400
 
-@pytest.mark.parametrize(
-    'value',
-    [
-        -1, -2, -5, 256, 257
-    ]
-)
+@pytest.mark.parametrize('value', [-1, -2, -5, 256, 257])
 def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: int):
     body = {
         "mailinglist": value,
@@ -403,6 +443,15 @@ def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: in
         headers=TEST_HEADERS
     )
     assert res.status_code == 400
+
+
+def test_member_patch_unauthorized(client):
+    r = client.patch(
+        f'{base_url}/member/{4242}',
+        data=json.dumps({}),
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
 
 
 def test_member_put_member_update(client, sample_member, sample_room1):
@@ -446,6 +495,15 @@ def test_member_put_member_membership_pending(client, sample_member2: Adherent, 
     assert res.status_code == 400
 
 
+def test_member_put_unauthorized(client):
+    r = client.put(
+        f'{base_url}/member/{4242}',
+        data=json.dumps({}),
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 def test_member_get_logs(client, sample_member):
     body = {
         "dhcp": False,
@@ -458,3 +516,31 @@ def test_member_get_logs(client, sample_member):
     )
     assert result.status_code == 200
     assert json.loads(result.data.decode('utf-8')) == ["1 test_log"]
+
+
+def test_member_get_logs_unauthorized(client):
+    r = client.get(
+        f'{base_url}/member/{4242}/logs/',
+        data=json.dumps({}),
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize('headers', [TEST_HEADERS, TEST_HEADERS_SAMPLE])
+def test_member_get_statuses(client, sample_member, headers):
+    result = client.get(
+        f'{base_url}/member/{sample_member.id}/statuses/',
+        content_type='application/json',
+        headers=headers,
+    )
+    print(result.text)
+    assert result.status_code == 200
+
+
+def test_member_get_statuses_unauthorized(client):
+    r = client.get(
+        f'{base_url}/member/{4242}/statuses/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

@@ -2,8 +2,9 @@
 import typing as t
 from connexion.decorators.produces import NoContent
 from adh6.authentication import Roles
+from adh6.authentication.security import with_security
 from adh6.constants import CTX_ADMIN, CTX_ROLES
-from adh6.default.util.serializer import serialize_response
+from adh6.default.util.serializer import deserialize_request, serialize_response
 from adh6.entity import AbstractDevice, Device
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
@@ -63,6 +64,20 @@ class DeviceHandler(DefaultHandler):
                             del entity[k]
                 return entity
             return remove(serialize_response(device)), 200
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_security()
+    def _update(self, ctx, function, klass, body, id: t.Union[int, None] = None):
+        try:
+            if id:
+                device = self.main_manager.get_by_id(ctx, id=id)
+                if ctx.get(CTX_ADMIN) != device.member and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
+                    raise UnauthorizedError("Unauthorize to access this resource")
+            body['id'] = 0  # Set a dummy id to pass the initial validation
+            to_update = deserialize_request(body, klass)
+            the_object, created = function(ctx, to_update, id=id)
+            return serialize_response(the_object), 201 if created else 204
         except Exception as e:
             return handle_error(ctx, e)
 

@@ -2,7 +2,7 @@ import datetime
 import json
 import pytest
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url
 
 from adh6.storage.sql.models import AccountType, Account, Adherent
 
@@ -54,11 +54,10 @@ def client(sample_member, sample_room1, sample_account1, sample_account2):
         yield c
         close_db()
 
-
 def test_account_filter_all_with_invalid_limit(client):
     r = client.get(
-        '{}/account/?limit={}'.format(base_url, -1),
-        headers=TEST_HEADERS_API_KEY_ADMIN,
+        f'{base_url}/account/?limit={-1}',
+        headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
@@ -162,3 +161,11 @@ def test_account_filter_by_member(client, sample_account1: Account):
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert len(result) == 1
+
+
+def test_account_filter_no_authorize(client):
+    r = client.get(
+        f"{base_url}/account/",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

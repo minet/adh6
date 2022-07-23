@@ -7,7 +7,11 @@ from adh6.device.storage.device_repository import DeviceType
 from adh6.storage.sql.models import Adherent, db, Device
 from .resource import (
     TEST_HEADERS_SAMPLE, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
-    assert_modification_was_created)
+    assert_modification_was_created,
+)
+from test import (
+    SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
+)
 
 
 @pytest.fixture
@@ -86,7 +90,7 @@ def test_device_filter_all_devices(client):
         ("member"),
         ("ipv4Address,ipv6Address"),
     ])
-def test_device_search_with_only(client, sample_only: str):
+def test_device_filter_with_only(client, sample_only: str):
     r = client.get(
         f'{base_url}/device/?only={sample_only}',
         headers=TEST_HEADERS,
@@ -97,7 +101,7 @@ def test_device_search_with_only(client, sample_only: str):
     assert len(response) == 4
     assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
 
-def test_device_search_with_unknown_only(client):
+def test_device_filter_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
         f'{base_url}/device/?only={sample_only}',
@@ -201,6 +205,14 @@ def test_device_filter_by_connection_type(client, device: Device):
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 1 if device.type == DeviceType.wireless.value else 3
 
+
+def test_device_filter_unauthorized(client):
+    r = client.get(
+        f'{base_url}/device/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
 @pytest.mark.parametrize(
     'device_to_add',
     [lazy_fixture('wireless_device_dict'), lazy_fixture('wired_device_dict')]
@@ -277,6 +289,18 @@ def test_device_post_create_invalid(client, key, value, wired_device_dict, statu
     )
     assert r.status_code == status_code
 
+
+def test_device_post_create_unauthorized(client, wired_device_dict):
+    wired_device_dict["member"] = 4242
+    r = client.post(
+        f'{base_url}/device/',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 @pytest.mark.parametrize(
     'device_to_patch',
     [lazy_fixture('wireless_device'), lazy_fixture('wired_device')]
@@ -295,6 +319,36 @@ def test_device_patch(client, device_to_patch: Device, value):
     assert r.status_code == 204
     assert_modification_was_created(db.session())
 
+
+def test_device_patch_unauthorized_not_owner(client, wired_device: Device, wired_device_dict):
+    wired_device_dict["member"] = TESTING_CLIENT_ID
+    r = client.patch(
+        f'{base_url}/device/{wired_device.id}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    wired_device_dict["member"] = SAMPLE_CLIENT_ID
+    r = client.patch(
+        f'{base_url}/device/{wired_device.id}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+def test_device_patch_unauthorized(client, wired_device: Device, wired_device_dict):
+    wired_device_dict["member"] = 4242
+    r = client.patch(
+        f'{base_url}/device/{wired_device.id}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
 @pytest.mark.parametrize(
     'device, status_code',
     [
@@ -311,6 +365,22 @@ def test_device_get_valid(client, device, status_code):
     assert r.status_code == status_code
     if status_code != 403:
         assert json.loads(r.data.decode('utf-8'))
+
+
+def test_device_get_unauthorized(client, wired_device: Device, wired_device_dict):
+    wired_device_dict["member"] = TESTING_CLIENT_ID
+    r = client.patch(
+        f'{base_url}/device/{wired_device.id}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    r = client.get(
+        f'{base_url}/device/{wired_device.id}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
 
 @pytest.mark.parametrize(
     'device, status_code',
@@ -334,3 +404,18 @@ def test_device_delete(client, device: Device, status_code: int):
         q = q.filter(Device.type == "wired")
         q = q.filter(Device.mac == device.mac)
         assert not s.query(q.exists()).scalar(), "Object not actually deleted"
+
+
+def test_device_delete_unauthorized(client, wired_device: Device, wired_device_dict):
+    wired_device_dict["member"] = TESTING_CLIENT_ID
+    r = client.patch(
+        f'{base_url}/device/{wired_device.id}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    r = client.delete(
+        f'{base_url}/device/{wired_device.id}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

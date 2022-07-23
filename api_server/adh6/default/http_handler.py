@@ -60,18 +60,18 @@ class DefaultHandler:
     @with_security()
     @log_call
     def post(self, ctx, body):
-        return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body)
+        return self._update(ctx=ctx, function=self.main_manager.update_or_create, klass=self.entity_class, body=body)
 
     @with_context
     @with_security()
     @log_call
     def put(self, ctx, body, id_: int):
-        return _update(ctx, self.main_manager.update_or_create, self.entity_class, body=body, id=id_)
+        return self._update(ctx=ctx, function=self.main_manager.update_or_create, klass=self.entity_class, body=body, id=id_)
 
     @with_context
     @with_security()
     def patch(self, ctx, body, id_: int):
-        return _update(ctx, self.main_manager.partially_update, self.abstract_entity_class, body=body, id=id_)
+        return self._update(ctx=ctx, function=self.main_manager.partially_update, klass=self.abstract_entity_class, body=body, id=id_)
 
     @with_context
     @log_call
@@ -82,11 +82,11 @@ class DefaultHandler:
         except Exception as e:
             return handle_error(ctx, e)
 
-def _update(ctx, function, klass, body, id: Optional[int] = None):
-    try:
-        body['id'] = 0  # Set a dummy id to pass the initial validation
-        to_update = deserialize_request(body, klass)
-        the_object, created = function(ctx, to_update, id=id)
-        return serialize_response(the_object), 201 if created else 204
-    except Exception as e:
-        return handle_error(ctx, e)
+    def _update(self, ctx, function, klass, body, id: Optional[int] = None):
+        try:
+            body['id'] = 0  # Set a dummy id to pass the initial validation
+            to_update = deserialize_request(body, klass)
+            the_object, created = function(ctx, to_update, id=id)
+            return serialize_response(the_object), 201 if created else 204
+        except Exception as e:
+            return handle_error(ctx, e)

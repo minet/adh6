@@ -1,12 +1,13 @@
 from datetime import datetime
 from uuid import uuid4
+import uuid
 from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
-from test.integration.resource import TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER
-from test.auth import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE
+from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
     Account,
     Membership,
@@ -15,12 +16,26 @@ from adh6.storage.sql.models import (
 )
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow
+from hashlib import sha512
+
+m = sha512()
 
 def prep_db(*args):
     from adh6.storage.sql.models import db as _db
     _db.create_all()
     session = _db.session()
     session.add(sample_member_admin())
+    session.add_all(
+        [
+            oidc_admin_prod_role(),
+            oidc_admin_read_role(),
+            oidc_admin_write_role(),
+            oidc_network_read_role(),
+            oidc_network_write_role(),
+            oidc_treasurer_read_role(),
+            oidc_treasurer_write_role()
+        ]
+    )
     session.add_all(args)
     session.add_all(
         [
@@ -30,25 +45,6 @@ def prep_db(*args):
             api_key_admin_roles(),
         ]
     )
-    """
-            api_key_network(), 
-            api_key_network_dev(), 
-            api_key_network_prod(), 
-            api_key_network_hosting(), 
-            api_key_treso(), 
-            api_key_user()
-        ] +
-        [
-            api_key_admin_roles(), 
-            api_key_network_roles(), 
-            api_key_network_dev_roles(), 
-            api_key_network_prod_roles(), 
-            api_key_network_hosting_roles(), 
-            api_key_treso_roles(), 
-            api_key_user_roles()
-        ]
-    )
-    """
     session.commit()
 
 def close_db():
@@ -85,6 +81,40 @@ def client(sample_member, sample_member2, sample_member13,
         )
         yield c
         close_db()
+
+
+class MockRequestsResponse:
+    token: str
+    status_code = 200
+    def json(self):
+        response = {
+            'id': '',
+            'attributes': {
+                'memberOf': [] 
+            }
+        }
+        if self.token == TEST_HEADERS["Authorization"]:
+            response['id'] = TESTING_CLIENT
+            response['attributes']['memberOf'] = [
+                "cn=admin,ou=groups,dc=minet,dc=net",
+                "cn=treasurer,ou=groups,dc=minet,dc=net",
+                "cn=network,ou=groups,dc=minet,dc=net",
+                "cn=production,ou=groups,dc=minet,dc=net",
+            ]
+        else: 
+            response['id'] = SAMPLE_CLIENT
+        return response
+
+
+@pytest.fixture(autouse=True)
+def mock_oidc_authentication(monkeypatch):
+    from adh6.authentication import requests
+    """Mock the response for our cas"""
+    def mock_get(*args, **kwargs):
+        r = MockRequestsResponse()
+        r.token = kwargs.get("headers", {}).get("Authorization", "")
+        return r
+    monkeypatch.setattr(requests, "get", mock_get, raising=False)
 
 
 @pytest.fixture
@@ -240,109 +270,91 @@ def sample_member_admin():
 
 def api_key_user():
     return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
+        id=1,
+        user_login=TESTING_CLIENT,
+        value=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
     )
 
 
 def api_key_user_roles():
     return AuthenticationRoleMapping(
         authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
+        identifier=str(api_key_user().id),
         role=Roles.USER
     )
 
 
 def api_key_admin():
     return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+        id=2,
+        user_login=TESTING_CLIENT,
+        value=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+    )
+
+
+def oidc_admin_prod_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="production",
+        role=Roles.ADMIN_PROD
     )
 
 
 def api_key_admin_roles():
     return AuthenticationRoleMapping(
         authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+        identifier=str(api_key_admin().id),
         role=Roles.ADMIN_READ
     )
 
 
-"""
-def api_key_network():
-    return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_NETWORK["X-API-KEY"],
-    )
-
-
-def api_key_network_roles():
+def oidc_admin_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_NETWORK["X-API-KEY"],
-        role=Roles.NETWORK    
+        authentication=AuthenticationMethod.OIDC,
+        identifier="admin",
+        role=Roles.ADMIN_READ
     )
 
 
-def api_key_network_dev():
-    return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"],
-    )
-
-
-def api_key_network_dev_roles():
+def oidc_admin_write_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"],
-        role=Roles.VLAN_DEV
+        authentication=AuthenticationMethod.OIDC,
+        identifier="admin",
+        role=Roles.ADMIN_WRITE
     )
 
 
-def api_key_network_prod():
-    return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"],
-    )
-
-
-def api_key_network_prod_roles():
+def oidc_treasurer_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"],
-        role=Roles.VLAN_PROD
+        authentication=AuthenticationMethod.OIDC,
+        identifier="treasurer",
+        role=Roles.TRESO_READ
     )
 
 
-def api_key_network_hosting():
-    return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"],
-    )
-
-
-def api_key_network_hosting_roles():
+def oidc_treasurer_write_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"],
-        role=Roles.VLAN_HOSTING
+        authentication=AuthenticationMethod.OIDC,
+        identifier="treasurer",
+        role=Roles.TRESO_WRITE
     )
 
 
-def api_key_treso():
-    return ApiKey(
-        name=TESTING_CLIENT,
-        uuid=TEST_HEADERS_API_KEY_TRESO["X-API-KEY"],
-    )
-
-
-def api_key_treso_roles():
+def oidc_network_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        name=TEST_HEADERS_API_KEY_TRESO["X-API-KEY"],
-        role=Roles.TRESO
+        authentication=AuthenticationMethod.OIDC,
+        identifier="network",
+        role=Roles.NETWORK_READ
     )
-"""
+
+
+def oidc_network_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="network",
+        role=Roles.NETWORK_WRITE
+    )
+
 
 @pytest.fixture
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, sample_payment_method: PaymentMethod):

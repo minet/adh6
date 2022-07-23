@@ -1,34 +1,47 @@
-from typing import List
+from typing import List, Tuple, Union
 
-from sqlalchemy import select
-from sqlalchemy.sql import Select
+from sqlalchemy import select, insert
+from sqlalchemy.sql import Select, Insert
 from adh6.authentication import AuthenticationMethod, Roles
-from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
-from adh6.authentication.interfaces.role_repository import RoleRepository
+from adh6.authentication.storage.models import AuthenticationRoleMapping
+from adh6.entity import RoleMapping
+from adh6.authentication.interfaces import RoleRepository
 from adh6.storage import db
 from adh6.storage.sql.models import Adherent
 
 
 class RoleSQLRepository(RoleRepository):
-    def get_roles(self, user_name: str, method: AuthenticationMethod = AuthenticationMethod.NONE, roles: List[str] = []) -> List[Roles]:
-        if method == AuthenticationMethod.NONE or not roles:
-            return []
-        smt: Select = select(AuthenticationRoleMapping.role).where(AuthenticationRoleMapping.name.in_(roles))
-        all_roles = [i[0] for i in db.session().execute(smt).all()]
-        smt = select(Adherent.is_naina).where((Adherent.login == user_name) | (Adherent.ldap_login == user_name))
-        is_naina = db.session().execute(smt).scalar()
-        if is_naina:
-            if Roles.ADMIN_READ not in all_roles:
-                all_roles.append(Roles.ADMIN_READ)
-            if Roles.ADMIN_WRITE not in all_roles:
-                all_roles.append(Roles.ADMIN_WRITE)
-        return [i.value for i in all_roles]
+    def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
+        all_roles: List[AuthenticationRoleMapping] = []
+        smt: Select = select(AuthenticationRoleMapping)
+        if method == AuthenticationMethod.OIDC and identifiers is not None and len(identifiers) == 1:
+            pass
+        if method is not None: 
+            smt = smt.where(AuthenticationRoleMapping.authentication == method)
+        if identifiers is not None:
+            smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
+        if roles is not None:
+            smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
+        all_roles.extend(db.session().execute(smt).all())
+        return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
-    def get_api_key_user(self, api_key: str) -> str:
-        smt: Select = select(ApiKey.name).where(ApiKey.uuid == api_key)
-        return db.session().execute(smt).scalar()
+    def create(self, method: AuthenticationMethod, identifier: str, role: Roles) -> None:
+        smt: Insert = insert(AuthenticationRoleMapping).values(
+            role=role,
+            identifier=identifier,
+            authentication=method
+        )
+        db.session().execute(smt)
 
-    def get_user_id(self, user_name: str) -> int:
-        smt = select(Adherent.id).where((Adherent.login == user_name) | (Adherent.ldap_login == user_name))
-        return db.session().execute(smt).scalar()
-        
+    def delete(self, method: AuthenticationMethod, identifier: str) -> None:
+        pass
+
+    def user_id_from_username(self, login: str) -> int:
+        return db.session.execute(select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))).scalar()
+    
+    def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
+        return RoleMapping(
+            identifier=role.identifier,
+            role=role.role.value,
+            authentication=role.authentication.value
+        )

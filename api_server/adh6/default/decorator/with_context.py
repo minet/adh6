@@ -52,6 +52,8 @@ def with_context(f, session_handler = None):
         try:
             result = f(*args, **kwargs)
 
+            print(result)
+
             # It makes things clearer and less error-prone.
             if not isinstance(result, tuple) or len(result) <= 1:
                 raise ValueError("Please always pass the result AND the HTTP code.")

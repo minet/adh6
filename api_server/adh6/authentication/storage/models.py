@@ -1,16 +1,18 @@
-from sqlalchemy import Column, String, Integer, Enum
+from sqlalchemy import Column, String, Enum, Integer
 
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.storage import db
 
 
 class ApiKey(db.Model):
-    uuid = Column(String(36), primary_key=True)
-    name = Column(String(255), nullable=False)
+    __tablename__ = "api_keys"
+    id = Column(Integer, primary_key=True)
+    value = Column(String(128), nullable=False)
+    user_login = Column(String(255), nullable=False)
 
 
 class AuthenticationRoleMapping(db.Model):
-    id = Column(Integer, primary_key=True)
-    authentication = Column(Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False)
-    name = Column(String(255), nullable=False)
-    role = Column(Enum(Roles), default=Roles.USER, nullable=False)
+    __tablename__ = "role_mappings"
+    authentication = Column(Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False, primary_key=True)
+    identifier = Column(String(255), nullable=False, primary_key=True)
+    role = Column(Enum(Roles), default=Roles.USER, nullable=False, primary_key=True)
