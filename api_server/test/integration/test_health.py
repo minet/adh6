@@ -1,13 +1,25 @@
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url
 
 
-def test_good_health():
-    from .context import app
-    if app.app is None:
-        return
-    with app.app.test_client() as c:
-        r = c.get(
-            f'{base_url}/health',
-            headers=TEST_HEADERS,
-        )
-        assert r.status_code == 200
+def test_good_health(client):
+    r = client.get(
+        f'{base_url}/health',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+
+def test_good_health_api_key(client):
+    r = client.get(
+        f'{base_url}/health',
+        headers=TEST_HEADERS_API_KEY_ADMIN,
+    )
+    assert r.status_code == 200
+
+
+def test_good_health_unauthorized(client):
+    r = client.get(
+        f'{base_url}/health',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

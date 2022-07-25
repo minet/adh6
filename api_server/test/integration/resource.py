@@ -3,8 +3,10 @@ import uuid
 
 from adh6.storage.sql.models import Modification
 
+from test import TESTING_CLIENT_TOKEN, SAMPLE_CLIENT_TOKEN
+
 base_url = "api"
-api_key = str(uuid.uuid4())
+api_key_admin = str(uuid.uuid4())
 device_cazal = {
     'mac': 'FF-FF-FF-FF-FF-FF',
     'ipAddress': '127.0.0.1',
@@ -51,17 +53,16 @@ INVALID_MAC = [
     42,  # Wrong type
 ]
 
-TEST_HEADERS = {"Authorization": "Bearer TEST_TOKEN"}
-TEST_HEADERS_SAMPLE = {"Authorization": "Bearer TEST_TOKEN_SAMPLE"}
-TEST_HEADERS_SAMPLE2 = {"Authorization": "Bearer TEST_TOKEN_SAMPLE2"}
-TEST_HEADERS_API_KEY = {"X-API-KEY": api_key}
-
-TEST_HEADERS_LIST = [
-    TEST_HEADERS,
-    TEST_HEADERS_SAMPLE,
-    TEST_HEADERS_SAMPLE2,
-    TEST_HEADERS_API_KEY
-]
+TEST_HEADERS = {"Authorization": f"Bearer {TESTING_CLIENT_TOKEN}"}
+TEST_HEADERS_SAMPLE = {"Authorization": f"Bearer {SAMPLE_CLIENT_TOKEN}"}
+TEST_HEADERS_API_KEY_USER = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY_ADMIN = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY = TEST_HEADERS_API_KEY_ADMIN
+TEST_HEADERS_API_KEY_TRESO = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY_NETWORK = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY_NETWORK_DEV = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY_NETWORK_PROD = {"X-API-KEY": str(uuid.uuid4())}
+TEST_HEADERS_API_KEY_NETWORK_HOSTING = {"X-API-KEY": str(uuid.uuid4())}
 
 INVALID_TRANSACTION_VALUE = [
     "",

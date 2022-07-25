@@ -1,5 +1,6 @@
 import os
 import connexion
+from connexion.decorators.uri_parsing import functools
 import pinject
 import abc
 
@@ -15,6 +16,8 @@ from adh6.network.http.port import PortHandler
 from adh6.subnet.http.vlan import VLANHandler
 from adh6.room.http.room import RoomHandler
 from adh6.network.http.switch import SwitchHandler
+from adh6.authentication.http.api_key import ApiKeyHandler
+from adh6.authentication.http.role import RoleHandler
 
 from adh6.storage import cache, db
 
@@ -34,7 +37,9 @@ handlers = [
     DeviceHandler,
     PortHandler,
     TreasuryHandler,
-    VLANHandler
+    VLANHandler,
+    ApiKeyHandler,
+    RoleHandler
 ]
 
 from adh6.treasury.account_manager import AccountManager
@@ -51,6 +56,8 @@ from adh6.network.port_manager import PortManager
 from adh6.room.room_manager import RoomManager
 from adh6.network.switch_manager import SwitchManager
 from adh6.subnet.vlan_manager import VlanManager
+from adh6.authentication.api_keys_manager import ApiKeyManager
+from adh6.authentication.role_manager import RoleManager
 
 managers = [
     DeviceManager,
@@ -65,7 +72,9 @@ managers = [
     RoomManager,
     PortManager,
     SwitchManager,
-    VlanManager
+    VlanManager,
+    ApiKeyManager,
+    RoleManager,
 ]
 
 from adh6.treasury.storage import (
@@ -83,6 +92,10 @@ from adh6.member.storage import (
 from adh6.device.storage import (
     DeviceSQLRepository,
     IPSQLAllocator
+)
+from adh6.authentication.storage import (
+    RoleSQLRepository,
+    ApiKeySQLRepository
 )
 from adh6.metrics.storage.ping_repository import PingSQLRepository
 from adh6.metrics.storage.ping_repository import PingSQLRepository
@@ -110,7 +123,8 @@ def get_obj_graph():
         [MemberSQLRepository, MembershipSQLRepository] + \
         [DeviceSQLRepository, IPSQLAllocator] + \
         [PingSQLRepository, VLANSQLRepository, RoomSQLRepository] + \
-        [PortSQLRepository, SwitchSQLRepository]
+        [PortSQLRepository, SwitchSQLRepository] + \
+        [RoleSQLRepository, ApiKeySQLRepository]
 
     _base_interfaces = [
         abc.ABC,
@@ -147,8 +161,8 @@ def init() -> FlaskApp:
         raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development, testing")
 
     # Connexion will use this function to authenticate and fetch the information of the user.
-    os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'adh6.authentication.auth.token_info')
-    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.auth.apikey_auth')
+    os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'adh6.authentication.token_info')
+    os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.apikey_auth')
 
     # Initialize the application
     app = connexion.App(__name__, specification_dir='../openapi')
@@ -161,24 +175,29 @@ def init() -> FlaskApp:
 
     app.app.app_context().push()
     obj_graph = get_obj_graph()
+
     app.add_api(
         'swagger.yaml',
-        resolver=ADHResolver({
-            'health': obj_graph.provide(HealthHandler),
-            'profile': obj_graph.provide(ProfileHandler),
-            'transaction': obj_graph.provide(TransactionHandler),
-            'member': obj_graph.provide(MemberHandler),
-            'device': obj_graph.provide(DeviceHandler),
-            'room': obj_graph.provide(RoomHandler),
-            'switch': obj_graph.provide(SwitchHandler),
-            'port': obj_graph.provide(PortHandler),
-            'account_type': obj_graph.provide(AccountTypeHandler),
-            'payment_method': obj_graph.provide(PaymentMethodHandler),
-            'account': obj_graph.provide(AccountHandler),
-            'product': obj_graph.provide(ProductHandler),
-            'treasury': obj_graph.provide(TreasuryHandler),
-            'vlan': obj_graph.provide(VLANHandler)
-        }),
+        resolver=ADHResolver(
+            {
+                'health': obj_graph.provide(HealthHandler),
+                'profile': obj_graph.provide(ProfileHandler),
+                'transaction': obj_graph.provide(TransactionHandler),
+                'member': obj_graph.provide(MemberHandler),
+                'device': obj_graph.provide(DeviceHandler),
+                'room': obj_graph.provide(RoomHandler),
+                'switch': obj_graph.provide(SwitchHandler),
+                'port': obj_graph.provide(PortHandler),
+                'account_type': obj_graph.provide(AccountTypeHandler),
+                'payment_method': obj_graph.provide(PaymentMethodHandler),
+                'account': obj_graph.provide(AccountHandler),
+                'product': obj_graph.provide(ProductHandler),
+                'treasury': obj_graph.provide(TreasuryHandler),
+                'vlan': obj_graph.provide(VLANHandler),
+                'role': obj_graph.provide(RoleHandler),
+                'api_keys': obj_graph.provide(ApiKeyHandler)
+            }
+        ),
         validate_responses=True,
         strict_validation=True,
         pythonic_params=True,

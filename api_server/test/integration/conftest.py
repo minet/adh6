@@ -1,27 +1,50 @@
 from datetime import datetime
 from uuid import uuid4
+import uuid
+from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
-from test.integration.resource import api_key
-from test.auth import SAMPLE_CLIENT, SAMPLE_CLIENT2, TESTING_CLIENT
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE
+from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
     Account,
-    ApiKey,
     Membership,
     AccountType, Adherent, Chambre,
     PaymentMethod, Vlan, Device, Switch, Port
 )
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow
+from hashlib import sha512
+
+m = sha512()
 
 def prep_db(*args):
     from adh6.storage.sql.models import db as _db
     _db.create_all()
     session = _db.session()
-    session.add_all(args)
     session.add(sample_member_admin())
-    session.add(sample_api_key())
+    session.add_all(
+        [
+            oidc_admin_prod_role(),
+            oidc_admin_read_role(),
+            oidc_admin_write_role(),
+            oidc_network_read_role(),
+            oidc_network_write_role(),
+            oidc_treasurer_read_role(),
+            oidc_treasurer_write_role()
+        ]
+    )
+    session.add_all(args)
+    session.add_all(
+        [
+            api_key_admin(),
+        ] + 
+        [
+            api_key_admin_roles(),
+        ]
+    )
     session.commit()
 
 def close_db():
@@ -58,6 +81,40 @@ def client(sample_member, sample_member2, sample_member13,
         )
         yield c
         close_db()
+
+
+class MockRequestsResponse:
+    token: str
+    status_code = 200
+    def json(self):
+        response = {
+            'id': '',
+            'attributes': {
+                'memberOf': [] 
+            }
+        }
+        if self.token == TEST_HEADERS["Authorization"]:
+            response['id'] = TESTING_CLIENT
+            response['attributes']['memberOf'] = [
+                "cn=admin,ou=groups,dc=minet,dc=net",
+                "cn=treasurer,ou=groups,dc=minet,dc=net",
+                "cn=network,ou=groups,dc=minet,dc=net",
+                "cn=production,ou=groups,dc=minet,dc=net",
+            ]
+        else: 
+            response['id'] = SAMPLE_CLIENT
+        return response
+
+
+@pytest.fixture(autouse=True)
+def mock_oidc_authentication(monkeypatch):
+    from adh6.authentication import requests
+    """Mock the response for our cas"""
+    def mock_get(*args, **kwargs):
+        r = MockRequestsResponse()
+        r.token = kwargs.get("headers", {}).get("Authorization", "")
+        return r
+    monkeypatch.setattr(requests, "get", mock_get, raising=False)
 
 
 @pytest.fixture
@@ -202,6 +259,7 @@ def sample_room2(sample_vlan):
 
 def sample_member_admin():
     return Adherent(
+        id=TESTING_CLIENT_ID,
         login=TESTING_CLIENT,
         mail="test@example.com",
         nom="Test",
@@ -210,13 +268,93 @@ def sample_member_admin():
         mail_membership=1,
     )
 
-
-def sample_api_key():
+def api_key_user():
     return ApiKey(
-        name="api_key",
-        uuid=api_key,
-        role=Roles.SUPERADMIN.value
+        id=1,
+        user_login=TESTING_CLIENT,
+        value=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
     )
+
+
+def api_key_user_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        identifier=str(api_key_user().id),
+        role=Roles.USER
+    )
+
+
+def api_key_admin():
+    return ApiKey(
+        id=2,
+        user_login=TESTING_CLIENT,
+        value=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+    )
+
+
+def oidc_admin_prod_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="production",
+        role=Roles.ADMIN_PROD
+    )
+
+
+def api_key_admin_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        identifier=str(api_key_admin().id),
+        role=Roles.ADMIN_READ
+    )
+
+
+def oidc_admin_read_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="admin",
+        role=Roles.ADMIN_READ
+    )
+
+
+def oidc_admin_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="admin",
+        role=Roles.ADMIN_WRITE
+    )
+
+
+def oidc_treasurer_read_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="treasurer",
+        role=Roles.TRESO_READ
+    )
+
+
+def oidc_treasurer_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="treasurer",
+        role=Roles.TRESO_WRITE
+    )
+
+
+def oidc_network_read_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="network",
+        role=Roles.NETWORK_READ
+    )
+
+
+def oidc_network_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="network",
+        role=Roles.NETWORK_WRITE
+    )
+
 
 @pytest.fixture
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, sample_payment_method: PaymentMethod):
@@ -254,6 +392,7 @@ def sample_pending_validation_membership(sample_account: Account, sample_member2
 @pytest.fixture
 def sample_member(faker, sample_room1):
     yield Adherent(
+        id=SAMPLE_CLIENT_ID,
         nom='Dubois',
         prenom='Jean-Louis',
         mail='j.dubois@free.fr',
@@ -289,7 +428,7 @@ def sample_member3(sample_room1):
         nom='Dupont',
         prenom='Jean',
         mail='test@oyopmail.fr',
-        login=SAMPLE_CLIENT2,
+        login="jamaislememe",
         commentaires='abcdef',
         password='b',
         chambre=sample_room1,

@@ -5,6 +5,8 @@ Contain all the http http_api functions.
 from typing import Dict, List, Optional, Tuple, Any
 
 from connexion import NoContent
+from adh6.authentication import Method
+from adh6.authentication.security import with_security
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractMember, Member, Membership, AbstractMembership
@@ -24,6 +26,22 @@ class MemberHandler(DefaultHandler):
         self.member_manager = member_manager
 
     @with_context
+    @with_security(method=Method.READ)
+    @log_call
+    def get(self, ctx, id_: int, only: Optional[List[str]]=None):
+        try:
+            def remove(entity: Any) -> Any:
+                if isinstance(entity, dict) and only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp.keys():
+                        if k not in only + ["id", "__typename"]:
+                            del entity[k]
+                return entity
+            return remove(serialize_response(self.main_manager.get_by_id(ctx, id=id_))), 200
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
     @log_call
     def post(self, ctx, body):
         try:
@@ -34,6 +52,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def put(self, ctx, id_, body):
         try:
@@ -45,6 +64,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def patch(self, ctx, id_, body):
         try:
@@ -82,6 +102,7 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def password_put(self, ctx, id_, body):
         """ Set the password of a member. """
@@ -102,8 +123,10 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
+    @with_security()
     @log_call
     def statuses_search(self, ctx, id_: int):
+        print("====================")
         try:
             return serialize_response(self.member_manager.get_statuses(ctx, id_)), 200
         except Exception as e:

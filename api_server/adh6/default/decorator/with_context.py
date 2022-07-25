@@ -5,8 +5,11 @@ With context decator.
 import traceback
 import uuid
 from connexion import NoContent
+import connexion
 from flask import current_app, request
 from functools import wraps
+
+from adh6.exceptions import UnauthenticatedError
 
 from adh6.storage import db
 from adh6.util.context import build_context, log_extra
@@ -25,21 +28,31 @@ def with_context(f, session_handler = None):
     """
 
     @wraps(f)
-    def wrapper(cls, *args, **kwds):
+    def wrapper(*args,**kwargs):
         """
         Wrap http_api function.
         """
         s = session_handler.session() if session_handler else db.session()
+
+        if "token_info" not in connexion.context:
+            LOG.warning('could_not_extract_token_info_kwargs')
+            raise UnauthenticatedError("Not token informations")
+
+        token_info = connexion.context["token_info"]
         testing = current_app.config["TESTING"]
         ctx = build_context(
+            session=s,
             testing=testing,
             request_id=str(uuid.uuid4()),  # Generates an unique ID on this request so we can track it.
-            url=request.url
+            url=request.url,
+            admin=token_info.get("uid", ""),
+            roles=token_info.get("scope", [])
         )
-        ctx = build_context(session=s, ctx=ctx)
-
+        kwargs["ctx"] = ctx
         try:
-            result = f(cls, ctx, *args, **kwds)
+            result = f(*args, **kwargs)
+
+            print(result)
 
             # It makes things clearer and less error-prone.
             if not isinstance(result, tuple) or len(result) <= 1:

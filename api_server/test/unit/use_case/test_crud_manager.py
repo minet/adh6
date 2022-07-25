@@ -180,7 +180,7 @@ class TestDelete:
                         mock_repo,
                         mock_manager):
         # When...
-        id = faker.random_int
+        id = faker.random_int()
         mock_repo.get_by_id = MagicMock(return_value=(mock_object))
         mock_manager.delete(ctx, **{"id": id})
 
@@ -195,7 +195,7 @@ class TestDelete:
                               mock_manager):
         # Given
         mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
-        id = faker.random_int
+        id = faker.random_int()
 
         # When...
         with raises(NotFoundError):

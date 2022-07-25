@@ -662,9 +662,9 @@ class TestProfile:
 
         # Expect...
         assert sample_member == m
-        assert len(roles) == len([r.removeprefix("adh6_") for r in ctx.get(CTX_ROLES)])
-        assert len(roles) == len(set(roles) & set([r.removeprefix("adh6_") for r in ctx.get(CTX_ROLES)]))
-        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN).id)
+        assert len(roles) == len(ctx.get(CTX_ROLES))
+        assert len(roles) == len(set(roles) & set(ctx.get(CTX_ROLES)))
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN))
 
     def test_member_not_found(self, ctx,
                         mock_member_repository: MemberRepository,
@@ -677,7 +677,7 @@ class TestProfile:
             member_manager.get_profile(ctx)
 
         # Expect...
-        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN).id)
+        mock_member_repository.get_by_id.assert_called_once_with(ctx, ctx.get(CTX_ADMIN))
 
 
 class TestGetByID:

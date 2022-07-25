@@ -16,15 +16,15 @@ from adh6.entity import (
     AbstractMembership,
     Vlan
 )
-from adh6.authentication.security import User, Roles
-from test.auth import TESTING_CLIENT
+from adh6.authentication.security import Roles
+from test import TESTING_CLIENT
 from adh6.util.context import build_context
 
 @fixture(autouse=True)
 def mock_missing_default_user(monkeypatch):
     import connexion
     """Remove the user key from DEFAULT_CONFIG"""
-    monkeypatch.setattr(connexion, "context", {}, raising=False)
+    monkeypatch.setattr(connexion, "context", {"token_info": ""}, raising=False)
 
 @fixture(autouse=True)
 def app_context(monkeypatch):
@@ -39,18 +39,18 @@ def mock_test_configuration(monkeypatch):
 @fixture
 def ctx(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
+        admin=sample_member.id,
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value]
     )
 
 
 @fixture
 def ctx_only_admin(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value]),
+        admin=sample_member.id,
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value]
     )
 
 

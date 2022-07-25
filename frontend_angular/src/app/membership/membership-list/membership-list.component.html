@@ -1,6 +1,3 @@
-<h2 class="text-left">Liste des inscriptions</h2>
-<br />
-
 <select class="custom-select" (change)="updateStatusFilter($event.target.value)">
   <option value="">Tout Status</option>
   <option *ngFor="let status of status_enum" value="{{status}}">{{replaceUnderscoreStatus(status, " ")| lowercase}}

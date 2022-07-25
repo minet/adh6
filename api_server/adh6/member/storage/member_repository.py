@@ -208,7 +208,6 @@ class MemberSQLRepository(MemberRepository):
                 days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month+i)[1]
             else:
                 days_to_add += calendar.monthrange(adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12)[1]
-        print(days_to_add)
         adherent.date_de_depart += timedelta(days=days_to_add)
 
         session.flush()

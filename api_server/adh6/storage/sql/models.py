@@ -14,14 +14,6 @@ from adh6.storage.sql.rubydiff import rubydiff
 db = SQLAlchemy()
 
 
-class ApiKey(db.Model):
-    __tablename__ = 'api_keys'
-
-    uuid = Column(String(36), primary_key=True)
-    name = Column(String(255), nullable=False)
-    role = Column(String(255), nullable=False)
-
-
 class Vlan(db.Model):
     __tablename__ = 'vlans'
 

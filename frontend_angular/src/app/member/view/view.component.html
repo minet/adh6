@@ -6,72 +6,6 @@
     <p>Aucune modification sur l'adhérent (comme la chambre) ne peut-être faite.</p>
   </div>
   <div *ngIf="(member$ | async) as member" class="columns">
-    <div class="column is-one-third">
-      <div class="box">
-        <h3 class="title is-3 has-text-centered">
-          <span>{{ member.firstName | lowercase | titlecase }}</span> {{member.lastName | uppercase }}
-        </h3>
-        <table class="table is-fullwidth">
-          <tbody>
-            <tr>
-              <td>Login</td>
-              <td>{{ member.username }}</td>
-            </tr>
-            <tr>
-              <td>Mail</td>
-              <td><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
-            </tr>
-            <tr>
-              <td>Date de départ</td>
-              <td>{{ member.departureDate | date:'dd/MM/y' }}</td>
-            </tr>
-            <tr>
-              <td>IP Wifi</td>
-              <td>{{ member.ip }}</td>
-            </tr>
-            <tr>
-              <td>Subnet Wifi</td>
-              <td>{{ member.subnet }}</td>
-            </tr>
-            <tr>
-              <td>Chambre</td>
-              <td>
-                <ng-container *ngIf="member.roomNumber !== undefined; else elseNoRoom">
-                  <a [routerLink]='["/room/view/", (room$ | async)]'>
-                    {{ member.roomNumber }}
-                  </a>
-                </ng-container>
-                <ng-template #elseNoRoom>
-                  <button class="button is-warning" (click)="collapseMoveIn()"
-                    [disabled]="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE'">
-                    Emmenager
-                  </button>
-                </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- Right column -->
-        <div *ngIf="moveIn">
-          <form (ngSubmit)="submitRoom()" [formGroup]="moveInForm">
-            <input class="input is-fullwidth" formControlName="roomNumber" type="number"
-              placeholder="Numéro de chambre..." />
-            <button class="button is-success is-fullwidth" type="submit" [disabled]="moveInDisabled">Valider</button>
-          </form>
-        </div>
-        <h3 class="title is-4">Commentaire</h3>
-        <form (ngSubmit)="submitComment()" [formGroup]="commentForm" novalidate>
-          <p class="field">
-            <textarea class="input is-fullwidth" formControlName="comment"></textarea>
-          </p>
-          <p class="field">
-            <button [disabled]="submitDisabled" class="button is-primary is-fullwidth" type="submit">
-              Envoyer
-            </button>
-          </p>
-        </form>
-      </div>
-    </div>
     <div class="column">
       <div class="tabs is-centered is-large">
         <ul>
@@ -169,6 +103,72 @@
           </div>
         </ng-container>
       </ng-container>
+    </div>
+    <div class="column is-one-third">
+      <div class="box">
+        <h3 class="title is-3 has-text-centered">
+          <span>{{ member.firstName | lowercase | titlecase }}</span> {{member.lastName | uppercase }}
+        </h3>
+        <table class="table is-fullwidth">
+          <tbody>
+            <tr>
+              <td>Login</td>
+              <td>{{ member.username }}</td>
+            </tr>
+            <tr>
+              <td>Mail</td>
+              <td><a href="mailto:{{member.email}}">{{ member.email }}</a></td>
+            </tr>
+            <tr>
+              <td>Date de départ</td>
+              <td>{{ member.departureDate | date:'dd/MM/y' }}</td>
+            </tr>
+            <tr>
+              <td>IP Wifi</td>
+              <td>{{ member.ip }}</td>
+            </tr>
+            <tr>
+              <td>Subnet Wifi</td>
+              <td>{{ member.subnet }}</td>
+            </tr>
+            <tr>
+              <td>Chambre</td>
+              <td>
+                <ng-container *ngIf="member.roomNumber !== undefined; else elseNoRoom">
+                  <a [routerLink]='["/room/view/", (room$ | async)]'>
+                    {{ member.roomNumber }}
+                  </a>
+                </ng-container>
+                <ng-template #elseNoRoom>
+                  <button class="button is-warning" (click)="collapseMoveIn()"
+                    [disabled]="latestMembership.status !== 'ABORTED' && latestMembership.status !== 'CANCELLED' && latestMembership.status !== 'COMPLETE'">
+                    Emmenager
+                  </button>
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Right column -->
+        <div *ngIf="moveIn">
+          <form (ngSubmit)="submitRoom()" [formGroup]="moveInForm">
+            <input class="input is-fullwidth" formControlName="roomNumber" type="number"
+              placeholder="Numéro de chambre..." />
+            <button class="button is-success is-fullwidth" type="submit" [disabled]="moveInDisabled">Valider</button>
+          </form>
+        </div>
+        <h3 class="title is-4">Commentaire</h3>
+        <form (ngSubmit)="submitComment()" [formGroup]="commentForm" novalidate>
+          <p class="field">
+            <textarea class="input is-fullwidth" formControlName="comment"></textarea>
+          </p>
+          <p class="field">
+            <button [disabled]="submitDisabled" class="button is-primary is-fullwidth" type="submit">
+              Envoyer
+            </button>
+          </p>
+        </form>
+      </div>
     </div>
   </div>
 </ng-container>

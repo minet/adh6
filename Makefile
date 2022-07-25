@@ -66,6 +66,7 @@ $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
 	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l python -t $(BACKEND_GENERATOR_PATH) -o tmpsrc $(BACKEND_GENERATION_ARGS)
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
+	cp tmpsrc/docs/* docs/generated-models/docs
 	rm -rf tmpsrc
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)

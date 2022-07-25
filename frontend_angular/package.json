@@ -37,7 +37,10 @@
     "bulma-switch": "^2.0.4",
     "hash-wasm": "^4.9.0",
     "rxjs": "~7.4.0",
+    "source-map": "^0.7.4",
+    "source-map-explorer": "2.5.2",
     "sweetalert2": "^11.3.10",
+    "webpack-bundle-analyzer": "4.4.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

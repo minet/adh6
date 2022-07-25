@@ -7,24 +7,18 @@ from adh6.constants import CTX_ROLES
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
 from adh6.network.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import defines_security, has_any_role, uses_security, SecurityDefinition, Roles
+from adh6.authentication.security import Roles
 
 from adh6.network.interfaces.port_repository import PortRepository
 from adh6.network.interfaces.switch_network_manager import SwitchNetworkManager
 from adh6.network.interfaces.switch_repository import SwitchRepository
 
 
-@defines_security(SecurityDefinition(
-    item={
-        "network": has_any_role([Roles.ADMIN, Roles.NETWORK]),
-    },
-))
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
     def __init__(self, port_repository: PortRepository, switch_repository: SwitchRepository) -> None:
         self.switch_repository = switch_repository
         self.port_repository = port_repository
 
-    @uses_security("network")
     @auto_raise
     def get_port_status(self, ctx, port_id: int) -> bool:
         """
@@ -38,7 +32,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def update_port_status(self, ctx, port_id: int) -> str:
         """
@@ -56,7 +49,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def get_port_vlan(self, ctx, port_id: int) -> int:
         """
@@ -71,7 +63,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     
-    @uses_security("network")
     @auto_raise
     def update_port_vlan(self, ctx, port_id: int, vlan: int = 1) -> str:
         """
@@ -84,11 +75,11 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             roles = ctx.get(CTX_ROLES)
             vlan = int(vlan)
             if (
-                Roles.NETWORK.value not in roles and
+                Roles.NETWORK_WRITE.value not in roles and
                 (
-                    ((vlan == 3 or vlan == 103) and Roles.VLAN_DEV.value not in roles)
-                    or ((vlan == 2 or vlan == 102) and Roles.VLAN_PROD.value not in roles)
-                    or ((vlan == 104) and Roles.VLAN_HOSTING.value not in roles)
+                    ((vlan == 3 or vlan == 103) and Roles.NETWORK_DEV.value not in roles)
+                    or ((vlan == 2 or vlan == 102) and Roles.NETWORK_PROD.value not in roles)
+                    or ((vlan == 104) and Roles.NETWORK_HOSTING.value not in roles)
                 )
             ):
                 raise UnauthorizedError()
@@ -97,7 +88,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except Exception as e:
             raise e
 
-    @uses_security("network")
     @auto_raise
     def get_port_mab(self, ctx, port_id: int) -> bool:
         """
@@ -111,7 +101,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def update_port_mab(self, ctx, port_id: int) -> str:
         """
@@ -129,7 +118,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def get_port_auth(self, ctx, port_id: int) -> bool:
         """
@@ -143,7 +131,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def update_port_auth(self, ctx, port_id: int) -> None:
         """
@@ -162,7 +149,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def get_port_use(self, ctx, port_id: int) -> bool:
         """
@@ -176,7 +162,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def get_port_speed(self, ctx, port_id: int) -> int:
         """
@@ -190,7 +175,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @uses_security("network")
     @auto_raise
     def get_port_alias(self, ctx, port_id: int) -> str:
         """

@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'portail', loadChildren: () => import('./portail/portail.module').then(m => m.PortailModule) },
   { path: 'password/:member_id', loadChildren: () => import('./member-password-edit/member-password-edit.module').then(m => m.MemberPasswordEditModule) },
   { path: 'product', loadChildren: () => import('./product-list/product-list.module').then(m => m.ProductListModule) },
   { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
@@ -17,6 +16,7 @@ const routes: Routes = [
   { path: 'member', loadChildren: () => import('./member/member.module').then(m => m.MemberModule) },
   { path: 'device', loadChildren: () => import('./device/device.module').then(m => m.DeviceModule) },
   { path: 'switch_local', loadChildren: () => import('./switch-local/switch-local.module').then(m => m.SwitchLocalModule) },
+  { path: 'auth', loadChildren: () => import('./auth-management/auth-management.module').then(m => m.AuthManagementModule) },
   { path: '**', redirectTo: '/dashboard' },
 ];
 

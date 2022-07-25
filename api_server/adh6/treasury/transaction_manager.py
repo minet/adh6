@@ -1,6 +1,7 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
 from typing import Optional, Tuple
+from adh6.authentication import Roles
 from adh6.constants import CTX_ROLES
 from adh6.entity import AbstractTransaction
 from adh6.entity.transaction import Transaction
@@ -8,24 +9,12 @@ from adh6.exceptions import TransactionNotFoundError, ValidationError, IntMustBe
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import SecurityDefinition, Roles, defines_security, has_any_role, is_admin, uses_security
 from adh6.treasury.interfaces.cashbox_repository import CashboxRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
 from adh6.util.context import log_extra
 from adh6.util.log import LOG
 
 
-@defines_security(SecurityDefinition(
-    item={
-        "read": is_admin(),
-        "update": has_any_role([Roles.TRESO]),
-        "delete": has_any_role([Roles.TRESO])
-    },
-    collection={
-        "read": is_admin(),
-        "create": is_admin(),
-    }
-))
 class TransactionManager(CRUDManager):
     """
     Implements all the use cases related to transaction management.
@@ -46,7 +35,7 @@ class TransactionManager(CRUDManager):
         if abstract_transaction.value <= 0:
             raise IntMustBePositive('value')
 
-        if Roles.TRESO.value not in ctx.get(CTX_ROLES):
+        if Roles.TRESO_WRITE.value not in ctx.get(CTX_ROLES):
             abstract_transaction.pending_validation = True
 
         transaction, created = super().update_or_create(ctx, abstract_transaction, id=id)
@@ -85,12 +74,7 @@ class TransactionManager(CRUDManager):
         transaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to validate a transaction that is already validated")
-
-        @uses_security("update", is_collection=False)
-        def _validate(cls, ctx, id):
-            self.transaction_repository.validate(ctx, id)
-
-        return _validate(self, ctx, id)
+        return self.transaction_repository.validate(ctx, id)
 
     @log_call
     @auto_raise
