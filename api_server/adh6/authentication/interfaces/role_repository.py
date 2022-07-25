@@ -7,7 +7,7 @@ from adh6.entity import RoleMapping
 
 class RoleRepository(abc.ABC):
     @abc.abstractmethod
-    def create(self, method: AuthenticationMethod, identifier: str, role: Roles) -> None:
+    def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
         pass
 
     @abc.abstractmethod

@@ -1,7 +1,8 @@
-from typing import Dict
+from typing import Any, Dict, Union
 
 from connexion import NoContent
 from adh6.authentication.role_manager import RoleManager
+from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.util.error import handle_error
 from adh6.default.util.serializer import serialize_response
@@ -12,9 +13,9 @@ class RoleHandler:
         self.role_manager = role_manager
 
     @with_context
-    def search(self, ctx, filter_):
+    def search(self, ctx, auth: str, id_: Union[str, None]=None):
         try:
-            result, count = self.role_manager.search(ctx=ctx, filter_=filter_)
+            result, count = self.role_manager.search(ctx=ctx, auth=auth, identifier=id_)
             headers = {
                 "X-Total-Count": str(count),
                 'access-control-expose-headers': 'X-Total-Count'
@@ -24,9 +25,11 @@ class RoleHandler:
             return handle_error(ctx, e)
 
     @with_context
-    def post(self, ctx, body: Dict[str, str]):
+    @log_call
+    def post(self, ctx, body: Dict[str, Any]):
         try:
-            self.role_manager.create(ctx=ctx, identifier=body["login"], role=body["role"])
+            self.role_manager.create(ctx=ctx, auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
             return NoContent, 201
         except Exception as e:
+            print(e)
             return handle_error(ctx, e)

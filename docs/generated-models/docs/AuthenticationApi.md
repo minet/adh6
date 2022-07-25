@@ -164,7 +164,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **role_get**
-> list[Role] role_get(filter)
+> list[RoleMapping] role_get(auth, id=id)
 
 Filter roles
 
@@ -182,11 +182,12 @@ configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # create an instance of the API class
 api_instance = adh6.AuthenticationApi(adh6.ApiClient(configuration))
-filter = NULL # object | Filters by various properties
+auth = 'auth_example' # str | Filter with the authentication type
+id = 'id_example' # str | filter with the identifier associated (optional)
 
 try:
     # Filter roles
-    api_response = api_instance.role_get(filter)
+    api_response = api_instance.role_get(auth, id=id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling AuthenticationApi->role_get: %s\n" % e)
@@ -196,11 +197,12 @@ except ApiException as e:
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **filter** | [**object**](.md)| Filters by various properties | 
+ **auth** | **str**| Filter with the authentication type | 
+ **id** | **str**| filter with the identifier associated | [optional] 
 
 ### Return type
 
-[**list[Role]**](Role.md)
+[**list[RoleMapping]**](RoleMapping.md)
 
 ### Authorization
 

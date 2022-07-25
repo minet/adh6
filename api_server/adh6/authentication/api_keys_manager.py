@@ -32,12 +32,11 @@ class ApiKeyManager:
             raise e
 
         id_, value = self.api_key_repository.create(login=login)
-        for r in roles_:
-            self.role_repository.create(
-                method=AuthenticationMethod.API_KEY,
-                identifier=str(id_),
-                role=r
-            )
+        self.role_repository.create(
+            method=AuthenticationMethod.API_KEY,
+            identifier=str(id_),
+            roles=roles_
+        )
         return value
 
     def search(self, ctx, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:

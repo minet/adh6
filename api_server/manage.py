@@ -252,7 +252,7 @@ def seed():
                 identifier="adh6_admin",
                 role=i,
                 authentication=AuthenticationMethod.OIDC
-            ) for i in [Roles.ADMIN_READ, Roles.ADMIN_WRITE, Roles.NETWORK_READ, Roles.NETWORK_WRITE]
+            ) for i in [Roles.ADMIN_READ, Roles.ADMIN_WRITE, Roles.NETWORK_READ, Roles.NETWORK_WRITE, Roles.ADMIN_PROD]
         ] 
     )
 

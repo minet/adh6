@@ -13,7 +13,6 @@
       <li>
         Gestion Adhérents
         <ul>
-          <li><a>Inscriptions</a></li>
           <li>
             <a [ngClass]="{'is-active': activeFromUrlPath('member')}" [routerLink]="['member/search']">Adhérents</a>
           </li>
@@ -37,8 +36,12 @@
       <li>
         Authentification
         <ul>
-          <li><a>Roles</a></li>
-          <li><a>NainA</a></li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('naina')}" [routerLink]="['auth/naina']">NainA</a>
+          </li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('api-key')}" [routerLink]="['auth/api-key']">Clef d'API</a>
+          </li>
         </ul>
       </li>
     </ul>

@@ -2289,21 +2289,28 @@ paths:
   /role/:
     get:
       parameters:
-      - description: Filters by various properties
+      - description: Filter with the authentication type
         in: query
-        name: filter
+        name: auth
         schema:
-          $ref: '#/components/schemas/RoleMapping'
-        style: deepObject
-        explode: true
+          type: string
+          enum:
+            - oidc
+            - user
+            - api_key
         required: true
+      - description: filter with the identifier associated
+        in: query
+        name: id
+        schema:
+          type: string
       responses:
         200:
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Role'
+                  $ref: '#/components/schemas/RoleMapping'
                 type: array
           description: Success
           headers:
@@ -2332,12 +2339,19 @@ paths:
             schema:
               type: object
               properties:
-                role:
-                  $ref: '#/components/schemas/Role'
-                login:
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Role'
+                identifier:
                   description: Login of the user that need the role
                   type: string
                   example: jenkins
+                auth:
+                  type: string
+                  enum:
+                    - oidc
+                    - user
         description: The role to create
         required: true
       responses:
@@ -3226,6 +3240,8 @@ components:
     RoleMapping:
       type: object
       properties:
+        id:
+          type: integer
         role:
           $ref: '#/components/schemas/Role'
         authentication:

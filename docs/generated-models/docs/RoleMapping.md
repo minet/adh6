@@ -3,6 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**id** | **int** |  | [optional] 
 **role** | [**Role**](Role.md) |  | [optional] 
 **authentication** | **str** |  | [optional] 
 **identifier** | **str** | The login of the user link to the api key | [optional] 

@@ -13,6 +13,7 @@ class ApiKey(db.Model):
 
 class AuthenticationRoleMapping(db.Model):
     __tablename__ = "role_mappings"
-    authentication = Column(Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False, primary_key=True)
-    identifier = Column(String(255), nullable=False, primary_key=True)
-    role = Column(Enum(Roles), default=Roles.USER, nullable=False, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    authentication = Column(Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False)
+    identifier = Column(String(255), nullable=False)
+    role = Column(Enum(Roles), default=Roles.USER, nullable=False)

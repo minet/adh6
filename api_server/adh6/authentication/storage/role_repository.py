@@ -25,11 +25,15 @@ class RoleSQLRepository(RoleRepository):
         all_roles.extend(db.session().execute(smt).all())
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
-    def create(self, method: AuthenticationMethod, identifier: str, role: Roles) -> None:
+    def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
         smt: Insert = insert(AuthenticationRoleMapping).values(
-            role=role,
-            identifier=identifier,
-            authentication=method
+            [
+                {
+                    'identifier': identifier,
+                    'authentication': method,
+                    'role': r
+                } for r in roles
+            ]
         )
         db.session().execute(smt)
 

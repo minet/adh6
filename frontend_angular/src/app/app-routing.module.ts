@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'member', loadChildren: () => import('./member/member.module').then(m => m.MemberModule) },
   { path: 'device', loadChildren: () => import('./device/device.module').then(m => m.DeviceModule) },
   { path: 'switch_local', loadChildren: () => import('./switch-local/switch-local.module').then(m => m.SwitchLocalModule) },
+  { path: 'auth', loadChildren: () => import('./auth-management/auth-management.module').then(m => m.AuthManagementModule) },
   { path: '**', redirectTo: '/dashboard' },
 ];
 
