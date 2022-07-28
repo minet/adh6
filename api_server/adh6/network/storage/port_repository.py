@@ -82,8 +82,8 @@ class PortSQLRepository(PortRepository):
         port = SQLPort(
             numero=abstract_port.port_number,
             oid=abstract_port.oid,
-            switch=switch,
-            chambre=room,
+            switch_id=switch.id if switch else None,
+            chambre_id=room.id if room else None,
             created_at=now,
             updated_at=now
         )
@@ -143,13 +143,13 @@ def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, overr
         room = session.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
         if not room:
             raise RoomNotFoundError(entity.room)
-        port.chambre = room
+        port.chambre_id = room.id
     if entity.switch_obj is not None:
         session: Session = ctx.get(CTX_SQL_SESSION)
         switch = session.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
         if not switch:
             raise SwitchNotFoundError(entity.switch_obj)
-        port.switch = switch
+        port.switch_id = switch.id
 
     port.updated_at = now
     return port
@@ -163,8 +163,8 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         id=a.id,
         port_number=a.numero,
         oid=a.oid,
-        room=a.chambre.id if a.chambre is not None else None,
-        switch_obj=a.switch.id
+        room=a.chambre_id,
+        switch_obj=a.switch_id
     )
 def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
     """
@@ -174,6 +174,6 @@ def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
         id=a.id,
         port_number=a.numero,
         oid=a.oid,
-        room=a.chambre.id if a.chambre is not None else None,
-        switch_obj=a.switch.id
+        room=a.chambre_id,
+        switch_obj=a.switch_id
     )

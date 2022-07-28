@@ -5,6 +5,7 @@ Implements everything related to actions on the SQL database.
 from datetime import date, datetime, timezone, timedelta
 import ipaddress
 from typing import List, Optional, Tuple
+from sqlalchemy import select
 
 from sqlalchemy.orm import Session
 
@@ -50,6 +51,7 @@ class MemberSQLRepository(MemberRepository):
         query = query.offset(offset)
         query = query.limit(limit)
         r = query.all()
+        print([i.chambre_id for i in r])
 
         return list(map(_map_member_sql_to_abstract_entity, r)), count
 
@@ -78,7 +80,7 @@ class MemberSQLRepository(MemberRepository):
             prenom=abstract_member.first_name,
             mail=abstract_member.email,
             login=abstract_member.username,
-            chambre=room,
+            chambre_id=room.id if room else None,
             created_at=now,
             updated_at=now,
             commentaires=abstract_member.comment,
@@ -247,13 +249,12 @@ def _merge_sql_with_entity(ctx, entity: AbstractMember, sql_object: Adherent, ov
     if entity.room_number is not None:
         if entity.room_number == -1:
             adherent.chambre_id = None
-            adherent.chambre = None
         else:
             session: Session = ctx.get(CTX_SQL_SESSION)
             room = session.query(Chambre).filter(Chambre.numero == entity.room_number).one_or_none()
             if not room:
                 raise RoomNotFoundError(entity.room_number)
-            adherent.chambre = room
+            adherent.chambre_id = room.id
 
     adherent.updated_at = now
     return adherent
@@ -262,6 +263,8 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
+    from adh6.storage import db
+    chambre = db.session.execute(select(Chambre).where(Chambre.id == adh.chambre_id)).first()
     return AbstractMember(
         id=adh.id,
         username=adh.login,
@@ -269,11 +272,11 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
         first_name=adh.prenom,
         last_name=adh.nom,
         departure_date=adh.date_de_depart,
+        room_number=chambre[0].numero if chambre else None,
         comment=adh.commentaires,
         association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
-        room_number=adh.chambre.numero if adh.chambre else None,
         mailinglist=adh.mail_membership
     )
 
@@ -281,6 +284,8 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
+    from adh6.storage import db
+    chambre = db.session.execute(select(Chambre).where(Chambre.id == adh.chambre_id)).first()
     return Member(
         id=adh.id,
         username=adh.login,
@@ -289,9 +294,9 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         last_name=adh.nom,
         departure_date=adh.date_de_depart,
         comment=adh.commentaires,
+        room_number=chambre[0].numero if chambre else None,
         association_mode=adh.mode_association.replace(tzinfo=timezone.utc) if adh.mode_association else None,
         ip=adh.ip,
         subnet=adh.subnet,
-        room_number=adh.chambre.numero if adh.chambre else None,
         mailinglist=adh.mail_membership
     )

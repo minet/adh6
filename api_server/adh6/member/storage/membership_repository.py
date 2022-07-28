@@ -23,7 +23,6 @@ class MembershipSQLRepository(MembershipRepository):
         LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx))
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(MembershipSQL)
-        query = query.outerjoin(Adherent, Adherent.id == MembershipSQL.adherent_id)
         if filter_:
             if filter_.uuid is not None:
                 query = query.filter(MembershipSQL.uuid == filter_.uuid)
@@ -36,6 +35,7 @@ class MembershipSQLRepository(MembershipRepository):
             if filter_.payment_method is not None:
                 query = query.filter(MembershipSQL.payment_method_id == filter_.payment_method)
             if filter_.account is not None:
+                print(filter_.account, ": ", [r.status for r in query.all()])
                 query = query.filter(MembershipSQL.account_id == filter_.account)
             if filter_.member is not None:
                 query = query.filter(MembershipSQL.adherent_id == filter_.member)
@@ -43,6 +43,7 @@ class MembershipSQLRepository(MembershipRepository):
         query = query.order_by(MembershipSQL.uuid)
         query = query.offset(offset)
         query = query.limit(limit)
+        print(query)
         r = query.all()
 
         return list(map(_map_membership_sql_to_abstract_entity, r)), query.count()
@@ -195,9 +196,9 @@ def _map_membership_sql_to_abstract_entity(obj_sql: MembershipSQL) -> AbstractMe
         has_room=obj_sql.has_room,
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
-        payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
-        account=obj_sql.account.id if obj_sql.account else None,
-        member=obj_sql.adherent.id if obj_sql.adherent else None,
+        payment_method=obj_sql.payment_method_id,
+        account=obj_sql.account_id if obj_sql.account_id else None,
+        member=obj_sql.adherent_id if obj_sql.adherent_id else None,
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 
@@ -211,9 +212,9 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         has_room=obj_sql.has_room,
         products=_map_string_to_list(obj_sql.products),
         first_time=obj_sql.first_time,
-        payment_method=obj_sql.payment_method.id if obj_sql.payment_method else None,
-        account=obj_sql.account.id if obj_sql.account else None,
-        member=obj_sql.adherent.id if obj_sql.adherent else None,
+        payment_method=obj_sql.payment_method_id,
+        account=obj_sql.account_id if obj_sql.account_id else None,
+        member=obj_sql.adherent_id if obj_sql.adherent_id else None,
         status=obj_sql.status if isinstance(obj_sql.status, str) else obj_sql.status.value,
     )
 

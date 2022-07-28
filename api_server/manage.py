@@ -294,6 +294,7 @@ def fake(login):
     )
 
     session.add(adherent)
+    session.flush()
 
     account = Account(
         type=2,
@@ -301,15 +302,16 @@ def fake(login):
         actif=True,
         compte_courant=False,
         pinned=False,
-        adherent=adherent
+        adherent_id=adherent.id
     )
 
     session.add(account)
+    session.flush()
 
     membership = Membership(
         uuid=str(uuid.uuid4),
-        account=account,
-        adherent=adherent,
+        account_id=account.id,
+        adherent_id=adherent.id,
         payment_method_id=3,
         has_room=True,
         first_time=True,
@@ -321,11 +323,12 @@ def fake(login):
     )
 
     session.add(membership)
+    session.flush()
 
     session.add(Transaction(
         value=9,
         timestamp=now,
-        src_account=account,
+        src=account.id,
         dst=2,
         name="Internet - 1 an",
         attachments="",
@@ -336,7 +339,7 @@ def fake(login):
     session.add(Transaction(
         value=41,
         timestamp=now,
-        src_account=account,
+        src=account.id,
         dst=1,
         name="Internet - 1 an",
         attachments="",
@@ -349,7 +352,7 @@ def fake(login):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
-            adherent=adherent,
+            adherent_id=adherent.id,
             ipv6=None,
             type=0
         ))
@@ -357,7 +360,7 @@ def fake(login):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
-            adherent=adherent,
+            adherent_id=adherent.id,
             ipv6=None,
             type=1
         ))

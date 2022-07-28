@@ -7,7 +7,9 @@
 alembic==1.8.1
     # via flask-migrate
 attrs==21.4.0
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   pytest
 authlib==1.0.1
     # via -r requirements.in
 bcrypt==3.2.2
@@ -32,6 +34,8 @@ clickclick==20.10.2
     # via connexion
 connexion==2.14.0
     # via -r requirements.in
+coverage[toml]==6.4.2
+    # via pytest-cov
 cryptography==37.0.4
     # via
     #   -r requirements.in
@@ -61,6 +65,8 @@ idna==3.3
     # via requests
 inflection==0.5.1
     # via connexion
+iniconfig==1.1.1
+    # via pytest
 itsdangerous==2.1.2
     # via
     #   connexion
@@ -80,14 +86,21 @@ markupsafe==2.1.1
     # via
     #   jinja2
     #   mako
+    #   werkzeug
 mysqlclient==2.1.1
     # via -r requirements.in
 packaging==21.3
-    # via connexion
+    # via
+    #   connexion
+    #   pytest
 pinject==0.14.1
     # via -r requirements.in
+pluggy==1.0.0
+    # via pytest
 ply==3.11
     # via pysmi
+py==1.11.0
+    # via pytest
 pyasn1==0.4.8
     # via pysnmp
 pycparser==2.21
@@ -101,6 +114,16 @@ pyrsistent==0.18.1
 pysmi==0.3.4
     # via pysnmp
 pysnmp==4.4.12
+    # via -r requirements.in
+pytest==7.1.2
+    # via
+    #   -r requirements.in
+    #   pytest-cov
+pytest-cov==3.0.0
+    # via pytest-cover
+pytest-cover==3.0.0
+    # via pytest-coverage
+pytest-coverage==0.0
     # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
@@ -133,13 +156,15 @@ sqlalchemy==1.4.39
     #   flask-sqlalchemy
 swagger-ui-bundle==0.0.9
     # via -r requirements.in
-urllib3==1.26.10
+tomli==2.0.1
+    # via pytest
+urllib3==1.26.11
     # via
     #   elastic-transport
     #   requests
 uwsgi==2.0.20
     # via -r requirements.in
-werkzeug==2.1.2
+werkzeug==2.2.0
     # via
     #   connexion
     #   flask

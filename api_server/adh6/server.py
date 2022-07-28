@@ -1,6 +1,5 @@
 import os
 import connexion
-from connexion.decorators.uri_parsing import functools
 import pinject
 import abc
 
@@ -203,7 +202,7 @@ def init() -> FlaskApp:
         pythonic_params=True,
         auth_all_paths=True,
     )
-    
+
     db.init_app(app.app)
     cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
     

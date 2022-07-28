@@ -3007,7 +3007,7 @@ components:
           type: string
         member:
           description: The id of the member this device belongs to
-          type: number
+          type: integer
           example: 0
     Device:
       allOf:

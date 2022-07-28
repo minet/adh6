@@ -31,7 +31,7 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
         member = obj.get_related_member()
 
         m = Modification(
-            adherent_id=member.id,
+            adherent_id=member,
             action=diff,
             created_at=now,
             updated_at=now,

@@ -4,6 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
 from typing import List, Optional, Tuple
+from sqlalchemy import select
 
 from sqlalchemy.orm.session import Session
 
@@ -67,7 +68,7 @@ class RoomSQLRepository(RoomRepository):
             description=abstract_room.description,
             created_at=now,
             updated_at=now,
-            vlan=vlan,
+            vlan_id=vlan.id if vlan else None,
         )
 
         with track_modifications(ctx, session, room):
@@ -115,24 +116,28 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
         vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
-        chambre.vlan = vlan
+        chambre.vlan_id = vlan.id
 
     chambre.updated_at = now
     return chambre
 
 def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
+    from adh6.storage import db
+    vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return AbstractRoom(
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else None
+        vlan=vlan[0].numero if vlan else None
     )
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
+    from adh6.storage import db
+    vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return Room(
         id=r.id,
         room_number=r.numero,
         description=r.description,
-        vlan=r.vlan.numero if r.vlan is not None else None
+        vlan=vlan[0].numero if vlan else None
     )

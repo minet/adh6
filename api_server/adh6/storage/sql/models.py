@@ -1,6 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, ForeignKey, String, TEXT, Boolean, Date, DateTime, Integer, Numeric, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DECIMAL, String, TEXT, Boolean, Date, DateTime, Integer, Numeric, Text
 from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
 
@@ -36,9 +35,7 @@ class Chambre(db.Model, RubyHashTrackable):
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
     dernier_adherent = Column(Integer)
-    vlan_id = Column(Integer, ForeignKey(Vlan.id))
-
-    vlan = relationship(Vlan, foreign_keys=[vlan_id])
+    vlan_id = Column(Integer, index=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -50,7 +47,7 @@ class Chambre(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.id
 
 
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet
@@ -70,7 +67,7 @@ class Adherent(db.Model, RubyHashTrackable):
     mail = Column(String(255))
     login = Column(String(255))
     password = Column(String(255))
-    chambre_id = Column(Integer, ForeignKey(Chambre.id))
+    chambre_id = Column(Integer, index=True)
 
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
@@ -90,15 +87,6 @@ class Adherent(db.Model, RubyHashTrackable):
     mail_membership = Column(Integer, nullable=False, default=0, server_default='1')
     mailinglist = Column(Boolean, nullable=True, default=True)
 
-    # admin = relationship('Admin', foreign_keys=[admin_id])
-    chambre = relationship('Chambre', foreign_keys=[chambre_id])
-    memberships = relationship(
-        'Membership', 
-        back_populates="adherent",
-        cascade="all, delete",
-        passive_deletes=True
-    )
-
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
         if 'password' in snap:
@@ -115,7 +103,7 @@ class Adherent(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.id
 
 
 class Inscription(db.Model):
@@ -150,8 +138,7 @@ class Device(db.Model, RubyHashTrackable):
     id = Column(Integer, primary_key=True)
     mac = Column(String(255))
     ip = Column(String(255))
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent, foreign_keys=[adherent_id])
+    adherent_id = Column(Integer, index=True, nullable=False)
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
     last_seen = Column(DateTime)
@@ -175,7 +162,7 @@ class Device(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self.adherent
+        return self.adherent_id
 
 
 class Routeur(db.Model, RubyHashTrackable):
@@ -184,8 +171,7 @@ class Routeur(db.Model, RubyHashTrackable):
     id = Column(Integer, primary_key=True)
     mac = Column(String(255))
     ip = Column(String(255))
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent, foreign_keys=[adherent_id])
+    adherent_id = Column(Integer, index=True, nullable=False)
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
 
@@ -205,7 +191,7 @@ class Routeur(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self.adherent
+        return self.adherent_id
 
 
 class Switch(db.Model):
@@ -226,21 +212,17 @@ class Port(db.Model):
     rcom = Column(Integer)
     numero = Column(String(255), nullable=False)
     oid = Column(String(255), nullable=False)
-    switch_id = Column(Integer, ForeignKey(Switch.id), nullable=False)
-    chambre_id = Column(Integer, ForeignKey(Chambre.id), nullable=True)
+    switch_id = Column(Integer, index=True, nullable=False)
+    chambre_id = Column(Integer, index=True, nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-
-    switch = relationship(Switch, foreign_keys=[switch_id])
-    chambre = relationship(Chambre, foreign_keys=[chambre_id])
 
 
 class Adhesion(db.Model):
     __tablename__ = 'adhesions'
 
     id = Column(Integer, primary_key=True)
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    adherent = relationship(Adherent)
+    adherent_id = Column(Integer, index=True, nullable=False)
     depart = Column(DateTime, nullable=False)
     fin = Column(DateTime, nullable=False)
 
@@ -276,23 +258,20 @@ class Product(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.id
 
 
 class Account(db.Model, RubyHashTrackable):
     __tablename__ = 'accounts'
 
     id =Column(Integer, primary_key=True, unique=True)
-    type= Column(ForeignKey('account_types.id'), nullable=False, index=True)
+    type= Column(Integer, index=True, nullable=False)
     creation_date = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     name= Column(String(255), nullable=False)
     actif = Column(Boolean(), nullable=False, server_default=text("1"))
     compte_courant = Column(Boolean(), nullable=False, default=False, server_default=text("0"))
     pinned = Column(Boolean(), nullable=False, default=False, server_default=text("0"))
-    adherent_id = Column(Integer, ForeignKey('adherents.id'), nullable=True)
-
-    adherent = relationship('Adherent', foreign_keys=[adherent_id])
-    account_type = relationship('AccountType', foreign_keys=[type])
+    adherent_id = Column(Integer, index=True, nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -303,7 +282,7 @@ class Account(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.adherent_id
 
 
 class Transaction(db.Model, RubyHashTrackable):
@@ -312,20 +291,15 @@ class Transaction(db.Model, RubyHashTrackable):
     id = Column(Integer, primary_key=True)
     value = Column(DECIMAL(8, 2), nullable=False)
     timestamp = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    src = Column(ForeignKey('accounts.id'), nullable=False, index=True)
-    dst = Column(ForeignKey('accounts.id'), nullable=False, index=True)
+    src = Column(Integer, index=True, nullable=False)
+    dst = Column(Integer, index=True, nullable=False)
     name = Column(String(255), nullable=False)
     attachments = Column(TEXT(65535), nullable=False)
-    type = Column(ForeignKey('payment_methods.id'), nullable=False, index=True)
-    author_id = Column(Integer, ForeignKey('adherents.id'), nullable=False, index=True)
+    type = Column(Integer, index=True, nullable=False)
+    author_id = Column(Integer, index=True, nullable=False)
     pending_validation = Column(Boolean(), nullable=False)
     membership_uuid = Column(String(36), nullable=True)
     is_archive = Column(Boolean, default=False, nullable=True)
-
-    author = relationship('Adherent', foreign_keys=[author_id])
-    dst_account = relationship('Account', foreign_keys=[dst])
-    src_account = relationship('Account', foreign_keys=[src])
-    payment_method = relationship('PaymentMethod', foreign_keys=[type])
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -337,7 +311,7 @@ class Transaction(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.author_id
 
 
 class Caisse(db.Model, RubyHashTrackable):
@@ -349,8 +323,7 @@ class Caisse(db.Model, RubyHashTrackable):
     date = Column(DateTime)
     created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-    linked_transaction = Column(Integer, ForeignKey('transactions.id'), nullable=True, index=True)
-    transaction = relationship('Transaction', foreign_keys=[linked_transaction])
+    linked_transaction = Column(Integer, index=True, nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -362,7 +335,7 @@ class Caisse(db.Model, RubyHashTrackable):
         return modif
 
     def get_related_member(self):
-        return self
+        return self.id
 
 
 class Utilisateur(db.Model):
@@ -394,17 +367,13 @@ class Membership(db.Model):
     __tablename__ = "membership"
 
     uuid = Column(String(36), primary_key=True)
-    account_id = Column(Integer, ForeignKey(Account.id), nullable=True)
+    account_id = Column(Integer, index=True, nullable=True)
     duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
     has_room = Column(Boolean, default=True, nullable=False)
     first_time = Column(Boolean, default=False, nullable=False)
-    adherent_id = Column(Integer, ForeignKey(Adherent.id), nullable=False)
-    payment_method_id = Column(Integer, ForeignKey(PaymentMethod.id), nullable=True)
+    adherent_id = Column(Integer, index=True, nullable=False)
+    payment_method_id = Column(Integer, index=True, nullable=True)
     products = Column(String(255), nullable=True)
     status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
     create_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     update_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-
-    adherent = relationship('Adherent', foreign_keys=[adherent_id], back_populates="memberships")
-    account = relationship('Account', foreign_keys=[account_id])
-    payment_method = relationship('PaymentMethod', foreign_keys=[payment_method_id])
