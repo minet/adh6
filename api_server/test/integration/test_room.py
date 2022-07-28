@@ -3,12 +3,16 @@ import pytest
 
 from adh6.storage.sql.models import  db
 from adh6.storage.sql.models import Chambre
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, base_url as host_url
+
+
+base_url = f'{host_url}/room/'
 
 
 @pytest.fixture
 def client(sample_room1,
-            sample_room2):
+           sample_room2,
+           sample_vlan):
     from .context import app
     from .conftest import prep_db, close_db
     if app.app is None:
@@ -16,7 +20,8 @@ def client(sample_room1,
     with app.app.test_client() as c:
         prep_db(
             sample_room1,
-            sample_room2
+            sample_room2,
+            sample_vlan
         )
         yield c
         close_db()
@@ -27,13 +32,12 @@ def assert_room_in_db(body):
     q = s.query(Chambre)
     q = q.filter(body["roomNumber"] == Chambre.numero)
     c = q.one()
-    assert body["vlan"] == c.vlan.numero
     assert body["description"] == c.description
 
 
 def test_room_filter_all_rooms(client):
     r = client.get(
-        "{}/room/".format(base_url),
+        base_url,
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -51,7 +55,7 @@ def test_room_filter_all_rooms(client):
     ])
 def test_room_search_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}/room/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -64,34 +68,15 @@ def test_room_search_with_only(client, sample_only: str):
 def test_room_search_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}/room/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
-
-
-def test_member_filter_all_with_invalid_limit(client):
-    r = client.get(
-        '{}/member/?limit={}'.format(base_url, -1),
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
-
-
-def test_member_filter_all_with_limit(client):
-    r = client.get(
-        '{}/member/?limit={}'.format(base_url, 1),
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 200
-
-    response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 1
 
 
 def test_room_filter_all_rooms_limit_invalid(client):
     r = client.get(
-        "{}/room/?limit={}".format(base_url, -1),
+        f"{base_url}?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -99,7 +84,7 @@ def test_room_filter_all_rooms_limit_invalid(client):
 
 def test_room_filter_all_rooms_limit(client):
     r = client.get(
-        "{}/room/?limit={}".format(base_url, 1),
+        f"{base_url}?limit={1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -109,7 +94,7 @@ def test_room_filter_all_rooms_limit(client):
 
 def test_room_filter_by_term(client, sample_room1):
     r = client.get(
-        "{}/room/?terms={}".format(base_url, sample_room1.description),
+        f"{base_url}?terms={sample_room1.description}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -119,7 +104,7 @@ def test_room_filter_by_term(client, sample_room1):
 
 def test_room_get_valid_room(client, sample_room1):
     r = client.get(
-        "{}/room/{}".format(base_url, sample_room1.id),
+        f"{base_url}{sample_room1.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -129,7 +114,7 @@ def test_room_get_valid_room(client, sample_room1):
 
 def test_room_get_invalid_room(client):
     r = client.get(
-        "{}/room/{}".format(base_url, 4900),
+        f"{base_url}{4900}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -142,7 +127,7 @@ def test_room_post_new_room_invalid_vlan(client):
         "description": "Chambre 5111"
     }
     r = client.post(
-        "{}/room/".format(base_url),
+        base_url,
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -150,14 +135,14 @@ def test_room_post_new_room_invalid_vlan(client):
     assert r.status_code == 404
 
 
-def test_room_post_new_room(client, sample_room1):
+def test_room_post_new_room(client, sample_vlan):
     room = {
         "roomNumber": 5111,
-        "vlan": sample_room1.vlan.numero,
+        "vlan": sample_vlan.numero,
         "description": "Chambre 5111",
     }
     r = client.post(
-        "{}/room/".format(base_url),
+        base_url,
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -166,14 +151,14 @@ def test_room_post_new_room(client, sample_room1):
     assert_room_in_db(room)
 
 
-def test_room_put_update_room(client, sample_room1):
+def test_room_put_update_room(client, sample_room1, sample_vlan):
     room = {
-        "vlan": sample_room1.vlan.numero,
+        "vlan": sample_vlan.numero,
         "roomNumber": 5111,
         "description": "Chambre 5111"
     }
     r = client.put(
-        "{}/room/{}".format(base_url, sample_room1.id),
+        f"{base_url}{sample_room1.id}",
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -184,7 +169,7 @@ def test_room_put_update_room(client, sample_room1):
 
 def test_room_delete_existant_room(client, sample_room1):
     r = client.delete(
-        "{}/room/{}".format(base_url, sample_room1.id),
+        f"{base_url}{sample_room1.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -197,7 +182,7 @@ def test_room_delete_existant_room(client, sample_room1):
 
 def test_room_delete_non_existant_room(client):
     r = client.delete(
-        "{}/room/{}".format(base_url, 4900),
+        f"{base_url}{4900}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404

@@ -6,7 +6,7 @@ from adh6.device.storage.device_repository import DeviceType
 
 from adh6.storage.sql.models import Adherent, db, Device
 from .resource import (
-    TEST_HEADERS_SAMPLE, base_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
+    TEST_HEADERS_SAMPLE, base_url as host_url, INVALID_MAC, INVALID_IP, INVALID_IPv6, TEST_HEADERS,
     assert_modification_was_created,
 )
 from test import (
@@ -14,12 +14,15 @@ from test import (
 )
 
 
+base_url = f'{host_url}/device/'
+
+
 @pytest.fixture
 def custom_device(sample_member):
     yield Device(
         id=42,
         mac='96-24-F6-D0-48-A7',
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip='157.159.1.1',
         ipv6='::1',
@@ -30,7 +33,7 @@ def unknown_device(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -39,7 +42,7 @@ def unknown_device(faker, sample_member):
 @pytest.fixture
 def device_with_invalid_member(faker, sample_device: Device):
     yield Device(
-        id=sample_device,
+        id=sample_device.id,
         mac=sample_device.mac,
         adherent_id=faker.random_digit_not_null(),
         type=DeviceType.wired.value,
@@ -53,6 +56,7 @@ def client(custom_device,
             wired_device,
             wired_device2,
             wireless_device,
+            sample_member,
             sample_member3):
     from .context import app
     from .conftest import prep_db, close_db
@@ -64,6 +68,7 @@ def client(custom_device,
             wired_device,
             wired_device2,
             wireless_device,
+            sample_member,
             sample_member3,
         )
         yield c
@@ -71,7 +76,7 @@ def client(custom_device,
 
 def test_device_filter_all_devices(client):
     r = client.get(
-        f'{base_url}/device/',
+        f'{base_url}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -92,7 +97,7 @@ def test_device_filter_all_devices(client):
     ])
 def test_device_filter_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}/device/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -104,7 +109,7 @@ def test_device_filter_with_only(client, sample_only: str):
 def test_device_filter_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}/device/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -115,7 +120,7 @@ def test_device_filter_with_unknown_only(client):
 ])
 def test_device_filter_wired_by_member(client, header, member, expected):
     r = client.get(
-        f'{base_url}/device/?filter[member]={member.id}',
+        f'{base_url}?filter[member]={member.id}',
         headers=header
     )
     print(r.text)
@@ -135,7 +140,7 @@ def test_device_filter_wired_by_member(client, header, member, expected):
 ])
 def test_device_filter_by_terms(client, terms, expected):
     r = client.get(
-        f'{base_url}/device/?terms={terms}',
+        f'{base_url}?terms={terms}',
         headers=TEST_HEADERS
     )
     assert r.status_code == 200
@@ -146,7 +151,7 @@ def test_device_filter_by_terms(client, terms, expected):
 
 def test_device_filter_invalid_limit(client):
     r = client.get(
-        f'{base_url}/device/?limit={-1}',
+        f'{base_url}?limit={-1}',
         headers=TEST_HEADERS
     )
     assert r.status_code == 400
@@ -158,9 +163,9 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
 
     # Create a lot of devices
     for i in range(LIMIT * 2):
-        suffix = "{0:04X}".format(i)
+        suffix = "{0:04X}"
         dev = Device(
-            adherent=sample_member,
+            adherent_id=sample_member.id,
             mac='00-00-00-00-' + suffix[:2] + "-" + suffix[2:],
             type=DeviceType.wired.value,
             ip="127.0.0.1",
@@ -170,7 +175,7 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
     s.commit()
 
     r = client.get(
-        f'{base_url}/device/?limit={LIMIT}',
+        f'{base_url}?limit={LIMIT}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -184,7 +189,7 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
 )
 def test_device_filter_by_id(client, device: Device):
     r = client.get(
-        '{}/device/?filter[id]={}'.format(base_url, device.id),
+        f'{base_url}?filter[id]={device.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -198,7 +203,7 @@ def test_device_filter_by_id(client, device: Device):
 )
 def test_device_filter_by_connection_type(client, device: Device):
     r = client.get(
-        '{}/device/?filter[connectionType]={}'.format(base_url, "wireless" if device.type == DeviceType.wireless.value else "wired"),
+        f'{base_url}?filter[connectionType]={"wireless"}' if device.type == DeviceType.wireless.value else f'{base_url}?filter[connectionType]={"wired"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -208,7 +213,7 @@ def test_device_filter_by_connection_type(client, device: Device):
 
 def test_device_filter_unauthorized(client):
     r = client.get(
-        f'{base_url}/device/',
+        f'{base_url}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -220,7 +225,7 @@ def test_device_filter_unauthorized(client):
 def test_device_post(client, device_to_add):
     """ Can create a valid device """
     r = client.post(
-        f'{base_url}/device/',
+        f'{base_url}',
         data=json.dumps(device_to_add),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -243,7 +248,7 @@ def test_device_post_create_wired_without_ip(client, wired_device_dict):
     del wired_device_dict['ipv4Address']
     del wired_device_dict['ipv6Address']
     r = client.post(
-        f'{base_url}/device/',
+        f'{base_url}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -253,21 +258,13 @@ def test_device_post_create_wired_without_ip(client, wired_device_dict):
 
     wired_device_dict["mac"] = "AB-CD-EF-01-23-45"
     r = client.post(
-        f'{base_url}/device/',
+        f'{base_url}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS
     )
     assert r.status_code == 201
     assert_modification_was_created(db.session())
-
-    s = db.session()
-    q = s.query(Device)
-    q = q.filter(Device.type == DeviceType.wired.value)
-    q = q.filter(Device.mac == wired_device_dict["mac"])
-    dev = q.one()
-    assert dev.ip == '192.168.42.12'
-    assert dev.ipv6 == 'fe80::c'
 
 
 @pytest.mark.parametrize(
@@ -282,7 +279,7 @@ def test_device_post_create_wired_without_ip(client, wired_device_dict):
 def test_device_post_create_invalid(client, key, value, wired_device_dict, status_code):
     wired_device_dict[key] = value
     r = client.post(
-        f'{base_url}/device/',
+        f'{base_url}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -293,7 +290,7 @@ def test_device_post_create_invalid(client, key, value, wired_device_dict, statu
 def test_device_post_create_unauthorized(client, wired_device_dict):
     wired_device_dict["member"] = 4242
     r = client.post(
-        f'{base_url}/device/',
+        f'{base_url}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -311,7 +308,7 @@ def test_device_post_create_unauthorized(client, wired_device_dict):
 )
 def test_device_patch(client, device_to_patch: Device, value):
     r = client.patch(
-        f'{base_url}/device/{device_to_patch.id}',
+        f'{base_url}{device_to_patch.id}',
         data=json.dumps(value),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -323,14 +320,14 @@ def test_device_patch(client, device_to_patch: Device, value):
 def test_device_patch_unauthorized_not_owner(client, wired_device: Device, wired_device_dict):
     wired_device_dict["member"] = TESTING_CLIENT_ID
     r = client.patch(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     wired_device_dict["member"] = SAMPLE_CLIENT_ID
     r = client.patch(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -341,7 +338,7 @@ def test_device_patch_unauthorized_not_owner(client, wired_device: Device, wired
 def test_device_patch_unauthorized(client, wired_device: Device, wired_device_dict):
     wired_device_dict["member"] = 4242
     r = client.patch(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -359,7 +356,7 @@ def test_device_patch_unauthorized(client, wired_device: Device, wired_device_di
 )
 def test_device_get_valid(client, device, status_code):
     r = client.get(
-        f'{base_url}/device/{device.id}',
+        f'{base_url}{device.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == status_code
@@ -370,13 +367,13 @@ def test_device_get_valid(client, device, status_code):
 def test_device_get_unauthorized(client, wired_device: Device, wired_device_dict):
     wired_device_dict["member"] = TESTING_CLIENT_ID
     r = client.patch(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     r = client.get(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -392,7 +389,7 @@ def test_device_get_unauthorized(client, wired_device: Device, wired_device_dict
 )
 def test_device_delete(client, device: Device, status_code: int):
     r = client.delete(
-        f'{base_url}/device/{device.id}',
+        f'{base_url}{device.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == status_code
@@ -409,13 +406,13 @@ def test_device_delete(client, device: Device, status_code: int):
 def test_device_delete_unauthorized(client, wired_device: Device, wired_device_dict):
     wired_device_dict["member"] = TESTING_CLIENT_ID
     r = client.patch(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         data=json.dumps(wired_device_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     r = client.delete(
-        f'{base_url}/device/{wired_device.id}',
+        f'{base_url}{wired_device.id}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

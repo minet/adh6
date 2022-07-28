@@ -1,7 +1,10 @@
 import json
 import pytest
 from adh6.storage.sql.models import Product
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, base_url as host_url
+
+
+base_url = f'{host_url}/product/'
 
 
 @pytest.fixture
@@ -29,7 +32,7 @@ def client(sample_product):
 
 def test_product_get_all_invalid_limit(client):
     r = client.get(
-        "{}/product/?limit={}".format(base_url, -1),
+        f"{base_url}?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -37,7 +40,7 @@ def test_product_get_all_invalid_limit(client):
 
 def test_product_get_all_limit(client):
     r = client.get(
-        "{}/product/?limit={}".format(base_url, 0),
+        f"{base_url}?limit={0}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -47,7 +50,7 @@ def test_product_get_all_limit(client):
 
 def test_product_get_all(client):
     r = client.get(
-        "{}/product/".format(base_url),
+        f'{base_url}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -58,7 +61,7 @@ def test_product_get_all(client):
 
 def test_product_get_existant_product(client):
     r = client.get(
-        "{}/product/{}".format(base_url, 1),
+        f"{base_url}{1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -67,7 +70,7 @@ def test_product_get_existant_product(client):
 
 def test_product_get_non_existant_product(client):
     r = client.get(
-        "{}/product/{}".format(base_url, 100000),
+        f"{base_url}{100000}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -75,7 +78,7 @@ def test_product_get_non_existant_product(client):
 
 def test_product_filter_by_term_name(client):
     r = client.get(
-        "{}/product/?terms={}".format(base_url, "te"),
+        f"{base_url}?terms={'te'}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -86,7 +89,7 @@ def test_product_filter_by_term_name(client):
 
 def test_product_filter_by_unknown_term_name(client):
     r = client.get(
-        "{}/product/?terms={}".format(base_url, "azertyuiop"),
+        f"{base_url}?terms={'azertyuiop'}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200

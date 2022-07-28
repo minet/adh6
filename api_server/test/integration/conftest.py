@@ -1,6 +1,5 @@
 from datetime import datetime
 from uuid import uuid4
-import uuid
 from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
@@ -127,18 +126,20 @@ def account_type(faker):
 @pytest.fixture
 def sample_account(account_type: AccountType, sample_member: Adherent):
     yield Account(
+        id=1,
         type=account_type.id,
         creation_date=datetime.now(),
         name="account",
         actif=True,
         compte_courant=False,
         pinned=False,
-        adherent=sample_member
+        adherent_id=sample_member.id
     )
 
 @pytest.fixture
 def sample_account_frais_asso(account_type: AccountType):
     yield Account(
+        id=2,
         type=account_type.id,
         creation_date=datetime.now(),
         name="MiNET frais asso",
@@ -150,6 +151,7 @@ def sample_account_frais_asso(account_type: AccountType):
 @pytest.fixture
 def sample_account_frais_techniques(account_type: AccountType):
     yield Account(
+        id=3,
         type=account_type.id,
         creation_date=datetime.now(),
         name="MiNET frais techniques",
@@ -168,10 +170,11 @@ def sample_payment_method():
 
 @pytest.fixture
 def wired_device(faker, sample_member):
+    print(sample_member.id)
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -183,7 +186,7 @@ def wired_device2(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
         ipv6=faker.ipv6(),
@@ -195,7 +198,7 @@ def wireless_device(faker, sample_member):
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         type=DeviceType.wireless.value,
         ip=faker.ipv4_private(),
         ipv6=faker.ipv6(),
@@ -233,6 +236,7 @@ def wired_device_dict(sample_member):
 @pytest.fixture
 def sample_vlan():
     yield Vlan(
+        id=42,
         numero=42,
         adresses="192.168.42.0/24",
         adressesv6="fe80::0/64",
@@ -242,18 +246,20 @@ def sample_vlan():
 @pytest.fixture
 def sample_room1(sample_vlan):
     yield Chambre(
+        id=420,
         numero=5110,
         description="Chambre de l'ambiance",
-        vlan=sample_vlan,
+        vlan_id=sample_vlan.id,
     )
 
 
 @pytest.fixture
 def sample_room2(sample_vlan):
     yield Chambre(
+        id=840,
         numero=4592,
         description="Chambre voisine du swag",
-        vlan=sample_vlan,
+        vlan_id=sample_vlan.id,
     )
 
 
@@ -360,16 +366,16 @@ def oidc_network_write_role():
 def sample_complete_membership(sample_account: Account, sample_member: Adherent, sample_payment_method: PaymentMethod):
     yield Membership(
         uuid=str(uuid4()),
-        account=sample_account,
+        account_id=sample_account.id,
         create_at=datetime.now(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
         first_time=True,
-        adherent=sample_member,
+        adherent_id=sample_member.id,
         status=MembershipStatus.COMPLETE,
         update_at=datetime.now(),
         products="[]",
-        payment_method=sample_payment_method,
+        payment_method_id=sample_payment_method.id,
     )
 
 @pytest.fixture
@@ -382,7 +388,7 @@ def sample_pending_validation_membership(sample_account: Account, sample_member2
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
         first_time=True,
-        adherent=sample_member2,
+        adherent_id=sample_member2.id,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION,
         update_at=datetime.now(),
         products="[]"
@@ -398,7 +404,7 @@ def sample_member(faker, sample_room1):
         mail='j.dubois@free.fr',
         login=SAMPLE_CLIENT,
         password='a',
-        chambre=sample_room1,
+        chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
@@ -410,13 +416,14 @@ def sample_member(faker, sample_room1):
 @pytest.fixture
 def sample_member2(sample_room1):
     yield Adherent(
+        id=2,
         nom='Reignier',
         prenom='Edouard',
         mail='bgdu78@hotmail.fr',
         login='reignier',
         commentaires='Desauthent pour routeur',
         password='a',
-        chambre=sample_room1,
+        chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         mail_membership=1,
     )
@@ -425,13 +432,14 @@ def sample_member2(sample_room1):
 @pytest.fixture
 def sample_member3(sample_room1):
     yield Adherent(
+        id=3,
         nom='Dupont',
         prenom='Jean',
         mail='test@oyopmail.fr',
         login="jamaislememe",
         commentaires='abcdef',
         password='b',
-        chambre=sample_room1,
+        chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         mail_membership=1,
     )
@@ -441,6 +449,7 @@ def sample_member3(sample_room1):
 def sample_member13():
     """ Membre sans chambre """
     yield Adherent(
+        id=13,
         nom='Robert',
         prenom='Dupond',
         mail='robi@hotmail.fr',
@@ -455,6 +464,7 @@ def sample_member13():
 @pytest.fixture
 def sample_switch1():
     yield Switch(
+        id=1,
         description="Switch sample 1",
         ip="192.168.102.51",
         communaute="GrosMotDePasse",
@@ -464,6 +474,7 @@ def sample_switch1():
 @pytest.fixture
 def sample_switch2():
     yield Switch(
+        id=2,
         description="Switch sample 2",
         ip="192.168.102.52",
         communaute="GrosMotDePasse",
@@ -471,23 +482,23 @@ def sample_switch2():
 
 
 @pytest.fixture
-def sample_port1(sample_switch1):
+def sample_port1(sample_switch1, sample_room1):
     yield Port(
         rcom=1,
         numero="0/0/1",
         oid="1.1.1",
-        switch=sample_switch1,
-        chambre_id=1,
+        switch_id=sample_switch1.id,
+        chambre_id=sample_room1.id,
     )
 
 
 @pytest.fixture
-def sample_port2(sample_switch2):
+def sample_port2(sample_switch2, sample_room1):
     yield Port(
         rcom=2,
         numero="0/0/2",
         oid="1.1.2",
-        switch=sample_switch2,
-        chambre_id=1,
+        switch_id=sample_switch2.id,
+        chambre_id=sample_room1.id,
 
     )

@@ -2,7 +2,9 @@ import pytest
 import json
 from test import SAMPLE_CLIENT, TESTING_CLIENT
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url as host_url
+
+base_url = f"{host_url}/api_keys/"
 
 @pytest.fixture
 def client(sample_member):
@@ -18,7 +20,7 @@ def client(sample_member):
 
 def test_api_key_search(client):
     r = client.get(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -28,7 +30,7 @@ def test_api_key_search(client):
 
 def test_api_key_search_login(client):
     r = client.get(
-        f"{base_url}/api_keys/?login={TESTING_CLIENT}",
+        f"{base_url}?login={TESTING_CLIENT}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -38,7 +40,7 @@ def test_api_key_search_login(client):
 
 def test_api_key_search_unknown_login(client):
     r = client.get(
-        f"{base_url}/api_keys/?login=minet",
+        f"{base_url}?login=minet",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -46,7 +48,7 @@ def test_api_key_search_unknown_login(client):
 
 def test_api_key_search_unauthorized_user(client):
     r = client.get(
-        f"{base_url}/api_keys/?login={TESTING_CLIENT}",
+        f"{base_url}?login={TESTING_CLIENT}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -54,7 +56,7 @@ def test_api_key_search_unauthorized_user(client):
 
 def test_api_key_search_unauthorized_admin(client):
     r = client.get(
-        f"{base_url}/api_keys/?login={TESTING_CLIENT}",
+        f"{base_url}?login={TESTING_CLIENT}",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 401
@@ -68,7 +70,7 @@ def test_api_key_post_role(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -84,7 +86,7 @@ def test_api_key_post_no_role(client):
         "roles": []
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -101,7 +103,7 @@ def test_api_key_post_unknown_user(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -117,7 +119,7 @@ def test_api_key_post_unknown_role(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -133,7 +135,7 @@ def test_api_key_post_unauthorized_user(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -149,7 +151,7 @@ def test_api_key_post_unauthorized_admin(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS_API_KEY_ADMIN,
@@ -165,21 +167,21 @@ def test_api_key_delete(client):
         ]
     }
     r = client.post(
-        f"{base_url}/api_keys/",
+        f"{base_url}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
 
     r = client.get(
-        f"{base_url}/api_keys/?login={SAMPLE_CLIENT}",
+        f"{base_url}?login={SAMPLE_CLIENT}",
         headers=TEST_HEADERS,
     )
     result = json.loads(r.data.decode('utf-8'))
     print(result)
 
     r = client.delete(
-        f"{base_url}/api_keys/{result[0]['id']}",
+        f"{base_url}{result[0]['id']}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -187,7 +189,7 @@ def test_api_key_delete(client):
 
 def test_api_key_delete_unknown(client):
     r = client.delete(
-        f"{base_url}/api_keys/{4242}",
+        f"{base_url}{4242}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -195,7 +197,7 @@ def test_api_key_delete_unknown(client):
 
 def test_api_key_delete_unauthorized_user(client):
     r = client.delete(
-        f"{base_url}/api_keys/{4242}",
+        f"{base_url}{4242}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -203,7 +205,7 @@ def test_api_key_delete_unauthorized_user(client):
 
 def test_api_key_delete_unauthorized_admin(client):
     r = client.delete(
-        f"{base_url}/api_keys/{4242}",
+        f"{base_url}{4242}",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 401

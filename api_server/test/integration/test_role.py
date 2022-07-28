@@ -2,7 +2,11 @@ import pytest
 import json
 from test import SAMPLE_CLIENT
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url as host_url
+
+
+base_url = f"{host_url}/role/"
+
 
 @pytest.fixture
 def client(sample_member):
@@ -18,7 +22,7 @@ def client(sample_member):
 
 def test_role_search(client):
     r = client.get(
-        f"{base_url}/role/?auth=oidc",
+        f"{base_url}?auth=oidc",
         headers=TEST_HEADERS,
     )
     print(r.text)
@@ -29,7 +33,7 @@ def test_role_search(client):
 
 def test_role_search_no_result(client):
     r = client.get(
-        f"{base_url}/role/?auth=oidc&id=minet",
+        f"{base_url}?auth=oidc&id=minet",
         headers=TEST_HEADERS,
     )
     print(r.text)
@@ -40,7 +44,7 @@ def test_role_search_no_result(client):
 
 def test_role_search_filter_unknown_authentication(client):
     r = client.get(
-        f"{base_url}/role/?auth=minet",
+        f"{base_url}?auth=minet",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -48,7 +52,7 @@ def test_role_search_filter_unknown_authentication(client):
 
 def test_role_search_filter_unauthorized_user(client):
     r = client.get(
-        f"{base_url}/role/?auth=oidc",
+        f"{base_url}?auth=oidc",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -56,7 +60,7 @@ def test_role_search_filter_unauthorized_user(client):
 
 def test_role_search_filter_unauthorized_admin(client):
     r = client.get(
-        f"{base_url}/role/?auth=oidc",
+        f"{base_url}?auth=oidc",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 401
@@ -69,14 +73,14 @@ def test_role_post(client):
         "roles": ["admin:write"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
     r = client.get(
-        f"{base_url}/role/?auth=user",
+        f"{base_url}?auth=user",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -91,14 +95,14 @@ def test_role_post_multiple_roles(client):
         "roles": ["admin:write", "admin:read"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
     r = client.get(
-        f"{base_url}/role/?auth=user",
+        f"{base_url}?auth=user",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -113,7 +117,7 @@ def test_role_post_unknown_user(client):
         "roles": ["admin:write"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -128,7 +132,7 @@ def test_role_post_unknown_role(client):
         "roles": ["minet"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -143,7 +147,7 @@ def test_role_post_unauthorized_user(client):
         "roles": ["admin:write"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -158,7 +162,7 @@ def test_role_post_unauthorized_admin(client):
         "roles": ["admin:write"]
     }
     r = client.post(
-        f"{base_url}/role/",
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS_API_KEY_ADMIN,

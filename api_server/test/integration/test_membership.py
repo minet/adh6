@@ -137,11 +137,11 @@ def test_membership_filter_by_account(client, sample_account):
         headers=TEST_HEADERS,
     )
     assert result.status_code == 200
-    assert len(result.json) == 1
+    assert len(result.json) == 2
 
 def test_membership_filter_by_member(client, sample_complete_membership: Membership):
     result = client.get(
-        f'{base_url}/member/membership/?filter[member]={sample_complete_membership.adherent.id}',
+        f'{base_url}/member/membership/?filter[member]={sample_complete_membership.adherent_id}',
         content_type='application/json',
         headers=TEST_HEADERS,
     )
