@@ -30,8 +30,6 @@ class AccountSQLRepository(AccountRepository):
                     func.sum(case(value=Transaction.src, whens={
                         SQLAccount.id: -Transaction.value
                     }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
-        query = query.join(AccountType, AccountType.id == SQLAccount.type)
-        query = query.outerjoin(Adherent, Adherent.id == SQLAccount.adherent_id)
         query = query.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if terms:
@@ -95,11 +93,11 @@ class AccountSQLRepository(AccountRepository):
         account = SQLAccount(
             name=abstract_account.name,
             actif=abstract_account.actif,
-            account_type=account_type,
+            type=account_type.id,
             creation_date=now,
             compte_courant=abstract_account.compte_courant,
             pinned=abstract_account.pinned,
-            adherent=adherent
+            adherent_id=adherent.id if adherent else None
         )
 
         with track_modifications(ctx, session, account):
@@ -129,15 +127,15 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         id=a.id,
         name=a.name,
         actif=a.actif,
-        account_type=a.account_type.id,
+        account_type=a.type,
         creation_date=a.creation_date,
-        member=a.adherent.id if a.adherent else None,
+        member=a.adherent_id if a.adherent_id else None,
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,
         pinned=a.pinned
     )
-def _map_account_sql_to_abstract_entity(a, has_balance=False) -> AbstractAccount:
+def _map_account_sql_to_abstract_entity(a: SQLAccount, has_balance=False) -> AbstractAccount:
     """
     Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
     """
@@ -148,9 +146,9 @@ def _map_account_sql_to_abstract_entity(a, has_balance=False) -> AbstractAccount
         id=a.id,
         name=a.name,
         actif=a.actif,
-        account_type=a.account_type.id,
+        account_type=a.type,
         creation_date=a.creation_date,
-        member=a.adherent.id if a.adherent else None,
+        member=a.adherent_id if a.adherent_id else None,
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,

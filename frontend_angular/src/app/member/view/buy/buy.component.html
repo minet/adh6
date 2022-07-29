@@ -1,0 +1,13 @@
+<ng-container *ngIf="paymentMethods$ | async as paymentMethods">
+  <h3 class="title is-4">
+    Cotisation
+  </h3>
+  <hr />
+  <app-cotisation [member]="member" [paymentMethods]="paymentMethods"></app-cotisation>
+  <br />
+  <h3 class="title is-4">
+    Produits
+  </h3>
+  <hr />
+  <app-buy-product [member]="member" [paymentMethods]="paymentMethods"></app-buy-product>
+</ng-container>

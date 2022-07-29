@@ -567,6 +567,33 @@ paths:
         name: mailinglist
         schema:
           type: integer
+      - description: Filters by the status of the memebership
+        in: query
+        name: membershipStatus
+        schema:
+          type: string
+          enum:
+            - INITIAL
+            - PENDING_RULES
+            - PENDING_PAYMENT_INITIAL
+            - PENDING_PAYMENT
+            - PENDING_PAYMENT_VALIDATION
+            - COMPLETE
+            - CANCELLED
+            - ABORTED
+          example: INITIAL
+          description: >
+            The current status of this membership request:
+             * `INITIAL` - Just created
+             * `PENDING_RULES` - Waiting for the member to sign the rules
+             * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow
+             * `PENDING_PAYMENT` - During the payment flow
+             * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation
+             * `COMPLETE` - The membership request is completed
+             * `CANCELLED` - The membership has been cancelled
+             * `ABORTED` - The membership request flow was aborted
+            Do note that some of the steps may be skipped depending on the payment method,
+            whether or not this is the member's first membership request etc.
       responses:
         200:
           content:
@@ -596,7 +623,6 @@ paths:
       tags:
       - member
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
@@ -888,83 +914,15 @@ paths:
           - admin:write
       tags:
       - member
-  /member/membership/:
-    get:
-      operationId: membership_search
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractMembership'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyMembership'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/AbstractMembership'
-                type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter memberships
-      security: 
-        - OAuth2:
-          - admin:read
-        - ApiKeyAuth:
-          - admin:read
-      tags:
-      - membership
-  /member/{id}/membership/:
+  /member/{id}/subscription/:
     parameters:
       - $ref: '#/components/parameters/idPath'
-    get:
-      parameters:
-        - $ref: '#/components/parameters/onlyMembership'
-      operationId: get_latest_membership
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AbstractMembership'
-          description: Success
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Get the latest pending membership of a specific member
-      security: 
-        - OAuth2:
-          - admin:read
-        - ApiKeyAuth:
-          - admin:read
-      tags:
-      - membership
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Membership'
+              $ref: '#/components/schemas/SubscriptionBody'
         description: The membership to create
         required: true
       responses:
@@ -990,24 +948,13 @@ paths:
           - admin:write
       tags:
       - membership
-  /member/{id}/membership/{uuid}:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-      - description: The UUID associated with this membership request
-        in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
     patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMembership'
-        description: The new values for this member
+              $ref: '#/components/schemas/SubscriptionBody'
+        description: The membership to create
         required: true
       responses:
         204:
@@ -1020,7 +967,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Partially update a membership
+      summary: Add a membership record for a member
       security: 
         - OAuth2:
           - admin:write
@@ -1028,25 +975,17 @@ paths:
           - admin:write
       tags:
       - membership
-  /member/{id}/membership/{uuid}/validate:
+  /member/{id}/subscription/validate:
     parameters:
       - $ref: '#/components/parameters/idPath'
-      - description: The UUID associated with this membership request
-        in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
       - description: Should the membership be free
         in: query
         name: free
         schema:
           type: boolean
           example: false
-    get:
-      operationId: membership_validate
+    post:
+      operationId: subscription_validate
       responses:
         204:
           description: Success
@@ -2702,6 +2641,33 @@ components:
           type: string
           format: date-time
           description: When this status was last reported
+    SubscriptionBody:
+      type: object
+      properties:
+        duration:
+          description: The requested duration (in months) for this membership
+          type: integer
+          enum: [0, 1, 2, 3, 4, 5, 6, 12]
+          nullable: true
+        hasRoom:
+          description: if the Member ask for a room or not
+          type: boolean
+          nullable: true
+        paymentMethod:
+          description: The payment method id to be used for the transaction
+          type: integer
+          example: 4
+          nullable: true
+        account:
+          description: The id of the source account from which to execute the transaction
+          type: integer
+          example: 4
+          nullable: true
+        member:
+          description: The id of the member to whom this membership applies
+          type: integer
+          example: 4
+          nullable: true
     AbstractMembership:
       type: object
       properties:
@@ -2734,10 +2700,12 @@ components:
           description: The payment method id to be used for the transaction
           type: integer
           example: 4
+          nullable: true
         account:
           description: The id of the source account from which to execute the transaction
           type: integer
           example: 4
+          nullable: true
         member:
           description: The id of the member to whom this membership applies
           type: integer
@@ -2778,8 +2746,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractMembership'
         - required:
-            - member
-            - status
+          - uuid
+          - hasRoom
+          - member
+          - status
       type: object
     AbstractAccount:
       type: object
@@ -3007,7 +2977,7 @@ components:
           type: string
         member:
           description: The id of the member this device belongs to
-          type: number
+          type: integer
           example: 0
     Device:
       allOf:
@@ -3076,6 +3046,30 @@ components:
           example: 10.42.8.240/28
           nullable: true
           type: string
+        membership:
+          type: string
+          enum:
+            - INITIAL
+            - PENDING_RULES
+            - PENDING_PAYMENT_INITIAL
+            - PENDING_PAYMENT
+            - PENDING_PAYMENT_VALIDATION
+            - COMPLETE
+            - CANCELLED
+            - ABORTED
+          example: INITIAL
+          description: >
+            The current status of this membership request:
+             * `INITIAL` - Just created
+             * `PENDING_RULES` - Waiting for the member to sign the rules
+             * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow
+             * `PENDING_PAYMENT` - During the payment flow
+             * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation
+             * `COMPLETE` - The membership request is completed
+             * `CANCELLED` - The membership has been cancelled
+             * `ABORTED` - The membership request flow was aborted
+            Do note that some of the steps may be skipped depending on the payment method,
+            whether or not this is the member's first membership request etc.
     Member:
       allOf:
         - $ref: '#/components/schemas/AbstractMember'

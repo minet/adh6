@@ -5,14 +5,19 @@ from pytest_lazyfixture import lazy_fixture
 
 from adh6.storage.sql.models import  Switch, db
 from adh6.storage.sql.models import Port
-from test.integration.resource import base_url, TEST_HEADERS
+from test.integration.resource import base_url as host_url, TEST_HEADERS
+
+
+base_url = f'{host_url}/port/'
 
 
 @pytest.fixture
 def client(sample_port1,
             sample_port2,
             sample_room1,
-            sample_member):
+            sample_member,
+           sample_switch1,
+           sample_switch2):
     from .context import app
     from .conftest import prep_db, close_db
     if app.app is None:
@@ -22,7 +27,9 @@ def client(sample_port1,
             sample_port1,
             sample_port2,
             sample_room1,
-            sample_member
+            sample_member,
+            sample_switch1,
+            sample_switch2
         )
         yield c
         close_db()
@@ -34,12 +41,12 @@ def assert_port_in_db(body):
     q = q.filter(Port.numero == body["portNumber"])
     p = q.one()
     assert body["portNumber"] == p.numero
-    assert body["room"] == p.chambre.id
-    assert body["switchObj"] == p.switch.id
+    assert body["room"] == p.chambre_id
+    assert body["switchObj"] == p.switch_id
 
 def test_port_get_filter_all(client):
     r = client.get(
-        f"{base_url}/port/",
+        f"{base_url}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -58,7 +65,7 @@ def test_port_get_filter_all(client):
     ])
 def test_port_search_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}/port/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -68,37 +75,9 @@ def test_port_search_with_only(client, sample_only: str):
     assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
 
 
-def test_member_search_with_unknown_only(client):
-    sample_only = "azerty"
-    r = client.get(
-        f'{base_url}/port/?only={sample_only}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
-
-
-def test_member_filter_all_with_invalid_limit(client):
-    r = client.get(
-        '{}/member/?limit={}'.format(base_url, -1),
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
-
-
-def test_member_filter_all_with_limit(client):
-    r = client.get(
-        '{}/member/?limit={}'.format(base_url, 1),
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 200
-
-    response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 1
-
-
 def test_port_get_filter_all_with_invalid_limit(client):
     r = client.get(
-        f"{base_url}/port/?limit={-1}",
+        f"{base_url}?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -109,7 +88,7 @@ def test_port_get_filter_all_with_invalid_limit(client):
 )
 def test_port_get_filter_all_with_limit(client, limit: int):
     r = client.get(
-        f"{base_url}/port/?limit={limit}",
+        f"{base_url}?limit={limit}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -123,7 +102,7 @@ def sample_switch2_id(sample_switch2: Switch):
 
 @pytest.fixture
 def sample_port1_room_id(sample_port1: Port):
-    yield sample_port1.chambre.id
+    yield sample_port1.chambre_id
 
 @pytest.mark.parametrize(
     'filter_name,filter_value,quantity',
@@ -135,7 +114,7 @@ def sample_port1_room_id(sample_port1: Port):
 )
 def test_port_get_filter_by_filter(client, filter_name, filter_value, quantity: int):
     r = client.get(
-        f"{base_url}/port/?filter[{filter_name}]={filter_value}",
+        f"{base_url}?filter[{filter_name}]={filter_value}",
         headers=TEST_HEADERS
     )
     assert r.status_code == 200
@@ -151,7 +130,7 @@ def test_port_get_filter_by_filter(client, filter_name, filter_value, quantity: 
 )
 def test_port_get_filter_by_term(client, term: str):
     r = client.get(
-        f"{base_url}/port/?terms={term}",
+        f"{base_url}?terms={term}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -169,7 +148,7 @@ def test_port_post_create_port_invalid_switch(client, sample_room1):
     }
 
     r = client.post(
-        "{}/port/".format(base_url),
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -186,7 +165,7 @@ def test_port_post_create_port_invalid_room(client, sample_switch1):
     }
 
     r = client.post(
-        "{}/port/".format(base_url),
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -203,7 +182,7 @@ def test_port_post_create_port(client, sample_switch1, sample_room1):
     }
 
     r = client.post(
-        "{}/port/".format(base_url),
+        base_url,
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -213,7 +192,7 @@ def test_port_post_create_port(client, sample_switch1, sample_room1):
 
 def test_port_get_existant_port(client, sample_port1):
     r = client.get(
-        f"{base_url}/port/{sample_port1.id}",
+        f"{base_url}{sample_port1.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -223,7 +202,7 @@ def test_port_get_existant_port(client, sample_port1):
 
 def test_port_get_non_existant_port(client):
     r = client.get(
-        f"{base_url}/port/{4242}",
+        f"{base_url}{4242}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -242,7 +221,7 @@ def sample_ports1_id(sample_port1: Port):
 )
 def test_port_put_update_port(client, sample_switch1: Switch, sample_port1: Port, port_id: int, key: str, value, status_code: int):
     body = {
-        "room": sample_port1.chambre.id,
+        "room": sample_port1.chambre_id,
         "oid": sample_port1.oid,
         "switchObj": sample_switch1.id,
         "portNumber": sample_port1.numero
@@ -252,7 +231,7 @@ def test_port_put_update_port(client, sample_switch1: Switch, sample_port1: Port
         body[key] = value
 
     r = client.put(
-        f"{base_url}/port/{port_id}",
+        f"{base_url}{port_id}",
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -270,7 +249,7 @@ def test_port_put_update_port(client, sample_switch1: Switch, sample_port1: Port
 )
 def test_port_delete_port(client, port_id: int, status_code: int):
     r = client.delete(
-        f"{base_url}/port/{port_id}",
+        f"{base_url}{port_id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == status_code

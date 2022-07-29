@@ -6,9 +6,11 @@ import pytest
 from adh6.storage.sql.models import Chambre, db
 from adh6.storage.sql.models import Adherent
 from test.integration.resource import (
-    TEST_HEADERS_SAMPLE, base_url, TEST_HEADERS, assert_modification_was_created)
+    TEST_HEADERS_SAMPLE, base_url as host_url, TEST_HEADERS, assert_modification_was_created)
 from test.integration.context import tomorrow
 
+
+base_url = f'{host_url}/member/'
 
 def assert_member_in_db(body):
     # Actually check that the object was inserted
@@ -20,14 +22,13 @@ def assert_member_in_db(body):
     assert r.prenom == body["firstName"]
     assert r.mail == body["email"]
     assert r.date_de_depart == parser.parse(body["departureDate"]).date()
-    assert r.chambre.numero == body["roomNumber"]
     assert r.commentaires == body["comment"]
     assert r.login == body["username"]
 
 
 def test_member_filter_all(client):
     r = client.get(
-        '{}/member/'.format(base_url),
+        f'{base_url}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -47,20 +48,21 @@ def test_member_filter_all(client):
     ])
 def test_member_search_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}/member/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 4
+    print(response[0])
     assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
 
 
 def test_member_search_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}/member/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -68,7 +70,7 @@ def test_member_search_with_unknown_only(client):
 
 def test_member_filter_all_with_invalid_limit(client):
     r = client.get(
-        '{}/member/?limit={}'.format(base_url, -1),
+        f'{base_url}?limit={-1}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -76,7 +78,7 @@ def test_member_filter_all_with_invalid_limit(client):
 
 def test_member_filter_all_with_limit(client):
     r = client.get(
-        '{}/member/?limit={}'.format(base_url, 1),
+        f'{base_url}?limit={1}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -87,7 +89,7 @@ def test_member_filter_all_with_limit(client):
 
 def test_member_filter_by_room_number(client, sample_room1):
     r = client.get(
-        '{}/member/?filter[roomNumber]={}'.format(base_url, sample_room1.numero),
+        f'{base_url}?filter[roomNumber]={sample_room1.numero}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -98,7 +100,7 @@ def test_member_filter_by_room_number(client, sample_room1):
 
 def test_member_filter_by_non_existant_id(client):
     r = client.get(
-        '{}/member/?filter[roomNumber]={}'.format(base_url, 6666),
+        f'{base_url}?filter[roomNumber]={6666}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -109,7 +111,7 @@ def test_member_filter_by_non_existant_id(client):
 
 def test_member_filter_by_ip(client, sample_member: Adherent):
     r = client.get(
-        '{}/member/?filter[ip]={}'.format(base_url, sample_member.ip),
+        f'{base_url}?filter[ip]={sample_member.ip}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -120,7 +122,7 @@ def test_member_filter_by_ip(client, sample_member: Adherent):
 
 def test_member_filter_terms_first_name(client):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "Jean"),
+        f'{base_url}?terms={"Jean"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -131,7 +133,7 @@ def test_member_filter_terms_first_name(client):
 
 def test_member_filter_terms_last_name(client):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "ubois"),
+        f'{base_url}?terms={"ubois"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -142,7 +144,7 @@ def test_member_filter_terms_last_name(client):
 
 def test_member_filter_terms_email(client):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "bgdu78"),
+        f'{base_url}?terms={"bgdu78"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -153,7 +155,7 @@ def test_member_filter_terms_email(client):
 
 def test_member_filter_terms_login(client, sample_member: Adherent):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, sample_member.login),
+        f'{base_url}?terms={sample_member.login}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -164,7 +166,7 @@ def test_member_filter_terms_login(client, sample_member: Adherent):
 
 def test_member_filter_terms_comment(client):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "routeur"),
+        f'{base_url}?terms={"routeur"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -175,7 +177,7 @@ def test_member_filter_terms_comment(client):
 
 def test_member_filter_terms_nonexistant(client):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, "azerty"),
+        f'{base_url}?terms={"azerty"}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -186,7 +188,7 @@ def test_member_filter_terms_nonexistant(client):
 
 def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     r = client.get(
-        '{}/member/?terms={}'.format(base_url, sample_member.login.upper()),
+        f'{base_url}?terms={sample_member.login.upper()}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -197,7 +199,7 @@ def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
 
 def test_member_filter_unauthorized(client):
     r = client.get(
-        f'{base_url}/member/',
+        f'{base_url}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -214,7 +216,7 @@ def test_member_filter_unauthorized(client):
     ])
 def test_member_get_with_only(client, sample_member, sample_only: str):
     r = client.get(
-        f'{base_url}/member/{sample_member.id}?only={sample_only}',
+        f'{base_url}{sample_member.id}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -226,7 +228,7 @@ def test_member_get_with_only(client, sample_member, sample_only: str):
 def test_member_get_with_unknown_only(client, sample_member):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}/member/{sample_member.id}?only={sample_only}',
+        f'{base_url}{sample_member.id}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -235,7 +237,7 @@ def test_member_get_with_unknown_only(client, sample_member):
 
 def test_member_get_existant(client, sample_member):
     r = client.get(
-        '{}/member/{}'.format(base_url, sample_member.id),
+        f'{base_url}{sample_member.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -244,7 +246,7 @@ def test_member_get_existant(client, sample_member):
 
 def test_member_get_nonexistant(client):
     r = client.get(
-        '{}/member/{}'.format(base_url, 4242),
+        f'{base_url}{4242}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -252,7 +254,7 @@ def test_member_get_nonexistant(client):
 
 def test_member_get_unauthorized(client):
     r = client.get(
-        f'{base_url}/member/{4242}',
+        f'{base_url}{4242}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -260,7 +262,7 @@ def test_member_get_unauthorized(client):
 
 def test_member_delete_existant(client, sample_member):
     r = client.delete(
-        '{}/member/{}'.format(base_url, sample_member.id),
+        f'{base_url}{sample_member.id}',
         headers=TEST_HEADERS
     )
     assert r.status_code == 204
@@ -274,7 +276,7 @@ def test_member_delete_existant(client, sample_member):
 
 def test_member_delete_non_existant(client):
     r = client.delete(
-        '{}/member/{}'.format(base_url, 4242),
+        f'{base_url}{4242}',
         headers=TEST_HEADERS
     )
     assert r.status_code == 404
@@ -282,7 +284,7 @@ def test_member_delete_non_existant(client):
 
 def test_member_delete_unauthorized(client):
     r = client.delete(
-        f'{base_url}/member/{4242}',
+        f'{base_url}{4242}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -299,7 +301,7 @@ def test_member_post_member_create_invalid_email(client):
         "username": "doe_john"
     }
     res = client.post(
-        '{}/member/'.format(base_url),
+        f'{base_url}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -318,7 +320,7 @@ def test_member_post_member_create_unknown_room(client):
         "username": "doe_john"
     }
     res = client.post(
-        '{}/member/'.format(base_url),
+        f'{base_url}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -337,7 +339,7 @@ def test_member_post_member_create(client, sample_room1):
         "username": "doe_john"
     }
     res = client.post(
-        '{}/member/'.format(base_url),
+        f'{base_url}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -358,7 +360,7 @@ def test_member_post_unauthorized(client):
         "username": "doe_john"
     }
     r = client.post(
-        f'{base_url}/member/',
+        f'{base_url}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -388,7 +390,7 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         key: value,
     }
     res = client.patch(
-        '{}/member/{}'.format(base_url, sample_member.id),
+        f'{base_url}{sample_member.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -398,7 +400,6 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,
-        "roomNumber": sample_member.chambre.numero,
         "comment": sample_member.commentaires,
         "departureDate": str(sample_member.date_de_depart),
         "email": sample_member.mail,
@@ -424,7 +425,7 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
         key: value,
     }
     res = client.patch(
-        f'{base_url}/member/{sample_member2.id}',
+        f'{base_url}{sample_member2.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -437,7 +438,7 @@ def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: in
         "mailinglist": value,
     }
     res = client.patch(
-        f'{base_url}/member/{sample_member.id}',
+        f'{base_url}{sample_member.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -447,7 +448,7 @@ def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: in
 
 def test_member_patch_unauthorized(client):
     r = client.patch(
-        f'{base_url}/member/{4242}',
+        f'{base_url}{4242}',
         data=json.dumps({}),
         headers=TEST_HEADERS_SAMPLE,
     )
@@ -465,7 +466,7 @@ def test_member_put_member_update(client, sample_member, sample_room1):
         "username": "dubois_j"
     }
     res = client.put(
-        '{}/member/{}'.format(base_url, sample_member.id),
+        f'{base_url}{sample_member.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -487,7 +488,7 @@ def test_member_put_member_membership_pending(client, sample_member2: Adherent, 
         "username": sample_member2.login
     }
     res = client.put(
-        '{}/member/{}'.format(base_url, sample_member2.id),
+        f'{base_url}{sample_member2.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -497,7 +498,7 @@ def test_member_put_member_membership_pending(client, sample_member2: Adherent, 
 
 def test_member_put_unauthorized(client):
     r = client.put(
-        f'{base_url}/member/{4242}',
+        f'{base_url}{4242}',
         data=json.dumps({}),
         headers=TEST_HEADERS_SAMPLE,
     )
@@ -509,7 +510,7 @@ def test_member_get_logs(client, sample_member):
         "dhcp": False,
     }
     result = client.get(
-        '{}/member/{}/logs/'.format(base_url, sample_member.id),
+        f'{base_url}{sample_member.id}/logs/',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -520,7 +521,7 @@ def test_member_get_logs(client, sample_member):
 
 def test_member_get_logs_unauthorized(client):
     r = client.get(
-        f'{base_url}/member/{4242}/logs/',
+        f'{base_url}{4242}/logs/',
         data=json.dumps({}),
         headers=TEST_HEADERS_SAMPLE,
     )
@@ -530,7 +531,7 @@ def test_member_get_logs_unauthorized(client):
 @pytest.mark.parametrize('headers', [TEST_HEADERS, TEST_HEADERS_SAMPLE])
 def test_member_get_statuses(client, sample_member, headers):
     result = client.get(
-        f'{base_url}/member/{sample_member.id}/statuses/',
+        f'{base_url}{sample_member.id}/statuses/',
         content_type='application/json',
         headers=headers,
     )
@@ -540,7 +541,7 @@ def test_member_get_statuses(client, sample_member, headers):
 
 def test_member_get_statuses_unauthorized(client):
     r = client.get(
-        f'{base_url}/member/{4242}/statuses/',
+        f'{base_url}{4242}/statuses/',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

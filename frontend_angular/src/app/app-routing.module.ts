@@ -12,7 +12,6 @@ const routes: Routes = [
   { path: 'room', loadChildren: () => import('./room/room.module').then(m => m.RoomModule) },
   { path: 'transaction', loadChildren: () => import('./transaction/transaction.module').then(m => m.TransactionModule) },
   { path: 'treasury', loadChildren: () => import('./treasury/treasury.module').then(m => m.TreasuryModule) },
-  { path: 'membership', loadChildren: () => import('./membership/membership.module').then(m => m.MembershipModule) },
   { path: 'member', loadChildren: () => import('./member/member.module').then(m => m.MemberModule) },
   { path: 'device', loadChildren: () => import('./device/device.module').then(m => m.DeviceModule) },
   { path: 'switch_local', loadChildren: () => import('./switch-local/switch-local.module').then(m => m.SwitchLocalModule) },

@@ -2,14 +2,13 @@
 """
 Contain all the http http_api functions.
 """
-from typing import Dict, List, Optional, Tuple, Any
+from typing import List, Optional, Tuple, Any
 
 from connexion import NoContent
 from adh6.authentication import Method
 from adh6.authentication.security import with_security
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractMember, Member, Membership, AbstractMembership
+from adh6.entity import AbstractMember, Member, SubscriptionBody
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
@@ -37,6 +36,7 @@ class MemberHandler(DefaultHandler):
                         if k not in only + ["id", "__typename"]:
                             del entity[k]
                 return entity
+            print(self.main_manager.get_by_id(ctx, id=id_))
             return remove(serialize_response(self.main_manager.get_by_id(ctx, id=id_))), 200
         except Exception as e:
             return handle_error(ctx, e)
@@ -87,16 +87,15 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def membership_post(self, ctx, id_: int, body: dict):
+    def subscription_post(self, ctx, id_: int, body: dict):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
             if 'uuid' not in body:
                 body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
-            to_create: AbstractMembership = deserialize_request(body, AbstractMembership)
-
-            created_membership = self.member_manager.new_membership(ctx, id_, to_create)
+            to_create = deserialize_request(body, SubscriptionBody)
+            created_membership = self.member_manager.create_subscription(ctx, id_, to_create)
             return serialize_response(created_membership), 200  # 200 OK
         except Exception as e:
             return handle_error(ctx, e)
@@ -126,7 +125,6 @@ class MemberHandler(DefaultHandler):
     @with_security()
     @log_call
     def statuses_search(self, ctx, id_: int):
-        print("====================")
         try:
             return serialize_response(self.member_manager.get_statuses(ctx, id_)), 200
         except Exception as e:
@@ -134,55 +132,20 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def membership_search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_=None, only: Optional[List[str]]=None):
+    def subscription_patch(self, ctx, id_, body):
         try:
-            def remove(entity: Dict[str, Any]) -> Dict[str, Any]:
-                if only is not None:
-                    entity_cp = entity.copy()
-                    for k in entity_cp.keys():
-                        if k not in only + ["id", "__typename"]:
-                            del entity[k]
-                return entity
-
-            filter_ = deserialize_request(filter_, AbstractMembership)
-            result, total_count = self.member_manager.membership_search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            result = list(map(remove, map(serialize_response, result)))
-            return result, 200, headers
-        except Exception as e:
-            return handle_error(ctx, e)
-
-    @with_context
-    @log_call
-    def get_latest_membership(self, ctx, id_: int):
-        try:
-            membership: Membership = self.member_manager.get_latest_membership(ctx, id_)
-            LOG.debug("get_latest_membership", extra=log_extra(ctx, membership_uuid=membership.uuid))
-            return serialize_response(membership), 200
-        except Exception as e:
-            LOG.debug("get_latest_membership_error", extra=log_extra(ctx,error=str(e)))
-            return handle_error(ctx, e)
-
-    @with_context
-    @log_call
-    def membership_patch(self, ctx, id_, uuid, body):
-        try:
-            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, uuid=uuid, id=id_))
-            body['uuid'] = uuid
-            to_update: AbstractMembership = deserialize_request(body, AbstractMembership)
-            self.member_manager.change_membership(ctx, id_, uuid, to_update)
+            LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, id=id_))
+            to_update = deserialize_request(body, SubscriptionBody)
+            self.member_manager.update_subscription(ctx, id_, to_update)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
 
     @with_context
     @log_call
-    def membership_validate(self, ctx, id_: int, uuid: str, free: bool = False):
+    def subscription_validate(self, ctx, id_: int, free: bool = False):
         try:
-            self.member_manager.validate_membership(ctx, id_, uuid, free)
+            self.member_manager.validate_subscription(ctx, id_, free)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

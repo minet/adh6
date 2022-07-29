@@ -5,37 +5,48 @@ import pytest
 
 from adh6.storage.sql.models import  db
 from adh6.storage.sql.models import Transaction, Account, AccountType
-from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url
+from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url as host_url
+
+
+base_url = f"{host_url}/transaction/"
 
 
 @pytest.fixture
-def sample_account1():
+def sample_account_type1():
+    return AccountType(
+        id=1,
+        name='adherent'
+    )
+
+@pytest.fixture
+def sample_account_type2():
+    return AccountType(
+        id=2,
+        name='adherent'
+    )
+
+@pytest.fixture
+def sample_account1(sample_account_type1):
     return Account(
         id=1,
         name='test1',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 30),
-        account_type=AccountType(
-            id=1,
-            name='adherent'
-        ),
-        adherent=None,
+        type=sample_account_type1.id,
+        adherent_id=None,
         compte_courant=False,
         pinned=False)
 
 
 @pytest.fixture
-def sample_account2():
+def sample_account2(sample_account_type2):
     return Account(
         id=2,
         name='test3',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 31),
-        account_type=AccountType(
-            id=2,
-            name='event'
-        ),
-        adherent=None,
+        type=sample_account_type2.id,
+        adherent_id=None,
         compte_courant=False,
         pinned=False)
 
@@ -44,14 +55,14 @@ def sample_account2():
 def sample_transaction(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=91,
-        src_account=sample_account1,
-        dst_account=sample_account2,
+        src=sample_account1.id,
+        dst=sample_account2.id,
         name='description',
         value=200,
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
-        payment_method=sample_payment_method,
-        author=sample_member,
+        type=sample_payment_method.id,
+        author_id=sample_member.id,
         pending_validation=False)
 
 
@@ -59,14 +70,14 @@ def sample_transaction(sample_member, sample_account1, sample_account2, sample_p
 def sample_transaction_pending(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=92,
-        src_account=sample_account1,
-        dst_account=sample_account2,
+        src=sample_account1.id,
+        dst=sample_account2.id,
         name='description 2',
         value=230,
         attachments='',
         timestamp=datetime.datetime(2005, 7, 14, 12, 31),
-        payment_method=sample_payment_method,
-        author=sample_member,
+        type=sample_payment_method.id,
+        author_id=sample_member.id,
         pending_validation=True)
 
 
@@ -107,7 +118,7 @@ def test_switch_post_invalid_value(client, test_value):
         "payment_method": "liquide"
     }
     r = client.post(
-        "{}/transaction/".format(base_url),
+        f"{base_url}",
         data=json.dumps(sample_transaction1),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -129,7 +140,7 @@ def test_transaction_post_valid(client, sample_member_admin):
 
     # Insert data to the database
     r = client.post(
-        "{}/transaction/".format(base_url),
+        f"{base_url}",
         data=json.dumps(sample_transaction1),
         content_type='application/json',
         headers=TEST_HEADERS
@@ -140,7 +151,7 @@ def test_transaction_post_valid(client, sample_member_admin):
 
 def test_transaction_get_all_invalid_limit(client):
     r = client.get(
-        "{}/transaction/?limit={}".format(base_url, -1),
+        f"{base_url}?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -148,7 +159,7 @@ def test_transaction_get_all_invalid_limit(client):
 
 def test_transaction_get_all_limit(client):
     r = client.get(
-        "{}/transaction/?limit={}".format(base_url, 0),
+        f"{base_url}?limit={0}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -158,7 +169,7 @@ def test_transaction_get_all_limit(client):
 
 def test_transaction_get_all(client):
     r = client.get(
-        "{}/transaction/".format(base_url),
+        f"{base_url}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -180,7 +191,7 @@ def test_transaction_get_all(client):
     ])
 def test_transaction_search_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}/transaction/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -193,7 +204,7 @@ def test_transaction_search_with_only(client, sample_only: str):
 def test_transaction_search_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}/transaction/?only={sample_only}',
+        f'{base_url}?only={sample_only}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -201,7 +212,7 @@ def test_transaction_search_with_unknown_only(client):
 
 def test_transaction_validate_pending(client, sample_transaction_pending):
     r = client.get(
-        '{}/transaction/{}/validate'.format(base_url, sample_transaction_pending.id),
+        f'{base_url}{sample_transaction_pending.id}/validate',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -214,7 +225,7 @@ def test_transaction_validate_pending(client, sample_transaction_pending):
 
 def test_device_validate_nonpending(client, sample_transaction):
     r = client.get(
-        '{}/transaction/{}/validate'.format(base_url, sample_transaction.id),
+        f'{base_url}{sample_transaction.id}/validate',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -222,7 +233,7 @@ def test_device_validate_nonpending(client, sample_transaction):
 
 def test_transaction_delete_pending(client, sample_transaction_pending):
     r = client.delete(
-        '{}/transaction/{}'.format(base_url, sample_transaction_pending.id),
+        f'{base_url}{sample_transaction_pending.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -236,7 +247,7 @@ def test_transaction_delete_pending(client, sample_transaction_pending):
 
 def test_device_delete_nonpending(client, sample_transaction):
     r = client.delete(
-        '{}/transaction/{}'.format(base_url, sample_transaction.id),
+        f'{base_url}{sample_transaction.id}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -244,7 +255,7 @@ def test_device_delete_nonpending(client, sample_transaction):
 
 def test_transaction_get_existant_transaction(client, sample_transaction):
     r = client.get(
-        "{}/transaction/{}".format(base_url, sample_transaction.id),
+        f"{base_url}{sample_transaction.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -253,7 +264,7 @@ def test_transaction_get_existant_transaction(client, sample_transaction):
 
 def test_transaction_get_non_existant_transaction(client):
     r = client.get(
-        "{}/transaction/{}".format(base_url, 100000),
+        f"{base_url}{100000}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -262,7 +273,7 @@ def test_transaction_get_non_existant_transaction(client):
 def test_transaction_filter_by_term_desc(client):
     terms = "descri"
     r = client.get(
-        "{}/transaction/?terms={}".format(base_url, terms),
+        f"{base_url}?terms={terms}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -274,7 +285,7 @@ def test_transaction_filter_by_term_desc(client):
 def test_transaction_filter_by_term_nonexistant(client):
     terms = "BONJOUR?"
     r = client.get(
-        "{}/transaction/?terms={}".format(base_url, terms),
+        f"{base_url}?terms={terms}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -284,7 +295,7 @@ def test_transaction_filter_by_term_nonexistant(client):
 
 def test_transaction_filter_by_id(client, sample_transaction: Transaction):
     r = client.get(
-        "{}/transaction/?filter[id]={}".format(base_url, sample_transaction.id),
+        f"{base_url}?filter[id]={sample_transaction.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -294,7 +305,7 @@ def test_transaction_filter_by_id(client, sample_transaction: Transaction):
 
 def test_transaction_filter_by_payment_method(client, sample_transaction: Transaction):
     r = client.get(
-        "{}/transaction/?filter[paymentMethod]={}".format(base_url, sample_transaction.payment_method.id),
+        f"{base_url}?filter[paymentMethod]={sample_transaction.type}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -304,7 +315,7 @@ def test_transaction_filter_by_payment_method(client, sample_transaction: Transa
 
 def test_transaction_filter_by_pending_validation(client, sample_transaction: Transaction):
     r = client.get(
-        "{}/transaction/?filter[pendingValidation]={}".format(base_url, sample_transaction.pending_validation),
+        f"{base_url}?filter[pendingValidation]={sample_transaction.pending_validation}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -314,7 +325,7 @@ def test_transaction_filter_by_pending_validation(client, sample_transaction: Tr
 
 def test_transaction_filter_by_src(client, sample_transaction: Transaction):
     r = client.get(
-        "{}/transaction/?filter[src]={}".format(base_url, sample_transaction.src),
+        f"{base_url}?filter[src]={sample_transaction.src}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -324,7 +335,7 @@ def test_transaction_filter_by_src(client, sample_transaction: Transaction):
 
 def test_transaction_filter_by_dst(client, sample_transaction: Transaction):
     r = client.get(
-        "{}/transaction/?filter[dst]={}".format(base_url, sample_transaction.dst),
+        f"{base_url}?filter[dst]={sample_transaction.dst}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200

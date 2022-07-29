@@ -32,12 +32,7 @@ class TransactionSQLRepository(TransactionRepository):
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_:  Optional[AbstractTransaction] = None) -> Tuple[List[AbstractTransaction], int]:
         session: Session= ctx.get(CTX_SQL_SESSION)
 
-        account_source = aliased(Account)
-        account_destination = aliased(Account)
-
         query= session.query(SQLTransaction)
-        query= query.join(account_source, account_source.id == SQLTransaction.dst)
-        query= query.join(account_destination, account_destination.id == SQLTransaction.src)
 
         if terms:
             query= query.filter((SQLTransaction.name.contains(terms)))
@@ -76,9 +71,6 @@ class TransactionSQLRepository(TransactionRepository):
         now = datetime.now()
 
         admin_id = ctx.get(CTX_ADMIN)
-        author_ref = session.query(Adherent).filter(Adherent.id == admin_id).one_or_none()
-        if not author_ref:
-            raise MemberNotFoundError(abstract_transaction.author)
 
         account_src = None
         if abstract_transaction.src is not None:
@@ -100,14 +92,14 @@ class TransactionSQLRepository(TransactionRepository):
                 raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
 
         transaction = SQLTransaction(
-            src_account=account_src,
-            dst_account=account_dst,
+            src=account_src.id if account_src else None,
+            dst=account_dst.id if account_dst else None,
             value=abstract_transaction.value,
             name=abstract_transaction.name,
             timestamp=now,
             attachments="",
-            payment_method=method,
-            author=author_ref,
+            type=method.id if method else None,
+            author_id=admin_id,
             pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
         )
 
@@ -155,14 +147,14 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     """
     return Transaction(
         id=t.id,
-        src=t.src_account.id,
-        dst=t.dst_account.id,
+        src=t.src,
+        dst=t.dst,
         timestamp=str(t.timestamp),
         name=t.name,
         value=t.value,
-        payment_method=t.payment_method.id,
+        payment_method=t.type,
         attachments=[],
-        author=t.author.id,
+        author=t.author_id,
         pending_validation=t.pending_validation
     )
 
@@ -172,13 +164,13 @@ def _map_transaction_sql_to_abstract_entity(t: SQLTransaction) -> AbstractTransa
     """
     return AbstractTransaction(
         id=t.id,
-        src=t.src_account.id,
-        dst=t.dst_account.id,
+        src=t.src,
+        dst=t.dst,
         timestamp=str(t.timestamp),
         name=t.name,
         value=t.value,
-        payment_method=t.payment_method.id,
+        payment_method=t.type,
         attachments=[],
-        author=t.author.id,
+        author=t.author_id,
         pending_validation=t.pending_validation
     )

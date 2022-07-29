@@ -30,7 +30,7 @@ class DeviceSQLRepository(DeviceRepository):
             if filter_.id is not None:
                 smt = smt.where(SQLDevice.id == filter_.id)
             if filter_.member is not None:
-                smt = smt.where(Adherent.id == filter_.member)
+                smt = smt.where(SQLDevice.adherent_id == filter_.member)
             if filter_.mac:
                 smt = smt.where(SQLDevice.mac == filter_.mac)
             if filter_.connection_type:
@@ -48,9 +48,9 @@ class DeviceSQLRepository(DeviceRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractDevice] = None) -> Tuple[List[AbstractDevice], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        smt: Select = select(SQLDevice).join(SQLDevice.adherent)
+        smt: Select = select(SQLDevice)
         if terms:
-            smt = smt.where(
+            smt = smt.join(Adherent, SQLDevice.adherent_id==Adherent.id).where(
                 (SQLDevice.mac.contains(terms)) |
                 (SQLDevice.mac.contains(terms.replace("-", ":"))) |
                 (SQLDevice.ip.contains(terms)) |
@@ -82,7 +82,7 @@ class DeviceSQLRepository(DeviceRepository):
             updated_at=now,
             last_seen=now,
             type=DeviceType[abstract_device.connection_type].value,
-            adherent=adherent,
+            adherent_id=adherent.id if adherent else None,
             ip=abstract_device.ipv4_address,
             ipv6=abstract_device.ipv6_address
         )
@@ -99,7 +99,6 @@ class DeviceSQLRepository(DeviceRepository):
 
         query = session.query(SQLDevice)
         query = query.filter(SQLDevice.id == abstract_device.id)
-        query = query.join(Adherent, Adherent.id == SQLDevice.adherent_id)
 
         device = query.one_or_none()
         if device is None:
@@ -174,7 +173,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
         adherent = session.query(Adherent).filter(Adherent.id == entity.member).one_or_none()
         if not adherent:
             raise MemberNotFoundError(entity.member)
-        device.adherent = adherent
+        device.adherent_id = adherent.id
     device.updated_at = now
     return device
 

@@ -17,6 +17,7 @@ from adh6.entity import (
     Vlan
 )
 from adh6.authentication.security import Roles
+from adh6.entity.subscription_body import SubscriptionBody
 from test import TESTING_CLIENT
 from adh6.util.context import build_context
 
@@ -88,6 +89,28 @@ def sample_vlan(faker):
         number=faker.random_digit_not_null(),
         ipv4_network="157.159.41.0/24",
         ipv6_network="fe80::/64"
+    )
+
+@fixture
+def sample_subscription_empty(sample_member):
+    return SubscriptionBody(
+        member=sample_member,
+    )
+
+@fixture
+def sample_subscription_duration_no_account(sample_member):
+    return SubscriptionBody(
+        member=sample_member,
+        duration=1
+    )
+
+@fixture
+def sample_subscription_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
+    return SubscriptionBody(
+        member=sample_member,
+        duration=1,
+        account=sample_account1.id,
+        payment_method=sample_payment_method.id
     )
 
 @fixture
