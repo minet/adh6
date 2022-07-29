@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
-import { AbstractDevice, AbstractMembership, AccountService, Device, DeviceService, RoomService, Member, MemberService, Membership, MembershipService, PaymentMethod, TransactionService, AbstractRoom, Room, AbstractMember } from '../../api';
+import { AbstractMembership, RoomService, Member, MemberService, Membership, AbstractRoom, Room, AbstractMember } from '../../api';
 import { ActivatedRoute } from '@angular/router';
-import { finalize, first, map, share, switchMap, tap } from 'rxjs/operators';
+import { map, share, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 import { ListComponent } from '../../member-device/list/list.component';
 
@@ -19,12 +19,9 @@ export class ViewComponent implements OnInit {
 
   currentTab = "profile";
 
-  cotisation = false;
   submitDisabled = false;
   getDhcp = false;
   member$: Observable<Member>;
-  paymentMethods$: Observable<Array<PaymentMethod>>;
-  latestMembership$: Observable<Membership>;
   log$: Observable<Array<string>>;
   macHighlighted$: Observable<string>;
   public moveIn: boolean = false;
@@ -34,19 +31,12 @@ export class ViewComponent implements OnInit {
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
-  private commentForm: FormGroup;
   private moveInForm: FormGroup;
-  private deviceForm: FormGroup;
-  private selectedDevice: string;
   private content: string;  // for log formatting
 
   constructor(
     public memberService: MemberService,
-    public membershipService: MembershipService,
     public roomService: RoomService,
-    public deviceService: DeviceService,
-    public transactionService: TransactionService,
-    public accountService: AccountService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private notificationService: NotificationService,
@@ -97,7 +87,6 @@ export class ViewComponent implements OnInit {
             )
           return user;
         }))),
-      tap((user) => this.commentForm.setValue({ comment: (user.comment === undefined) ? '' : user.comment })),
       share(),
     );
 
@@ -108,12 +97,6 @@ export class ViewComponent implements OnInit {
         );
       }) // refresh every 10 secs
     );
-
-    this.paymentMethods$ = this.transactionService.paymentMethodGet();
-
-    this.latestMembership$ = refresh$.pipe(
-      switchMap(member_id => this.membershipService.getLatestMembership(member_id, undefined, 'body'))
-    )
   }
 
   refreshInfo(): void {
@@ -130,106 +113,10 @@ export class ViewComponent implements OnInit {
     );
   }
 
-  toggleCotisationMenu(): void {
-    this.cotisation = !this.cotisation;
-  }
-
   createForm(): void {
-    this.commentForm = this.fb.group({
-      comment: [''],
-    });
-    this.deviceForm = this.fb.group({
-      mac: ['01-23-45-76-89-AB', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
-      connectionType: ['wired', Validators.required],
-    });
     this.moveInForm = this.fb.group({
       roomNumber: ['', [Validators.required, Validators.min(-1), Validators.max(9999)]]
     });
-  }
-
-  refreshLatestMembership(member_id: number): void {
-    this.latestMembership$ = this.membershipService.getLatestMembership(+member_id, undefined, 'body');
-  }
-
-  submitComment(): void {
-    this.submitDisabled = true;
-    const newComment = this.commentForm.value.comment;
-
-    this.member$.pipe(
-      map(user => {
-        user.comment = newComment;
-        return user;
-      }),
-      map(user => this.memberService.memberIdPut(user, user.id)),
-      map(() => {
-        this.refreshInfo();
-        return null;
-      }),
-      finalize(() => this.submitDisabled = false),
-      first(),
-    ).subscribe(() => {
-    });
-
-    // will trigger the refresh of member$ and thus the update of the comment
-    this.refreshInfo();
-  }
-
-  submitDevice(): void {
-    // First we fetch the username of the current user...
-    this.submitDisabled = true;
-    this.addDevice()
-      .pipe(
-        first(),
-        // No matter what, submit will be re-enable (even if there is an error)
-        finalize(() => this.submitDisabled = false),
-      )
-      .subscribe(() => {
-      });
-  }
-
-  addDevice(member_id?: number) {
-    if (member_id === undefined) {
-      return this.member_id$
-        .pipe(
-          map((usr) => this.addDevice(usr))
-        );
-    }
-
-    const v = this.deviceForm.value;
-    const mac = v.mac.toLowerCase().replace(/[^a-f0-9]+/g, '-');
-
-    const device: AbstractDevice = {
-      mac: mac,
-      connectionType: v.connectionType,
-      member: Number(member_id)
-    };
-
-    // Make an observable that will return True if the device already exists
-    // If the device does not then create it, and refresh the info
-    return this.deviceService.devicePost(device)
-      .pipe(
-        map(() => {
-          this.refreshInfo();
-          return null; // @TODO return the device ?
-        }),
-        map(() => null)
-      );
-  }
-
-  deviceDelete(device_id: number): void {
-    this.submitDisabled = true;
-    this.deviceService.deviceIdDelete(device_id)
-      .pipe(
-        first(),
-        map(() => {
-          this.refreshInfo();
-          return null; // @TODO return the device ?
-        }),
-        first(),
-        finalize(() => this.submitDisabled = false)
-      )
-      .subscribe(() => {
-      });
   }
 
   extractDateFromLog(log: string): Date {
@@ -250,23 +137,6 @@ export class ViewComponent implements OnInit {
     } else {
       return this.content;
     }
-  }
-
-
-  toggleDeviceDetails(device: Device): void {
-    if (this.isDeviceOpened(device)) {
-      this.selectedDevice = null;
-    } else {
-      this.selectedDevice = device.mac;
-    }
-  }
-
-  isDeviceOpened(device: Device): boolean {
-    return this.selectedDevice === device.mac;
-  }
-
-  refreshMembership(memberId: number): void {
-    this.latestMembership$ = this.membershipService.getLatestMembership(memberId);
   }
 
   collapseMoveIn(): void {

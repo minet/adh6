@@ -1,21 +1,21 @@
 import json
-from typing import Optional
 
 import pytest
-from adh6.storage.sql.models import Account, Adherent, Membership, PaymentMethod, db
-from test.integration.resource import (base_url, TEST_HEADERS)
-from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.storage.sql.models import Account, Adherent, PaymentMethod
+from test.integration.resource import (base_url as host_url, TEST_HEADERS)
+from adh6.constants import MembershipDuration
+
+
+def base_url(id) -> str:
+    return f"{host_url}/member/{id}/subscription/"
+
 
 @pytest.fixture
 def sample_membership_pending_validation_payment_dict(sample_member: Adherent, sample_payment_method: PaymentMethod, sample_account: Account):
     yield {
         'member': sample_member.id,
-        'status': MembershipStatus.INITIAL.value,
         'paymentMethod': sample_payment_method.id,
         'duration': MembershipDuration.ONE_YEAR.value,
-        'hasRoom': True,
-        'products': [],
-        'firstTime': False,
         'account': sample_account.id,
     }
 
@@ -23,51 +23,22 @@ def sample_membership_pending_validation_payment_dict(sample_member: Adherent, s
 def test_member_post_add_membership_not_found(client):
     body = {
         "account": 4,
-        "createdAt": "2022-02-01T00:46:25.837Z",
         "duration": 0,
-        "firstTime": False,
-        "hasRoom": True,
         "member": 4,
         "paymentMethod": 4,
-        "products": [
-            1,
-            2
-        ],
-        "status": "INITIAL",
-        "updatedAt": "2022-02-01T00:46:25.837Z"
     }
     # Member with ID 200 does not exist
     result = client.post(
-        '{}/member/{}/membership/'.format(base_url, 200),
+        base_url(200),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert result.status_code == 404
 
-@pytest.mark.parametrize("status,status_code", [(i.value, 400) for i in MembershipStatus if i.value != "INITIAL"] + [("INITIAL", 200)])
-def test_membership_post_bad_initial_status(client, sample_member: Adherent, status: str, status_code: int):
-    body = {
-        "status": status,
-        "member": sample_member.id
-    }
-    
-    result = client.post(
-        f'{base_url}/member/{sample_member.id}/membership/',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-
-    memberships: Optional[Membership] = db.session().query(Membership).filter(Membership.adherent_id == sample_member.id).all()
-    
-    assert memberships is not None
-    assert result.status_code == status_code
-    assert (len(memberships) == 1 if status_code == 400 else len(memberships) == 2)
-
 def test_membership_validate_membership_no_room(client, sample_member: Adherent, sample_membership_pending_validation_payment_dict):
     result = client.patch(
-        f'{base_url}/member/{sample_member.id}',
+        f'{host_url}/member/{sample_member.id}',
         data=json.dumps({
             "roomNumber": -1
         }),
@@ -77,82 +48,35 @@ def test_membership_validate_membership_no_room(client, sample_member: Adherent,
 
     assert result.status_code == 204
 
-    result = client.get(
-        f'{base_url}/member/{sample_member.id}',
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-
-    assert result.status_code == 200
-    assert "ip" not in result.json
-    assert "subnet" not in result.json
-
     result = client.post(
-        f'{base_url}/member/{sample_member.id}/membership/',
+        base_url(sample_member.id),
         data=json.dumps(sample_membership_pending_validation_payment_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert result.status_code == 200
 
-    result = client.get(
-        f'{base_url}/member/{sample_member.id}/membership/{result.json["uuid"]}/validate',
+    result = client.post(
+        f'{base_url(sample_member.id)}validate',
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     
     assert result.status_code == 204
 
-def test_membership_filter_by_uuid(client, sample_complete_membership: Membership):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[uuid]={sample_complete_membership.uuid}',
+def test_membership_multiple_subscription(client, sample_member: Adherent, sample_membership_pending_validation_payment_dict):
+    result = client.post(
+        base_url(sample_member.id),
+        data=json.dumps(sample_membership_pending_validation_payment_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert result.status_code == 200
-    assert len(result.json) == 1
 
-def test_membership_filter_by_status(client, sample_complete_membership: Membership):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[status]={sample_complete_membership.status.value}',
+    result = client.post(
+        base_url(sample_member.id),
+        data=json.dumps(sample_membership_pending_validation_payment_dict),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
-    assert result.status_code == 200
-    assert len(result.json) == 1
-
-def test_membership_filter_by_payment_method(client, sample_payment_method):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[paymentMethod]={sample_payment_method.id}',
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-    assert result.status_code == 200
-    assert len(result.json) == 1
-
-def test_membership_filter_by_account(client, sample_account):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[account]={sample_account.id}',
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-    assert result.status_code == 200
-    assert len(result.json) == 2
-
-def test_membership_filter_by_member(client, sample_complete_membership: Membership):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[member]={sample_complete_membership.adherent_id}',
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-    assert result.status_code == 200
-    assert len(result.json) == 1
-
-def test_membership_filter_by_first_time(client, sample_complete_membership: Membership):
-    result = client.get(
-        f'{base_url}/member/membership/?filter[firstTime]={sample_complete_membership.first_time}',
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-    assert result.status_code == 200
-    assert len(result.json) == 2
+    assert result.status_code == 400

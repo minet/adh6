@@ -11,7 +11,7 @@ export class ListComponent extends SearchPage<Member> implements OnInit {
   constructor(
     public memberService: MemberService,
   ) {
-    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, ["username", "firstName", "lastName", "roomNumber"], undefined, undefined, undefined, "response"));
+    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, ["username", "firstName", "lastName", "roomNumber"], undefined, undefined, undefined, undefined, "response"));
   }
 
   ngOnInit() {

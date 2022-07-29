@@ -48,12 +48,6 @@ class DeviceSQLRepository(DeviceRepository):
     @log_call
     def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractDevice] = None) -> Tuple[List[AbstractDevice], int]:
         session: Session = ctx.get(CTX_SQL_SESSION)
-        t = select(SQLDevice).join(Adherent, SQLDevice.adherent_id==Adherent.id)
-        print(t, ': ', session.execute(t).all())
-        t = select(SQLDevice)
-        print(t, ': ', [d[0].adherent_id for d in session.execute(t).all()])
-        t = select(Adherent)
-        print(t, ': ', session.execute(t).all())
         smt: Select = select(SQLDevice)
         if terms:
             smt = smt.join(Adherent, SQLDevice.adherent_id==Adherent.id).where(

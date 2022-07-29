@@ -1,13 +1,13 @@
 <div class="notification">
   <p>Dans le cas d'une cotisation ou d'une recotisation, une validation manuelle est nécessaire.</p>
 </div>
-<div class="notification is-danger is-light" *ngIf="membership.status === 'PENDING_RULES'">
+<div class="notification is-danger is-light" *ngIf="member.membership === 'PENDING_RULES'">
   <p>
     La charte n'est pas signée: <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer">aller sur
       charte</a>
   </p>
 </div>
-<ng-container *ngIf="membership.status === 'PENDING_PAYMENT_VALIDATION'">
+<ng-container *ngIf="member.membership === 'PENDING_PAYMENT_VALIDATION'">
   <div class="field" *ngIf="('free' | able: 'Membership')">
     <div class="control">
       <div class="form-check">
@@ -39,25 +39,12 @@
     </div>
   </div>
   <div class="field">
-    <label class="label">Matériel à ajouter</label>
-    <ng-container *ngIf="products$ | async as products">
-      <div class="control" *ngFor="let product of products; let i = index" formArrayName="products">
-        <div class="form-check" [formGroupName]="i">
-          <label class="checkbox">
-            <input formControlName="checked" (change)="updateAmount()" type="checkbox" value="">
-            {{product.name}} ({{product.sellingPrice}} €)
-          </label>
-        </div>
-      </div>
-    </ng-container>
-  </div>
-  <div class="field">
-    <label class="label">Montant : {{ amountToPay }} €</label>
+    <label class="label">Montant : {{ amount }} €</label>
     <div class="control">
       <select class="input is-fullwidth" formControlName="paidWith" type="text">
         <option value="">-- Moyen de paiement --</option>
-        <option *ngFor="let pm of paymentMethods$ | async" value="{{ pm.id }}">
-          {{ (pm.name === "Aucun") ? "Aucun (ex : gratuit ou summer school)" : pm.name }}
+        <option *ngFor="let pm of paymentMethods" value="{{ pm.id }}">
+          {{ pm.name }}
         </option>
       </select>
     </div>

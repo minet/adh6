@@ -61,7 +61,6 @@ class TransactionSQLRepository(TransactionRepository):
         query= query.offset(offset)
         query= query.limit(limit)
         r = query.all()
-        print(r, ": ", query)
 
         return list(map(_map_transaction_sql_to_abstract_entity, r)), count
 

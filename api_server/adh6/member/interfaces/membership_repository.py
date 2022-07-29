@@ -5,8 +5,8 @@ Membership repository.
 import abc
 from typing import List, Optional, Tuple
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import Membership, AbstractMembership
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from adh6.entity import Membership, AbstractMembership, SubscriptionBody
 
 # TODO: This class should be derive from CRUDRepository
 class MembershipRepository(abc.ABC):
@@ -15,35 +15,28 @@ class MembershipRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def create_membership(self, ctx, member_id: int, membership: AbstractMembership) -> Membership:
+    def create(self, ctx, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_membership(self, ctx, member_id: int, membership_uuid: str, abstract_membership: AbstractMembership) -> Membership:
+    def update(self, ctx, uuid: str, body: SubscriptionBody, state: MembershipStatus):
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def membership_search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[AbstractMembership], int]:
+    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_latest_membership(self, ctx, member_id: int) -> Optional[Membership]:
-        """
-        Add a membership.
-        """
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def validate_membership(self, ctx, membership_uuid: str) -> None:
+    def validate(self, ctx, uuid: str) -> None:
         """
         Add a membership.
         """
