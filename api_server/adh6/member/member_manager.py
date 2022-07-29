@@ -83,9 +83,9 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def get_by_id(self, ctx, id: int):
-        latest_sub = self.latest_subscription(ctx, id)
         member = super().get_by_id(ctx, id)
-        member.membership = latest_sub.status if latest_sub else None
+        latest_sub = self.latest_subscription(ctx, id)
+        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call

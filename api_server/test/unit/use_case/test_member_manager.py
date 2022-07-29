@@ -581,10 +581,12 @@ class TestProfile:
 class TestGetByID:
     def test_happy_path(self, ctx,
                         mock_member_repository: MemberRepository,
+                        mock_membership_repository: MembershipRepository,
                         sample_member: Member,
                         member_manager: MemberManager):
         # Given...
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
+        mock_membership_repository.search = MagicMock(return_value=([], 0))
 
         # When...
         result = member_manager.get_by_id(ctx, id=sample_member.id)
