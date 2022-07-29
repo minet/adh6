@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { finalize, first } from 'rxjs/operators';
 import { AbstractAccount, AccountService, AbstractMembership, MembershipService, Account, Member, AbstractMember, SubscriptionBody, PaymentMethod } from '../../../api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -9,7 +9,7 @@ import { NotificationService } from '../../../notification.service';
   templateUrl: './cotisation.component.html',
   styleUrls: ['./cotisation.component.css']
 })
-export class CotisationComponent implements OnInit {
+export class CotisationComponent {
   @Input() member: Member;
   @Input() paymentMethods: PaymentMethod[];
   public amount: number;
@@ -32,11 +32,6 @@ export class CotisationComponent implements OnInit {
     private notificationService: NotificationService,
   ) {
     this.createForm();
-  }
-
-  ngOnInit() {
-    // const canBeUpdated = this.member.membership != AbstractMember.MembershipEnum.ABORTED && this.member.membership != AbstractMember.MembershipEnum.CANCELLED && this.member.membership != AbstractMember.MembershipEnum.COMPLETE;
-    // if (canBeUpdated) this.updateForm();
   }
 
   private createForm(): void {
