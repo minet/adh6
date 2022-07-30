@@ -43,3 +43,4 @@ pytest
 pytest-coverage
 pytest-cases
 pytest-lazy-fixture
+Faker
