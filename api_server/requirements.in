@@ -41,3 +41,4 @@ jinja2>=2.11.3
 bcrypt
 pytest
 pytest-coverage
+pytest-lazy-fixture

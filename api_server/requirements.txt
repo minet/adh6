@@ -6,7 +6,7 @@
 #
 alembic==1.8.1
     # via flask-migrate
-attrs==21.4.0
+attrs==22.1.0
     # via
     #   jsonschema
     #   pytest
@@ -44,7 +44,7 @@ decorator==5.1.1
     # via pinject
 elastic-transport==8.1.2
     # via elasticsearch
-elasticsearch==8.3.1
+elasticsearch==8.3.3
     # via -r requirements.in
 flask==2.1.2
     # via
@@ -119,17 +119,20 @@ pytest==7.1.2
     # via
     #   -r requirements.in
     #   pytest-cov
+    #   pytest-lazy-fixture
 pytest-cov==3.0.0
     # via pytest-cover
 pytest-cover==3.0.0
     # via pytest-coverage
 pytest-coverage==0.0
     # via -r requirements.in
+pytest-lazy-fixture==0.6.3
+    # via -r requirements.in
 python-dateutil==2.8.2
     # via -r requirements.in
 python-dotenv==0.20.0
     # via -r requirements.in
-python-gitlab==3.6.0
+python-gitlab==3.7.0
     # via -r requirements.in
 pyyaml==6.0
     # via
@@ -164,7 +167,7 @@ urllib3==1.26.11
     #   requests
 uwsgi==2.0.20
     # via -r requirements.in
-werkzeug==2.2.0
+werkzeug==2.2.1
     # via
     #   connexion
     #   flask
