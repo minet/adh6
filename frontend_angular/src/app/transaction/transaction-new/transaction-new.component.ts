@@ -21,8 +21,6 @@ export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
   public transactionDetails: FormGroup;
   public reverting = false;
-  faExchangeAlt = faExchangeAlt;
-  faClock = faClock;
   actions = [
     { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
     { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'is-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
