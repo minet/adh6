@@ -168,3 +168,35 @@ def test_role_post_unauthorized_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 401
+
+
+def test_role_delete(client):
+    r = client.delete(
+        f"{base_url}{1}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+
+
+def test_role_delete_unknown_mapping(client):
+    r = client.delete(
+        f"{base_url}{4242}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_role_delete_unauthorized_user(client):
+    r = client.delete(
+        f"{base_url}{1}",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+def test_role_delete_unauthorized_admin(client):
+    r = client.delete(
+        f"{base_url}{1}",
+        headers=TEST_HEADERS_API_KEY_ADMIN,
+    )
+    assert r.status_code == 401

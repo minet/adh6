@@ -2309,6 +2309,28 @@ paths:
           - admin:prod
       tags:
       - authentication
+  /role/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    delete:
+      responses:
+        204:
+          description: Deleted
+        400:
+          $ref: '#/components/responses/Invalid'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Delete a Role
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
   /api_keys/:
     get:
       parameters:

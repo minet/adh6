@@ -1,6 +1,6 @@
 from typing import List, Tuple, Union
 
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, delete
 from sqlalchemy.sql import Select, Insert
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import AuthenticationRoleMapping
@@ -11,6 +11,10 @@ from adh6.storage.sql.models import Adherent
 
 
 class RoleSQLRepository(RoleRepository):
+    def get(self, id: int) -> Union[RoleMapping, None]:
+        smt: Select = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
+        return db.session().execute(smt).one_or_none()
+
     def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
         all_roles: List[AuthenticationRoleMapping] = []
         smt: Select = select(AuthenticationRoleMapping)
@@ -37,8 +41,9 @@ class RoleSQLRepository(RoleRepository):
         )
         db.session().execute(smt)
 
-    def delete(self, method: AuthenticationMethod, identifier: str) -> None:
-        pass
+    def delete(self, id: int) -> None:
+        smt = delete(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
+        db.session.execute(smt)
 
     def user_id_from_username(self, login: str) -> int:
         return db.session.execute(select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))).scalar()
