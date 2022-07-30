@@ -40,6 +40,8 @@ cryptography==37.0.4
     # via
     #   -r requirements.in
     #   authlib
+decopatch==1.4.10
+    # via pytest-cases
 decorator==5.1.1
     # via pinject
 elastic-transport==8.1.2
@@ -80,6 +82,10 @@ jsonschema==3.2.0
     # via
     #   -r requirements.in
     #   connexion
+makefun==1.14.0
+    # via
+    #   decopatch
+    #   pytest-cases
 mako==1.2.1
     # via alembic
 markupsafe==2.1.1
@@ -120,6 +126,8 @@ pytest==7.1.2
     #   -r requirements.in
     #   pytest-cov
     #   pytest-lazy-fixture
+pytest-cases==3.6.13
+    # via -r requirements.in
 pytest-cov==3.0.0
     # via pytest-cover
 pytest-cover==3.0.0
