@@ -15,7 +15,6 @@ import { authConfig } from './config/auth.config';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { FooterComponent } from './footer/footer.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { VerticalNavbarComponent } from './vertical-navbar/vertical-navbar.component';
 import { PortailComponent } from './portail/portail.component';
 
@@ -50,7 +49,6 @@ function load(oAuthService: OAuthService): Configuration {
     OAuthModule.forRoot(),
     HttpClientModule,
     AbilityModule,
-    FontAwesomeModule,
     ApiModule,
   ],
   providers: [

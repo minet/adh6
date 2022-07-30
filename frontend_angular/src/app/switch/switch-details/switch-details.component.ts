@@ -11,10 +11,13 @@ import { ModelSwitch, SwitchService } from '../../api';
   styleUrls: ['./switch-details.component.css']
 })
 export class SwitchDetailsComponent implements OnInit {
+  switch$: Observable<ModelSwitch> = new Observable();
+  switchId: number = 0;
 
-  switch$: Observable<ModelSwitch>;
-  switchId: number;
-  constructor(public switchService: SwitchService, private route: ActivatedRoute) { }
+  constructor(
+    private switchService: SwitchService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

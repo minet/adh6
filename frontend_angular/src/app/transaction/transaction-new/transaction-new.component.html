@@ -9,31 +9,35 @@
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
           <tbody>
+            <!--
             <tr>
               <th scope="row">Depuis</th>
-              <td>{{ selectedSrcAccount.name }}</td>
+              <td>{{ selectedSrcAccount?.name }}</td>
             </tr>
+            -->
             <tr>
               <th scope="row">Montant</th>
-              <td>{{ transactionDetails.get('value').value | number:'':'fr' }} €</td>
+              <td>{{ transactionDetails.get('value')?.value | number:'':'fr' }} €</td>
             </tr>
             <tr>
               <th scope="row">Via</th>
-              <td>{{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }}</td>
+              <td>{{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod')?.value) }}</td>
             </tr>
+            <!--
             <tr>
               <th scope="row">Vers</th>
               <td>{{ selectedDstAccount.name }}</td>
             </tr>
+            -->
             <tr>
               <th scope="row">Description</th>
-              <td>{{ transactionDetails.get('name').value }}</td>
+              <td>{{ transactionDetails.get('name')?.value }}</td>
             </tr>
           </tbody>
         </table>
-        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse').value !== 'direct'">
-          Vous avez déclaré {{ transactionDetails.get('caisse').value === 'to' ? 'ajouter' : 'prendre' }} de l'argent
-          dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod').value) }},
+        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse')?.value !== 'direct'">
+          Vous avez déclaré {{ transactionDetails.get('caisse')?.value === 'to' ? 'ajouter' : 'prendre' }} de l'argent
+          dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod')?.value) }},
           assurez-vous de bien le faire effectivement !
         </div>
         <button type="button" class="button is-primary" (click)="onSubmit(); toogleModal()">
@@ -70,9 +74,7 @@
         <div class="card-header">
           <p class="card-header-title">Transaction</p>
           <button class="card-header-icon" type="button" (click)="exchangeAccounts()">
-            <span class="icon">
-              <fa-icon [icon]="faExchangeAlt"></fa-icon>
-            </span>
+            <->
           </button>
         </div>
         <div class="card-content">
@@ -81,7 +83,6 @@
               <p class="control">
                 <button type="button" class="button" tooltip="À valider">
                   <input type="hidden" formControlName="pendingValidation" />
-                  <fa-icon [icon]="faClock"></fa-icon>
                 </button>
               </p>
               <p class="control">

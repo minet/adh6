@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ModelSwitch, SwitchService } from '../../api';
+import { SwitchService } from '../../api';
 
 @Component({
   selector: 'app-switch-edit',
@@ -9,18 +8,12 @@ import { ModelSwitch, SwitchService } from '../../api';
   styleUrls: ['./switch-edit.component.css']
 })
 export class SwitchEditComponent {
-
-  switches$: Observable<Array<ModelSwitch>>;
   switchForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     public switchService: SwitchService,
   ) {
-    this.createForm();
-  }
-
-  createForm() {
     this.switchForm = this.fb.group({
       ip: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(15)]],
     });

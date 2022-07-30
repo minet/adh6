@@ -1,9 +1,9 @@
-import {Router} from '@angular/router';
-import {Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ModelSwitch, SwitchService} from '../../api';
-import {takeWhile} from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ModelSwitch, SwitchService } from '../../api';
+import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { NotificationService } from '../../notification.service';
   templateUrl: './switch-new.component.html',
   styleUrls: ['./switch-new.component.css']
 })
-export class SwitchNewComponent implements OnInit {
+export class SwitchNewComponent {
 
   switches$: Observable<Array<ModelSwitch>>;
   switchForm: FormGroup;
@@ -24,15 +24,12 @@ export class SwitchNewComponent implements OnInit {
     private router: Router,
     private notificationService: NotificationService,
   ) {
-    this.createForm();
-  }
-
-  createForm() {
     this.switchForm = this.fb.group({
       ip: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(15)]],
       description: ['', Validators.required],
       community: ['', Validators.required],
     });
+    this.switches$ = this.switchService.switchGet();
   }
 
   onSubmit() {
@@ -45,14 +42,9 @@ export class SwitchNewComponent implements OnInit {
 
     this.switchService.switchPost(varSwitch)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
+      .subscribe(() => {
         this.router.navigate(['/switch/search']);
         this.notificationService.successNotification();
       });
   }
-
-  ngOnInit() {
-    this.switches$ = this.switchService.switchGet();
-  }
-
 }

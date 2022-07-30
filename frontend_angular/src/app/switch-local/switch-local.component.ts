@@ -9,11 +9,13 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./switch-local.component.css']
 })
 export class SwitchLocalComponent implements OnInit {
-  switch$: Observable<ModelSwitch>;
-  ports$: Observable<Array<Port>>;
+  switch$: Observable<ModelSwitch> = new Observable();
+  ports$: Observable<Array<Port>> = new Observable();
 
-  constructor(public switchService: SwitchService, public portService: PortService) {
-  }
+  constructor(
+    private switchService: SwitchService,
+    private portService: PortService
+  ) { }
 
   ngOnInit() {
     this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch Local', {}).pipe(

@@ -26,12 +26,11 @@
   </thead>
   <tbody>
     <tr *ngFor="let transactionResult of result" [ngClass]="{
-          'has-text-primary-dark' : asAccount && transactionResult.dst.id===this.asAccount, 
-          'has-text-danger-dark' : asAccount && transactionResult.dst.id!==this.asAccount,
+          'has-text-primary-dark' : asAccount && transactionResult.dst===this.asAccount, 
+          'has-text-danger-dark' : asAccount && transactionResult.dst!==this.asAccount,
           'has-background-grey-lighter': transactionResult.pendingValidation
           }">
-      <td class="text-center align-middle" tooltip="{{ transactionResult.timestamp | date:'dd/MM/yyy HH:mm' }}">
-        <fa-icon *ngIf="transactionResult.pendingValidation" [icon]="faClock"></fa-icon>
+      <td class="text-center align-middle">
         <h6 class="mb-0">{{ transactionResult.timestamp | date:"dd/MM" }}</h6>
         <small>{{ transactionResult.timestamp | date:"yyy" }}</small>
       </td>
@@ -42,11 +41,11 @@
       </td>
       <td class="align-middle">{{ transactionResult.name }}</td>
       <td class="align-middle">
-        {{ ((transactionResult.src===asAccount) ? (cachedAccountName.get(transactionResult.dst) | async) :
-        (cachedAccountName.get(transactionResult.src) | async)) }}</td>
-      <td class="align-middle" *ngIf="!asAccount">{{ cachedAccountName.get(transactionResult.dst) | async }}</td>
-      <td class="align-middle" tooltip="{{ cachedMemberUsername.get(transactionResult.author) | async }}">
-        {{ cachedPaymentMethodName.get(transactionResult.paymentMethod) | async }}
+        {{ ((transactionResult.src===asAccount) ? (cachedAccountName.get(transactionResult.dst || 0) | async) :
+        (cachedAccountName.get(transactionResult.src || 0) | async)) }}</td>
+      <td class="align-middle" *ngIf="!asAccount">{{ cachedAccountName.get(transactionResult.dst || 0) | async }}</td>
+      <td class="align-middle">
+        {{ cachedPaymentMethodName.get(transactionResult.paymentMethod || 0) | async }}
       </td>
       <td *ngIf="actions" class="text-right align-middle">
         <div class="btn-group" role="group" aria-label="actions">
@@ -54,7 +53,7 @@
             <p *ngFor="let action of actions" class="control">
               <button type="button" class="button {{ action.class }}"
                 (click)="whenOnAction.emit({name: action.name, transaction: transactionResult})"
-                *ngIf="action.condition(transactionResult)" placement="bottom" tooltip="{{action.name}}">
+                *ngIf="action.condition(transactionResult)" placement="bottom">
                 <span>
                   <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon>
                 </span>

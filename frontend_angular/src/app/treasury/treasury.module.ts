@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TreasuryComponent } from './treasury.component';
 import { AccountModule } from '../account/account.module';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -14,8 +15,9 @@ import { AccountModule } from '../account/account.module';
     CommonModule,
     AccountModule,
     RouterModule.forChild([
-      {path: '', component: TreasuryComponent},
-    ])
+      { path: '', component: TreasuryComponent },
+    ]),
+    ReactiveFormsModule
   ]
 })
 export class TreasuryModule { }

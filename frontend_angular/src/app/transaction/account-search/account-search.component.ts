@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { map, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { AccountService, Account, AbstractAccount } from '../../api';
 import { SearchPage } from '../../search-page';
 
@@ -12,7 +12,7 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 })
 export class AccountSearchComponent extends SearchPage<Account> implements OnInit {
   public display = false;
-  public selectedAccount: Account;
+  public selectedAccount: Account = {};
   @Input() inputAccountId: number | undefined;
   @Output() selectedAccountId = new EventEmitter<number>();
 
@@ -29,12 +29,11 @@ export class AccountSearchComponent extends SearchPage<Account> implements OnIni
   }
 
   ngOnInit(): void {
-    console.log(this.inputAccountId);
     super.ngOnInit();
     if (this.inputAccountId) {
       this.accountService.accountIdGet(this.inputAccountId).subscribe(account => this.selectedAccount = account);
     }
-    this.result$ = of(undefined);
+    this.result$ = new Observable();
   }
 
   search(terms: string): void {
@@ -43,7 +42,7 @@ export class AccountSearchComponent extends SearchPage<Account> implements OnIni
   }
 
   setSelectedAccount(account: AbstractAccount): void {
-    this.result$ = undefined;
+    this.result$ = new Observable();
     this.selectedAccount = account;
     this.display = false;
     this.selectedAccountId.emit(this.selectedAccount.id);
