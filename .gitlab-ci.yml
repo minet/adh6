@@ -72,7 +72,7 @@ generation:backend_entity:
   stage: generation
   image: openjdk:11
   script:
-    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -t $GENERATOR_BACKEND_PATH -o tmpsrc/ --additional-properties packageName=adh6 --model-package entity
+    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -o tmpsrc/ --additional-properties packageName=adh6 --model-package entity
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp openapi/spec.yaml api_server/openapi/swagger.yaml
   artifacts:
