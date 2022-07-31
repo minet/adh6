@@ -53,7 +53,7 @@ export class CreateOrEditComponent implements OnInit {
         username: v.username,
         roomNumber: v.roomNumber
       };
-      this.memberService.memberIdPatch(abstractMember, this.member_id)
+      this.memberService.memberIdPatch(this.member_id, abstractMember)
         .subscribe((_) => {
           this.router.navigate(['member/view', this.member_id]);
         });
@@ -64,7 +64,7 @@ export class CreateOrEditComponent implements OnInit {
         lastName: v.lastName,
         username: v.username,
         roomNumber: v.roomNumber,
-        departureDate: new Date(),
+        departureDate: new Date().toISOString(),
       };
       this.memberService.memberPost(req, 'body')
         .subscribe((member) => {

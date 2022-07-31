@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
-import { ModelSwitch, SwitchService } from '../../api';
+import { AbstractSwitch, SwitchService } from '../../api';
 
 @Component({
   selector: 'app-switch-details',
@@ -11,7 +11,7 @@ import { ModelSwitch, SwitchService } from '../../api';
   styleUrls: ['./switch-details.component.css']
 })
 export class SwitchDetailsComponent implements OnInit {
-  switch$: Observable<ModelSwitch> = new Observable();
+  switch$: Observable<AbstractSwitch>;
   switchId: number = 0;
 
   constructor(

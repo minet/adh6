@@ -50,9 +50,9 @@ export class AccountEditComponent implements OnInit, OnDestroy {
       accountType: parseInt(v.type),
     };
 
-    this.accountService.accountIdPut(accountPatch, this.account.id, 'response')
+    this.accountService.accountIdPut(this.account.id, accountPatch, 'response')
       .pipe(takeWhile(() => this.alive))
-      .subscribe((response) => {
+      .subscribe(() => {
         this.router.navigate(['/account/view', this.account.id]);
         this.notificationService.successNotification();
       });

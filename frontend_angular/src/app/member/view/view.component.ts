@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { map, share, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 import { ListComponent } from '../../member-device/list/list.component';
+import { HttpEvent } from '@angular/common/http';
 
 @Component({
   selector: 'app-details',
@@ -21,8 +22,8 @@ export class ViewComponent implements OnInit {
 
   submitDisabled = false;
   getDhcp = false;
-  member$: Observable<Member>;
-  log$: Observable<Array<string>>;
+  member$: Observable<AbstractMember>;
+  log$: Observable<Array<string> | HttpEvent<string[]>>;
   macHighlighted$: Observable<string>;
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
@@ -46,13 +47,13 @@ export class ViewComponent implements OnInit {
 
   public parseMembershipStatus(membership: Membership): string {
     switch (membership.status) {
-      case AbstractMembership.StatusEnum.PENDINGRULES:
+      case AbstractMembership.StatusEnum.PendingRules:
         return "en attente de la signature de la charte"
-      case AbstractMembership.StatusEnum.PENDINGPAYMENTINITIAL:
+      case AbstractMembership.StatusEnum.PendingPaymentInitial:
         return "en attente de la cotisation"
-      case AbstractMembership.StatusEnum.PENDINGPAYMENT:
+      case AbstractMembership.StatusEnum.PendingPayment:
         return "en attente d'un moyen de payment et d'un compte"
-      case AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION:
+      case AbstractMembership.StatusEnum.PendingPaymentValidation:
         return "en attente de bonne prise en compte du payment"
     }
   }
@@ -93,7 +94,7 @@ export class ViewComponent implements OnInit {
     this.log$ = this.member_id$.pipe(
       switchMap((str) => {
         return timer(0, 10 * 1000).pipe(
-          switchMap(() => this.memberService.memberIdLogsGet(str, this.getDhcp, 'body', false, false))
+          switchMap(() => this.memberService.memberIdLogsGet(str, this.getDhcp, 'body'))
         );
       }) // refresh every 10 secs
     );
@@ -157,9 +158,9 @@ export class ViewComponent implements OnInit {
               )
               return;
             }
-            const room: Room = rooms[0];
+            const room = rooms[0];
 
-            this.memberService.memberIdPatch(<AbstractMember>{ roomNumber: room.roomNumber }, memberId, 'response')
+            this.memberService.memberIdPatch(memberId, <AbstractMember>{ roomNumber: room.roomNumber }, 'response')
               .subscribe((_) => {
                 this.refreshInfo();
                 this.moveIn = false;

@@ -116,7 +116,7 @@ export class TransactionNewComponent implements OnInit {
       this.srcAccount = event.transaction.src ? event.transaction.src : 0;
       this.reverting = false;
     }
-    this.transactionDetails.patchValue({ 'paymentMethod': (event.transaction.paymentMethod as PaymentMethod).id });
+    this.transactionDetails.patchValue({ 'paymentMethod': event.transaction.paymentMethod });
   }
 
   getPaymentMethodNameById(id: number) {

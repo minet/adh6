@@ -29,12 +29,9 @@ export class NewComponent {
     const v = this.deviceForm.value;
     const device: Device = {
       mac: v.mac,
-      connectionType: v.connectionType
+      connectionType: v.connectionType,
+      member: this.member_id
     };
-
-    if (this.member_id != null) {
-      device.member = this.member_id;
-    }
 
     this.deviceService.devicePost(device)
       .pipe(takeWhile(() => this.alive))

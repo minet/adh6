@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthenticationService, RoleMapping, Body1, Role } from '../../api';
+import { AuthenticationService, RoleMapping, Role, RoleGetRequest } from '../../api';
 
 @Component({
   selector: 'app-naina',
@@ -20,7 +20,7 @@ export class NainaComponent implements OnInit {
   }
 
   public newNainA(): void {
-    this.authenticationService.rolePost(<Body1>{
+    this.authenticationService.rolePost(<RoleGetRequest>{
       identifier: this.login,
       roles: [
         Role.Adminread,

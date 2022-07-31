@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { map, of } from 'rxjs';
-import { AccountService, Account, AbstractAccount } from '../../api';
+import { AccountService, AbstractAccount } from '../../api';
 import { SearchPage } from '../../search-page';
 
 export { ClickOutsideDirective } from '../clickOutside.directive';
@@ -10,9 +10,9 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
   templateUrl: './account-search.component.html',
   styleUrls: ['./account-search.component.sass']
 })
-export class AccountSearchComponent extends SearchPage<Account> implements OnInit {
+export class AccountSearchComponent extends SearchPage<AbstractAccount> implements OnInit {
   public display = false;
-  public selectedAccount: Account;
+  public selectedAccount: AbstractAccount;
   @Input() inputAccountId: number | undefined;
   @Output() selectedAccountId = new EventEmitter<number>();
 

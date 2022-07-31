@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AbstractDevice, Device, DeviceService } from '../../api';
+import { AbstractDevice, DeviceService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -8,7 +8,7 @@ import { SearchPage } from '../../search-page';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent extends SearchPage<Device> implements OnInit {
+export class ListComponent extends SearchPage<AbstractDevice> implements OnInit {
   @Input() filter: any;
   @Input() macHighlighted: Observable<string>;
   @Input() abstractDeviceFilter: AbstractDevice = {};

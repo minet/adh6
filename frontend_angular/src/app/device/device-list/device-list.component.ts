@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
-import { Device, DeviceService, MemberService } from '../../api';
+import { AbstractDevice, DeviceService, MemberService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -8,7 +8,7 @@ import { SearchPage } from '../../search-page';
   templateUrl: './device-list.component.html',
   styleUrls: ['./device-list.component.css']
 })
-export class DeviceListComponent extends SearchPage<Device> implements OnInit {
+export class DeviceListComponent extends SearchPage<AbstractDevice> implements OnInit {
   memberUsernames: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
   constructor(
     private deviceService: DeviceService,

@@ -88,8 +88,8 @@ export class MemberPasswordEditComponent implements OnInit {
 
   private updatePasswordOfUser(member_id: string, hashedPasswordVar: string) {
     return this.memberService.memberIdPasswordPut(
-      { hashedPassword: hashedPasswordVar },
       +member_id,
+      { hashedPassword: hashedPasswordVar },
       'response')
       .pipe(
         first(),

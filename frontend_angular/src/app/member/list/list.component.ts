@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MemberService, Member } from '../../api';
+import { MemberService, AbstractMember } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -7,7 +7,7 @@ import { SearchPage } from '../../search-page';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.css']
 })
-export class ListComponent extends SearchPage<Member> implements OnInit {
+export class ListComponent extends SearchPage<AbstractMember> implements OnInit {
   constructor(
     public memberService: MemberService,
   ) {

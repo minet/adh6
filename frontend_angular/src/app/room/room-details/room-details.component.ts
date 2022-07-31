@@ -15,9 +15,9 @@ import { NotificationService } from '../../notification.service';
 export class RoomDetailsComponent implements OnInit, OnDestroy {
 
   disabled = false;
-  room$: Observable<Room>;
-  ports$: Observable<Array<Port>>;
-  members$: Observable<Array<Member>>;
+  room$: Observable<AbstractRoom>;
+  ports$: Observable<Array<AbstractPort>>;
+  members$: Observable<Array<AbstractMember>>;
   room_id: number;
   room_number: number;
   roomForm: FormGroup;
@@ -70,9 +70,11 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
     this.memberService.memberGet(1, 0, v.username)
       .pipe(takeWhile(() => this.alive))
       .subscribe((member_list) => {
-        const member: Member = member_list[0];
+        const member = member_list[0];
         member.roomNumber = this.room_number;
-        this.memberService.memberIdPut(member, member.id, 'response')
+        this.memberService.memberIdPatch(member.id, <Member>{
+          roomNumber: this.room_number
+        })
           .pipe(takeWhile(() => this.alive))
           .subscribe((_) => {
             this.refreshInfo();
@@ -92,16 +94,16 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
           this.notificationService.errorNotification(404, undefined, "The room with number: " + v.roomNumberNew + " does not exists");
           return
         }
-        const room: Room = rooms[0];
+        const room = rooms[0];
         this.memberService.memberGet(1, 0, undefined, <AbstractMember>{ username: username })
           .subscribe((members) => {
             if (members.length == 0) {
               this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
               return
             }
-            const member: Member = members[0];
+            const member = members[0];
             console.log(member);
-            this.memberService.memberIdPatch(<AbstractMember>{ roomNumber: room.roomNumber }, member.id, 'response')
+            this.memberService.memberIdPatch(member.id, <AbstractMember>{ roomNumber: room.roomNumber }, 'response')
               .subscribe((_) => {
                 this.refreshInfo();
                 this.onDemenager(username);
@@ -119,9 +121,8 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
           this.notificationService.errorNotification(404, undefined, 'Member ' + username + ' does not exists');
           return
         }
-        const member: Member = members[0];
-
-        this.memberService.memberIdPatch(<AbstractMember>{ roomNumber: -1 }, member.id, 'response')
+        const member = members[0];
+        this.memberService.memberIdPatch(member.id, <AbstractMember>{ roomNumber: -1 }, 'response')
           .subscribe((_) => {
             this.refreshInfo();
             this.location.back();
