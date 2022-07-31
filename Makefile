@@ -66,12 +66,12 @@ $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
 	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l python -o tmpsrc $(BACKEND_GENERATION_ARGS)
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
-	rm -rf tmpsrc
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 	rm -rf "$(FRONTEND_PATH)/src/app/api"
-	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l typescript-angular -o "$(FRONTEND_PATH)/src/app/api" -t "$(FRONTEND_GENERATOR_PATH)"
-	sed -i 's/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g' "$(FRONTEND_PATH)/src/app/api/api.module.ts"
+	docker run --rm -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
+	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
+	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 
 $(FRONTEND_PATH)/src/assets/*.min.svg: $(FRONTEND_PATH)/src/assets/*.svg
 	docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH)/src/assets:/app node:18-alpine /bin/sh -c "yarn global add svgo && /home/node/.yarn/bin/svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg"
