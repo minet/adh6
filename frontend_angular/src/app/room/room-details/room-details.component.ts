@@ -71,8 +71,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((member_list) => {
         const member = member_list[0];
-        member.roomNumber = this.room_number;
-        this.memberService.memberIdPatch(member.id, <Member>{
+        this.memberService.memberIdPatch(member, <Member>{
           roomNumber: this.room_number
         })
           .pipe(takeWhile(() => this.alive))

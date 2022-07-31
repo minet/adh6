@@ -37,3 +37,18 @@ class RoomHandler(DefaultHandler):
             return remove(serialize_response(room)), 200
         except Exception as e:
             return handle_error(ctx, e)
+
+    @with_context
+    @log_call
+    def member_search(self, ctx, id_: int):
+        pass
+
+    @with_context
+    @log_call
+    def member_add_patch(self, ctx, id_: int, body):
+        pass
+
+    @with_context
+    @log_call
+    def member_del_patch(self, ctx, id_: int, body):
+        pass

@@ -2,7 +2,7 @@ from typing import List, Tuple, Union
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.default.decorator.log_call import log_call
-from adh6.entity import RoleMapping, AbstractMember
+from adh6.entity import RoleMapping
 from adh6.exceptions import MemberNotFoundError, NotFoundError, UpdateImpossible
 from adh6.member.member_manager import MemberManager
 
@@ -26,7 +26,7 @@ class RoleManager:
             raise UpdateImpossible("api key", "The roles for an api key cannot be changed. You might want to delete the key and recreate one")
         if method == AuthenticationMethod.USER:
             try:
-                t, _ = self.member_manager.search(ctx=ctx, filter_=AbstractMember(username=identifier))
+                t = self.member_manager.get_by_login(ctx=ctx, login=identifier)
                 if not t:
                     raise MemberNotFoundError()
             except Exception as e:

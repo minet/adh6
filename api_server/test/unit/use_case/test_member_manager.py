@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 from pytest import fixture, raises
 
 from adh6.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipStatus
-from adh6.entity import AbstractMember, Member, Membership, Account, PaymentMethod, Room, AbstractMembership
+from adh6.entity import AbstractMember, Member, Membership, Account, PaymentMethod
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
 from adh6.device.interfaces.device_repository import DeviceRepository
@@ -656,7 +656,7 @@ class TestNewMember:
 
         # When...
         with pytest.raises(MemberAlreadyExist):
-            member_manager.new_member(ctx, member=sample_member)
+            member_manager.create(ctx, member=sample_member)
 
         # Expect...
         mock_member_repository.search_by.assert_called_once_with(ctx, filter_=AbstractMember(username=sample_member.username))
@@ -672,7 +672,7 @@ class TestNewMember:
 
         # When...
         with pytest.raises(AccountTypeNotFoundError):
-            member_manager.new_member(ctx, member=sample_member)
+            member_manager.create(ctx, body=sample_member)
 
         # Expect...
         mock_account_type_repository.search_by.assert_called_once_with(ctx, terms="Adhérent")
@@ -814,7 +814,7 @@ class TestGetLogs:
 
 
 @fixture
-def sample_mutation_request(faker, sample_room: Room):
+def sample_mutation_request(faker):
     return AbstractMember(
         username=faker.user_name(),
         email=faker.email(),
@@ -822,8 +822,6 @@ def sample_mutation_request(faker, sample_room: Room):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=sample_room.room_number,
     )
 
 
@@ -963,7 +961,6 @@ def sample_membership_pending_rules(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_RULES.value,
-        has_room=sample_member.room_number is not None
     )
 
 @fixture
@@ -972,7 +969,6 @@ def sample_membership_pending_payment_initial(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_INITIAL.value,
-        has_room=sample_member.room_number is not None
     )
 
 @fixture
@@ -982,7 +978,6 @@ def sample_membership_pending_payment(sample_member):
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT.value,
         duration=MembershipDuration.ONE_YEAR.value,
-        has_room=sample_member.room_number is not None
     )
 
 @fixture
@@ -994,5 +989,4 @@ def sample_membership_pending_payment_validation(sample_member, sample_account1,
         duration=MembershipDuration.ONE_YEAR.value,
         account=sample_account1.id,
         payment_method=sample_payment_method.id,
-        has_room=sample_member.room_number is not None
     )
