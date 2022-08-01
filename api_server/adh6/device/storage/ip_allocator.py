@@ -1,46 +1,39 @@
 # coding=utf-8
-from ipaddress import AddressValueError, IPv4Network, IPv6Network
-from typing import List
+from ipaddress import AddressValueError, IPv4Network, ip_network
+from typing import Union
+
+from sqlalchemy import select
 
 from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
 from adh6.default.decorator.log_call import log_call
 from adh6.device.interfaces.ip_allocator import IpAllocator
 
+from adh6.storage.sql.models import Device
+from adh6.storage import db
+
 
 class IPSQLAllocator(IpAllocator):
-
     @log_call
-    def allocate_ip_v4(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
+    def available_ip(self, ctx, ip_range: str = "", member_id: Union[int, None] = None) -> str:
+        if ip_range == "":
+            return 'En attente'
+
         try:
-            network = IPv4Network(ip_range)
-        except AddressValueError as e:
-            raise BadSubnetError("Unknown ipv4 subnet")
+            network = ip_network(ip_range)
+        except AddressValueError:
+            raise BadSubnetError("Unknown ip subnet")
 
-        i = 0
-        for host in network.hosts():
-            if i < 10 and (should_skip_reserved or i == 0):
-                i += 1
-                continue
+        if isinstance(network, IPv4Network):
+            smt = select(Device.ip).where((Device.ip != None) & (Device.ip != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme)
+        else:
+            smt = select(Device.ipv6).where((Device.ipv6 != None) & (Device.ipv6 != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme) 
 
-            if str(host) not in taken_ips:
-                return str(host)
-        raise NoMoreIPAvailableException(ip_range)
+        if member_id:
+            smt = smt.where(Device.adherent_id == member_id)
 
-    @log_call
-    def allocate_ip_v6(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
-        try:
-            network = IPv6Network(ip_range)
-        except AddressValueError as e:
-            raise BadSubnetError("Unknown ipv6 subnet")
-
-        i = 0
-        for host in network.hosts():
-            if i < 10 and (should_skip_reserved or i == 0):
-                i += 1
-                continue
-
-            if str(host) not in taken_ips:
-                return str(host)
-        raise NoMoreIPAvailableException(ip_range)
-
+        ips = db.session().execute(smt).scalars().all()
+        for h in network.hosts():
+            if str(h) not in ips:
+                return str(h)
+        raise NoMoreIPAvailableException(ip_range) 
 

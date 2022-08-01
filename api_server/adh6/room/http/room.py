@@ -9,24 +9,24 @@ from adh6.default.util.serializer import serialize_response
 from adh6.entity import Room, AbstractRoom
 from adh6.default.http_handler import DefaultHandler
 from adh6.exceptions import UnauthorizedError
-from adh6.member.member_manager import MemberManager
 from adh6.room.room_manager import RoomManager
 
 
 class RoomHandler(DefaultHandler):
-    def __init__(self, room_manager: RoomManager, member_manager: MemberManager):
+    def __init__(self, room_manager: RoomManager):
         super().__init__(Room, AbstractRoom, room_manager)
         self.room_manager = room_manager
-        self.member_manager = member_manager
 
     @with_context
     @log_call
     def get(self, ctx, id_: int, only: t.Optional[t.List[str]]=None):
         try:
-            room = self.room_manager.get_by_id(ctx=ctx, id=id_)
-            member = self.member_manager.get_by_id(ctx=ctx, id=ctx.get(CTX_ADMIN))
-            if member.room_number != room.room_number and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
+            members = self.room_manager.list_members(ctx, id_)
+            print(members)
+            if ctx.get(CTX_ADMIN) not in members and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
                 raise UnauthorizedError("Unauthorize to access this resource")
+
+            room = self.room_manager.get_by_id(ctx, id_)
             def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
@@ -41,14 +41,25 @@ class RoomHandler(DefaultHandler):
     @with_context
     @log_call
     def member_search(self, ctx, id_: int):
-        pass
+        try:
+            return self.room_manager.list_members(ctx, id_), 200
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @log_call
     def member_add_patch(self, ctx, id_: int, body):
-        pass
+        try:
+            print(body)
+            return self.room_manager.add_member(ctx, id_, body), 200
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @log_call
     def member_del_patch(self, ctx, id_: int, body):
-        pass
+        try:
+            print(body)
+            return self.room_manager.remove_member(ctx, id_, body), 200
+        except Exception as e:
+            return handle_error(ctx, e)

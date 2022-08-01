@@ -27,14 +27,12 @@ def device_manager(
         mock_ip_allocator: IpAllocator,
         mock_device_repository: DeviceRepository,
         mock_vlan_repository: VlanRepository,
-        mock_room_repository: RoomRepository,
         mock_member_repository: MemberRepository
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
         ip_allocator=mock_ip_allocator,
         vlan_repository=mock_vlan_repository,
-        room_repository=mock_room_repository,
         member_repository=mock_member_repository
     )
 

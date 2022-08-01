@@ -35,7 +35,6 @@ from adh6.exceptions import (
     CharterNotSigned,
     UpdateImpossible,
 )
-from adh6.device.storage.device_repository import DeviceType
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
@@ -98,7 +97,7 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def get_by_id(self, ctx, id: int) -> Member:
-        member = super().get_by_id(ctx, id)
+        member = self.member_repository.get_by_id(ctx, id)
         if not member:
             raise MemberNotFoundError(id)
         latest_sub = self.latest_subscription(ctx, id)
@@ -127,11 +126,8 @@ class MemberManager(CRUDManager):
     def create(self, ctx, body: MemberBody) -> Member:
         LOG.debug("create_member_records", extra=log_extra(ctx, username=body.username))
         # Check that the user exists in the system.
-        try:
-            fetched_member = self.member_repository.get_by_login(ctx, body.username)
-        except NotFoundError:
-            pass
-        else: 
+        fetched_member = self.member_repository.get_by_login(ctx, body.username)
+        if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
         fetched_account_type, _ = self.account_type_repository.search_by(ctx, terms="Adhérent")
@@ -547,7 +543,7 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, IPv4Address]]:
+    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
         member = self.get_by_id(ctx, member_id)
         if not is_member_active(member):
             return None
@@ -566,27 +562,24 @@ class MemberManager(CRUDManager):
             raise NoSubnetAvailable("wireless")
 
         self.member_repository.update(ctx, AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+
         member = self.get_by_id(ctx, member_id)
 
-        # Update wireless devices
-        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(
-            member=member.id,
-            connection_type=DeviceType.wireless.name
-        ))
-        for d in devices_to_reset:
-            self.device_manager.allocate_ip_addresses(ctx, d, True)
+        self.device_manager.allocate_wireless_ips(ctx, member_id, str(subnet))
 
         return subnet, ip
 
     @log_call
     @auto_raise
-    def reset_member(self, ctx, member_id) -> None:
-        member = self.get_by_id(ctx, member_id)
+    def reset_member(self, ctx, member_id: int) -> None:
         self.member_repository.update(ctx, AbstractMember(
             id=member_id,
             ip="", 
             subnet=""
         ))
-        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))
-        for d in devices_to_reset:
-            self.device_manager.unallocate_ip_addresses(ctx, d)
+        self.device_manager.unallocate_ip_addresses(ctx, member_id)
+
+    @log_call
+    @auto_raise
+    def ethernet_vlan_changed(self, ctx, member_id: int, vlan_number: int):
+        self.device_manager.allocate_wired_ips(ctx, member_id=member_id, vlan_number=vlan_number)

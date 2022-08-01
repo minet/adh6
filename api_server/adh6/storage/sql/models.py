@@ -50,6 +50,12 @@ class Chambre(db.Model, RubyHashTrackable):
         return self.id
 
 
+class RoomMemberLink(db.Model):
+    __tablename__ = 'rooms_members_association'
+    room_id = Column(Integer, nullable=False, primary_key=True)
+    member_id = Column(Integer, nullable=False, primary_key=True)
+
+
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet
 class Admin(db.Model):
     __tablename__ = 'admins'
