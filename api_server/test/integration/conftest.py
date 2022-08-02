@@ -104,6 +104,7 @@ class MockRequestsResponse:
             ]
         else: 
             response['id'] = SAMPLE_CLIENT
+            del response['attributes']
         return response
 
 

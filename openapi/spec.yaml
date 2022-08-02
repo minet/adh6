@@ -801,6 +801,7 @@ paths:
             - 1
             - 2
     get:
+      deprecated: true
       operationId: charter_get
       responses:
         '200':
@@ -825,6 +826,7 @@ paths:
       tags:
       - member
     put:
+      deprecated: true
       operationId: charter_put
       responses:
         '204':
@@ -934,6 +936,125 @@ paths:
           - admin:write
       tags:
       - membership
+  /charter/{charter_id}/member/:
+    parameters:
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  minimum: 0
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+          description: number of member that have signed the charter
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List of the members that have signed the charter
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - charter
+    head:
+      responses:
+        '200':
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+          description: number of member that have signed the charter
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Number of member that have signed the charter
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - charter
+  /charter/{charter_id}/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+    post:
+      responses:
+        '201':
+          description: Signed
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Sign the specific charter
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - charter
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive the signature date of the specific charter
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - charter
   /mailinglist/member/{id}:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -3260,6 +3381,7 @@ components:
           format: date-time
           type: string
         mailinglist:
+          deprecated: true
           description: The number of the room this member lives in
           type: integer
           example: 4
@@ -3534,7 +3656,9 @@ tags:
   name: member
 - description: Manage membership records
   name: membership
-- description: Operations on members
+- description: Operations on the charters
+  name: charter
+- description: Operations on the mailinglists
   name: mailinglist
 - description: Operations on devices
   name: device
