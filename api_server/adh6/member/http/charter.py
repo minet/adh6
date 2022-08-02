@@ -10,27 +10,12 @@ class CharterHandler:
 
     @with_context
     def member_search(self, ctx, charter_id: int):
-        try: 
-            result, total_count = self.charter_manager.get_members(ctx, charter_id)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            return result, 200, headers
-        except Exception as e:
-            return handle_error(ctx, e)
-
-    @with_context
-    def member_head(self, ctx, charter_id: int):
-        try: 
-            _, total_count = self.charter_manager.get_members(ctx, charter_id)
-            headers = {
-                "X-Total-Count": str(total_count),
-                'access-control-expose-headers': 'X-Total-Count'
-            }
-            return NoContent, 200, headers
-        except Exception as e:
-            return handle_error(ctx, e)
+        result, total_count = self.charter_manager.get_members(ctx, charter_id)
+        headers = {
+            "X-Total-Count": str(total_count),
+            'access-control-expose-headers': 'X-Total-Count'
+        }
+        return result, 200, headers
 
     @with_context
     def member_post(self, ctx, charter_id: int, id_: int):

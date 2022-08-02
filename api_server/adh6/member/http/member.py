@@ -2,11 +2,12 @@
 """
 Contain all the http http_api functions.
 """
-from typing import List, Optional, Tuple, Any
+from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
 from adh6.authentication import Method
 from adh6.authentication.security import with_security
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 
 from adh6.entity import AbstractMember, Member, SubscriptionBody
 from adh6.default.decorator.log_call import log_call
@@ -15,15 +16,32 @@ from adh6.default.http_handler import DefaultHandler
 from adh6.default.util.error import handle_error
 from adh6.default.util.serializer import serialize_response, deserialize_request
 from adh6.entity.member_body import MemberBody
+from adh6.entity.member_filter import MemberFilter
+from adh6.member.charter_manager import CharterManager
 from adh6.member.member_manager import MemberManager
 from adh6.util.context import log_extra
 from adh6.util.log import LOG
 
 
 class MemberHandler(DefaultHandler):
-    def __init__(self, member_manager: MemberManager):
+    def __init__(self, member_manager: MemberManager, charter_manager: CharterManager):
         super().__init__(Member, AbstractMember, member_manager)
         self.member_manager = member_manager
+        self.charter_manager = charter_manager
+
+    @with_context
+    @log_call
+    def search(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_: Optional[Any] = None):
+        try:
+            filter_ = deserialize_request(filter_, MemberFilter) if filter_ else None
+            result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
+            headers = {
+                "X-Total-Count": str(total_count),
+                'access-control-expose-headers': 'X-Total-Count'
+            }
+            return list(map(serialize_response, result)), 200, headers
+        except Exception as e:
+            return handle_error(ctx, e)
 
     @with_context
     @with_security(method=Method.READ)
@@ -37,7 +55,6 @@ class MemberHandler(DefaultHandler):
                         if k not in only + ["id", "__typename"]:
                             del entity[k]
                 return entity
-            print(self.main_manager.get_by_id(ctx, id=id_))
             return remove(serialize_response(self.main_manager.get_by_id(ctx, id=id_))), 200
         except Exception as e:
             return handle_error(ctx, e)
@@ -130,7 +147,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def charter_get(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
-            return self.member_manager.get_charter(ctx, id_, charter_id), 200
+            return self.charter_manager.get(ctx, charter_id=charter_id, member_id=id_), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -138,7 +155,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def charter_put(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
-            self.member_manager.update_charter(ctx, id_, charter_id)
+            self.charter_manager.sign(ctx, charter_id=charter_id, member_id=id_)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

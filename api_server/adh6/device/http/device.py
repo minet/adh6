@@ -21,7 +21,7 @@ class DeviceHandler(DefaultHandler):
     
     @with_context
     @log_call
-    def vendor_get(self, ctx, id_=None):
+    def vendor_get(self, ctx, id_: int):
         """ Return the vendor associated with the given device """
         try:
             device = self.device_manager.get_by_id(ctx=ctx, id=id_)

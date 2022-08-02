@@ -1,7 +1,9 @@
+from ipaddress import IPv4Address, IPv4Network
 import json
 import pytest
+from sqlalchemy import select
 
-from adh6.storage.sql.models import  db
+from adh6.storage.sql.models import  Device, db
 from adh6.storage.sql.models import Chambre
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
@@ -13,7 +15,9 @@ base_url = f'{host_url}/room/'
 def client(sample_room1,
            sample_room2,
            sample_vlan,
-           sample_member):
+           sample_vlan69,
+           sample_member,
+           wired_device):
     from .context import app
     from .conftest import prep_db, close_db
     if app.app is None:
@@ -22,8 +26,10 @@ def client(sample_room1,
         prep_db(
             sample_room1,
             sample_room2,
+            sample_vlan69,
             sample_vlan,
-            sample_member
+            sample_member,
+            wired_device
         )
         yield c
         close_db()
@@ -243,6 +249,42 @@ def test_room_member_in_room(client, sample_room1, sample_member):
     assert r.status_code == 200
     response = json.loads(r.data.decode('utf-8'))
     assert response == sample_room1.id
+
+
+def test_room_add_member_change_vlan(client, sample_room1, sample_room2, sample_member, sample_vlan, sample_vlan69):
+    r = client.patch(
+        f"{base_url}{sample_room2.id}/member/add/",
+        data=json.dumps({"id": sample_member.id}),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+    assert IPv4Address(db.session().execute(select(Device.ip).where(Device.adherent_id == sample_member.id)).scalar()) in IPv4Network(sample_vlan69.adresses)
+    r = client.patch(
+        f"{base_url}{sample_room1.id}/member/add/",
+        data=json.dumps({"id": sample_member.id}),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+    assert IPv4Address(db.session().execute(select(Device.ip).where(Device.adherent_id == sample_member.id)).scalar()) in IPv4Network(sample_vlan.adresses)
+
+
+def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
+    r = client.patch(
+        f"{base_url}{sample_room1.id}/member/del/",
+        data=json.dumps({"id": sample_member.id}),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    r = client.patch(
+        f"{base_url}{sample_room2.id}/member/add/",
+        data=json.dumps({"id": sample_member.id}),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+    assert IPv4Address(db.session().execute(select(Device.ip).where(Device.adherent_id == sample_member.id)).scalar()) in IPv4Network(sample_vlan69.adresses)
 
 
 def test_room_member_in_room_user_authorized(client, sample_room1, sample_member):

@@ -43,15 +43,47 @@ def test_member_post_membership(client, sample_member):
     assert result.status_code == 200
 
 
-def test_member_post_add_membership_not_found(client):
+def test_member_post_add_membership_unknown_member(client):
     body = {
         "account": 4,
         "duration": 0,
-        "member": 4,
+        "member": 200,
         "paymentMethod": 4,
     }
     result = client.post(
         base_url(200),
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 404
+
+
+def test_member_post_add_membership_unknown_account(client, sample_member):
+    body = {
+        "account": 6969,
+        "duration": 1,
+        "member": sample_member.id,
+        "paymentMethod": 4,
+    }
+    result = client.post(
+        base_url(sample_member.id),
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 404
+
+
+def test_member_post_add_membership_unknown_payment_method(client, sample_member, sample_account):
+    body = {
+        "account": sample_account.id,
+        "duration": 1,
+        "member": sample_member.id,
+        "paymentMethod": 6969,
+    }
+    result = client.post(
+        base_url(sample_member.id),
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS,

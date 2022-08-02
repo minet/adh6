@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
@@ -173,7 +173,6 @@ def sample_payment_method():
 
 @pytest.fixture
 def wired_device(faker, sample_member):
-    print(sample_member.id)
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
@@ -247,6 +246,16 @@ def sample_vlan():
 
 
 @pytest.fixture
+def sample_vlan69():
+    yield Vlan(
+        id=69,
+        numero=69,
+        adresses="192.168.69.0/24",
+        adressesv6="fe80:69::0/64",
+    )
+
+
+@pytest.fixture
 def sample_room1(sample_vlan):
     yield Chambre(
         id=420,
@@ -257,12 +266,12 @@ def sample_room1(sample_vlan):
 
 
 @pytest.fixture
-def sample_room2(sample_vlan):
+def sample_room2(sample_vlan69):
     yield Chambre(
         id=840,
         numero=4592,
         description="Chambre voisine du swag",
-        vlan_id=sample_vlan.id,
+        vlan_id=sample_vlan69.id,
     )
 
 
@@ -275,6 +284,7 @@ def sample_member_admin():
         prenom="test",
         password="",
         mail_membership=1,
+        date_de_depart=datetime.now() - timedelta(days=1)
     )
 
 def api_key_user():

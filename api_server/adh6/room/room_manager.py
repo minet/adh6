@@ -23,17 +23,19 @@ class RoomManager(CRUDManager):
     def add_member(self, ctx, room_id: int, member_id: int) -> None:
         try:
             room = self.room_repository.get_by_id(ctx, room_id)
+            if not room:
+                raise RoomNotFoundError(room_id)
             self.member_manager.get_by_id(ctx, member_id)
         except NotFoundError as e:
             raise e
         
         previous_room = self.room_repository.get_from_member(ctx, member_id)
         if previous_room:
-            self.room_repository.remove_member(ctx, room_id, member_id)
+            self.room_repository.remove_member(ctx, member_id)
 
         print(previous_room)
         self.room_repository.add_member(ctx, room_id, member_id)
-        if previous_room and previous_room.vlan != room.vlan:
+        if not previous_room or previous_room.vlan != room.vlan:
             self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
 
     @log_call

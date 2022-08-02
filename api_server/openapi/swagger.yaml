@@ -948,9 +948,6 @@ paths:
             - 1
             - 2
     get:
-      parameters:
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/skip'
       responses:
         '200':
           content:
@@ -974,30 +971,6 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'
       summary: List of the members that have signed the charter
-      security: 
-        - OAuth2:
-          - admin:write
-        - ApiKeyAuth:
-          - admin:write
-      tags:
-      - charter
-    head:
-      responses:
-        '200':
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-          description: number of member that have signed the charter
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Number of member that have signed the charter
       security: 
         - OAuth2:
           - admin:write

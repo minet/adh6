@@ -1,4 +1,3 @@
-import datetime
 import json
 import pytest
 from sqlalchemy import select
@@ -108,6 +107,38 @@ def test_charter_list_members_bad_charter(client):
 
 def test_charter_list_members_unauthorized(client):
     r = client.get(
+        f"{base_url}{4}/member/",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize('charter,length', [(1, 0), (2, 1)])
+def test_charter_head_members(client, sample_member, charter, length):
+    r = client.post(
+        f"{base_url}{2}/member/{sample_member.id}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 201
+
+    r = client.head(
+        f"{base_url}{charter}/member/",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert int(r.headers["X-Total-Count"]) == length
+
+
+def test_charter_head_members_bad_charter(client):
+    r = client.head(
+        f"{base_url}{4}/member/",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_charter_head_members_unauthorized(client):
+    r = client.head(
         f"{base_url}{4}/member/",
         headers=TEST_HEADERS_SAMPLE,
     )

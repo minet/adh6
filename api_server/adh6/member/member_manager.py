@@ -14,7 +14,6 @@ from adh6.entity import (
 from adh6.entity.abstract_transaction import AbstractTransaction
 from adh6.entity.member_body import MemberBody
 from adh6.entity.member_filter import MemberFilter
-from adh6.entity.payment_method import PaymentMethod
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.entity.validators.member_validators import is_member_active
 from adh6.exceptions import (
@@ -25,6 +24,7 @@ from adh6.exceptions import (
     MemberNotFoundError,
     MemberAlreadyExist,
     MembershipAlreadyExist,
+    PaymentMethodNotFoundError,
     UnauthorizedError,
     UnknownPaymentMethod,
     LogFetchError,
@@ -39,6 +39,7 @@ from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.authentication.security import Roles
+from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
@@ -61,7 +62,7 @@ class MemberManager(CRUDManager):
                  logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
-                 device_manager: DeviceManager):
+                 device_manager: DeviceManager, charter_repository: CharterRepository):
         super().__init__(member_repository, AbstractMember, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
@@ -72,6 +73,7 @@ class MemberManager(CRUDManager):
         self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
         self.device_manager = device_manager
+        self.charter_repository = charter_repository
 
     @property
     def duration_price(self) -> Dict[int, int]:
@@ -259,15 +261,13 @@ class MemberManager(CRUDManager):
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+            date_signed_minet = self.charter_repository.get(ctx, member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
 
         if state == MembershipStatus.PENDING_PAYMENT_INITIAL:
             if body.duration is not None and body.duration != 0:
-                if body.duration < 0:
-                    raise IntMustBePositive('duration')
                 if body.duration not in self.duration_price:
                     LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=body.duration))
                     raise NoPriceAssignedToThatDuration(body.duration)
@@ -276,8 +276,12 @@ class MemberManager(CRUDManager):
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
-                self.__account_not_found(ctx, body.account)
-                self.__payment_method_not_found(ctx, body.payment_method)
+                account = self.account_repository.get_by_id(ctx, body.account)
+                if not account:
+                    raise AccountNotFoundError(body.account)
+                payment_method = self.payment_method_repository.get_by_id(ctx, body.payment_method)
+                if not payment_method:
+                    raise PaymentMethodNotFoundError(body.payment_method)
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_validation")
                 state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
@@ -313,7 +317,7 @@ class MemberManager(CRUDManager):
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+            date_signed_minet = self.charter_repository.get(ctx, member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -322,8 +326,6 @@ class MemberManager(CRUDManager):
 
 
         if body.duration is not None and body.duration != 0:
-            if body.duration < 0:
-                raise IntMustBePositive('duration')
             if body.duration not in self.duration_price:
                 LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=body.duration))
                 raise NoPriceAssignedToThatDuration(body.duration)
@@ -334,9 +336,13 @@ class MemberManager(CRUDManager):
                 state = MembershipStatus.PENDING_PAYMENT
 
         if body.account is not None:
-            self.__account_not_found(ctx, body.account)
+            account = self.account_repository.get_by_id(ctx, body.account)
+            if not account:
+                raise AccountNotFoundError(body.account)
         if body.payment_method is not None:
-            self.__payment_method_not_found(ctx, body.payment_method)
+            payment_method = self.payment_method_repository.get_by_id(ctx, body.payment_method)
+            if not payment_method:
+                raise PaymentMethodNotFoundError(body.payment_method)
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
@@ -410,12 +416,6 @@ class MemberManager(CRUDManager):
                     payment_method=payment_method.id
                 )
             )
-
-    def __account_not_found(self, ctx, account: int) -> None:
-        _ = self.account_repository.get_by_id(ctx, account)
-
-    def __payment_method_not_found(self, ctx, payment_method: int) -> PaymentMethod:
-        return self.payment_method_repository.get_by_id(ctx, payment_method)
 
     @log_call
     @auto_raise
@@ -546,16 +546,6 @@ class MemberManager(CRUDManager):
         self.member_repository.update_password(ctx, member_id, pw)
 
         return True
-
-    @log_call
-    @auto_raise
-    def update_charter(self, ctx, member_id, charter_id: int) -> None:
-        self.member_repository.update_charter(ctx, member_id, charter_id)
-
-    @log_call
-    @auto_raise
-    def get_charter(self, ctx, member_id, charter_id: int) -> str:
-        return self.member_repository.get_charter(ctx, member_id, charter_id)
 
     @log_call
     @auto_raise

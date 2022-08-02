@@ -8,14 +8,12 @@ from typing import List, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
-from adh6.constants import CTX_SQL_SESSION, MembershipStatus
+from adh6.constants import CTX_SQL_SESSION
 from adh6.entity import AbstractMember
 from adh6.entity.member import Member
 from adh6.entity.member_filter import MemberFilter
-from adh6.exceptions import InvalidMembershipDuration, MemberNotFoundError,\
-    InvalidCharterID, CharterAlreadySigned, MembershipNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Adherent, Membership as MembershipSQL
+from adh6.storage.sql.models import Adherent
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.member.interfaces.member_repository import MemberRepository
 
@@ -29,6 +27,10 @@ class MemberSQLRepository(MemberRepository):
         if filter_:
             if filter_.ip:
                 query = query.filter(Adherent.ip == filter_.ip)
+            if filter_.since:
+                query = query.filter(Adherent.date_de_depart >= filter_.since)
+            if filter_.until:
+                query = query.filter(Adherent.date_de_depart <= filter_.until)
 
         if terms:
             query = query.filter(
@@ -87,9 +89,7 @@ class MemberSQLRepository(MemberRepository):
         query = session.query(Adherent)\
             .filter(Adherent.id == abstract_member.id)
 
-        adherent = query.one_or_none()
-        if adherent is None:
-            raise MemberNotFoundError(str(abstract_member.id))
+        adherent = query.one()
 
         with track_modifications(ctx, session, adherent):
             new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
@@ -100,92 +100,23 @@ class MemberSQLRepository(MemberRepository):
     @log_call
     def delete(self, ctx, member_id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
-
         member = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        if member is None:
-            raise MemberNotFoundError(member_id)
-
         with track_modifications(ctx, session, member):
             session.delete(member)
 
     @log_call
     def update_password(self, ctx, member_id, hashed_password):
         session: Session = ctx.get(CTX_SQL_SESSION)
-
         adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-
-        if adherent is None:
-            raise MemberNotFoundError(member_id)
-
         with track_modifications(ctx, session, adherent):
             adherent.password = hashed_password
-
-    @log_call
-    def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
-        query = session.query(Adherent)
-        query = query.filter(Adherent.id == member_id)
-
-        adherent = query.one_or_none()
-        if adherent is None:
-            raise MemberNotFoundError(str(member_id))
-
-        memberships: List[MembershipSQL] = session.query(MembershipSQL) \
-            .filter(MembershipSQL.adherent_id == member_id) \
-            .all()
-
-        if not memberships:
-            raise MembershipNotFoundError(str(member_id))
-
-        now = datetime.now()
-        if charter_id == 1:
-            if adherent.datesignedminet is not None:
-                raise CharterAlreadySigned("MiNET")
-            with track_modifications(ctx, session, adherent):
-                adherent.datesignedminet = now
-            for m in memberships:
-                if m.status == MembershipStatus.PENDING_RULES:
-                    m.status = MembershipStatus.PENDING_PAYMENT_INITIAL
-        elif charter_id == 2:
-            if adherent.datesignedhosting is not None:
-                raise CharterAlreadySigned("Hosting")
-            with track_modifications(ctx, session, adherent):
-                adherent.datesignedhosting = now
-        else:
-            raise InvalidCharterID(str(charter_id))
-        session.flush()
-
-
-    @log_call
-    def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
-        query = session.query(Adherent)
-        query = query.filter(Adherent.id == member_id)
-
-        adherent: Adherent = query.one_or_none()
-        if adherent is None:
-            raise MemberNotFoundError(str(member_id))
-
-        if charter_id == 1:
-            return "" if adherent.datesignedminet is None else str(adherent.datesignedminet)
-        if charter_id == 2:
-            return "" if adherent.datesignedhosting is None else str(adherent.datesignedhosting)
-
-        raise InvalidCharterID(str(charter_id))
 
     @log_call
     def add_duration(self, ctx, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
         session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(Adherent).filter(Adherent.id == member_id)
-        adherent: Adherent = query.one_or_none()
-        if adherent is None:
-            raise MemberNotFoundError(str(member_id))
-        
-        if duration_in_mounth not in [1, 2, 3, 4, 5, 12]:
-            raise InvalidMembershipDuration(str(duration_in_mounth))
+        adherent: Adherent = query.one()
         
         if adherent.date_de_depart is None or adherent.date_de_depart < now:
             adherent.date_de_depart = now
@@ -211,22 +142,14 @@ class MemberSQLRepository(MemberRepository):
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
     adherent = sql_object
-    if entity.mailinglist is not None or override:
-        adherent.mailinglist = True
-    if entity.mailinglist is not None or override:
-        adherent.mail_membership = entity.mailinglist if entity.mailinglist else 0
     if entity.email is not None or override:
         adherent.mail = entity.email
-    if entity.comment is not None or override:
-        adherent.commentaires = entity.comment
     if entity.username is not None or override:
         adherent.login = entity.username
     if entity.first_name is not None or override:
         adherent.prenom = entity.first_name
     if entity.last_name is not None or override:
         adherent.nom = entity.last_name
-    if entity.departure_date is not None or override:
-        adherent.date_de_depart = entity.departure_date
     if entity.ip is not None or override:
         adherent.ip = entity.ip if entity.ip != "" else None
     if entity.subnet is not None or override:

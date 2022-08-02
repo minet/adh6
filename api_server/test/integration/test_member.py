@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import pytest
 
@@ -33,15 +34,6 @@ def test_member_filter_all(client):
     assert len(response) == 4 # 4 because of the admin user
 
 
-def test_member_search_with_unknown_only(client):
-    sample_only = "azerty"
-    r = client.get(
-        f'{base_url}?only={sample_only}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
-
-
 def test_member_filter_all_with_invalid_limit(client):
     r = client.get(
         f'{base_url}?limit={-1}',
@@ -70,6 +62,50 @@ def test_member_filter_by_ip(client, sample_member: Adherent):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 1
+
+
+def test_member_filter_by_departure_date_since_now(client):
+    r = client.get(
+        f'{base_url}?filter[since]={datetime.now().isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 3
+
+
+def test_member_filter_by_departure_date_since_previous_week(client):
+    r = client.get(
+        f'{base_url}?filter[since]={(datetime.now() + timedelta(days=-7)).isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
+
+
+def test_member_filter_by_departure_date_until_now(client):
+    r = client.get(
+        f'{base_url}?filter[until]={datetime.now().isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
+def test_member_filter_by_departure_date_until_next_week(client):
+    r = client.get(
+        f'{base_url}?filter[until]={(datetime.now() + timedelta(days=7)).isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
 
 
 def test_member_filter_terms_first_name(client):
@@ -366,6 +402,16 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
         headers=TEST_HEADERS
     )
     assert res.status_code == 400
+
+
+def test_member_patch_unknown(client):
+    r = client.patch(
+        f'{base_url}{4242}',
+        data=json.dumps({}),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
 
 
 def test_member_patch_unauthorized(client):

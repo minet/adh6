@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy.orm.session import Session
 from adh6.util.context import log_extra
 from adh6.util.log import LOG
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from sqlalchemy import func, case, or_
 
@@ -59,12 +59,10 @@ class AccountSQLRepository(AccountRepository):
         return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractAccount:
+    def get_by_id(self, ctx, object_id: int) -> Union[AbstractAccount, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLAccount, func.sum(case(value=Transaction.src, whens={ SQLAccount.id: -Transaction.value }, else_=Transaction.value)).label("balance")).outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)).filter(SQLAccount.id == object_id).one_or_none()
-        if not obj:
-            raise AccountNotFoundError(object_id)
-        return _map_account_sql_to_abstract_entity(obj, True)
+        return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None
 
     @log_call
     def create(self, ctx, abstract_account: Account) -> object:

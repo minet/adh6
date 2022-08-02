@@ -29,13 +29,5 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_charter(self, ctx, member_id: int, charter_id: int) -> str:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def update_charter(self, ctx, member_id: int, charter_id: int) -> None:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
     def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
         pass  # pragma: no cover

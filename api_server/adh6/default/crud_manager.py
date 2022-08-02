@@ -57,5 +57,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     def delete(self, ctx, id: int):
-        self.repository.get_by_id(ctx=ctx, object_id=id)
+        e = self.repository.get_by_id(ctx=ctx, object_id=id)
+        if not e:
+            raise self.not_found_exception(id)
         return self.repository.delete(ctx, id)

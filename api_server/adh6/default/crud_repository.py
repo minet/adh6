@@ -9,7 +9,7 @@ AbstractT = TypeVar('AbstractT')
 
 class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
     @abc.abstractmethod
-    def get_by_id(self, ctx, object_id: int) -> AbstractT:
+    def get_by_id(self, ctx, object_id: int) -> Optional[AbstractT]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
