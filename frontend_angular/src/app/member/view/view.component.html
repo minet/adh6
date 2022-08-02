@@ -28,14 +28,18 @@
         </tr>
         <tr>
           <td>Wifi</td>
-          <td>{{ member.subnet }} -> {{ member.ip }}</td>
+          <td *ngIf="member.subnet !== undefined && member.ip !== undefined; else noIpBlock">{{ member.subnet }} - {{
+            member.ip }}</td>
+          <ng-template #noIpBlock>
+            <td>-</td>
+          </ng-template>
         </tr>
         <tr>
           <td>Chambre</td>
           <td>
-            <ng-container *ngIf="member.roomNumber !== undefined; else elseNoRoom">
-              <a [routerLink]='["/room/view/", (room$ | async)]'>
-                {{ member.roomNumber }}
+            <ng-container *ngIf="room$ | async as room; else elseNoRoom">
+              <a [routerLink]='["/room/view/", room.id]'>
+                {{ room.roomNumber }}
               </a>
             </ng-container>
             <ng-template #elseNoRoom>

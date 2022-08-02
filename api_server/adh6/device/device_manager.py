@@ -1,6 +1,6 @@
 # coding=utf-8
 from adh6.entity import AbstractDevice
-from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, VLANNotFoundError
+from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
@@ -89,6 +89,8 @@ class DeviceManager(CRUDManager):
 
             if created:
                 member = self.member_repository.get_by_id(ctx, device.member)
+                if not member:
+                    raise MemberNotFoundError(device.member)
                 self._allocate_or_unallocate_ip(ctx, device, member.subnet if member.subnet else "")
 
             return device, created

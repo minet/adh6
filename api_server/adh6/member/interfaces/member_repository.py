@@ -13,7 +13,11 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_login(self, ctx, login: str) -> Member:
+    def get_by_id(self, ctx, object_id: int) -> Optional[Member]:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_by_login(self, ctx, login: str) -> Optional[Member]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

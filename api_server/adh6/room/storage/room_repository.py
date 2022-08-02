@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from sqlalchemy import insert, select, delete
 
 from sqlalchemy.orm.session import Session
@@ -18,12 +18,15 @@ from adh6.room.interfaces.room_repository import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):
-    def get_from_member(self, ctx, member_id: int) -> Room:
+    def get_from_member(self, ctx, member_id: int) -> Union[Room, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         smt = select(Chambre)\
-            .outerjoin(RoomMemberLink, Room.id == RoomMemberLink.room_id)\
+            .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)\
             .where(RoomMemberLink.member_id == member_id)
-        return _map_room_sql_to_entity(session.execute(smt).scalar_one())
+        
+        result = session.execute(smt).scalar_one_or_none()
+
+        return _map_room_sql_to_entity(result) if result else None
 
     def get_members(self, ctx, room_id: int) -> List[int]:
         session: Session = ctx.get(CTX_SQL_SESSION)

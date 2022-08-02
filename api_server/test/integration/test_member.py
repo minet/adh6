@@ -1,12 +1,10 @@
 import json
-from dateutil import parser
 import pytest
 
 from adh6.storage.sql.models import db
 from adh6.storage.sql.models import Adherent
 from test.integration.resource import (
     TEST_HEADERS_SAMPLE, base_url as host_url, TEST_HEADERS, assert_modification_was_created)
-from test.integration.context import tomorrow
 
 
 base_url = f'{host_url}/member/'
@@ -299,10 +297,8 @@ def test_member_post_unauthorized(client):
     [
         ("firstName", "TEST"),
         ("lastName", "TEST"),
-        #("comment", "TEST"),
         ("mail", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        # ("mailinglist", 2),
     ]
 )
 def test_member_patch(client, sample_member: Adherent, key: str, value: str):
@@ -332,10 +328,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     [
         ("firstName", "TEST"),
         ("lastName", "TEST"),
-        # ("comment", "TEST"),
         ("mail", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        # ("mailinglist", 2),
     ]
 )
 def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):

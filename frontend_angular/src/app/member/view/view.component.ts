@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
-import { AbstractMembership, RoomService, Member, MemberService, Membership, AbstractRoom, Room, AbstractMember } from '../../api';
+import { AbstractMembership, RoomService, Member, MemberService, Membership, AbstractRoom, Room, AbstractMember, RoomMembersService } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 import { map, share, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
@@ -28,7 +28,7 @@ export class ViewComponent implements OnInit {
   public moveIn: boolean = false;
   public moveInDisabled: boolean = false;
   public showLogs = false;
-  public room$: Observable<number>;
+  public room$: Observable<AbstractRoom>;
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
@@ -38,6 +38,7 @@ export class ViewComponent implements OnInit {
   constructor(
     public memberService: MemberService,
     public roomService: RoomService,
+    public roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private notificationService: NotificationService,
@@ -74,20 +75,10 @@ export class ViewComponent implements OnInit {
       );
 
     this.member$ = refresh$.pipe(
-      switchMap(member_id => this.memberService.memberIdGet(member_id)
-        .pipe(map((user) => {
-          this.room$ = this.roomService.roomGet(1, 0, undefined, (user.roomNumber !== undefined) ? <AbstractRoom>{ roomNumber: user.roomNumber } : undefined, ["id"])
-            .pipe(
-              map(rooms => {
-                if (rooms.length != 1) {
-                  this.notificationService.errorNotification(404, "Room with number " + user.roomNumber + " not found")
-                  return undefined;
-                }
-                return rooms[0].id;
-              })
-            )
-          return user;
-        }))),
+      switchMap(member_id => {
+        this.room$ = this.roomMemberService.roomMemberIdGet(member_id).pipe(switchMap(i => this.roomService.roomIdGet(i, ["roomNumber"])));
+        return this.memberService.memberIdGet(member_id)
+      }),
       share(),
     );
 
@@ -150,6 +141,7 @@ export class ViewComponent implements OnInit {
       .subscribe(memberId => {
         this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: +v.roomNumber })
           .subscribe(rooms => {
+            console.log(rooms)
             if (rooms.length == 0) {
               this.notificationService.errorNotification(
                 404,
@@ -160,7 +152,7 @@ export class ViewComponent implements OnInit {
             }
             const room = rooms[0];
 
-            this.memberService.memberIdPatch(memberId, <AbstractMember>{ roomNumber: room.roomNumber }, 'response')
+            this.roomMemberService.roomIdMemberAddPatch(room.id, { id: +memberId })
               .subscribe((_) => {
                 this.refreshInfo();
                 this.moveIn = false;

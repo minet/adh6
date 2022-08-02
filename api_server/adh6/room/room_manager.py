@@ -2,7 +2,7 @@
 
 from typing import List
 from adh6.default.decorator.log_call import log_call
-from adh6.entity import AbstractRoom, Room
+from adh6.entity import AbstractRoom
 from adh6.exceptions import NotFoundError, RoomNotFoundError
 from adh6.default.crud_manager import CRUDManager
 from adh6.member.member_manager import MemberManager
@@ -31,6 +31,7 @@ class RoomManager(CRUDManager):
         if previous_room:
             self.room_repository.remove_member(ctx, room_id, member_id)
 
+        print(previous_room)
         self.room_repository.add_member(ctx, room_id, member_id)
         if previous_room and previous_room.vlan != room.vlan:
             self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
@@ -44,7 +45,7 @@ class RoomManager(CRUDManager):
                 raise RoomNotFoundError(room_id)
         except NotFoundError as e:
             raise e
-        self.room_repository.remove_member(ctx, room_id, member_id)
+        self.room_repository.remove_member(ctx, member_id)
         self.member_manager.reset_member(ctx, member_id)
 
     @log_call
@@ -58,8 +59,8 @@ class RoomManager(CRUDManager):
         return self.room_repository.get_members(ctx, room_id=room_id)
 
     @log_call
-    def room_from_member(self, ctx, member_id: int) -> Room:
+    def room_from_member(self, ctx, member_id: int) -> int:
         room = self.room_repository.get_from_member(ctx, member_id)
         if not room:
             raise RoomNotFoundError()
-        return room
+        return room.id

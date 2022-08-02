@@ -638,7 +638,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Member'
+                $ref: '#/components/schemas/AbstractMember'
           description: Success
         '400':
           $ref: '#/components/responses/Invalid'
@@ -1669,8 +1669,6 @@ paths:
       summary: Retrieve a room
       security: 
         - OAuth2:
-          - user
-        - OAuth2:
           - admin:read
         - ApiKeyAuth:
           - admin:read
@@ -1733,7 +1731,7 @@ paths:
         - ApiKeyAuth:
           - admin:read
       tags:
-      - room
+      - room members
   /room/{id}/member/add/:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -1742,9 +1740,14 @@ paths:
         content:
           application/json:
             schema:
-              description: Id of the member to add
-              type: integer
-              example: 1
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
         description: The member to add
         required: true
       responses:
@@ -1763,7 +1766,7 @@ paths:
         - ApiKeyAuth:
           - admin:write
       tags:
-      - room
+      - room members
   /room/{id}/member/del/:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -1772,9 +1775,14 @@ paths:
         content:
           application/json:
             schema:
-              description: Id of the member to remove
-              type: integer
-              example: 1
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
         required: true
       responses:
         '204':
@@ -1792,7 +1800,37 @@ paths:
         - ApiKeyAuth:
           - admin:write
       tags:
-      - room
+      - room members
+  /room/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: id of the room the member is in
+                type: integer
+                example: 0
+                nullable: true
+          description: OK
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List the members in a room
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - room members
   /switch/:
     get:
       parameters:
@@ -3399,6 +3437,8 @@ tags:
   name: device
 - description: Operations on rooms
   name: room
+- description: Operation on the members in a room
+  name: room members
 - description: Operations on VLANs
   name: vlan
 - description: Operations on switches

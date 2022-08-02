@@ -19,5 +19,5 @@ class RoomRepository(CRUDRepository[Room, AbstractRoom]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def remove_member(self, ctx, room_id: int, member_id: int) -> None:
+    def remove_member(self, ctx, member_id: int) -> None:
         pass  # pragma: no cover

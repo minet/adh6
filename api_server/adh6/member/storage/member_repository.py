@@ -48,19 +48,15 @@ class MemberSQLRepository(MemberRepository):
         return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractMember:
+    def get_by_id(self, ctx, object_id: int) -> Optional[AbstractMember]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
-        if adh is None:
-            raise MemberNotFoundError(object_id)
-        return _map_member_sql_to_abstract_entity(adh)
+        return _map_member_sql_to_abstract_entity(adh) if adh else None
 
-    def get_by_login(self, ctx, login: str) -> Member:
+    def get_by_login(self, ctx, login: str) -> Optional[Member]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
-        if adh is None:
-            raise MemberNotFoundError(login)
-        return _map_member_sql_to_entity(adh)
+        return _map_member_sql_to_entity(adh) if adh else None
 
     @log_call
     def create(self, ctx, object_to_create: Member) -> object:
