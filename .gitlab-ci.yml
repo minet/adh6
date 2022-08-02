@@ -70,9 +70,10 @@ semgrep:
 ################################
 generation:backend_entity:
   stage: generation
-  image: openjdk:11
+  image: openapitools/openapi-generator-cli
   script:
-    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -o tmpsrc/ --additional-properties packageName=adh6 --model-package entity
+    - java -jar /opt/openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -g python -o tmpsrc --additional-properties packageName=adh6 --model-package entity
+    - ls
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp openapi/spec.yaml api_server/openapi/swagger.yaml
   artifacts:
