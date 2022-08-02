@@ -5,11 +5,6 @@ cache:
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
-  GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
-  GIT_SUBMODULE_STRATEGY: recursive
-  GIT_SUBMODULE_UPDATE_FLAGS: --remote --jobs 4
-  BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
   BACKEND_DIR: $CI_PROJECT_DIR/api_server
   FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
 
@@ -72,7 +67,7 @@ generation:backend_entity:
   stage: generation
   image: openapitools/openapi-generator-cli
   script:
-    - java -jar /opt/openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -g python -o tmpsrc --additional-properties packageName=adh6 --model-package entity
+    - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate -i openapi/spec.yaml -g python -o tmpsrc --additional-properties packageName=adh6 --model-package entity
     - ls
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp openapi/spec.yaml api_server/openapi/swagger.yaml
