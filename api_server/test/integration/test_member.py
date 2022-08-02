@@ -156,7 +156,6 @@ def test_member_filter_unauthorized(client):
     )
     assert r.status_code == 403
 
-@pytest.mark.xfail
 @pytest.mark.parametrize(
     'sample_only', 
     [
@@ -338,20 +337,6 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
     }
     res = client.patch(
         f'{base_url}{sample_member2.id}',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 400
-
-@pytest.mark.xfail
-@pytest.mark.parametrize('value', [-1, -2, -5, 256, 257])
-def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: int):
-    body = {
-        "mailinglist": value,
-    }
-    res = client.patch(
-        f'{base_url}{sample_member.id}',
         data=json.dumps(body),
         content_type='application/json',
         headers=TEST_HEADERS

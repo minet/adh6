@@ -38,7 +38,8 @@ handlers = [
     TreasuryHandler,
     VLANHandler,
     ApiKeyHandler,
-    RoleHandler
+    RoleHandler,
+    MailinglistHandler
 ]
 
 from adh6.treasury.account_manager import AccountManager
@@ -48,6 +49,7 @@ from adh6.treasury.payment_method_manager import PaymentMethodManager
 from adh6.treasury.transaction_manager import TransactionManager
 from adh6.treasury.product_manager import ProductManager
 from adh6.member.member_manager import MemberManager
+from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.metrics.health_manager import HealthManager
@@ -74,6 +76,7 @@ managers = [
     VlanManager,
     ApiKeyManager,
     RoleManager,
+    MailinglistManager
 ]
 
 from adh6.treasury.storage import (
@@ -86,7 +89,8 @@ from adh6.treasury.storage import (
 )
 from adh6.member.storage import (
     MembershipSQLRepository,
-    MemberSQLRepository
+    MemberSQLRepository,
+    MailinglistSQLReposiroty
 )
 from adh6.device.storage import (
     DeviceSQLRepository,
@@ -119,7 +123,7 @@ def get_obj_graph():
         handlers+ \
         [SwitchSNMPNetworkManager, ElasticSearchRepository]+ \
         [TransactionSQLRepository, AccountTypeSQLRepository, AccountSQLRepository, PaymentMethodSQLRepository, CashboxSQLRepository, ProductSQLRepository]+ \
-        [MemberSQLRepository, MembershipSQLRepository] + \
+        [MemberSQLRepository, MembershipSQLRepository, MailinglistSQLReposiroty] + \
         [DeviceSQLRepository, IPSQLAllocator] + \
         [PingSQLRepository, VLANSQLRepository, RoomSQLRepository] + \
         [PortSQLRepository, SwitchSQLRepository] + \
@@ -194,7 +198,8 @@ def init() -> FlaskApp:
                 'treasury': obj_graph.provide(TreasuryHandler),
                 'vlan': obj_graph.provide(VLANHandler),
                 'role': obj_graph.provide(RoleHandler),
-                'api_keys': obj_graph.provide(ApiKeyHandler)
+                'api_keys': obj_graph.provide(ApiKeyHandler),
+                'mailinglist': obj_graph.provide(MailinglistHandler)
             }
         ),
         validate_responses=True,

@@ -68,7 +68,7 @@ def sample_admin(faker):
 
 
 @fixture
-def sample_member(faker, sample_room: Room):
+def sample_member(faker):
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),

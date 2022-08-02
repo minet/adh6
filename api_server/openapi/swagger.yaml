@@ -934,6 +934,107 @@ paths:
           - admin:write
       tags:
       - membership
+  /mailinglist/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: The value of the mailinglist (see documentation for more information)
+                type: integer
+                minimum: 0
+                maximum: 255
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive mailinglist memberships of the specific member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - mailinglist
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - value
+              type: object
+              properties:
+                value:
+                  description: the value of the subscription
+                  type: integer
+                  example: 1
+                  minimum: 0
+                  maximum: 255
+        required: true
+      responses:
+        '204':
+          description: Updated
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update the mailing list membership of the member
+      security:
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - mailinglist
+  /mailinglist/:
+    parameters:
+      - description: "The value of the mailing list membership"
+        in: query
+        name: value
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 255
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: The id of the members that are subscribe to the mailinglist
+                type: array
+                items:
+                  description: Id of a member
+                  type: integer
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive the members of a specific mailinglist memberships
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - mailinglist
   /payment_method/:
     get:
       parameters:
@@ -3433,6 +3534,8 @@ tags:
   name: member
 - description: Manage membership records
   name: membership
+- description: Operations on members
+  name: mailinglist
 - description: Operations on devices
   name: device
 - description: Operations on rooms
