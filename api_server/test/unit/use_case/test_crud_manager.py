@@ -5,7 +5,7 @@ import pytest
 from pytest_cases import unpack_fixture
 from pytest_lazyfixture import lazy_fixture
 
-from adh6.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AbstractPaymentMethod
+from adh6.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractPaymentMethod
 from adh6.exceptions import IntMustBePositive, NotFoundError
 from adh6.default.crud_repository import CRUDRepository
 from adh6.treasury.account_manager import AccountManager
@@ -16,15 +16,12 @@ from adh6.network.port_manager import PortManager
 from adh6.network.switch_manager import SwitchManager
 from adh6.network.interfaces.port_repository import PortRepository
 from adh6.network.interfaces.switch_repository import SwitchRepository
-from adh6.room.room_manager import RoomManager
-from adh6.room.interfaces.room_repository import RoomRepository
 
 
 @pytest.fixture(
     params=[
         (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture('sample_switch')),
         (PortRepository, PortManager, AbstractPort, lazy_fixture('sample_port')),
-        (RoomRepository, RoomManager, AbstractRoom, lazy_fixture('sample_room')),
         (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
         (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
     ]
@@ -35,7 +32,7 @@ def data_set(request):
 
 @pytest.fixture(
     ids=[
-        "switch", "port", "room", "account", "payment_method"
+        "switch", "port", "account", "payment_method"
     ]
 )
 def manager(data_set):

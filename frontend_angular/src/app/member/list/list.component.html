@@ -19,15 +19,20 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let member of result" [routerLink]="['../view', member.id]">
-        <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span></td>
-        <td>{{ member.username }}</td>
-        <td class="roomNumberRow">
-          <p>
-            {{ member.roomNumber || "Aucune" }}
-          </p>
-        </td>
-      </tr>
+      <ng-container *ngFor="let i of result">
+        <ng-container *ngIf="getMember(i) | async as member">
+          <tr [routerLink]="['../view', member.id]">
+            <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span>
+            </td>
+            <td>{{ member.username }}</td>
+            <td class="roomNumberRow">
+              <p>
+                {{ member.roomNumber || "Aucune" }}
+              </p>
+            </td>
+          </tr>
+        </ng-container>
+      </ng-container>
     </tbody>
   </table>
 </ng-container>

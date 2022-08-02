@@ -14,6 +14,7 @@ from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.default.util.error import handle_error
 from adh6.default.util.serializer import serialize_response, deserialize_request
+from adh6.entity.member_body import MemberBody
 from adh6.member.member_manager import MemberManager
 from adh6.util.context import log_extra
 from adh6.util.log import LOG
@@ -45,21 +46,8 @@ class MemberHandler(DefaultHandler):
     @log_call
     def post(self, ctx, body):
         try:
-            body['id'] = 0  # Set a dummy id to pass the initial validation
-            to_create = deserialize_request(body, self.entity_class)
-            return serialize_response(self.member_manager.new_member(ctx, to_create)), 201
-        except Exception as e:
-            return handle_error(ctx, e)
-
-    @with_context
-    @with_security()
-    @log_call
-    def put(self, ctx, id_, body):
-        try:
-            body['id'] = id_  # Set a dummy id to pass the initial validation
-            to_update = deserialize_request(body, self.entity_class)
-            self.member_manager.update_member(ctx, id_, to_update, True)
-            return NoContent, 201
+            to_create = deserialize_request(body, MemberBody)
+            return serialize_response(self.member_manager.create(ctx, to_create)), 201
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -69,8 +57,8 @@ class MemberHandler(DefaultHandler):
     def patch(self, ctx, id_, body):
         try:
             body['id'] = id_  # Set a dummy id to pass the initial validation
-            to_update = deserialize_request(body, self.abstract_entity_class)
-            self.member_manager.update_member(ctx, id_, to_update, False)
+            to_update = deserialize_request(body, MemberBody)
+            self.member_manager.update(ctx, id_, to_update)
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)

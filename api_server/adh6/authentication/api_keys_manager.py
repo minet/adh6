@@ -2,7 +2,7 @@ from typing import List, Tuple, Union
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import ApiKeyRepository, RoleRepository
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.entity import ApiKey, AbstractMember
+from adh6.entity import ApiKey
 from adh6.exceptions import NotFoundError, ValidationError
 from adh6.member.member_manager import MemberManager
 
@@ -25,7 +25,7 @@ class ApiKeyManager:
             raise ValidationError()
 
         try:
-            t, _ = self.member_manager.search(ctx, filter_=AbstractMember(username=login))
+            t = self.member_manager.get_by_login(ctx, login)
             if not t:
                 raise NotFoundError("User not found")
         except Exception as e:
@@ -42,7 +42,7 @@ class ApiKeyManager:
     def search(self, ctx, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:
         if login:
             try:
-                t, _ = self.member_manager.search(ctx, filter_=AbstractMember(username=login))
+                t = self.member_manager.get_by_login(ctx, login)
                 if not t:
                     raise NotFoundError("User not found")
             except Exception as e:

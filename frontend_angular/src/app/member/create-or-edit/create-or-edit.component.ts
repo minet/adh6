@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { AbstractMember, Member, MemberService, MembershipService, RoomService } from '../../api';
+import { AbstractMember, AbstractRoom, Member, MemberBody, MemberService, MembershipService, RoomMembersService, RoomService } from '../../api';
 import { finalize, first, mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
 import { NotificationService } from '../../notification.service';
@@ -23,6 +23,7 @@ export class CreateOrEditComponent implements OnInit {
     public memberService: MemberService,
     public membershipService: MembershipService,
     public roomService: RoomService,
+    public roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private router: Router,
@@ -45,32 +46,31 @@ export class CreateOrEditComponent implements OnInit {
     this.disabled = true;
     const v = this.memberEdit.value;
 
-    if (!this.create) {
-      const abstractMember: AbstractMember = {
-        email: v.email,
-        firstName: v.firstName,
-        lastName: v.lastName,
-        username: v.username,
-        roomNumber: v.roomNumber
-      };
-      this.memberService.memberIdPatch(this.member_id, abstractMember)
-        .subscribe((_) => {
-          this.router.navigate(['member/view', this.member_id]);
-        });
-    } else {
-      const req: Member = {
-        email: v.email,
-        firstName: v.firstName,
-        lastName: v.lastName,
-        username: v.username,
-        roomNumber: v.roomNumber,
-        departureDate: new Date().toISOString(),
-      };
-      this.memberService.memberPost(req, 'body')
-        .subscribe((member) => {
-          this.router.navigate(['/password', member.id]);
-        });
+    const body: MemberBody = {
+      mail: v.email,
+      firstName: v.firstName,
+      lastName: v.lastName,
+      username: v.username,
     };
+    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumber })
+      .subscribe(rooms => {
+        if (rooms.length === 0) {
+          this.notificationService.errorNotification(404, "Chambre (" + v.roomNumber + ")");
+          return
+        }
+        const room = rooms[0];
+        if (!this.create) {
+          this.memberService.memberIdPatch(this.member_id, body)
+            .subscribe(() => {
+              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: this.member_id }).subscribe(() => this.router.navigate(['member/view', this.member_id]))
+            });
+        } else {
+          this.memberService.memberPost(body, 'body')
+            .subscribe((id) => {
+              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: id }).subscribe(() => this.router.navigate(['/password', id]))
+            });
+        };
+      });
   }
 
   memberUsernameDelete() {

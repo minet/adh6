@@ -67,22 +67,15 @@ class DeviceSQLRepository(DeviceRepository):
     @log_call
     def create(self, ctx, abstract_device: AbstractDevice) -> Device:
         session: Session = ctx.get(CTX_SQL_SESSION)
-
         now = datetime.now()
 
-        adherent = None
-        if abstract_device.member is not None:
-            adherent = session.query(Adherent).filter(Adherent.id == abstract_device.member).one_or_none()
-            if not adherent:
-                raise MemberNotFoundError(abstract_device.member)
-
         device = SQLDevice(
-            mac=str(abstract_device.mac).upper().replace(':', '-'),
+            mac=abstract_device.mac,
             created_at=now,
             updated_at=now,
             last_seen=now,
             type=DeviceType[abstract_device.connection_type].value,
-            adherent_id=adherent.id if adherent else None,
+            adherent_id=abstract_device.member,
             ip=abstract_device.ipv4_address,
             ipv6=abstract_device.ipv6_address
         )

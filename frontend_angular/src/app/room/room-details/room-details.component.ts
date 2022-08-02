@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AbstractMember, AbstractPort, Member, MemberService, Port, PortService, Room, RoomService, AbstractRoom } from '../../api';
+import { AbstractMember, AbstractPort, MemberService, PortService, RoomService, AbstractRoom, RoomMembersService } from '../../api';
 import { map, takeWhile } from 'rxjs/operators';
 import { Location } from '@angular/common';
 import { NotificationService } from '../../notification.service';
@@ -17,7 +17,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   disabled = false;
   room$: Observable<AbstractRoom>;
   ports$: Observable<Array<AbstractPort>>;
-  members$: Observable<Array<AbstractMember>>;
+  members$: Observable<Array<number>>;
   room_id: number;
   room_number: number;
   roomForm: FormGroup;
@@ -31,6 +31,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
     private location: Location,
     private notificationService: NotificationService,
     private router: Router,
+    public roomMemberService: RoomMembersService,
     public roomService: RoomService,
     public portService: PortService,
     public memberService: MemberService,
@@ -71,10 +72,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeWhile(() => this.alive))
       .subscribe((member_list) => {
         const member = member_list[0];
-        member.roomNumber = this.room_number;
-        this.memberService.memberIdPatch(member.id, <Member>{
-          roomNumber: this.room_number
-        })
+        this.roomMemberService.roomIdMemberAddPatch(this.room_number, { id: member })
           .pipe(takeWhile(() => this.alive))
           .subscribe((_) => {
             this.refreshInfo();
@@ -102,8 +100,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
               return
             }
             const member = members[0];
-            console.log(member);
-            this.memberService.memberIdPatch(member.id, <AbstractMember>{ roomNumber: room.roomNumber }, 'response')
+            this.roomMemberService.roomIdMemberAddPatch(room.roomNumber, { id: member })
               .subscribe((_) => {
                 this.refreshInfo();
                 this.onDemenager(username);
@@ -122,7 +119,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
           return
         }
         const member = members[0];
-        this.memberService.memberIdPatch(member.id, <AbstractMember>{ roomNumber: -1 }, 'response')
+        this.roomMemberService.roomIdMemberDelPatch(this.room_number, { id: member })
           .subscribe((_) => {
             this.refreshInfo();
             this.location.back();

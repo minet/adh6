@@ -77,8 +77,6 @@ def sample_member(faker, sample_room: Room):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=sample_room.room_number,
     )
 
 
@@ -152,8 +150,6 @@ def sample_member_no_room(faker):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=None,
     )
 
 
