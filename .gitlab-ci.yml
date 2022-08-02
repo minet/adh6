@@ -68,7 +68,9 @@ generation:backend_entity:
   image: openapitools/openapi-generator-cli
   script:
     - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate -i openapi/spec.yaml -g python -o tmpsrc --additional-properties packageName=adh6 --model-package entity
-    - ls
+    - ls tmpsrc
+    - ls tmpsrc/adh6
+    - ls tmpsrc/adh6/entity
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp openapi/spec.yaml api_server/openapi/swagger.yaml
   artifacts:
