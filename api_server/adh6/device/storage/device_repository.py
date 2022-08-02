@@ -112,24 +112,7 @@ class DeviceSQLRepository(DeviceRepository):
             raise DeviceNotFoundError(id)
 
         with track_modifications(ctx, session, device):
-            session.delete(device)
-
-    def get_ip_address(self, ctx, type: str, filter_: Optional[AbstractDevice] = None) -> Tuple[List[str], int]:
-        if type != "ipv4" and type != "ipv6":
-            raise ValueError("Type not found")
-
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        if type == "ipv4":
-            smt = select(SQLDevice.ip).where((SQLDevice.ip != None) & (SQLDevice.ip != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme)
-        elif type == "ipv6":
-            smt = select(SQLDevice.ipv6).where((SQLDevice.ipv6 != None) & (SQLDevice.ipv6 != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme) 
-
-        smt = self._filter(smt, filter_)
-
-        count = len(session.execute(smt).all())
-        r = session.scalars(smt)
-        return list(map(lambda x: x, r)), count
-    
+            session.delete(device)    
 
     def get_mab(self, ctx, id: int) -> bool:
         session: Session = ctx.get(CTX_SQL_SESSION)
@@ -162,11 +145,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractDevice, sql_object: SQLDevice, o
     if entity.ipv6_address is not None or override:
         device.ipv6 = entity.ipv6_address
     if entity.member is not None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        adherent = session.query(Adherent).filter(Adherent.id == entity.member).one_or_none()
-        if not adherent:
-            raise MemberNotFoundError(entity.member)
-        device.adherent_id = adherent.id
+        device.adherent_id = entity.member
     device.updated_at = now
     return device
 

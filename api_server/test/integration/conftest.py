@@ -409,7 +409,7 @@ def sample_member(faker, sample_room1):
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
         subnet=faker.ipv4('c'),
-        mail_membership=1,
+        mail_membership=249
     )
 
 
