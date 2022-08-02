@@ -65,23 +65,11 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def mailinglist_put(self, ctx, id_: int, body: int):
-        LOG.debug("http_member_put_mailinglist_called", extra=log_extra(ctx, id=id_, request=body))
-        try:
-            self.member_manager.update_mailinglist(ctx, id_, body)
-            return None, 204
-        except Exception as e:
-            return handle_error(ctx, e)
-
-    @with_context
-    @log_call
     def subscription_post(self, ctx, id_: int, body: dict):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
-            if 'uuid' not in body:
-                body['uuid'] = "123e4567-e89b-12d3-a456-426614174000"
             to_create = deserialize_request(body, SubscriptionBody)
             created_membership = self.member_manager.create_subscription(ctx, id_, to_create)
             return serialize_response(created_membership), 200  # 200 OK

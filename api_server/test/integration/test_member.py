@@ -275,6 +275,30 @@ def test_member_post_member_create(client):
     assert_member_in_db(body)
 
 
+def test_member_post_member_same_login(client):
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "doe_john"
+    }
+    res = client.post(
+        f'{base_url}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert 201 == res.status_code
+
+    res = client.post(
+        f'{base_url}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert 400 == res.status_code
+
+
 def test_member_post_unauthorized(client):
     body = {
         "firstName": "John",

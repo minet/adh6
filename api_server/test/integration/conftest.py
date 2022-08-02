@@ -5,13 +5,14 @@ from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication.security import Roles
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
     Account,
     Membership,
     AccountType, Adherent, Chambre,
-    PaymentMethod, Vlan, Device, Switch, Port
+    PaymentMethod,
+    RoomMemberLink, Vlan, Device, Switch, Port
 )
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow
@@ -54,7 +55,7 @@ def close_db():
 
 @pytest.fixture
 def client(sample_member, sample_member2, sample_member13,
-        wired_device, wireless_device,
+        wired_device, wireless_device, sample_room_member_link,
         account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
         sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
@@ -76,7 +77,8 @@ def client(sample_member, sample_member2, sample_member13,
             sample_account_frais_asso,
             sample_account_frais_techniques,
             sample_complete_membership,
-            sample_pending_validation_membership
+            sample_pending_validation_membership,
+            sample_room_member_link
         )
         yield c
         close_db()
@@ -501,4 +503,11 @@ def sample_port2(sample_switch2, sample_room1):
         switch_id=sample_switch2.id,
         chambre_id=sample_room1.id,
 
+    )
+
+@pytest.fixture
+def sample_room_member_link(sample_room1, sample_member):
+    yield RoomMemberLink(
+        room_id=sample_room1.id,
+        member_id=sample_member.id
     )
