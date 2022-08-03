@@ -21,7 +21,7 @@ class TransactionManager(CRUDManager):
     """
 
     def __init__(self, transaction_repository: TransactionRepository, cashbox_repository: CashboxRepository):
-        super().__init__(transaction_repository, AbstractTransaction, TransactionNotFoundError)
+        super().__init__(transaction_repository, TransactionNotFoundError)
         self.transaction_repository = transaction_repository
         self.cashbox_repository = cashbox_repository
 

@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 from sqlalchemy.orm.session import Session
 
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity.product import AbstractProduct
+from adh6.entity import AbstractProduct
 from adh6.exceptions import ProductNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.storage.sql.models import Product as SQLProduct

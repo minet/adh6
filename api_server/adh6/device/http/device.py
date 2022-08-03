@@ -1,16 +1,17 @@
 # coding=utf-8
 import typing as t
 from connexion.decorators.produces import NoContent
+from flask_sqlalchemy.model import camel_to_snake_case
 from adh6.authentication import Roles
 from adh6.authentication.security import with_security
 from adh6.constants import CTX_ADMIN, CTX_ROLES
-from adh6.default.util.serializer import deserialize_request, serialize_response
 from adh6.entity import AbstractDevice, Device
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.default.util.error import handle_error
 from adh6.device.device_manager import DeviceManager
+from adh6.entity.base_model_ import Model
 from adh6.exceptions import UnauthorizedError
 
 
@@ -53,6 +54,7 @@ class DeviceHandler(DefaultHandler):
     @log_call
     def get(self, ctx, id_: int, only: t.Optional[t.List[str]]=None):
         try:
+            only = list(map(camel_to_snake_case, only)) if only else None
             device = self.main_manager.get_by_id(ctx, id=id_)
             if ctx.get(CTX_ADMIN) != device.member and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
                 raise UnauthorizedError("Unauthorize to access this resource")
@@ -60,24 +62,24 @@ class DeviceHandler(DefaultHandler):
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
                     for k in entity_cp.keys():
-                        if k not in only + ["id", "__typename"]:
+                        if k not in only + ["id"]:
                             del entity[k]
                 return entity
-            return remove(serialize_response(device)), 200
+            return remove(device.to_dict()), 200
         except Exception as e:
             return handle_error(ctx, e)
 
     @with_security()
-    def _update(self, ctx, function, klass, body, id: t.Union[int, None] = None):
+    def _update(self, ctx, function, klass: t.Type[Model], body, id: t.Union[int, None] = None):
         try:
             if id:
                 device = self.main_manager.get_by_id(ctx, id=id)
                 if ctx.get(CTX_ADMIN) != device.member and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
                     raise UnauthorizedError("Unauthorize to access this resource")
             body['id'] = 0  # Set a dummy id to pass the initial validation
-            to_update = deserialize_request(body, klass)
+            to_update = klass.from_dict(body)
             the_object, created = function(ctx, to_update, id=id)
-            return serialize_response(the_object), 201 if created else 204
+            return the_object.to_dict(), 201 if created else 204
         except Exception as e:
             return handle_error(ctx, e)
 

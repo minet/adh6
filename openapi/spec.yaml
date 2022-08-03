@@ -2962,12 +2962,6 @@ components:
           description: if the Member ask for a room or not
           type: boolean
           nullable: true
-        products:
-          description: A list of the ids products to buy
-          type: array
-          items:
-            type: integer
-          example: [1, 2]
         firstTime:
           description: Whether this is the first membership request ever for this member
           type: boolean
@@ -3018,6 +3012,7 @@ components:
           description: The date-time at which this membership request was last updated
           format: date-time
           type: string
+          nullable: true
     Membership:
       allOf:
         - $ref: '#/components/schemas/AbstractMembership'
@@ -3150,11 +3145,12 @@ components:
           type: boolean
         cashbox:
           description: Whether to use the cashbox or not
+          type: string
+          nullable: true
           enum:
             - to
             - from
             - direct
-          writeOnly: true
     Transaction:
       allOf:
         - $ref: '#/components/schemas/AbstractTransaction'
@@ -3374,6 +3370,7 @@ components:
           type: string
         membership:
           type: string
+          nullable: true
           enum:
             - INITIAL
             - PENDING_RULES
@@ -3487,6 +3484,8 @@ components:
           example: ghWgpQvHRkrYuqpMLWYkstS3
           format: password
           type: string
+          nullable: true
+          deprecated: true
         ip:
           description: The IPv4 address of this switch
           example: 192.168.102.211

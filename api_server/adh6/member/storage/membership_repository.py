@@ -110,7 +110,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
-        has_room=obj_sql.has_room,
+        has_room=obj_sql.has_room is not None,
         first_time=obj_sql.first_time,
         payment_method=obj_sql.payment_method_id,
         account=obj_sql.account_id,

@@ -29,7 +29,6 @@ from adh6.exceptions import (
     UnknownPaymentMethod,
     LogFetchError,
     NoPriceAssignedToThatDuration,
-    IntMustBePositive,
     MembershipStatusNotAllowed,
     CharterNotSigned,
     UpdateImpossible,
@@ -63,7 +62,7 @@ class MemberManager(CRUDManager):
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
                  device_manager: DeviceManager, charter_repository: CharterRepository):
-        super().__init__(member_repository, AbstractMember, MemberNotFoundError)
+        super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository

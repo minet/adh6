@@ -50,6 +50,7 @@ class RoleSQLRepository(RoleRepository):
     
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(
+            id=role.id,
             identifier=role.identifier,
             role=role.role.value,
             authentication=role.authentication.value

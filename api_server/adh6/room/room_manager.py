@@ -2,7 +2,6 @@
 
 from typing import List
 from adh6.default.decorator.log_call import log_call
-from adh6.entity import AbstractRoom
 from adh6.exceptions import NotFoundError, RoomNotFoundError
 from adh6.default.crud_manager import CRUDManager
 from adh6.member.member_manager import MemberManager
@@ -15,7 +14,7 @@ class RoomManager(CRUDManager):
     """
 
     def __init__(self, room_repository: RoomRepository, member_manager: MemberManager):
-        super().__init__(room_repository, AbstractRoom, RoomNotFoundError)
+        super().__init__(room_repository, RoomNotFoundError)
         self.room_repository = room_repository
         self.member_manager = member_manager
 

@@ -4,7 +4,6 @@ from connexion import NoContent
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.default.util.error import handle_error
 from adh6.default.decorator.with_context import with_context
-from adh6.default.util.serializer import serialize_response
 
 
 class ApiKeyHandler:
@@ -19,7 +18,7 @@ class ApiKeyHandler:
                 "X-Total-Count": str(count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            return serialize_response(result), 200, headers
+            return [r.to_dict() for r in result], 200, headers
         except Exception as e:
             return handle_error(ctx, e)
 

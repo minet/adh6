@@ -5,6 +5,7 @@ Contain all the http http_api functions.
 from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
+from flask_sqlalchemy.model import camel_to_snake_case
 from adh6.authentication import Method
 from adh6.authentication.security import with_security
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -14,7 +15,6 @@ from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.default.util.error import handle_error
-from adh6.default.util.serializer import serialize_response, deserialize_request
 from adh6.entity.member_body import MemberBody
 from adh6.entity.member_filter import MemberFilter
 from adh6.member.charter_manager import CharterManager
@@ -33,13 +33,13 @@ class MemberHandler(DefaultHandler):
     @log_call
     def search(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_: Optional[Any] = None):
         try:
-            filter_ = deserialize_request(filter_, MemberFilter) if filter_ else None
+            filter_ = MemberFilter.from_dict(filter_) if filter_ else None
             result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
             headers = {
                 "X-Total-Count": str(total_count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            return list(map(serialize_response, result)), 200, headers
+            return result, 200, headers
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -48,14 +48,15 @@ class MemberHandler(DefaultHandler):
     @log_call
     def get(self, ctx, id_: int, only: Optional[List[str]]=None):
         try:
+            only = list(map(camel_to_snake_case, only)) if only else None
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
                     for k in entity_cp.keys():
-                        if k not in only + ["id", "__typename"]:
+                        if k not in only + ["id"]:
                             del entity[k]
                 return entity
-            return remove(serialize_response(self.main_manager.get_by_id(ctx, id=id_))), 200
+            return remove(self.main_manager.get_by_id(ctx, id=id_).to_dict()), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -63,8 +64,8 @@ class MemberHandler(DefaultHandler):
     @log_call
     def post(self, ctx, body):
         try:
-            to_create = deserialize_request(body, MemberBody)
-            return serialize_response(self.member_manager.create(ctx, to_create)), 201
+            to_create = MemberBody.from_dict(body)
+            return self.member_manager.create(ctx, to_create).to_dict(), 201
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -73,8 +74,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def patch(self, ctx, id_, body):
         try:
-            body['id'] = id_  # Set a dummy id to pass the initial validation
-            to_update = deserialize_request(body, MemberBody)
+            to_update = MemberBody.from_dict(body)
             self.member_manager.update(ctx, id_, to_update)
             return NoContent, 204
         except Exception as e:
@@ -87,9 +87,9 @@ class MemberHandler(DefaultHandler):
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
-            to_create = deserialize_request(body, SubscriptionBody)
+            to_create = SubscriptionBody.from_dict(body)
             created_membership = self.member_manager.create_subscription(ctx, id_, to_create)
-            return serialize_response(created_membership), 200  # 200 OK
+            return created_membership.to_dict(), 200  # 200 OK
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -119,7 +119,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def statuses_search(self, ctx, id_: int):
         try:
-            return serialize_response(self.member_manager.get_statuses(ctx, id_)), 200
+            return list(map(lambda x: x.to_dict(), self.member_manager.get_statuses(ctx, id_))), 200
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -128,7 +128,7 @@ class MemberHandler(DefaultHandler):
     def subscription_patch(self, ctx, id_, body):
         try:
             LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, id=id_))
-            to_update = deserialize_request(body, SubscriptionBody)
+            to_update = SubscriptionBody.from_dict(body)
             self.member_manager.update_subscription(ctx, id_, to_update)
             return NoContent, 204
         except Exception as e:

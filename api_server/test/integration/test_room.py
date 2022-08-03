@@ -70,7 +70,7 @@ def test_room_search_with_only(client, sample_only: str):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 2
-    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+    assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
 
 
 def test_room_search_with_unknown_only(client):
@@ -117,7 +117,7 @@ def test_room_get_valid_room(client, sample_room1):
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode())
-    assert len(response) == 5
+    assert len(response) == 4
 
 
 def test_room_get_invalid_room(client):

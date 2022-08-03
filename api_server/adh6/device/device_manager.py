@@ -22,7 +22,7 @@ class DeviceManager(CRUDManager):
                  vlan_repository: VlanRepository,
                  member_repository: MemberRepository
                  ):
-        super().__init__(device_repository, AbstractDevice, DeviceNotFoundError)
+        super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
         self.vlan_repository = vlan_repository

@@ -1,6 +1,6 @@
 # coding=utf-8
 from typing import List
-from adh6.entity import AbstractProduct, AbstractAccount, AbstractTransaction
+from adh6.entity import AbstractAccount, AbstractTransaction
 from adh6.default.decorator.log_call import log_call
 from adh6.constants import KnownAccountExpense
 from adh6.default.decorator.auto_raise import auto_raise
@@ -18,7 +18,7 @@ class ProductManager(CRUDManager):
                  transaction_repository: TransactionRepository,
                  payment_method_repository: PaymentMethodRepository,
                  account_repository: AccountRepository):
-        super().__init__(product_repository, AbstractProduct, ProductNotFoundError)
+        super().__init__(product_repository, ProductNotFoundError)
         self.transaction_repository = transaction_repository
         self.payment_method_repository = payment_method_repository
         self.product_repository = product_repository

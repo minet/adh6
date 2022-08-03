@@ -208,7 +208,7 @@ def test_member_get_with_only(client, sample_member, sample_only: str):
     assert r.status_code == 200
 
     response = json.loads(r.data.decode('utf-8'))
-    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response.keys()))
+    assert len(set(sample_only.split(",") + ["id"])) == len(set(response.keys()))
 
 
 def test_member_get_with_unknown_only(client, sample_member):

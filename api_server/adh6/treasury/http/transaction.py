@@ -21,7 +21,7 @@ class TransactionHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def validate(self, ctx, id_=None):
+    def validate(self, ctx, id_: int):
         try:
             self.transaction_manager.validate(ctx, id=id_)
             return NoContent, 204
