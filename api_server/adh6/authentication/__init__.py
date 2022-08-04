@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
-from adh6.util.log import LOG
+from adh6.misc.log import LOG
 
 
 class Roles(Enum):

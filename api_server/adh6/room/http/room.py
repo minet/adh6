@@ -2,7 +2,6 @@
 import typing as t
 
 from connexion import NoContent
-from flask_sqlalchemy.model import camel_to_snake_case
 from adh6.authentication import Roles
 from adh6.constants import CTX_ADMIN, CTX_ROLES
 from adh6.default.decorator.log_call import log_call
@@ -24,7 +23,6 @@ class RoomHandler(DefaultHandler):
     def get(self, ctx, id_: int, only: t.Optional[t.List[str]]=None):
         try:
             room = self.room_manager.get_by_id(ctx, id_)
-            only = list(map(camel_to_snake_case, only)) if only else None
             def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()

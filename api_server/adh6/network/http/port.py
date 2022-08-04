@@ -8,8 +8,8 @@ from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.network.interfaces.switch_network_manager import SwitchNetworkManager
 from adh6.network.port_manager import PortManager
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 from adh6.default.util.error import handle_error
 
 

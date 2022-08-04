@@ -2,8 +2,8 @@
 """ Use cases (business rule layer) of everything related to the cashbox. """
 from typing import Tuple
 from adh6.treasury.interfaces.cashbox_repository import CashboxRepository
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 class CashboxManager:

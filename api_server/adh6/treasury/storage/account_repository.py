@@ -5,8 +5,8 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 
 from sqlalchemy.orm.session import Session
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 from typing import List, Optional, Tuple, Union
 
 from sqlalchemy import func, case, or_

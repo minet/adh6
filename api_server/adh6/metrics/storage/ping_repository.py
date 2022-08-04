@@ -3,8 +3,8 @@ from sqlalchemy.orm.session import Session
 
 from adh6.constants import CTX_SQL_SESSION
 from adh6.metrics.interfaces.ping_repository import PingRepository
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 class PingSQLRepository(PingRepository):

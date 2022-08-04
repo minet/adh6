@@ -5,7 +5,6 @@ import abc
 
 from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
-from adh6.custom_response_validator import CustomResponseValidator
 
 from adh6.resolver import ADHResolver
 from adh6.treasury.http import *
@@ -184,10 +183,6 @@ def init() -> FlaskApp:
     app.app.app_context().push()
     obj_graph = get_obj_graph()
 
-    validator_map = {
-        'response': CustomResponseValidator
-    }
-
     app.add_api(
         'swagger.yaml',
         resolver=ADHResolver(
@@ -216,7 +211,6 @@ def init() -> FlaskApp:
         strict_validation=True,
         pythonic_params=True,
         auth_all_paths=True,
-        validator_map=validator_map
     )
 
     db.init_app(app.app)

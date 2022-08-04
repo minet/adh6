@@ -32,9 +32,11 @@ class RoomManager(CRUDManager):
         if previous_room:
             self.room_repository.remove_member(ctx, member_id)
 
-        print(previous_room)
         self.room_repository.add_member(ctx, room_id, member_id)
-        if not previous_room or previous_room.vlan != room.vlan:
+        if not previous_room:
+            self.member_manager.update_subnet(ctx, member_id=member_id)
+            self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
+        elif previous_room.vlan != room.vlan:
             self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
 
     @log_call

@@ -21,6 +21,8 @@ api_server/mypy-report
 **/pylint.json
 **/flake8-report.txt
 **/.mypy_cache
+api_server/adh6/util.py
+api_server/adh6/typing_utils.py
 
 
 # FRONTEND (ANGULAR)

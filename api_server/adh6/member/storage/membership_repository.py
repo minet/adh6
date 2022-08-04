@@ -6,8 +6,8 @@ from sqlalchemy.orm.session import Session
 from typing import List, Optional, Tuple
 from adh6.entity.subscription_body import SubscriptionBody
 
-from adh6.util.log import LOG
-from adh6.util.context import log_extra
+from adh6.misc.log import LOG
+from adh6.misc.context import log_extra
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import Membership, AbstractMembership
 from adh6.storage.sql.models import Membership as MembershipSQL

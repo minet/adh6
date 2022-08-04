@@ -1,7 +1,6 @@
 # coding=utf-8
 from typing import Any, List, Optional, Type
 from connexion import NoContent
-from flask_sqlalchemy.model import camel_to_snake_case
 from adh6.authentication import Method
 from adh6.authentication.security import with_security
 
@@ -24,7 +23,6 @@ class DefaultHandler:
     @log_call
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
         try:
-            only = list(map(camel_to_snake_case, only)) if only else None
             def remove(entity: Any) -> Any:
                 print(entity)
                 if isinstance(entity, dict) and only is not None:
@@ -48,7 +46,6 @@ class DefaultHandler:
     @log_call
     def get(self, ctx, id_: int, only: Optional[List[str]]=None):
         try:
-            only = list(map(camel_to_snake_case, only)) if only else None
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()

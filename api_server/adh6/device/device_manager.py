@@ -1,4 +1,6 @@
 # coding=utf-8
+from typing import Literal, Union
+from adh6.device.storage.device_repository import DeviceType
 from adh6.entity import AbstractDevice
 from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
@@ -7,7 +9,7 @@ from adh6.default.decorator.auto_raise import auto_raise
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
 from adh6.subnet.interfaces.vlan_repository import VlanRepository
-from adh6.util.validator import is_mac_address, is_ip_v4, is_ip_v6
+from adh6.misc.validator import is_mac_address, is_ip_v4, is_ip_v6
 from adh6.member.interfaces.member_repository import MemberRepository
 
 
@@ -101,17 +103,17 @@ class DeviceManager(CRUDManager):
         vlan = self.vlan_repository.get_vlan(ctx, vlan_number=vlan_number)
         if vlan is None:
             raise VLANNotFoundError(vlan_number)
-        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, subnet_v4=vlan.ipv4_network if vlan.ipv4_network else "", subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
+        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wired.name, subnet_v4=vlan.ipv4_network if vlan.ipv4_network else "", subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
 
     @log_call
     @auto_raise
     def allocate_wireless_ips(self, ctx, member_id: int, subnet: str) -> None:
-        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, subnet_v4=subnet)
+        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wireless.name, subnet_v4=subnet)
 
     @log_call
     @auto_raise
-    def _allocate_or_unallocate_ips(self, ctx, member_id: int, subnet_v4: str = "", subnet_v6: str = "") -> None:
-        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member_id, connection_type="wired"))
+    def _allocate_or_unallocate_ips(self, ctx, member_id: int, device_type: Union[Literal["wired", "wireless"], None] = None, subnet_v4: str = "", subnet_v6: str = "") -> None:
+        devices, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member_id, connection_type=device_type))
         for d in devices:
             self._allocate_or_unallocate_ip(
                 ctx=ctx,

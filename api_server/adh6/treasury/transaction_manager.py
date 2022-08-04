@@ -11,8 +11,8 @@ from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.treasury.interfaces.cashbox_repository import CashboxRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 class TransactionManager(CRUDManager):

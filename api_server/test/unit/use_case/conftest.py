@@ -19,7 +19,7 @@ from adh6.entity import (
 from adh6.authentication.security import Roles
 from adh6.entity.subscription_body import SubscriptionBody
 from test import TESTING_CLIENT
-from adh6.util.context import build_context
+from adh6.misc.context import build_context
 
 @fixture(autouse=True)
 def mock_missing_default_user(monkeypatch):

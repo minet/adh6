@@ -12,8 +12,8 @@ from functools import wraps
 from adh6.exceptions import UnauthenticatedError
 
 from adh6.storage import db
-from adh6.util.context import build_context, log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import build_context, log_extra
+from adh6.misc.log import LOG
 
 
 def with_context(f, session_handler = None):

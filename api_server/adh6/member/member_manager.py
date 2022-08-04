@@ -46,8 +46,8 @@ from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepo
 from adh6.member.interfaces.logs_repository import LogsRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.member.interfaces.membership_repository import MembershipRepository
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 from adh6.default.decorator.log_call import log_call
 import re
 

@@ -5,7 +5,6 @@ Contain all the http http_api functions.
 from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
-from flask_sqlalchemy.model import camel_to_snake_case
 from adh6.authentication import Method
 from adh6.authentication.security import with_security
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -19,8 +18,8 @@ from adh6.entity.member_body import MemberBody
 from adh6.entity.member_filter import MemberFilter
 from adh6.member.charter_manager import CharterManager
 from adh6.member.member_manager import MemberManager
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 class MemberHandler(DefaultHandler):
@@ -48,7 +47,6 @@ class MemberHandler(DefaultHandler):
     @log_call
     def get(self, ctx, id_: int, only: Optional[List[str]]=None):
         try:
-            only = list(map(camel_to_snake_case, only)) if only else None
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()

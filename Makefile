@@ -64,13 +64,11 @@ $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
 
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
-	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6
-	cp -r tmpsrc/adh6/models/* $(BACKEND_PATH)/adh6/entity/
-	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/entity/util
-	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/entity/util
-	find $(BACKEND_PATH)/adh6/entity -type f -name "*.py" -exec sed -i 's/adh6.models/adh6.entity/g' {} \;
-	find $(BACKEND_PATH)/adh6/entity -type f -name "*.py" -exec sed -i 's/from adh6 import util/from adh6.entity.util import util/g' {} \;
-	sed -i 's/ import typing_utils/.entity.util import typing_utils/g' $(BACKEND_PATH)/adh6/entity/util/util.py
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
+	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/
+	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/
+	sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
 	rm -rf tmpsrc
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
