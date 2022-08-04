@@ -270,7 +270,7 @@ def test_room_add_member_change_vlan_check_wired(client, sample_room1, sample_ro
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    assert IPv4Address(db.session().execute(select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))).scalar()) in IPv4Network(sample_vlan69.adresses)
+    assert IPv4Address(db.session().execute(select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))).scalar()) in IPv4Network(sample_vlan.adresses)
 
 
 def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
