@@ -356,7 +356,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Device'
+                $ref: '#/components/schemas/AbstractDevice'
           description: Success
         '400':
           $ref: '#/components/responses/Invalid'
@@ -376,7 +376,7 @@ paths:
           - admin:read
       tags:
       - device
-  /device/{id}/vendor:
+  /device/{id}/vendor/:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -385,12 +385,8 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  vendorname:
-                    example: Cisco Systems, Inc
-                    type: string
-                type: object
-                title: vendor
+                example: Cisco Systems, Inc
+                type: string
           description: Success
         '400':
           $ref: '#/components/responses/Invalid'
@@ -3132,6 +3128,7 @@ components:
           example: 0.25
           type: number
         dynamicFee:
+          nullable: true
           description: The dynamic fee for this payment method as a percentage
           example: 0.05
           minimum: 0

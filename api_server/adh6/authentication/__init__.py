@@ -71,7 +71,7 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
 
     uid = role_repository.user_id_from_username(login=infos["id"])
     if not uid:
-        raise Unauthorized('invalid api key')
+        raise Unauthorized('invalid token')
     return {
         "uid": uid,
         "scope": [

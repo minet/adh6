@@ -16,17 +16,14 @@ class RoleSQLRepository(RoleRepository):
         return db.session().execute(smt).one_or_none()
 
     def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
-        all_roles: List[AuthenticationRoleMapping] = []
         smt: Select = select(AuthenticationRoleMapping)
-        if method == AuthenticationMethod.OIDC and identifiers is not None and len(identifiers) == 1:
-            pass
         if method is not None: 
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
         if identifiers is not None:
             smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
-        all_roles.extend(db.session().execute(smt).all())
+        all_roles = db.session().execute(smt).all()
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
     def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:

@@ -2,8 +2,9 @@
   <p *ngIf="result.length === 0; else theDevices" class="title"
     i18n="device list none|Tells the user they have no registered devices">Aucun appareil enregistré</p>
   <ng-template #theDevices>
-    <div *ngFor="let device of result" [ngClass]="{'mac_highlighted': device.mac === (macHighlighted | async)}">
-      <app-element [device]="device" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
+    <div *ngFor="let deviceId of result; let i = index">
+      <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()">
+      </app-element>
     </div>
   </ng-template>
 </div>
