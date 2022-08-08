@@ -67,7 +67,6 @@ class RoomHandler(DefaultHandler):
         try:
             if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES, []):
                 raise UnauthorizedError("Unauthorize to access this resource")
-
             return self.room_manager.room_from_member(ctx, id_), 200
         except Exception as e:
             return handle_error(ctx, e)

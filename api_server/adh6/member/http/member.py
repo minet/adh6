@@ -5,9 +5,8 @@ Contain all the http http_api functions.
 from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
-from adh6.authentication import Method
-from adh6.authentication.security import with_security
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.authentication import Roles
+from adh6.constants import CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
 
 from adh6.entity import AbstractMember, Member, SubscriptionBody
 from adh6.default.decorator.log_call import log_call
@@ -16,6 +15,7 @@ from adh6.default.http_handler import DefaultHandler
 from adh6.default.util.error import handle_error
 from adh6.entity.member_body import MemberBody
 from adh6.entity.member_filter import MemberFilter
+from adh6.exceptions import NotFoundError, UnauthorizedError
 from adh6.member.charter_manager import CharterManager
 from adh6.member.member_manager import MemberManager
 from adh6.misc.context import log_extra
@@ -43,7 +43,6 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
-    @with_security(method=Method.READ)
     @log_call
     def get(self, ctx, id_: int, only: Optional[List[str]]=None):
         try:
@@ -56,6 +55,8 @@ class MemberHandler(DefaultHandler):
                 return entity
             return remove(self.main_manager.get_by_id(ctx, id=id_).to_dict()), 200
         except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES):
+                e = UnauthorizedError("cannot access this resource")
             return handle_error(ctx, e)
 
     @with_context
@@ -68,7 +69,6 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
-    @with_security()
     @log_call
     def patch(self, ctx, id_, body):
         try:
@@ -92,7 +92,6 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
-    @with_security()
     @log_call
     def password_put(self, ctx, id_, body):
         """ Set the password of a member. """
@@ -101,6 +100,8 @@ class MemberHandler(DefaultHandler):
             self.member_manager.change_password(ctx, id_, body.get('password'), body.get("hashedPassword"))
             return NoContent, 204  # 204 No Content
         except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in ctx.get(CTX_ROLES):
+                e = UnauthorizedError("cannot access this resource")
             return handle_error(ctx, e)
 
     @with_context
@@ -113,12 +114,13 @@ class MemberHandler(DefaultHandler):
             return handle_error(ctx, e)
 
     @with_context
-    @with_security()
     @log_call
     def statuses_search(self, ctx, id_: int):
         try:
             return list(map(lambda x: x.to_dict(), self.member_manager.get_statuses(ctx, id_))), 200
         except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES):
+                e = UnauthorizedError("cannot access this resource")
             return handle_error(ctx, e)
 
     @with_context

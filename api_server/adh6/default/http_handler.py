@@ -1,8 +1,6 @@
 # coding=utf-8
 from typing import Any, List, Optional, Type
 from connexion import NoContent
-from adh6.authentication import Method
-from adh6.authentication.security import with_security
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.default.decorator.log_call import log_call
@@ -19,18 +17,15 @@ class DefaultHandler:
         self.main_manager = main_manager
 
     @with_context
-    @with_security(method=Method.READ, arg_name="filter_")
     @log_call
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
         try:
             def remove(entity: Any) -> Any:
-                print(entity)
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
                     for k in entity_cp.keys():
                         if k not in only + ["id"]:
                             del entity[k]
-                print(entity)
                 return entity
             filter_ = self.abstract_entity_class.from_dict(filter_) if filter_ else None
             result, total_count = self.main_manager.search(ctx, limit=limit, offset=offset, terms=terms, filter_=filter_)
@@ -58,19 +53,16 @@ class DefaultHandler:
             return handle_error(ctx, e)
 
     @with_context
-    @with_security()
     @log_call
     def post(self, ctx, body):
         return self._update(ctx=ctx, function=self.main_manager.update_or_create, klass=self.entity_class, body=body)
 
     @with_context
-    @with_security()
     @log_call
     def put(self, ctx, body, id_: int):
         return self._update(ctx=ctx, function=self.main_manager.update_or_create, klass=self.entity_class, body=body, id=id_)
 
     @with_context
-    @with_security()
     def patch(self, ctx, body, id_: int):
         return self._update(ctx=ctx, function=self.main_manager.partially_update, klass=self.abstract_entity_class, body=body, id=id_)
 

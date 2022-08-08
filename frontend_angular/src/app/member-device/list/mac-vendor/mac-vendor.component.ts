@@ -17,9 +17,9 @@ export class MacVendorComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.deviceService.vendorGet(this.device_id, 'body')
+    this.deviceService.deviceIdVendorGet(this.device_id, 'body')
       .pipe(
-        map((data) => data.vendorname),
+        map((data) => data),
         first(),
       )
       .subscribe((vendor) => {

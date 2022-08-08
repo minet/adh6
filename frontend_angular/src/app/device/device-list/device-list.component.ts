@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { map, Observable, shareReplay } from 'rxjs';
-import { AbstractDevice, DeviceService, MemberService } from '../../api';
+import { map, Observable, shareReplay, switchMap } from 'rxjs';
+import { AbstractDevice, DeviceFilter, DeviceService, MemberService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -8,18 +8,20 @@ import { SearchPage } from '../../search-page';
   templateUrl: './device-list.component.html',
   styleUrls: ['./device-list.component.css']
 })
-export class DeviceListComponent extends SearchPage<AbstractDevice> implements OnInit {
-  memberUsernames: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
+export class DeviceListComponent extends SearchPage<number> implements OnInit {
+  public memberUsernames: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
+  public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
   constructor(
     private deviceService: DeviceService,
     private memberService: MemberService
   ) {
-    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, undefined, "response")
+    super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, <DeviceFilter>{ terms: terms }, "response")
       .pipe(
         map(response => {
           for (let i of response.body) {
-            if (i.member && !this.memberUsernames.has(i.member)) {
-              this.memberUsernames.set(i.member, this.memberUsername$(i.member));
+            this.cachedDevices.set(+i, this.deviceService.deviceIdGet(i).pipe(shareReplay(1)));
+            if (i && !this.memberUsernames.has(i)) {
+              this.memberUsernames.set(i, this.memberUsername$(i));
             }
           }
           return response;
@@ -41,12 +43,22 @@ export class DeviceListComponent extends SearchPage<AbstractDevice> implements O
   }
 
   public memberUsername$(id: number): Observable<string> {
-    return this.memberService.memberIdGet(id, ["username"])
-      .pipe(
-        shareReplay(1),
-        map(result => {
-          return result.username
+    return this.cachedDevices.get(id).pipe(
+      switchMap(
+        response => {
+          return this.memberService.memberIdGet(response.member, ["username"])
+            .pipe(
+              shareReplay(1),
+              map(result => {
+                return result.username
+              })
+            )
         })
-      );
+    );
+  }
+
+  public getDevice(id: number) {
+    console.log(this.cachedDevices.has(id));
+    return this.cachedDevices.get(id)
   }
 }

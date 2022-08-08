@@ -8,10 +8,11 @@ from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, 
 from adh6.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
-    AbstractDevice, MemberStatus,
+    MemberStatus,
     AbstractAccount,
 )
 from adh6.entity.abstract_transaction import AbstractTransaction
+from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.member_body import MemberBody
 from adh6.entity.member_filter import MemberFilter
 from adh6.entity.subscription_body import SubscriptionBody
@@ -37,7 +38,7 @@ from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
 from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
@@ -425,13 +426,6 @@ class MemberManager(CRUDManager):
 
         :raise MemberNotFound
         """
-        # Fetch all the devices of the member to put them in the request
-        # all_devices = get_all_devices(s)
-        # query = session.query(all_devices, Adherent.login.label("login"))
-        # query = query.join(Adherent, Adherent.id == all_devices.columns.adherent_id)
-        # query = query.filter(Adherent.login == username)
-        # mac_tbl = list(map(lambda x: x.mac, query.all()))
-
         # Check that the user exists in the system.
         member = self.member_repository.get_by_id(ctx, member_id)
         if not member:
@@ -439,7 +433,7 @@ class MemberManager(CRUDManager):
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))[0]
+            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
             logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=dhcp)
 
             return list(map(
@@ -462,7 +456,7 @@ class MemberManager(CRUDManager):
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))[0]
+            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
             logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
