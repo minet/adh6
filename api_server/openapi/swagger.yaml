@@ -257,22 +257,19 @@ paths:
       parameters:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
+      - description: filters of a device
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/AbstractDevice'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyDevice'
+          $ref: '#/components/schemas/DeviceFilter'
       responses:
         '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractDevice'
+                  type: integer
+                  minimum: 0
                 type: array
           description: Success
           headers:
@@ -286,7 +283,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Filter devices
+      summary: Return the list of the device ids
       security: 
         - OAuth2:
           - user
@@ -297,28 +294,28 @@ paths:
       tags:
       - device
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Device'
+              $ref: '#/components/schemas/DeviceBody'
         description: The device to create
         required: true
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Device'
-          description: The created device
+                type: integer
+                example: 0
+          description: The id of the created device
         '400':
           $ref: '#/components/responses/Invalid'
         '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Create device
+      summary: Create a device
       security: 
         - OAuth2:
           - user
@@ -379,75 +376,10 @@ paths:
           - admin:read
       tags:
       - device
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AbstractDevice'
-        description: The new values for this device
-        required: true
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Device'
-          description: The created device
-        '204':
-          description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Update a device
-      security: 
-        - OAuth2:
-          - user
-        - OAuth2:
-          - admin:write
-        - ApiKeyAuth:
-          - admin:write
-      tags:
-      - device
-    patch:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AbstractDevice'
-        description: The new values for this Device
-        required: true
-      responses:
-        '204':
-          description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Partially update a device
-      security: 
-        - OAuth2:
-          - user
-        - OAuth2:
-          - admin:write
-        - ApiKeyAuth:
-          - admin:write
-      tags:
-      - device
   /device/{id}/vendor:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
-      operationId: vendor_get
       responses:
         '200':
           content:
@@ -482,7 +414,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
-      operationId: device_mab_get
       responses:
         '200':
           content:
@@ -499,7 +430,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the vendor of a device based on its MAC
+      summary: Retreive the MAB of the device
       security: 
         - OAuth2:
           - admin:read
@@ -509,8 +440,7 @@ paths:
           - network:read
       tags:
       - device
-    put:
-      operationId: device_mab_put
+    post:
       responses:
         '200':
           content:
@@ -527,12 +457,39 @@ paths:
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the vendor of a device based on its MAC
+      summary: Update the MAB of the device
       security: 
         - OAuth2:
           - admin:write
         - ApiKeyAuth:
           - admin:write
+      tags:
+      - device
+  /device/{id}/member/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 0
+                nullable: true
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Get user of the device
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
   /member/:
@@ -3219,6 +3176,21 @@ components:
             - name
             - sellingPrice
       type: object
+    DeviceFilter:
+      type: object
+      properties:
+        connectionType:
+          description: The connection type of this device
+          enum:
+          - wired
+          - wireless
+          type: string
+        member:
+          description: The id of the owner of this device
+          type: integer
+          example: 0
+        terms:
+          type: string
     AbstractDevice:
       type: object
       properties:
@@ -3251,6 +3223,7 @@ components:
           format: mac
           type: string
         member:
+          deprecated: true
           description: The id of the member this device belongs to
           type: integer
           example: 0
@@ -3260,8 +3233,30 @@ components:
         - required:
             - connectionType
             - mac
-            - member
       type: object
+    DeviceBody:
+      type: object
+      required:
+        - connectionType
+        - mac
+        - member
+      properties:
+        connectionType:
+          description: The connection type of this device
+          enum:
+          - wired
+          - wireless
+          type: string
+        mac:
+          description: The MAC address of this device
+          example: 01-23-45-67-89-AB
+          format: mac
+          type: string
+        member:
+          nullable: true
+          description: The id of the owner of the device
+          example: 0
+          type: integer
     MemberFilter:
       type: object
       properties:

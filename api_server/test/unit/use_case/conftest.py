@@ -16,7 +16,7 @@ from adh6.entity import (
     AbstractMembership,
     Vlan
 )
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
 from adh6.entity.subscription_body import SubscriptionBody
 from test import TESTING_CLIENT
 from adh6.misc.context import build_context

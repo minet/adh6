@@ -68,7 +68,7 @@ generation:backend_entity:
   stage: generation
   image: openapitools/openapi-generator-cli
   script:
-    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
     - ls
     - ls tmpsrc
     - ls tmpsrc/adh6

@@ -4,7 +4,7 @@ from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
@@ -205,34 +205,6 @@ def wireless_device(faker, sample_member):
         ip=faker.ipv4_private(),
         ipv6=faker.ipv6(),
     )
-
-
-@pytest.fixture
-def wireless_device_dict(sample_member):
-    '''
-    Device that will be inserted/updated when tests are run.
-    It is not present in the client by default
-    '''
-    yield {
-        'mac': '01-23-45-67-89-AC',
-        'connectionType': 'wireless',
-        'type': 'wireless',
-        'member': sample_member.id,
-        'ipv4Address': None,
-        'ipv6Address': None
-    }
-
-
-@pytest.fixture
-def wired_device_dict(sample_member):
-    yield {
-        'mac': '01-23-45-67-89-AD',
-        'ipv4Address': '127.0.0.1',
-        'ipv6Address': 'dbb1:39b7:1e8f:1a2a:3737:9721:5d16:166',
-        'connectionType': 'wired',
-        'type': 'wired',
-        'member': sample_member.id,
-    }
 
 
 @pytest.fixture

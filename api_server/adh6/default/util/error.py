@@ -16,8 +16,6 @@ def handle_error(ctx, e: Exception):
         return _error(400, str(e)), 400
     elif isinstance(e, NotFoundError):
         return _error(404, str(e)), 404
-    elif isinstance(e, UnauthenticatedError):
-        return _error(401, str(e)), 401
     elif isinstance(e, UnauthorizedError):
         return _error(403, str(e)), 403
     else:
