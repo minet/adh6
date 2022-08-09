@@ -55,12 +55,18 @@ class DeviceManager(CRUDManager):
     @log_call
     @auto_raise
     def put_mab(self, ctx, id: int) -> bool:
+        device = self.device_repository.get_by_id(ctx, id)
+        if not device:
+            raise DeviceNotFoundError(id)
         mab = self.device_repository.get_mab(ctx, id)
         return self.device_repository.put_mab(ctx, id, not mab)
 
     @log_call
     @auto_raise
     def get_mab(self, ctx, id: int) -> bool:
+        device = self.device_repository.get_by_id(ctx, id)
+        if not device:
+            raise DeviceNotFoundError(id)
         return self.device_repository.get_mab(ctx, id)
 
 

@@ -284,13 +284,33 @@ def test_device_get_valid(client, device, status_code):
         headers=TEST_HEADERS,
     )
     assert r.status_code == status_code
-    if status_code != 403:
-        assert json.loads(r.data.decode('utf-8'))
+    assert json.loads(r.data.decode('utf-8'))
+
+
+@pytest.mark.parametrize(
+    'only', ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"]
+)
+def test_device_get_only_selected_param(client, wired_device, only):
+    r = client.get(
+        f'{base_url}{wired_device.id}?only={only}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result.keys()) == 2
 
 
 def test_device_get_unauthorized(client, custom_device: Device):
     r = client.get(
         f'{base_url}{custom_device.id}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+def test_device_get_unauthorized_unknown_device(client):
+    r = client.get(
+        f'{base_url}{200}',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -323,6 +343,159 @@ def test_device_delete(client, device: Device, status_code: int):
 def test_device_delete_unauthorized(client, custom_device: Device):
     r = client.delete(
         f'{base_url}{custom_device.id}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+def test_device_delete_unauthorized_unknown_device(client):
+    r = client.delete(
+        f'{base_url}{200}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize(
+    'device',
+    [
+        (lazy_fixture('wired_device')),
+        (lazy_fixture('wireless_device')),
+    ]
+)
+def test_device_get_mab(client, device):
+    r = client.get(
+        f'{base_url}{device.id}/mab/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert not r.json
+
+
+def test_device_get_mab_unknown_device(client, unknown_device: Device):
+    r = client.get(
+        f'{base_url}{unknown_device.id}/mab/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_get_mab_unauthorized(client, wired_device: Device):
+    r = client.get(
+        f'{base_url}{wired_device.id}/mab/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize(
+    'device',
+    [
+        (lazy_fixture('wired_device')),
+        (lazy_fixture('wireless_device')),
+    ]
+)
+def test_device_post_mab(client, device):
+    r = client.post(
+        f'{base_url}{device.id}/mab/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert r.json
+    r = client.get(
+        f'{base_url}{device.id}/mab/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert r.json
+
+
+def test_device_post_mab_unknown_device(client, unknown_device: Device):
+    r = client.post(
+        f'{base_url}{unknown_device.id}/mab/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_post_mab_unauthorized(client, wired_device: Device):
+    r = client.post(
+        f'{base_url}{wired_device.id}/mab/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize(
+    'device',
+    [
+        (lazy_fixture('wired_device')),
+        (lazy_fixture('wireless_device')),
+    ]
+)
+def test_device_get_owner(client, device, sample_member):
+    r = client.get(
+        f'{base_url}{device.id}/member/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert r.json == sample_member.id
+
+
+def test_device_get_owner_unknown_device(client, unknown_device: Device):
+    r = client.get(
+        f'{base_url}{unknown_device.id}/member/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_get_owner_unauthorized(client, wired_device: Device):
+    r = client.get(
+        f'{base_url}{wired_device.id}/member/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.xfail
+def test_device_get_vendor(client, wired_device_dict):
+    wired_device_dict["mac"] = "00-00-0C-01-23-45"
+    r = client.post(
+        f'{base_url}',
+        data=json.dumps(wired_device_dict),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert r.status_code == 201
+    result = r.json
+    r = client.get(
+        f'{base_url}{result}/vendor/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert r.json == "Cisco Systems, Inc\n"
+
+
+def test_device_get_vendor_unknown_device(client, unknown_device: Device):
+    r = client.get(
+        f'{base_url}{unknown_device.id}/vendor/',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_get_vendor_unauthorized(client, custom_device: Device):
+    r = client.get(
+        f'{base_url}{custom_device.id}/vendor/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+def test_device_get_vendor_unauthorized_unknown_device(client):
+    r = client.get(
+        f'{base_url}{200}/vendor/',
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

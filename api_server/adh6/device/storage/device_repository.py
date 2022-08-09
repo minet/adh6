@@ -27,17 +27,15 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractDevice:
+    def get_by_id(self, ctx, object_id: int) -> Union[Device, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
-        if obj is None:
-            raise DeviceNotFoundError(object_id)
-        return _map_device_sql_to_abstract_entity(obj)
+        return _map_device_sql_to_entity(obj)
 
     def get_by_mac(self, ctx, mac: str) -> Union[Device, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
-        return _map_device_sql_to_entity(obj) if obj else None
+        return _map_device_sql_to_entity(obj)
 
     @log_call
     def search_by(self, ctx, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
@@ -91,9 +89,6 @@ class DeviceSQLRepository(DeviceRepository):
         query = query.filter(SQLDevice.id == abstract_device.id)
 
         device = query.one_or_none()
-        if device is None:
-            raise DeviceNotFoundError(str(abstract_device.id))
-
         with track_modifications(ctx, session, device):
             new_device = _merge_sql_with_entity(abstract_device, device, override)
 
@@ -102,30 +97,19 @@ class DeviceSQLRepository(DeviceRepository):
     @log_call
     def delete(self, ctx, id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
-
         device = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
-
-        if device is None:
-            raise DeviceNotFoundError(id)
-
         with track_modifications(ctx, session, device):
             session.delete(device)    
 
     def get_mab(self, ctx, id: int) -> bool:
         session: Session = ctx.get(CTX_SQL_SESSION)
         device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
-        if not device:
-            raise DeviceNotFoundError(str(id))
         return device.mab
 
     def put_mab(self, ctx, id: int, mab: bool) -> bool:
         session: Session = ctx.get(CTX_SQL_SESSION)
         device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
-        if not device:
-            raise DeviceNotFoundError(str(id))
-        
         device.mab = mab
-
         return mab
 
     def owner(self, ctx, id: int) -> Union[int, None]:
@@ -138,38 +122,21 @@ def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, overri
     now = datetime.now()
     device = sql_object
 
-    if entity.mac is not None or override:
-        device.mac = entity.mac
-    if entity.connection_type is not None:
-        device.type = DeviceType[entity.connection_type].value
     if entity.ipv4_address is not None or override:
         device.ip = entity.ipv4_address
     if entity.ipv6_address is not None or override:
         device.ipv6 = entity.ipv6_address
-    if entity.member is not None:
-        device.adherent_id = entity.member
     device.updated_at = now
     return device
 
 
-def _map_device_sql_to_entity(d: SQLDevice) -> Device:
+def _map_device_sql_to_entity(d: Union[SQLDevice, None]) -> Union[Device, None]:
     """
     Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
     """
+    if not d:
+        return d
     return Device(
-        id=d.id,
-        mac=d.mac,
-        member=d.adherent_id,
-        connection_type=DeviceType(d.type).name,
-        ipv4_address=d.ip if d.ip != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
-        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
-    )
-
-def _map_device_sql_to_abstract_entity(d: SQLDevice) -> AbstractDevice:
-    """
-    Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
-    """
-    return AbstractDevice(
         id=d.id,
         mac=d.mac,
         member=d.adherent_id,

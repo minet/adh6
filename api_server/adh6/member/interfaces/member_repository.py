@@ -2,7 +2,7 @@
 
 import abc
 import ipaddress
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from adh6.entity import Member, AbstractMember, MemberFilter
 from adh6.default.crud_repository import CRUDRepository
 
@@ -13,11 +13,11 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_id(self, ctx, object_id: int) -> Optional[Member]:
+    def get_by_id(self, ctx, object_id: int) -> Union[Member, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_login(self, ctx, login: str) -> Optional[Member]:
+    def get_by_login(self, ctx, login: str) -> Union[Member, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

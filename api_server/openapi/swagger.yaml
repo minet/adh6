@@ -328,6 +328,7 @@ paths:
   /device/{id}:
     parameters:
       - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/onlyDevice'
     delete:
       responses:
         '204':
@@ -2680,7 +2681,6 @@ components:
         items:
           type: string
           enum:
-            - id
             - mac
             - ipv4Address
             - ipv6Address

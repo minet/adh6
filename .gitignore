@@ -81,3 +81,4 @@ frontend_angular/src/assets/*.min.svg
 # generated code by the openapi specification
 frontend_angular/src/app/api
 api_server/adh6/entity/*.py
+api_server/OUIs.txt

@@ -37,7 +37,7 @@ def test_mailinglist_list_members(client, sample_member):
     assert response == [sample_member.id] 
 
 
-def test_room_list_member_unauthorized_user(client):
+def test_room_mailinglist_member_unauthorized_user(client):
     r = client.get(
         f"{base_url}?value={249}",
         headers=TEST_HEADERS_SAMPLE,
@@ -67,7 +67,7 @@ def test_mailinglist_get_member_membership_user_authorized(client, sample_member
 
 def test_mailinglist_get_member_membership_unknown_member(client):
     r = client.get(
-        f"{base_url}member/{4242}",
+        f"{base_url}member/{200}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
@@ -75,7 +75,7 @@ def test_mailinglist_get_member_membership_unknown_member(client):
 
 def test_mailinglist_get_member_membership_user_unauthorized(client):
     r = client.get(
-        f"{base_url}member/{4242}",
+        f"{base_url}member/{999}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
