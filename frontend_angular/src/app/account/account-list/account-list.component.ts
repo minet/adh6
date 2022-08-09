@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Account, AccountService, AccountType } from '../../api';
+import { AccountService, AccountType } from '../../api';
 import { SearchPage } from '../../search-page';
 import { AbstractAccount } from '../../api/model/abstractAccount';
 import { AppConstantsService } from '../../app-constants.service';
@@ -13,7 +13,7 @@ import { map, Observable, shareReplay } from 'rxjs';
   templateUrl: './account-list.component.html',
   styleUrls: ['./account-list.component.css']
 })
-export class AccountListComponent extends SearchPage<Account> implements OnInit {
+export class AccountListComponent extends SearchPage<AbstractAccount> implements OnInit {
   faThumbtack = faThumbtack;
   faBan = faBan;
   accountTypes: Array<AccountType>;

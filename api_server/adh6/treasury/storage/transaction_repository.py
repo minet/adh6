@@ -5,15 +5,14 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 
 from sqlalchemy.orm.session import Session
-from typing import List, Optional, Tuple
+from typing import List, Tuple, Union
 
-from sqlalchemy.orm import aliased
 
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
 from adh6.entity import AbstractTransaction, Transaction
-from adh6.exceptions import AccountNotFoundError, MemberNotFoundError, PaymentMethodNotFoundError, TransactionNotFoundError
+from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError, TransactionNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Transaction as SQLTransaction, Account, PaymentMethod, Adherent
+from adh6.storage.sql.models import Transaction as SQLTransaction, Account, PaymentMethod
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
 
@@ -21,21 +20,16 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractTransaction:
+    def get_by_id(self, ctx, object_id: int) -> Union[Transaction, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
-        if obj is None:
-            raise TransactionNotFoundError(object_id)
-        return _map_transaction_sql_to_abstract_entity(obj)
+        return _map_transaction_sql_to_entity(obj) if obj else obj
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_:  Optional[AbstractTransaction] = None) -> Tuple[List[AbstractTransaction], int]:
+    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
         session: Session= ctx.get(CTX_SQL_SESSION)
 
         query= session.query(SQLTransaction)
-
-        if terms:
-            query= query.filter((SQLTransaction.name.contains(terms)))
 
         if filter_:
             if filter_.id is not None:
@@ -56,13 +50,16 @@ class TransactionSQLRepository(TransactionRepository):
             elif filter_.dst is not None:
                 query= query.filter(SQLTransaction.dst == filter_.dst)
 
+        if terms:
+            query= query.filter((SQLTransaction.name.contains(terms)))
+
         count = query.count()
         query= query.order_by(SQLTransaction.timestamp.desc())
         query= query.offset(offset)
         query= query.limit(limit)
         r = query.all()
 
-        return list(map(_map_transaction_sql_to_abstract_entity, r)), count
+        return [_map_transaction_sql_to_entity(i) for i in r], count
 
     @log_call
     def create(self, ctx, abstract_transaction: AbstractTransaction) -> object:
@@ -119,10 +116,7 @@ class TransactionSQLRepository(TransactionRepository):
         query= session.query(SQLTransaction)
         query= query.filter(SQLTransaction.id == id)
 
-        transaction = query.one_or_none()
-        if transaction is None:
-            raise TransactionNotFoundError(str(id))
-
+        transaction = query.one()
         with track_modifications(ctx, session, transaction):
             transaction.pending_validation = False
         session.flush()
@@ -131,10 +125,7 @@ class TransactionSQLRepository(TransactionRepository):
     def delete(self, ctx, object_id) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
 
-        transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
-
-        if transaction is None:
-            raise TransactionNotFoundError(object_id)
+        transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one()
 
         with track_modifications(ctx, session, transaction):
             session.delete(transaction)
@@ -146,23 +137,6 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     Map a Transaction object from SQLAlchemy to a Transaction (from the entity folder/layer).
     """
     return Transaction(
-        id=t.id,
-        src=t.src,
-        dst=t.dst,
-        timestamp=str(t.timestamp),
-        name=t.name,
-        value=t.value,
-        payment_method=t.type,
-        attachments=[],
-        author=t.author_id,
-        pending_validation=t.pending_validation
-    )
-
-def _map_transaction_sql_to_abstract_entity(t: SQLTransaction) -> AbstractTransaction:
-    """
-    Map a Transaction object from SQLAlchemy to a Transaction (from the entity folder/layer).
-    """
-    return AbstractTransaction(
         id=t.id,
         src=t.src,
         dst=t.dst,

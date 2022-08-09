@@ -1,17 +1,18 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 from adh6.authentication import AuthenticationMethod
 from adh6.device.storage.device_repository import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.authentication.security import Roles
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_NETWORK, TEST_HEADERS_API_KEY_NETWORK_DEV, TEST_HEADERS_API_KEY_NETWORK_HOSTING, TEST_HEADERS_API_KEY_NETWORK_PROD, TEST_HEADERS_API_KEY_TRESO, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE
+from adh6.authentication import Roles
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
 from adh6.storage.sql.models import (
     Account,
     Membership,
     AccountType, Adherent, Chambre,
-    PaymentMethod, Vlan, Device, Switch, Port
+    PaymentMethod,
+    RoomMemberLink, Vlan, Device, Switch, Port
 )
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow
@@ -54,7 +55,7 @@ def close_db():
 
 @pytest.fixture
 def client(sample_member, sample_member2, sample_member13,
-        wired_device, wireless_device,
+        wired_device, wireless_device, sample_room_member_link,
         account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
         sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
     from .context import app
@@ -76,7 +77,8 @@ def client(sample_member, sample_member2, sample_member13,
             sample_account_frais_asso,
             sample_account_frais_techniques,
             sample_complete_membership,
-            sample_pending_validation_membership
+            sample_pending_validation_membership,
+            sample_room_member_link
         )
         yield c
         close_db()
@@ -102,6 +104,7 @@ class MockRequestsResponse:
             ]
         else: 
             response['id'] = SAMPLE_CLIENT
+            del response['attributes']
         return response
 
 
@@ -170,7 +173,6 @@ def sample_payment_method():
 
 @pytest.fixture
 def wired_device(faker, sample_member):
-    print(sample_member.id)
     yield Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address(),
@@ -206,40 +208,22 @@ def wireless_device(faker, sample_member):
 
 
 @pytest.fixture
-def wireless_device_dict(sample_member):
-    '''
-    Device that will be inserted/updated when tests are run.
-    It is not present in the client by default
-    '''
-    yield {
-        'mac': '01-23-45-67-89-AC',
-        'connectionType': 'wireless',
-        'type': 'wireless',
-        'member': sample_member.id,
-        'ipv4Address': None,
-        'ipv6Address': None
-    }
-
-
-@pytest.fixture
-def wired_device_dict(sample_member):
-    yield {
-        'mac': '01-23-45-67-89-AD',
-        'ipv4Address': '127.0.0.1',
-        'ipv6Address': 'dbb1:39b7:1e8f:1a2a:3737:9721:5d16:166',
-        'connectionType': 'wired',
-        'type': 'wired',
-        'member': sample_member.id,
-    }
-
-
-@pytest.fixture
 def sample_vlan():
     yield Vlan(
         id=42,
         numero=42,
         adresses="192.168.42.0/24",
         adressesv6="fe80::0/64",
+    )
+
+
+@pytest.fixture
+def sample_vlan69():
+    yield Vlan(
+        id=69,
+        numero=69,
+        adresses="192.168.69.0/24",
+        adressesv6="fe80:69::0/64",
     )
 
 
@@ -254,12 +238,12 @@ def sample_room1(sample_vlan):
 
 
 @pytest.fixture
-def sample_room2(sample_vlan):
+def sample_room2(sample_vlan69):
     yield Chambre(
         id=840,
         numero=4592,
         description="Chambre voisine du swag",
-        vlan_id=sample_vlan.id,
+        vlan_id=sample_vlan69.id,
     )
 
 
@@ -272,6 +256,7 @@ def sample_member_admin():
         prenom="test",
         password="",
         mail_membership=1,
+        date_de_depart=datetime.now() - timedelta(days=1)
     )
 
 def api_key_user():
@@ -409,7 +394,7 @@ def sample_member(faker, sample_room1):
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
         subnet=faker.ipv4('c'),
-        mail_membership=1,
+        mail_membership=249
     )
 
 
@@ -501,4 +486,11 @@ def sample_port2(sample_switch2, sample_room1):
         switch_id=sample_switch2.id,
         chambre_id=sample_room1.id,
 
+    )
+
+@pytest.fixture
+def sample_room_member_link(sample_room1, sample_member):
+    yield RoomMemberLink(
+        room_id=sample_room1.id,
+        member_id=sample_member.id
     )

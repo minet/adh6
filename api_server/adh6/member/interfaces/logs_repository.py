@@ -3,9 +3,9 @@
 Logs repository interface.
 """
 import abc
-from typing import List, Optional
+from typing import Any, List, Optional
 
-from adh6.entity import AbstractDevice
+from adh6.entity import Device
 
 
 class LogsRepository(abc.ABC):
@@ -18,7 +18,7 @@ class LogsRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_logs(self, ctx, username: Optional[str] = None, devices: Optional[List[AbstractDevice]] = None, dhcp: Optional[bool] = None):
+    def get_logs(self, ctx, username: Optional[str] = None, devices: Optional[List[Device]] = None, dhcp: Optional[bool] = None) -> List[Any]:
         """
         Get all the logs concerning the provided username and MAC addresses.
         """

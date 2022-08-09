@@ -72,7 +72,7 @@ def test_port_search_with_only(client, sample_only: str):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 2
-    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
+    assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
 
 
 def test_port_get_filter_all_with_invalid_limit(client):

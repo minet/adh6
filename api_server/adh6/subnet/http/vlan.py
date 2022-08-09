@@ -1,5 +1,4 @@
 # coding=utf-8
-from adh6.default.util.serializer import serialize_response
 from adh6.default.util.error import handle_error
 from adh6.entity import AbstractVlan, Vlan
 from adh6.default.decorator.log_call import log_call
@@ -17,6 +16,6 @@ class VLANHandler(DefaultHandler):
     def get_from_number(self, ctx, vlan_number):
         """ Get the state of a port """
         try:
-            return serialize_response(self.vlan_manager.get_from_number(ctx, vlan_number)), 200
+            return self.vlan_manager.get_from_number(ctx, vlan_number).to_dict(), 200
         except Exception as e:
             return handle_error(ctx, e)

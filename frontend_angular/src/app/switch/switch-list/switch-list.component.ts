@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModelSwitch, SwitchService } from '../../api';
+import { AbstractSwitch, SwitchService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -7,7 +7,7 @@ import { SearchPage } from '../../search-page';
   templateUrl: './switch-list.component.html',
   styleUrls: ['./switch-list.component.css']
 })
-export class SwitchListComponent extends SearchPage<ModelSwitch> implements OnInit {
+export class SwitchListComponent extends SearchPage<AbstractSwitch> implements OnInit {
   constructor(public switchService: SwitchService) {
     super((terms, page) => this.switchService.switchGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, ["ip", "description"], "response"));
   }

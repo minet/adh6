@@ -32,7 +32,7 @@ export class MailinglistComponent implements OnInit {
     const newValue = 248 + 4 * (+this.mailRouteur) + 2 * (+this.mailHosting) + 1 * (+this.mailMiNET);
     console.log(newValue);
     console.log(this.mailinglistValue)
-    this.memberService.memberIdPatch(<AbstractMember>{ mailinglist: newValue }, this.memberId)
+    this.memberService.memberIdPatch(this.memberId, <AbstractMember>{ mailinglist: newValue })
       .subscribe(
         () => {
           this.udpatedMailinglistValue.emit(newValue);

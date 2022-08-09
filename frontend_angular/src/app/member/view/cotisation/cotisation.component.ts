@@ -63,7 +63,7 @@ export class CotisationComponent {
 
   public submitSubscription() {
     const v = this.subscriptionForm.value;
-    let isMembershipFinished = this.member.membership === AbstractMembership.StatusEnum.ABORTED || this.member.membership === AbstractMembership.StatusEnum.CANCELLED || this.member.membership === AbstractMembership.StatusEnum.COMPLETE;
+    let isMembershipFinished = this.member.membership === AbstractMembership.StatusEnum.Aborted || this.member.membership === AbstractMembership.StatusEnum.Cancelled || this.member.membership === AbstractMembership.StatusEnum.Complete;
 
     // Case where there is no subscription
     this.accountService.accountGet(1, 0, undefined, <AbstractAccount>{
@@ -82,7 +82,7 @@ export class CotisationComponent {
         );
         return;
       }
-      const account: Account = response[0];
+      const account = response[0];
       const subscription: SubscriptionBody = {
         duration: this.subscriptionDuration.at(v.renewal),
         account: account.id,
@@ -90,12 +90,12 @@ export class CotisationComponent {
         member: this.member.id
       }
       if (isMembershipFinished) {
-        this.membershipService.memberIdSubscriptionPost(subscription, this.member.id, 'body')
+        this.membershipService.memberIdSubscriptionPost(this.member.id, subscription, 'body')
           .subscribe(m => {
-            if (m.status === AbstractMembership.StatusEnum.PENDINGRULES) {
+            if (m.status === AbstractMembership.StatusEnum.PendingRules) {
               this.needSignature = true
             }
-            if (m.status === AbstractMembership.StatusEnum.PENDINGPAYMENTVALIDATION) {
+            if (m.status === AbstractMembership.StatusEnum.PendingPaymentValidation) {
               this.needSignature = false
             }
             this.notificationService.successNotification(
@@ -103,7 +103,7 @@ export class CotisationComponent {
             )
           });
       } else {
-        this.membershipService.memberIdSubscriptionPatch(subscription, this.member.id)
+        this.membershipService.memberIdSubscriptionPatch(this.member.id, subscription)
           .subscribe(() => this.notificationService.successNotification(
             "Inscription mise à jour"
           ))

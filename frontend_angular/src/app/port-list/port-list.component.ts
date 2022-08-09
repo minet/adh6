@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
-import { AbstractPort, Port, PortService, RoomService, SwitchService } from '../api';
+import { AbstractPort, PortService, RoomService, SwitchService } from '../api';
 import { SearchPage } from '../search-page';
 
 @Component({
@@ -8,12 +8,12 @@ import { SearchPage } from '../search-page';
   templateUrl: './port-list.component.html',
   styleUrls: ['./port-list.component.css']
 })
-export class PortListComponent extends SearchPage<Port> implements OnInit {
+export class PortListComponent extends SearchPage<AbstractPort> implements OnInit {
   @Input() switchId: number | undefined;
   cachedSwitchDescription: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
   cachedRoomDescription: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
 
-  private filter: AbstractPort | undefined;
+  private filter: AbstractPort = {};
   constructor(
     private portService: PortService,
     private roomService: RoomService,

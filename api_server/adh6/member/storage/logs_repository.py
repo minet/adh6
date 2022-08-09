@@ -13,8 +13,8 @@ from adh6.entity import Device
 
 from adh6.member.interfaces.logs_repository import LogsRepository
 from adh6.exceptions import LogFetchError
-from adh6.util.mac import get_mac_variations
-from adh6.util.log import LOG
+from adh6.misc.mac import get_mac_variations
+from adh6.misc.log import LOG
 
 
 class ElasticSearchRepository(LogsRepository):

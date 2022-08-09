@@ -1,14 +1,16 @@
 # coding=utf-8
-from adh6.entity import AbstractDevice, AbstractRoom, AbstractMember
-from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
+from typing import List, Literal, Tuple, Union
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.device.storage.device_repository import DeviceType
+from adh6.entity import AbstractDevice, DeviceFilter, Device, DeviceBody
+from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
-from adh6.room.interfaces.room_repository import RoomRepository
 from adh6.subnet.interfaces.vlan_repository import VlanRepository
-from adh6.util.validator import is_mac_address, is_ip_v4, is_ip_v6
+from adh6.misc.validator import is_mac_address
 from adh6.member.interfaces.member_repository import MemberRepository
 
 
@@ -21,14 +23,12 @@ class DeviceManager(CRUDManager):
                  device_repository: DeviceRepository,
                  ip_allocator: IpAllocator,
                  vlan_repository: VlanRepository,
-                 room_repository: RoomRepository,
                  member_repository: MemberRepository
                  ):
-        super().__init__(device_repository, AbstractDevice, DeviceNotFoundError)
+        super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
         self.vlan_repository = vlan_repository
-        self.room_repository = room_repository
         self.member_repository = member_repository
         self.oui_repository = {}
         self.load_mac_oui_dict()
@@ -43,23 +43,42 @@ class DeviceManager(CRUDManager):
 
     @log_call
     @auto_raise
+    def search(self, ctx, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[int], int]:
+        result, count = self.device_repository.search_by(
+            ctx, 
+            limit=limit,
+            offset=offset,
+            device_filter=device_filter
+        )
+        return [r.id for r in result], count
+
+    @log_call
+    @auto_raise
     def put_mab(self, ctx, id: int) -> bool:
+        device = self.device_repository.get_by_id(ctx, id)
+        if not device:
+            raise DeviceNotFoundError(id)
         mab = self.device_repository.get_mab(ctx, id)
         return self.device_repository.put_mab(ctx, id, not mab)
 
     @log_call
     @auto_raise
     def get_mab(self, ctx, id: int) -> bool:
+        device = self.device_repository.get_by_id(ctx, id)
+        if not device:
+            raise DeviceNotFoundError(id)
         return self.device_repository.get_mab(ctx, id)
 
 
     @log_call
     @auto_raise
-    def get_mac_vendor(self, ctx, id: int):
+    def get_mac_vendor(self, ctx, id: int) -> str:
         device = self.device_repository.get_by_id(ctx, id)
+        if not device:
+            raise DeviceNotFoundError(id)
 
         if not device.mac:
-            return {"vendorname": "-"}
+            return "-"
 
         mac_address = device.mac[:8].replace(":", "-")
         if mac_address not in self.oui_repository:
@@ -67,101 +86,82 @@ class DeviceManager(CRUDManager):
         else:
             vendor = self.oui_repository[mac_address]
 
-        return {"vendorname": vendor}
+        return vendor
 
 
     @log_call
     @auto_raise
-    def update_or_create(self, ctx, abstract_device: AbstractDevice, id=None):
+    def create(self, ctx, body: DeviceBody) -> Device:
+        if body.mac is None or not is_mac_address(body.mac):
+            raise InvalidMACAddress(body.mac)
 
-        if abstract_device.mac is not None and not is_mac_address(abstract_device.mac):
-            raise InvalidMACAddress(abstract_device.mac)
-        if abstract_device.ipv4_address is not None and not is_ip_v4(abstract_device.ipv4_address):
-            raise InvalidIPv4(abstract_device.ipv4_address)
-        if abstract_device.ipv6_address is not None and not is_ip_v6(abstract_device.ipv6_address):
-            raise InvalidIPv6(abstract_device.ipv6_address)
+        if body.member is None:
+            raise MemberNotFoundError(None)
+        member = self.member_repository.get_by_id(ctx, body.member)
+        if not member:
+            raise MemberNotFoundError(body.member)
 
-        _, count = self.device_repository.search_by(ctx, filter_=AbstractDevice(mac=abstract_device.mac))
-        if count != 0 and id is None:
+        if not body.connection_type:
+            raise ValueError()
+        body.mac = str(body.mac).upper().replace(':', '-')
+
+        d = self.device_repository.get_by_mac(ctx, body.mac)
+        _, count = self.device_repository.search_by(ctx, limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member))
+        if d:
             raise DeviceAlreadyExists()
         elif count >= 20:
             raise DevicesLimitReached()
-        else:
-            device, created = super().update_or_create(ctx, abstract_device, id=id)
 
-            if created:
-                self.allocate_ip_addresses(ctx, device)
-
-            return device, created
+        device = self.device_repository.create(ctx, body)
+        self._allocate_or_unallocate_ip(ctx, device, member.subnet if member.subnet else "")
+        return device
 
     @log_call
     @auto_raise
-    def allocate_ip_addresses(self, ctx, device: AbstractDevice, override: bool = False):
-        from adh6.entity.validators.member_validators import is_member_active, has_member_subnet
-        member = self.get_user_from_username(ctx, device.member)
-        if is_member_active(member):
-            if device.ipv4_address is None or override:
-                if device.connection_type == "wired":
-                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
-                        connection_type=device.connection_type
-                    ))
-
-                    self.partially_update(ctx, AbstractDevice(
-                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, self.get_subnet_from_room_number(ctx, member.room_number),
-                                                                      taken_ips, should_skip_reserved=True)
-                    ), id=device.id, override=False)
-                elif device.connection_type == "wireless" and has_member_subnet(member):
-                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv4', AbstractDevice(
-                        member=member.id,
-                        connection_type=device.connection_type
-                    ))
-
-                    self.partially_update(ctx, AbstractDevice(
-                        ipv4_address=self.ip_allocator.allocate_ip_v4(ctx, member.subnet, taken_ips)
-                    ), id=device.id, override=False)
-            if device.ipv6_address is None or override:
-                if device.connection_type == "wired":
-                    taken_ips, _ = self.device_repository.get_ip_address(ctx, 'ipv6', AbstractDevice(
-                        connection_type=device.connection_type
-                    ))
-
-                    self.partially_update(ctx, AbstractDevice(
-                        ipv6_address=self.ip_allocator.allocate_ip_v6(ctx, self.get_subnet_from_room_number(ctx, member.room_number, True),
-                                                                      taken_ips, should_skip_reserved=True)
-                    ), id=device.id, override=False)
-
-    @log_call
-    @auto_raise
-    def unallocate_ip_addresses(self, ctx, device: AbstractDevice):
-        from adh6.entity.validators.member_validators import is_member_active
-        member = self.get_user_from_username(ctx, device.member)
-        if not is_member_active(member):
-            if device.ipv4_address is not None:
-                self.partially_update(ctx, AbstractDevice(
-                    ipv4_address='En attente'
-                ), id=device.id, override=False)
-            if device.ipv6_address is not None:
-                self.partially_update(ctx, AbstractDevice(
-                    ipv6_address='En attente'
-                ), id=device.id, override=False)
-
-    @log_call
-    @auto_raise
-    def get_subnet_from_room_number(self, ctx, room_number: int, is_ipv6: bool = False) -> str:
-        rooms, _ = self.room_repository.search_by(ctx=ctx, limit=1, filter_=AbstractRoom(room_number=room_number))
-        if len(rooms) == 0:
-            raise RoomNotFoundError(room_number)
-        vlan = None
-        if rooms[0].vlan:
-            vlan = self.vlan_repository.get_vlan(ctx, rooms[0].vlan)
+    def allocate_wired_ips(self, ctx, member_id: int, vlan_number: int) -> None:
+        vlan = self.vlan_repository.get_vlan(ctx, vlan_number=vlan_number)
         if vlan is None:
-            raise VLANNotFoundError(rooms[0].vlan)
-        return vlan.ipv4_network if not is_ipv6 else vlan.ipv6_network
+            raise VLANNotFoundError(vlan_number)
+        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wired.name, subnet_v4=vlan.ipv4_network if vlan.ipv4_network else "", subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
 
     @log_call
     @auto_raise
-    def get_user_from_username(self, ctx, member_id: int) -> AbstractMember:
-        member = self.member_repository.get_by_id(ctx, member_id)
-        if member is None:
-            raise MemberNotFoundError(member_id)
-        return member
+    def allocate_wireless_ips(self, ctx, member_id: int, subnet: str) -> None:
+        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wireless.name, subnet_v4=subnet)
+
+    @log_call
+    @auto_raise
+    def _allocate_or_unallocate_ips(self, ctx, member_id: int, device_type: Union[Literal["wired", "wireless"], None] = None, subnet_v4: str = "", subnet_v6: str = "") -> None:
+        devices, _ = self.device_repository.search_by(ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, device_filter=DeviceFilter(member=member_id, connection_type=device_type))
+        for d in devices:
+            self._allocate_or_unallocate_ip(
+                ctx=ctx,
+                device=d,
+                subnet_v4=subnet_v4,
+                subnet_v6=subnet_v6
+            )
+
+    @log_call
+    @auto_raise
+    def _allocate_or_unallocate_ip(self, ctx, device: Device, subnet_v4: str = "", subnet_v6: str = "") -> None:
+        self.partially_update(
+            ctx, 
+            AbstractDevice(
+                ipv4_address=self.ip_allocator.available_ip(ctx, subnet_v4),
+                ipv6_address=self.ip_allocator.available_ip(ctx, subnet_v6)
+            ), 
+            device.id
+        )
+
+    @log_call
+    @auto_raise
+    def unallocate_ip_addresses(self, ctx, member_id: int):
+        self._allocate_or_unallocate_ips(ctx, member_id)
+
+    @log_call
+    def get_owner(self, ctx, device_id: int) -> Union[int, None]:
+        d = self.device_repository.get_by_id(ctx, object_id=device_id)
+        if not d:
+            raise DeviceNotFoundError(device_id)
+        return self.device_repository.owner(ctx, id=device_id)
+

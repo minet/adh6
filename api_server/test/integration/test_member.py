@@ -1,13 +1,11 @@
+from datetime import datetime, timedelta
 import json
-from dateutil import parser
-from pytest_lazyfixture import lazy_fixture
 import pytest
 
-from adh6.storage.sql.models import Chambre, db
+from adh6.storage.sql.models import db
 from adh6.storage.sql.models import Adherent
 from test.integration.resource import (
     TEST_HEADERS_SAMPLE, base_url as host_url, TEST_HEADERS, assert_modification_was_created)
-from test.integration.context import tomorrow
 
 
 base_url = f'{host_url}/member/'
@@ -20,9 +18,8 @@ def assert_member_in_db(body):
     r = q.one()
     assert r.nom == body["lastName"]
     assert r.prenom == body["firstName"]
-    assert r.mail == body["email"]
-    assert r.date_de_depart == parser.parse(body["departureDate"]).date()
-    assert r.commentaires == body["comment"]
+    assert r.mail == body["mail"]
+#    assert r.commentaires == body["comment"]
     assert r.login == body["username"]
 
 
@@ -35,37 +32,6 @@ def test_member_filter_all(client):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 4 # 4 because of the admin user
-
-
-@pytest.mark.parametrize(
-    'sample_only', 
-    [
-        ("id"),
-        ("username"),
-        ("firstName"),
-        ("lastName"),
-        ("roomNumber"),
-    ])
-def test_member_search_with_only(client, sample_only: str):
-    r = client.get(
-        f'{base_url}?only={sample_only}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 200
-
-    response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 4
-    print(response[0])
-    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response[0].keys()))
-
-
-def test_member_search_with_unknown_only(client):
-    sample_only = "azerty"
-    r = client.get(
-        f'{base_url}?only={sample_only}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
 
 
 def test_member_filter_all_with_invalid_limit(client):
@@ -87,28 +53,6 @@ def test_member_filter_all_with_limit(client):
     assert len(response) == 1
 
 
-def test_member_filter_by_room_number(client, sample_room1):
-    r = client.get(
-        f'{base_url}?filter[roomNumber]={sample_room1.numero}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 200
-
-    response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 2
-
-
-def test_member_filter_by_non_existant_id(client):
-    r = client.get(
-        f'{base_url}?filter[roomNumber]={6666}',
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 200
-
-    response = json.loads(r.data.decode('utf-8'))
-    assert len(response) == 0
-
-
 def test_member_filter_by_ip(client, sample_member: Adherent):
     r = client.get(
         f'{base_url}?filter[ip]={sample_member.ip}',
@@ -118,6 +62,50 @@ def test_member_filter_by_ip(client, sample_member: Adherent):
 
     response = json.loads(r.data.decode('utf-8'))
     assert len(response) == 1
+
+
+def test_member_filter_by_departure_date_since_now(client):
+    r = client.get(
+        f'{base_url}?filter[since]={datetime.now().isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 3
+
+
+def test_member_filter_by_departure_date_since_previous_week(client):
+    r = client.get(
+        f'{base_url}?filter[since]={(datetime.now() + timedelta(days=-7)).isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
+
+
+def test_member_filter_by_departure_date_until_now(client):
+    r = client.get(
+        f'{base_url}?filter[until]={datetime.now().isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 1
+
+
+def test_member_filter_by_departure_date_until_next_week(client):
+    r = client.get(
+        f'{base_url}?filter[until]={(datetime.now() + timedelta(days=7)).isoformat()}',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.data.decode('utf-8'))
+    assert len(response) == 4
 
 
 def test_member_filter_terms_first_name(client):
@@ -204,7 +192,6 @@ def test_member_filter_unauthorized(client):
     )
     assert r.status_code == 403
 
-
 @pytest.mark.parametrize(
     'sample_only', 
     [
@@ -212,7 +199,6 @@ def test_member_filter_unauthorized(client):
         ("username"),
         ("firstName"),
         ("lastName"),
-        ("roomNumber"),
     ])
 def test_member_get_with_only(client, sample_member, sample_only: str):
     r = client.get(
@@ -222,7 +208,7 @@ def test_member_get_with_only(client, sample_member, sample_only: str):
     assert r.status_code == 200
 
     response = json.loads(r.data.decode('utf-8'))
-    assert len(set(sample_only.split(",") + ["__typename", "id"])) == len(set(response.keys()))
+    assert len(set(sample_only.split(",") + ["id"])) == len(set(response.keys()))
 
 
 def test_member_get_with_unknown_only(client, sample_member):
@@ -294,10 +280,7 @@ def test_member_post_member_create_invalid_email(client):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "roomNumber": 4592,
-        "comment": "comment",
-        "departureDate": "2000-01-23T04:56:07.000+00:00",
-        "email": "INVALID_EMAIL",
+        "mail": "INVALID_EMAIL",
         "username": "doe_john"
     }
     res = client.post(
@@ -309,33 +292,11 @@ def test_member_post_member_create_invalid_email(client):
     assert res.status_code == 400
 
 
-def test_member_post_member_create_unknown_room(client):
+def test_member_post_member_create(client):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "roomNumber": 9999,
-        "comment": "comment",
-        "departureDate": "2000-01-23T04:56:07.000+00:00",
-        "email": "john.doe@gmail.com",
-        "username": "doe_john"
-    }
-    res = client.post(
-        f'{base_url}',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert 404 == res.status_code
-
-
-def test_member_post_member_create(client, sample_room1):
-    body = {
-        "firstName": "John",
-        "lastName": "Doe",
-        "roomNumber": sample_room1.numero,
-        "comment": "comment",
-        "departureDate": "2000-01-23T04:56:07.000+00:00",
-        "email": "john.doe@gmail.com",
+        "mail": "john.doe@gmail.com",
         "username": "doe_john"
     }
     res = client.post(
@@ -350,13 +311,35 @@ def test_member_post_member_create(client, sample_room1):
     assert_member_in_db(body)
 
 
+def test_member_post_member_same_login(client):
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "doe_john"
+    }
+    res = client.post(
+        f'{base_url}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert 201 == res.status_code
+
+    res = client.post(
+        f'{base_url}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert 400 == res.status_code
+
+
 def test_member_post_unauthorized(client):
     body = {
         "firstName": "John",
         "lastName": "Doe",
-        "comment": "comment",
-        "departureDate": "2000-01-23T04:56:07.000+00:00",
-        "email": "john.doe@gmail.com",
+        "mail": "john.doe@gmail.com",
         "username": "doe_john"
     }
     r = client.post(
@@ -368,21 +351,13 @@ def test_member_post_unauthorized(client):
     assert r.status_code == 403
 
 
-@pytest.fixture
-def sample_room_id(sample_room2: Chambre):
-    return sample_room2.numero
-
-
 @pytest.mark.parametrize(
     'key, value',
     [
         ("firstName", "TEST"),
         ("lastName", "TEST"),
-        ("comment", "TEST"),
-        ("email", "TEST@TEST.FR"),
+        ("mail", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        ("roomNumber", lazy_fixture('sample_room_id')),
-        ("mailinglist", 2),
     ]
 )
 def test_member_patch(client, sample_member: Adherent, key: str, value: str):
@@ -400,9 +375,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,
-        "comment": sample_member.commentaires,
-        "departureDate": str(sample_member.date_de_depart),
-        "email": sample_member.mail,
+        # "comment": sample_member.commentaires,
+        "mail": sample_member.mail,
         "username": sample_member.login
     }
     member_to_check[key] = value
@@ -413,11 +387,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     [
         ("firstName", "TEST"),
         ("lastName", "TEST"),
-        ("comment", "TEST"),
-        ("email", "TEST@TEST.FR"),
+        ("mail", "TEST@TEST.FR"),
         ("username", "TESTTEST"),
-        ("roomNumber", lazy_fixture('sample_room_id')),
-        ("mailinglist", 2),
     ]
 )
 def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
@@ -432,72 +403,19 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
     )
     assert res.status_code == 400
 
-@pytest.mark.parametrize('value', [-1, -2, -5, 256, 257])
-def test_member_patch_bad_mailinglist(client, sample_member: Adherent, value: int):
-    body = {
-        "mailinglist": value,
-    }
-    res = client.patch(
-        f'{base_url}{sample_member.id}',
-        data=json.dumps(body),
+
+def test_member_patch_unknown(client):
+    r = client.patch(
+        f'{base_url}{4242}',
+        data=json.dumps({}),
         content_type='application/json',
-        headers=TEST_HEADERS
+        headers=TEST_HEADERS,
     )
-    assert res.status_code == 400
+    assert r.status_code == 404
 
 
 def test_member_patch_unauthorized(client):
     r = client.patch(
-        f'{base_url}{4242}',
-        data=json.dumps({}),
-        headers=TEST_HEADERS_SAMPLE,
-    )
-    assert r.status_code == 403
-
-
-def test_member_put_member_update(client, sample_member, sample_room1):
-    body = {
-        "firstName": "Jean-Louis",
-        "lastName": "Dubois",
-        "roomNumber": sample_room1.numero,
-        "comment": "comment",
-        "departureDate": str(tomorrow),
-        "email": "john.doe@gmail.com",
-        "username": "dubois_j"
-    }
-    res = client.put(
-        f'{base_url}{sample_member.id}',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 201
-    assert_modification_was_created(db.session())
-
-    assert_member_in_db(body)
-
-
-def test_member_put_member_membership_pending(client, sample_member2: Adherent, sample_room1):
-    body = {
-        "firstName": sample_member2.prenom,
-        "lastName": sample_member2.nom,
-        "roomNumber": sample_room1.numero,
-        "comment": sample_member2.commentaires,
-        "departureDate": str(sample_member2.date_de_depart),
-        "email": sample_member2.mail,
-        "username": sample_member2.login
-    }
-    res = client.put(
-        f'{base_url}{sample_member2.id}',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS
-    )
-    assert res.status_code == 400
-
-
-def test_member_put_unauthorized(client):
-    r = client.put(
         f'{base_url}{4242}',
         data=json.dumps({}),
         headers=TEST_HEADERS_SAMPLE,

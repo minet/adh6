@@ -10,7 +10,7 @@ from faker import Faker
 
 import ipaddress
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.storage.sql.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()

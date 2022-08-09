@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import List
+from typing import Union
 
 
 class IpAllocator(abc.ABC):
@@ -9,21 +9,11 @@ class IpAllocator(abc.ABC):
     """
 
     @abc.abstractmethod
-    def allocate_ip_v4(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
+    def available_ip(self, ctx, ip_range: str = "", member_id: Union[int, None] = None) -> str:
         """
         Allocates a new unused IP address.
 
         :raise NoMoreIPAvailable
         """
         pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def allocate_ip_v6(self, ctx, ip_range: str, taken_ips: List[str], should_skip_reserved=False) -> str:
-        """
-        Allocates a new unused IP address.
-
-        :raise NoMoreIPAvailable
-        """
-        pass  # pragma: no cover
-
 

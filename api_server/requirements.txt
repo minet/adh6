@@ -48,6 +48,8 @@ elastic-transport==8.1.2
     # via elasticsearch
 elasticsearch==8.3.3
     # via -r requirements.in
+faker==13.15.1
+    # via -r requirements.in
 flask==2.1.2
     # via
     #   -r requirements.in
@@ -137,7 +139,9 @@ pytest-coverage==0.0
 pytest-lazy-fixture==0.6.3
     # via -r requirements.in
 python-dateutil==2.8.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   faker
 python-dotenv==0.20.0
     # via -r requirements.in
 python-gitlab==3.7.0

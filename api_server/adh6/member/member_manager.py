@@ -1,17 +1,20 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to members. """
+from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
 from typing import Dict, List, Optional, Tuple, Union
 
-from adh6.constants import CTX_ADMIN, CTX_ROLES, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
+from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, KnownAccountExpense, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS, PRICES, DURATION_STRING
 from adh6.entity import (
     AbstractMember, Member,
     AbstractMembership, Membership,
-    AbstractDevice, MemberStatus,
+    MemberStatus,
     AbstractAccount,
 )
 from adh6.entity.abstract_transaction import AbstractTransaction
-from adh6.entity.payment_method import PaymentMethod
+from adh6.entity.device_filter import DeviceFilter
+from adh6.entity.member_body import MemberBody
+from adh6.entity.member_filter import MemberFilter
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.entity.validators.member_validators import is_member_active
 from adh6.exceptions import (
@@ -22,22 +25,21 @@ from adh6.exceptions import (
     MemberNotFoundError,
     MemberAlreadyExist,
     MembershipAlreadyExist,
+    PaymentMethodNotFoundError,
     UnauthorizedError,
     UnknownPaymentMethod,
     LogFetchError,
     NoPriceAssignedToThatDuration,
-    IntMustBePositive,
     MembershipStatusNotAllowed,
     CharterNotSigned,
     UpdateImpossible,
-    ValidationError
 )
-from adh6.device.storage.device_repository import DeviceType
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
+from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
@@ -45,8 +47,8 @@ from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepo
 from adh6.member.interfaces.logs_repository import LogsRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.member.interfaces.membership_repository import MembershipRepository
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 from adh6.default.decorator.log_call import log_call
 import re
 
@@ -60,8 +62,8 @@ class MemberManager(CRUDManager):
                  logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
-                 device_manager: DeviceManager):
-        super().__init__(member_repository, AbstractMember, MemberNotFoundError)
+                 device_manager: DeviceManager, charter_repository: CharterRepository):
+        super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.logs_repository = logs_repository
@@ -71,6 +73,7 @@ class MemberManager(CRUDManager):
         self.account_type_repository = account_type_repository
         self.transaction_repository = transaction_repository
         self.device_manager = device_manager
+        self.charter_repository = charter_repository
 
     @property
     def duration_price(self) -> Dict[int, int]:
@@ -82,9 +85,34 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def get_by_id(self, ctx, id: int):
-        member = super().get_by_id(ctx, id)
+    def search(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: Union[MemberFilter, None] = None) -> Tuple[List[int], int]:
+        result, count = self.member_repository.search_by(
+            ctx, 
+            limit=limit,
+            offset=offset,
+            terms=terms,
+            filter_=filter_
+        )
+        return [r.id for r in result if r.id], count
+
+    @log_call
+    @auto_raise
+    def get_by_id(self, ctx, id: int) -> Member:
+        member = self.member_repository.get_by_id(ctx, id)
+        if not member:
+            raise MemberNotFoundError(id)
+
         latest_sub = self.latest_subscription(ctx, id)
+        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
+        return member
+
+    @log_call
+    @auto_raise
+    def get_by_login(self, ctx, login: str):
+        member = self.member_repository.get_by_login(ctx, login) 
+        if not member or not member.id:
+            raise MemberNotFoundError(id)
+        latest_sub = self.latest_subscription(ctx, member.id)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
@@ -93,22 +121,40 @@ class MemberManager(CRUDManager):
     def get_profile(self, ctx) -> Tuple[AbstractMember, List[str]]:
         user = ctx.get(CTX_ADMIN)
         m = self.member_repository.get_by_id(ctx, user)
+        if not m:
+            raise MemberNotFoundError(id)
         return m, ctx.get(CTX_ROLES)
 
     @log_call
     @auto_raise
-    def new_member(self, ctx, member: AbstractMember) -> Member:
-        LOG.debug("create_member_records", extra=log_extra(ctx, username=member.username))
+    def create(self, ctx, body: MemberBody) -> Member:
+        LOG.debug("create_member_records", extra=log_extra(ctx, username=body.username))
         # Check that the user exists in the system.
-        fetched_member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(username=member.username))
+        fetched_member = self.member_repository.get_by_login(ctx, body.username)
         if fetched_member:
-            raise MemberAlreadyExist(fetched_member[0].username)
+            raise MemberAlreadyExist(fetched_member.username)
 
         fetched_account_type, _ = self.account_type_repository.search_by(ctx, terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  
-        created_member = self.member_repository.create(ctx, member)
+        created_member = self.member_repository.create(
+            ctx=ctx, 
+            object_to_create=AbstractMember(
+                id=0,
+                username=body.username,
+                first_name=body.first_name,
+                last_name=body.last_name,
+                email=body.mail,
+                departure_date=datetime.now(),
+                mailinglist=249,
+                ip='',
+                subnet='',
+                comment='',
+                membership=MembershipStatus.INITIAL.value
+            )
+        )
+
         _ = self.account_repository.create(ctx, AbstractAccount(
             id=0,
             actif=True,
@@ -132,8 +178,11 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def update_member(self, ctx, id: int, abstract_member: AbstractMember, override: bool) -> None:
-        member = self.__member_not_found(ctx, id)
+    def update(self, ctx, id: int, body: MemberBody) -> None:
+        member = self.member_repository.get_by_id(ctx, id)
+        if not member:
+            raise MemberNotFoundError(id)
+
         latest_sub = self.latest_subscription(ctx, id)
         if not latest_sub or latest_sub.status not in [
             MembershipStatus.CANCELLED.value,
@@ -142,27 +191,19 @@ class MemberManager(CRUDManager):
         ]:
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        if abstract_member.mailinglist:
-            if abstract_member.mailinglist < 0:
-                raise IntMustBePositive(abstract_member.mailinglist)
-            if abstract_member.mailinglist > 255: # Allow subscription to 4 or less mailinglists
-                raise ValidationError("Number to high")
-
-        is_room_changed = abstract_member.room_number is not None and (member.room_number is None or (member.room_number is not None and abstract_member.room_number != member.room_number))
-        member = self.member_repository.update(ctx, abstract_member, override)
+        member = self.member_repository.update(ctx, AbstractMember(
+                                                   id=id,
+                                                   email=body.mail,
+                                                   username=body.username,
+                                                   first_name=body.first_name,
+                                                   last_name=body.last_name
+                                               ))
 
         if not is_member_active(member):
             self.reset_member(ctx, id)
         else:
             if member.ip is None or member.subnet is None:
                 self.update_subnet(ctx, id)
-            if is_room_changed:
-                devices_to_refresh, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(
-                    member=member.id,
-                    connection_type=DeviceType.wired.name
-                ))
-                for d in devices_to_refresh:
-                    self.device_manager.allocate_ip_addresses(ctx, d, True)
 
     def is_subscription_finished(self, status: MembershipStatus) -> bool:
         return status in [
@@ -204,7 +245,9 @@ class MemberManager(CRUDManager):
         :raise UnknownPaymentMethod
         """
 
-        self.__member_not_found(ctx, member_id)
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
 
         latest_subscription = self.latest_subscription(ctx=ctx, member_id=member_id)
         
@@ -218,15 +261,13 @@ class MemberManager(CRUDManager):
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+            date_signed_minet = self.charter_repository.get(ctx, member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
 
         if state == MembershipStatus.PENDING_PAYMENT_INITIAL:
             if body.duration is not None and body.duration != 0:
-                if body.duration < 0:
-                    raise IntMustBePositive('duration')
                 if body.duration not in self.duration_price:
                     LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=body.duration))
                     raise NoPriceAssignedToThatDuration(body.duration)
@@ -235,8 +276,12 @@ class MemberManager(CRUDManager):
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
-                self.__account_not_found(ctx, body.account)
-                self.__payment_method_not_found(ctx, body.payment_method)
+                account = self.account_repository.get_by_id(ctx, body.account)
+                if not account:
+                    raise AccountNotFoundError(body.account)
+                payment_method = self.payment_method_repository.get_by_id(ctx, body.payment_method)
+                if not payment_method:
+                    raise PaymentMethodNotFoundError(body.payment_method)
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_validation")
                 state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
@@ -258,7 +303,9 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def update_subscription(self, ctx, member_id: int, body: SubscriptionBody) -> None:
-        self.__member_not_found(ctx, member_id)
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
         
         subscription = self.latest_subscription(ctx=ctx, member_id=member_id)    
         if not subscription:
@@ -270,7 +317,7 @@ class MemberManager(CRUDManager):
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.member_repository.get_charter(ctx, member_id, 1)
+            date_signed_minet = self.charter_repository.get(ctx, member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 LOG.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -279,8 +326,6 @@ class MemberManager(CRUDManager):
 
 
         if body.duration is not None and body.duration != 0:
-            if body.duration < 0:
-                raise IntMustBePositive('duration')
             if body.duration not in self.duration_price:
                 LOG.warning("create_membership_record_no_price_defined", extra=log_extra(ctx, duration=body.duration))
                 raise NoPriceAssignedToThatDuration(body.duration)
@@ -291,9 +336,13 @@ class MemberManager(CRUDManager):
                 state = MembershipStatus.PENDING_PAYMENT
 
         if body.account is not None:
-            self.__account_not_found(ctx, body.account)
+            account = self.account_repository.get_by_id(ctx, body.account)
+            if not account:
+                raise AccountNotFoundError(body.account)
         if body.payment_method is not None:
-            self.__payment_method_not_found(ctx, body.payment_method)
+            payment_method = self.payment_method_repository.get_by_id(ctx, body.payment_method)
+            if not payment_method:
+                raise PaymentMethodNotFoundError(body.payment_method)
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
@@ -309,11 +358,12 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def validate_subscription(self, ctx, member_id: int, free: bool):
-        self.__member_not_found(ctx, member_id)
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
         subscription = self.latest_subscription(ctx=ctx, member_id=member_id)    
         if not subscription:
             raise MembershipNotFoundError(None)
-        print(subscription)
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
             raise MembershipStatusNotAllowed(subscription.status, "status cannot be used to validate a membership")
 
@@ -367,17 +417,6 @@ class MemberManager(CRUDManager):
                 )
             )
 
-
-    def __account_not_found(self, ctx, account: int) -> None:
-        _ = self.account_repository.get_by_id(ctx, account)
-
-    def __payment_method_not_found(self, ctx, payment_method: int) -> PaymentMethod:
-        return self.payment_method_repository.get_by_id(ctx, payment_method)
-    
-    def __member_not_found(self, ctx, member: int) -> AbstractMember:
-        return self.member_repository.get_by_id(ctx, member)
-
-
     @log_call
     @auto_raise
     def get_logs(self, ctx, member_id, dhcp=False) -> List[str]:
@@ -387,22 +426,15 @@ class MemberManager(CRUDManager):
 
         :raise MemberNotFound
         """
-        # Fetch all the devices of the member to put them in the request
-        # all_devices = get_all_devices(s)
-        # query = session.query(all_devices, Adherent.login.label("login"))
-        # query = query.join(Adherent, Adherent.id == all_devices.columns.adherent_id)
-        # query = query.filter(Adherent.login == username)
-        # mac_tbl = list(map(lambda x: x.mac, query.all()))
-
         # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        member = self.member_repository.get_by_id(ctx, member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member[0].id))[0]
-            logs = self.logs_repository.get_logs(ctx, username=member[0].username, devices=devices, dhcp=dhcp)
+            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
+            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=dhcp)
 
             return list(map(
                 lambda x: "{} {}".format(x[0], x[1]),
@@ -410,7 +442,7 @@ class MemberManager(CRUDManager):
             ))
 
         except LogFetchError:
-            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member[0].username))
+            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
             return []  # We fail open here.
 
 
@@ -418,15 +450,13 @@ class MemberManager(CRUDManager):
     @auto_raise
     def get_statuses(self, ctx, member_id) -> List[MemberStatus]:
         # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        member = self.member_repository.get_by_id(ctx, member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
-        member = member[0]
-
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))[0]
+            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
             logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
@@ -497,7 +527,7 @@ class MemberManager(CRUDManager):
     @log_call
     def change_password(self, ctx, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member, _ = self.member_repository.search_by(ctx, filter_=AbstractMember(id=member_id))
+        member = self.member_repository.get_by_id(ctx, member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
@@ -512,18 +542,11 @@ class MemberManager(CRUDManager):
 
     @log_call
     @auto_raise
-    def update_charter(self, ctx, member_id, charter_id: int) -> None:
-        self.member_repository.update_charter(ctx, member_id, charter_id)
+    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
 
-    @log_call
-    @auto_raise
-    def get_charter(self, ctx, member_id, charter_id: int) -> str:
-        return self.member_repository.get_charter(ctx, member_id, charter_id)
-
-    @log_call
-    @auto_raise
-    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, IPv4Address]]:
-        member = self.__member_not_found(ctx, member_id)
         if not is_member_active(member):
             return None
 
@@ -540,29 +563,23 @@ class MemberManager(CRUDManager):
         if subnet is None:
             raise NoSubnetAvailable("wireless")
 
-        self.member_repository.update(ctx, AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
-        member = self.__member_not_found(ctx, member_id)
+        member = self.member_repository.update(ctx, AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
 
-        # Update wireless devices
-        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(
-            member=member.id,
-            connection_type=DeviceType.wireless.name
-        ))
-        for d in devices_to_reset:
-            self.device_manager.allocate_ip_addresses(ctx, d, True)
+        self.device_manager.allocate_wireless_ips(ctx, member_id, str(subnet))
 
         return subnet, ip
 
     @log_call
     @auto_raise
-    def reset_member(self, ctx, member_id) -> None:
-        member = self.__member_not_found(ctx, member_id)
+    def reset_member(self, ctx, member_id: int) -> None:
         self.member_repository.update(ctx, AbstractMember(
             id=member_id,
-            room_number=-1, 
             ip="", 
             subnet=""
         ))
-        devices_to_reset, _ = self.device_repository.search_by(ctx, filter_=AbstractDevice(member=member.id))
-        for d in devices_to_reset:
-            self.device_manager.unallocate_ip_addresses(ctx, d)
+        self.device_manager.unallocate_ip_addresses(ctx, member_id)
+
+    @log_call
+    @auto_raise
+    def ethernet_vlan_changed(self, ctx, member_id: int, vlan_number: int):
+        self.device_manager.allocate_wired_ips(ctx, member_id=member_id, vlan_number=vlan_number)

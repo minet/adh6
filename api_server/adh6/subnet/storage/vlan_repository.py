@@ -5,8 +5,8 @@ Implements everything related to actions on the SQL database.
 from sqlalchemy.orm.session import Session
 
 from adh6.entity import AbstractVlan
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 from adh6.constants import CTX_SQL_SESSION
 from adh6.exceptions import VLANNotFoundError
 from adh6.default.decorator.log_call import log_call

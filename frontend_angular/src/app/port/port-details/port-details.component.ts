@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { finalize, map, Observable, of, shareReplay } from 'rxjs';
-import { PortService, Port, Room, RoomService, SwitchService } from '../../api';
+import { PortService, Room, RoomService, SwitchService, AbstractPort } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -13,7 +13,7 @@ import { NotificationService } from '../../notification.service';
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
   vlanForm: FormGroup;
-  port$: Observable<Port>;
+  port$: Observable<AbstractPort>;
   portID: number;
   switchID: number;
 

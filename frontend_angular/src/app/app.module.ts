@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ApiModule, Device, Member, Room, Port, ModelSwitch, Transaction, Account, Configuration, ConfigurationParameters, Membership } from './api';
+import { ApiModule, Device, Member, Room, Port, Transaction, Account, Configuration, ConfigurationParameters, Membership } from './api';
 import { NavbarComponent } from './navbar/navbar.component';
 import { AuthConfig, OAuthModule, OAuthService, OAuthStorage } from 'angular-oauth2-oidc';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -19,7 +19,7 @@ import { VerticalNavbarComponent } from './vertical-navbar/vertical-navbar.compo
 import { PortailComponent } from './portail/portail.component';
 
 type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'free';
-type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<ModelSwitch> | InferSubjects<Membership> | "all";
+type Subjects = InferSubjects<Member> | InferSubjects<Transaction> | InferSubjects<Device> | InferSubjects<Account> | InferSubjects<Room> | InferSubjects<Port> | InferSubjects<Membership> | "all";
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;

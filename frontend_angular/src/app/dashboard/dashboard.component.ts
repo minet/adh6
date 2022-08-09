@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Member, RoomService } from '../api';
+import { Member } from '../api';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ListComponent } from '../member-device/list/list.component';
@@ -16,7 +16,6 @@ export class DashboardComponent implements OnInit {
 
   date = new Date();
   isDepartureDateFuture = false;
-  isAssociationMode = false;
   member$: Observable<Member>;
   currentTab = "device";
 
@@ -29,7 +28,6 @@ export class DashboardComponent implements OnInit {
     this.member$ = this.sessionService.getUser()
       .pipe(map(member => {
         this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
-        this.isAssociationMode = new Date() < new Date(member.associationMode);
         return member;
       }));
   }

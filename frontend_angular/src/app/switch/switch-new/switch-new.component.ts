@@ -2,7 +2,7 @@ import { Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ModelSwitch, SwitchService } from '../../api';
+import { AbstractSwitch, Switch, SwitchService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
@@ -13,7 +13,7 @@ import { NotificationService } from '../../notification.service';
 })
 export class SwitchNewComponent {
 
-  switches$: Observable<Array<ModelSwitch>>;
+  switches$: Observable<Array<AbstractSwitch>>;
   switchForm: FormGroup;
   disabled = false;
   private alive = true;
@@ -34,7 +34,7 @@ export class SwitchNewComponent {
 
   onSubmit() {
     const v = this.switchForm.value;
-    const varSwitch: ModelSwitch = {
+    const varSwitch: Switch = {
       description: v.description,
       ip: v.ip,
       community: v.community,

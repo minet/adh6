@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any, Dict, Optional
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
-from adh6.util.log import LOG
+from adh6.misc.log import LOG
 
 
 class Roles(Enum):
@@ -71,7 +71,7 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
 
     uid = role_repository.user_id_from_username(login=infos["id"])
     if not uid:
-        raise Unauthorized('invalid api key')
+        raise Unauthorized('invalid token')
     return {
         "uid": uid,
         "scope": [

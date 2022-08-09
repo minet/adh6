@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
-import { ApiKey, AuthenticationService, Body2, Role } from '../../api';
+import { ApiKey, ApiKeysGetRequest, AuthenticationService, Role } from '../../api';
 
 @Component({
   selector: 'app-api-key',
@@ -25,7 +25,7 @@ export class ApiKeyComponent implements OnInit {
   public submit(): void {
     if (this.roles.length === 0 || this.login === "") return;
 
-    this.authenticationService.apiKeysPost(<Body2>{
+    this.authenticationService.apiKeysPost(<ApiKeysGetRequest>{
       login: this.login,
       roles: this.roles
     }).subscribe((res) => this.apiKey = res);

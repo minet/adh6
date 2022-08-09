@@ -21,6 +21,8 @@ api_server/mypy-report
 **/pylint.json
 **/flake8-report.txt
 **/.mypy_cache
+api_server/adh6/util.py
+api_server/adh6/typing_utils.py
 
 
 # FRONTEND (ANGULAR)
@@ -79,3 +81,4 @@ frontend_angular/src/assets/*.min.svg
 # generated code by the openapi specification
 frontend_angular/src/app/api
 api_server/adh6/entity/*.py
+api_server/OUIs.txt

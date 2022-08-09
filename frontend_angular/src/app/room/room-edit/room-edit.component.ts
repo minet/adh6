@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 
-import { Room, RoomService, VlanService } from '../../api';
+import { AbstractRoom, Room, RoomService, VlanService } from '../../api';
 import { finalize, first, switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { NotificationService } from '../../notification.service';
@@ -17,7 +17,7 @@ import { NotificationService } from '../../notification.service';
 export class RoomEditComponent implements OnInit {
   public disabled = false;
   public roomEdit: FormGroup;
-  public room$: Observable<Room>;
+  public room$: Observable<AbstractRoom>;
 
   constructor(
     private roomService: RoomService,
@@ -53,7 +53,7 @@ export class RoomEditComponent implements OnInit {
           vlan: vlan.id,
           description: v.description
         };
-        this.roomService.roomIdPut(room, v.id)
+        this.roomService.roomIdPut(v.id, room)
           .subscribe(() => {
             this.router.navigate(['/room/view', v.roomNumber]);
             this.notificationService.successNotification();

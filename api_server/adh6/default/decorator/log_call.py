@@ -6,9 +6,8 @@ import re
 from functools import wraps
 
 import adh6.entity
-from adh6.default.util.serializer import serialize_response
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 def log_call(f):
@@ -28,13 +27,13 @@ def log_call(f):
         log_args = []
         for key, value in kwargs.items():
             if hasattr(adh6.entity, type(value).__name__):
-                log_kwargs[key] = serialize_response(value)
+                log_kwargs[key] = value.to_dict()
             else:
                 log_kwargs[key] = value
 
         for arg in args:
             if hasattr(adh6.entity, type(arg).__name__):
-                log_args.append(serialize_response(arg))
+                log_args.append(arg.to_dict())
             else:
                 log_args.append(arg)
 

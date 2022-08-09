@@ -41,7 +41,9 @@ export class NotifInterceptor implements HttpInterceptor {
             this.router.navigate(['/error', err.code]);
           }
         }
-        this.notificationService.errorNotification(+err.code, err.code + ' on ' + req.url, err.message, 3000);
+        if (err.code !== 404) {
+          this.notificationService.errorNotification(+err.code, err.code + ' on ' + req.url, err.message, 3000);
+        }
         return throwError(response);
       }),
     );

@@ -16,10 +16,10 @@ from adh6.entity import (
     AbstractMembership,
     Vlan
 )
-from adh6.authentication.security import Roles
+from adh6.authentication import Roles
 from adh6.entity.subscription_body import SubscriptionBody
 from test import TESTING_CLIENT
-from adh6.util.context import build_context
+from adh6.misc.context import build_context
 
 @fixture(autouse=True)
 def mock_missing_default_user(monkeypatch):
@@ -68,7 +68,7 @@ def sample_admin(faker):
 
 
 @fixture
-def sample_member(faker, sample_room: Room):
+def sample_member(faker):
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
@@ -77,8 +77,6 @@ def sample_member(faker, sample_room: Room):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=sample_room.room_number,
     )
 
 
@@ -152,8 +150,6 @@ def sample_member_no_room(faker):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=None,
     )
 
 

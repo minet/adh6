@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Room, RoomService } from '../../api';
+import { AbstractRoom, RoomService } from '../../api';
+
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -8,7 +9,7 @@ import { SearchPage } from '../../search-page';
   styleUrls: ['./room-list.component.css']
 })
 
-export class RoomListComponent extends SearchPage<Room> implements OnInit {
+export class RoomListComponent extends SearchPage<AbstractRoom> implements OnInit {
   constructor(public roomService: RoomService) {
     super((terms, page) => this.roomService.roomGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, undefined, "response"));
   }

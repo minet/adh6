@@ -7,7 +7,7 @@ from adh6.treasury.interfaces.account_repository import AccountRepository
 
 class AccountManager(CRUDManager):
     def __init__(self, account_repository: AccountRepository):
-        super().__init__(account_repository, AbstractAccount, AccountNotFoundError)
+        super().__init__(account_repository, AccountNotFoundError)
         self.account_repository = account_repository
 
     def get_cav_balance(self, ctx):

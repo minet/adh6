@@ -5,6 +5,7 @@ from pytest import fixture, raises
 from adh6.entity import AbstractRoom
 from adh6.entity.room import Room
 from adh6.exceptions import VLANNotFoundError
+from adh6.member.member_manager import MemberManager
 from adh6.room.interfaces.room_repository import RoomRepository
 from adh6.room.room_manager import RoomManager
 
@@ -42,10 +43,16 @@ class TestUpdateOrCreate:
 
 
 @fixture
-def room_manager(mock_room_repository):
+def room_manager(mock_room_repository, mock_member_manager):
     return RoomManager(
-        room_repository=mock_room_repository
+        room_repository=mock_room_repository,
+        member_manager=mock_member_manager
     )
+
+
+@fixture
+def mock_member_manager():
+    return MagicMock(spec=MemberManager)
 
 
 @fixture

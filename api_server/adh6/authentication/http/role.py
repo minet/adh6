@@ -5,7 +5,6 @@ from adh6.authentication.role_manager import RoleManager
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.util.error import handle_error
-from adh6.default.util.serializer import serialize_response
 
 
 class RoleHandler:
@@ -20,7 +19,7 @@ class RoleHandler:
                 "X-Total-Count": str(count),
                 'access-control-expose-headers': 'X-Total-Count'
             }
-            return serialize_response(result), 200, headers
+            return list(map(lambda x: x.to_dict(), result)), 200, headers
         except Exception as e:
             return handle_error(ctx, e)
 

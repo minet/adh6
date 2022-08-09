@@ -5,13 +5,9 @@ cache:
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  GENERATOR_BACKEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/python/
-  GENERATOR_FRONTEND_PATH: openapi/swagger-codegen-generators/src/main/resources/handlebars/typescript-angular/
-  GIT_SUBMODULE_STRATEGY: recursive
-  GIT_SUBMODULE_UPDATE_FLAGS: --remote --jobs 4
-  BUILDKITD_FLAGS: --oci-worker-no-process-sandbox
   BACKEND_DIR: $CI_PROJECT_DIR/api_server
   FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
+  OPENAPI_CLI: /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
 
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
@@ -70,23 +66,29 @@ semgrep:
 ################################
 generation:backend_entity:
   stage: generation
-  image: openjdk:11
+  image: openapitools/openapi-generator-cli
   script:
-    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l python -o tmpsrc/ --additional-properties packageName=adh6 --model-package entity
+    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+    - ls
+    - ls tmpsrc
+    - ls tmpsrc/adh6
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
-    - cp openapi/spec.yaml api_server/openapi/swagger.yaml
+    - cp tmpsrc/adh6/typing_utils.py api_server/adh6/
+    - cp tmpsrc/adh6/util.py api_server/adh6/
+    - sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
   artifacts:
     paths:
-    - api_server/adh6/entity
+    - api_server/adh6
     - api_server/openapi
     expire_in: 1 day
 
 generation:frontend_module:
   stage: generation
-  image: openjdk:11
+  image: openapitools/openapi-generator-cli
   script:
-    - java -jar openapi/swagger-codegen-cli.jar generate -i openapi/spec.yaml -l typescript-angular -o frontend_angular/src/app/api -t $GENERATOR_FRONTEND_PATH --additional-properties ngVersion=7
-    - 'sed -i "s/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g" frontend_angular/src/app/api/api.module.ts'
+    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g typescript-angular -o "frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
+    - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
+    - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
   artifacts:
     paths:
     - frontend_angular/src/app/api

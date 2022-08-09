@@ -18,7 +18,7 @@ class Action {
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.css']
 })
-export class TransactionListComponent extends SearchPage<Transaction> implements OnInit {
+export class TransactionListComponent extends SearchPage<AbstractTransaction> implements OnInit {
   @Input() asAccount: number = 0;
   @Input() refresh: EventEmitter<{ action: string }> = new EventEmitter();
   @Input() actions: Array<Action> = [];

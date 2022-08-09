@@ -1,5 +1,6 @@
 from typing import Optional, Tuple
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.entity.base_model_ import Model
 from adh6.exceptions import IntMustBePositive
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.auto_raise import auto_raise
@@ -7,10 +8,8 @@ from adh6.default.crud_repository import CRUDRepository
 
 
 class CRUDManager:
-
-    def __init__(self, repository: CRUDRepository, abstract_entity, not_found_exception):
+    def __init__(self, repository: CRUDRepository, not_found_exception):
         self.repository = repository
-        self.abstract_entity = abstract_entity
         self.not_found_exception = not_found_exception
 
     @log_call
@@ -31,9 +30,11 @@ class CRUDManager:
         )
 
     @log_call
-    @auto_raise
-    def get_by_id(self, ctx, id: int):
-        return self.repository.get_by_id(ctx, id)
+    def get_by_id(self, ctx, id: int) -> Model:
+        e = self.repository.get_by_id(ctx, id)
+        if not e:
+            raise self.not_found_exception(id)
+        return e
 
     @log_call
     @auto_raise
@@ -57,5 +58,7 @@ class CRUDManager:
     @log_call
     @auto_raise
     def delete(self, ctx, id: int):
-        self.repository.get_by_id(ctx=ctx, object_id=id)
+        e = self.repository.get_by_id(ctx=ctx, object_id=id)
+        if not e:
+            raise self.not_found_exception(id)
         return self.repository.delete(ctx, id)

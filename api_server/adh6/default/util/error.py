@@ -1,7 +1,7 @@
 # coding=utf-8
 from adh6.exceptions import AlreadyExistsError, NetworkManagerReadError, ValidationError, UnauthorizedError, UnauthenticatedError, NotFoundError
-from adh6.util.context import log_extra
-from adh6.util.log import LOG
+from adh6.misc.context import log_extra
+from adh6.misc.log import LOG
 
 
 def _error(code, message):
@@ -16,8 +16,6 @@ def handle_error(ctx, e: Exception):
         return _error(400, str(e)), 400
     elif isinstance(e, NotFoundError):
         return _error(404, str(e)), 404
-    elif isinstance(e, UnauthenticatedError):
-        return _error(401, str(e)), 401
     elif isinstance(e, UnauthorizedError):
         return _error(403, str(e)), 403
     else:

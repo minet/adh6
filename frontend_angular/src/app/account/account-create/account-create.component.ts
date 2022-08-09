@@ -1,9 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Account, AccountService, AccountType} from '../../api';
-import {takeWhile} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AccountService, AccountType } from '../../api';
+import { takeWhile } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { NotificationService } from '../../notification.service';
 
 @Component({
@@ -40,7 +40,7 @@ export class AccountCreateComponent implements OnInit, OnDestroy {
     this.disabled = true;
     const v = this.accountForm.value;
 
-    const account: Account = {
+    const account = {
       actif: true,
       name: v.accountName,
       accountType: parseInt(v.accountType),
