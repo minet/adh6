@@ -16,7 +16,7 @@ export class NainaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.result$ = this.authenticationService.roleGet('user');
+    this.refreshNainA();
   }
 
   public newNainA(): void {
@@ -29,6 +29,10 @@ export class NainaComponent implements OnInit {
         Role.Networkwrite
       ],
       auth: 'user',
-    }).subscribe();
+    }).subscribe(() => this.refreshNainA());
+  }
+
+  private refreshNainA() {
+    this.result$ = this.authenticationService.roleGet('user');
   }
 }

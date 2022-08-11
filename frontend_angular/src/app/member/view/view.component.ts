@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
-import { AbstractMembership, RoomService, Member, MemberService, Membership, AbstractRoom, Room, AbstractMember, RoomMembersService } from '../../api';
+import { AbstractMembership, RoomService, MemberService, Membership, AbstractRoom, AbstractMember, RoomMembersService } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 import { map, share, switchMap } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
@@ -29,6 +29,7 @@ export class ViewComponent implements OnInit {
   public moveInDisabled: boolean = false;
   public showLogs = false;
   public room$: Observable<AbstractRoom>;
+  public isFree: boolean = false;
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;

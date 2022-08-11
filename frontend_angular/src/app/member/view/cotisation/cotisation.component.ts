@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { finalize, first } from 'rxjs/operators';
 import { AbstractAccount, AccountService, AbstractMembership, MembershipService, Account, Member, AbstractMember, SubscriptionBody, PaymentMethod } from '../../../api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -12,8 +12,9 @@ import { NotificationService } from '../../../notification.service';
 export class CotisationComponent {
   @Input() member: Member;
   @Input() paymentMethods: PaymentMethod[];
-  public amount: number;
+  @Output() updateSubscription = new EventEmitter<boolean>();
 
+  public amount: number;
   public subscriptionForm: FormGroup;
   public cotisationDisabled: boolean = false;
   public needSignature: boolean = false;
@@ -41,25 +42,6 @@ export class CotisationComponent {
     });
     this.subscriptionForm.valid
   }
-
-  /*updateForm(): void {
-    
-    if (this.membership == undefined || this.membership.duration == undefined) return
-    let paymentMethod: number = 0;
-    if (this.membership.paymentMethod == undefined) {
-      paymentMethod = 0;
-    } else if (typeof (this.membership.paymentMethod) === 'number') {
-      paymentMethod = this.membership.paymentMethod;
-    } else {
-      paymentMethod = this.membership.paymentMethod;
-    }
-    
-    this.subscriptionForm.patchValue({
-      renewal: '', // (this.membership.duration) ? this.subscriptionDuration.indexOf(this.membership.duration) : '',
-      paidWith: '' // (paymentMethod != 0) ? paymentMethod : ''
-    });
-  }
-  */
 
   public submitSubscription() {
     const v = this.subscriptionForm.value;
@@ -101,22 +83,17 @@ export class CotisationComponent {
             this.notificationService.successNotification(
               "Inscription créée"
             )
+            this.updateSubscription.emit(true)
           });
       } else {
         this.membershipService.memberIdSubscriptionPatch(this.member.id, subscription)
-          .subscribe(() => this.notificationService.successNotification(
-            "Inscription mise à jour"
-          ))
+          .subscribe(() => {
+            this.notificationService.successNotification(
+              "Inscription mise à jour"
+            )
+            this.updateSubscription.emit(true)
+          })
       }
-    });
-  }
-
-  public validatePayment(): void {
-    this.membershipService.subscriptionValidate(this.member.id, (this.isFree) ? this.isFree : undefined).subscribe(() => {
-      this.notificationService.successNotification(
-        "Inscription finie",
-        "L'inscription pour cet adhérent est finie"
-      );
     });
   }
 
@@ -134,5 +111,9 @@ export class CotisationComponent {
 
   public updateAmount() {
     this.amount = this.subscriptionPrices.at(this.subscriptionForm.value.renewal);
+  }
+
+  get isSubscriptionFinished(): boolean {
+    return this.member.membership === "COMPLETE" || this.member.membership === "CANCELLED" || this.member.membership === "ABORTED"
   }
 }

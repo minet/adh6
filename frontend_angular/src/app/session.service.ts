@@ -69,6 +69,9 @@ export class SessionService {
       if (r.roles.indexOf("admin:read") !== -1 && r.roles.indexOf("admin:write") !== -1) {
         can('manage', 'admin');
       }
+      if (r.roles.indexOf("admin:prod") !== -1 && r.roles.indexOf("admin:write") !== -1) {
+        can('manage', 'prod');
+      }
       if (r.roles.indexOf('treasurer:write') !== -1) {
         can('free', 'Membership');
       }

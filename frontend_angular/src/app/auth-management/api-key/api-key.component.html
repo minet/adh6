@@ -15,9 +15,6 @@
     </div>
   </div>
 </div>
-<div class="content">
-  <h4 class="title is-4" *ngIf="apiKey !== ''">Clef: {{apiKey}}</h4>
-</div>
 <ng-container *ngIf="result$ | async as result; else loadingTable">
   <table class="table is-fullwidth">
     <thead>

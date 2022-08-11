@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { finalize, map, Observable } from 'rxjs';
+import { finalize, map, Observable, shareReplay } from 'rxjs';
 import { Member, PaymentMethod, Product, TreasuryService } from '../../../api';
 import { NotificationService } from '../../../notification.service';
 
@@ -42,6 +42,7 @@ export class BuyProductComponent implements OnInit {
   private resetProducts(): void {
     this.products$ = this.treasuryService.productGet(100, 0, undefined, "body")
       .pipe(
+        shareReplay(1),
         map(products => {
           this.productsFormArray.clear();
           products.forEach((product) => {

@@ -12,6 +12,11 @@
       </li>
     </ul>
   </div>
+  <ng-container *ngIf="member.membership === 'PENDING_PAYMENT_VALIDATION'">
+    <div class="notification is-info is-light">
+      <p>Cotisation en attente de validation</p>
+    </div>
+  </ng-container>
   <ng-container *ngIf="currentTab==='profile'">
     <h3 class="title is-3 has-text-centered">
       <span>{{ member.firstName | lowercase | titlecase }}</span> {{member.lastName | uppercase }}
@@ -78,7 +83,7 @@
     <app-mailinglist [mailinglistValue]="member.mailinglist" [memberId]="member.id"></app-mailinglist>
   </ng-container>
   <ng-container *ngIf="currentTab==='payment'">
-    <app-buy [member]="member"></app-buy>
+    <app-buy [member]="member" (updateSubscription)="refreshInfo()"></app-buy>
   </ng-container>
   <ng-container *ngIf="currentTab==='device'">
     <app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>

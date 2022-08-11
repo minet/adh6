@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { AbstractMember, AbstractRoom, Member, MemberBody, MemberService, MembershipService, RoomMembersService, RoomService } from '../../api';
+import { AbstractRoom, Member, MemberBody, MemberService, MembershipService, RoomMembersService, RoomService } from '../../api';
 import { finalize, first, mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
 import { NotificationService } from '../../notification.service';
@@ -67,7 +67,7 @@ export class CreateOrEditComponent implements OnInit {
         } else {
           this.memberService.memberPost(body, 'body')
             .subscribe((id) => {
-              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: id }).subscribe(() => this.router.navigate(['/password', id]))
+              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: id }).subscribe(() => this.router.navigate(['/password', id, 1]))
             });
         };
       });

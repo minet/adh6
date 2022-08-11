@@ -33,7 +33,7 @@
           </li>
         </ul>
       </li>
-      <li>
+      <li *ngIf="'manage' | able: 'prod'">
         Authentification
         <ul>
           <li>

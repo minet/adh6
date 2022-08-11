@@ -63,8 +63,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def post(self, ctx, body):
         try:
-            to_create = MemberBody.from_dict(body)
-            return self.member_manager.create(ctx, to_create).to_dict(), 201
+            return self.member_manager.create(ctx, MemberBody.from_dict(body)).id, 201
         except Exception as e:
             return handle_error(ctx, e)
 
@@ -72,8 +71,7 @@ class MemberHandler(DefaultHandler):
     @log_call
     def patch(self, ctx, id_, body):
         try:
-            to_update = MemberBody.from_dict(body)
-            self.member_manager.update(ctx, id_, to_update)
+            self.member_manager.update(ctx, id_, MemberBody.from_dict(body))
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
@@ -85,8 +83,7 @@ class MemberHandler(DefaultHandler):
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
 
         try:
-            to_create = SubscriptionBody.from_dict(body)
-            created_membership = self.member_manager.create_subscription(ctx, id_, to_create)
+            created_membership = self.member_manager.create_subscription(ctx, id_, SubscriptionBody.from_dict(body))
             return created_membership.to_dict(), 200  # 200 OK
         except Exception as e:
             return handle_error(ctx, e)
