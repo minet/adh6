@@ -2,9 +2,9 @@ from datetime import datetime
 import json
 import pytest
 
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url
 
-from src.interface_adapter.sql.model.models import Caisse
+from adh6.storage.sql.models import Caisse
 
 @pytest.fixture
 def sample_caisse():
@@ -17,7 +17,7 @@ def sample_caisse():
 
 
 @pytest.fixture
-def client(sample_caisse):
+def client(sample_caisse, sample_member):
     from .context import app
     from .conftest import prep_db, close_db
     if app.app is None:
@@ -25,6 +25,7 @@ def client(sample_caisse):
     with app.app.test_client() as c:
         prep_db(
             sample_caisse,
+            sample_member
         )
         yield c
         close_db()
@@ -39,3 +40,11 @@ def test_cashbox_get(client):
     response = json.loads(r.data.decode('utf-8'))
     assert response["coffre"] == 0
     assert response["fond"] == 0
+
+
+def test_cashbox_get_unaithorized(client):
+    r = client.get(
+        f'{base_url}/treasury/cashbox',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

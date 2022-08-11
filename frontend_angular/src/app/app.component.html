@@ -1,10 +1,21 @@
-<!--<title>MiNET - ADH6</title>-->
 <ng-container *ngIf="oauthService.discoveryDocumentLoaded$ | async">
   <app-navbar></app-navbar>
-  <div class="hero is-fullheight">
-    <div class="section">
-      <router-outlet></router-outlet>
+  <ng-container>
+    <div class="columns is-fullheight">
+      <div class="column is-2 is-sidebar-menu is-hidden-mobile" *ngIf="('manage' | able: 'admin')">
+        <app-vertical-navbar></app-vertical-navbar>
+      </div>
+      <div class="column">
+        <div class="hero is-fullheight">
+          <div class="section">
+            <router-outlet *ngIf="sessionService.isAuthenticated; else unauthorized"></router-outlet>
+            <ng-template #unauthorized>
+              <app-portail></app-portail>
+            </ng-template>
+          </div>
+        </div>
+      </div>
     </div>
-    <app-footer></app-footer>
-  </div>
+  </ng-container>
+  <app-footer></app-footer>
 </ng-container>

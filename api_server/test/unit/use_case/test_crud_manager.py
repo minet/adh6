@@ -5,28 +5,23 @@ import pytest
 from pytest_cases import unpack_fixture
 from pytest_lazyfixture import lazy_fixture
 
-from src.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractRoom, AccountType, AbstractPaymentMethod
-from src.exceptions import IntMustBePositive, NotFoundError
-from src.use_case.account_manager import AccountManager
-from src.use_case.account_type_manager import AccountTypeManager
-from src.use_case.interface.account_repository import AccountRepository
-from src.use_case.interface.account_type_repository import AccountTypeRepository
-from src.use_case.interface.crud_repository import CRUDRepository
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.use_case.interface.port_repository import PortRepository
-from src.use_case.interface.room_repository import RoomRepository
-from src.use_case.interface.switch_repository import SwitchRepository
-from src.use_case.payment_method_manager import PaymentMethodManager
-from src.use_case.port_manager import PortManager
-from src.use_case.room_manager import RoomManager
-from src.use_case.switch_manager import SwitchManager
+from adh6.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractPaymentMethod
+from adh6.exceptions import IntMustBePositive, NotFoundError
+from adh6.default.crud_repository import CRUDRepository
+from adh6.treasury.account_manager import AccountManager
+from adh6.treasury.payment_method_manager import PaymentMethodManager
+from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.network.port_manager import PortManager
+from adh6.network.switch_manager import SwitchManager
+from adh6.network.interfaces.port_repository import PortRepository
+from adh6.network.interfaces.switch_repository import SwitchRepository
 
 
 @pytest.fixture(
     params=[
         (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture('sample_switch')),
         (PortRepository, PortManager, AbstractPort, lazy_fixture('sample_port')),
-        (RoomRepository, RoomManager, AbstractRoom, lazy_fixture('sample_room')),
         (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
         (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
     ]
@@ -37,7 +32,7 @@ def data_set(request):
 
 @pytest.fixture(
     ids=[
-        "switch", "port", "room", "account", "payment_method"
+        "switch", "port", "account", "payment_method"
     ]
 )
 def manager(data_set):
@@ -182,7 +177,7 @@ class TestDelete:
                         mock_repo,
                         mock_manager):
         # When...
-        id = faker.random_int
+        id = faker.random_int()
         mock_repo.get_by_id = MagicMock(return_value=(mock_object))
         mock_manager.delete(ctx, **{"id": id})
 
@@ -197,7 +192,7 @@ class TestDelete:
                               mock_manager):
         # Given
         mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
-        id = faker.random_int
+        id = faker.random_int()
 
         # When...
         with raises(NotFoundError):

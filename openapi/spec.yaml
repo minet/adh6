@@ -25,31 +25,15 @@ paths:
         **TODO**: Improve the amount of information returned
       operationId: health
       responses:
-        200:
+        '200':
           description: ADH6 is alive!
-        503:
+        '503':
           description: Database is down.
-      security: []
-      tags:
-      - misc
-  /stats:
-    get:
-      summary: Retrieve global ADH6 statistics and trivia
-      description: >
-        This endpoint returns useful insights, statistics and data.
-        It *may* be used for monitoring, although its main purpose is to be displayed as part of a dashboard.
-      operationId: stats
-      responses:
-        200:
-          description: The statistics of ADH6
-          content:
-            application/json:
-              schema:
-                type: object
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - misc
   /profile:
@@ -59,7 +43,7 @@ paths:
         This endpoint returns information about the currently logged-in user.
       operationId: profile
       responses:
-        200:
+        '200':
           description: The current logged-in user
           content:
             application/json:
@@ -71,10 +55,15 @@ paths:
                     type: array
                     items:
                       type: string
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/Unexpected'      
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
       tags:
       - misc
   /account/:
@@ -92,7 +81,7 @@ paths:
         explode: true
       - $ref: '#/components/parameters/onlyAccount'
       responses:
-        200:
+        '200':
           description: The list of accounts
           content:
             application/json:
@@ -106,38 +95,47 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter accounts
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Account'
+              $ref: '#/components/schemas/AbstractAccount'
         description: The account to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
           description: The created account
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create an account
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - account
   /account/{id}:
@@ -147,21 +145,26 @@ paths:
       parameters:
       - $ref: '#/components/parameters/onlyAccount'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractAccount'
           description: The fetched account
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
     put:
@@ -173,17 +176,22 @@ paths:
         description: The new values for this account
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Udate an account
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - account
   /account_type/:
@@ -193,7 +201,7 @@ paths:
       - $ref: '#/components/parameters/skip'
       - $ref: '#/components/parameters/searchTerm'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -207,9 +215,14 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           description: Invalid input
       summary: Filter account types
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
   /account_type/{id}:
@@ -217,21 +230,26 @@ paths:
       - $ref: '#/components/parameters/idPath'
     get:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountType'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account type
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - account
   /device/:
@@ -239,22 +257,19 @@ paths:
       parameters:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
+      - description: filters of a device
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/AbstractDevice'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyDevice'
+          $ref: '#/components/schemas/DeviceFilter'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractDevice'
+                  type: integer
+                  minimum: 0
                 type: array
           description: Success
           headers:
@@ -262,198 +277,216 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Filter devices
+      summary: Return the list of the device ids
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Device'
+              $ref: '#/components/schemas/DeviceBody'
         description: The device to create
         required: true
       responses:
-        200:
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Device'
-          description: The created device
-        400:
+                type: integer
+                example: 0
+          description: The id of the created device
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Create device
+      summary: Create a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
   /device/{id}:
     parameters:
       - $ref: '#/components/parameters/idPath'
+      - $ref: '#/components/parameters/onlyDevice'
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - device
     get:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Device'
+                $ref: '#/components/schemas/AbstractDevice'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a device
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AbstractDevice'
-        description: The new values for this device
-        required: true
-      responses:
-        201:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Device'
-          description: The created device
-        204:
-          description: Updated
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Update a device
-      tags:
-      - device
-    patch:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AbstractDevice'
-        description: The new values for this Device
-        required: true
-      responses:
-        204:
-          description: Updated
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Partially update a device
-      tags:
-      - device
-  /device/{id}/vendor:
+  /device/{id}/vendor/:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
-      operationId: vendor_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
-                properties:
-                  vendorname:
-                    example: Cisco Systems, Inc
-                    type: string
-                type: object
-                title: vendor
+                example: Cisco Systems, Inc
+                type: string
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
   /device/{id}/mab/:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
-      operationId: device_mab_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 example: true
                 type: boolean
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the vendor of a device based on its MAC
+      summary: Retreive the MAB of the device
+      security: 
+        - OAuth2:
+          - admin:read
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - device
-    put:
-      operationId: device_mab_put
+    post:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 example: true
                 type: boolean
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Retrieve the vendor of a device based on its MAC
+      summary: Update the MAB of the device
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - device
+  /device/{id}/member/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 0
+                nullable: true
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Get user of the device
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - device
   /member/:
@@ -466,34 +499,16 @@ paths:
         in: query
         name: filter
         schema:
-          $ref: '#/components/schemas/AbstractMember'
+          $ref: '#/components/schemas/MemberFilter'
         style: deepObject
         explode: true
-      - $ref: '#/components/parameters/onlyMember'
-      - description: Filter member that have departureDate after
-        in: query
-        name: since
-        schema:
-          type: string
-          format: date-time
-      - description: Filter member that have departureDate before
-        in: query
-        name: until
-        schema:
-          type: string
-          format: date-time
-      - description: Filter member by its membership in a specific mailing list
-        in: query
-        name: mailinglist
-        schema:
-          type: integer
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractMember'
+                  type: integer
                 type: array
           description: Success
           headers:
@@ -501,38 +516,49 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter members
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Member'
+              $ref: '#/components/schemas/MemberBody'
         description: The member to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Member'
+                description: The id of the created user
+                type: integer
+                example: 1
           description: The created account
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
   /member/{id}:
@@ -540,38 +566,50 @@ paths:
       - $ref: '#/components/parameters/idPath'
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
     get:
       parameters:
         - $ref: '#/components/parameters/onlyMember'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractMember'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     patch:
@@ -579,43 +617,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMember'
+              $ref: '#/components/schemas/MemberBody'
         description: The new values for this member
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a member
-      tags:
-      - member
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Member'
-        description: The new values for this member
-        required: true
-      responses:
-        201:
-          description: Created
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Update a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
   /member/{id}/logs/:
@@ -630,7 +651,7 @@ paths:
         schema:
             type: boolean
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -639,13 +660,16 @@ paths:
                   type: string
                 type: array
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the most recent logs of a member
+      security: 
+        - OAuth2:
+          - admin:read
       tags:
       - member
   /member/{id}/statuses/:
@@ -653,7 +677,7 @@ paths:
       - $ref: '#/components/parameters/idPath'
     get:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -661,13 +685,20 @@ paths:
                   $ref: '#/components/schemas/MemberStatus'
                 type: array
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves some common status updates concerning a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
   /member/{id}/password/:
@@ -693,17 +724,22 @@ paths:
         description: The new value for the password, either in plaintext or pre-hashed client-side
         required: true
       responses:
-        204:
+        '204':
           description: Modified
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the password of a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
       tags:
       - member
   /member/{id}/charter/{charter_id}:
@@ -719,191 +755,337 @@ paths:
             - 1
             - 2
     get:
+      deprecated: true
       operationId: charter_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: string
                 format: date-time
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves if the hosting charter has been signed
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - member
     put:
+      deprecated: true
       operationId: charter_put
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update if the hosting/MiNET charter has been signed
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - member
-  /member/membership/:
-    get:
-      operationId: membership_search
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractMembership'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyMembership'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/AbstractMembership'
-                type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Filter memberships
-      tags:
-      - membership
-  /member/{id}/membership/:
+  /member/{id}/subscription/:
     parameters:
       - $ref: '#/components/parameters/idPath'
-    get:
-      parameters:
-        - $ref: '#/components/parameters/onlyMembership'
-      operationId: get_latest_membership
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AbstractMembership'
-          description: Success
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Get the latest pending membership of a specific member
-      tags:
-      - membership
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Membership'
+              $ref: '#/components/schemas/SubscriptionBody'
         description: The membership to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Membership'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Add a membership record for a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
-  /member/{id}/membership/{uuid}:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-      - description: The UUID associated with this membership request
-        in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
     patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractMembership'
-        description: The new values for this member
+              $ref: '#/components/schemas/SubscriptionBody'
+        description: The membership to create
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Partially update a membership
+      summary: Add a membership record for a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
-  /member/{id}/membership/{uuid}/validate:
+  /member/{id}/subscription/validate:
     parameters:
       - $ref: '#/components/parameters/idPath'
-      - description: The UUID associated with this membership request
-        in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: "123e4567-e89b-12d3-a456-426614174000"
       - description: Should the membership be free
         in: query
         name: free
         schema:
           type: boolean
           example: false
-    get:
-      operationId: membership_validate
+    post:
+      operationId: subscription_validate
       responses:
-        204:
+        '204':
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - membership
+  /charter/{charter_id}/member/:
+    parameters:
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  minimum: 0
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+          description: number of member that have signed the charter
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List of the members that have signed the charter
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - charter
+  /charter/{charter_id}/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+      - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
+        in: path
+        name: charter_id
+        required: true
+        schema:
+          type: integer
+          enum:
+            - 1
+            - 2
+    post:
+      responses:
+        '201':
+          description: Signed
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Sign the specific charter
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - charter
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: date-time
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive the signature date of the specific charter
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - charter
+  /mailinglist/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: The value of the mailinglist (see documentation for more information)
+                type: integer
+                minimum: 0
+                maximum: 255
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive mailinglist memberships of the specific member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - mailinglist
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - value
+              type: object
+              properties:
+                value:
+                  description: the value of the subscription
+                  type: integer
+                  example: 1
+                  minimum: 0
+                  maximum: 255
+        required: true
+      responses:
+        '204':
+          description: Updated
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update the mailing list membership of the member
+      security:
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - mailinglist
+  /mailinglist/:
+    parameters:
+      - description: "The value of the mailing list membership"
+        in: query
+        name: value
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 255
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: The id of the members that are subscribe to the mailinglist
+                type: array
+                items:
+                  description: Id of a member
+                  type: integer
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retreive the members of a specific mailinglist memberships
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - mailinglist
   /payment_method/:
     get:
       parameters:
@@ -911,7 +1093,7 @@ paths:
       - $ref: '#/components/parameters/skip'
       - $ref: '#/components/parameters/searchTerm'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -925,9 +1107,14 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           description: Invalid input
       summary: Filter payment methods
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - transaction
   /payment_method/{id}:
@@ -935,21 +1122,26 @@ paths:
       - $ref: '#/components/parameters/idPath'
     get:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentMethod'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - transaction
   /port/:
@@ -967,7 +1159,7 @@ paths:
         explode: true
       - $ref: '#/components/parameters/onlyPort'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -981,42 +1173,51 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter ports
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - port
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Port'
+              $ref: '#/components/schemas/AbstractPort'
         description: The port to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Port'
           description: The created port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
   /port/{id}:
@@ -1024,38 +1225,48 @@ paths:
       - $ref: '#/components/parameters/idPath'
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
     get:
       parameters:
       - $ref: '#/components/parameters/onlyPort'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractPort'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a port
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - port
     put:
@@ -1067,13 +1278,18 @@ paths:
         description: The new values for this port
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           description: Invalid input
-        404:
+        '404':
           description: Not found
       summary: Update a port
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - port
   /port/{id}/mab/:
@@ -1082,40 +1298,50 @@ paths:
     get:
       operationId: mab_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether MAB is enabled on this port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether MAB is enabled on this port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of MAB on a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/alias/:
@@ -1124,21 +1350,26 @@ paths:
     get:
       operationId: alias_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: string
           description: Check the alias of the port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the alias on a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/use/:
@@ -1147,21 +1378,26 @@ paths:
     get:
       operationId: use_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: string
           description: Check if the port is currently used
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the current use of a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/speed/:
@@ -1170,21 +1406,26 @@ paths:
     get:
       operationId: speed_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: string
           description: Check the speed of the port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the speed on a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
   /port/{id}/auth/:
@@ -1193,40 +1434,50 @@ paths:
     get:
       operationId: auth_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether authentication is enabled on this port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether authentication is enabled on this port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of authentication on a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/state/:
@@ -1235,40 +1486,50 @@ paths:
     get:
       operationId: state_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether the port is active
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of a port
+      security: 
+        - OAuth2:
+          - network:write
+        - ApiKeyAuth:
+          - network:write
       tags:
       - port
   /port/{id}/vlan/:
@@ -1277,22 +1538,27 @@ paths:
     get:
       operationId: vlan_get
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 example: 48
                 type: integer
           description: The VLAN assigned to this port
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the VLAN assigned to a port
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - port
     put:
@@ -1306,17 +1572,36 @@ paths:
         description: The VLAN to assign. Set to `null` to simply restore to the default VLAN
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update the VLAN assigned to a port
+      security: 
+        - OAuth2:
+          - network:write
+          - network:write:prod
+        - OAuth2:
+          - network:write
+          - network:write:dev
+        - OAuth2:
+          - network:write
+          - network:write:hosting
+        - ApiKeyAuth:
+          - network:write
+          - network:write:prod
+        - ApiKeyAuth:
+          - network:write
+          - network:write:dev
+        - ApiKeyAuth:
+          - network:write
+          - network:write:hosting
       tags:
       - port
   /product/:
@@ -1326,7 +1611,7 @@ paths:
       - $ref: '#/components/parameters/skip'
       - $ref: '#/components/parameters/searchTerm'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -1340,9 +1625,14 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           description: Invalid input
       summary: Filter products
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - treasury
   /product/{id}:
@@ -1350,21 +1640,26 @@ paths:
       - $ref: '#/components/parameters/idPath'
     get:
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a product
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - treasury
   /product/buy:
@@ -1392,17 +1687,22 @@ paths:
           type: integer
     post:
       responses:
-        204:
+        '204':
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Generate a new transaction for a product
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - treasury
   /room/:
@@ -1420,7 +1720,7 @@ paths:
         explode: true
       - $ref: '#/components/parameters/onlyRoom'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -1434,38 +1734,47 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter rooms
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - room
     post:
-      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Room'
+              $ref: '#/components/schemas/AbstractRoom'
         description: The room to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
           description: The created room
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
   /room/{id}:
@@ -1473,38 +1782,48 @@ paths:
       - $ref: '#/components/parameters/idPath'
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
     get:
       parameters:
       - $ref: '#/components/parameters/onlyRoom'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractRoom'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a room
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - room
     put:
@@ -1516,21 +1835,154 @@ paths:
         description: The new values for this room
         required: true
       responses:
-        201:
+        '201':
           description: Created
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - room
+  /room/{id}/member/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  description: id of the member in the room
+                  type: integer
+                  example: 0
+                type: array
+          description: OK
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List the members in a room
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - room members
+  /room/{id}/member/add/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
+        description: The member to add
+        required: true
+      responses:
+        '204':
+          description: The member has been added
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Add a member in a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - room members
+  /room/{id}/member/del/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
+        required: true
+      responses:
+        '204':
+          description: The member has been removed
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Remove a member from a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
+      tags:
+      - room members
+  /room/member/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: id of the room the member is in
+                type: integer
+                example: 0
+                nullable: true
+          description: OK
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List the members in a room
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
+      tags:
+      - room members
   /switch/:
     get:
       parameters:
@@ -1546,7 +1998,7 @@ paths:
         explode: true
       - $ref: '#/components/parameters/onlySwitch'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -1560,13 +2012,18 @@ paths:
               schema:
                 type: integer
                 example: 25
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter switches
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     post:
@@ -1579,19 +2036,24 @@ paths:
         description: The switch to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Switch'
           description: The created switch
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a switch
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - switch
   /switch/{id}:
@@ -1599,38 +2061,48 @@ paths:
       - $ref: '#/components/parameters/idPath'
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a switch
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     get:
       parameters:
       - $ref: '#/components/parameters/onlySwitch'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractSwitch'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a switch
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - switch
     put:
@@ -1642,17 +2114,22 @@ paths:
         description: The new values for this switch
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Update a switch
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - switch
   /vlan/:
@@ -1667,19 +2144,24 @@ paths:
         description: Number of the Vlan
       - $ref: '#/components/parameters/onlyVlan'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractVlan'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter vlans
+      security: 
+        - OAuth2:
+          - network:read
+        - ApiKeyAuth:
+          - network:read
       tags:
       - vlan
   /transaction/:
@@ -1711,15 +2193,20 @@ paths:
               schema:
                 type: integer
                 example: 0
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Filter transactions
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
     post:
@@ -1732,21 +2219,26 @@ paths:
         description: The transaction to create
         required: true
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transaction'
           description: The created transaction
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Create a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
   /transaction/{id}/upload/:
@@ -1760,17 +2252,22 @@ paths:
               type: string
               format: binary
       responses:
-        204:
+        '204':
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Upload an attachment to a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
   /transaction/{id}/validate:
@@ -1779,17 +2276,22 @@ paths:
     get:
       operationId: validate
       responses:
-        204:
+        '204':
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
   /transaction/{id}:
@@ -1799,21 +2301,26 @@ paths:
       parameters:
       - $ref: '#/components/parameters/onlyTransaction'
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AbstractTransaction'
           description: Success
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a transaction
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - transaction
     patch:
@@ -1825,61 +2332,49 @@ paths:
         description: The new values for this transaction
         required: true
       responses:
-        204:
+        '204':
           description: Updated
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a transaction
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
     delete:
       responses:
-        204:
+        '204':
           description: Deleted
-        400:
+        '400':
           $ref: '#/components/responses/Invalid'
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/NotFound'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
+      security: 
+        - OAuth2:
+          - treasurer:write
+        - ApiKeyAuth:
+          - treasurer:write
       tags:
       - transaction
-  /bug_report/:
-    post:
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BugReport'
-        description: The bug report to create
-        required: true
-      responses:
-        204:
-          description: Created
-        400:
-          $ref: '#/components/responses/Invalid'
-        403:
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          $ref: '#/components/responses/Unexpected'
-      summary: Create a new bug report
-      tags:
-      - misc
   /treasury/cashbox:
     get:
       operationId: get_cashbox
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -1895,18 +2390,23 @@ paths:
                 type: object
                 title: cashbox
           description: Success
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of the cashbox
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - treasury
   /treasury/bank:
     get:
       operationId: get_bank
       responses:
-        200:
+        '200':
           content:
             application/json:
               schema:
@@ -1918,14 +2418,224 @@ paths:
                 type: object
                 title: bank
           description: Success
-        403:
+        '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the expected state of MiNET's bank accounts
+      security: 
+        - OAuth2:
+          - treasurer:read
+        - ApiKeyAuth:
+          - treasurer:read
       tags:
       - treasury
-
+  /role/:
+    get:
+      parameters:
+      - description: Filter with the authentication type
+        in: query
+        name: auth
+        schema:
+          type: string
+          enum:
+            - oidc
+            - user
+            - api_key
+        required: true
+      - description: filter with the identifier associated
+        in: query
+        name: id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RoleMapping'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Filter roles
+      security: 
+        - OAuth2:
+          - admin:read
+          - admin:prod
+      tags:
+      - authentication
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Role'
+                identifier:
+                  description: Login of the user that need the role
+                  type: string
+                  example: jenkins
+                auth:
+                  type: string
+                  enum:
+                    - oidc
+                    - user
+        description: The role to create
+        required: true
+      responses:
+        '201':
+          description: OK
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create a temporary role for a user
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
+  /role/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    delete:
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Delete a Role
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
+  /api_keys/:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/skip'
+      - description: The login of the user
+        in: query
+        name: login
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ApiKey'
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: List api keys
+      security: 
+        - OAuth2:
+          - admin:read
+          - admin:prod
+      tags:
+      - authentication
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - roles
+              properties:
+                login:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Role'
+        description: The room to create
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uuid
+          description: The value of the Api Key
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Create an ApiKey
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
+  /api_keys/{id}:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    delete:
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Delete an Api Key
+      security: 
+        - OAuth2:
+          - admin:write
+          - admin:prod
+      tags:
+      - authentication
 components:
   parameters:
     limit:
@@ -1935,6 +2645,8 @@ components:
       required: false
       schema:
         default: 25
+        minimum: 0
+        maximum: 100
         type: integer
     skip:
       description: Skip the first n results
@@ -1943,6 +2655,7 @@ components:
       required: false
       schema:
         default: 0
+        minimum: 0
         type: integer
     searchTerm:
       description: The generic search terms (will search in any field)
@@ -1968,7 +2681,6 @@ components:
         items:
           type: string
           enum:
-            - id
             - mac
             - ipv4Address
             - ipv6Address
@@ -2158,6 +2870,33 @@ components:
           type: string
           format: date-time
           description: When this status was last reported
+    SubscriptionBody:
+      type: object
+      properties:
+        duration:
+          description: The requested duration (in months) for this membership
+          type: integer
+          enum: [0, 1, 2, 3, 4, 5, 6, 12]
+          nullable: true
+        hasRoom:
+          description: if the Member ask for a room or not
+          type: boolean
+          nullable: true
+        paymentMethod:
+          description: The payment method id to be used for the transaction
+          type: integer
+          example: 4
+          nullable: true
+        account:
+          description: The id of the source account from which to execute the transaction
+          type: integer
+          example: 4
+          nullable: true
+        member:
+          description: The id of the member to whom this membership applies
+          type: integer
+          example: 4
+          nullable: true
     AbstractMembership:
       type: object
       properties:
@@ -2176,12 +2915,6 @@ components:
           description: if the Member ask for a room or not
           type: boolean
           nullable: true
-        products:
-          description: A list of the ids products to buy
-          type: array
-          items:
-            type: integer
-          example: [1, 2]
         firstTime:
           description: Whether this is the first membership request ever for this member
           type: boolean
@@ -2190,10 +2923,12 @@ components:
           description: The payment method id to be used for the transaction
           type: integer
           example: 4
+          nullable: true
         account:
           description: The id of the source account from which to execute the transaction
           type: integer
           example: 4
+          nullable: true
         member:
           description: The id of the member to whom this membership applies
           type: integer
@@ -2230,13 +2965,15 @@ components:
           description: The date-time at which this membership request was last updated
           format: date-time
           type: string
+          nullable: true
     Membership:
       allOf:
         - $ref: '#/components/schemas/AbstractMembership'
         - required:
-            - uuid
-            - member
-            - status
+          - uuid
+          - hasRoom
+          - member
+          - status
       type: object
     AbstractAccount:
       type: object
@@ -2264,9 +3001,7 @@ components:
         member:
           description: The member this account belongs to
           nullable: true
-          oneOf:
-            - $ref: '#/components/schemas/Member'
-            - type: integer
+          type: integer
           example: 4
         name:
           description: The name of this account
@@ -2295,7 +3030,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractAccount'
         - required:
-            - id
             - accountType
             - name
             - balance
@@ -2315,10 +3049,10 @@ components:
       type: object
       properties:
         id:
-          description: The unique identifier of this transaction
-          example: 0
           readOnly: true
+          description: The unique identifier of this transaction
           type: integer
+          example: 0
         name:
           description: The description of this transaction
           example: Sample transaction
@@ -2332,9 +3066,9 @@ components:
           type: integer
           example: 1
         timestamp:
+          readOnly: true
           description: The date-time at which this transaction was executed
           format: date-time
-          readOnly: true
           type: string
         paymentMethod:
           description: The payment method used for this transaction
@@ -2353,25 +3087,27 @@ components:
             type: string
           example: [ "3b2f552df763bc9444f9f31a4fd831a3e3ace994" ]
         author:
+          readOnly: true
           description: The member who executed this transaction
           type: integer
           example: 6
         pendingValidation:
+          readOnly: true
           description: Whether this transaction is awaiting confirmation from a member with higher privileges
           example: true
           type: boolean
         cashbox:
           description: Whether to use the cashbox or not
+          type: string
+          nullable: true
           enum:
             - to
             - from
             - direct
-          writeOnly: true
     Transaction:
       allOf:
         - $ref: '#/components/schemas/AbstractTransaction'
         - required:
-            - id
             - name
             - src
             - dst
@@ -2387,10 +3123,12 @@ components:
           readOnly: true
           type: integer
         staticFee:
+          nullable: true
           description: The static fee for this payment method in euros
           example: 0.25
           type: number
         dynamicFee:
+          nullable: true
           description: The dynamic fee for this payment method as a percentage
           example: 0.05
           minimum: 0
@@ -2404,7 +3142,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPaymentMethod'
         - required:
-            - id
             - name
       type: object
     AbstractProduct:
@@ -2433,10 +3170,24 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractProduct'
         - required:
-            - id
             - name
             - sellingPrice
       type: object
+    DeviceFilter:
+      type: object
+      properties:
+        connectionType:
+          description: The connection type of this device
+          enum:
+          - wired
+          - wireless
+          type: string
+        member:
+          description: The id of the owner of this device
+          type: integer
+          example: 0
+        terms:
+          type: string
     AbstractDevice:
       type: object
       properties:
@@ -2469,18 +3220,97 @@ components:
           format: mac
           type: string
         member:
+          deprecated: true
           description: The id of the member this device belongs to
-          type: number
+          type: integer
           example: 0
     Device:
       allOf:
         - $ref: '#/components/schemas/AbstractDevice'
         - required:
-            - id
             - connectionType
             - mac
-            - member
       type: object
+    DeviceBody:
+      type: object
+      required:
+        - connectionType
+        - mac
+        - member
+      properties:
+        connectionType:
+          description: The connection type of this device
+          enum:
+          - wired
+          - wireless
+          type: string
+        mac:
+          description: The MAC address of this device
+          example: 01-23-45-67-89-AB
+          format: mac
+          type: string
+        member:
+          nullable: true
+          description: The id of the owner of the device
+          example: 0
+          type: integer
+    MemberFilter:
+      type: object
+      properties:
+        membership:
+          type: string
+          enum:
+            - INITIAL
+            - PENDING_RULES
+            - PENDING_PAYMENT_INITIAL
+            - PENDING_PAYMENT
+            - PENDING_PAYMENT_VALIDATION
+            - COMPLETE
+            - CANCELLED
+            - ABORTED
+          example: INITIAL
+          description: >
+            The current status of this membership request:
+              * `INITIAL` - Just created
+              * `PENDING_RULES` - Waiting for the member to sign the rules
+              * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow
+              * `PENDING_PAYMENT` - During the payment flow
+              * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation
+              * `COMPLETE` - The membership request is completed
+              * `CANCELLED` - The membership has been cancelled
+              * `ABORTED` - The membership request flow was aborted
+            Do note that some of the steps may be skipped depending on the payment method,
+            whether or not this is the member's first membership request etc.
+        mailinglist:
+          type: integer
+        since:
+          type: string
+          format: date-time
+          description: search members that have their subscription finished after this date
+        until:
+          type: string
+          format: date-time
+          description: search members that have their subscription finished before this date
+        ip:
+          type: string
+          description: Public ip for the wifi
+          example: 192.168.0.1
+    MemberBody:
+      type: object
+      properties:
+        username:
+          type: string
+          example: minet_adh6
+        firstName:
+          type: string
+          example: Ubuntoutou
+        lastName:
+          type: string
+          example: MiNET
+        mail:
+          type: string
+          example: webmaster@minet.net
+          format: email
     AbstractMember:
       type: object
       properties:
@@ -2493,11 +3323,19 @@ components:
           description: The username of this member
           example: michel_j
           type: string
-        associationMode:
-          description: The date-time at which the association mode expires
-          format: date-time
-          readOnly: true
+        firstName:
+          description: The first name of this member
+          example: Jean-Michel
           type: string
+        lastName:
+          description: The last name of this member
+          example: Martin
+          type: string
+        email:
+          description: The email address of this member
+          example: jean-michel.martin@example.com
+          type: string
+          format: email
         comment:
           description: The optional comment for this member
           nullable: true
@@ -2507,25 +3345,8 @@ components:
           description: The date-time at which the subscription of this member expires
           format: date-time
           type: string
-        email:
-          description: The email address of this member
-          example: jean-michel.martin@example.com
-          type: string
-          format: email
-        firstName:
-          description: The first name of this member
-          example: Jean-Michel
-          type: string
-        lastName:
-          description: The last name of this member
-          example: Martin
-          type: string
-        roomNumber:
-          description: The number of the room this member lives in
-          nullable: true
-          type: integer
-          example: 4
         mailinglist:
+          deprecated: true
           description: The number of the room this member lives in
           type: integer
           example: 4
@@ -2540,6 +3361,31 @@ components:
           example: 10.42.8.240/28
           nullable: true
           type: string
+        membership:
+          type: string
+          nullable: true
+          enum:
+            - INITIAL
+            - PENDING_RULES
+            - PENDING_PAYMENT_INITIAL
+            - PENDING_PAYMENT
+            - PENDING_PAYMENT_VALIDATION
+            - COMPLETE
+            - CANCELLED
+            - ABORTED
+          example: INITIAL
+          description: >
+            The current status of this membership request:
+             * `INITIAL` - Just created
+             * `PENDING_RULES` - Waiting for the member to sign the rules
+             * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow
+             * `PENDING_PAYMENT` - During the payment flow
+             * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation
+             * `COMPLETE` - The membership request is completed
+             * `CANCELLED` - The membership has been cancelled
+             * `ABORTED` - The membership request flow was aborted
+            Do note that some of the steps may be skipped depending on the payment method,
+            whether or not this is the member's first membership request etc.
     Member:
       allOf:
         - $ref: '#/components/schemas/AbstractMember'
@@ -2575,7 +3421,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractRoom'
         - required:
-            - id
             - description
             - roomNumber
             - vlan
@@ -2595,7 +3440,7 @@ components:
           type: string
         oid:
           description: The oid of this port for SNMP access
-          example: 10104
+          example: '10104'
           type: string
         room:
           description: The room this port is in
@@ -2610,7 +3455,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPort'
         - required:
-            - id
             - portNumber
             - oid
             - room
@@ -2633,6 +3477,8 @@ components:
           example: ghWgpQvHRkrYuqpMLWYkstS3
           format: password
           type: string
+          nullable: true
+          deprecated: true
         ip:
           description: The IPv4 address of this switch
           example: 192.168.102.211
@@ -2642,7 +3488,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractSwitch'
         - required:
-            - id
             - description
             - ip
       type: object
@@ -2674,40 +3519,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractVlan'
         - required:
-          - id
           - number
           - ipv4Network
           - ipv6Network
       type: object
-    BugReport:
-      type: object
-      required:
-        - title
-        - description
-        - labels
-      properties:
-        title:
-          description: The title of this bug report
-          type: string
-          example: Broken API calls
-        description:
-          description: The description of this bug report
-          type: string
-          example: All API calls are broken
-        labels:
-          description: The list of labels for this bug report
-          type: array
-          items:
-            type: string
-          example: [ "backend", "api" ]
-    Statistics:
-      type: object
-      properties:
-        activeAccounts:
-          description: The count of active accounts
-          type: integer
-          example: 5
-          readOnly: true
     Error:
       type: object
       properties:
@@ -2719,6 +3534,54 @@ components:
           description: The friendly description of the error
           type: string
           example: Not found
+    ApiKey:
+      type: object
+      required:
+        - id
+        - login
+      properties:
+        id:
+          description: The unique identifier of this api key
+          type: integer
+          example: 0
+          readOnly: true
+        login:
+          description: The login of the user link to the api key
+          type: string
+          example: "jenkins"
+          nullable: false
+    RoleMapping:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          $ref: '#/components/schemas/Role'
+        authentication:
+          type: string
+          enum:
+            - oidc
+            - api_key
+            - user
+        identifier:
+          description: The login of the user link to the api key
+          type: string
+          example: "jenkins"
+          nullable: false
+    Role:
+      type: string
+      enum:
+        - user
+        - admin:read
+        - admin:write
+        - admin:prod
+        - treasurer:read
+        - treasurer:write
+        - network:read
+        - network:write
+        - network:write:prod
+        - network:write:dev
+        - network:write:hosting
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -2733,18 +3596,44 @@ components:
       name: X-API-KEY
 
 security:
-  - OAuth2: [profile]
-  - ApiKeyAuth: []
-
+  - OAuth2: 
+    - user
+    - admin:read
+    - admin:write
+    - admin:prod
+    - treasurer:read
+    - treasurer:write
+    - network:read
+    - network:write
+    - network:write:prod
+    - network:write:dev
+    - network:write:hosting
+  - ApiKeyAuth: 
+    - user
+    - admin:read
+    - admin:write
+    - treasurer:read
+    - treasurer:write
+    - network:read
+    - network:write
+    - network:write:prod
+    - network:write:dev
+    - network:write:hosting
 tags:
 - description: Operations on members
   name: member
 - description: Manage membership records
   name: membership
+- description: Operations on the charters
+  name: charter
+- description: Operations on the mailinglists
+  name: mailinglist
 - description: Operations on devices
   name: device
 - description: Operations on rooms
   name: room
+- description: Operation on the members in a room
+  name: room members
 - description: Operations on VLANs
   name: vlan
 - description: Operations on switches
@@ -2759,4 +3648,3 @@ tags:
   name: treasury
 - description: Miscellaneous endpoints
   name: misc
-

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Device, DeviceService } from '../../api';
+import { AbstractDevice, DeviceBody, DeviceService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { NotificationService } from '../../notification.service';
@@ -15,7 +15,7 @@ export class NewComponent {
   private alive = true;
 
   @Input() member_id: number;
-  @Output() added: EventEmitter<Device> = new EventEmitter<Device>();
+  @Output() added: EventEmitter<AbstractDevice> = new EventEmitter();
 
   constructor(
     private fb: FormBuilder,
@@ -27,20 +27,19 @@ export class NewComponent {
 
   onSubmit() {
     const v = this.deviceForm.value;
-    const device: Device = {
+    const device: DeviceBody = {
       mac: v.mac,
-      connectionType: v.connectionType
+      connectionType: v.connectionType,
+      member: this.member_id
     };
-
-    if (this.member_id != null) {
-      device.member = this.member_id;
-    }
 
     this.deviceService.devicePost(device)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res) => {
         this.notificationService.successNotification();
-        this.added.emit(res);
+        this.deviceService.deviceIdGet(res).subscribe((d) => {
+          this.added.emit(d);
+        })
       });
   }
 

@@ -2,15 +2,14 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SearchPage } from '../search-page';
 import { map, Observable, shareReplay } from 'rxjs';
 import { PaymentMethod, Transaction, TransactionService, AbstractTransaction, AccountService, MemberService } from '../api';
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { AppConstantsService } from '../app-constants.service';
-import { faClock } from '@fortawesome/free-solid-svg-icons';
 
 class Action {
-  name: string;
-  buttonText: string;
-  buttonIcon: IconDefinition;
-  class: string;
+  name: string = "";
+  buttonText: string = "";
+  buttonIcon: IconProp | undefined;
+  class: string = "";
   condition: any;
 }
 
@@ -19,22 +18,20 @@ class Action {
   templateUrl: './transaction-list.component.html',
   styleUrls: ['./transaction-list.component.css']
 })
-export class TransactionListComponent extends SearchPage<Transaction> implements OnInit {
-  @Input() asAccount: number;
-  @Output() whenOnAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter<{ name; string, transaction: Transaction }>();
-  @Input() refresh: EventEmitter<{ action: string }>;
+export class TransactionListComponent extends SearchPage<AbstractTransaction> implements OnInit {
+  @Input() asAccount: number = 0;
+  @Input() refresh: EventEmitter<{ action: string }> = new EventEmitter();
+  @Input() actions: Array<Action> = [];
 
-  @Input() actions: Array<Action>;
+  @Output() whenOnAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter();
 
-  faClock = faClock;
-  result$: Observable<Array<Transaction>>;
-  paymentMethods: Array<PaymentMethod>;
+  public result$: Observable<Array<Transaction>> = new Observable();
+  public paymentMethods: Array<PaymentMethod> = [];
+  public filterType: string = "";
 
-  filterType: string;
-
-  cachedAccountName: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
-  cachedPaymentMethodName: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
-  cachedMemberUsername: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
+  cachedAccountName: Map<Number, Observable<string>> = new Map();
+  cachedPaymentMethodName: Map<Number, Observable<string>> = new Map();
+  cachedMemberUsername: Map<Number, Observable<string>> = new Map();
 
 
   getUsername(id: number) {
@@ -69,29 +66,32 @@ export class TransactionListComponent extends SearchPage<Transaction> implements
       return this.transactionService.transactionGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, abstractTransaction, undefined, "response")
         .pipe(
           map(response => {
+            if (!response.body) {
+              return response
+            }
             for (let i of response.body) {
               if (i.src && !this.cachedAccountName.has(i.src)) {
                 this.cachedAccountName.set(i.src, this.accountService.accountIdGet(i.src).pipe(
                   shareReplay(1),
-                  map(result => result.name)
+                  map(result => result.name || "")
                 ));
               }
               if (i.dst && !this.cachedAccountName.has(i.dst)) {
                 this.cachedAccountName.set(i.dst, this.accountService.accountIdGet(i.dst).pipe(
                   shareReplay(1),
-                  map(result => result.name)
+                  map(result => result.name || "")
                 ));
               }
               if (i.paymentMethod && !this.cachedPaymentMethodName.has(i.paymentMethod)) {
                 this.cachedPaymentMethodName.set(i.paymentMethod, this.transactionService.paymentMethodIdGet(i.paymentMethod).pipe(
                   shareReplay(1),
-                  map(result => result.name)
+                  map(result => result.name || "")
                 ));
               }
               if (i.author && !this.cachedMemberUsername.has(i.author)) {
                 this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author, ["username"]).pipe(
                   shareReplay(1),
-                  map(result => result.username)
+                  map(result => result.username || "")
                 ));
               }
             }

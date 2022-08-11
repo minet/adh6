@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { first, map, Observable } from 'rxjs';
+import { first, map, Observable, shareReplay } from 'rxjs';
 import Swal from 'sweetalert2';
-import { Device, DeviceService } from '../../../api';
+import { AbstractDevice, DeviceService } from '../../../api';
 
 @Component({
   selector: 'app-element',
@@ -9,35 +9,38 @@ import { Device, DeviceService } from '../../../api';
   styleUrls: ['./element.component.sass']
 })
 export class ElementComponent implements OnInit {
-  @Input() device: Device | undefined;
-  @Input() macHighlighted: Observable<string>;
-  @Output() removed: EventEmitter<Device> = new EventEmitter<Device>();
+  @Input() deviceId: number;
+  @Output() removed: EventEmitter<number> = new EventEmitter();
 
-  mab$: Observable<boolean>;
-  isCollapse: boolean = true;
+  public device$: Observable<AbstractDevice>;
+  public vendor$: Observable<string>;
+  public mab$: Observable<boolean>;
+  public isCollapse: boolean = true;
 
   constructor(
     private deviceService: DeviceService,
   ) { }
 
   ngOnInit(): void {
-    if (this.device == undefined) {
+    if (this.deviceId == undefined) {
       throw new Error("device undefined");
     }
     this.refreshMAB();
+    this.device$ = this.deviceService.deviceIdGet(this.deviceId).pipe(shareReplay(1));
+    this.vendor$ = this.deviceService.deviceIdVendorGet(this.deviceId);
   }
 
-  public deviceDelete(deviceId: number) {
-    this.deviceService.deviceIdDelete(deviceId)
+  public deviceDelete() {
+    this.deviceService.deviceIdDelete(this.deviceId)
       .pipe(
         first(),
         map(() => {
-          return null; // @TODO return the device ?
+          return null;
         }),
         first(),
       )
       .subscribe(() => {
-        this.removed.emit(this.device);
+        this.removed.emit(this.deviceId);
       });
   }
 
@@ -46,18 +49,18 @@ export class ElementComponent implements OnInit {
   }
 
   private refreshMAB(): void {
-    this.mab$ = this.deviceService.deviceMabGet(this.device.id);
+    this.mab$ = this.deviceService.deviceIdMabGet(this.deviceId);
   }
 
   public updateMAB(): void {
     Swal.fire({
       title: "Changer le MAB",
-      text: "Voulez-vous changer le MAB pour l'appareil avec la MAC: " + this.device.mac,
+      text: "Voulez-vous changer le MAB pour l'appareil ?",
       icon: "warning",
       showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deviceService.deviceMabPut(this.device.id)
+        this.deviceService.deviceIdMabPost(this.deviceId)
           .subscribe((_) => {
             this.refreshMAB();
           });

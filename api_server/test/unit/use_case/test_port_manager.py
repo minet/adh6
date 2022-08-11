@@ -2,10 +2,10 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from src.entity.port import Port
-from src.exceptions import SwitchNotFoundError, RoomNotFoundError
-from src.use_case.interface.port_repository import PortRepository
-from src.use_case.port_manager import PortManager
+from adh6.entity.port import Port
+from adh6.exceptions import SwitchNotFoundError, RoomNotFoundError
+from adh6.network.interfaces.port_repository import PortRepository
+from adh6.network.port_manager import PortManager
 
 
 class TestCreate:

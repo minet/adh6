@@ -2,38 +2,49 @@ import datetime
 import json
 import pytest
 
-from test.integration.resource import TEST_HEADERS, base_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
-from src.interface_adapter.sql.model.models import AccountType, Account, Adherent
+from adh6.storage.sql.models import AccountType, Account, Adherent
+
+base_url = f"{host_url}/account/"
 
 @pytest.fixture
-def sample_account1(sample_member: Adherent):
+def sample_account_type1():
+    return AccountType(
+        id=1,
+        name='adherent'
+    )
+
+@pytest.fixture
+def sample_account_type2():
+    return AccountType(
+        id=2,
+        name='adherent'
+    )
+
+
+@pytest.fixture
+def sample_account1(sample_member: Adherent, sample_account_type1: AccountType):
     return Account(
         id=1,
         name='test1',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 30),
-        account_type=AccountType(
-            id=1,
-            name='adherent'
-        ),
-        adherent=sample_member,
+        type=sample_account_type1.id,
+        adherent_id=sample_member.id,
         compte_courant=False,
         pinned=True)
 
 
 @pytest.fixture
-def sample_account2():
+def sample_account2(sample_account_type2: AccountType):
     return Account(
         id=2,
         name='test3',
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 31),
-        account_type=AccountType(
-            id=2,
-            name='event'
-        ),
-        adherent=None,
+        type=sample_account_type2.id,
+        adherent_id=None,
         compte_courant=False,
         pinned=False)
 
@@ -54,10 +65,9 @@ def client(sample_member, sample_room1, sample_account1, sample_account2):
         yield c
         close_db()
 
-
 def test_account_filter_all_with_invalid_limit(client):
     r = client.get(
-        '{}/account/?limit={}'.format(base_url, -1),
+        f'{base_url}?limit={-1}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -65,7 +75,7 @@ def test_account_filter_all_with_invalid_limit(client):
 
 def test_account_filter_all_with_limit(client):
     r = client.get(
-        '{}/account/?limit={}'.format(base_url, 1),
+        f'{base_url}?limit={1}',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -76,7 +86,7 @@ def test_account_filter_all_with_limit(client):
 
 def test_account_filter_by_terms(client):
     r = client.get(
-        "{}/account/?terms={}".format(base_url, "test"),
+        f"{base_url}?terms={'test'}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -86,7 +96,7 @@ def test_account_filter_by_terms(client):
 
 def test_account_filter_by_terms_one_result(client):
     r = client.get(
-        "{}/account/?terms={}".format(base_url, "test1"),
+        f"{base_url}?terms={'test1'}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -96,7 +106,7 @@ def test_account_filter_by_terms_one_result(client):
 
 def test_account_filter_by_id(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[id]={}".format(base_url, sample_account1.id),
+        f"{base_url}?filter[id]={sample_account1.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -106,7 +116,7 @@ def test_account_filter_by_id(client, sample_account1: Account):
 
 def test_account_filter_by_name(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[name]={}".format(base_url, sample_account1.name),
+        f"{base_url}?filter[name]={sample_account1.name}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -116,7 +126,7 @@ def test_account_filter_by_name(client, sample_account1: Account):
 
 def test_account_filter_by_compte_courant(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[compteCourant]={}".format(base_url, sample_account1.compte_courant),
+        f"{base_url}?filter[compteCourant]={sample_account1.compte_courant}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -126,7 +136,7 @@ def test_account_filter_by_compte_courant(client, sample_account1: Account):
 
 def test_account_filter_by_actif(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[actif]={}".format(base_url, sample_account1.actif),
+        f"{base_url}?filter[actif]={sample_account1.actif}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -136,7 +146,7 @@ def test_account_filter_by_actif(client, sample_account1: Account):
 
 def test_account_filter_by_pinned(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[pinned]={}".format(base_url, sample_account1.pinned),
+        f"{base_url}?filter[pinned]={sample_account1.pinned}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -146,7 +156,7 @@ def test_account_filter_by_pinned(client, sample_account1: Account):
 
 def test_account_filter_by_account_type(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[accountType]={}".format(base_url, sample_account1.account_type.id),
+        f"{base_url}?filter[accountType]={sample_account1.type}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -156,9 +166,17 @@ def test_account_filter_by_account_type(client, sample_account1: Account):
 
 def test_account_filter_by_member(client, sample_account1: Account):
     r = client.get(
-        "{}/account/?filter[member]={}".format(base_url, sample_account1.adherent.id),
+        f"{base_url}?filter[member]={sample_account1.adherent_id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert len(result) == 1
+
+
+def test_account_filter_no_authorize(client):
+    r = client.get(
+        f"{base_url}",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

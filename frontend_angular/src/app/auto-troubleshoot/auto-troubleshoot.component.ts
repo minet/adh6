@@ -15,7 +15,7 @@ export class AutoTroubleshootComponent implements OnInit {
   constructor(private memberService: MemberService) { }
 
   ngOnInit(): void {
-    this.statuses$ = this.memberService.memberIdStatusesGet(this.member.id, 'body', false, false);
+    this.statuses$ = this.memberService.memberIdStatusesGet(this.member.id, 'body');
   }
 
 }

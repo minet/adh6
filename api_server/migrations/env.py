@@ -25,7 +25,7 @@ from flask import current_app
 config.set_main_option(
     'sqlalchemy.url', current_app.config.get(
         'SQLALCHEMY_DATABASE_URI').replace('%', '%%'))
-from src.interface_adapter.sql.model.models import *
+from adh6.storage.sql.models import *
 target_metadata = db.Model.metadata
 
 # other values from the config, defined by the needs of env.py,

@@ -1,8 +1,8 @@
 import pytest
-import common
+import adh6.server as server
 
-def test_common():
+def test_server():
     import os
     os.environ["ENVIRONMENT"] = "default"
     with pytest.raises(EnvironmentError):
-        common.init()
+        server.init()

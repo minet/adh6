@@ -18,34 +18,28 @@
         </div>
         <div class="card-content">
           <div class="content">
-            <div class="columns is-vcentered">
+            <div class="columns">
               <div class="column">
                 <label class="label">Actif</label>
               </div>
               <div class="column">
-                <input id="actif" type="checkbox" name="actif" class="switch is-success is-medium" checked="checked"
-                  [(ngModel)]="account.actif" disabled>
-                <label for="actif"></label>
+                <input type="checkbox" name="actif" class="checkbox" [(ngModel)]="account.actif" disabled>
               </div>
             </div>
-            <div class="columns is-vcentered">
-              <div class="column">
+            <div class="columns">
+              <div class=" column">
                 <label class="label">Compte Courant</label>
               </div>
               <div class="column">
-                <input id="compteCourant" type="checkbox" name="actif" class="switch is-success is-medium"
-                  checked="checked" [(ngModel)]="account.compteCourant" disabled>
-                <label for="compteCourant"></label>
+                <input type="checkbox" name="actif" checked="checked" [(ngModel)]="account.compteCourant" disabled>
               </div>
             </div>
-            <div class="columns is-vcentered">
+            <div class="columns">
               <div class="column">
                 <label class="label">Épinglé</label>
               </div>
               <div class="column">
-                <input id="epingle" type="checkbox" name="actif" class="switch is-success is-medium" checked="checked"
-                  [(ngModel)]="account.epingle" disabled>
-                <label for="epingle"></label>
+                <input type="checkbox" name="actif" checked="checked" [(ngModel)]="account.epingle" disabled>
               </div>
             </div>
             <div class="columns is-vcentered">
@@ -53,7 +47,7 @@
                 <label class="label">Type</label>
               </div>
               <div class="column">
-                {{ account.accountType.name }}
+                {{ account.accountType }}
               </div>
             </div>
             <div class="columns is-vcentered">

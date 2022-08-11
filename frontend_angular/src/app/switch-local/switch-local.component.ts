@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AbstractPort, ModelSwitch, Port, PortService, SwitchService } from '../api';
+import { AbstractPort, AbstractSwitch, PortService, SwitchService } from '../api';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -9,11 +9,13 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./switch-local.component.css']
 })
 export class SwitchLocalComponent implements OnInit {
-  switch$: Observable<ModelSwitch>;
-  ports$: Observable<Array<Port>>;
+  switch$: Observable<AbstractSwitch>;
+  ports$: Observable<Array<AbstractPort>>;
 
-  constructor(public switchService: SwitchService, public portService: PortService) {
-  }
+  constructor(
+    private switchService: SwitchService,
+    private portService: PortService
+  ) { }
 
   ngOnInit() {
     this.switch$ = this.switchService.switchGet(undefined, undefined, 'Switch Local', {}).pipe(

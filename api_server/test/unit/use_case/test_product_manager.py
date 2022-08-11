@@ -1,14 +1,13 @@
 from unittest.mock import MagicMock
 
 import pytest
-from src.entity import Account, PaymentMethod, Product
-from src.exceptions import AccountNotFoundError, NotFoundError, PaymentMethodNotFoundError, ProductNotFoundError
-from src.use_case.interface.account_repository import AccountRepository
-
-from src.use_case.interface.payment_method_repository import PaymentMethodRepository
-from src.use_case.interface.product_repository import ProductRepository
-from src.use_case.interface.transaction_repository import TransactionRepository
-from src.use_case.product_manager import ProductManager
+from adh6.entity import Account, PaymentMethod, Product
+from adh6.exceptions import AccountNotFoundError, NotFoundError, PaymentMethodNotFoundError, ProductNotFoundError
+from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.treasury.interfaces.product_repository import ProductRepository
+from adh6.treasury.interfaces.transaction_repository import TransactionRepository
+from adh6.treasury.product_manager import ProductManager
 
 
 class TestBuy:

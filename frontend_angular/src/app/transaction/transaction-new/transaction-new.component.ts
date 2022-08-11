@@ -20,16 +20,14 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
   public transactionDetails: FormGroup;
-  reverting = false;
-  faExchangeAlt = faExchangeAlt;
-  faClock = faClock;
+  public reverting = false;
   actions = [
     { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
     { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'is-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
     { name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'is-success', buttonIcon: faCheck, condition: (transaction: Transaction) => transaction.pendingValidation },
     { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
-  paymentMethods: Array<PaymentMethod>;
+  public paymentMethods: Array<PaymentMethod> = [];
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
   private alive = true;
 
@@ -40,7 +38,15 @@ export class TransactionNewComponent implements OnInit {
     private notificationService: NotificationService,
     private route: ActivatedRoute
   ) {
-    this.createForm();
+    this.transactionDetails = this.fb.group({
+      name: ['', Validators.required],
+      value: ['', Validators.required],
+      srcAccount: ['', Validators.required],
+      dstAccount: ['', Validators.required],
+      paymentMethod: ['', Validators.required],
+      caisse: ['direct'],
+      pendingValidation: [false],
+    });
   }
 
   ngOnInit() {
@@ -58,20 +64,8 @@ export class TransactionNewComponent implements OnInit {
     this.transactionModal = !this.transactionModal;
   }
 
-  createForm() {
-    this.transactionDetails = this.fb.group({
-      name: ['', Validators.required],
-      value: ['', Validators.required],
-      srcAccount: ['', Validators.required],
-      dstAccount: ['', Validators.required],
-      paymentMethod: ['', Validators.required],
-      caisse: ['direct'],
-      pendingValidation: [false],
-    });
-  }
-
   get caisse(): string {
-    return this.transactionDetails.get('caisse').value as string;
+    return this.transactionDetails.get('caisse')?.value as string;
   }
 
   set caisse(value: string) {
@@ -79,7 +73,7 @@ export class TransactionNewComponent implements OnInit {
   }
 
   get srcAccount(): number {
-    return this.transactionDetails.get("srcAccount").value as number
+    return this.transactionDetails.get("srcAccount")?.value as number
   }
 
   set srcAccount(account_id: number) {
@@ -87,7 +81,7 @@ export class TransactionNewComponent implements OnInit {
   }
 
   get dstAccount(): number {
-    return this.transactionDetails.get("dstAccount").value as number
+    return this.transactionDetails.get("dstAccount")?.value as number
   }
 
   set dstAccount(account_id: number) {
@@ -96,14 +90,14 @@ export class TransactionNewComponent implements OnInit {
 
   useTransaction(event: { name: string, transaction: Transaction }) {
     if (event.name === 'validate') {
-      this.transactionService.validate(event.transaction.id)
+      this.transactionService.validate(event.transaction.id ? event.transaction.id : 0)
         .pipe(takeWhile(() => this.alive))
         .subscribe((_) => {
           this.notificationService.successNotification('Ok!', 'Transaction validée avec succès !');
           this.refreshTransactions.next({ action: 'refresh' });
         });
     } else if (event.name === 'delete') {
-      this.transactionService.transactionIdDelete(event.transaction.id)
+      this.transactionService.transactionIdDelete(event.transaction.id ? event.transaction.id : 0)
         .pipe(takeWhile(() => this.alive))
         .subscribe((_) => {
           this.notificationService.successNotification('Ok!', 'Transaction supprimée avec succès !');
@@ -113,16 +107,16 @@ export class TransactionNewComponent implements OnInit {
     this.transactionDetails.reset();
     this.transactionDetails.patchValue(event.transaction);
     if (event.name === 'revert') {
-      this.dstAccount = event.transaction.src;
-      this.srcAccount = event.transaction.dst;
+      this.dstAccount = event.transaction.src ? event.transaction.src : 0;
+      this.srcAccount = event.transaction.dst ? event.transaction.dst : 0;
       this.transactionDetails.patchValue({ 'name': 'ANNULATION: ' + event.transaction.name });
       this.reverting = true;
     } else {
-      this.dstAccount = event.transaction.dst;
-      this.srcAccount = event.transaction.src;
+      this.dstAccount = event.transaction.dst ? event.transaction.dst : 0;
+      this.srcAccount = event.transaction.src ? event.transaction.src : 0;
       this.reverting = false;
     }
-    this.transactionDetails.patchValue({ 'paymentMethod': (event.transaction.paymentMethod as PaymentMethod).id });
+    this.transactionDetails.patchValue({ 'paymentMethod': event.transaction.paymentMethod });
   }
 
   getPaymentMethodNameById(id: number) {

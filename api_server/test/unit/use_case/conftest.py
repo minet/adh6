@@ -1,8 +1,8 @@
-from src.constants import MembershipStatus
+from adh6.constants import MembershipStatus
 
 from pytest import fixture
 
-from src.entity import (
+from adh6.entity import (
     AccountType,
     Account,
     Device,
@@ -16,15 +16,16 @@ from src.entity import (
     AbstractMembership,
     Vlan
 )
-from src.use_case.decorator.security import User, Roles
-from test.auth import TESTING_CLIENT
-from src.util.context import build_context
+from adh6.authentication import Roles
+from adh6.entity.subscription_body import SubscriptionBody
+from test import TESTING_CLIENT
+from adh6.misc.context import build_context
 
 @fixture(autouse=True)
 def mock_missing_default_user(monkeypatch):
     import connexion
     """Remove the user key from DEFAULT_CONFIG"""
-    monkeypatch.setattr(connexion, "context", {}, raising=False)
+    monkeypatch.setattr(connexion, "context", {"token_info": ""}, raising=False)
 
 @fixture(autouse=True)
 def app_context(monkeypatch):
@@ -32,25 +33,25 @@ def app_context(monkeypatch):
 
 @fixture(autouse=True)
 def mock_test_configuration(monkeypatch):
-    from src.use_case.member_manager import MemberManager
+    from adh6.member.member_manager import MemberManager
     monkeypatch.setattr(MemberManager, "duration_price", {1:9, 12: 50})
     monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois', 12: '1 an'})
 
 @fixture
 def ctx(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]),
+        admin=sample_member.id,
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value, Roles.SUPERADMIN.value, Roles.TRESO.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value]
     )
 
 
 @fixture
 def ctx_only_admin(sample_member: Member):
     return build_context(
-        admin=User(login=sample_member.username, roles=[Roles.USER.value, Roles.ADMIN.value]),
+        admin=sample_member.id,
         testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN.value]
+        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value]
     )
 
 
@@ -67,7 +68,7 @@ def sample_admin(faker):
 
 
 @fixture
-def sample_member(faker, sample_room: Room):
+def sample_member(faker):
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
@@ -76,8 +77,6 @@ def sample_member(faker, sample_room: Room):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=sample_room.room_number,
     )
 
 
@@ -88,6 +87,28 @@ def sample_vlan(faker):
         number=faker.random_digit_not_null(),
         ipv4_network="157.159.41.0/24",
         ipv6_network="fe80::/64"
+    )
+
+@fixture
+def sample_subscription_empty(sample_member):
+    return SubscriptionBody(
+        member=sample_member,
+    )
+
+@fixture
+def sample_subscription_duration_no_account(sample_member):
+    return SubscriptionBody(
+        member=sample_member,
+        duration=1
+    )
+
+@fixture
+def sample_subscription_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
+    return SubscriptionBody(
+        member=sample_member,
+        duration=1,
+        account=sample_account1.id,
+        payment_method=sample_payment_method.id
     )
 
 @fixture
@@ -129,9 +150,8 @@ def sample_member_no_room(faker):
         last_name=faker.last_name(),
         departure_date=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
-        association_mode=faker.date_time_this_year(after_now=True).isoformat(),
-        room_number=None,
     )
+
 
 @fixture
 def sample_device(faker, sample_member):
@@ -241,7 +261,7 @@ def sample_account1(faker, sample_member, sample_account_type):
 @fixture
 def sample_account2(faker, sample_member, sample_account_type):
     return Account(
-        id=faker.random_digit_not_null(),
+        id=faker.random_digit_not_null() + 1024,
         name=faker.word(),
         actif=faker.random_choices(elements=(True, False)),
         creation_date=faker.date_this_year(),

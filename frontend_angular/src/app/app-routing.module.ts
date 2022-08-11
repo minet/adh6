@@ -3,8 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'portail', loadChildren: () => import('./portail/portail.module').then(m => m.PortailModule) },
-  { path: 'password/:member_id', loadChildren: () => import('./member-password-edit/member-password-edit.module').then(m => m.MemberPasswordEditModule) },
+  { path: 'password/:member_id/:creation', loadChildren: () => import('./member-password-edit/member-password-edit.module').then(m => m.MemberPasswordEditModule) },
   { path: 'product', loadChildren: () => import('./product-list/product-list.module').then(m => m.ProductListModule) },
   { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
   { path: 'account', loadChildren: () => import('./account/account.module').then(m => m.AccountModule) },
@@ -13,10 +12,10 @@ const routes: Routes = [
   { path: 'room', loadChildren: () => import('./room/room.module').then(m => m.RoomModule) },
   { path: 'transaction', loadChildren: () => import('./transaction/transaction.module').then(m => m.TransactionModule) },
   { path: 'treasury', loadChildren: () => import('./treasury/treasury.module').then(m => m.TreasuryModule) },
-  { path: 'membership', loadChildren: () => import('./membership/membership.module').then(m => m.MembershipModule) },
   { path: 'member', loadChildren: () => import('./member/member.module').then(m => m.MemberModule) },
   { path: 'device', loadChildren: () => import('./device/device.module').then(m => m.DeviceModule) },
   { path: 'switch_local', loadChildren: () => import('./switch-local/switch-local.module').then(m => m.SwitchLocalModule) },
+  { path: 'auth', loadChildren: () => import('./auth-management/auth-management.module').then(m => m.AuthManagementModule) },
   { path: '**', redirectTo: '/dashboard' },
 ];
 

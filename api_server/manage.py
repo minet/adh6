@@ -4,13 +4,15 @@ import uuid
 from datetime import date, datetime
 from typing import List
 from sqlalchemy.orm import Session
-from common import init
+from adh6.authentication import AuthenticationMethod
+from adh6.server import init
 from faker import Faker
 
 import ipaddress
-from src.constants import MembershipDuration, MembershipStatus
-from src.use_case.decorator.security import Roles
-from src.interface_adapter.sql.model.models import ApiKey, db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
+from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.authentication import Roles
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
+from adh6.storage.sql.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app
@@ -134,7 +136,7 @@ def api_key(login: str = "dev-api-key"):
     session: Session = db.session
 
     print("Generate api key")
-    api_key = (str(uuid.uuid4()), login, Roles.SUPERADMIN.value)
+    api_key = (str(uuid.uuid4()), login, Roles.ADMIN_READ.value)
     session.add(
         ApiKey(
             uuid=api_key[0],
@@ -243,6 +245,26 @@ def seed():
             chambre_id=i
         ) for i in range(1, 30)
     ])
+    print("Seeding role mapping for oidc")
+    session.bulk_save_objects(
+        [
+            AuthenticationRoleMapping(
+                identifier="adh6_admin",
+                role=i,
+                authentication=AuthenticationMethod.OIDC
+            ) for i in [Roles.ADMIN_READ, Roles.ADMIN_WRITE, Roles.NETWORK_READ, Roles.NETWORK_WRITE, Roles.ADMIN_PROD]
+        ] 
+    )
+
+    session.bulk_save_objects(
+        [
+            AuthenticationRoleMapping(
+                identifier="adh6_treso",
+                role=i,
+                authentication=AuthenticationMethod.OIDC
+            ) for i in [Roles.TRESO_READ, Roles.TRESO_WRITE]
+        ] 
+    )
 
     session.commit()
 
@@ -272,6 +294,7 @@ def fake(login):
     )
 
     session.add(adherent)
+    session.flush()
 
     account = Account(
         type=2,
@@ -279,15 +302,16 @@ def fake(login):
         actif=True,
         compte_courant=False,
         pinned=False,
-        adherent=adherent
+        adherent_id=adherent.id
     )
 
     session.add(account)
+    session.flush()
 
     membership = Membership(
         uuid=str(uuid.uuid4),
-        account=account,
-        adherent=adherent,
+        account_id=account.id,
+        adherent_id=adherent.id,
         payment_method_id=3,
         has_room=True,
         first_time=True,
@@ -299,11 +323,12 @@ def fake(login):
     )
 
     session.add(membership)
+    session.flush()
 
     session.add(Transaction(
         value=9,
         timestamp=now,
-        src_account=account,
+        src=account.id,
         dst=2,
         name="Internet - 1 an",
         attachments="",
@@ -314,7 +339,7 @@ def fake(login):
     session.add(Transaction(
         value=41,
         timestamp=now,
-        src_account=account,
+        src=account.id,
         dst=1,
         name="Internet - 1 an",
         attachments="",
@@ -327,7 +352,7 @@ def fake(login):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
-            adherent=adherent,
+            adherent_id=adherent.id,
             ipv6=None,
             type=0
         ))
@@ -335,7 +360,7 @@ def fake(login):
         session.add(Device(
             mac=fake.mac_address(),
             ip=None,
-            adherent=adherent,
+            adherent_id=adherent.id,
             ipv6=None,
             type=1
         ))

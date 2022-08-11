@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { map, share, switchMap } from 'rxjs/operators';
-import { Account, AccountService, AccountType } from '../../api';
+import { AbstractAccount, AccountService, AccountType } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 
 import { AppConstantsService } from '../../app-constants.service';
@@ -13,7 +13,7 @@ import { Location } from '@angular/common';
   styleUrls: ['./account-view.component.scss']
 })
 export class AccountViewComponent implements OnInit {
-  account$: Observable<Account>;
+  account$: Observable<AbstractAccount>;
   private id$: Observable<number>;
   accountTypes: Array<AccountType>;
 

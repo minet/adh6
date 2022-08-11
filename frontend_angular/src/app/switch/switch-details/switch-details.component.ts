@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
-import { ModelSwitch, SwitchService } from '../../api';
+import { AbstractSwitch, SwitchService } from '../../api';
 
 @Component({
   selector: 'app-switch-details',
@@ -11,10 +11,13 @@ import { ModelSwitch, SwitchService } from '../../api';
   styleUrls: ['./switch-details.component.css']
 })
 export class SwitchDetailsComponent implements OnInit {
+  switch$: Observable<AbstractSwitch>;
+  switchId: number = 0;
 
-  switch$: Observable<ModelSwitch>;
-  switchId: number;
-  constructor(public switchService: SwitchService, private route: ActivatedRoute) { }
+  constructor(
+    private switchService: SwitchService,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, first, map, switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MemberService } from '../api';
@@ -39,6 +39,7 @@ export class MemberPasswordEditComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private notificationService: NotificationService,
+    private router: Router,
     private route: ActivatedRoute,
     private memberService: MemberService,
     private location: Location
@@ -75,36 +76,29 @@ export class MemberPasswordEditComponent implements OnInit {
 
   changePassword(): void {
     md4(this.strEncodeUTF16(this.memberPassword.value.password)).then((hashedPassword) => {
-      this.getMemberId()
-        .pipe(
-          first(),
-          switchMap(member_id => this.updatePasswordOfUser(member_id, hashedPassword)),
-          finalize(() => this.disabled = false)
-        )
+      this.route.paramMap.pipe(
+        map(params => {
+          const member_id = +params.get('member_id');
+          console.log(+params.get('creation') === 1);
+          this.updatePasswordOfUser(member_id, hashedPassword, +params.get('creation') === 1)
+        }),
+        finalize(() => this.disabled = false)
+      )
         .subscribe((_) => {
-        });
+        }
+        );
     });
   }
 
-  private updatePasswordOfUser(member_id: string, hashedPasswordVar: string) {
-    return this.memberService.memberIdPasswordPut(
-      { hashedPassword: hashedPasswordVar },
-      +member_id,
-      'response')
-      .pipe(
-        first(),
-        tap((_) => {
+  private updatePasswordOfUser(member_id: number, hashedPasswordVar: string, creation: boolean) {
+    return this.memberService.memberIdPasswordPut(+member_id, { hashedPassword: hashedPasswordVar }, 'response')
+      .subscribe((_) => {
+        this.notificationService.successNotification();
+        if (!creation) {
           this.location.back();
-          this.notificationService.successNotification();
-        }),
-      );
-
-  }
-
-  private getMemberId(): Observable<string> {
-    return this.route.paramMap.pipe(
-      map(params => params.get('member_id')),
-      first(),
-    );
+        } else {
+          this.router.navigate(['/member/view', member_id])
+        }
+      })
   }
 }

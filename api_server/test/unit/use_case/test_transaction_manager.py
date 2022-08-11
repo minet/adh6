@@ -3,13 +3,13 @@ from unittest.mock import MagicMock
 from pytest import fixture, raises
 import pytest
 
-from src.entity import AbstractTransaction
-from src.entity.transaction import Transaction
-from src.exceptions import NotFoundError, TransactionNotFoundError, IntMustBePositive, UserInputError, ValidationError
-from src.use_case.cashbox_manager import CashboxManager
-from src.use_case.interface.cashbox_repository import CashboxRepository
-from src.use_case.interface.transaction_repository import TransactionRepository
-from src.use_case.transaction_manager import TransactionManager
+from adh6.entity import AbstractTransaction
+from adh6.entity.transaction import Transaction
+from adh6.exceptions import NotFoundError, TransactionNotFoundError, IntMustBePositive, UserInputError, ValidationError
+from adh6.treasury.cashbox_manager import CashboxManager
+from adh6.treasury.interfaces.cashbox_repository import CashboxRepository
+from adh6.treasury.interfaces.transaction_repository import TransactionRepository
+from adh6.treasury.transaction_manager import TransactionManager
 
 
 class TestGetByID:
@@ -61,7 +61,7 @@ class TestSearch:
             transaction_manager.search(ctx, limit=-1)
 
 
-class TestCreateOrCreate:
+class TestCreateOrUpdate:
     def test_happy_path_update(self,
                                ctx,
                                mock_transaction_repository: TransactionRepository,

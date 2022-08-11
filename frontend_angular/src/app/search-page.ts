@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, empty, merge, Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
 import { OnInit, Directive } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
@@ -11,9 +11,9 @@ export class SearchPage<T> implements OnInit {
   private httpGetter: (term: string, page: number) => Observable<HttpResponse<Array<T>>>;
   private shouldInitSearch: boolean;
   private cachedResult: Map<Number, Observable<Array<T>>> = new Map<Number, Observable<Array<T>>>();
-  public maxItems: number;
+  public maxItems: number = 1;
   public itemsPerPage: number = +PagingConf.item_count;
-  public result$: Observable<Array<T>>;
+  public result$: Observable<Array<T>> = new Observable();
 
   constructor(f: (term: string, page: number) => Observable<HttpResponse<Array<T>>>, shouldInitSearch?: boolean) {
     this.httpGetter = f;
@@ -45,11 +45,14 @@ export class SearchPage<T> implements OnInit {
               .pipe(
                 shareReplay(1),
                 map(response => {
-                  const maxItems = +response.headers.get("x-total-count");
+                  let maxItems = 0;
+                  if (response.headers && response.headers.has("x-total-count")) {
+                    maxItems = +response.headers.get("x-total-count");
+                  }
                   if (this.maxItems != maxItems) {
                     this.maxItems = maxItems;
                   }
-                  return response.body;
+                  return response.body ? response.body : [];
                 }),
               )
             )

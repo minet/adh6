@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import {first, map, share} from 'rxjs/operators';
-import {TreasuryService} from '../api';
-import {Observable} from 'rxjs';
+import { first, map, share } from 'rxjs/operators';
+import { TreasuryService } from '../api';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-treasury',
@@ -12,8 +12,8 @@ import {Observable} from 'rxjs';
   styleUrls: ['./treasury.component.css']
 })
 export class TreasuryComponent implements OnInit {
-  cashbox$: Observable<any>;
-  balance$: Observable<number>;
+  cashbox$: Observable<any> = new Observable();
+  balance$: Observable<any> = new Observable();
 
   showFundManagement = false;
   fundManagementForm: FormGroup;
@@ -22,11 +22,7 @@ export class TreasuryComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public treasuryService: TreasuryService,
-    ) {
-      this.createForm();
-  }
-
-  createForm() {
+  ) {
     this.fundManagementForm = this.fb.group({
       toCashRegister: ['', [Validators.min(0)]],
       outOfCashRegister: ['', [Validators.min(0)]],
@@ -37,24 +33,12 @@ export class TreasuryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.treasuryService.getCashbox()
-      .pipe(
-        map((data) => data.fond),
-        first(),
-      )
-      .subscribe((fond) => {
-
-      });
-
-    this.cashbox$ = this.treasuryService.getCashbox().pipe(
-      first(),
-      share()
-    );
+    this.treasuryService.getCashbox().pipe(map((data) => data.fond)).subscribe();
+    this.cashbox$ = this.treasuryService.getCashbox();
 
     this.balance$ = this.treasuryService.getBank().pipe(
       map(data =>
-        data.expectedCav
-      ),
+        data.expectedCav),
       first(),
       share()
     );

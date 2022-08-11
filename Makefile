@@ -6,7 +6,7 @@ FRONTEND_ENV_PATH = $(FRONTEND_PATH)/node_modules
 
 SWAGGER_GENERATOR_CLI = $(OPENAPI_PATH)/swagger-codegen-cli.jar
 OPENAPI_SPEC_PATH = $(OPENAPI_PATH)/spec.yaml
-BACKEND_GENERATION_ARGS = --additional-properties packageName=src --model-package entity
+BACKEND_GENERATION_ARGS = --additional-properties packageName=adh6 --model-package entity
 
 CODEGEN = java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH)
 
@@ -49,7 +49,7 @@ clean-frontend:
 .PHONY: dev-environment
 dev-environment: $(BACKEND_ENV_PATH) $(FRONTEND_ENV_PATH)
 
-$(BACKEND_ENV_PATH): $(BACKEND_PATH)/requirements.txt
+$(BACKEND_VENV_PATH): $(BACKEND_PATH)/requirements.txt
 	python3 -m venv $(BACKEND_VENV_PATH)
 	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install --ignore-pipfile -r requirements.txt
 
@@ -58,20 +58,24 @@ $(FRONTEND_ENV_PATH): $(FRONTEND_PATH)/package.json
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
-generate: $(BACKEND_PATH)/src/entity/*.py $(BACKEND_PATH)/openapi/swagger.yaml $(FRONTEND_PATH)/src/app/api $(FRONTEND_PATH)/src/assets/*.min.svg
+generate: $(BACKEND_PATH)/adh6/entity/*.py $(BACKEND_PATH)/openapi/swagger.yaml $(FRONTEND_PATH)/src/app/api $(FRONTEND_PATH)/src/assets/*.min.svg
 
 $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
 
-$(BACKEND_PATH)/src/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
-	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l python -t $(BACKEND_GENERATOR_PATH) -o tmpsrc $(BACKEND_GENERATION_ARGS)
-	cp -r tmpsrc/src/entity/* $(BACKEND_PATH)/src/entity/
+$(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
+	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/
+	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/
+	sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
 	rm -rf tmpsrc
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 	rm -rf "$(FRONTEND_PATH)/src/app/api"
-	java -jar $(SWAGGER_GENERATOR_CLI) generate -i $(OPENAPI_SPEC_PATH) -l typescript-angular -o "$(FRONTEND_PATH)/src/app/api" -t "$(FRONTEND_GENERATOR_PATH)"
-	sed -i 's/: ModuleWithProviders/: ModuleWithProviders<ApiModule>/g' "$(FRONTEND_PATH)/src/app/api/api.module.ts"
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
+	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
+	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 
 $(FRONTEND_PATH)/src/assets/*.min.svg: $(FRONTEND_PATH)/src/assets/*.svg
 	docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH)/src/assets:/app node:18-alpine /bin/sh -c "yarn global add svgo && /home/node/.yarn/bin/svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg"
