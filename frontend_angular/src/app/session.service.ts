@@ -15,7 +15,6 @@ export class SessionService {
     private oauthService: OAuthService,
     private configurationAPI: Configuration,
     private ability: Ability,
-    private router: Router,
     private miscService: MiscService
   ) { }
 

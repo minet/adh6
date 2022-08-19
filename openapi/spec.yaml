@@ -539,7 +539,7 @@ paths:
         description: The member to create
         required: true
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:

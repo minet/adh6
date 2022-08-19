@@ -1,8 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { Member } from '../api';
-import { LOCALE_ID, Inject } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { ListComponent } from '../member-device/list/list.component';
+import { Observable } from 'rxjs';
 import { SessionService } from '../session.service';
 
 @Component({
@@ -10,25 +8,13 @@ import { SessionService } from '../session.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  @ViewChild(ListComponent) wiredList: ListComponent;
-  @ViewChild(ListComponent) wirelessList: ListComponent;
-
-  date = new Date();
-  isDepartureDateFuture = false;
-  member$: Observable<Member>;
-  currentTab = "device";
+export class DashboardComponent {
+  public member$: Observable<Member>;
+  public currentTab = "device";
 
   constructor(
-    private sessionService: SessionService,
-    @Inject(LOCALE_ID) public locale: string
-  ) { }
-
-  ngOnInit() {
-    this.member$ = this.sessionService.getUser()
-      .pipe(map(member => {
-        this.isDepartureDateFuture = new Date() < new Date(member.departureDate);
-        return member;
-      }));
+    private sessionService: SessionService
+  ) {
+    this.member$ = this.sessionService.getUser();
   }
 }

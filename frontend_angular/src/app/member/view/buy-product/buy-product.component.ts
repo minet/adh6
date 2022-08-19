@@ -75,7 +75,7 @@ export class BuyProductComponent implements OnInit {
         this.notificationService.successNotification("Produits achetés");
         this.resetProducts();
       }
-    );
+    ).unsubscribe();
   }
 
   public updateAmount() {

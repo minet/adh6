@@ -59,8 +59,7 @@ export class RoomDetailsComponent implements OnInit, OnDestroy {
   refreshInfo() {
     this.room$ = this.roomService.roomIdGet(this.room_id)
       .pipe(map(room => {
-        this.room_number = room.roomNumber;
-        this.members$ = this.memberService.memberGet(undefined, undefined, undefined, <AbstractMember>{ roomNumber: this.room_number });
+        this.members$ = this.roomMemberService.roomIdMemberGet(this.room_id);
         return room;
       }));
     this.ports$ = this.portService.portGet(undefined, undefined, undefined, <AbstractPort>{ room: this.room_id });

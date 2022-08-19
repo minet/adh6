@@ -20,7 +20,7 @@ export class SearchPage<T> implements OnInit {
     this.shouldInitSearch = (shouldInitSearch != undefined) ? shouldInitSearch : true;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.changePage(1);
     if (this.shouldInitSearch) {
       this.getSearchResult();

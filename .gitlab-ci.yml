@@ -66,7 +66,7 @@ semgrep:
 ################################
 generation:backend_entity:
   stage: generation
-  image: openapitools/openapi-generator-cli
+  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
   script:
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
     - ls
@@ -84,7 +84,7 @@ generation:backend_entity:
 
 generation:frontend_module:
   stage: generation
-  image: openapitools/openapi-generator-cli
+  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
   script:
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g typescript-angular -o "frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
     - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
@@ -96,7 +96,7 @@ generation:frontend_module:
 
 generation:frontend_assets:
   stage: generation
-  image: node:16-alpine
+  image: node:18-alpine
   script:
     - yarn global add svgo
     - cd frontend_angular/src/assets

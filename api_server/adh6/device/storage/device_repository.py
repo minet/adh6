@@ -13,7 +13,6 @@ from sqlalchemy.sql.selectable import Select
 from adh6.constants import CTX_SQL_SESSION
 from adh6.entity import AbstractDevice, Device, DeviceFilter
 from adh6.entity.device_body import DeviceBody
-from adh6.exceptions import DeviceNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.storage.sql.models import Device as SQLDevice, Adherent
 from adh6.storage.sql.track_modifications import track_modifications
@@ -30,12 +29,12 @@ class DeviceSQLRepository(DeviceRepository):
     def get_by_id(self, ctx, object_id: int) -> Union[Device, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
-        return _map_device_sql_to_entity(obj)
+        return _map_device_sql_to_entity(obj) if obj else None
 
     def get_by_mac(self, ctx, mac: str) -> Union[Device, None]:
         session: Session = ctx.get(CTX_SQL_SESSION)
         obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
-        return _map_device_sql_to_entity(obj)
+        return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
     def search_by(self, ctx, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
@@ -130,12 +129,10 @@ def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, overri
     return device
 
 
-def _map_device_sql_to_entity(d: Union[SQLDevice, None]) -> Union[Device, None]:
+def _map_device_sql_to_entity(d: SQLDevice) -> Device:
     """
     Map a Device object from SQLAlchemy to a Device (from the entity folder/layer).
     """
-    if not d:
-        return d
     return Device(
         id=d.id,
         mac=d.mac,

@@ -174,6 +174,7 @@ class MemberManager(CRUDManager):
                 member=created_member.id
             ),
         )
+
         return created_member
 
     @log_call

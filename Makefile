@@ -64,7 +64,7 @@ $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
 
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
-	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4 generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
 	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/
 	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/
@@ -73,7 +73,7 @@ $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/s
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 	rm -rf "$(FRONTEND_PATH)/src/app/api"
-	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4 generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
 	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
 	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 

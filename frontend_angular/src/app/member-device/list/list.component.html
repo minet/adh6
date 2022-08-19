@@ -1,10 +1,13 @@
-<div *ngIf="result$ | async as result">
+<div *ngIf="result$ | async as result; else loading">
   <p *ngIf="result.length === 0; else theDevices" class="title"
     i18n="device list none|Tells the user they have no registered devices">Aucun appareil enregistré</p>
-  <ng-template #theDevices>
-    <div *ngFor="let deviceId of result; let i = index">
-      <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()">
-      </app-element>
-    </div>
-  </ng-template>
+  <div #theDevices *ngFor="let deviceId of result; let i = index">
+    <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()">
+    </app-element>
+  </div>
 </div>
+<ng-template #loading>
+  <div class="notification is-info is-light has-text-centered">
+    <h4 class="title is-4">Chargement ...</h4>
+  </div>
+</ng-template>

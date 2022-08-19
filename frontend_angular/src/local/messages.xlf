@@ -86,9 +86,25 @@
         <source>Mon compte</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">14,20</context>
+          <context context-type="linenumber">14,21</context>
         </context-group>
         <note priority="1" from="description">own account</note>
+      </trans-unit>
+      <trans-unit id="adbc9e0430a6242e09df099c87d5d2a061c0d4cd" datatype="html">
+        <source> Renouveler mon abonnement </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/renewal-and-password/renewal-and-password.component.html</context>
+          <context context-type="linenumber">3,7</context>
+        </context-group>
+        <note priority="1" from="description">renew</note>
+      </trans-unit>
+      <trans-unit id="7f68457aa8952a851fdb45824e100863ba230763" datatype="html">
+        <source> Changer le mot de passe </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/renewal-and-password/renewal-and-password.component.html</context>
+          <context context-type="linenumber">6,9</context>
+        </context-group>
+        <note priority="1" from="description">password change</note>
       </trans-unit>
       <trans-unit id="1904c7e3b39f9c83ce2292017235e7329517ea03" datatype="html">
         <source>
@@ -99,8 +115,8 @@
       &lt;" />
         </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
+          <context context-type="linenumber">10</context>
         </context-group>
         <note priority="1" from="description">Describes until when a subscription is active</note>
         <note priority="1" from="meaning">dashboard active subscription</note>
@@ -113,122 +129,46 @@
           <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;&lt;/h4&gt;" />
         </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">26</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
+          <context context-type="linenumber">14</context>
         </context-group>
         <note priority="1" from="description">Describes when a subscription has expired</note>
         <note priority="1" from="meaning">dashboard expired subscription</note>
       </trans-unit>
-      <trans-unit id="044e32a19f7c1e9ae376fe5973a14d853755ed35" datatype="html">
-        <source> Renouveler mon abonnement </source>
+      <trans-unit id="email" datatype="html">
+        <source>Adresse mail</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">31,35</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
+          <context context-type="linenumber">25,30</context>
         </context-group>
-        <note priority="1" from="description">dashboard account renew</note>
-      </trans-unit>
-      <trans-unit id="e7e70d2142fb06b96ca33bdef08b48eab1d32506" datatype="html">
-        <source> Changer le mot de passe </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">35,42</context>
+          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
+          <context context-type="linenumber">32,38</context>
         </context-group>
-        <note priority="1" from="description">dashboard account password change</note>
       </trans-unit>
-      <trans-unit id="57663d6cb14db65a0b80fa2c26269b98cb57ad60" datatype="html">
-        <source>
-          Addresse mail :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{ member.e" />
-          <x id="INTERPOLATION" equiv-text="{{ member.email" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;
-      &lt;/p&gt;" />
-        </source>
+      <trans-unit id="a95e32683c816124329421aeb494004ef1dc0005" datatype="html">
+        <source>Votre adresse IPv4 publique est :</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">45</context>
-        </context-group>
-        <note priority="1" from="description">Shows a user their email address</note>
-        <note priority="1" from="meaning">dashboard email address</note>
-      </trans-unit>
-      <trans-unit id="682265a12562b427a3dd1622232c04a4e5389973" datatype="html">
-        <source>
-          Vous êtes incrit dans la chambre
-          <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;{{member.room" />
-          <x id="INTERPOLATION" equiv-text="{{member.room.d" />
-          <x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt;
-      &lt;/p&gt;" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">48</context>
-        </context-group>
-        <note priority="1" from="description">Shows a user the room they are in</note>
-        <note priority="1" from="meaning">dashboard room description</note>
-      </trans-unit>
-      <trans-unit id="d9ab16eea08d0c470dd4b2b806c990d78e3aeb3c" datatype="html">
-        <source>Vous n&apos;avez pas de chambre attribuée</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">51,56</context>
-        </context-group>
-        <note priority="1" from="description">Tells a user they have no room</note>
-        <note priority="1" from="meaning">dashboard no room</note>
-      </trans-unit>
-      <trans-unit id="be2cbba2d86249d5ae2ca2246f234f7082661f21" datatype="html">
-        <source>
-          Votre adresse IPv4 publique est :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{" />
-          <x id="INTERPOLATION" equiv-text="{{" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;&lt;/p&gt;" />
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">56,57</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
+          <context context-type="linenumber">30,35</context>
         </context-group>
         <note priority="1" from="description">Shows a user their public IPv4</note>
-        <note priority="1" from="meaning">dashboard public ipv4</note>
+        <note priority="1" from="meaning">wifi public ipv4</note>
       </trans-unit>
-      <trans-unit id="a741caab9f3b0505d20d743a2e426b86aed0c613" datatype="html">
-        <source>
-          Votre sous-réseau IPv4 privé est :
-          <x id="START_TAG_CODE" ctype="x-code" equiv-text="&lt;code&gt;{{ member." />
-          <x id="INTERPOLATION" equiv-text="{{ member.subne" />
-          <x id="CLOSE_TAG_CODE" ctype="x-code" equiv-text="&lt;/code&gt;&lt;/p&gt;" />
-        </source>
+      <trans-unit id="7388e3b6ac9a0f2f62871594f9d96f885f2a7635" datatype="html">
+        <source>Votre sous-réseau IPv4 privé est :</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">58,59</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
+          <context context-type="linenumber">34,43</context>
         </context-group>
         <note priority="1" from="description">Shows a user their private IPv4 subnet</note>
-        <note priority="1" from="meaning">dashboard private subnetv4</note>
-      </trans-unit>
-      <trans-unit id="fb983aa3c4971c42089bad7faadfc633c4b5d3bd" datatype="html">
-        <source>Association automatique</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">66,68</context>
-        </context-group>
-        <note priority="1" from="description">dashboard association-mode</note>
-      </trans-unit>
-      <trans-unit id="97ab018ab32a4d8c58d848944c7aacfe5cbc1040" datatype="html">
-        <source>
-          Vous êtes actuellement en mode association automatique, jusqu&apos;au
-          <x id="INTERPOLATION" equiv-text="{{member.associ" />
-          à
-          <x id="INTERPOLATION_1" equiv-text="{{member.associ" />
-          . Cela signifie que vos appareils seront ajoutés automatiquement à votre compte en cas de tentative de connexion réussie !
-        </source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">68</context>
-        </context-group>
-        <note priority="1" from="description">dashboard association-mode desc</note>
+        <note priority="1" from="meaning">wifi private subnetv4</note>
       </trans-unit>
       <trans-unit id="wired" datatype="html">
         <source>Filaire</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">82,85</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">15,18</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
@@ -238,8 +178,8 @@
       <trans-unit id="wireless" datatype="html">
         <source>Wifi</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">88,90</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">20,23</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member-device/new/new.component.html</context>
@@ -249,43 +189,60 @@
       <trans-unit id="47ec724d9d14c0f05dcd14a100dead7168203d31" datatype="html">
         <source>Un problème ?</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">94,97</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">24,28</context>
         </context-group>
         <note priority="1" from="description">Is the user encountering any issue ?</note>
         <note priority="1" from="meaning">dashboard help problem</note>
       </trans-unit>
-      <trans-unit id="705f5c152a3530c137d9c206d0047c099243acac" datatype="html">
+      <trans-unit id="511e5b55a3808748e7d08432191ff5916d98cc1c" datatype="html">
         <source>
           Avez-vous bien regardé
-          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a" />
+          <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-l" />
           les tutoriels
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;
             ?" />
           ?
         </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">96,97</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">27,28</context>
         </context-group>
         <note priority="1" from="description">Has the user taken a look at the tutorials ?</note>
-        <note priority="1" from="meaning">dashboard help tutorials</note>
+        <note priority="1" from="meaning">help tutorials</note>
       </trans-unit>
-      <trans-unit id="c5379721848895e438e4d4776a1eaf3b12e14fd0" datatype="html">
+      <trans-unit id="0119b8edf8e211c58b5b989aa60f7e38992fe8e9" datatype="html">
+        <source>//www.minet.net/fr/tutoriels.html</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">28,33</context>
+        </context-group>
+        <note priority="1" from="description">url tutorials</note>
+      </trans-unit>
+      <trans-unit id="ef7f4e5b0be841c0ce5ca65b626a01368bafb699" datatype="html">
         <source>
           Envoyez-nous
           <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-l" />
           un ticket
-          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;&lt;/li&gt;" />
+          <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;
+          &lt;/l" />
         </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">34</context>
         </context-group>
         <note priority="1" from="description">The user may send a ticket</note>
-        <note priority="1" from="meaning">dashboard help tickets</note>
+        <note priority="1" from="meaning">help tickets</note>
       </trans-unit>
-      <trans-unit id="f25c95145136deec60d4966a109407dc6dfda0d9" datatype="html">
+      <trans-unit id="cddb50bc13e6e9df1598687a568fc30d3e455fd9" datatype="html">
+        <source>//tickets.minet.net/?lang=fr</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">34,37</context>
+        </context-group>
+        <note priority="1" from="description">url tickets</note>
+      </trans-unit>
+      <trans-unit id="ce152a0e6a4a014891d5966ba47ecb4b8a520d94" datatype="html">
         <source>
           Éventuellement, passez au local pendant
           <x id="START_LINK" ctype="x-a" equiv-text="&lt;a class=&quot;alert-l" />
@@ -295,17 +252,25 @@
           !
         </source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/dashboard/dashboard.component.html</context>
-          <context context-type="linenumber">103</context>
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">37,38</context>
         </context-group>
         <note priority="1" from="description">The user may come see us directly</note>
-        <note priority="1" from="meaning">dashboard help helpdesk</note>
+        <note priority="1" from="meaning">help helpdesk</note>
+      </trans-unit>
+      <trans-unit id="05ec43fcc90682fcffedf22f3ca08edacdb1340a" datatype="html">
+        <source>//www.minet.net/fr/</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/dashboard/tabs/device.component.ts</context>
+          <context context-type="linenumber">38,46</context>
+        </context-group>
+        <note priority="1" from="description">url minet</note>
       </trans-unit>
       <trans-unit id="about" datatype="html">
         <source>À propos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">18,20</context>
+          <context context-type="linenumber">17,19</context>
         </context-group>
       </trans-unit>
       <trans-unit id="26f18f9163f9a67f7bb3e5c05b8633d0214257ae" datatype="html">
@@ -318,7 +283,7 @@
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">20,22</context>
+          <context context-type="linenumber">19,21</context>
         </context-group>
         <note priority="1" from="description"> tell the history of the application</note>
         <note priority="1" from="meaning">about </note>
@@ -327,21 +292,21 @@
         <source>Nous contacter</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">27,29</context>
+          <context context-type="linenumber">26,28</context>
         </context-group>
       </trans-unit>
       <trans-unit id="opening" datatype="html">
         <source>Permanences</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">28,32</context>
+          <context context-type="linenumber">27,31</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7d8069c6fe095b7a07ab9240ab5c7dd0ee5f8e36" datatype="html">
         <source>du Lundi au Jeudi : de 18h à 19h30</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">29,35</context>
+          <context context-type="linenumber">28,34</context>
         </context-group>
         <note priority="1" from="description"> describe the opening hours</note>
         <note priority="1" from="meaning">opening hours </note>
@@ -350,14 +315,7 @@
         <source>ticket</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">32,39</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="email" datatype="html">
-        <source>mail</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/footer/footer.component.html</context>
-          <context context-type="linenumber">33,39</context>
+          <context context-type="linenumber">31,38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="mailinglist" datatype="html">
@@ -367,62 +325,56 @@
           <context context-type="linenumber">1,5</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="5e42b343328800aa53b2187ae977e281b17eeb5e" datatype="html">
+      <trans-unit id="5c1525cb501267f6c6b659d514d83444a4ae7ca8" datatype="html">
         <source>
-          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="ilHosting&quot; i18n=" />
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="&quot;mailinglist hos" />
           MiNET :
-          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Problèm" />
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
+    Pro" />
           Problèmes techniques et informations sur l&apos;association
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
-          <context context-type="linenumber">6,12</context>
+          <context context-type="linenumber">7,14</context>
         </context-group>
         <note priority="1" from="description"> Describe MiNET mailing list</note>
         <note priority="1" from="meaning">mailinglist MiNET </note>
       </trans-unit>
-      <trans-unit id="96739f24686e7e3f7f942afd8047bca9fc663158" datatype="html">
+      <trans-unit id="47001b818fd859e2f3fb6f2e128894c54ba78ffc" datatype="html">
         <source>
-          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="eur&quot; i18n=&quot;mailin" />
+          <x id="START_TAG_STRONG" ctype="x-strong" equiv-text="nglist routeur |" />
           Hosting :
           <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
-    Prob" />
-          Problèmes techniques et informations complémentaires sur l&apos;hébergement
+    Pour" />
+          Pour les utilisateurs de hosting, concernant les problèmes techniques et informations complémentaires sur l&apos;hébergement
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
-          <context context-type="linenumber">12,19</context>
+          <context context-type="linenumber">15,23</context>
         </context-group>
         <note priority="1" from="description"> Describe hosting mailing list</note>
         <note priority="1" from="meaning">mailinglist hosting </note>
       </trans-unit>
-      <trans-unit id="a63e5b1ad29bdfba460fa4cd5e8bb724065cb6fd" datatype="html">
+      <trans-unit id="95c98b2f5832edfed99093c2968561dde850f99f" datatype="html">
         <source>
           <x id="START_TAG_STRONG" ctype="x-strong" />
           Mini-routeurs :
-          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt; Informat" />
-          Information et mise à jour technique des mini-routeurs
+          <x id="CLOSE_TAG_STRONG" ctype="x-strong" equiv-text="&lt;/strong&gt;
+    Pour" />
+          Pour les utilisateurs des minirouteurs, informations et mise à jour technique des mini-routeurs
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mailinglist/mailinglist.component.html</context>
-          <context context-type="linenumber">19,23</context>
+          <context context-type="linenumber">24,28</context>
         </context-group>
         <note priority="1" from="description"> Describe &apos;mini-routeur&apos; mailing list</note>
         <note priority="1" from="meaning">mailinglist routeur </note>
-      </trans-unit>
-      <trans-unit id="bb844c5477a4ee72992caa8e41c12cde1c017c93" datatype="html">
-        <source>Fabricant</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/member-device/list/element/element.component.html</context>
-          <context context-type="linenumber">43,49</context>
-        </context-group>
-        <note priority="1" from="description">device list manufacturer</note>
       </trans-unit>
       <trans-unit id="2525e831872a53492e823d4474ac79ae21cb631e" datatype="html">
         <source>Aucun appareil enregistré</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member-device/list/list.component.html</context>
-          <context context-type="linenumber">3,6</context>
+          <context context-type="linenumber">3,9</context>
         </context-group>
         <note priority="1" from="description">Tells the user they have no registered devices</note>
         <note priority="1" from="meaning">device list none</note>
@@ -494,47 +446,47 @@
         <source> Langue </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
-          <context context-type="linenumber">57,61</context>
+          <context context-type="linenumber">10,14</context>
         </context-group>
       </trans-unit>
       <trans-unit id="disconnect" datatype="html">
         <source>Déconnexion</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
-          <context context-type="linenumber">67,73</context>
+          <context context-type="linenumber">20,25</context>
         </context-group>
       </trans-unit>
       <trans-unit id="0b94bc7cd361daeb64254091241b75dc19429759" datatype="html">
         <source>À propos de ce site</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">8,11</context>
+          <context context-type="linenumber">7,10</context>
         </context-group>
         <note priority="1" from="description">portail about</note>
       </trans-unit>
-      <trans-unit id="d68704e16fb473e2a11e14df62c6f4c74655c081" datatype="html">
+      <trans-unit id="019773e6459a18d810ed91be96c4ffee5f99ceb7" datatype="html">
         <source>
           Vous êtes sur
           <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//githu" />
           ADH6
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;, la toute no" />
           , la toute nouvelle plateforme de gestion de MiNET. Cette application est en version
-          <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;beta&lt;/b&gt; et il" />
+          <x id="START_BOLD_TEXT" ctype="x-b" equiv-text="&lt;b&gt;beta&lt;/b&gt; et i" />
           beta
-          <x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt; et il est don" />
+          <x id="CLOSE_BOLD_TEXT" ctype="x-b" equiv-text="&lt;/b&gt; et il est do" />
           et il est donc possible que vous rencontriez des dysfonctionnements.
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">10</context>
+          <context context-type="linenumber">9</context>
         </context-group>
         <note priority="1" from="description">portail about desc</note>
       </trans-unit>
-      <trans-unit id="5793c16683951488360ae12fcfec2044b2f16ba1" datatype="html">
+      <trans-unit id="de05e987481048e0eebb2ca7ec31c79e40019bdc" datatype="html">
         <source> Si vous rencontrez le moindre problème lié à cette nouvelle interface, ou si vous avez des remarques à faire concernant la lisibilité, l&apos;accessibilité ou autre chose, n&apos;hésitez pas à nous le signaler ! </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">14,22</context>
+          <context context-type="linenumber">13,22</context>
         </context-group>
         <note priority="1" from="description">portail about contact</note>
       </trans-unit>
@@ -542,23 +494,23 @@
         <source>Gérer mon compte MiNET</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">21,25</context>
+          <context context-type="linenumber">20,24</context>
         </context-group>
         <note priority="1" from="description">portail manage account</note>
       </trans-unit>
-      <trans-unit id="122a6252e94e1b1546bab7238255fb1fbe067d6b" datatype="html">
+      <trans-unit id="1b7e83b86b33a2bfe4bbe36ded4e3dfef046e634" datatype="html">
         <source> Pour voir l&apos;état de votre cotisation et ajouter ou supprimer des appareils, connectez-vous à votre compte MiNET. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">24,31</context>
+          <context context-type="linenumber">23,32</context>
         </context-group>
         <note priority="1" from="description">portail manage account desc</note>
       </trans-unit>
-      <trans-unit id="ba8d35c460d5225ef0ad5f130fce8e27d1686a63" datatype="html">
+      <trans-unit id="5073afa97c54a5374a60c907933de3807f223870" datatype="html">
         <source> Se connecter </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">29,35</context>
+          <context context-type="linenumber">28,34</context>
         </context-group>
         <note priority="1" from="description">portail connection</note>
       </trans-unit>
@@ -566,45 +518,45 @@
         <source>Créer mon compte MiNET</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">35,39</context>
+          <context context-type="linenumber">34,38</context>
         </context-group>
         <note priority="1" from="description">portail create account</note>
       </trans-unit>
-      <trans-unit id="180fcb44351bf802d10806bb9cf44379295bcbb2" datatype="html">
+      <trans-unit id="65282a1fad202a20d9d5586b51cd2dad738d475f" datatype="html">
         <source> Afin de naviguer sur Internet, vous devez préalablement vous inscrire à MiNET, l&apos;association étudiante qui gère le réseau interne des 800 chambres et studios du campus. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">38,46</context>
+          <context context-type="linenumber">37,46</context>
         </context-group>
         <note priority="1" from="description">portail create account desc</note>
       </trans-unit>
-      <trans-unit id="5b43d5afa9846dd2cfb94c5703dcf249f824ca69" datatype="html">
+      <trans-unit id="b9332c39a7c19fed5de4a3bcc15e07e603e68482" datatype="html">
         <source> Pour créer votre compte, vous pouvez : </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">44,49</context>
+          <context context-type="linenumber">43,48</context>
         </context-group>
         <note priority="1" from="description">portail create account options</note>
       </trans-unit>
-      <trans-unit id="2d9c344f0e573d2885ffdf296bfa901781c66651" datatype="html">
+      <trans-unit id="5fe5db090e191526406584f02ff594c6f127cb7c" datatype="html">
         <source>
           Utiliser
           <x id="START_LINK" ctype="x-a" equiv-text="&lt;a href=&quot;//paymen" />
           le système en ligne
           <x id="CLOSE_LINK" ctype="x-a" equiv-text="&lt;/a&gt;
-            &lt;" />
+          &lt;/l" />
         </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">49</context>
+          <context context-type="linenumber">48</context>
         </context-group>
         <note priority="1" from="description">portail create account online</note>
       </trans-unit>
-      <trans-unit id="b09a3bb4912a91888e30f1b1e951ddce039c8c11" datatype="html">
+      <trans-unit id="0187b6193f8566710cf6710567abe3b99e20b379" datatype="html">
         <source> Venir directement au local MiNET dans le Foyer associatif </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/portail/portail.component.html</context>
-          <context context-type="linenumber">52,60</context>
+          <context context-type="linenumber">51,58</context>
         </context-group>
         <note priority="1" from="description">portail create account physical</note>
       </trans-unit>
