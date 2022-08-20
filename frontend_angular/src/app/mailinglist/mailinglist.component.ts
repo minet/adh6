@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { AbstractMember, MemberService } from '../api';
+import { MailinglistService } from '../api';
 import { NotificationService } from '../notification.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class MailinglistComponent implements OnInit {
   public mailRouteur: boolean = false;
 
   constructor(
-    private memberService: MemberService,
+    private mailinglistService: MailinglistService,
     private notificationService: NotificationService
   ) { }
 
@@ -32,7 +32,7 @@ export class MailinglistComponent implements OnInit {
     const newValue = 248 + 4 * (+this.mailRouteur) + 2 * (+this.mailHosting) + 1 * (+this.mailMiNET);
     console.log(newValue);
     console.log(this.mailinglistValue)
-    this.memberService.memberIdPatch(this.memberId, <AbstractMember>{ mailinglist: newValue })
+    this.mailinglistService.mailinglistMemberIdPut(this.memberId, { value: newValue })
       .subscribe(
         () => {
           this.udpatedMailinglistValue.emit(newValue);

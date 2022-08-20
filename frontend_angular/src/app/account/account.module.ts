@@ -5,7 +5,6 @@ import { AccountViewComponent } from './account-view/account-view.component';
 import { AccountEditComponent } from './account-edit/account-edit.component';
 import { AccountListComponent } from './account-list/account-list.component';
 import { AccountCreateComponent } from './account-create/account-create.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TransactionListModule } from '../transaction-list/transaction-list.module';
 import { PaginationModule } from '../pagination/pagination.module';
@@ -23,7 +22,6 @@ import { PaginationModule } from '../pagination/pagination.module';
     TransactionListModule,
     FormsModule,
     ReactiveFormsModule,
-    FontAwesomeModule,
     RouterModule.forChild([
       { path: '', redirectTo: 'search', pathMatch: 'full' },
       { path: 'search', component: AccountListComponent },

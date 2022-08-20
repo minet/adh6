@@ -22,7 +22,7 @@ import { Member } from '../../api';
     <div class="box has-text-centered">
       <hr>
       <p>
-        <span i18n="@@email">Adresse mail</span> : <code>{{ member.email }}</code>
+        <span i18n="@@email">mail</span> : <code>{{ member.email }}</code>
       </p>
       <ng-container *ngIf="member.ip !== null && member.subnet !== null">
         <hr>

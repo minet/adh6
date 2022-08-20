@@ -35,7 +35,6 @@ export class SessionService {
     this.oauthService.events
       .pipe(filter(e => e.type === 'token_received'))
       .subscribe(e => {
-        console.log(e);
         this.refreshResponse(e["access_token"]);
       });
   }

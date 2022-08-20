@@ -142,7 +142,6 @@ export class ViewComponent implements OnInit {
       .subscribe(memberId => {
         this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: +v.roomNumber })
           .subscribe(rooms => {
-            console.log(rooms)
             if (rooms.length == 0) {
               this.notificationService.errorNotification(
                 404,

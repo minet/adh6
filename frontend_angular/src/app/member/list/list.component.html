@@ -27,7 +27,7 @@
             <td>{{ member.username }}</td>
             <td class="roomNumberRow">
               <p>
-                {{ member.roomNumber || "Aucune" }}
+                {{ (getRoomNumber(member.id) | async) || "Aucune" }}
               </p>
             </td>
           </tr>

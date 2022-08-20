@@ -190,8 +190,8 @@
         <note priority="1" from="meaning">dashboard expired subscription</note>
       </trans-unit>
       <trans-unit id="email" datatype="html">
-        <source>Adresse mail</source>
-        <target>Email</target>
+        <source>mail</source>
+        <target>email</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/dashboard/tabs/account.component.ts</context>
           <context context-type="linenumber">25,30</context>
@@ -489,6 +489,14 @@
         </context-group>
         <note priority="1" from="description"> Describe &apos;mini-routeur&apos; mailing list</note>
         <note priority="1" from="meaning">mailinglist routeur </note>
+      </trans-unit>
+      <trans-unit id="loading" datatype="html">
+        <source>Chargement</source>
+        <target>Loading</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member-device/list/element/element.component.html</context>
+          <context context-type="linenumber">63,65</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="2525e831872a53492e823d4474ac79ae21cb631e" datatype="html">
         <source>Aucun appareil enregistré</source>

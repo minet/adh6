@@ -119,12 +119,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitVLAN(vlan: number) {
-    console.log(vlan)
-  }
-
   IfRoomExists(roomNumber: Room) {
-    console.log(roomNumber);
     if (roomNumber == null) {
       this.notificationService.errorNotification(
         404,
