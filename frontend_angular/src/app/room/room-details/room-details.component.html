@@ -3,7 +3,7 @@
     <div class="column is-one-quarter box">
       <h4 class="title is-4 has-text-centered">Informations</h4>
       <p><strong>Chambre : </strong>{{ room.roomNumber }}</p>
-      <p><strong>VLAN assigné : </strong>{{ room.vlan.number }}</p>
+      <p><strong>VLAN assigné : </strong>{{ room.vlan }}</p>
       <br />
       <div class="field is-grouped is-grouped-centered">
         <div class="control">
@@ -12,7 +12,7 @@
           </a>
         </div>
         <div class="control">
-          <button class="button is-danger" (click)="onDelete()" disabled>Supprimer</button>
+          <button class="button is-danger" disabled>Supprimer</button>
         </div>
       </div>
       <hr />
@@ -49,58 +49,59 @@
         </div>
       </div>
       <div class="box">
-        <ng-container *ngIf="members$ | async as members">
-          <ng-container *ngFor="let member of members">
-            <div class="columns is-vcentered">
-              <div class="column is-one-fifth">
-                <strong>{{ member.firstName }} {{ member.lastName }}</strong>
-              </div>
-              <div class="column">
-                <div class="field is-grouped is-grouped-centered">
-                  <div class="control">
-                    <a [routerLink]="['/member/view', member.id]">
-                      <button class="button is-primary" [disabled]="enabled">
-                        Consulter le profil
+        <ng-container *ngIf="memberIds$ | async as memberIds">
+          <ng-container *ngFor="let memberId of memberIds">
+            <ng-container *ngIf="getMemberUsername(memberId) | async as member">
+              <div class="columns is-vcentered">
+                <div class="column is-one-fifth">
+                  <strong>{{ member.firstName }} {{ member.lastName }}</strong>
+                </div>
+                <div class="column">
+                  <div class="field is-grouped is-grouped-centered">
+                    <div class="control">
+                      <a [routerLink]="['/member/view', memberId]">
+                        <button class="button is-primary" [disabled]="enabled">
+                          Consulter le profil
+                        </button>
+                      </a>
+                    </div>
+                    <div class="control">
+                      <button class="button is-primary" (click)="onDemenager(memberId)" [disabled]="enabled">
+                        Déménager
                       </button>
-                    </a>
-                  </div>
-                  <div class="control">
-                    <button class="button is-primary" (click)="onDemenager(member.username)" [disabled]="enabled">
-                      Déménager
-                    </button>
-                  </div>
-                  <div class="control">
-                    <a (click)="onRemoveFromRoom(member.username)">
-                      <button class="button is-danger" [disabled]="enabled">
-                        Supprimer de la chambre
-                      </button>
-                    </a>
+                    </div>
+                    <div class="control">
+                      <a (click)="onRemoveFromRoom(memberId)">
+                        <button class="button is-danger" [disabled]="enabled">
+                          Supprimer de la chambre
+                        </button>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div *ngIf="isDemenager">
-              <div *ngIf="ref === member.username">
+              <div *ngIf="isDemenager">
+                <div *ngIf="ref === memberId">
+                  <hr>
+                  <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(memberId)" novalidate>
+                    <div class="field has-addons has-addons-fullwidth">
+                      <div class="control">
+                        <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
+                          placeholder="Nouveau numéro de chambre" />
+                      </div>
+                      <div class="control">
+                        <button type="submit" class="button is-primary" [disabled]="roomForm.status === 'INVALID'">
+                          Valider
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
                 <hr>
-                <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(member.username)" novalidate>
-                  <div class="field has-addons has-addons-fullwidth">
-                    <div class="control">
-                      <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
-                        placeholder="Nouveau numéro de chambre" />
-                    </div>
-                    <div class="control">
-                      <button type="submit" class="button is-primary"
-                        [disabled]="disabled || roomForm.status === 'INVALID'">
-                        Valider
-                      </button>
-                    </div>
-                  </div>
-                </form>
               </div>
-              <hr>
-            </div>
+            </ng-container>
           </ng-container>
-          <ng-container *ngIf="members.length === 0">
+          <ng-container *ngIf="memberIds.length === 0">
             <h6 class="title is-6 has-text-centered">Aucun adhérent dans la chambre</h6>
           </ng-container>
         </ng-container>

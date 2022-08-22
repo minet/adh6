@@ -213,7 +213,7 @@ def sample_vlan():
         id=42,
         numero=42,
         adresses="192.168.42.0/24",
-        adressesv6="fe80::0/64",
+        adressesv6="fe80:42::0/64",
     )
 
 
@@ -256,7 +256,9 @@ def sample_member_admin():
         prenom="test",
         password="",
         mail_membership=1,
-        date_de_depart=datetime.now() - timedelta(days=1)
+        date_de_depart=datetime.now() - timedelta(days=1),
+        subnet="10.42.0.16/28",
+        ip="157.159.40.1"
     )
 
 def api_key_user():
@@ -393,7 +395,7 @@ def sample_member(faker, sample_room1):
         date_de_depart=tomorrow,
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
-        subnet=faker.ipv4('c'),
+        subnet="10.42.172.16/28",
         mail_membership=249
     )
 

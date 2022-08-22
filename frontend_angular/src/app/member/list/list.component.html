@@ -1,12 +1,22 @@
-<div class="columns">
-  <div class="column">
-    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="input is-fullwidth"
-      placeholder="Rechercher..." type="text" />
-  </div>
-  <div class="column is-narrow">
-    <a [routerLink]="['../add']">
-      <button class="button is-primary">Nouvelle inscription</button>
-    </a>
+<div class="field is-horizontal">
+  <div class="field-body">
+    <div class="field is-grouped">
+      <p class="control is-expanded">
+        <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="input is-fullwidth"
+          placeholder="Rechercher..." type="text" />
+      </p>
+      <p class="control">
+        <select class="input" (change)="updateSubscriptionFilter($event.target.value)">
+          <option value="">-- Toutes inscriptions --</option>
+          <option *ngFor="let v of subscriptionValues | keyvalue" value="{{v.value}}">{{v.key}}</option>
+        </select>
+      </p>
+      <p class="control">
+        <a [routerLink]="['../add']">
+          <button class="button is-primary">Nouvelle inscription</button>
+        </a>
+      </p>
+    </div>
   </div>
 </div>
 <ng-container *ngIf="result$ | async as result; else loadingTable">
@@ -27,7 +37,7 @@
             <td>{{ member.username }}</td>
             <td class="roomNumberRow">
               <p>
-                {{ member.roomNumber || "Aucune" }}
+                {{ (getRoomNumber(member.id) | async) || "Aucune" }}
               </p>
             </td>
           </tr>

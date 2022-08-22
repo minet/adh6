@@ -1,15 +1,13 @@
 # coding=utf-8 import datetime import datetime import datetime
-from unittest import mock
 from unittest.mock import MagicMock
 
 from pytest import fixture, raises, mark
 
 from adh6.entity import AbstractDevice
-from adh6.entity.device import Device
 from adh6.entity.device_body import DeviceBody
 from adh6.entity.member import Member
 from adh6.entity.room import Room
-from adh6.exceptions import InvalidMACAddress, InvalidIPv6, InvalidIPv4, MemberNotFoundError
+from adh6.exceptions import InvalidMACAddress, MemberNotFoundError
 from adh6.device.device_manager import DeviceManager
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
@@ -19,22 +17,19 @@ from adh6.subnet.interfaces.vlan_repository import VlanRepository
 
 
 @fixture
-def mock_device_repository():
-    return MagicMock(spec=DeviceRepository)
-
-
-@fixture
 def device_manager(
         mock_ip_allocator: IpAllocator,
         mock_device_repository: DeviceRepository,
         mock_vlan_repository: VlanRepository,
-        mock_member_repository: MemberRepository
+        mock_member_repository: MemberRepository,
+        mock_room_repository: RoomRepository
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
         ip_allocator=mock_ip_allocator,
         vlan_repository=mock_vlan_repository,
-        member_repository=mock_member_repository
+        member_repository=mock_member_repository,
+        room_repository=mock_room_repository
     )
 
 
@@ -116,3 +111,8 @@ def mock_member_repository():
 @fixture
 def mock_room_repository():
     return MagicMock(spec=RoomRepository)
+
+
+@fixture
+def mock_device_repository():
+    return MagicMock(spec=DeviceRepository)

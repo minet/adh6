@@ -4,7 +4,6 @@ import { SearchPage } from '../../search-page';
 import { AbstractAccount } from '../../api/model/abstractAccount';
 import { AppConstantsService } from '../../app-constants.service';
 
-import { faThumbtack, faBan } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
 import { map, Observable, shareReplay } from 'rxjs';
 
@@ -14,8 +13,6 @@ import { map, Observable, shareReplay } from 'rxjs';
   styleUrls: ['./account-list.component.css']
 })
 export class AccountListComponent extends SearchPage<AbstractAccount> implements OnInit {
-  faThumbtack = faThumbtack;
-  faBan = faBan;
   accountTypes: Array<AccountType>;
   @Input() abstractAccountFilter: AbstractAccount = {};
   cachedAccountType: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();
@@ -47,28 +44,23 @@ export class AccountListComponent extends SearchPage<AbstractAccount> implements
 
   updateTypeFilter(type: string) {
     if (type === '') { delete this.abstractAccountFilter.accountType; } else { this.abstractAccountFilter.accountType = Number(type); }
+    this.resetSearch()
     this.getSearchResult();
   }
 
   ngOnInit() {
-    this.route
-      .queryParams
+    this.route.queryParams
       .subscribe(params => {
         if (params['member'] !== undefined) {
           this.abstractAccountFilter.member = +params['member'];
-          this.getSearchResult();
         }
+        this.getSearchResult();
       });
-    this.getSearchResult();
     this.appConstantsService.getAccountTypes().subscribe(
       data => {
         this.accountTypes = data;
       }
     );
-  }
-
-  updateSearch() {
-    this.getSearchResult();
   }
 
   handlePageChange(page: number) {

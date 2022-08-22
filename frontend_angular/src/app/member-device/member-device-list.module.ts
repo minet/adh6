@@ -7,8 +7,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AbilityModule } from '@casl/angular';
 import { ElementComponent } from './list/element/element.component';
 
-
-
 @NgModule({
   declarations: [
     ListComponent,

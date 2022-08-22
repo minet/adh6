@@ -15,7 +15,6 @@ export class SessionService {
     private oauthService: OAuthService,
     private configurationAPI: Configuration,
     private ability: Ability,
-    private router: Router,
     private miscService: MiscService
   ) { }
 
@@ -36,7 +35,6 @@ export class SessionService {
     this.oauthService.events
       .pipe(filter(e => e.type === 'token_received'))
       .subscribe(e => {
-        console.log(e);
         this.refreshResponse(e["access_token"]);
       });
   }

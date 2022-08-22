@@ -39,7 +39,6 @@ export class PaginationComponent implements OnInit, OnChanges {
   }
 
   addPage(inc: number): void {
-    console.log(inc);
     if (!inc) {
       return
     }

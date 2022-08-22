@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { finalize, map, Observable, of, shareReplay } from 'rxjs';
 import { PortService, Room, RoomService, SwitchService, AbstractPort } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { NotificationService } from '../../notification.service';
 
@@ -12,7 +12,7 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./port-details.component.css']
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
-  vlanForm: FormGroup;
+  vlanForm: UntypedFormGroup;
   port$: Observable<AbstractPort>;
   portID: number;
   switchID: number;
@@ -42,7 +42,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private portService: PortService,
     private roomService: RoomService,
     private switchService: SwitchService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private notificationService: NotificationService
@@ -119,12 +119,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitVLAN(vlan: number) {
-    console.log(vlan)
-  }
-
   IfRoomExists(roomNumber: Room) {
-    console.log(roomNumber);
     if (roomNumber == null) {
       this.notificationService.errorNotification(
         404,

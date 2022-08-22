@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
 import { AbstractDevice, DeviceFilter, DeviceService } from '../../api';
 import { SearchPage } from '../../search-page';
@@ -8,8 +8,7 @@ import { SearchPage } from '../../search-page';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent extends SearchPage<number> implements OnInit {
-  @Input() filter: any;
+export class ListComponent extends SearchPage<number> {
   @Input() abstractDeviceFilter: AbstractDevice = {};
 
   public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
@@ -33,16 +32,11 @@ export class ListComponent extends SearchPage<number> implements OnInit {
     );
   }
 
-  ngOnInit() {
-    super.ngOnInit();
-  }
-
   updateSearch() {
     this.getSearchResult();
   }
 
   public getDevice(id: number) {
-    console.log(this.cachedDevices.has(id));
     return this.cachedDevices.get(id)
   }
 }

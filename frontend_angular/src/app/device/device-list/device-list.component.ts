@@ -58,7 +58,6 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
   }
 
   public getDevice(id: number) {
-    console.log(this.cachedDevices.has(id));
     return this.cachedDevices.get(id)
   }
 }

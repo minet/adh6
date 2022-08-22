@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { finalize, map, Observable, shareReplay } from 'rxjs';
 import { Member, PaymentMethod, Product, TreasuryService } from '../../../api';
 import { NotificationService } from '../../../notification.service';
@@ -13,13 +13,13 @@ export class BuyProductComponent implements OnInit {
   @Input() member: Member;
   @Input() paymentMethods: PaymentMethod[];
 
-  public productsForm: FormGroup;
+  public productsForm: UntypedFormGroup;
   public products$: Observable<Product[]>;
   public amountToPay: number = 0;
 
   constructor(
     private treasuryService: TreasuryService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private notificationService: NotificationService,
   ) { }
 
@@ -28,8 +28,8 @@ export class BuyProductComponent implements OnInit {
     this.resetProducts()
   }
 
-  get productsFormArray(): FormArray {
-    return this.productsForm.get('products') as FormArray
+  get productsFormArray(): UntypedFormArray {
+    return this.productsForm.get('products') as UntypedFormArray
   }
 
   private createForm(): void {
@@ -75,7 +75,7 @@ export class BuyProductComponent implements OnInit {
         this.notificationService.successNotification("Produits achetés");
         this.resetProducts();
       }
-    );
+    ).unsubscribe();
   }
 
   public updateAmount() {

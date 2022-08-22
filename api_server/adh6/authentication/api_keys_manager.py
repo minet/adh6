@@ -53,7 +53,6 @@ class ApiKeyManager:
     def delete(self, ctx, id: int):
         try:
             self.api_key_repository.get(id)
-        except Exception as e:
-            print(e)
+        except Exception:
             raise NotFoundError("ApiKey not found")
         self.api_key_repository.delete(id)

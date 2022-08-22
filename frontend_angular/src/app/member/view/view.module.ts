@@ -14,24 +14,21 @@ import { BuyComponent } from './buy/buy.component';
 
 
 @NgModule({
-  declarations: [
-    ViewComponent,
-    BuyProductComponent,
-    CotisationComponent,
-    BuyComponent,
-  ],
-  imports: [
-    ReactiveFormsModule,
-    FormsModule,
-    CommonModule,
-    RouterModule.forChild([{ path: '', component: ViewComponent }]),
-    MemberDeviceModule,
-    AutoTroubleshootModule,
-    AbilityModule,
-    MailinglistModule,
-  ],
-  entryComponents: [
-    BuyComponent
-  ]
+    declarations: [
+        ViewComponent,
+        BuyProductComponent,
+        CotisationComponent,
+        BuyComponent,
+    ],
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        CommonModule,
+        RouterModule.forChild([{ path: '', component: ViewComponent }]),
+        MemberDeviceModule,
+        AutoTroubleshootModule,
+        AbilityModule,
+        MailinglistModule,
+    ]
 })
 export class ViewModule { }

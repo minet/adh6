@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { finalize, first } from 'rxjs/operators';
 import { AbstractAccount, AccountService, AbstractMembership, MembershipService, Account, Member, AbstractMember, SubscriptionBody, PaymentMethod } from '../../../api';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { NotificationService } from '../../../notification.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class CotisationComponent {
   @Output() updateSubscription = new EventEmitter<boolean>();
 
   public amount: number;
-  public subscriptionForm: FormGroup;
+  public subscriptionForm: UntypedFormGroup;
   public cotisationDisabled: boolean = false;
   public needSignature: boolean = false;
   public needValidation: boolean = false;
@@ -29,7 +29,7 @@ export class CotisationComponent {
   constructor(
     private membershipService: MembershipService,
     private accountService: AccountService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private notificationService: NotificationService,
   ) {
     this.createForm();

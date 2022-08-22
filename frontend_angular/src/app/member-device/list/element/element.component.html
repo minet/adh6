@@ -1,65 +1,64 @@
 <div class="card">
   <a (click)="toogleDeviceDetails()">
     <header class="card-header">
-      <p class="card-header-title has-text-centered" *ngIf="vendor$ | async as vendor">
-        <strong>{{ vendor | uppercase }}</strong>
+      <p class="card-header-title">
+        <strong *ngIf="device$ | async as device; else loading">
+          {{device.mac | uppercase}} <span *ngIf="vendor$ | async as vendor">({{ vendor | uppercase}})</span>
+        </strong>
         <span style="position: absolute; right: 30px">
           {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
         </span>
       </p>
     </header>
   </a>
-  <ng-container *ngIf="!isCollapse">
-    <div class="card-content">
-      <table class="table is-fullwidth is-vcentered">
-        <tbody *ngIf="device$ | async as device">
-          <tr>
-            <td>
-              <strong>Type</strong>
-            </td>
-            <td>
-              <i>{{ device.connectionType }}</i>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>MAC</strong>
-            </td>
-            <td>
-              {{ device.mac }}
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>IPv4</strong>
-            </td>
-            <td>
-              {{ device.ipv4Address === null ? "-" : device.ipv4Address }}
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>IPv6</strong>
-            </td>
-            <td>
-              {{ device.ipv6Address === null ? "-" : device.ipv6Address }}
-            </td>
-          </tr>
-          <tr *ngIf="('manage' | able: 'Device') && device.connectionType === 'wired'">
-            <td>
-              <strong>MAB</strong>
-            </td>
-            <td>
-              {{mab$ | async}}
-              <a (click)="updateMAB()">(changer)</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <footer class="card-footer has-background-danger">
-      <a class="card-footer-item button is-danger" (click)="deviceDelete()">Delete</a>
-    </footer>
+  <ng-container *ngIf="device$ | async as device">
+    <ng-container *ngIf="!isCollapse">
+      <div class="card-content">
+        <table class="table is-fullwidth">
+          <tbody>
+            <tr>
+              <td>
+                <strong>Type</strong>
+              </td>
+              <td>
+                <i>{{ device.connectionType }}</i>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>IPv4</strong>
+              </td>
+              <td>
+                {{ device.ipv4Address === null ? "-" : device.ipv4Address }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>IPv6</strong>
+              </td>
+              <td>
+                {{ device.ipv6Address === null ? "-" : device.ipv6Address }}
+              </td>
+            </tr>
+            <tr *ngIf="('manage' | able: 'admin') && device.connectionType === 'wired'">
+              <td>
+                <strong>MAB</strong>
+              </td>
+              <td>
+                {{mab$ | async}}
+                <a (click)="updateMAB()">(changer)</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="card-footer has-background-danger">
+        <a class="card-footer-item button is-danger" (click)="deviceDelete()">Delete</a>
+      </footer>
+    </ng-container>
   </ng-container>
 </div>
 <br *ngIf="!isCollapse" />
+<ng-template #loading>
+  <strong i18n="@@loading">Chargement</strong>
+</ng-template>

@@ -307,8 +307,16 @@ def test_member_post_member_create(client):
     )
     assert 201 == res.status_code
     assert_modification_was_created(db.session())
-
     assert_member_in_db(body)
+
+    r = client.get(
+        f"{host_url}/mailinglist/member/{int(res.text)}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.data.decode('utf-8'))
+    assert response == 249
+    
 
 
 def test_member_post_member_same_login(client):

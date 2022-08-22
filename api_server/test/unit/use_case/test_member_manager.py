@@ -16,6 +16,7 @@ from adh6.device.device_manager import DeviceManager
 from adh6.device.interfaces.ip_allocator import IpAllocator
 from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.member.interfaces.logs_repository import LogsRepository
+from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.member.interfaces.membership_repository import MembershipRepository
 from adh6.member.member_manager import MemberManager
@@ -845,6 +846,7 @@ def member_manager(
         mock_logs_repository,
         mock_device_repository,
         mock_charter_repository,
+        mock_mailinglist_repository,
         device_manager,
 ):
     return MemberManager(
@@ -857,8 +859,14 @@ def member_manager(
         logs_repository=mock_logs_repository,
         device_repository=mock_device_repository,
         device_manager=device_manager,
-        charter_repository=mock_charter_repository
+        charter_repository=mock_charter_repository,
+        mailinglist_repository=mock_mailinglist_repository
     )
+
+
+@fixture
+def mock_mailinglist_repository():
+    return MagicMock(spec=MailinglistRepository)
 
 
 @fixture
@@ -933,12 +941,14 @@ def device_manager(
         mock_member_repository: MemberRepository,
         mock_ip_allocator: IpAllocator,
         mock_vlan_repository: VlanRepository,
+        mock_room_repository: RoomRepository
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
         ip_allocator=mock_ip_allocator,
         member_repository=mock_member_repository,
         vlan_repository=mock_vlan_repository,
+        room_repository=mock_room_repository
     )
 
 @fixture

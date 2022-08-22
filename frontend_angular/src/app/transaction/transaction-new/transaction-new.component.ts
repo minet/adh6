@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { map, takeWhile } from 'rxjs/operators';
 
@@ -19,7 +19,7 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
-  public transactionDetails: FormGroup;
+  public transactionDetails: UntypedFormGroup;
   public reverting = false;
   actions = [
     { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
@@ -32,7 +32,7 @@ export class TransactionNewComponent implements OnInit {
   private alive = true;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public transactionService: TransactionService,
     public appConstantService: AppConstantsService,
     private notificationService: NotificationService,

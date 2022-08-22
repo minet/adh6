@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 
@@ -16,13 +16,13 @@ import { NotificationService } from '../../notification.service';
 
 export class RoomEditComponent implements OnInit {
   public disabled = false;
-  public roomEdit: FormGroup;
+  public roomEdit: UntypedFormGroup;
   public room$: Observable<AbstractRoom>;
 
   constructor(
     private roomService: RoomService,
     private vlanService: VlanService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private notificationService: NotificationService,

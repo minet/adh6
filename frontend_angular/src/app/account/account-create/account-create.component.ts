@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { AccountService, AccountType } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -15,13 +15,13 @@ import { NotificationService } from '../../notification.service';
 export class AccountCreateComponent implements OnInit, OnDestroy {
 
   disabled = false;
-  accountForm: FormGroup;
+  accountForm: UntypedFormGroup;
   accountTypes$: Observable<Array<AccountType>>;
 
   private alive = true;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private notificationService: NotificationService,
     public accountService: AccountService,
     private router: Router,

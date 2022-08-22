@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { AbstractDevice, DeviceBody, DeviceService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
@@ -11,14 +11,14 @@ import { NotificationService } from '../../notification.service';
   styleUrls: ['./new.component.sass']
 })
 export class NewComponent {
-  deviceForm: FormGroup;
+  deviceForm: UntypedFormGroup;
   private alive = true;
 
   @Input() member_id: number;
   @Output() added: EventEmitter<AbstractDevice> = new EventEmitter();
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private deviceService: DeviceService,
     private notificationService: NotificationService,
     @Inject(LOCALE_ID) public locale: string) {

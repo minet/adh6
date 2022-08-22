@@ -14,7 +14,7 @@
     <ng-container *ngFor="let i of result">
       <ng-container *ngIf="getDevice(i) | async as device">
         <tr [routerLink]="['/member/view' , device.member]">
-          <td *ngIf=" getUsername(i) | async as username">{{ username }}</td>
+          <td>{{ (getUsername(i) | async) || "chargement..." }}</td>
           <td>{{ device.mac }}</td>
           <td>{{ device.connectionType }}</td>
         </tr>

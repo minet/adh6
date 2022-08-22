@@ -27,7 +27,7 @@ export class ElementComponent implements OnInit {
     }
     this.refreshMAB();
     this.device$ = this.deviceService.deviceIdGet(this.deviceId).pipe(shareReplay(1));
-    this.vendor$ = this.deviceService.deviceIdVendorGet(this.deviceId);
+    this.vendor$ = this.deviceService.deviceIdVendorGet(this.deviceId).pipe(shareReplay(1));
   }
 
   public deviceDelete() {
@@ -41,7 +41,7 @@ export class ElementComponent implements OnInit {
       )
       .subscribe(() => {
         this.removed.emit(this.deviceId);
-      });
+      }).unsubscribe();
   }
 
   public toogleDeviceDetails(): void {
@@ -63,7 +63,7 @@ export class ElementComponent implements OnInit {
         this.deviceService.deviceIdMabPost(this.deviceId)
           .subscribe((_) => {
             this.refreshMAB();
-          });
+          }).unsubscribe();
       }
     });
   }

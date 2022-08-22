@@ -27,9 +27,16 @@
       <li>
         Gestion réseau
         <ul>
-          <li><a [ngClass]="{'is-active': activeFromUrlPath('switch')}"
-              [routerLink]="['switch/search']">Commutateurs</a></li>
-          <li><a [ngClass]="{'is-active': activeFromUrlPath('port')}" [routerLink]="['port/search']">Ports</a>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('switch/')}" [routerLink]="['switch/search']">Commutateurs</a>
+          </li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('port')}" [routerLink]="['port/search']">Ports</a>
+          </li>
+          <li>
+            <a [ngClass]="{'is-active': activeFromUrlPath('switch_local')}" [routerLink]="['switch_local']">
+              Commutateur Local
+            </a>
           </li>
         </ul>
       </li>

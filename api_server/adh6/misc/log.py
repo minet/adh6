@@ -11,7 +11,7 @@ class JSONFormatter(logging.Formatter):
         except AttributeError:
             return msg
 
-        extra = json.dumps(record.extra)
+        extra = json.dumps(record.extra, default=str)
         return f'{msg} | {extra}'
 
 

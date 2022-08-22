@@ -55,7 +55,12 @@
               "optimization": true,
               "outputHashing": "all",
               "namedChunks": true,
-              "sourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "hidden": true,
+                "vendor": true
+              },
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -174,8 +179,10 @@
       }
     }
   },
-  "defaultProject": "adh6",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "analytics": false,
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }

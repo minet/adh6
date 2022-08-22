@@ -39,7 +39,7 @@ export class BuyComponent implements OnInit {
         "L'inscription pour cet adhérent est finie"
       );
       this.subscriptionUpdated();
-    });
+    }).unsubscribe();
   }
 
   public subscriptionUpdated() {

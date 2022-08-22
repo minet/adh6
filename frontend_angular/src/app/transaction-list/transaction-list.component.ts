@@ -2,13 +2,12 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SearchPage } from '../search-page';
 import { map, Observable, shareReplay } from 'rxjs';
 import { PaymentMethod, Transaction, TransactionService, AbstractTransaction, AccountService, MemberService } from '../api';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { AppConstantsService } from '../app-constants.service';
 
 class Action {
   name: string = "";
   buttonText: string = "";
-  buttonIcon: IconProp | undefined;
+  buttonIcon: any;
   class: string = "";
   condition: any;
 }
