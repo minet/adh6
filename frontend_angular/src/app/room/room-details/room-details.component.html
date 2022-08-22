@@ -28,26 +28,6 @@
     </div>
     <div class="column">
       <h4 class="title is-4 has-text-centered">Adhérents</h4>
-      <div class="columns is-vcentered">
-        <div class="column is-one-quarter">
-          <h4 class="title is-5">Emménagement</h4>
-        </div>
-        <div class="column">
-          <form [formGroup]="EmmenagerForm" (ngSubmit)="onSubmitComeInRoom()" novalidate>
-            <div class="field has-addons has-addons-fullwidth">
-              <p class="control">
-                <input class="input is-fullwidth" type="text" placeholder="Identifiant MiNET de l'adhérent"
-                  formControlName="username" />
-              </p>
-              <p class="control">
-                <button class="button is-primary" [disabled]="disabled || EmmenagerForm.status === 'INVALID'">
-                  Valider
-                </button>
-              </p>
-            </div>
-          </form>
-        </div>
-      </div>
       <div class="box">
         <ng-container *ngIf="memberIds$ | async as memberIds">
           <ng-container *ngFor="let memberId of memberIds">

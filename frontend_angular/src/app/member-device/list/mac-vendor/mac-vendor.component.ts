@@ -24,6 +24,6 @@ export class MacVendorComponent implements OnInit {
       )
       .subscribe((vendor) => {
         this.vendor = vendor;
-      }).unsubscribe();
+      });
   }
 }

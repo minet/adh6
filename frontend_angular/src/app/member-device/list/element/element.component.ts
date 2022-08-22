@@ -41,7 +41,7 @@ export class ElementComponent implements OnInit {
       )
       .subscribe(() => {
         this.removed.emit(this.deviceId);
-      }).unsubscribe();
+      });
   }
 
   public toogleDeviceDetails(): void {
@@ -63,7 +63,7 @@ export class ElementComponent implements OnInit {
         this.deviceService.deviceIdMabPost(this.deviceId)
           .subscribe((_) => {
             this.refreshMAB();
-          }).unsubscribe();
+          });
       }
     });
   }

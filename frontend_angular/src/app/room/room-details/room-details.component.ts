@@ -91,7 +91,7 @@ export class RoomDetailsComponent implements OnInit {
           return
         }
         const room = rooms[0];
-        this.roomMemberService.roomIdMemberAddPatch(room.roomNumber, { id: memberId })
+        this.roomMemberService.roomIdMemberAddPatch(room.id, { id: memberId })
           .subscribe((_) => {
             this.refreshInfo();
             this.onDemenager(memberId);
@@ -113,7 +113,7 @@ export class RoomDetailsComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.room_id = +params['room_id'];
       this.refreshInfo();
-    }).unsubscribe();
+    });
   }
 
   public getMemberUsername(id: number) {
