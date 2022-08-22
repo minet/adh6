@@ -3,12 +3,13 @@ from typing import List, Literal, Tuple, Union
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.device.storage.device_repository import DeviceType
 from adh6.entity import AbstractDevice, DeviceFilter, Device, DeviceBody
-from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, InvalidIPv6, InvalidIPv4, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, VLANNotFoundError
+from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
 from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.interfaces.ip_allocator import IpAllocator
+from adh6.room.interfaces.room_repository import RoomRepository
 from adh6.subnet.interfaces.vlan_repository import VlanRepository
 from adh6.misc.validator import is_mac_address
 from adh6.member.interfaces.member_repository import MemberRepository
@@ -23,13 +24,14 @@ class DeviceManager(CRUDManager):
                  device_repository: DeviceRepository,
                  ip_allocator: IpAllocator,
                  vlan_repository: VlanRepository,
-                 member_repository: MemberRepository
-                 ):
+                 member_repository: MemberRepository,
+                 room_repository: RoomRepository):
         super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
         self.ip_allocator = ip_allocator
         self.vlan_repository = vlan_repository
         self.member_repository = member_repository
+        self.room_repository = room_repository
         self.oui_repository = {}
         self.load_mac_oui_dict()
 
@@ -100,6 +102,9 @@ class DeviceManager(CRUDManager):
         member = self.member_repository.get_by_id(ctx, body.member)
         if not member:
             raise MemberNotFoundError(body.member)
+        room = self.room_repository.get_from_member(ctx, body.member)
+        if not room:
+            raise RoomNotFoundError(f"for member {member.username}")
 
         if not body.connection_type:
             raise ValueError()
@@ -113,16 +118,24 @@ class DeviceManager(CRUDManager):
             raise DevicesLimitReached()
 
         device = self.device_repository.create(ctx, body)
-        self._allocate_or_unallocate_ip(ctx, device, member.subnet if member.subnet else "")
+        vlan = self.vlan_repository.get_vlan(ctx, vlan_number=room.vlan)
+        if vlan is None:
+            raise VLANNotFoundError(room.vlan)
+
+        if body.connection_type == DeviceType.wired.name:
+            self._allocate_or_unallocate_ip(ctx, device, vlan.ipv4_network if vlan.ipv4_network else "", vlan.ipv6_network if vlan.ipv6_network else "")
+        else:
+            self._allocate_or_unallocate_ip(ctx, device, member.subnet if member.subnet else "", vlan.ipv6_network if vlan.ipv6_network else "")
         return device
 
     @log_call
     @auto_raise
-    def allocate_wired_ips(self, ctx, member_id: int, vlan_number: int) -> None:
+    def allocate_new_vlan_ips(self, ctx, member_id: int, wireless_subnet: str, vlan_number: int) -> None:
         vlan = self.vlan_repository.get_vlan(ctx, vlan_number=vlan_number)
         if vlan is None:
             raise VLANNotFoundError(vlan_number)
         self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wired.name, subnet_v4=vlan.ipv4_network if vlan.ipv4_network else "", subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
+        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wireless.name, subnet_v4=wireless_subnet, subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
 
     @log_call
     @auto_raise

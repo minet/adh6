@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { first, map, share } from 'rxjs/operators';
 import { TreasuryService } from '../api';
@@ -16,11 +16,11 @@ export class TreasuryComponent implements OnInit {
   balance$: Observable<any> = new Observable();
 
   showFundManagement = false;
-  fundManagementForm: FormGroup;
+  fundManagementForm: UntypedFormGroup;
   create = false;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public treasuryService: TreasuryService,
   ) {
     this.fundManagementForm = this.fb.group({

@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 
@@ -16,12 +16,12 @@ import { NotificationService } from '../../notification.service';
 export class RoomNewComponent implements OnDestroy {
 
   disabled = false;
-  roomForm: FormGroup;
+  roomForm: UntypedFormGroup;
   private alive = true;
 
   constructor(
     public roomService: RoomService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private router: Router,
     private notificationService: NotificationService,
   ) {

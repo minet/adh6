@@ -1,6 +1,6 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Port, PortService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
@@ -12,12 +12,12 @@ import { NotificationService } from '../../notification.service';
 })
 export class PortNewComponent implements OnInit {
 
-  portForm: FormGroup;
+  portForm: UntypedFormGroup;
   switch_id: number;
   private alive = true;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public portService: PortService,
     private router: Router,
     private notificationService: NotificationService,

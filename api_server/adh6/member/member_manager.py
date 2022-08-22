@@ -40,13 +40,14 @@ from adh6.default.crud_manager import CRUDManager
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.authentication import Roles
 from adh6.member.interfaces.charter_repository import CharterRepository
+from adh6.member.interfaces.logs_repository import LogsRepository
+from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
+from adh6.member.interfaces.member_repository import MemberRepository
+from adh6.member.interfaces.membership_repository import MembershipRepository
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
-from adh6.member.interfaces.logs_repository import LogsRepository
-from adh6.member.interfaces.member_repository import MemberRepository
-from adh6.member.interfaces.membership_repository import MembershipRepository
 from adh6.misc.context import log_extra
 from adh6.misc.log import LOG
 from adh6.default.decorator.log_call import log_call
@@ -62,10 +63,12 @@ class MemberManager(CRUDManager):
                  logs_repository: LogsRepository, payment_method_repository: PaymentMethodRepository,
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
-                 device_manager: DeviceManager, charter_repository: CharterRepository):
+                 device_manager: DeviceManager, charter_repository: CharterRepository,
+                 mailinglist_repository: MailinglistRepository):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
+        self.mailinglist_repository = mailinglist_repository
         self.logs_repository = logs_repository
         self.device_repository = device_repository
         self.payment_method_repository = payment_method_repository
@@ -147,13 +150,14 @@ class MemberManager(CRUDManager):
                 last_name=body.last_name,
                 email=body.mail,
                 departure_date=datetime.now(),
-                mailinglist=249,
                 ip='',
                 subnet='',
                 comment='',
                 membership=MembershipStatus.INITIAL.value
             )
         )
+
+        self.mailinglist_repository.update_from_member(ctx, created_member.id, 249)
 
         _ = self.account_repository.create(ctx, AbstractAccount(
             id=0,
@@ -199,12 +203,6 @@ class MemberManager(CRUDManager):
                                                    first_name=body.first_name,
                                                    last_name=body.last_name
                                                ))
-
-        if not is_member_active(member):
-            self.reset_member(ctx, id)
-        else:
-            if member.ip is None or member.subnet is None:
-                self.update_subnet(ctx, id)
 
     def is_subscription_finished(self, status: MembershipStatus) -> bool:
         return status in [
@@ -548,8 +546,8 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(member_id)
 
-        if not is_member_active(member):
-            return None
+        if not is_member_active(ctx, member):
+            return
 
         used_wireles_public_ips = self.member_repository.used_wireless_public_ips(ctx)
 
@@ -583,4 +581,5 @@ class MemberManager(CRUDManager):
     @log_call
     @auto_raise
     def ethernet_vlan_changed(self, ctx, member_id: int, vlan_number: int):
-        self.device_manager.allocate_wired_ips(ctx, member_id=member_id, vlan_number=vlan_number)
+        member = self.get_by_id(ctx, id=member_id)
+        self.device_manager.allocate_new_vlan_ips(ctx, member_id=member_id, wireless_subnet=member.subnet if member.subnet else "", vlan_number=vlan_number)

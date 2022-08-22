@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractMember, AbstractPort, MemberService, PortService, RoomService, AbstractRoom, RoomMembersService } from '../../api';
 import { map, shareReplay } from 'rxjs/operators';
@@ -15,8 +15,8 @@ export class RoomDetailsComponent implements OnInit {
   public ports$: Observable<Array<AbstractPort>>;
   public memberIds$: Observable<Array<number>>;
   private room_id: number;
-  public roomForm: FormGroup;
-  public EmmenagerForm: FormGroup;
+  public roomForm: UntypedFormGroup;
+  public EmmenagerForm: UntypedFormGroup;
   public isDemenager = false;
   public ref: number;
   public cachedMemberUsernames: Map<Number, Observable<AbstractMember>> = new Map();
@@ -28,7 +28,7 @@ export class RoomDetailsComponent implements OnInit {
     public roomService: RoomService,
     public portService: PortService,
     public memberService: MemberService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
   ) {
     this.createForm();

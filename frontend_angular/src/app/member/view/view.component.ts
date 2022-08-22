@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable, timer } from 'rxjs';
 import { AbstractMembership, RoomService, MemberService, Membership, AbstractRoom, AbstractMember, RoomMembersService } from '../../api';
 import { ActivatedRoute } from '@angular/router';
@@ -33,7 +33,7 @@ export class ViewComponent implements OnInit {
 
   private refreshInfoOrder$ = new BehaviorSubject<null>(null);
   private member_id$: Observable<number>;
-  private moveInForm: FormGroup;
+  private moveInForm: UntypedFormGroup;
   private content: string;  // for log formatting
 
   constructor(
@@ -41,7 +41,7 @@ export class ViewComponent implements OnInit {
     public roomService: RoomService,
     public roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private notificationService: NotificationService,
   ) {
     this.createForm();

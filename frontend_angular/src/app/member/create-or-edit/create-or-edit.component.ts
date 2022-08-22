@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { AbstractRoom, Member, MemberBody, MemberService, MembershipService, RoomMembersService, RoomService } from '../../api';
@@ -16,7 +16,7 @@ import { NotificationService } from '../../notification.service';
 export class CreateOrEditComponent implements OnInit {
   disabled = true;
   create = false;
-  memberEdit: FormGroup;
+  memberEdit: UntypedFormGroup;
   member_id: number;
 
   constructor(
@@ -25,7 +25,7 @@ export class CreateOrEditComponent implements OnInit {
     public roomService: RoomService,
     public roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private router: Router,
     private notificationService: NotificationService,
   ) {

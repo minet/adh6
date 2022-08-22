@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { AbstractSwitch, Switch, SwitchService } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
@@ -14,12 +14,12 @@ import { NotificationService } from '../../notification.service';
 export class SwitchNewComponent {
 
   switches$: Observable<Array<AbstractSwitch>>;
-  switchForm: FormGroup;
+  switchForm: UntypedFormGroup;
   disabled = false;
   private alive = true;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public switchService: SwitchService,
     private router: Router,
     private notificationService: NotificationService,

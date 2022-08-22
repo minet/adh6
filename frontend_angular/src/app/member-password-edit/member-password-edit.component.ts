@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, first, map, switchMap, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -37,7 +37,7 @@ export class MemberPasswordEditComponent implements OnInit {
   faEyeSlash = faEyeSlash;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private notificationService: NotificationService,
     private router: Router,
     private route: ActivatedRoute,
@@ -46,7 +46,7 @@ export class MemberPasswordEditComponent implements OnInit {
   ) { }
 
   disabled = false;
-  memberPassword: FormGroup;
+  memberPassword: UntypedFormGroup;
 
   /*
   Taken from https://stackoverflow.com/a/37597001

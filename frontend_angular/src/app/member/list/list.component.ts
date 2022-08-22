@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
-import { MemberService, AbstractMember, RoomMembersService } from '../../api';
+import { MemberService, AbstractMember, RoomMembersService, MemberFilter, Member } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -8,15 +8,17 @@ import { SearchPage } from '../../search-page';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.css']
 })
-export class ListComponent extends SearchPage<number> implements OnInit {
+export class ListComponent extends SearchPage<number> {
   public cachedMembers: Map<Number, Observable<AbstractMember>> = new Map();
   public cachedRoomNumbers: Map<Number, Observable<number>> = new Map();
+  public subscriptionFilter: string = "";
+  public subscriptionValues = Member.MembershipEnum;
 
   constructor(
     private memberService: MemberService,
     private roomMemberService: RoomMembersService
   ) {
-    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, "response")
+    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.subscriptionFilter !== "" ? <MemberFilter>{ membership: this.subscriptionFilter } : undefined, "response")
       .pipe(
         map(response => {
           for (let i of response.body) {
@@ -35,9 +37,11 @@ export class ListComponent extends SearchPage<number> implements OnInit {
         }),
       ));
   }
-  //  
-  ngOnInit() {
-    super.ngOnInit();
+
+  updateSubscriptionFilter(subscriptionType: string) {
+    this.subscriptionFilter = subscriptionType
+    this.resetSearch()
+    this.getSearchResult();
   }
 
   handlePageChange(page: number) {

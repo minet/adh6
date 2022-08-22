@@ -46,7 +46,6 @@ class RoomHandler(DefaultHandler):
     @log_call
     def member_add_patch(self, ctx, id_: int, body):
         try:
-            print(body)
             self.room_manager.add_member(ctx, id_, body["id"])
             return NoContent, 204
         except Exception as e:

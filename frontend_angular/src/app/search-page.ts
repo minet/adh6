@@ -62,7 +62,7 @@ export class SearchPage<T> implements OnInit {
       );
   }
 
-  private resetSearch() {
+  public resetSearch() {
     this.cachedResult.clear();
   }
 

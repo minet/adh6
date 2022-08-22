@@ -13,7 +13,7 @@ from adh6.entity import AbstractMember
 from adh6.entity.member import Member
 from adh6.entity.member_filter import MemberFilter
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Adherent
+from adh6.storage.sql.models import Adherent, Membership
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.member.interfaces.member_repository import MemberRepository
 
@@ -31,6 +31,8 @@ class MemberSQLRepository(MemberRepository):
                 query = query.filter(Adherent.date_de_depart >= filter_.since)
             if filter_.until:
                 query = query.filter(Adherent.date_de_depart <= filter_.until)
+            if filter_.membership:
+                query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(Membership.status == filter_.membership)
 
         if terms:
             query = query.filter(

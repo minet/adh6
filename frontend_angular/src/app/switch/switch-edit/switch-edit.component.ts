@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { SwitchService } from '../../api';
 
 @Component({
@@ -8,10 +8,10 @@ import { SwitchService } from '../../api';
   styleUrls: ['./switch-edit.component.css']
 })
 export class SwitchEditComponent {
-  switchForm: FormGroup;
+  switchForm: UntypedFormGroup;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public switchService: SwitchService,
   ) {
     this.switchForm = this.fb.group({

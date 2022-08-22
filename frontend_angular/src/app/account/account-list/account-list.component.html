@@ -11,31 +11,6 @@
           <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
         </select>
       </p>
-      <div class="control">
-        <div class="field has-addons has-addons-centered">
-          <p class="control">
-            <button type="button" class="button is-danger" tooltip="Inactif"
-              [value]="abstractAccountFilter.actif === false"
-              (click)="(abstractAccountFilter.actif) ? undefined : false; updateSearch()">
-              <fa-icon [icon]="faBan"></fa-icon>
-            </button>
-          </p>
-          <p class="control">
-            <button type="button" class="button is-primary" tooltip="Épinglé"
-              [value]="abstractAccountFilter.pinned === true"
-              (click)="(abstractAccountFilter.pinned) ? undefined : true; updateSearch()">
-              <fa-icon [icon]="faThumbtack"></fa-icon>
-            </button>
-          </p>
-          <p class="control">
-            <button type="button" class="button is-primary" tooltip="Sur le compte courant"
-              [value]="abstractAccountFilter.compteCourant === true"
-              (click)="(abstractAccountFilter.compteCourant) ? undefined : true; updateSearch()">
-              CAV
-            </button>
-          </p>
-        </div>
-      </div>
       <p class="control">
         <a [routerLink]="['/account/add']">
           <button class="button is-primary">Nouveau compte</button>

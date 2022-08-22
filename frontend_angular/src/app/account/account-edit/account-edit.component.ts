@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { AbstractAccount, Account, AccountService, AccountType } from '../../api';
@@ -15,7 +15,7 @@ import { NotificationService } from '../../notification.service';
 
 export class AccountEditComponent implements OnInit, OnDestroy {
   disabled = false;
-  editAccountForm: FormGroup;
+  editAccountForm: UntypedFormGroup;
   accountTypes$: Observable<Array<AccountType>>;
 
   private alive = true;
@@ -24,7 +24,7 @@ export class AccountEditComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private route: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private router: Router,
     private notificationService: NotificationService,
   ) {
