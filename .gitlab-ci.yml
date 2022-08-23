@@ -146,10 +146,12 @@ test:backend:
   - cd api_server/
   - apt update -q
   - apt install -qy sqlite3
-  - pytest -vvv --cov-fail-under=70 --cov-report=term
+  - pytest -vvv --cov-fail-under=70 --cov-report=term --junitxml=report.xml
   artifacts:
     paths:
       - api_server/htmlcov/
+    reports:
+      junit: report.xml
 
 # test:python_check_for_vuln_deps:
 #   stage: test
