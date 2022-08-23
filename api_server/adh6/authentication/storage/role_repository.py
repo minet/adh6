@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 from sqlalchemy.orm import Session
 
-from sqlalchemy import select, insert, delete
+from sqlalchemy import select, insert, delete, update
 from sqlalchemy.sql import Select, Insert
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import AuthenticationRoleMapping
@@ -9,7 +9,6 @@ from adh6.entity import RoleMapping
 from adh6.authentication.interfaces import RoleRepository
 from adh6.storage import db
 from adh6.storage.sql.models import Adherent
-from adh6.storage.sql.track_modifications import track_modifications
 
 
 class RoleSQLRepository(RoleRepository):
@@ -43,18 +42,18 @@ class RoleSQLRepository(RoleRepository):
 
         if method == AuthenticationMethod.USER:
             # in case a NainA is created put is_naina to true for compatibility
-            if len(set([Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_WRITE])&set(roles)) == 4:
+            if len(set([Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ])&set(roles)) == 4:
                 adherent = session.query(Adherent).filter(Adherent.login == identifier).one_or_none()
-                adherent.is_naina = True
-                session.flush()
+                smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=True)
+                session.execute(smt)
 
     def delete(self, id: int) -> None:
         session: Session = db.session
         role_mapping = session.query(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id).one()
         if role_mapping.authentication == AuthenticationMethod.USER:
             adherent = session.query(Adherent).filter(Adherent.login == role_mapping.identifier).one_or_none()
-            adherent.is_naina = False
-            session.flush()
+            smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=False)
+            session.execute(smt)
             
 
         smt = delete(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
