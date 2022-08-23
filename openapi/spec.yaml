@@ -2474,6 +2474,8 @@ paths:
         - OAuth2:
           - admin:read
           - admin:prod
+        - ApiKeyAuth:
+          - admin:read
       tags:
       - authentication
     post:
@@ -2534,6 +2536,8 @@ paths:
         - OAuth2:
           - admin:write
           - admin:prod
+        - ApiKeyAuth:
+          - admin:write
       tags:
       - authentication
   /api_keys/:
