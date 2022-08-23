@@ -6,7 +6,9 @@
     <div class="level-item">
       <div class="select is-multiple">
         <select [(ngModel)]="roles" multiple size="3">
-          <option *ngFor="let roleKey of roleKeys" [value]="roleKey" [label]="roleKey"></option>
+          <option value="0">Admin</option>
+          <option value="1">Network</option>
+          <option value="2">Trésorerie</option>
         </select>
       </div>
     </div>

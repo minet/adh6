@@ -178,7 +178,6 @@ def test_api_key_delete(client):
         headers=TEST_HEADERS,
     )
     result = json.loads(r.data.decode('utf-8'))
-    print(result)
 
     r = client.delete(
         f"{base_url}{result[0]['id']}",

@@ -2,7 +2,7 @@ import pytest
 import json
 from test import SAMPLE_CLIENT
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE, base_url as host_url
 
 
 base_url = f"{host_url}/role/"
@@ -25,7 +25,6 @@ def test_role_search(client):
         f"{base_url}?auth=oidc",
         headers=TEST_HEADERS,
     )
-    print(r.text)
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert len(result) == 7
@@ -36,7 +35,6 @@ def test_role_search_no_result(client):
         f"{base_url}?auth=oidc&id=minet",
         headers=TEST_HEADERS,
     )
-    print(r.text)
     assert r.status_code == 200
     result = json.loads(r.data.decode('utf-8'))
     assert len(result) == 0
@@ -58,12 +56,66 @@ def test_role_search_filter_unauthorized_user(client):
     assert r.status_code == 403
 
 
-def test_role_search_filter_unauthorized_admin(client):
+def test_role_search_filter_unauthorized_api_key(client):
     r = client.get(
         f"{base_url}?auth=oidc",
-        headers=TEST_HEADERS_API_KEY_ADMIN,
+        headers=TEST_HEADERS_API_KEY_USER,
     )
     assert r.status_code == 401
+
+
+def test_role_search_filter_no_result_authorized_api_key_admin(client):
+    r = client.get(
+        f"{base_url}?auth=user&id={SAMPLE_CLIENT}",
+        headers=TEST_HEADERS_API_KEY_ADMIN,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 0
+
+
+def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
+    body = {
+        "auth": "user",
+        "identifier": SAMPLE_CLIENT,
+        "roles": ["admin:write"]
+    }
+    r = client.post(
+        base_url,
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 201
+    r = client.get(
+        f"{base_url}?auth=user&id={SAMPLE_CLIENT}",
+        headers=TEST_HEADERS_API_KEY_ADMIN,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 1
+
+
+def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
+    body = {
+        "auth": "user",
+        "identifier": SAMPLE_CLIENT,
+        "roles": ["admin:write"]
+    }
+    r = client.post(
+        base_url,
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 201
+    r = client.get(
+        f"{base_url}?auth=user",
+        headers=TEST_HEADERS_API_KEY_ADMIN,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.data.decode('utf-8'))
+    assert len(result) == 1
 
 
 def test_role_post(client):
@@ -155,7 +207,7 @@ def test_role_post_unauthorized_user(client):
     assert r.status_code == 403
 
 
-def test_role_post_unauthorized_admin(client):
+def test_role_post_unauthorized_api_key_admin(client):
     body = {
         "auth": "user",
         "identifier": SAMPLE_CLIENT,
@@ -194,9 +246,17 @@ def test_role_delete_unauthorized_user(client):
     assert r.status_code == 403
 
 
-def test_role_delete_unauthorized_admin(client):
+def test_role_delete_unauthorized_api_key_user(client):
+    r = client.delete(
+        f"{base_url}{1}",
+        headers=TEST_HEADERS_API_KEY_USER,
+    )
+    assert r.status_code == 401
+
+
+def test_role_delete_authorized_api_key_admin(client):
     r = client.delete(
         f"{base_url}{1}",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
-    assert r.status_code == 401
+    assert r.status_code == 204

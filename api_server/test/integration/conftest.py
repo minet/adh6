@@ -42,7 +42,8 @@ def prep_db(*args):
             api_key_admin(),
         ] + 
         [
-            api_key_admin_roles(),
+            api_key_admin_read_roles(),
+            api_key_admin_write_roles()
         ]
     )
     session.commit()
@@ -262,10 +263,11 @@ def sample_member_admin():
     )
 
 def api_key_user():
+    from hashlib import sha3_512
     return ApiKey(
         id=1,
         user_login=TESTING_CLIENT,
-        value=TEST_HEADERS_API_KEY_USER["X-API-KEY"],
+        value=sha3_512(TEST_HEADERS_API_KEY_USER["X-API-KEY"].encode("utf-8")).hexdigest(),
     )
 
 
@@ -278,10 +280,27 @@ def api_key_user_roles():
 
 
 def api_key_admin():
+    from hashlib import sha3_512
     return ApiKey(
         id=2,
         user_login=TESTING_CLIENT,
-        value=TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"],
+        value=sha3_512(TEST_HEADERS_API_KEY_ADMIN["X-API-KEY"].encode("utf-8")).hexdigest(),
+    )
+
+
+def api_key_admin_read_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        identifier=str(api_key_admin().id),
+        role=Roles.ADMIN_READ
+    )
+
+
+def api_key_admin_write_roles():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.API_KEY,
+        identifier=str(api_key_admin().id),
+        role=Roles.ADMIN_WRITE
     )
 
 
@@ -290,14 +309,6 @@ def oidc_admin_prod_role():
         authentication=AuthenticationMethod.OIDC,
         identifier="production",
         role=Roles.ADMIN_PROD
-    )
-
-
-def api_key_admin_roles():
-    return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        identifier=str(api_key_admin().id),
-        role=Roles.ADMIN_READ
     )
 
 

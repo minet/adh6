@@ -1,7 +1,7 @@
 import json
 import pytest
 from sqlalchemy import select
-from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID
+from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 from adh6.storage.sql.models import Adherent
@@ -51,7 +51,15 @@ def test_charter_sign_hosting(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
-    assert db.session().execute(select(Adherent.datesignedhosting).where(Adherent.id == sample_member.id)).scalar_one()
+
+
+@pytest.mark.parametrize('charter', [1, 2])
+def test_charter_sign_authorized_user(client, charter):
+    r = client.post(
+        f"{base_url}{charter}/member/{SAMPLE_CLIENT_ID}",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 201
 
 
 @pytest.mark.parametrize('charter', [1, 2])
@@ -64,9 +72,18 @@ def test_charter_sign_unknown_member(client, charter):
 
 
 @pytest.mark.parametrize('charter', [1, 2])
-def test_charter_sign_unauthorized(client, sample_member, charter):
+def test_charter_sign_unauthorized_unknown(client, charter):
     r = client.post(
-        f"{base_url}{charter}/member/{sample_member.id}",
+        f"{base_url}{charter}/member/{200}",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize('charter', [1, 2])
+def test_charter_sign_unauthorized(client, charter):
+    r = client.post(
+        f"{base_url}{charter}/member/{TESTING_CLIENT_ID}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -183,9 +200,27 @@ def test_charter_get_unknown_member(client, charter):
 
 
 @pytest.mark.parametrize('charter', [1, 2])
-def test_charter_get_unauthorized(client, sample_member, charter):
+def test_charter_get_unauthorized_unknown_member(client, charter):
     r = client.get(
-        f"{base_url}{charter}/member/{sample_member.id}",
+        f"{base_url}{charter}/member/{200}",
+        headers=TEST_HEADERS_SAMPLE
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize('charter', [1, 2])
+def test_charter_get_authorized_user(client, charter):
+    r = client.get(
+        f"{base_url}{charter}/member/{SAMPLE_CLIENT_ID}",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 200
+
+
+@pytest.mark.parametrize('charter', [1, 2])
+def test_charter_get_unauthorized(client, charter):
+    r = client.get(
+        f"{base_url}{charter}/member/{TESTING_CLIENT_ID}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

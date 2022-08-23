@@ -461,7 +461,6 @@ def test_member_get_statuses(client, sample_member, headers):
         content_type='application/json',
         headers=headers,
     )
-    print(result.text)
     assert result.status_code == 200
 
 

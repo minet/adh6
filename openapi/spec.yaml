@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
   title: ADH6 API
   description: >
@@ -32,7 +32,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - misc
@@ -105,7 +105,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - account
@@ -134,7 +134,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - account
@@ -163,7 +163,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - account
@@ -190,7 +190,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - account
@@ -221,7 +221,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - account
@@ -248,7 +248,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - account
@@ -289,7 +289,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - device
@@ -321,7 +321,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - device
@@ -347,7 +347,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - device
@@ -373,7 +373,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - device
@@ -403,7 +403,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - device
@@ -433,7 +433,7 @@ paths:
           - admin:read
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - device
@@ -458,7 +458,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - device
@@ -485,7 +485,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - device
@@ -526,7 +526,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - member
@@ -557,7 +557,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - member
@@ -580,7 +580,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - member
@@ -608,7 +608,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - member
@@ -635,7 +635,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - member
@@ -697,7 +697,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - member
@@ -774,8 +774,10 @@ paths:
       summary: Retrieves if the hosting charter has been signed
       security: 
         - OAuth2:
+          - user
+        - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - member
@@ -794,8 +796,10 @@ paths:
       summary: Update if the hosting/MiNET charter has been signed
       security: 
         - OAuth2:
+          - user
+        - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - member
@@ -829,7 +833,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - membership
@@ -856,7 +860,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - membership
@@ -886,7 +890,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - membership
@@ -928,7 +932,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - charter
@@ -957,8 +961,10 @@ paths:
       summary: Sign the specific charter
       security: 
         - OAuth2:
+          - user
+        - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - charter
@@ -980,8 +986,10 @@ paths:
       summary: Retreive the signature date of the specific charter
       security: 
         - OAuth2:
+          - user
+        - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - charter
@@ -1011,7 +1019,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - mailinglist
@@ -1046,7 +1054,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - mailinglist
@@ -1082,7 +1090,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - mailinglist
@@ -1113,7 +1121,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - transaction
@@ -1140,7 +1148,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - transaction
@@ -1185,7 +1193,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - port
@@ -1216,7 +1224,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - port
@@ -1239,7 +1247,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - port
@@ -1265,7 +1273,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - port
@@ -1288,7 +1296,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - port
@@ -1316,7 +1324,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1340,7 +1348,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:write
       tags:
       - port
@@ -1368,7 +1376,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1396,7 +1404,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1424,7 +1432,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1452,7 +1460,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1476,7 +1484,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:write
       tags:
       - port
@@ -1504,7 +1512,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1528,7 +1536,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:write
       tags:
       - port
@@ -1557,7 +1565,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - port
@@ -1593,15 +1601,8 @@ paths:
         - OAuth2:
           - network:write
           - network:write:hosting
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:write
-          - network:write:prod
-        - ApiKeyAuth:
-          - network:write
-          - network:write:dev
-        - ApiKeyAuth:
-          - network:write
-          - network:write:hosting
       tags:
       - port
   /product/:
@@ -1631,7 +1632,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - treasury
@@ -1658,7 +1659,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - treasury
@@ -1701,7 +1702,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - treasury
@@ -1744,7 +1745,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - room
@@ -1773,7 +1774,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room
@@ -1796,7 +1797,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room
@@ -1822,7 +1823,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - room
@@ -1851,7 +1852,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room
@@ -1880,7 +1881,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - room members
@@ -1915,7 +1916,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room members
@@ -1949,7 +1950,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room members
@@ -1979,7 +1980,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - room members
@@ -2022,7 +2023,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - switch
@@ -2052,7 +2053,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - switch
@@ -2075,7 +2076,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - switch
@@ -2101,7 +2102,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - switch
@@ -2128,7 +2129,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - switch
@@ -2160,7 +2161,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyAuth:
+        - ApiKeyNetworkAuth:
           - network:read
       tags:
       - vlan
@@ -2205,7 +2206,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - transaction
@@ -2237,7 +2238,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - transaction
@@ -2266,7 +2267,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - transaction
@@ -2290,7 +2291,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - transaction
@@ -2319,7 +2320,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - transaction
@@ -2346,7 +2347,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - transaction
@@ -2366,7 +2367,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - transaction
@@ -2398,7 +2399,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - treasury
@@ -2426,7 +2427,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyAuth:
+        - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - treasury
@@ -2474,7 +2475,7 @@ paths:
         - OAuth2:
           - admin:read
           - admin:prod
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:read
       tags:
       - authentication
@@ -2536,7 +2537,7 @@ paths:
         - OAuth2:
           - admin:write
           - admin:prod
-        - ApiKeyAuth:
+        - ApiKeyAdminAuth:
           - admin:write
       tags:
       - authentication
@@ -3594,35 +3595,21 @@ components:
           authorizationUrl: https://cas.minet.net/oidc/authorize
           scopes:
             profile: The user's basic information, including groups they are a part of
-    ApiKeyAuth:
+    ApiKeyAdminAuth:
       type: apiKey
       in: header
       name: X-API-KEY
-
-security:
-  - OAuth2: 
-    - user
-    - admin:read
-    - admin:write
-    - admin:prod
-    - treasurer:read
-    - treasurer:write
-    - network:read
-    - network:write
-    - network:write:prod
-    - network:write:dev
-    - network:write:hosting
-  - ApiKeyAuth: 
-    - user
-    - admin:read
-    - admin:write
-    - treasurer:read
-    - treasurer:write
-    - network:read
-    - network:write
-    - network:write:prod
-    - network:write:dev
-    - network:write:hosting
+      x-apikeyInfoFunc: adh6.authentication.apikey_admin_auth
+    ApiKeyNetworkAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      x-apikeyInfoFunc: adh6.authentication.apikey_network_auth
+    ApiKeyTreasuryAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      x-apikeyInfoFunc: adh6.authentication.apikey_treasury_auth
 tags:
 - description: Operations on members
   name: member

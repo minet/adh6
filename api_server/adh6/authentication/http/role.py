@@ -30,7 +30,6 @@ class RoleHandler:
             self.role_manager.create(ctx=ctx, auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
             return NoContent, 201
         except Exception as e:
-            print(e)
             return handle_error(ctx, e)
 
     @with_context
@@ -40,5 +39,4 @@ class RoleHandler:
             self.role_manager.delete(ctx=ctx, id=id_)
             return NoContent, 204
         except Exception as e:
-            print(e)
             return handle_error(ctx, e)

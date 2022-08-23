@@ -25,9 +25,20 @@ export class ApiKeyComponent implements OnInit {
   public submit(): void {
     if (this.roles.length === 0 || this.login === "") return;
 
+    let roles = [];
+    for (let i in this.roles) {
+      if (i === "0") {
+        roles.push(Role.Adminwrite, Role.Adminread)
+      } else if (i === "1") {
+        roles.push(Role.Networkwrite, Role.Networkread)
+      } else if (i === "2") {
+        roles.push(Role.Treasurerwrite, Role.Treasurerread)
+      }
+    }
+
     this.authenticationService.apiKeysPost(<ApiKeysGetRequest>{
       login: this.login,
-      roles: this.roles
+      roles: roles
     }).subscribe((res) => Swal.fire({ 'title': 'Clé d\'API', text: res }).then(() => this.refreshApi()));
   }
 
