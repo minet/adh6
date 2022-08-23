@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
 from adh6.authentication import Roles
-from adh6.constants import CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
 
 from adh6.entity import AbstractMember, Member, SubscriptionBody
 from adh6.default.decorator.log_call import log_call
@@ -144,6 +144,8 @@ class MemberHandler(DefaultHandler):
     @log_call
     def charter_get(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
+            if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
+                raise UnauthorizedError("Unauthorize to access this resource")
             return self.charter_manager.get(ctx, charter_id=charter_id, member_id=id_), 200
         except Exception as e:
             return handle_error(ctx, e)
@@ -152,6 +154,8 @@ class MemberHandler(DefaultHandler):
     @log_call
     def charter_put(self, ctx, id_, charter_id) -> Tuple[Any, int]:
         try:
+            if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
+                raise UnauthorizedError("Unauthorize to access this resource")
             self.charter_manager.sign(ctx, charter_id=charter_id, member_id=id_)
             return NoContent, 204
         except Exception as e:
