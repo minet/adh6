@@ -1,10 +1,12 @@
 import json
+from connexion.jsonifier import uuid
 import pytest
 from sqlalchemy import select
+from adh6.constants import MembershipStatus
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
-from adh6.storage.sql.models import Adherent
+from adh6.storage.sql.models import Adherent, Membership
 from adh6.storage import db
 
 base_url = f'{host_url}/charter/'
@@ -23,15 +25,23 @@ def sample_member(faker):
         mail_membership=249
     )
 
+@pytest.fixture
+def sample_membership_pending_rules():
+    return Membership(
+        uuid=str(uuid.uuid4()),
+        adherent_id=SAMPLE_CLIENT_ID,
+        status=MembershipStatus.PENDING_RULES,
+    )
+
 
 @pytest.fixture
-def client(sample_member):
+def client(sample_member, sample_membership_pending_rules):
     from .context import app
     from .conftest import prep_db, close_db
     if app.app is None:
         return
     with app.app.test_client() as c:
-        prep_db(sample_member)
+        prep_db(sample_member, sample_membership_pending_rules)
         yield c
         close_db()
 
