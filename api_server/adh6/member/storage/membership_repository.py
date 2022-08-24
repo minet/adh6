@@ -80,14 +80,12 @@ class MembershipSQLRepository(MembershipRepository):
         query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
 
-        if body.duration is not None:
+        if body.duration:
             membership.duration = body.duration
-        if body.account is not None:
-            membership.account = body.account
-        if body.member is not None:
-            membership.adherent = body.member
-        if body.payment_method is not None:
-            membership.payment_method = body.payment_method
+        if body.account:
+            membership.account_id = body.account
+        if body.payment_method:
+            membership.payment_method_id = body.payment_method
         
         membership.status = state
         membership.update_at = now
