@@ -25,11 +25,12 @@ class CharterManager:
         m = self.member_repository.get_by_id(ctx, member_id)
         if not m:
             raise MemberNotFoundError(member_id)
-        subscriptions, _ = self.membership_repository.search(ctx, limit=1, filter_=AbstractMembership(member=member_id))
+        subscriptions, _ = self.membership_repository.search(ctx, limit=1, filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value))
         if not subscriptions:
             raise MembershipNotFoundError(member_id)
         self.charter_repository.update(ctx, charter_id, member_id)
-        self.membership_repository.update(ctx, subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL)
+        if subscriptions[0].status == MembershipStatus.PENDING_RULES.value:
+            self.membership_repository.update(ctx, subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL)
 
     def get_members(self, ctx, charter_id: int) -> Tuple[List[int], int]:
         return self.charter_repository.get_members(ctx, charter_id)
