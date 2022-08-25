@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
 from typing import List, Optional, Tuple, Union
-from sqlalchemy import insert, select, delete
+from sqlalchemy import insert, select, delete, update
 
 from sqlalchemy.orm.session import Session
 
@@ -12,7 +12,7 @@ from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Chambre, Vlan, RoomMemberLink
+from adh6.storage.sql.models import Adherent, Chambre, Vlan, RoomMemberLink
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.room.interfaces.room_repository import RoomRepository
 
@@ -38,12 +38,22 @@ class RoomSQLRepository(RoomRepository):
         smt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
         session.execute(smt)
 
+        # lines needed for compatibility
+        adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+        smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
+        session.execute(smt)
+
     def add_member(self, ctx, room_id: int, member_id: int) -> None:
         session: Session = ctx.get(CTX_SQL_SESSION)
         smt = insert(RoomMemberLink).values(
             member_id=member_id,
             room_id=room_id
         )
+        session.execute(smt)
+
+        # Those lines are needed for compatibility
+        adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+        smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=room_id)
         session.execute(smt)
 
     @log_call
