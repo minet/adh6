@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { map, Observable, shareReplay } from 'rxjs';
-import { MemberService, AbstractMember, RoomMembersService, MemberFilter, Member } from '../../api';
+import { map, Observable, shareReplay, switchMap } from 'rxjs';
+import { MemberService, AbstractMember, RoomMembersService, MemberFilter, Member, RoomService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
@@ -16,7 +16,8 @@ export class ListComponent extends SearchPage<number> {
 
   constructor(
     private memberService: MemberService,
-    private roomMemberService: RoomMembersService
+    private roomMemberService: RoomMembersService,
+    private roomService: RoomService
   ) {
     super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.subscriptionFilter !== "" ? <MemberFilter>{ membership: this.subscriptionFilter } : undefined, "response")
       .pipe(
@@ -29,7 +30,8 @@ export class ListComponent extends SearchPage<number> {
             );
             this.cachedRoomNumbers.set(+i, this.roomMemberService.roomMemberIdGet(+i)
               .pipe(
-                shareReplay(1)
+                shareReplay(1),
+                switchMap((response) => this.roomService.roomIdGet(response, ["roomNumber"]).pipe(map((r) => r.roomNumber)))
               )
             );
           }
