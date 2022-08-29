@@ -102,7 +102,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
             .pipe(finalize(() => {
               this.notificationService.successNotification("Authentification modifiée");
             }));
-          this.portService.portIdVlanPut(result.value, this.portID)
+          this.portService.portIdVlanPut(this.portID, result.value)
             .subscribe(() => {
               this.notificationService.successNotification("VLAN modifié: " + result.value);
             });

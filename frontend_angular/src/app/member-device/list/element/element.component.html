@@ -37,7 +37,7 @@
                 <strong>IPv6</strong>
               </td>
               <td>
-                {{ device.ipv6Address === null ? "-" : device.ipv6Address }}
+                {{ device.ipv6Address === null || device.connectionType === 'wireless' ? "-" : device.ipv6Address }}
               </td>
             </tr>
             <tr *ngIf="('manage' | able: 'admin') && device.connectionType === 'wired'">
