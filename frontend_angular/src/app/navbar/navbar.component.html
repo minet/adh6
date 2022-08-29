@@ -3,21 +3,62 @@
     <a class="navbar-item" [routerLink]="['/dashboard']">
       <img src="../assets/minet.min.svg" width="50" class="d-inline-block align-top">
     </a>
+
+    <a role="button" class="navbar-burger" [ngClass]="{'is-active': isMenuActive}" aria-label="menu"
+      aria-expanded="false" data-target="navbarADH6" (click)="isMenuActive = !isMenuActive">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
   </div>
-  <div class="navbar-end">
-    <div class="navbar-item has-dropdown is-hoverable">
-      <a class="navbar-link" i18n="@@language">
-        Langue
-      </a>
-      <div class="navbar-dropdown">
-        <a class="navbar-item" href="/fr/">Français</a>
-        <a class="navbar-item" href="/en/">English</a>
+  <div id="navbarADH6" class="navbar-menu" [ngClass]="{'is-active': isMenuActive}">
+    <div class="navbar-start is-hidden-tablet">
+      <a *ngIf="'manage' | able: 'treasury';" class="navbar-item" [routerLinkActive]="['active']"
+        [routerLink]="['transaction/add']">Transaction</a>
+      <a class="navbar-item" *ngIf="'manage' | able: 'admin'" [routerLinkActive]="['active']"
+        [routerLink]="['switch_local']">Switch Local</a>
+      <div class="navbar-item has-dropdown is-hoverable" *ngIf="('manage' | able: 'admin')">
+        <a class="navbar-link">
+          Gestion Adhérents
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item" [routerLink]="['member/search']">Adhérents</a>
+          <a class="navbar-item" [routerLink]="['room/search']">Chambres</a>
+          <a class="navbar-item" [routerLink]="['device/search']">Appareils</a>
+          <hr class="dropdown-divider">
+          <a class="navbar-item" [routerLink]="['switch/search']">Switches</a>
+          <a class="navbar-item" [routerLink]="['port/search']">Ports</a>
+        </div>
+      </div>
+      <div class="navbar-item has-dropdown is-hoverable" *ngIf="'manage' | able: 'treasury'">
+        <a class="navbar-link">
+          Gestion Trésorerie
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item" [routerLink]="['treasury']">Trésorerie</a>
+          <hr class="dropdown-divider">
+          <a class="navbar-item" [routerLink]="['account/search']">Comptes</a>
+          <a class="navbar-item" [routerLink]="['product/search']">Produits</a>
+        </div>
       </div>
     </div>
-    <div class="navbar-item" *ngIf="true">
-      <div class="buttons">
-        <a class="button is-danger" *ngIf="sessionService.isAuthenticated" (click)="logout()"
-          i18n="@@disconnect">Déconnexion</a>
+    <div class="navbar-end">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link" i18n="@@language">
+          Langue
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/fr/">Français</a>
+          <a class="navbar-item" href="/en/">English</a>
+        </div>
+      </div>
+      <div class="navbar-item" *ngIf="true">
+        <div class="buttons">
+          <a class="button is-danger" *ngIf="sessionService.isAuthenticated" (click)="logout()"
+            i18n="@@disconnect">Déconnexion</a>
+        </div>
       </div>
     </div>
   </div>
