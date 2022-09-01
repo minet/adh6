@@ -165,6 +165,12 @@ class DeviceManager(CRUDManager):
             ), 
             device.id
         )
+        if subnet_v4 == "":
+            import subprocess
+            try:
+                subprocess.run(["/opt/release_dhcp_wrapper", str(device.mac), str(device.ipv4_address)])
+            except:
+                raise ValueError("Cannot reset the device")
 
     @log_call
     @auto_raise
