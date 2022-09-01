@@ -21,8 +21,10 @@ export class CotisationComponent {
   public needValidation: boolean = false;
   public isFree: boolean = false;
 
+  // The last one is necessaraly without a room
   private subscriptionPrices: number[] = [0, 9, 18, 27, 36, 45, 50, 9];
   private subscriptionDuration: AbstractMembership.DurationEnum[] = [0, 1, 2, 3, 4, 5, 12, 12];
+
   private options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   private date = new Date;
 
@@ -69,7 +71,8 @@ export class CotisationComponent {
         duration: this.subscriptionDuration.at(v.renewal),
         account: account.id,
         paymentMethod: +v.paidWith,
-        member: this.member.id
+        member: this.member.id,
+        hasRoom: +v.renewal !== this.subscriptionPrices.length - 1
       }
       if (isMembershipFinished) {
         this.membershipService.memberIdSubscriptionPost(this.member.id, subscription, 'body')

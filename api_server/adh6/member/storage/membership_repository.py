@@ -63,7 +63,8 @@ class MembershipSQLRepository(MembershipRepository):
             status=state,
             create_at=now,
             update_at=now,
-            first_time=session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0
+            first_time=session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
+            has_room=body.has_room if body.has_room is not None else True
         )
 
         session.add(to_add)
@@ -86,6 +87,8 @@ class MembershipSQLRepository(MembershipRepository):
             membership.account_id = body.account
         if body.payment_method:
             membership.payment_method_id = body.payment_method
+        if body.has_room is not None:
+            membership.has_room = body.has_room
         
         membership.status = state
         membership.update_at = now
@@ -108,7 +111,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
-        has_room=obj_sql.has_room is not None,
+        has_room=obj_sql.has_room,
         first_time=obj_sql.first_time,
         payment_method=obj_sql.payment_method_id,
         account=obj_sql.account_id,

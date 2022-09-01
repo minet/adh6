@@ -389,10 +389,10 @@ class MemberManager(CRUDManager):
             raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
         src_account = self.account_repository.get_by_id(ctx, membership.account)
         price = self.duration_price[membership.duration]  # Expressed in EUR.
+        title = f'Internet - {self.duration_string.get(membership.duration)}'
         if price == 50 and not membership.has_room:
             price = 9
-        duration_str = self.duration_string.get(membership.duration)
-        title = f'Internet - {duration_str}'
+            title = title + " (sans chambre)"
 
         self.transaction_repository.create(
             ctx, 
