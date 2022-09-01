@@ -13,7 +13,18 @@ export { ClickOutsideDirective } from '../clickOutside.directive';
 export class AccountSearchComponent extends SearchPage<AbstractAccount> implements OnInit {
   public display = false;
   public selectedAccount: AbstractAccount;
-  @Input() inputAccountId: number | undefined;
+  private _inputAccountId: number | undefined;
+
+  @Input() set inputAccountId(value: number | undefined) {
+    this._inputAccountId = value;
+    if (value) {
+      this.accountService.accountIdGet(this._inputAccountId).subscribe(account => this.selectedAccount = account);
+    }
+  }
+  get inputAccountId(): number | undefined {
+    return this._inputAccountId
+  };
+
   @Output() selectedAccountId = new EventEmitter<number>();
 
   constructor(
@@ -30,9 +41,6 @@ export class AccountSearchComponent extends SearchPage<AbstractAccount> implemen
 
   ngOnInit(): void {
     super.ngOnInit();
-    if (this.inputAccountId) {
-      this.accountService.accountIdGet(this.inputAccountId).subscribe(account => this.selectedAccount = account);
-    }
     this.result$ = of(undefined);
   }
 

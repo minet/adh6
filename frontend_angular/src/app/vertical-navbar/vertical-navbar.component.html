@@ -56,6 +56,9 @@
       Transactions
     </p>
     <ul class="menu-list" *ngIf="'manage' | able: 'treasury'">
+      <li>
+        <a [ngClass]="{'is-active': activeFromUrlPath('transac')}" [routerLink]="['transaction/add']">Transaction</a>
+      </li>
       <li><a [ngClass]="{'is-active': activeFromUrlPath('treasury')}" [routerLink]="['treasury']">Trésorerie</a></li>
       <li><a [ngClass]="{'is-active': activeFromUrlPath('account')}" [routerLink]="['account/search']">Comptes</a></li>
       <li><a [ngClass]="{'is-active': activeFromUrlPath('product')}" [routerLink]="['product/search']">Produit</a></li>

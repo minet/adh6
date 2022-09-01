@@ -9,12 +9,10 @@
       <div class="table-responsive">
         <table class="table table-striped table-bordered">
           <tbody>
-            <!--
             <tr>
               <th scope="row">Depuis</th>
-              <td>{{ selectedSrcAccount?.name }}</td>
+              <td>{{ srcAccount }}</td>
             </tr>
-            -->
             <tr>
               <th scope="row">Montant</th>
               <td>{{ transactionDetails.get('value')?.value | number:'':'fr' }} €</td>
@@ -23,12 +21,10 @@
               <th scope="row">Via</th>
               <td>{{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod')?.value) }}</td>
             </tr>
-            <!--
             <tr>
               <th scope="row">Vers</th>
-              <td>{{ selectedDstAccount.name }}</td>
+              <td>{{ dstAccount }}</td>
             </tr>
-            -->
             <tr>
               <th scope="row">Description</th>
               <td>{{ transactionDetails.get('name')?.value }}</td>
@@ -74,17 +70,12 @@
         <div class="card-header">
           <p class="card-header-title">Transaction</p>
           <button class="card-header-icon" type="button" (click)="exchangeAccounts()">
-            <->
+            <img src="assets/icons/exchange-arrow.svg" alt="exchange accounts">
           </button>
         </div>
         <div class="card-content">
           <div class="content">
-            <div class="field has-addons">
-              <p class="control">
-                <button type="button" class="button" tooltip="À valider">
-                  <input type="hidden" formControlName="pendingValidation" />
-                </button>
-              </p>
+            <div class="field">
               <p class="control">
                 <input type="text" class="input" aria-label="Description" placeholder="Description"
                   formControlName="name">

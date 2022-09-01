@@ -6,8 +6,7 @@ import { AppConstantsService } from '../app-constants.service';
 
 class Action {
   name: string = "";
-  buttonText: string = "";
-  buttonIcon: any;
+  buttonIcon: string = "";
   class: string = "";
   condition: any;
 }

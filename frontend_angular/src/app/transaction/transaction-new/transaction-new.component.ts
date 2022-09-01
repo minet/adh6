@@ -5,7 +5,6 @@ import { map, takeWhile } from 'rxjs/operators';
 
 import { PaymentMethod, Transaction, TransactionService } from '../../api';
 
-import { faArrowUp, faExchangeAlt, faUndo, faCheck, faTrash, faClock } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute } from '@angular/router';
 import { AppConstantsService } from '../../app-constants.service';
 import { NotificationService } from '../../notification.service';
@@ -22,10 +21,10 @@ export class TransactionNewComponent implements OnInit {
   public transactionDetails: UntypedFormGroup;
   public reverting = false;
   actions = [
-    { name: 'replay', buttonText: '<i class=\'fas fa-arrow-up\'></i>', class: 'is-primary', buttonIcon: faArrowUp, condition: (transaction: Transaction) => !transaction.pendingValidation },
-    { name: 'revert', buttonText: '<i class=\'fas fa-undo\'></i>', class: 'is-danger', buttonIcon: faUndo, condition: (transaction: Transaction) => !transaction.pendingValidation },
-    { name: 'validate', buttonText: '<i class=\'fas fa-check\'></i>', class: 'is-success', buttonIcon: faCheck, condition: (transaction: Transaction) => transaction.pendingValidation },
-    { name: 'delete', buttonText: '<i class=\'fas fa-trash\'></i>', class: 'is-danger', buttonIcon: faTrash, condition: (transaction: Transaction) => transaction.pendingValidation }
+    { name: 'replay', class: 'is-primary', buttonIcon: 'refresh-arrow', condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'revert', class: 'is-danger', buttonIcon: 'repeat-arrow', condition: (transaction: Transaction) => !transaction.pendingValidation },
+    { name: 'validate', class: 'is-success', buttonIcon: 'check', condition: (transaction: Transaction) => transaction.pendingValidation },
+    { name: 'delete', class: 'is-danger', buttonIcon: 'trash-bin', condition: (transaction: Transaction) => transaction.pendingValidation }
   ];
   public paymentMethods: Array<PaymentMethod> = [];
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
@@ -45,7 +44,6 @@ export class TransactionNewComponent implements OnInit {
       dstAccount: ['', Validators.required],
       paymentMethod: ['', Validators.required],
       caisse: ['direct'],
-      pendingValidation: [false],
     });
   }
 
@@ -145,7 +143,6 @@ export class TransactionNewComponent implements OnInit {
       paymentMethod: +v.paymentMethod,
       value: +v.value,
       cashbox: v.caisse,
-      pendingValidation: (v.pending_validation == null) ? false : v.pending_validation
     };
     if (!varTransaction.cashbox) {
       varTransaction.cashbox = 'direct';

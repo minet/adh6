@@ -54,9 +54,7 @@
               <button type="button" class="button {{ action.class }}"
                 (click)="whenOnAction.emit({name: action.name, transaction: transactionResult})"
                 *ngIf="action.condition(transactionResult)" placement="bottom">
-                <span>
-                  <fa-icon *ngIf="action.buttonIcon" [icon]="action.buttonIcon"></fa-icon>
-                </span>
+                <img src="assets/icons/{{action.buttonIcon}}.svg" width="25" height="25">
               </button>
             </p>
           </div>
