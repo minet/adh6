@@ -4,7 +4,9 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 from adh6.device.storage.device_repository import DeviceType
 
-from adh6.storage.sql.models import Adherent, db, Device
+from adh6.storage import db
+from adh6.member.storage.models import Adherent
+from adh6.device.storage.models import Device
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 from test.integration.conftest import sample_member_admin
 from .resource import (

@@ -10,7 +10,7 @@ from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.account_type import AccountType
 from adh6.exceptions import AccountTypeNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import AccountType as SQLAccountType
+from adh6.treasury.storage.models import AccountType as SQLAccountType
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 
 

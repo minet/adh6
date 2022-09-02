@@ -8,7 +8,7 @@ from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
 from adh6.default.decorator.log_call import log_call
 from adh6.device.interfaces.ip_allocator import IpAllocator
 
-from adh6.storage.sql.models import Device
+from adh6.device.storage.models import Device
 from adh6.storage import db
 
 

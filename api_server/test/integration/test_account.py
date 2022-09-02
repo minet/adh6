@@ -4,7 +4,8 @@ import pytest
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
-from adh6.storage.sql.models import AccountType, Account, Adherent
+from adh6.treasury.storage.models import AccountType, Account
+from adh6.member.storage.models import Adherent
 
 base_url = f"{host_url}/account/"
 

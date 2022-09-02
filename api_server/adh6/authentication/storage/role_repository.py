@@ -8,7 +8,7 @@ from adh6.authentication.storage.models import AuthenticationRoleMapping
 from adh6.entity import RoleMapping
 from adh6.authentication.interfaces import RoleRepository
 from adh6.storage import db
-from adh6.storage.sql.models import Adherent
+from adh6.member.storage.models import Adherent
 
 
 class RoleSQLRepository(RoleRepository):

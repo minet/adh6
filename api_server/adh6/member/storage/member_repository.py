@@ -13,7 +13,7 @@ from adh6.entity import AbstractMember
 from adh6.entity.member import Member
 from adh6.entity.member_filter import MemberFilter
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Adherent, Membership
+from adh6.member.storage.models import Adherent, Membership
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.member.interfaces.member_repository import MemberRepository
 

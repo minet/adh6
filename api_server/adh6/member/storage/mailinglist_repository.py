@@ -4,7 +4,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from adh6.constants import CTX_SQL_SESSION
 from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
-from adh6.storage.sql.models import Adherent
+from adh6.member.storage.models import Adherent
 
 class MailinglistSQLReposiroty(MailinglistRepository):
     def get_from_member(self, ctx, member_id: int) -> int:

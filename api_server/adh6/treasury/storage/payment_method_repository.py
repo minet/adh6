@@ -10,7 +10,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
 from adh6.entity.payment_method import PaymentMethod
 from adh6.exceptions import PaymentMethodNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import PaymentMethod as SQLPaymentMethod
+from adh6.treasury.storage.models import PaymentMethod as SQLPaymentMethod
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 
 

@@ -11,7 +11,7 @@ from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractSwitch, Switch
 from adh6.exceptions import SwitchNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Switch as SQLSwitch
+from adh6.network.storage.models import Switch as SQLSwitch
 from adh6.network.interfaces.switch_repository import SwitchRepository
 
 

@@ -11,8 +11,9 @@ from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractPort, Port, Switch, Room
 from adh6.exceptions import RoomNotFoundError, SwitchNotFoundError, PortNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Port as SQLPort, Switch as SQLSwitch, Chambre as SQLChambre
+from adh6.network.storage.models import Port as SQLPort, Switch as SQLSwitch
 from adh6.network.interfaces.port_repository import PortRepository
+from adh6.room.storage.models import Chambre as SQLChambre
 
 
 class PortSQLRepository(PortRepository):

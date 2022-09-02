@@ -16,9 +16,10 @@ from adh6.entity import AbstractAccount
 from adh6.entity.account import Account
 from adh6.exceptions import AccountNotFoundError, MemberNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Account as SQLAccount, Transaction, AccountType, Adherent
+from adh6.treasury.storage.models import Account as SQLAccount, Transaction, AccountType
 from adh6.storage.sql.track_modifications import track_modifications
 from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.member.storage.models import Adherent
 
 
 class AccountSQLRepository(AccountRepository):

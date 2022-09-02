@@ -10,7 +10,7 @@ from adh6.misc.log import LOG
 from adh6.constants import CTX_SQL_SESSION
 from adh6.exceptions import VLANNotFoundError
 from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Vlan as VlanSQL
+from adh6.subnet.storage.models import Vlan as VlanSQL
 from adh6.subnet.interfaces.vlan_repository import VlanRepository
 
 

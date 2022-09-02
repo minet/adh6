@@ -10,7 +10,7 @@ from adh6.misc.log import LOG
 from adh6.misc.context import log_extra
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import Membership, AbstractMembership
-from adh6.storage.sql.models import Membership as MembershipSQL
+from adh6.member.storage.models import Membership as MembershipSQL
 from adh6.default.decorator.log_call import log_call
 from adh6.member.interfaces.membership_repository import MembershipRepository
 

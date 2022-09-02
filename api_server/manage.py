@@ -12,7 +12,15 @@ import ipaddress
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
-from adh6.storage.sql.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
+from adh6.storage import db
+from adh6.storage.sql.models import Adhesion, Modification, Routeur
+from adh6.member.storage.models import Adherent, Membership
+from adh6.treasury.storage.models import AccountType, PaymentMethod, Transaction, Caisse, Account, Product
+from adh6.device.storage.models import Device
+from adh6.network.storage.models import Switch, Port
+from adh6.subnet.storage.models import Vlan
+from adh6.room.storage.models import Chambre
+
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app

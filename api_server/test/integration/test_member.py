@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 import json
 import pytest
 
-from adh6.storage.sql.models import db
-from adh6.storage.sql.models import Adherent
+from adh6.storage import db
+from adh6.member.storage.models import Adherent
 from test.integration.resource import (
     TEST_HEADERS_SAMPLE, base_url as host_url, TEST_HEADERS, assert_modification_was_created)
 
