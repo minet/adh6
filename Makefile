@@ -68,7 +68,7 @@ $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/s
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
 	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/
 	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/
-	sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
+	sed -i'' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
 	rm -rf tmpsrc
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)

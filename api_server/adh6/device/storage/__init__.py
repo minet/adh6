@@ -1,4 +1,4 @@
-from adh6.device.storage.device_repository import DeviceSQLRepository
-from adh6.device.storage.ip_allocator import IPSQLAllocator
+from adh6.device.storage.device_repository import DeviceSQLRepository as DeviceRepository
+from adh6.device.storage.ip_allocator import IPSQLAllocator as IPAllocator
 
-__all__ = ["DeviceSQLRepository", "IPSQLAllocator"]
+__all__ = ["DeviceRepository", "IPAllocator"]

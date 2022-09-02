@@ -83,35 +83,33 @@ managers = [
 ]
 
 from adh6.treasury.storage import (
-    TransactionSQLRepository, 
-    AccountSQLRepository, 
-    PaymentMethodSQLRepository, 
-    AccountTypeSQLRepository, 
-    CashboxSQLRepository,
-    ProductSQLRepository
+    TransactionRepository, 
+    AccountRepository, 
+    PaymentMethodRepository, 
+    AccountTypeRepository, 
+    CashboxRepository,
+    ProductRepository
 )
 from adh6.member.storage import (
-    MembershipSQLRepository,
-    MemberSQLRepository,
-    MailinglistSQLReposiroty,
-    CharterSQLRepository
+    MembershipRepository,
+    MemberRepository,
+    MailinglistReposiroty,
+    CharterRepository,
+    LogsRepository
 )
 from adh6.device.storage import (
-    DeviceSQLRepository,
-    IPSQLAllocator
+    DeviceRepository,
+    IPAllocator
 )
 from adh6.authentication.storage import (
-    RoleSQLRepository,
-    ApiKeySQLRepository
+    RoleRepository,
+    ApiKeyRepository
 )
-from adh6.metrics.storage.ping_repository import PingSQLRepository
-from adh6.metrics.storage.ping_repository import PingSQLRepository
-from adh6.network.storage.port_repository import PortSQLRepository
-from adh6.network.storage.switch_repository import SwitchSQLRepository
-from adh6.subnet.storage.vlan_repository import VLANSQLRepository
-from adh6.member.storage.logs_repository import ElasticSearchRepository
-from adh6.room.storage.room_repository import RoomSQLRepository
-from adh6.network.snmp import SwitchSNMPNetworkManager
+from adh6.metrics.storage import PingRepository
+from adh6.network.storage import PortRepository, SwitchRepository
+from adh6.subnet.storage import VLANRepository
+from adh6.room.storage import RoomRepository
+from adh6.network.snmp import SwitchNetworkManager
 from adh6.default.crud_repository import CRUDRepository
 
 
@@ -125,13 +123,13 @@ config = {
 def get_obj_graph():
     _global = managers+ \
         handlers+ \
-        [SwitchSNMPNetworkManager, ElasticSearchRepository]+ \
-        [TransactionSQLRepository, AccountTypeSQLRepository, AccountSQLRepository, PaymentMethodSQLRepository, CashboxSQLRepository, ProductSQLRepository]+ \
-        [MemberSQLRepository, MembershipSQLRepository, MailinglistSQLReposiroty, CharterSQLRepository] + \
-        [DeviceSQLRepository, IPSQLAllocator] + \
-        [PingSQLRepository, VLANSQLRepository, RoomSQLRepository] + \
-        [PortSQLRepository, SwitchSQLRepository] + \
-        [RoleSQLRepository, ApiKeySQLRepository]
+        [SwitchNetworkManager, LogsRepository]+ \
+        [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
+        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository] + \
+        [DeviceRepository, IPAllocator] + \
+        [PingRepository, VLANRepository, RoomRepository] + \
+        [PortRepository, SwitchRepository] + \
+        [RoleRepository, ApiKeyRepository]
 
     _base_interfaces = [
         abc.ABC,
