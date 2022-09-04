@@ -1,4 +1,5 @@
 import os
+from adh6.member.notification_manager import NotificationManager
 import connexion
 import pinject
 import abc
@@ -79,7 +80,8 @@ managers = [
     ApiKeyManager,
     RoleManager,
     MailinglistManager,
-    CharterManager
+    CharterManager,
+    NotificationManager
 ]
 
 from adh6.treasury.storage import (
@@ -97,6 +99,7 @@ from adh6.member.storage import (
     CharterRepository,
     LogsRepository
 )
+from adh6.member.smtp import NotificationRepository
 from adh6.device.storage import (
     DeviceRepository,
     IPAllocator
@@ -125,7 +128,7 @@ def get_obj_graph():
         handlers+ \
         [SwitchNetworkManager, LogsRepository]+ \
         [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
-        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository] + \
+        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository] + \
         [DeviceRepository, IPAllocator] + \
         [PingRepository, VLANRepository, RoomRepository] + \
         [PortRepository, SwitchRepository] + \

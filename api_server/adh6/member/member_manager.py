@@ -44,6 +44,7 @@ from adh6.member.interfaces.logs_repository import LogsRepository
 from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.member.interfaces.membership_repository import MembershipRepository
+from adh6.member.notification_manager import NotificationManager
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
@@ -64,7 +65,7 @@ class MemberManager(CRUDManager):
                  device_repository: DeviceRepository, account_repository: AccountRepository,
                  transaction_repository: TransactionRepository,  account_type_repository: AccountTypeRepository,
                  device_manager: DeviceManager, charter_repository: CharterRepository,
-                 mailinglist_repository: MailinglistRepository):
+                 mailinglist_repository: MailinglistRepository, notification_manager: NotificationManager):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.membership_repository = membership_repository
@@ -77,6 +78,7 @@ class MemberManager(CRUDManager):
         self.transaction_repository = transaction_repository
         self.device_manager = device_manager
         self.charter_repository = charter_repository
+        self.notification_manager = notification_manager
 
     @property
     def duration_price(self) -> Dict[int, int]:
@@ -369,7 +371,8 @@ class MemberManager(CRUDManager):
         self.membership_repository.validate(ctx, subscription.uuid)
         self.add_membership_payment_record(ctx, subscription, free)
         self.member_repository.add_duration(ctx, subscription.member, subscription.duration)
-        self.update_subnet(ctx, member_id) 
+        self.notification_manager.send(ctx, subscription.duration, member.username, member.email, member.departure_date, 2)
+        self.update_subnet(ctx, member_id)
 
 
     @log_call

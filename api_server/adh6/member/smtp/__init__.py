@@ -1,0 +1,1 @@
+from .notification_repository import NotificationSMTPRepository as NotificationRepository
