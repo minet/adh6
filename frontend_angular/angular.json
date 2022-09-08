@@ -41,6 +41,36 @@
             "scripts": []
           },
           "configurations": {
+            "development": {
+              "localize": [
+                "fr",
+                "en"
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "namedChunks": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "hidden": true,
+                "vendor": true
+              },
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ]
+            },
             "production": {
               "localize": [
                 "fr",
@@ -93,6 +123,9 @@
             "host": "0.0.0.0"
           },
           "configurations": {
+            "development": {
+              "browserTarget": "adh6:build:development"
+            },
             "production": {
               "browserTarget": "adh6:build:production"
             },
