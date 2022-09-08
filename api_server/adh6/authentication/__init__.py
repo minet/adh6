@@ -73,7 +73,7 @@ def apikey_auth(token: str, required_scopes):
     }
 
 
-user_id = "id" if "cas" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "preferred_username"
+user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
 
 def token_info(access_token) -> Optional[Dict[str, Any]]:
     infos = get_sso_groups(access_token)
