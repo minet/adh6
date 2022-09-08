@@ -13,17 +13,18 @@ services:
       - "8080"
     environment:
       ENVIRONMENT: "development"
-      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
+      OAUTH2_BASE_PATH: "https://keycloak.minet.net/realms/master/protocol/openid-connect/userinfo"
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-      GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
       ELK_ENABLED: ${ELK_ENABLED}
       ELK_HOSTS: ${ELK_HOSTS}
       ELK_USER: ${ELK_USER}
       ELK_SECRET: ${ELK_SECRET}
+    extra_hosts:
+      - "keycloak.minet.net:${KEYCLOAK_HOST}"
       
   # The reverse proxy is used to gather the api and the frontend behind the same
   # host. We can also use it to cache requests.
