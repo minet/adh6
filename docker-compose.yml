@@ -25,14 +25,12 @@ services:
       - "8080"
     environment:
       ENVIRONMENT: "development"
-      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
+      OAUTH2_BASE_PATH: "https://keycloak.minet.net/realms/MiNET/protocol/openid-connect/userinfo"
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-    extra_hosts:
-      - "keycloak.minet.net:${KEYCLOAK_HOST}"
      
   reverse_proxy:
     container_name: adh6_reverse_proxy

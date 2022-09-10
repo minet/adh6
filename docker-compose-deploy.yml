@@ -13,7 +13,7 @@ services:
       - "8080"
     environment:
       ENVIRONMENT: "development"
-      OAUTH2_BASE_PATH: "https://keycloak.minet.net/realms/master/protocol/openid-connect/userinfo"
+      OAUTH2_BASE_PATH: "https://keycloak.minet.net/realms/MiNET/protocol/openid-connect/userinfo"
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
