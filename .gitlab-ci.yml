@@ -236,6 +236,7 @@ stagged:backend:
 ###########################################
 development:
   stage: deploy
+  when: manual
   needs:
     - lint:frontend
     - test:backend
