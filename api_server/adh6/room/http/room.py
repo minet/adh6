@@ -44,7 +44,7 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def member_add_patch(self, ctx, id_: int, body):
+    def member_post(self, ctx, id_: int, body):
         try:
             self.room_manager.add_member(ctx, id_, body["id"])
             return NoContent, 204
@@ -53,12 +53,22 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def member_del_patch(self, ctx, id_: int, body):
+    def member_delete(self, ctx, id_: int, body):
         try:
             self.room_manager.remove_member(ctx, id_, body["id"])
             return NoContent, 204
         except Exception as e:
             return handle_error(ctx, e)
+
+    @with_context
+    @log_call
+    def member_add_patch(self, ctx, id_: int, body):
+        return self.member_post(ctx=ctx, id_=id_, body=body)
+
+    @with_context
+    @log_call
+    def member_del_patch(self, ctx, id_: int, body):
+        return self.member_delete(ctx=ctx, id_=id_, body=body)
 
     @with_context
     @log_call

@@ -1885,10 +1885,74 @@ paths:
           - admin:read
       tags:
       - room members
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
+        required: true
+      responses:
+        '204':
+          description: The member has been removed
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Remove a member from a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAdminAuth:
+          - admin:write
+      tags:
+      - room members
+    delete:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
+        description: The member to add
+        required: true
+      responses:
+        '204':
+          description: The member has been added
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Add a member in a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAdminAuth:
+          - admin:write
+      tags:
+      - room members
   /room/{id}/member/add/:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
+      deprecated: true
       requestBody:
         content:
           application/json:
@@ -1924,6 +1988,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
+      deprecated: true
       requestBody:
         content:
           application/json:
