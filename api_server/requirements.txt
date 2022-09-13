@@ -10,21 +10,19 @@ attrs==22.1.0
     # via
     #   jsonschema
     #   pytest
-authlib==1.0.1
+authlib==1.1.0
     # via -r requirements.in
-bcrypt==3.2.2
+bcrypt==4.0.0
     # via -r requirements.in
 cachelib==0.9.0
     # via flask-caching
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via
     #   elastic-transport
     #   requests
 cffi==1.15.1
-    # via
-    #   bcrypt
-    #   cryptography
-charset-normalizer==2.1.0
+    # via cryptography
+charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via
@@ -32,11 +30,11 @@ click==8.1.3
     #   flask
 clickclick==20.10.2
     # via connexion
-connexion==2.14.0
+connexion==2.14.1
     # via -r requirements.in
-coverage[toml]==6.4.2
+coverage[toml]==6.4.4
     # via pytest-cov
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   -r requirements.in
     #   authlib
@@ -44,26 +42,26 @@ decopatch==1.4.10
     # via pytest-cases
 decorator==5.1.1
     # via pinject
-elastic-transport==8.1.2
+elastic-transport==8.4.0
     # via elasticsearch
-elasticsearch==8.3.3
+elasticsearch==8.4.1
     # via -r requirements.in
-faker==13.15.1
+faker==14.2.0
     # via -r requirements.in
-flask==2.1.2
+flask==2.2.2
     # via
     #   -r requirements.in
     #   connexion
     #   flask-caching
     #   flask-migrate
     #   flask-sqlalchemy
-flask-caching==2.0.0
+flask-caching==2.0.1
     # via -r requirements.in
 flask-migrate==3.1.0
     # via -r requirements.in
 flask-sqlalchemy==2.5.1
     # via flask-migrate
-greenlet==1.1.2
+greenlet==1.1.3
     # via sqlalchemy
 idna==3.3
     # via requests
@@ -84,11 +82,11 @@ jsonschema==3.2.0
     # via
     #   -r requirements.in
     #   connexion
-makefun==1.14.0
+makefun==1.15.0
     # via
     #   decopatch
     #   pytest-cases
-mako==1.2.1
+mako==1.2.2
     # via alembic
 markupsafe==2.1.1
     # via
@@ -123,7 +121,7 @@ pysmi==0.3.4
     # via pysnmp
 pysnmp==4.4.12
     # via -r requirements.in
-pytest==7.1.2
+pytest==7.1.3
     # via
     #   -r requirements.in
     #   pytest-cov
@@ -142,9 +140,9 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   faker
-python-dotenv==0.20.0
+python-dotenv==0.21.0
     # via -r requirements.in
-python-gitlab==3.7.0
+python-gitlab==3.9.0
     # via -r requirements.in
 pyyaml==6.0
     # via
@@ -164,7 +162,7 @@ six==1.16.0
     #   jsonschema
     #   pinject
     #   python-dateutil
-sqlalchemy==1.4.39
+sqlalchemy==1.4.41
     # via
     #   -r requirements.in
     #   alembic
@@ -173,13 +171,13 @@ swagger-ui-bundle==0.0.9
     # via -r requirements.in
 tomli==2.0.1
     # via pytest
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   elastic-transport
     #   requests
 uwsgi==2.0.20
     # via -r requirements.in
-werkzeug==2.2.1
+werkzeug==2.2.2
     # via
     #   connexion
     #   flask

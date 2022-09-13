@@ -2,9 +2,8 @@ from typing import Optional, Tuple
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.base_model_ import Model
 from adh6.exceptions import IntMustBePositive
-from adh6.default.decorator.log_call import log_call
-from adh6.default.decorator.auto_raise import auto_raise
-from adh6.default.crud_repository import CRUDRepository
+from adh6.decorator import log_call, auto_raise
+from .crud_repository import CRUDRepository
 
 
 class CRUDManager:

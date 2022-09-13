@@ -4,8 +4,9 @@ from typing import List, Tuple, Union
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from adh6.constants import CTX_SQL_SESSION
-from adh6.member.interfaces.charter_repository import CharterRepository
-from adh6.member.storage.models import Adherent
+
+from .models import Adherent
+from ..interfaces.charter_repository import CharterRepository
 
 
 class CharterSQLRepository(CharterRepository):

@@ -7,11 +7,12 @@ from typing import List, Optional, Tuple
 from sqlalchemy.orm.session import Session
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_SQL_SESSION
-from adh6.entity.payment_method import PaymentMethod
+from adh6.entity import PaymentMethod
 from adh6.exceptions import PaymentMethodNotFoundError
-from adh6.default.decorator.log_call import log_call
-from adh6.treasury.storage.models import PaymentMethod as SQLPaymentMethod
-from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.decorator import log_call
+
+from .models import PaymentMethod as SQLPaymentMethod
+from ..interfaces import PaymentMethodRepository
 
 
 class PaymentMethodSQLRepository(PaymentMethodRepository):

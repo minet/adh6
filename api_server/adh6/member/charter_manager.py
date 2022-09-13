@@ -4,9 +4,7 @@ from adh6.constants import MembershipStatus
 from adh6.entity.abstract_membership import AbstractMembership
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.exceptions import MemberNotFoundError, MembershipNotFoundError
-from adh6.member.interfaces.charter_repository import CharterRepository
-from adh6.member.interfaces.member_repository import MemberRepository
-from adh6.member.interfaces.membership_repository import MembershipRepository
+from .interfaces import CharterRepository, MemberRepository, MembershipRepository
 
 
 class CharterManager:

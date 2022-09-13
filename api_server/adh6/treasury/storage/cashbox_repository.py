@@ -9,10 +9,12 @@ from typing import Tuple
 from sqlalchemy.orm.session import Session
 
 from adh6.constants import CTX_SQL_SESSION
-from adh6.default.decorator.log_call import log_call
+from adh6.decorator import log_call
 from adh6.storage.sql.track_modifications import track_modifications
-from adh6.treasury.storage.models import Caisse as SQLCashbox
-from adh6.treasury.interfaces.cashbox_repository import CashboxRepository
+
+from .models import Caisse as SQLCashbox
+from ..interfaces import CashboxRepository
+
 
 class CashboxSQLRepository(CashboxRepository):
 

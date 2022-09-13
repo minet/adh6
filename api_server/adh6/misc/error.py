@@ -1,5 +1,5 @@
 # coding=utf-8
-from adh6.exceptions import AlreadyExistsError, NetworkManagerReadError, ValidationError, UnauthorizedError, UnauthenticatedError, NotFoundError
+from adh6.exceptions import AlreadyExistsError, NetworkManagerReadError, ValidationError, UnauthorizedError, NotFoundError
 from adh6.misc.context import log_extra
 from adh6.misc.log import LOG
 

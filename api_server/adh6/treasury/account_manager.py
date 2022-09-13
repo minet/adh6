@@ -2,7 +2,8 @@
 from adh6.entity import AbstractAccount
 from adh6.exceptions import AccountNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.treasury.interfaces.account_repository import AccountRepository
+
+from .interfaces import AccountRepository
 
 
 class AccountManager(CRUDManager):

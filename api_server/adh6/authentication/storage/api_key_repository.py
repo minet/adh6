@@ -1,11 +1,13 @@
 from typing import List, Tuple, Union
 import uuid
 from sqlalchemy import select, delete
-from adh6.authentication.interfaces import ApiKeyRepository
 
-from adh6.authentication.storage.models import ApiKey as SQLApiKey
 from adh6.entity import ApiKey
 from adh6.storage import db
+
+from ..interfaces import ApiKeyRepository
+from .models import ApiKey as SQLApiKey
+
 
 class ApiKeySQLRepository(ApiKeyRepository):
     def get(self, id: int) -> ApiKey:

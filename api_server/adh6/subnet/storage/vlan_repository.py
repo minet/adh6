@@ -5,13 +5,13 @@ Implements everything related to actions on the SQL database.
 from sqlalchemy.orm.session import Session
 
 from adh6.entity import AbstractVlan
-from adh6.misc.context import log_extra
-from adh6.misc.log import LOG
+from adh6.misc import log_extra, LOG
 from adh6.constants import CTX_SQL_SESSION
 from adh6.exceptions import VLANNotFoundError
-from adh6.default.decorator.log_call import log_call
-from adh6.subnet.storage.models import Vlan as VlanSQL
-from adh6.subnet.interfaces.vlan_repository import VlanRepository
+from adh6.decorator import log_call
+
+from .models import Vlan as VlanSQL
+from ..interfaces import VlanRepository
 
 
 class VLANSQLRepository(VlanRepository):

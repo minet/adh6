@@ -7,11 +7,12 @@ from typing import List, Optional, Tuple
 from sqlalchemy.orm.session import Session
 
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity.account_type import AccountType
+from adh6.entity import AccountType
 from adh6.exceptions import AccountTypeNotFoundError
-from adh6.default.decorator.log_call import log_call
-from adh6.treasury.storage.models import AccountType as SQLAccountType
-from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
+from adh6.decorator import log_call
+
+from .models import AccountType as SQLAccountType
+from ..interfaces import AccountTypeRepository
 
 
 class AccountTypeSQLRepository(AccountTypeRepository):

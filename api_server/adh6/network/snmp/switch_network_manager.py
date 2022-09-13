@@ -5,13 +5,11 @@ Implements everything related to SNMP-related actions
 from typing import Tuple
 from adh6.constants import CTX_ROLES
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
-from adh6.network.snmp.util.snmp_helper import get_SNMP_value, set_SNMP_value
-from adh6.default.decorator.auto_raise import auto_raise
+from .util.snmp_helper import get_SNMP_value, set_SNMP_value
+from adh6.decorator import auto_raise
 from adh6.authentication import Roles
 
-from adh6.network.interfaces.port_repository import PortRepository
-from adh6.network.interfaces.switch_network_manager import SwitchNetworkManager
-from adh6.network.interfaces.switch_repository import SwitchRepository
+from ..interfaces import PortRepository, SwitchRepository, SwitchNetworkManager
 
 
 class SwitchSNMPNetworkManager(SwitchNetworkManager):

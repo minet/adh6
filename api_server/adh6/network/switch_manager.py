@@ -2,7 +2,7 @@
 
 from adh6.exceptions import SwitchNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.network.interfaces.switch_repository import SwitchRepository
+from .interfaces.switch_repository import SwitchRepository
 
 
 class SwitchManager(CRUDManager):

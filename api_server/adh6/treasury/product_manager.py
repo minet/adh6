@@ -1,15 +1,12 @@
 # coding=utf-8
 from typing import List
 from adh6.entity import AbstractAccount, AbstractTransaction
-from adh6.default.decorator.log_call import log_call
+from adh6.decorator import log_call, auto_raise
 from adh6.constants import KnownAccountExpense
-from adh6.default.decorator.auto_raise import auto_raise
 from adh6.exceptions import AccountNotFoundError, ProductNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.treasury.interfaces.product_repository import ProductRepository
-from adh6.treasury.interfaces.account_repository import AccountRepository
-from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
-from adh6.treasury.interfaces.transaction_repository import TransactionRepository
+
+from .interfaces import ProductRepository, AccountRepository, PaymentMethodRepository, TransactionRepository
 
 
 class ProductManager(CRUDManager):

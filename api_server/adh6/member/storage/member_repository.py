@@ -12,10 +12,11 @@ from adh6.constants import CTX_SQL_SESSION
 from adh6.entity import AbstractMember
 from adh6.entity.member import Member
 from adh6.entity.member_filter import MemberFilter
-from adh6.default.decorator.log_call import log_call
-from adh6.member.storage.models import Adherent, Membership
+from adh6.decorator import log_call
 from adh6.storage.sql.track_modifications import track_modifications
-from adh6.member.interfaces.member_repository import MemberRepository
+
+from .models import Adherent, Membership
+from ..interfaces.member_repository import MemberRepository
 
 
 class MemberSQLRepository(MemberRepository):
