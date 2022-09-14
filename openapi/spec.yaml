@@ -1895,20 +1895,20 @@ paths:
               type: object
               properties:
                 id:
-                  description: Id of the member to remove
+                  description: Id of the member to add
                   type: integer
                   example: 1
         required: true
       responses:
         '204':
-          description: The member has been removed
+          description: The member has been added
         '400':
           $ref: '#/components/responses/Invalid'
         '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Remove a member from a room
+      summary: Add a member in a room
       security: 
         - OAuth2:
           - admin:write
@@ -1929,18 +1929,18 @@ paths:
                   description: Id of the member to remove
                   type: integer
                   example: 1
-        description: The member to add
+        description: The member to remove
         required: true
       responses:
         '204':
-          description: The member has been added
+          description: The member has been removed
         '400':
           $ref: '#/components/responses/Invalid'
         '403':
           $ref: '#/components/responses/Unauthorized'
         default:
           $ref: '#/components/responses/Unexpected'
-      summary: Add a member in a room
+      summary: Remove a member from a room
       security: 
         - OAuth2:
           - admin:write

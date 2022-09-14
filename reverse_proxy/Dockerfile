@@ -8,6 +8,8 @@ RUN openssl genrsa -out /tmp/adh6.key 2048 \
 
 FROM nginx:alpine@sha256:5a0df7fb7c8c03e4158ae9974bfbd6a15da2bdfdeded4fb694367ec812325d31
 
+ENV API_MEMBER_HOST=adh6_backend_member
+
 COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
 COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
