@@ -19,7 +19,6 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-    extra_hosts:
   api_server_member:
     container_name: adh6_backend_member
     build: api_server
@@ -60,3 +59,9 @@ services:
       FRONTEND_HOST: "frontend_angular"
       FRONTEND_PORT: "80"
     command: ['nginx-debug', '-g', 'daemon off;'] # More logging!
+  jaeger:
+    image: jaegertracing/all-in-one:1.22
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+    ports:
+      - 16686:16686
