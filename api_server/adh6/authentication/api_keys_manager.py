@@ -47,5 +47,6 @@ class ApiKeyManager:
         return result, len(result)
 
     def delete(self, ctx, id: int):
-        self.api_key_repository.get(id)
+        if not self.api_key_repository.get(id):
+            raise NotFoundError("ApiKey not foud")
         self.api_key_repository.delete(id)
