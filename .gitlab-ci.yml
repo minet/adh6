@@ -238,6 +238,7 @@ development:
   stage: deploy
   when: manual
   needs:
+    - generation:backend_entity
     - generation:frontend_module
     - generation:frontend_assets
   script:
