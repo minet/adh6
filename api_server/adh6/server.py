@@ -1,4 +1,5 @@
 import os
+from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
 from adh6.member.notification_manager import NotificationManager
 import connexion
 import pinject
@@ -6,6 +7,7 @@ import abc
 
 from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
+from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
 
 from adh6.resolver import ADHResolver
 from adh6.treasury.http import *
@@ -128,7 +130,7 @@ def get_obj_graph():
         handlers+ \
         [SwitchNetworkManager, LogsRepository]+ \
         [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
-        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository] + \
+        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository, NotificationTemplateSQLRepository ] + \
         [DeviceRepository, IPAllocator] + \
         [PingRepository, VLANRepository, RoomRepository] + \
         [PortRepository, SwitchRepository] + \

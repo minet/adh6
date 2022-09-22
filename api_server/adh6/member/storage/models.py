@@ -1,5 +1,6 @@
 # coding: utf-8
-from sqlalchemy import Column, String, Boolean, Date, DateTime, Integer
+from enum import unique
+from sqlalchemy import Column, String, Boolean, Date, DateTime, Integer, Text
 from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
 
@@ -72,3 +73,10 @@ class Membership(db.Model):
     status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
     create_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
     update_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+
+class NotificationTemplate(db.Model):
+    __tablename__ = "notification_templates"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String(255), nullable=False, unique=True)
+    template = Column(Text, nullable=True)

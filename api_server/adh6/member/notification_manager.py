@@ -1,46 +1,40 @@
 import enum
+import imp
+from operator import xor
+from pipes import Template
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.auto_raise import auto_raise
 from adh6.constants import MembershipDuration
 from adh6.member.interfaces.notification_repository import NotificationRepository
+from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
+from adh6.exceptions import TemplateNotFoundError, UndecalredVariableInTemplate
+from jinja2 import Template, Environment, meta
+from jinja2.meta import find_undeclared_variables
 
 class NotificationManager:
-    def __init__(self, notification_repository: NotificationRepository) -> None:
+    def __init__(self, notification_repository: NotificationRepository, 
+                notification_template_repository: NotificationTemplateRepository) -> None:
         self.notification_repository = notification_repository
+        self.notification_template_repository = notification_template_repository
 
     @log_call
     @auto_raise
-    def send(self, ctx, template_id :str, member_email :str, **kwargs):
+    def send(self, ctx, template_title: str, member_email: str, **kwargs):
+        # check if template exist
+        
+        template = self.notification_template_repository.get(ctx, template_title)
+        print(template)
+        if not template:
+                raise TemplateNotFoundError(template_title)
 
-        self.notification_repository.send()
-        '''        
-        server = smtplib.SMTP('192.168.102.18', 25)
-        msg = EmailMessage()
-        msg['Subject'] = "COTISATION MiNET / MiNET SUBSCRIBTION :"
-        msg['From'] = "no-reply@minet.net"
-        msg['To'] = member_email
-        msg.set_content("""\
-        -- ENGLISH VERSION BELOW --
+        # TODO: Check exactly all args for the template, no more, no less
+        env = Environment()
+        template_parsed = env.parse(template.template)
+        variables_in_template = set(meta.find_undeclared_variables(template_parsed))
+        variables_in_parameter = set(kwargs.keys())
+        if len(variables_in_template) != len(variables_in_parameter):
+                raise UndecalredVariableInTemplate(variables_in_template^variables_in_parameter)
+        template = Template(template.template)
+        body = template.render(**kwargs)
 
-Bonjour/Bonsoir,
-
-Ta demande de (re)cotisation de {subscription_duration.value} mois a bien été prise en compte. Elle expirera le {subscription_end}.
-
-Pour configurer tes appareils, nous t'invitons à te rendre sur le site https://minet.net/fr/tutoriels.html qui t'explique comment configurer tes appareils. En cas de problème, tu peux nous écrire sur https://tickets.minet.net, et nous t'aiderons à régler tes problèmes, ou bien passer au local associatif dans le foyer, aux horaires de permanence (du lundi au vendredi de 18h à 19h30).
-
-Cordialement,
-L'équipe MiNET.
-
-----
-
-Hello/Good evening,
-
-Your request for (re-)contribution of {subscription_duration.value} months has been taken into account. It will expire on {subscription_end}.
-
-To configure your devices, we invite you to visit https://minet.net/en/tutoriels.html which explains how to configure your devices. In case of problem, you can write to us on https://tickets.minet.net/, and we will help you to solve your problems, or come to the association's office in the foyer, during office hours (Monday to Friday from 6pm to 7:30pm).
-
-Best regard,
-MiNET Team.
-        """)
-        server.send_message(msg)
-'''
+        self.notification_repository.send(ctx, member_email, template_title, body)
