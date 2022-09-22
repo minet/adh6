@@ -238,11 +238,9 @@ development:
   stage: deploy
   when: manual
   needs:
-    - lint:frontend
-    - test:backend
+    - generation:backend_entity
     - generation:frontend_module
     - generation:frontend_assets
-    - lint:backend
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down

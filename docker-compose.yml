@@ -92,3 +92,9 @@ services:
       interval: 3s
       timeout: 1s
       retries: 5
+  jaeger:
+    image: jaegertracing/all-in-one:1.22
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+    ports:
+      - 16686:16686
