@@ -46,12 +46,14 @@ handlers = [
     CharterHandler
 ]
 
-from adh6.treasury.account_manager import AccountManager
-from adh6.treasury.account_type_manager import AccountTypeManager
-from adh6.treasury.cashbox_manager import CashboxManager
-from adh6.treasury.payment_method_manager import PaymentMethodManager
-from adh6.treasury.transaction_manager import TransactionManager
-from adh6.treasury.product_manager import ProductManager
+from adh6.treasury import (
+    AccountManager, 
+    AccountTypeManager, 
+    CashboxManager, 
+    TransactionManager, 
+    ProductManager, 
+    PaymentMethodManager
+)
 from adh6.member.member_manager import MemberManager
 from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.member.charter_manager import CharterManager
@@ -220,5 +222,10 @@ def init() -> FlaskApp:
     cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
     
     Migrate(app.app, db)
+
+    #from flask_migrate import upgrade
+    #from adh6.treasury import init as treasury_init
+    #upgrade()
+    #treasury_init()
 
     return app

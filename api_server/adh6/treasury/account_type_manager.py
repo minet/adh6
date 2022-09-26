@@ -2,7 +2,8 @@
 
 from adh6.exceptions import AccountTypeNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.treasury.interfaces.account_type_repository import AccountTypeRepository
+
+from .interfaces import AccountTypeRepository
 
 
 class AccountTypeManager(CRUDManager):

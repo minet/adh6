@@ -1,6 +1,5 @@
-from adh6.metrics.interfaces.ping_repository import PingRepository
-from adh6.misc.context import log_extra
-from adh6.misc.log import LOG
+from .interfaces.ping_repository import PingRepository
+from adh6.misc import log_extra, LOG
 
 
 class HealthManager:

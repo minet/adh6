@@ -12,8 +12,7 @@ from functools import wraps
 from adh6.exceptions import UnauthenticatedError
 
 from adh6.storage import db
-from adh6.misc.context import build_context, log_extra
-from adh6.misc.log import LOG
+from adh6.misc import build_context, log_extra, handle_error, LOG
 
 
 def with_context(f, session_handler = None):
@@ -72,8 +71,7 @@ def with_context(f, session_handler = None):
             LOG.error("rollback_sql_transaction_exception_caught",
                       extra=log_extra(ctx, exception=str(e), traceback=traceback.format_exc()))
             s.rollback()
-            raise
-
+            return handle_error(ctx, e)
         finally:
             # When running unit tests, we don't close the session so tests can actually perform some work on that
             # session.

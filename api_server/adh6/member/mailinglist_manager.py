@@ -1,7 +1,7 @@
 from typing import List
 from adh6.exceptions import MemberNotFoundError
-from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
-from adh6.member.interfaces.member_repository import MemberRepository
+
+from .interfaces import MailinglistRepository, MemberRepository
 
 
 class MailinglistManager:

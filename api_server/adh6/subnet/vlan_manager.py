@@ -2,9 +2,9 @@
 from adh6.entity import Vlan
 from adh6.exceptions import VLANNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.subnet.interfaces.vlan_repository import VlanRepository
-from adh6.default.decorator.auto_raise import auto_raise
-from adh6.default.decorator.log_call import log_call
+from adh6.decorator import auto_raise, log_call
+
+from .interfaces import VlanRepository
 
 
 class VlanManager(CRUDManager):
