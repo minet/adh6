@@ -1,15 +1,15 @@
 import enum
 import imp
-from operator import xor
 from pipes import Template
-from adh6.default.decorator.log_call import log_call
-from adh6.default.decorator.auto_raise import auto_raise
+from adh6.decorator import log_call, auto_raise
 from adh6.constants import MembershipDuration
-from adh6.member.interfaces.notification_repository import NotificationRepository
-from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
 from adh6.exceptions import TemplateNotFoundError, UndecalredVariableInTemplate
 from jinja2 import Template, Environment, meta
 from jinja2.meta import find_undeclared_variables
+
+from .interfaces import NotificationRepository
+from .interfaces import NotificationTemplateRepository
+
 
 class NotificationManager:
     def __init__(self, notification_repository: NotificationRepository, 

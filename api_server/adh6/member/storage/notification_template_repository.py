@@ -1,13 +1,14 @@
 from pipes import Template
 from re import template
-from adh6.default.decorator.log_call import log_call
+from adh6.decorator.log_call import log_call
 from sqlalchemy.orm import Session
 import typing as t
 from sqlalchemy import select, insert
 from adh6.constants import CTX_SQL_SESSION
 from adh6.entity.member import Member
-from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository, NotificationTemplate
-from adh6.member.storage.models import NotificationTemplate as SQLNotificationTemplate
+
+from ..interfaces.notification_template_repository import NotificationTemplateRepository, NotificationTemplate
+from .models import NotificationTemplate as SQLNotificationTemplate
 
 
 class NotificationTemplateSQLRepository(NotificationTemplateRepository):

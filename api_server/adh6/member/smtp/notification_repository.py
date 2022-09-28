@@ -1,10 +1,12 @@
-from adh6.default.decorator.log_call import log_call
-from adh6.misc.log import LOG
+from adh6.decorator import log_call
+from adh6.misc import LOG
 import smtplib
 from flask import current_app
 from email.message import EmailMessage
 from email.headerregistry import Address
-from adh6.member.interfaces.notification_repository import NotificationRepository
+
+from ..interfaces import NotificationRepository
+
 
 class NotificationSMTPRepository(NotificationRepository):
     @log_call
