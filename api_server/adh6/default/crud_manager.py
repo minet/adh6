@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.base_model_ import Model
 from adh6.exceptions import IntMustBePositive
-from adh6.decorator import log_call, auto_raise
+from adh6.decorator import log_call
 from .crud_repository import CRUDRepository
 
 
