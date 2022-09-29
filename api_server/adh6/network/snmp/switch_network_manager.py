@@ -6,9 +6,9 @@ from typing import Tuple
 from adh6.constants import CTX_ROLES
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
 from .util.snmp_helper import get_SNMP_value, set_SNMP_value
-from adh6.decorator import auto_raise
-from adh6.authentication import Roles
 
+from adh6.authentication import Roles
+from adh6.decorator import log_call
 from ..interfaces import PortRepository, SwitchRepository, SwitchNetworkManager
 
 
@@ -17,7 +17,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         self.switch_repository = switch_repository
         self.port_repository = port_repository
 
-    @auto_raise
+    @log_call
     def get_port_status(self, ctx, port_id: int) -> bool:
         """
         Retrieve the status of a port.
@@ -30,7 +30,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def update_port_status(self, ctx, port_id: int) -> str:
         """
         Update the status of a port.
@@ -47,7 +47,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_port_vlan(self, ctx, port_id: int) -> int:
         """
         Get the VLAN assigned to a port.
@@ -61,7 +61,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     
-    @auto_raise
+    @log_call
     def update_port_vlan(self, ctx, port_id: int, vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
@@ -86,7 +86,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except Exception as e:
             raise e
 
-    @auto_raise
+    @log_call
     def get_port_mab(self, ctx, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -99,7 +99,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def update_port_mab(self, ctx, port_id: int) -> str:
         """
         Update whether MAB should be active on a port.
@@ -116,7 +116,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_port_auth(self, ctx, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
@@ -129,7 +129,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def update_port_auth(self, ctx, port_id: int) -> None:
         """
         Update whether MAB should be active on a port.
@@ -147,7 +147,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_port_use(self, ctx, port_id: int) -> bool:
         """
         Retrieve usage of a port.
@@ -160,7 +160,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_port_speed(self, ctx, port_id: int) -> int:
         """
         Retrieve speed of a port.
@@ -173,7 +173,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_port_alias(self, ctx, port_id: int) -> str:
         """
         Retrieve alias of a port.
@@ -187,7 +187,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         except NetworkManagerReadError:
             raise
 
-    @auto_raise
+    @log_call
     def get_oid_switch_ipand_community_from_port_id(self, ctx, port_id) -> Tuple[str, str, str]:
         port = self.port_repository.get_by_id(ctx, object_id=port_id)
         if port.oid is None or not isinstance(port.oid, str):

@@ -17,7 +17,6 @@ class ApiKeyManager:
         self.role_repository = role_repository
         self.member_manager = member_manager
 
-    @auto_raise
     def create(self, ctx, login: str, roles: List[str]) -> str:
         if len(roles) == 0:
             raise ValidationError()

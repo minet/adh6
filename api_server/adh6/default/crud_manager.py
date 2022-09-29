@@ -12,7 +12,6 @@ class CRUDManager:
         self.not_found_exception = not_found_exception
 
     @log_call
-    @auto_raise
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive('limit')
@@ -36,7 +35,6 @@ class CRUDManager:
         return e
 
     @log_call
-    @auto_raise
     def update_or_create(self, ctx, obj, id: Optional[int] = None):
         current_object = None
         if id is not None:
@@ -49,13 +47,11 @@ class CRUDManager:
             return self.repository.update(ctx, obj, override=True), False
 
     @log_call
-    @auto_raise
     def partially_update(self, ctx, obj, id: int, override=False):
         obj.id = id
         return self.repository.update(ctx, obj, override=override), False
 
     @log_call
-    @auto_raise
     def delete(self, ctx, id: int):
         e = self.repository.get_by_id(ctx=ctx, object_id=id)
         if not e:

@@ -22,7 +22,6 @@ class ProductManager(CRUDManager):
         self.account_repository = account_repository
 
     @log_call
-    @auto_raise
     def buy(self, ctx, member_id: int, payment_method_id: int, product_ids: List[int] = []) -> None:
         if not product_ids:
             raise ProductNotFoundError("None")

@@ -13,6 +13,5 @@ class VlanManager(CRUDManager):
         self.vlan_repository = vlan_repository
 
     @log_call
-    @auto_raise
     def get_from_number(self, ctx, vlan_number: int) -> Vlan:
         return self.vlan_repository.get_vlan(ctx, vlan_number)

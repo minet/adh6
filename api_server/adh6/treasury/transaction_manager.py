@@ -23,7 +23,6 @@ class TransactionManager(CRUDManager):
         self.cashbox_repository = cashbox_repository
 
     @log_call
-    @auto_raise
     def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, id: Optional[int] = None) -> Tuple[Transaction, bool]:
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
@@ -51,7 +50,6 @@ class TransactionManager(CRUDManager):
         return transaction, created
 
     @log_call
-    @auto_raise
     def partially_update(self, ctx, abstract_transaction: AbstractTransaction, id=None, override=False, **kwargs):
         if any(True for _ in filter(lambda e: e is not None, [
             abstract_transaction.value,
@@ -66,7 +64,6 @@ class TransactionManager(CRUDManager):
         raise NotImplementedError
 
     @log_call
-    @auto_raise
     def validate(self, ctx, id: int):
         transaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:
@@ -74,7 +71,6 @@ class TransactionManager(CRUDManager):
         return self.transaction_repository.validate(ctx, id)
 
     @log_call
-    @auto_raise
     def delete(self, ctx, id: int):
         transaction = self.get_by_id(ctx, id=id)
         if not transaction.pending_validation:

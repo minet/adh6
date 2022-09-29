@@ -1,7 +1,4 @@
 # coding=utf-8
-"""
-Contain all the http http_api functions.
-"""
 from typing import List, Optional, Tuple, Any, Union
 
 from connexion import NoContent
@@ -16,13 +13,15 @@ from adh6.misc import log_extra, LOG
 
 from ..charter_manager import CharterManager
 from ..member_manager import MemberManager
+from ..subscription_manager import SubscriptionManager
 
 
 class MemberHandler(DefaultHandler):
-    def __init__(self, member_manager: MemberManager, charter_manager: CharterManager):
+    def __init__(self, member_manager: MemberManager, charter_manager: CharterManager, subscription_manager: SubscriptionManager):
         super().__init__(Member, AbstractMember, member_manager)
         self.member_manager = member_manager
         self.charter_manager = charter_manager
+        self.subscription_manager = subscription_manager
 
     @with_context
     @log_call
@@ -68,7 +67,7 @@ class MemberHandler(DefaultHandler):
     def subscription_post(self, ctx, id_: int, body: dict):
         """ Add a membership record in the database """
         LOG.debug("http_member_post_membership_called", extra=log_extra(ctx, id=id_, request=body))
-        created_membership = self.member_manager.create_subscription(ctx, id_, SubscriptionBody.from_dict(body))
+        created_membership = self.subscription_manager.create(ctx, id_, SubscriptionBody.from_dict(body))
         return created_membership.to_dict(), 200  # 200 OK
 
     @with_context
@@ -102,15 +101,14 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def subscription_patch(self, ctx, id_, body):
-        LOG.debug("membership_patch_called", extra=log_extra(ctx, body=body, id=id_))
-        to_update = SubscriptionBody.from_dict(body)
-        self.member_manager.update_subscription(ctx, id_, to_update)
+        self.subscription_manager.update(ctx, id_, SubscriptionBody.from_dict(body))
         return NoContent, 204
 
     @with_context
     @log_call
     def subscription_validate(self, ctx, id_: int, free: bool = False):
-        self.member_manager.validate_subscription(ctx, id_, free)
+        self.subscription_manager.validate(ctx, id_, free)
+        self.member_manager.update_subnet(ctx, id_)
         return NoContent, 204
 
     @with_context

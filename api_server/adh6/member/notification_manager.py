@@ -1,11 +1,7 @@
-import enum
-import imp
 from pipes import Template
-from adh6.decorator import log_call, auto_raise
-from adh6.constants import MembershipDuration
+from adh6.decorator import log_call
 from adh6.exceptions import TemplateNotFoundError, UndecalredVariableInTemplate
 from jinja2 import Template, Environment, meta
-from jinja2.meta import find_undeclared_variables
 
 from .interfaces import NotificationRepository
 from .interfaces import NotificationTemplateRepository
@@ -18,7 +14,6 @@ class NotificationManager:
         self.notification_template_repository = notification_template_repository
 
     @log_call
-    @auto_raise
     def send(self, ctx, template_title: str, member_email: str, **kwargs):
         # check if template exist
         

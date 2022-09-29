@@ -57,6 +57,7 @@ from adh6.treasury import (
 from adh6.member.member_manager import MemberManager
 from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.member.charter_manager import CharterManager
+from adh6.member.subscription_manager import SubscriptionManager
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.metrics.health_manager import HealthManager
@@ -85,7 +86,8 @@ managers = [
     RoleManager,
     MailinglistManager,
     CharterManager,
-    NotificationManager
+    NotificationManager,
+    SubscriptionManager,
 ]
 
 from adh6.treasury.storage import (
@@ -132,7 +134,7 @@ def get_obj_graph():
         handlers+ \
         [SwitchNetworkManager, LogsRepository]+ \
         [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
-        [MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository, NotificationTemplateSQLRepository ] + \
+        [SubscriptionManager, MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository, NotificationTemplateSQLRepository ] + \
         [DeviceRepository, IPAllocator] + \
         [PingRepository, VLANRepository, RoomRepository] + \
         [PortRepository, SwitchRepository] + \
