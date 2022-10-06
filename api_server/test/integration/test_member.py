@@ -291,6 +291,21 @@ def test_member_post_member_create_invalid_email(client):
     )
     assert res.status_code == 400
 
+def test_member_post_member_create_invalid_username(client):
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "john@doe"
+    }
+    res = client.post(
+        f'{base_url}',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS
+    )
+    assert res.status_code == 400
+
 
 def test_member_post_member_create(client):
     body = {
