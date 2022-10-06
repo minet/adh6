@@ -3312,6 +3312,7 @@ components:
         username:
           type: string
           example: minet_adh6
+          pattern: '^[^@]*$'
         firstName:
           type: string
           example: Ubuntoutou

@@ -18,10 +18,9 @@
       class="help is-danger">
       <span class="invalid" *ngIf="memberEdit.controls['username'].errors.minlength">Le nom d'utilisateur doit
         contenir
-        au moins 7 caractères.</span>
-      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.maxlength">Le nom d'utilisateur doit
-        contenir
-        moins de 8 caractères.</span>
+        au moins 7 caractères. </span>
+      <span class="invalid" *ngIf="memberEdit.controls['username'].errors.pattern">Le nom d'utilisateur contient
+         un un caractère invalid. </span>
     </p>
   </div>
   <div class="field">

@@ -36,7 +36,7 @@ export class CreateOrEditComponent implements OnInit {
     this.memberEdit = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
+      username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255), Validators.pattern('^[^@]*$')]],
       email: ['', [Validators.required, Validators.email]],
       roomNumber: [null, [Validators.min(0), Validators.max(9999)]],
     });
