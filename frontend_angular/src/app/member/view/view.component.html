@@ -40,6 +40,10 @@
           </ng-template>
         </tr>
         <tr>
+          <td>Mail</td>
+          <td>{{ member.email }}</td>
+        </tr>
+        <tr>
           <td>Chambre</td>
           <td>
             <ng-container *ngIf="room$ | async as room; else elseNoRoom">
