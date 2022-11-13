@@ -13,7 +13,8 @@ import { RouterModule } from '@angular/router';
       { path: 'add', loadChildren: () => import('./create-or-edit/create-or-edit.module').then(m => m.CreateOrEditModule) },
       { path: 'view/:member_id', loadChildren: () => import('./view/view.module').then(m => m.ViewModule) },
       { path: 'edit/:member_id', loadChildren: () => import('./create-or-edit/create-or-edit.module').then(m => m.CreateOrEditModule) },
-    ])
+      { path: 'comment/:member_id', loadComponent: () => import('./member-view/member-comment-edit/member-comment-edit.component').then(m => m.MemberCommentEditComponent) },
+    ]),
   ]
 })
 export class MemberModule { }

@@ -470,3 +470,71 @@ def test_member_get_statuses_unauthorized(client):
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
+
+def test_member_comment_put(client, sample_member):
+    body = {
+        "comment": "test_comment",
+    }
+    result = client.put(
+        f'{base_url}{sample_member.id}/comment/',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 204
+
+def test_member_comment_put_unauthorized(client):
+    r = client.put(
+        f'{base_url}{4242}/comment/',
+        data=json.dumps({}),
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+def test_member_comment_get(client, sample_member):
+    body = {
+        "comment": "test_comment",
+    }
+    result = client.put(
+        f'{base_url}{sample_member.id}/comment/',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 204
+
+    result = client.get(
+        f'{base_url}{sample_member.id}/comment/',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert result.json["comment"] == "test_comment"
+
+def test_member_comment_get_empty(client, sample_member):
+    result = client.get(
+        f'{base_url}{sample_member.id}/comment/',
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 200
+    assert result.json["comment"] == ""
+
+def test_member_comment_get_unauthorized(client):
+    r = client.get(
+        f'{base_url}{4242}/comment/',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+def test_member_comment_too_long(client, sample_member):
+    body = {
+        "comment": "a" * 256,
+    }
+    result = client.put(
+        f'{base_url}{sample_member.id}/comment/',
+        data=json.dumps(body),
+        content_type='application/json',
+        headers=TEST_HEADERS,
+    )
+    assert result.status_code == 400

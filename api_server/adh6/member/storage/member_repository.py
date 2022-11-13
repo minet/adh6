@@ -140,6 +140,12 @@ class MemberSQLRepository(MemberRepository):
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
+    @log_call
+    def update_comment(self, ctx, member_id: int, comment: str) -> None:
+        session: Session = ctx.get(CTX_SQL_SESSION)
+        adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
+        with track_modifications(ctx, session, adherent):
+            adherent.commentaires= comment
 
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
@@ -156,6 +162,8 @@ def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, overrid
         adherent.ip = entity.ip if entity.ip != "" else None
     if entity.subnet is not None or override:
         adherent.subnet = entity.subnet if entity.subnet != "" else None
+    if entity.comment is not None or override:
+        adherent.commentaires = entity.comment
 
     adherent.updated_at = now
     return adherent

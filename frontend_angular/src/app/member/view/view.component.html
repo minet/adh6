@@ -40,6 +40,10 @@
           </ng-template>
         </tr>
         <tr>
+          <td>Mail</td>
+          <td><a href="mailto:{{ member.email }}">{{ member.email }}</a></td>
+        </tr>
+        <tr>
           <td>Chambre</td>
           <td>
             <ng-container *ngIf="room$ | async as room; else elseNoRoom">
@@ -64,6 +68,15 @@
         <button class="button is-success is-fullwidth" type="submit" [disabled]="moveInDisabled">Valider</button>
       </form>
     </div>
+    <div *ngIf="member.comment">
+      <h3 class="title is-4">
+        Commentaire
+      </h3>
+      <hr />
+      <div class="notification is-primary is-light">
+        <p>{{ member.comment }}<p>
+      </div>
+    </div>
     <h3 class="title is-4">
       Edition
     </h3>
@@ -72,6 +85,11 @@
       <div class="column">
         <a [routerLink]="['/member/edit/', member.id ]">
           <button class="button is-primary is-fullwidth">Éditer le profil</button>
+        </a>
+      </div>
+      <div class="column">
+        <a [routerLink]="['/member/comment', member.id ]">
+          <button class="button is-primary is-fullwidth"> {{member.comment ? "Modifier le commentaire" : "Ajouter un commentaire"}} </button>
         </a>
       </div>
       <div class="column">

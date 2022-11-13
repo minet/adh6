@@ -10,6 +10,7 @@ from adh6.entity import (
     AbstractMembership, Membership,
     MemberStatus,
     AbstractAccount,
+    Comment,
 )
 from adh6.entity.abstract_transaction import AbstractTransaction
 from adh6.entity.device_filter import DeviceFilter
@@ -583,3 +584,18 @@ class MemberManager(CRUDManager):
     def ethernet_vlan_changed(self, ctx, member_id: int, vlan_number: int):
         member = self.get_by_id(ctx, id=member_id)
         self.device_manager.allocate_new_vlan_ips(ctx, member_id=member_id, wireless_subnet=member.subnet if member.subnet else "", vlan_number=vlan_number)
+
+    @log_call
+    def change_comment(self, ctx, member_id: int, comment: Comment) -> None:
+        # Check that the user exists in the system.
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
+        self.member_repository.update_comment(ctx, member_id, comment.comment)
+    
+    def get_comment(self, ctx, member_id: int) -> Comment:
+        # Check that the user exists in the system.
+        member = self.member_repository.get_by_id(ctx, member_id)
+        if not member:
+            raise MemberNotFoundError(member_id)
+        return Comment(member.comment if member.comment else "")

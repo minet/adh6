@@ -803,6 +803,56 @@ paths:
           - admin:write
       tags:
       - member
+  /member/{id}/comment/:
+    parameters:
+      - $ref: '#/components/parameters/idPath'
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '204':
+          description: Modified
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Update the comment of a member
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAdminAuth:
+          - admin:write
+      tags:
+      - member
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Retrieves the comment of the user
+      security: 
+        - OAuth2:
+          - admin:read
+        - ApiKeyAdminAuth:
+          - admin:read
+      tags:
+      - member
   /member/{id}/subscription/:
     parameters:
       - $ref: '#/components/parameters/idPath'
@@ -3259,6 +3309,17 @@ components:
           description: The id of the owner of the device
           example: 0
           type: integer
+    Comment:
+      type: object
+      required:
+        - comment
+      properties:
+        comment:
+          example: 'Je suis un commentaire'
+          nullable: false
+          type: string
+          maxLength: 255
+          description: Comment
     MemberFilter:
       type: object
       properties:
