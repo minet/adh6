@@ -31,3 +31,7 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
     @abc.abstractmethod
     def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
         pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def update_comment(self, ctx, member_id: int, comment: str) -> None:
+        pass  # pragma: no cover

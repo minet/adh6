@@ -8,7 +8,7 @@ from connexion import NoContent
 from adh6.authentication import Roles
 from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET
 
-from adh6.entity import AbstractMember, Member, SubscriptionBody
+from adh6.entity import AbstractMember, Member, SubscriptionBody, Comment
 from adh6.default.decorator.log_call import log_call
 from adh6.default.decorator.with_context import with_context
 from adh6.default.http_handler import DefaultHandler
@@ -158,5 +158,23 @@ class MemberHandler(DefaultHandler):
                 raise UnauthorizedError("Unauthorize to access this resource")
             self.charter_manager.sign(ctx, charter_id=charter_id, member_id=id_)
             return NoContent, 204
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @log_call
+    def comment_put(self, ctx, id_, body):
+        """ Set the comment of a member. """
+        try:
+            self.member_manager.change_comment(ctx, id_, Comment.from_dict(body))
+            return NoContent, 204  # 204 No Content
+        except Exception as e:
+            return handle_error(ctx, e)
+
+    @with_context
+    @log_call
+    def comment_search(self, ctx, id_):
+        try:
+            return self.member_manager.get_comment(ctx, member_id=id_).to_dict(), 200
         except Exception as e:
             return handle_error(ctx, e)

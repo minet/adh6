@@ -287,6 +287,7 @@ def fake(login):
         ldap_login=login,
         password="",
         chambre_id=1,
+        commentaires=fake.text(max_nb_chars=255),
         datesignedminet=now,
         date_de_depart=now + dt.timedelta(days=365),
         subnet="10.0.42.0/28",
