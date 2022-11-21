@@ -1,6 +1,6 @@
 import json
 import pytest
-from adh6.storage.sql.models import Product
+from adh6.treasury.storage.models import Product
 from test.integration.resource import TEST_HEADERS, base_url as host_url
 
 

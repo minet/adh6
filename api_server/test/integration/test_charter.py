@@ -6,7 +6,7 @@ from adh6.constants import MembershipStatus
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
-from adh6.storage.sql.models import Adherent, Membership
+from adh6.member.storage.models import Adherent, Membership
 from adh6.storage import db
 
 base_url = f'{host_url}/charter/'

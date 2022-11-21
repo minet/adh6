@@ -1,0 +1,29 @@
+<form (ngSubmit)="submit()" [formGroup]="productForm">
+  <div class="field">
+    <label class="label">Matériel à ajouter</label>
+    <ng-container *ngIf="products$ | async">
+      <div class="control" *ngFor="let product of productForm.controls.products.controls; let i = index" formArrayName="products">
+        <div class="form-check" [formGroupName]="i">
+          <label class="checkbox">
+            <input formControlName="checked" (change)="updateAmount()" type="checkbox" value="">
+            {{product.value.name}} ({{product.value.amount}} €)
+          </label>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <div class="field">
+    <label class="label">Montant : {{ amount }} €</label>
+    <div class="control">
+      <select class="input is-fullwidth" formControlName="paidWith" type="text">
+        <option value="0">-- Moyen de paiement --</option>
+        <option *ngFor="let pm of paymentMethods" value="{{ pm.id }}">
+          {{ pm.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-success is-fullwidth" type="submit" [disabled]="productForm.invalid">Valider</button>
+  </div>
+</form>

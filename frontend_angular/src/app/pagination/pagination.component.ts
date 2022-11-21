@@ -1,10 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { PagingConf } from '../paging.config';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-pagination',
-  templateUrl: './pagination.component.html',
-  styleUrls: ['./pagination.component.sass']
+  templateUrl: './pagination.component.html'
 })
 export class PaginationComponent implements OnInit, OnChanges {
   @Input() maxItems: number | undefined;

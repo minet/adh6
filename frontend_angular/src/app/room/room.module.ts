@@ -6,8 +6,7 @@ import { RoomEditComponent } from './room-edit/room-edit.component';
 import { RoomNewComponent } from './room-new/room-new.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PaginationModule } from '../pagination/pagination.module';
-
+import { PaginationComponent } from '../pagination/pagination.component';
 
 
 @NgModule({
@@ -27,7 +26,7 @@ import { PaginationModule } from '../pagination/pagination.module';
       { path: 'view/:room_id', component: RoomDetailsComponent },
       { path: 'edit/:room_id', component: RoomEditComponent },
     ]),
-    PaginationModule
+    PaginationComponent
   ]
 })
 export class RoomModule { }

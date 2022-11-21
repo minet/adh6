@@ -56,7 +56,7 @@
       </div>
       <div class="navbar-item" *ngIf="true">
         <div class="buttons">
-          <a class="button is-danger" *ngIf="sessionService.isAuthenticated" (click)="logout()"
+          <a class="button is-danger" *ngIf="(oidcSecurityService.isAuthenticated() | async)" (click)="logout()"
             i18n="@@disconnect">Déconnexion</a>
         </div>
       </div>

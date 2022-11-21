@@ -1,16 +1,20 @@
 from typing import List, Tuple, Union
+import typing as t
 import uuid
 from sqlalchemy import select, delete
-from adh6.authentication.interfaces import ApiKeyRepository
 
-from adh6.authentication.storage.models import ApiKey as SQLApiKey
 from adh6.entity import ApiKey
 from adh6.storage import db
 
+from ..interfaces import ApiKeyRepository
+from .models import ApiKey as SQLApiKey
+
+
 class ApiKeySQLRepository(ApiKeyRepository):
-    def get(self, id: int) -> ApiKey:
+    def get(self, id: int) -> t.Union[ApiKey, None]:
         smt = select(SQLApiKey).where(SQLApiKey.id == id)
-        return self._map_to_api_key(db.session.execute(smt).first()[0])
+        key = db.session.execute(smt).scalar_one_or_none()
+        return self._map_to_api_key(key) if key else None
 
     def create(self, login: str) -> Tuple[int, str]:
         from hashlib import sha3_512

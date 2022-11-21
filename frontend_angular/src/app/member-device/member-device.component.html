@@ -1,0 +1,15 @@
+<app-device-new  [member_id]="member.id" (added)="$event.connectionType === 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()"></app-device-new>
+<br />
+<!--<app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>-->
+<div class="content">
+  <div class="columns">
+    <div class="column has-text-centered">
+      <h4 class="title is-4" i18n="@@wired">Filaire</h4>
+      <app-member-device-list #wiredList [abstractDeviceFilter]="wiredDeviceFilter"></app-member-device-list>
+    </div>
+    <div class="column has-text-centered">
+      <h4 class="title is-4" i18n="@@wireless">Wifi</h4>
+      <app-member-device-list #wirelessList [abstractDeviceFilter]="wirelessDeviceFilter"></app-member-device-list>
+    </div>
+  </div>
+</div>

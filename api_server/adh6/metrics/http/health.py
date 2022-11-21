@@ -1,7 +1,7 @@
-from adh6.default.decorator.with_context import with_context
-from adh6.metrics.health_manager import HealthManager
-from adh6.misc.context import log_extra
-from adh6.misc.log import LOG
+from adh6.decorator import with_context
+from adh6.misc import log_extra, LOG
+
+from ..health_manager import HealthManager
 
 
 class HealthHandler:

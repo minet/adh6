@@ -1,10 +1,10 @@
-<div class="p-3">
+<div class="p-3 has-background-white" *ngIf="oidcSecurityService.isAuthenticated() | async">
   <aside class="menu">
     <p class="menu-label">
       General
     </p>
     <ul class="menu-list">
-      <li><a [ngClass]="{'is-active': activeFromUrlPath('dashboard')}" [routerLink]="['dashboard']">Mon Compte</a></li>
+      <li><a routerLinkActive="is-active" [routerLink]="['dashboard']">Mon Compte</a></li>
     </ul>
     <p class="menu-label">
       Administration
@@ -14,13 +14,13 @@
         Gestion Adhérents
         <ul>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('member')}" [routerLink]="['member/search']">Adhérents</a>
+            <a routerLinkActive="is-active" [routerLink]="['member']">Adhérents</a>
           </li>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('device')}" [routerLink]="['device/search']">Appareils</a>
+            <a routerLinkActive="is-active" [routerLink]="['device']">Appareils</a>
           </li>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('room')}" [routerLink]="['room/search']">Chambres</a>
+            <a routerLinkActive="is-active" [routerLink]="['room']">Chambres</a>
           </li>
         </ul>
       </li>
@@ -28,13 +28,13 @@
         Gestion réseau
         <ul>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('switch/')}" [routerLink]="['switch/search']">Commutateurs</a>
+            <a routerLinkActive="is-active" [routerLink]="['switch/search']">Commutateurs</a>
           </li>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('port')}" [routerLink]="['port/search']">Ports</a>
+            <a routerLinkActive="is-active" [routerLink]="['port/search']">Ports</a>
           </li>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('switch_local')}" [routerLink]="['switch_local']">
+            <a routerLinkActive="is-active" [routerLink]="['switch_local']">
               Commutateur Local
             </a>
           </li>
@@ -44,10 +44,10 @@
         Authentification
         <ul>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('naina')}" [routerLink]="['auth/naina']">NainA</a>
+            <a routerLinkActive="is-active" [routerLink]="['auth/naina']">NainA</a>
           </li>
           <li>
-            <a [ngClass]="{'is-active': activeFromUrlPath('api-key')}" [routerLink]="['auth/api-key']">Clef d'API</a>
+            <a routerLinkActive="is-active" [routerLink]="['auth/api-key']">Clef d'API</a>
           </li>
         </ul>
       </li>
@@ -57,11 +57,11 @@
     </p>
     <ul class="menu-list" *ngIf="'manage' | able: 'treasury'">
       <li>
-        <a [ngClass]="{'is-active': activeFromUrlPath('transac')}" [routerLink]="['transaction/add']">Transaction</a>
+        <a routerLinkActive="is-active" [routerLink]="['transaction/add']">Transaction</a>
       </li>
-      <li><a [ngClass]="{'is-active': activeFromUrlPath('treasury')}" [routerLink]="['treasury']">Trésorerie</a></li>
-      <li><a [ngClass]="{'is-active': activeFromUrlPath('account')}" [routerLink]="['account/search']">Comptes</a></li>
-      <li><a [ngClass]="{'is-active': activeFromUrlPath('product')}" [routerLink]="['product/search']">Produit</a></li>
+      <li><a routerLinkActive="is-active" [routerLink]="['treasury']">Trésorerie</a></li>
+      <li><a routerLinkActive="is-active" [routerLink]="['account/search']">Comptes</a></li>
+      <li><a routerLinkActive="is-active" [routerLink]="['product/search']">Produit</a></li>
     </ul>
   </aside>
 </div>

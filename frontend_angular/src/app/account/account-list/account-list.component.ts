@@ -4,13 +4,16 @@ import { SearchPage } from '../../search-page';
 import { AbstractAccount } from '../../api/model/abstractAccount';
 import { AppConstantsService } from '../../app-constants.service';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { map, Observable, shareReplay } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { PaginationComponent } from '../../pagination/pagination.component';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, PaginationComponent, RouterModule],
   selector: 'app-account-list',
-  templateUrl: './account-list.component.html',
-  styleUrls: ['./account-list.component.css']
+  templateUrl: './account-list.component.html'
 })
 export class AccountListComponent extends SearchPage<AbstractAccount> implements OnInit {
   accountTypes: Array<AccountType>;

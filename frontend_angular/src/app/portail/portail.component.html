@@ -24,7 +24,7 @@
         compte MiNET.
       </p>
       <br />
-      <button class="button is-primary" i18n="portail connection" (click)="login()">
+      <button class="button is-primary" i18n="portail connection" (click)="oidcSecurityService.authorize()">
         Se connecter
       </button>
     </div>
@@ -52,6 +52,6 @@
           </li>
         </ul>
       </div>
-      <img src="../assets/plan_foyer.png" class="w-75 mr-auto ml-auto">
+      <img src="../assets/plan_foyer.webp" width="200">
     </div>
   </div>

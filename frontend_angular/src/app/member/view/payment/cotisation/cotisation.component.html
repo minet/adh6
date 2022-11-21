@@ -1,0 +1,35 @@
+<div class="notification">
+  <p>Dans le cas d'une cotisation ou d'une recotisation, une validation manuelle est nécessaire.</p>
+</div>
+<div class="notification is-danger is-light" *ngIf="member.membership === 'PENDING_RULES'">
+  <p>
+    La charte n'est pas signée: <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer">aller sur
+      charte</a>
+  </p>
+</div>
+<form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
+  <div class="field">
+    <label class="label">Durée de cotisation</label>
+    <div class="control">
+      <select class="input is-fullwidth" formControlName="durationIndex" type="text">
+        <option value="-1">Pas de cotisation</option>
+        <option *ngFor="let v of subscriptionDuration; let i = index" value="{{i}}">
+          {{(v === 12) ? "1 an" : v + " mois"}} {{(v === 12 && subscriptionPrices[i] === 9) ? "- sans chambre" : ""}} ({{subscriptionPrices[i]}}€) - {{ formatDate(v) }}
+        </option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <label class="label">Montant : {{ amount }} €</label>
+    <div class="control">
+      <select class="input is-fullwidth" formControlName="paidWith" type="text">
+        <option value="-1">-- Moyen de paiement --</option>
+        <option *ngFor="let pm of paymentMethods" value="{{ pm.id }}">{{ pm.name }}</option>
+      </select>
+    </div>
+  </div>
+  <div class="field">
+    <button class="button is-success is-fullwidth" type="submit" [disabled]="subscriptionForm.invalid">
+      {{ (isSubscriptionFinished) ? "Valider" : "Mettre à jour"}}</button>
+  </div>
+</form>

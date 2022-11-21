@@ -11,12 +11,13 @@ from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
 
 from adh6.constants import CTX_SQL_SESSION
-from adh6.entity import AbstractDevice, Device, DeviceFilter
-from adh6.entity.device_body import DeviceBody
-from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Device as SQLDevice, Adherent
+from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
+from adh6.decorator import log_call
+from adh6.member.storage.models import Adherent
 from adh6.storage.sql.track_modifications import track_modifications
-from adh6.device.interfaces.device_repository import DeviceRepository
+
+from ..interfaces import DeviceRepository
+from .models import Device as SQLDevice
 
 
 class DeviceType(Enum):

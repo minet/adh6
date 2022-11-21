@@ -5,10 +5,9 @@ import { SearchPage } from '../../search-page';
 
 @Component({
   selector: 'app-member-device-list',
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.scss']
+  templateUrl: './list.component.html'
 })
-export class ListComponent extends SearchPage<number> {
+export class MemberDeviceListComponent extends SearchPage<number> {
   @Input() abstractDeviceFilter: AbstractDevice = {};
 
   public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();

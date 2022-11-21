@@ -6,4 +6,5 @@
 export const environment = {
   production: false,
   API_BASE_PATH: "https://" + window.location.host.toString() + '/api',
+  SSO_URL: "https://cas.minet.net/oidc"
 };

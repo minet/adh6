@@ -5,12 +5,14 @@ import { AbstractAccount, AccountService, AccountType } from '../../api';
 import { ActivatedRoute } from '@angular/router';
 
 import { AppConstantsService } from '../../app-constants.service';
-import { Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
+import { TransactionListComponent } from '../../transaction-list/transaction-list.component';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, TransactionListComponent],
   selector: 'app-account-view',
-  templateUrl: './account-view.component.html',
-  styleUrls: ['./account-view.component.scss']
+  templateUrl: './account-view.component.html'
 })
 export class AccountViewComponent implements OnInit {
   account$: Observable<AbstractAccount>;

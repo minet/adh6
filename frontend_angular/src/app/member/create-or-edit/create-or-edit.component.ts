@@ -1,88 +1,77 @@
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { AbstractRoom, Member, MemberBody, MemberService, MembershipService, RoomMembersService, RoomService } from '../../api';
-import { finalize, first, mergeMap } from 'rxjs/operators';
+import { MemberBody, MemberService, RoomMembersService, RoomService } from '../../api';
+import { mergeMap } from 'rxjs/operators';
 import { EMPTY, of } from 'rxjs';
-import { NotificationService } from '../../notification.service';
+import { Toast } from '../../notification.service';
+import { CommonModule } from '@angular/common';
 
+interface MemberEditForm {
+  firstName: FormControl<string>;
+  lastName: FormControl<string>;
+  username: FormControl<string>;
+  email: FormControl<string>;
+  roomNumber: FormControl<number>;
+}
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   selector: 'app-create-edit',
-  templateUrl: './create-or-edit.component.html',
-  styleUrls: ['./create-or-edit.component.css'],
+  templateUrl: './create-or-edit.component.html'
 })
 export class CreateOrEditComponent implements OnInit {
-  disabled = true;
   create = false;
-  memberEdit: UntypedFormGroup;
-  member_id: number;
+  public memberEdit: FormGroup<MemberEditForm>;
+  private member_id: number;
 
   constructor(
     public memberService: MemberService,
-    public membershipService: MembershipService,
     public roomService: RoomService,
     public roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-    private router: Router,
-    private notificationService: NotificationService,
+    private router: Router
   ) {
-    this.createForm();
-  }
-
-  createForm() {
-    this.memberEdit = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      username: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
-      email: ['', [Validators.required, Validators.email]],
-      roomNumber: [null, [Validators.min(0), Validators.max(9999)]],
+    this.memberEdit = new FormGroup<MemberEditForm>({
+      firstName: new FormControl('', [Validators.required]),
+      lastName: new FormControl('', Validators.required),
+      username: new FormControl('', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      roomNumber: new FormControl(null),
     });
   }
 
   editMember() {
-    this.disabled = true;
     const v = this.memberEdit.value;
-
     const body: MemberBody = {
       mail: v.email,
       firstName: v.firstName,
       lastName: v.lastName,
       username: v.username,
     };
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumber })
+    this.roomService.roomGet(1, 0, undefined, { roomNumber: v.roomNumber })
       .subscribe(rooms => {
-        if (rooms.length === 0) {
-          this.notificationService.errorNotification(404, "Chambre (" + v.roomNumber + ")");
-          return
-        }
-        const room = rooms[0];
         if (!this.create) {
           this.memberService.memberIdPatch(this.member_id, body)
             .subscribe(() => {
-              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: this.member_id }).subscribe(() => this.router.navigate(['member/view', this.member_id]))
+              this.roomMemberService.roomIdMemberPost(rooms[0].id, { id: this.member_id }).subscribe(() => this.router.navigate(['member/view', this.member_id]))
             });
         } else {
-          this.memberService.memberPost(body, 'body')
+          this.memberService.memberPost(body)
             .subscribe((id) => {
-              this.roomMemberService.roomIdMemberAddPatch(room.id, { id: id }).subscribe(() => this.router.navigate(['/password', id, 1]))
+              this.roomMemberService.roomIdMemberPost(rooms[0].id, { id: id }).subscribe(() => this.router.navigate(['/password', id, 1]))
             });
         };
       });
   }
 
-  memberUsernameDelete() {
-    this.disabled = true;
-    this.memberService.memberIdDelete(this.member_id, 'response')
-      .pipe(
-        first(),
-        finalize(() => this.disabled = false),
-      )
+  delete() {
+    this.memberService.memberIdDelete(this.member_id)
       .subscribe((_) => {
         this.router.navigate(['member/search']);
-        this.notificationService.successNotification();
+        Toast.fire("User suprimé", "", 'success')
       });
   }
 
@@ -94,18 +83,15 @@ export class CreateOrEditComponent implements OnInit {
             return of(params.get('member_id'));
           } else {
             // If username is not provided, we assume this is a create request
-            this.disabled = false;
             this.create = true;
             return EMPTY;
           }
         }),
         mergeMap((member_id) => this.memberService.memberIdGet(+member_id)),
-        first(),
       )
-      .subscribe((member: Member) => {
+      .subscribe((member) => {
         this.member_id = member.id;
         this.memberEdit.patchValue(member);
-        this.disabled = false;
       });
   }
 }

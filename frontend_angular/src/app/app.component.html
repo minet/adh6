@@ -1,21 +1,18 @@
-<ng-container *ngIf="oauthService.discoveryDocumentLoaded$ | async">
   <app-navbar></app-navbar>
-  <ng-container>
-    <div class="columns is-fullheight">
-      <div class="column is-2 is-sidebar-menu is-hidden-mobile" *ngIf="('manage' | able: 'admin')">
-        <app-vertical-navbar></app-vertical-navbar>
-      </div>
-      <div class="column">
-        <div class="hero is-fullheight">
-          <div class="section">
-            <router-outlet *ngIf="sessionService.isAuthenticated; else unauthorized"></router-outlet>
-            <ng-template #unauthorized>
-              <app-portail></app-portail>
-            </ng-template>
+  <div class="columns is-fullheight">
+    <div class="column is-2 is-sidebar-menu is-hidden-mobile" *ngIf="('manage' | able: 'admin')">
+      <app-vertical-navbar></app-vertical-navbar>
+    </div>
+    <div class="column">
+      <div class="hero is-fullheight">
+        <div class="section">
+          <div style="position: relative;">
+            <div [@fadeAnimation]="outlet.isActivated ? outlet.activatedRoute : ''">
+              <router-outlet #outlet="outlet"></router-outlet>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </ng-container>
+  </div>
   <app-footer></app-footer>
-</ng-container>

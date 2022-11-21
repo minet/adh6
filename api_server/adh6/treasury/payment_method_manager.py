@@ -1,7 +1,8 @@
 # coding=utf-8
 from adh6.exceptions import PaymentMethodNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+
+from .interfaces import PaymentMethodRepository
 
 
 class PaymentMethodManager(CRUDManager):

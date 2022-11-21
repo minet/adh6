@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, first, map, switchMap, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { finalize, map } from 'rxjs/operators';
 import { MemberService } from '../api';
 import { md4 } from 'hash-wasm';
-import { Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { NotificationService } from '../notification.service';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 function passwordConfirming(c: AbstractControl): ValidationErrors | null {
   if (!c || !c.value) {
@@ -25,16 +23,14 @@ function passwordConfirming(c: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   selector: 'app-member-password-edit',
-  templateUrl: './member-password-edit.component.html',
-  styleUrls: ['./member-password-edit.component.css']
+  templateUrl: './member-password-edit.component.html'
 })
 export class MemberPasswordEditComponent implements OnInit {
   public showPassword: boolean = false;
   public showConfirmPassword: boolean = false;
-
-  faEye = faEye;
-  faEyeSlash = faEyeSlash;
 
   constructor(
     private fb: UntypedFormBuilder,

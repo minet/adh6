@@ -11,29 +11,29 @@
           <tbody>
             <tr>
               <th scope="row">Depuis</th>
-              <td>{{ srcAccount }}</td>
+              <td>{{ transactionDetails.value.srcAccount }}</td>
             </tr>
             <tr>
               <th scope="row">Montant</th>
-              <td>{{ transactionDetails.get('value')?.value | number:'':'fr' }} €</td>
+              <td>{{ transactionDetails.value.value | number:'':'fr' }} €</td>
             </tr>
             <tr>
               <th scope="row">Via</th>
-              <td>{{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod')?.value) }}</td>
+              <td>{{ getPaymentMethodNameById(transactionDetails.value.paymentMethod) }}</td>
             </tr>
             <tr>
               <th scope="row">Vers</th>
-              <td>{{ dstAccount }}</td>
+              <td>{{ transactionDetails.value.dstAccount }}</td>
             </tr>
             <tr>
               <th scope="row">Description</th>
-              <td>{{ transactionDetails.get('name')?.value }}</td>
+              <td>{{ transactionDetails.value.name }}</td>
             </tr>
           </tbody>
         </table>
-        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.get('caisse')?.value !== 'direct'">
-          Vous avez déclaré {{ transactionDetails.get('caisse')?.value === 'to' ? 'ajouter' : 'prendre' }} de l'argent
-          dans la caisse via {{ getPaymentMethodNameById(+transactionDetails.get('paymentMethod')?.value) }},
+        <div class="alert alert-warning" role="alert" *ngIf="transactionDetails.value.caisse !== 'direct'">
+          Vous avez déclaré {{ transactionDetails.value.caisse === 'to' ? 'ajouter' : 'prendre' }} de l'argent
+          dans la caisse via {{ getPaymentMethodNameById(transactionDetails.value.paymentMethod) }},
           assurez-vous de bien le faire effectivement !
         </div>
         <button type="button" class="button is-primary" (click)="onSubmit(); toogleModal()">
@@ -55,13 +55,13 @@
         </div>
         <div class="card-content">
           <div class="content">
-            <app-account-search [inputAccountId]="srcAccount" (selectedAccountId)="srcAccount=$event">
+            <app-account-search [inputAccountId]="transactionDetails.value.srcAccount" (selectedAccountId)="transactionDetails.patchValue({ srcAccount: $event })">
             </app-account-search>
             <input type="hidden" formControlName="srcAccount">
           </div>
         </div>
         <footer class="card-footer">
-          <p class="card-footer-item">Ce compte sera <b>débité</b></p>
+          <p class="card-footer-item">Ce compte sera <strong>débité</strong></p>
         </footer>
       </div>
     </div>
@@ -69,7 +69,7 @@
       <div class="card">
         <div class="card-header">
           <p class="card-header-title">Transaction</p>
-          <button class="card-header-icon" type="button" (click)="exchangeAccounts()">
+          <button class="card-header-icon" type="button" (click)="exchangeAccounts(transactionDetails.value.srcAccount, transactionDetails.value.dstAccount)">
             <img src="assets/icons/exchange-arrow.svg" alt="exchange accounts">
           </button>
         </div>
@@ -85,26 +85,16 @@
               <div class="control">
                 <div class="select">
                   <select formControlName="paymentMethod" id="paidBy">
-                    <option value="">-- Payer par --</option>
+                    <option value="0">-- Payer par --</option>
                     <option *ngFor="let pm of paymentMethods" [value]="pm.id">{{ pm.name }}</option>
                   </select>
                 </div>
               </div>
             </div>
             <div class="field has-addons">
-              <p class="control">
-                <button class="button" (click)="caisse = 'to'" [ngClass]="{'is-primary': caisse==='to'}">
-                  <span>Ajouter Caisse</span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button" (click)="caisse = 'direct'" [ngClass]="{'is-primary': caisse==='direct'}">
-                  <span>Sans Caisse</span>
-                </button>
-              </p>
-              <p class="control">
-                <button class="button" (click)="caisse = 'from'" [ngClass]="{'is-primary': caisse==='from'}">
-                  <span>Sortir Caisse</span>
+              <p class="control" *ngFor="let btn of cashboxButtons">
+                <button class="button" (click)="transactionDetails.patchValue({ caisse: btn.act })" [ngClass]="{'is-primary': transactionDetails.value.caisse===btn.act}">
+                  <span>{{btn.text}} Caisse</span>
                 </button>
               </p>
             </div>
@@ -115,7 +105,7 @@
             </div>
             <div class="field has-addons">
               <p class="control">
-                <span class="input" id="value">€</span>
+                <span class="input">€</span>
               </p>
               <p class="control">
                 <input type="text" class="input" aria-label="value" aria-describedby="value" formControlName="value"
@@ -133,7 +123,7 @@
         </div>
         <div class="card-content">
           <div class=content>
-            <app-account-search [inputAccountId]="dstAccount" (selectedAccountId)="dstAccount=$event">
+            <app-account-search [inputAccountId]="transactionDetails.value.dstAccount" (selectedAccountId)="transactionDetails.patchValue({ dstAccount: $event })">
             </app-account-search>
             <input type="hidden" formControlName="dstAccount">
           </div>

@@ -5,8 +5,7 @@ import { SearchPage } from '../../search-page';
 
 @Component({
   selector: 'app-rooms',
-  templateUrl: './room-list.component.html',
-  styleUrls: ['./room-list.component.css']
+  templateUrl: './room-list.component.html'
 })
 
 export class RoomListComponent extends SearchPage<AbstractRoom> implements OnInit {

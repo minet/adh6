@@ -8,9 +8,10 @@ from sqlalchemy.orm.session import Session
 
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.product import Product
-from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Product as SQLProduct
-from adh6.treasury.interfaces.product_repository import ProductRepository
+from adh6.decorator import log_call
+
+from .models import Product as SQLProduct
+from ..interfaces import ProductRepository
 
 
 class ProductSQLRepository(ProductRepository):

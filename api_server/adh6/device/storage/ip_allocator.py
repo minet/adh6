@@ -4,12 +4,12 @@ from typing import Union
 
 from sqlalchemy import select
 
-from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
-from adh6.default.decorator.log_call import log_call
-from adh6.device.interfaces.ip_allocator import IpAllocator
-
-from adh6.storage.sql.models import Device
 from adh6.storage import db
+from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
+from adh6.decorator import log_call
+
+from ..interfaces import IpAllocator
+from .models import Device
 
 
 class IPSQLAllocator(IpAllocator):

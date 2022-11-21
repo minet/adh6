@@ -1,7 +1,7 @@
-from typing import List
+import typing as t
 from adh6.exceptions import MemberNotFoundError
-from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
-from adh6.member.interfaces.member_repository import MemberRepository
+
+from .interfaces import MailinglistRepository, MemberRepository
 
 
 class MailinglistManager:
@@ -21,5 +21,5 @@ class MailinglistManager:
             raise MemberNotFoundError(member_id)
         self.mailinglist_repository.update_from_member(ctx, member_id, value)
     
-    def get_members(self, ctx, value: int) -> List[int]:
+    def get_members(self, ctx, value: int) -> t.List[int]:
         return self.mailinglist_repository.list_members(ctx, value)

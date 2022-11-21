@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from adh6.storage.sql.models import  db
-from adh6.storage.sql.models import Transaction, Account, AccountType
+from adh6.storage import  db
+from adh6.treasury.storage.models import Transaction, Account, AccountType
 from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url as host_url
 
 

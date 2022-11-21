@@ -7,8 +7,7 @@ import { NotificationService } from '../../notification.service';
 
 @Component({
   selector: 'app-device-new',
-  templateUrl: './new.component.html',
-  styleUrls: ['./new.component.sass']
+  templateUrl: './new.component.html'
 })
 export class NewComponent {
   deviceForm: UntypedFormGroup;

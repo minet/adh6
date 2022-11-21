@@ -44,3 +44,9 @@ pytest-coverage
 pytest-cases
 pytest-lazy-fixture
 Faker
+
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-jaeger

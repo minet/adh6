@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
 
+export const Toast = Swal.mixin({
+  toast: true,
+  position: 'bottom-end',
+  showConfirmButton: false,
+  timer: 1500,
+  timerProgressBar: true,
+})
+
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  private Toast = Swal.mixin({
-    toast: true,
-    position: 'bottom-end',
-    showConfirmButton: false,
-    timer: 1500,
-    timerProgressBar: true,
-  })
-
   constructor() { }
 
   errorNotification(errorCode: number, title?: string, message?: string, timer?: number): void {
@@ -29,7 +29,7 @@ export class NotificationService {
       case 500:
         notifTitle = "Internal server Error"
 
-        this.Toast.fire({
+        Toast.fire({
           title: notifTitle + " - " + title,
           text: message,
           icon: 'error',
@@ -39,7 +39,7 @@ export class NotificationService {
   }
 
   successNotification(title?: string, message?: string, timer?: number): void {
-    this.Toast.fire({
+    Toast.fire({
       title: title,
       text: message,
       icon: 'success',

@@ -3,6 +3,8 @@ import { SearchPage } from '../search-page';
 import { map, Observable, shareReplay } from 'rxjs';
 import { PaymentMethod, Transaction, TransactionService, AbstractTransaction, AccountService, MemberService } from '../api';
 import { AppConstantsService } from '../app-constants.service';
+import { CommonModule } from '@angular/common';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 class Action {
   name: string = "";
@@ -12,9 +14,13 @@ class Action {
 }
 
 @Component({
+  standalone: true,
+  imports: [
+    CommonModule,
+    PaginationComponent
+  ],
   selector: 'app-transaction-list',
-  templateUrl: './transaction-list.component.html',
-  styleUrls: ['./transaction-list.component.css']
+  templateUrl: './transaction-list.component.html'
 })
 export class TransactionListComponent extends SearchPage<AbstractTransaction> implements OnInit {
   @Input() asAccount: number = 0;

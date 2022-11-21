@@ -4,7 +4,9 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 from adh6.device.storage.device_repository import DeviceType
 
-from adh6.storage.sql.models import Adherent, db, Device
+from adh6.storage import db
+from adh6.member.storage.models import Adherent
+from adh6.device.storage.models import Device
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 from test.integration.conftest import sample_member_admin
 from .resource import (
@@ -144,9 +146,8 @@ def test_device_filter_by_terms(client, terms, expected):
         f'{base_url}?filter[terms]={terms}',
         headers=TEST_HEADERS
     )
-    assert r.status_code == 200
-    
     response = json.loads(r.data.decode('utf-8'))
+    assert r.status_code == 200
     assert len(response) == expected
 
 
@@ -193,8 +194,8 @@ def test_device_filter_by_connection_type(client, device: Device):
         f'{base_url}?filter[connectionType]={"wireless"}' if device.type == DeviceType.wireless.value else f'{base_url}?filter[connectionType]={"wired"}',
         headers=TEST_HEADERS,
     )
-    assert r.status_code == 200
     response = json.loads(r.data.decode('utf-8'))
+    assert r.status_code == 200
     assert len(response) == 1 if device.type == DeviceType.wireless.value else 3
 
 
@@ -401,7 +402,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
     assert r.status_code == 400
 
 
-def test_device_post_create_too_much_wireless(faker, client, sample_room1, sample_room2, sample_member):
+def test_device_post_create_too_much_wireless(faker, client, sample_room1):
     """
     Create 13 wireless devices for one user
     """

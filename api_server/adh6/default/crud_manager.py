@@ -2,9 +2,8 @@ from typing import Optional, Tuple
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.base_model_ import Model
 from adh6.exceptions import IntMustBePositive
-from adh6.default.decorator.log_call import log_call
-from adh6.default.decorator.auto_raise import auto_raise
-from adh6.default.crud_repository import CRUDRepository
+from adh6.decorator import log_call
+from .crud_repository import CRUDRepository
 
 
 class CRUDManager:
@@ -13,7 +12,6 @@ class CRUDManager:
         self.not_found_exception = not_found_exception
 
     @log_call
-    @auto_raise
     def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive('limit')
@@ -37,7 +35,6 @@ class CRUDManager:
         return e
 
     @log_call
-    @auto_raise
     def update_or_create(self, ctx, obj, id: Optional[int] = None):
         current_object = None
         if id is not None:
@@ -50,13 +47,11 @@ class CRUDManager:
             return self.repository.update(ctx, obj, override=True), False
 
     @log_call
-    @auto_raise
     def partially_update(self, ctx, obj, id: int, override=False):
         obj.id = id
         return self.repository.update(ctx, obj, override=override), False
 
     @log_call
-    @auto_raise
     def delete(self, ctx, id: int):
         e = self.repository.get_by_id(ctx=ctx, object_id=id)
         if not e:

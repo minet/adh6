@@ -1,10 +1,10 @@
 from connexion import NoContent
 from adh6.authentication import Roles
 from adh6.constants import CTX_ADMIN, CTX_ROLES
-from adh6.default.decorator.with_context import with_context
-from adh6.default.util.error import handle_error
+from adh6.decorator import with_context
 from adh6.exceptions import UnauthorizedError
-from adh6.member.charter_manager import CharterManager
+
+from ..charter_manager import CharterManager
 
 
 class CharterHandler:
@@ -22,19 +22,13 @@ class CharterHandler:
 
     @with_context
     def member_post(self, ctx, charter_id: int, id_: int):
-        try: 
-            if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
-                raise UnauthorizedError("Unauthorize to access this resource")
-            self.charter_manager.sign(ctx, charter_id, id_)
-            return NoContent, 201
-        except Exception as e:
-            return handle_error(ctx, e)
+        if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
+            raise UnauthorizedError("Unauthorize to access this resource")
+        self.charter_manager.sign(ctx, charter_id, id_)
+        return NoContent, 201
 
     @with_context
     def member_get(self, ctx, charter_id: int, id_: int):
-        try: 
-            if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
-                raise UnauthorizedError("Unauthorize to access this resource")
-            return self.charter_manager.get(ctx, charter_id, id_), 200
-        except Exception as e:
-            return handle_error(ctx, e)
+        if ctx.get(CTX_ADMIN) != id_ and Roles.ADMIN_READ.value not in ctx.get(CTX_ROLES, []):
+            raise UnauthorizedError("Unauthorize to access this resource")
+        return self.charter_manager.get(ctx, charter_id, id_), 200

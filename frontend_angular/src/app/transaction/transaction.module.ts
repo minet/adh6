@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { TransactionNewComponent } from './transaction-new/transaction-new.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { TransactionListModule } from '../transaction-list/transaction-list.module';
 import { ClickOutsideDirective } from './clickOutside.directive';
-import { AccountSearchComponent } from './account-search/account-search.component';
+import { AccountSearchComponent } from './transaction-new/account-search/account-search.component';
+import { TransactionListComponent } from '../transaction-list/transaction-list.component';
 
 
 
@@ -23,7 +23,7 @@ import { AccountSearchComponent } from './account-search/account-search.componen
       { path: 'add', component: TransactionNewComponent },
       { path: 'add/:account_id', component: TransactionNewComponent }
     ]),
-    TransactionListModule,
+    TransactionListComponent,
   ]
 })
 export class TransactionModule { }
