@@ -6,23 +6,20 @@ from datetime import datetime
 from typing import List, Optional, Tuple, Union
 from sqlalchemy import insert, select, delete, update
 
-from sqlalchemy.orm.session import Session
-
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
 from adh6.decorator import log_call
+from adh6.storage import session
 from adh6.subnet.storage.models import Vlan
 from adh6.member.storage.models import Adherent
-from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Chambre, RoomMemberLink
 from ..interfaces import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):
-    def get_from_member(self, ctx, member_id: int) -> Union[Room, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_from_member(self, member_id: int) -> Union[Room, None]:
         smt = select(Chambre)\
             .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)\
             .where(RoomMemberLink.member_id == member_id)
@@ -31,13 +28,11 @@ class RoomSQLRepository(RoomRepository):
 
         return _map_room_sql_to_entity(result) if result else None
 
-    def get_members(self, ctx, room_id: int) -> List[int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_members(self, room_id: int) -> List[int]:
         smt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
         return session.execute(smt).scalars().all()
 
-    def remove_member(self, ctx, member_id: int) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def remove_member(self, member_id: int) -> None:
         smt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
         session.execute(smt)
 
@@ -46,8 +41,7 @@ class RoomSQLRepository(RoomRepository):
         smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
         session.execute(smt)
 
-    def add_member(self, ctx, room_id: int, member_id: int) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def add_member(self, room_id: int, member_id: int) -> None:
         smt = insert(RoomMemberLink).values(
             member_id=member_id,
             room_id=room_id
@@ -60,17 +54,14 @@ class RoomSQLRepository(RoomRepository):
         session.execute(smt)
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractRoom:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> AbstractRoom:
         obj = session.query(Chambre).filter(Chambre.id == object_id).one_or_none()
         if obj is None:
             raise RoomNotFoundError(object_id)
         return _map_room_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None) -> Tuple[List[AbstractRoom], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None) -> Tuple[List[AbstractRoom], int]:
         query = session.query(Chambre)
 
         if terms:
@@ -94,8 +85,7 @@ class RoomSQLRepository(RoomRepository):
         return list(map(_map_room_sql_to_abstract_entity, r)), count
 
     @log_call
-    def create(self, ctx, abstract_room: Room) -> Room:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def create(self, abstract_room: Room) -> Room:
         now = datetime.now()
 
         vlan = None
@@ -112,16 +102,13 @@ class RoomSQLRepository(RoomRepository):
             vlan_id=vlan.id if vlan else None,
         )
 
-        with track_modifications(ctx, session, room):
-            session.add(room)
+        session.add(room)
         session.flush()
 
         return _map_room_sql_to_entity(room)
 
     @log_call
-    def update(self, ctx, abstract_room: AbstractRoom, override=False) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, abstract_room: AbstractRoom, override=False) -> object:
         query = session.query(Chambre)
         query = query.filter(Chambre.id == abstract_room.id)
         query = query.join(Vlan, Vlan.id == Chambre.vlan_id)
@@ -129,23 +116,19 @@ class RoomSQLRepository(RoomRepository):
         room = query.one_or_none()
         if room is None:
             raise RoomNotFoundError(str(abstract_room.id))
-        new_chambre = _merge_sql_with_entity(ctx, abstract_room, room, override)
+        new_chambre = _merge_sql_with_entity(abstract_room, room, override)
 
         return _map_room_sql_to_entity(new_chambre)
 
     @log_call
-    def delete(self, ctx, id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def delete(self, id) -> None:
         room = session.query(Chambre).filter(Chambre.id == id).one_or_none()
         if room is None:
             raise RoomNotFoundError(id)
-
-        with track_modifications(ctx, session, room):
-            session.delete(room)
+        session.delete(room)
 
 
-def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
+def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
     now = datetime.now()
     chambre = sql_object
     if entity.description is not None or override:
@@ -153,7 +136,6 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
     if entity.room_number is not None or override:
         chambre.numero = entity.room_number
     if entity.vlan is not None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
         vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
@@ -163,8 +145,7 @@ def _merge_sql_with_entity(ctx, entity: AbstractRoom, sql_object: Chambre, overr
     return chambre
 
 def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
-    from adh6.storage import db
-    vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
+    vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return AbstractRoom(
         id=r.id,
         room_number=r.numero,
@@ -174,8 +155,7 @@ def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
-    from adh6.storage import db
-    vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
+    vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return Room(
         id=r.id,
         room_number=r.numero,

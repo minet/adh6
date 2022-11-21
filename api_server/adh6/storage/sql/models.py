@@ -7,6 +7,7 @@ from adh6.storage.sql.rubydiff import rubydiff
 
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
+session = db.session
 
 
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet

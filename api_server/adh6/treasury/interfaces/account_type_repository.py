@@ -6,9 +6,9 @@ from adh6.entity import AccountType
 
 class AccountTypeRepository(abc.ABC):
     @abc.abstractmethod
-    def get_by_id(self, ctx, object_id: int) -> AccountType:
+    def get_by_id(self, object_id: int) -> AccountType:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None) -> Tuple[List[AccountType], int]:
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None) -> Tuple[List[AccountType], int]:
         pass  # pragma: no cover

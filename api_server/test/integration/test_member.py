@@ -19,7 +19,6 @@ def assert_member_in_db(body):
     assert r.nom == body["lastName"]
     assert r.prenom == body["firstName"]
     assert r.mail == body["mail"]
-#    assert r.commentaires == body["comment"]
     assert r.login == body["username"]
 
 
@@ -306,7 +305,6 @@ def test_member_post_member_create(client):
         headers=TEST_HEADERS
     )
     assert 201 == res.status_code
-    assert_modification_was_created(db.session())
     assert_member_in_db(body)
 
     r = client.get(

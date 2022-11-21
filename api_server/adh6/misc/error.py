@@ -1,17 +1,13 @@
 # coding=utf-8
 from adh6.exceptions import AlreadyExistsError, NetworkManagerReadError, ValidationError, UnauthorizedError, NotFoundError
-from adh6.misc.context import log_extra
-from adh6.misc.log import LOG
+import logging
 
-
-def _error(code, message):
-    return {
-        'code': code,
-        'message': message
-    }
-
-
-def handle_error(ctx, e: Exception):
+def handle_error(e: Exception):
+    def _error(code, message):
+        return {
+            'code': code,
+            'message': message
+        }
     if isinstance(e, NotFoundError):
         return _error(404, str(e)), 404
     elif isinstance(e, UnauthorizedError):
@@ -19,5 +15,5 @@ def handle_error(ctx, e: Exception):
     elif isinstance(e, ValueError) or isinstance(e, ValidationError) or isinstance(e, NetworkManagerReadError) or isinstance(e, AlreadyExistsError):
         return _error(400, str(e)), 400
     else:
-        LOG.error('Fatal exception: ' + str(e), extra=log_extra(ctx))
+        logging.error('Fatal exception: ' + str(e))
         return _error(500, "The server encountered an unexpected error"), 500

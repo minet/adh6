@@ -12,8 +12,8 @@ class ProductHandler:
 
     @with_context
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
-        result, total_count = self.product_manager.search(ctx, limit=limit, offset=offset, terms=terms)
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
+        result, total_count = self.product_manager.search(limit=limit, offset=offset, terms=terms)
         headers = {
             "X-Total-Count": str(total_count),
             'access-control-expose-headers': 'X-Total-Count'
@@ -23,11 +23,11 @@ class ProductHandler:
 
     @with_context
     @log_call
-    def get(self, ctx, id_: int):
-        return self.product_manager.get_by_id(ctx, id=id_).to_dict(), 200
+    def get(self, id_: int):
+        return self.product_manager.get_by_id(id=id_).to_dict(), 200
 
     @with_context
     @log_call
-    def buy_post(self, ctx, member_id: int, payment_method: int, products: List[int]):
-        self.product_manager.buy(ctx,member_id, payment_method, products)
+    def buy_post(self, member_id: int, payment_method: int, products: List[int]):
+        self.product_manager.buy(member_id, payment_method, products)
         return None, 204

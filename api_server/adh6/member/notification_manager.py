@@ -14,11 +14,10 @@ class NotificationManager:
         self.notification_template_repository = notification_template_repository
 
     @log_call
-    def send(self, ctx, template_title: str, member_email: str, **kwargs):
+    def send(self, template_title: str, member_email: str, **kwargs):
         # check if template exist
         
-        template = self.notification_template_repository.get(ctx, template_title)
-        print(template)
+        template = self.notification_template_repository.get(template_title)
         if not template:
                 raise TemplateNotFoundError(template_title)
 
@@ -32,4 +31,4 @@ class NotificationManager:
         template = Template(template.template)
         body = template.render(**kwargs)
 
-        self.notification_repository.send(ctx, member_email, template_title, body)
+        self.notification_repository.send(member_email, template_title, body)

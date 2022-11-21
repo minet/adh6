@@ -11,7 +11,6 @@ from adh6.network.port_manager import PortManager
 class TestCreate:
 
     def test_unknown_room(self,
-                          ctx,
                           mock_port_repository,
                           sample_port: Port,
                           port_manager: PortManager):
@@ -20,13 +19,12 @@ class TestCreate:
 
         # When...
         with raises(RoomNotFoundError):
-            port_manager.update_or_create(ctx, sample_port)
+            port_manager.update_or_create(sample_port)
 
         # Expect..
         mock_port_repository.create.assert_called_once()
 
     def test_unknown_switch(self,
-                            ctx,
                             mock_port_repository: PortRepository,
                             sample_port: Port,
                             port_manager: PortManager):
@@ -35,7 +33,7 @@ class TestCreate:
 
         # When...
         with raises(SwitchNotFoundError):
-            port_manager.update_or_create(ctx, sample_port)
+            port_manager.update_or_create(sample_port)
 
         # Expect..
         mock_port_repository.create.assert_called_once()
@@ -44,7 +42,6 @@ class TestCreate:
 class TestUpdate:
 
     def test_unknown_room(self,
-                          ctx,
                           mock_port_repository,
                           sample_port: Port,
                           port_manager: PortManager):
@@ -54,13 +51,12 @@ class TestUpdate:
 
         # When...
         with raises(RoomNotFoundError):
-                port_manager.update_or_create(ctx, sample_port, id=1)
+                port_manager.update_or_create(sample_port, id=1)
 
         # Expect..
         mock_port_repository.update.assert_called_once()
 
     def test_unknown_switch(self,
-                            ctx,
                             mock_port_repository,
                             sample_port: Port,
                             port_manager: PortManager):
@@ -70,7 +66,7 @@ class TestUpdate:
 
         # When...
         with raises(SwitchNotFoundError):
-            port_manager.update_or_create(ctx, sample_port, id=1)
+            port_manager.update_or_create(sample_port, id=1)
 
         # Expect..
         mock_port_repository.update.assert_called_once()

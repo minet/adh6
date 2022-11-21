@@ -7,7 +7,7 @@ from adh6.entity import Member
 from adh6.room.storage.room_repository import RoomSQLRepository as RoomRepository
 
 
-def is_member_active(ctx, member: Member):
+def is_member_active(member: Member):
     if member.departure_date is None:
         return false
 
@@ -15,7 +15,7 @@ def is_member_active(ctx, member: Member):
         member_departure = member.departure_date.date()
     else:
         member_departure = member.departure_date
-    return member_departure > datetime.now().date() and RoomRepository().get_from_member(ctx, member.id) is not None
+    return member_departure > datetime.now().date() and RoomRepository().get_from_member(member.id) is not None
 
 
 def has_member_subnet(member: Member):

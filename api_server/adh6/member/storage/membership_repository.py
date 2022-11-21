@@ -1,14 +1,13 @@
 from datetime import datetime
 import uuid
 from sqlalchemy.orm.query import Query
-from sqlalchemy.orm.session import Session
 
 from typing import List, Optional, Tuple
 
-from adh6.misc import LOG, log_extra
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import Membership, AbstractMembership, SubscriptionBody
 from adh6.decorator import log_call
+from adh6.storage import session
 
 from .models import Membership as MembershipSQL
 from ..interfaces.membership_repository import MembershipRepository
@@ -16,9 +15,7 @@ from ..interfaces.membership_repository import MembershipRepository
 
 class MembershipSQLRepository(MembershipRepository):
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
-        LOG.debug("sql_membership_repository_search_membership_called", extra=log_extra(ctx))
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
         query = session.query(MembershipSQL)
         if filter_:
             if filter_.uuid is not None:
@@ -43,16 +40,13 @@ class MembershipSQLRepository(MembershipRepository):
 
         return list(map(_map_membership_sql_to_entity, r)), query.count()
 
-    def create(self, ctx, body: SubscriptionBody, state: MembershipStatus) -> Membership:
+    def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
         Add a membership record.
 
         :raise MemberNotFound
         """
         now = datetime.now()
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_membership_repository_add_membership_called", extra=log_extra(ctx))
-
         to_add = MembershipSQL(
             uuid=str(uuid.uuid4()),
             duration=body.duration,
@@ -65,18 +59,12 @@ class MembershipSQLRepository(MembershipRepository):
             first_time=session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
             has_room=body.has_room if body.has_room is not None else True
         )
-
         session.add(to_add)
         session.flush()
-
-        LOG.debug("sql_membership_repository_add_membership_finished", extra=log_extra(ctx, membership_uuid=to_add.uuid))
-
         return _map_membership_sql_to_entity(to_add)
 
-    def update(self, ctx, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
-        LOG.debug("sql_membership_repository_update_membership_called", extra=log_extra(ctx, uuid=uuid))
+    def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
-        session: Session = ctx.get(CTX_SQL_SESSION)
         query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
 
@@ -95,8 +83,7 @@ class MembershipSQLRepository(MembershipRepository):
         session.flush()
         return _map_membership_sql_to_entity(membership)
 
-    def validate(self, ctx, uuid: str) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def validate(self, uuid: str) -> None:
         query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
         membership.status = MembershipStatus.COMPLETE

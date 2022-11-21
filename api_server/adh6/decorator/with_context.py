@@ -2,20 +2,12 @@
 """
 With context decator.
 """
-import traceback
-import uuid
-from connexion import NoContent
-import connexion
-from flask import current_app, request
 from functools import wraps
 
-from adh6.exceptions import UnauthenticatedError
-
-from adh6.storage import db
-from adh6.misc import build_context, log_extra, handle_error, LOG
+from adh6.misc import handle_error
 
 
-def with_context(f, session_handler = None):
+def with_context(f):
     """
     Add context variable to the first argument of the http_api function.
     The wrapper will also take care of the lifecycle of the session choosen for the backend storage for instance the
@@ -31,23 +23,7 @@ def with_context(f, session_handler = None):
         """
         Wrap http_api function.
         """
-        s = session_handler.session() if session_handler else db.session()
-
-        if "token_info" not in connexion.context:
-            LOG.warning('could_not_extract_token_info_kwargs')
-            raise UnauthenticatedError("Not token informations")
-
-        token_info = connexion.context["token_info"]
-        testing = current_app.config["TESTING"]
-        ctx = build_context(
-            session=s,
-            testing=testing,
-            request_id=str(uuid.uuid4()),  # Generates an unique ID on this request so we can track it.
-            url=request.url,
-            admin=token_info.get("uid", ""),
-            roles=token_info.get("scope", [])
-        )
-        kwargs["ctx"] = ctx
+        from adh6.storage import session
         try:
             result = f(*args, **kwargs)
 
@@ -56,26 +32,14 @@ def with_context(f, session_handler = None):
                 raise ValueError("Please always pass the result AND the HTTP code.")
 
             status_code = result[1]
-            msg = result[0]
-            if result[0] == NoContent:
-                msg = None
             if status_code and (200 <= status_code <= 299 or status_code == 302):
-                s.commit()
+                session.commit()
             else:
-                LOG.info("rollback_sql_transaction_non_200_http_code",
-                         extra=log_extra(ctx, code=status_code, message=msg))
-                s.rollback()
+                raise Exception()
             return result
 
         except Exception as e:
-            LOG.error("rollback_sql_transaction_exception_caught",
-                      extra=log_extra(ctx, exception=str(e), traceback=traceback.format_exc()))
-            s.rollback()
-            return handle_error(ctx, e)
-        finally:
-            # When running unit tests, we don't close the session so tests can actually perform some work on that
-            # session.
-            if not testing:
-                s.close()
+            session.rollback()
+            return handle_error(e)
 
     return wrapper

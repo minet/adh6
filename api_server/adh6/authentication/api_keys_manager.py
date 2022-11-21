@@ -16,7 +16,7 @@ class ApiKeyManager:
         self.role_repository = role_repository
         self.member_manager = member_manager
 
-    def create(self, ctx, login: str, roles: List[str]) -> str:
+    def create(self, login: str, roles: List[str]) -> str:
         if len(roles) == 0:
             raise ValidationError()
         try:
@@ -24,7 +24,7 @@ class ApiKeyManager:
         except:
             raise ValidationError()
 
-        t = self.member_manager.get_by_login(ctx, login)
+        t = self.member_manager.get_by_login(login)
         if not t:
             raise NotFoundError("User not found")
 
@@ -36,15 +36,15 @@ class ApiKeyManager:
         )
         return value
 
-    def search(self, ctx, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:
+    def search(self, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:
         if login:
-            t = self.member_manager.get_by_login(ctx, login)
+            t = self.member_manager.get_by_login(login)
             if not t:
                 raise NotFoundError("User not found")
         result = self.api_key_repository.find(login=login)
         return result, len(result)
 
-    def delete(self, ctx, id: int):
+    def delete(self, id: int):
         if not self.api_key_repository.get(id):
             raise NotFoundError("ApiKey not foud")
         self.api_key_repository.delete(id)

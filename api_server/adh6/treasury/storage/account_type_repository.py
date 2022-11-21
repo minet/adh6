@@ -4,9 +4,8 @@ Implements everything related to actions on the SQL database.
 """
 from typing import List, Optional, Tuple
 
-from sqlalchemy.orm.session import Session
-
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.storage import session
 from adh6.entity import AccountType
 from adh6.exceptions import AccountTypeNotFoundError
 from adh6.decorator import log_call
@@ -17,9 +16,7 @@ from ..interfaces import AccountTypeRepository
 
 class AccountTypeSQLRepository(AccountTypeRepository):
     @log_call
-    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AccountType], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AccountType], int]:
         query = session.query(SQLAccountType)
 
         if terms:
@@ -34,8 +31,7 @@ class AccountTypeSQLRepository(AccountTypeRepository):
         return list(map(_map_account_type_sql_to_entity, r)), count
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AccountType:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> AccountType:
         obj = session.query(SQLAccountType).filter(SQLAccountType.id == object_id).one_or_none()
         if obj is None:
             raise AccountTypeNotFoundError(object_id)

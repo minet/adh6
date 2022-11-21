@@ -11,8 +11,8 @@ class ApiKeyHandler:
         self.api_key_manager = api_key_manager
 
     @with_context
-    def search(self, ctx, limit, offset, login: Union[str, None] = None):
-        result, count = self.api_key_manager.search(ctx=ctx, limit=limit, offset=offset, login=login)
+    def search(self, limit, offset, login: Union[str, None] = None):
+        result, count = self.api_key_manager.search(limit=limit, offset=offset, login=login)
         headers = {
             "X-Total-Count": str(count),
             'access-control-expose-headers': 'X-Total-Count'
@@ -20,11 +20,11 @@ class ApiKeyHandler:
         return [r.to_dict() for r in result], 200, headers
 
     @with_context
-    def post(self, ctx, body: Dict[str, Any]):
-        return self.api_key_manager.create(ctx=ctx, login=body.get('login', ''), roles=body.get('roles', [])), 200
+    def post(self, body: Dict[str, Any]):
+        return self.api_key_manager.create(login=body.get('login', ''), roles=body.get('roles', [])), 200
 
     @with_context
-    def delete(self, ctx, id_: int):
-        self.api_key_manager.delete(ctx=ctx, id=id_)
+    def delete(self, id_: int):
+        self.api_key_manager.delete(id=id_)
         return NoContent, 204
 

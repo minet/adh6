@@ -9,12 +9,11 @@ from typing import List, Optional, Tuple, Union
 
 from sqlalchemy import func, case, or_
 
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractAccount, Account
 from adh6.exceptions import AccountNotFoundError, MemberNotFoundError
-from adh6.misc import log_extra, LOG
 from adh6.decorator import log_call
-from adh6.storage.sql.track_modifications import track_modifications
+from adh6.storage import session
 from adh6.member.storage.models import Adherent
 
 from .models import Account as SQLAccount, Transaction, AccountType
@@ -23,9 +22,7 @@ from ..interfaces import AccountRepository
 
 class AccountSQLRepository(AccountRepository):
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
         query = session.query(SQLAccount,
                     func.sum(case(value=Transaction.src, whens={
                         SQLAccount.id: -Transaction.value
@@ -59,21 +56,16 @@ class AccountSQLRepository(AccountRepository):
         return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> Union[AbstractAccount, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> Union[AbstractAccount, None]:
         obj = session.query(SQLAccount, func.sum(case(value=Transaction.src, whens={ SQLAccount.id: -Transaction.value }, else_=Transaction.value)).label("balance")).outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)).filter(SQLAccount.id == object_id).one_or_none()
         return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None
 
     @log_call
-    def create(self, ctx, abstract_account: Account) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-        LOG.debug("sql_account_repository_create_called", extra=log_extra(ctx, account_type=abstract_account.account_type))
-
+    def create(self, abstract_account: Account) -> object:
         now = datetime.now()
 
         account_type_query = session.query(AccountType)
         if abstract_account.account_type is not None:
-            LOG.debug("sql_account_repository_search_account_type", extra=log_extra(ctx, account_type=abstract_account.account_type))
             account_type_query = account_type_query.filter(AccountType.id == abstract_account.account_type)
         else:
             account_type_query = account_type_query.filter(AccountType.name == "Adherent")
@@ -97,20 +89,16 @@ class AccountSQLRepository(AccountRepository):
             pinned=abstract_account.pinned,
             adherent_id=adherent.id if adherent else None
         )
-
-        with track_modifications(ctx, session, account):
-            session.add(account)
+        session.add(account)
         session.flush()
-        LOG.debug("sql_account_repository_create_finished", extra=log_extra(ctx, account_id=account.id))
-
         return _map_account_sql_to_entity(account)
 
     @log_call
-    def update(self, ctx, object_to_update: AbstractAccount, override=False) -> object:
+    def update(self, object_to_update: AbstractAccount, override=False) -> object:
         raise NotImplementedError  # pragma: no cover
 
     @log_call
-    def delete(self, ctx, object_id) -> None:
+    def delete(self, object_id) -> None:
         raise NotImplementedError  # pragma: no cover
 
 

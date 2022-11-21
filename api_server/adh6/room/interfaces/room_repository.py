@@ -7,17 +7,17 @@ import abc
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):
     @abc.abstractmethod
-    def get_from_member(self, ctx, member_id: int) -> Union[Room, None]:
+    def get_from_member(self, member_id: int) -> Union[Room, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_members(self, ctx, room_id: int) -> List[int]:
+    def get_members(self, room_id: int) -> List[int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def add_member(self, ctx, room_id: int, member_id: int) -> None:
+    def add_member(self, room_id: int, member_id: int) -> None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def remove_member(self, ctx, member_id: int) -> None:
+    def remove_member(self, member_id: int) -> None:
         pass  # pragma: no cover

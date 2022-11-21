@@ -8,16 +8,15 @@ from typing import List
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
-from adh6.constants import CTX_TESTING, LOG_DEFAULT_LIMIT
-from adh6.entity import Device
+from adh6.constants import LOG_DEFAULT_LIMIT
+from adh6.entity import Device, Member
 
-from adh6.exceptions import LogFetchError
-from adh6.misc import get_mac_variations, LOG
+from adh6.misc import get_mac_variations
 
 from ..interfaces.logs_repository import LogsRepository
 
 
-class ElasticSearchRepository(LogsRepository):
+class ElasticsearchLogsRepository(LogsRepository):
     """
     Interface to the log repository.
     """
@@ -29,45 +28,9 @@ class ElasticSearchRepository(LogsRepository):
         if 'ELK_HOSTS' not in self.config:
             return
 
-        LOG.info('About to instantiate ElasticSearch')
-        LOG.debug('ELK_HOSTS:' + str(self.config['ELK_HOSTS']))
         self.es = Elasticsearch(self.config['ELK_HOSTS'], http_auth=(self.config['ELK_USER'], self.config['ELK_SECRET']))
 
-    def get_global_stats(self, ctx):
-        if not self.config['ELK_HOSTS']:
-            raise LogFetchError('no elk host configured')
-
-        query = {
-            "query": {
-                "range": {
-                  "@timestamp": {
-                    "gte": "now-1h",
-                    "lt": "now"
-                  }
-                }
-              },
-              "size":0,
-               "aggs":{
-                  "unique_macs":{
-                     "cardinality":{
-                        "field":"common_mac.keyword"
-                     }
-                  },
-                  "unique_ips":{
-                     "cardinality":{
-                        "field":"src_ip.keyword"
-                     }
-                  },
-                  "unique_users":{
-                     "cardinality":{
-                        "field":"radius_user.keyword"
-                     }
-                  }
-               }
-            }
-        return self.es.search(index="", body=query)["aggregations"]
-
-    def get_logs(self, ctx, devices: List[Device], limit=LOG_DEFAULT_LIMIT, username=None, dhcp: bool = False):
+    def get(self, member: Member, devices: List[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False):
         """
         Get the logs related to the username and to the devices.
         :param ctx:  context
@@ -77,11 +40,8 @@ class ElasticSearchRepository(LogsRepository):
         :param dhcp: allow to query DHCP logs or not
         :return: logs
         """
-        if ctx.get(CTX_TESTING):  # Do not actually query elasticsearch if testing...
+        if 'ELK_HOSTS' not in self.config:
             return [[1, "test_log"]]
-
-        if not self.config['ELK_HOSTS']:
-            raise LogFetchError('no elk host configured')
 
         # Prepare the elasticsearch query...
         if not dhcp:
@@ -95,7 +55,7 @@ class ElasticSearchRepository(LogsRepository):
                             "match": {"program": "radiusd"}
                         },
                         "should": [  # "should" in a "bool" query basically act as a "OR"
-                            {"match": {"radius_user": username}},  # Match every log mentioning this member
+                            {"match": {"radius_user": member.username}},  # Match every log mentioning this member
                             # rules to match MACs addresses are added in the next chunk of code
                         ],
                         "minimum_should_match": 1,
@@ -141,7 +101,6 @@ class ElasticSearchRepository(LogsRepository):
                 # noinspection PyTypeChecker
                 query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
 
-        LOG.info('About to query ElasticSearch')
         res = self.es.search(index="", body=query)['hits']['hits']
 
         if not dhcp:

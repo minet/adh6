@@ -8,5 +8,5 @@ from adh6.default.crud_repository import CRUDRepository
 
 class TransactionRepository(CRUDRepository[Transaction, AbstractTransaction]):
     @abc.abstractmethod
-    def validate(self, ctx, id: int) -> None:
+    def validate(self, id: int) -> None:
         pass  # pragma: no cover

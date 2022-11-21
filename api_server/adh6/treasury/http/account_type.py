@@ -10,8 +10,8 @@ class AccountTypeHandler:
 
     @with_context
     @log_call
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
-        result, total_count = self.account_type_manager.search(ctx, limit=limit, offset=offset, terms=terms)
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
+        result, total_count = self.account_type_manager.search(limit=limit, offset=offset, terms=terms)
         headers = {
             "X-Total-Count": str(total_count),
             'access-control-expose-headers': 'X-Total-Count'
@@ -21,6 +21,6 @@ class AccountTypeHandler:
 
     @with_context
     @log_call
-    def get(self, ctx, id_: int):
-        return self.account_type_manager.get_by_id(ctx, id=id_).to_dict(), 200
+    def get(self, id_: int):
+        return self.account_type_manager.get_by_id(id=id_).to_dict(), 200
 

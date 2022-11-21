@@ -15,28 +15,28 @@ class MembershipRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def create(self, ctx, body: SubscriptionBody, state: MembershipStatus) -> Membership:
+    def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update(self, ctx, uuid: str, body: SubscriptionBody, state: MembershipStatus):
+    def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus):
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def validate(self, ctx, uuid: str) -> None:
+    def validate(self, uuid: str) -> None:
         """
         Add a membership.
         """

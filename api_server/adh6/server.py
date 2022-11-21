@@ -58,8 +58,12 @@ from adh6.member.member_manager import MemberManager
 from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.member.charter_manager import CharterManager
 from adh6.member.subscription_manager import SubscriptionManager
-from adh6.device.device_manager import DeviceManager
-from adh6.default.crud_manager import CRUDManager
+from adh6.device import (
+    DeviceManager, 
+    DeviceIpManager, 
+    DeviceLogsManager
+)
+from adh6.default import CRUDManager, CRUDRepository
 from adh6.metrics.health_manager import HealthManager
 from adh6.network.port_manager import PortManager
 from adh6.room.room_manager import RoomManager
@@ -70,6 +74,8 @@ from adh6.authentication.role_manager import RoleManager
 
 managers = [
     DeviceManager,
+    DeviceIpManager,
+    DeviceLogsManager,
     HealthManager,
     ProductManager,
     CashboxManager,
@@ -103,12 +109,12 @@ from adh6.member.storage import (
     MemberRepository,
     MailinglistReposiroty,
     CharterRepository,
-    LogsRepository
 )
 from adh6.member.smtp import NotificationRepository
 from adh6.device.storage import (
     DeviceRepository,
-    IPAllocator
+    IPAllocator,
+    LogsRepository
 )
 from adh6.authentication.storage import (
     RoleRepository,
@@ -119,7 +125,6 @@ from adh6.network.storage import PortRepository, SwitchRepository
 from adh6.subnet.storage import VLANRepository
 from adh6.room.storage import RoomRepository
 from adh6.network.snmp import SwitchNetworkManager
-from adh6.default.crud_repository import CRUDRepository
 
 
 config = {
@@ -132,10 +137,10 @@ config = {
 def get_obj_graph():
     _global = managers+ \
         handlers+ \
-        [SwitchNetworkManager, LogsRepository]+ \
+        [SwitchNetworkManager]+ \
         [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
         [SubscriptionManager, MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository, NotificationTemplateSQLRepository ] + \
-        [DeviceRepository, IPAllocator] + \
+        [DeviceRepository, IPAllocator, LogsRepository] + \
         [PingRepository, VLANRepository, RoomRepository] + \
         [PortRepository, SwitchRepository] + \
         [RoleRepository, ApiKeyRepository]
@@ -219,6 +224,10 @@ def init() -> FlaskApp:
         pythonic_params=True,
         auth_all_paths=True,
     )
+
+    from .logging import setup_login
+
+    setup_login()
 
     db.init_app(app.app)
     cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})

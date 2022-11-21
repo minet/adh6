@@ -1,5 +1,5 @@
 from adh6.decorator import log_call
-from adh6.misc import LOG
+import logging
 import smtplib
 from flask import current_app
 from email.message import EmailMessage
@@ -10,10 +10,10 @@ from ..interfaces import NotificationRepository
 
 class NotificationSMTPRepository(NotificationRepository):
     @log_call
-    def send(self, ctx, recipient: str, subject: str, body: str):
+    def send(self, recipient: str, subject: str, body: str):
         smtp = current_app.config["SMTP_SERVER"]
         if not smtp:
-            LOG.warning("No SMTP server defined, not sending emails")
+            logging.warning("No SMTP server defined, not sending emails")
             return
         server = smtplib.SMTP(smtp, 25)
         msg = EmailMessage()

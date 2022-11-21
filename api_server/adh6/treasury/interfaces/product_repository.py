@@ -7,9 +7,9 @@ from adh6.entity import AbstractProduct
 
 class ProductRepository(abc.ABC):
     @abc.abstractmethod
-    def get_by_id(self, ctx, object_id: int) -> AbstractProduct:
+    def get_by_id(self, object_id: int) -> AbstractProduct:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AbstractProduct], int]:
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AbstractProduct], int]:
         pass  # pragma: no cover

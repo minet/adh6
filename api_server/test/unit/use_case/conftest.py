@@ -19,40 +19,24 @@ from adh6.entity import (
 from adh6.authentication import Roles
 from adh6.entity.subscription_body import SubscriptionBody
 from test import TESTING_CLIENT
-from adh6.misc.context import build_context
-
-@fixture(autouse=True)
-def mock_missing_default_user(monkeypatch):
-    import connexion
-    """Remove the user key from DEFAULT_CONFIG"""
-    monkeypatch.setattr(connexion, "context", {"token_info": ""}, raising=False)
-
-@fixture(autouse=True)
-def app_context(monkeypatch):
-    monkeypatch.setenv("UNIT_TESTING", "test")
 
 @fixture(autouse=True)
 def mock_test_configuration(monkeypatch):
-    from adh6.member.member_manager import MemberManager
-    monkeypatch.setattr(MemberManager, "duration_price", {1:9, 12: 50})
-    monkeypatch.setattr(MemberManager, "duration_string", {1:'1 Mois', 12: '1 an'})
+    from adh6.member.subscription_manager import SubscriptionManager
+    monkeypatch.setattr(SubscriptionManager, "duration_price", {1:9, 12: 50})
+    monkeypatch.setattr(SubscriptionManager, "duration_string", {1:'1 Mois', 12: '1 an'})
+
+@fixture(autouse=True)
+def ctx(sample_member: Member, monkeypatch):
+    import adh6.context as context
+    monkeypatch.setattr(context, "get_user", lambda: sample_member.id, raising=False)
+    monkeypatch.setattr(context, "get_roles", lambda: [Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value], raising=False)
 
 @fixture
-def ctx(sample_member: Member):
-    return build_context(
-        admin=sample_member.id,
-        testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value]
-    )
-
-
-@fixture
-def ctx_only_admin(sample_member: Member):
-    return build_context(
-        admin=sample_member.id,
-        testing=True,
-        roles=[Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value]
-    )
+def ctx_only_admin(sample_member: Member, monkeypatch):
+    import adh6.context as context
+    monkeypatch.setattr(context, "get_user", lambda: sample_member.id, raising=False)
+    monkeypatch.setattr(context, "get_roles", lambda: [Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value], raising=False)
 
 
 @fixture

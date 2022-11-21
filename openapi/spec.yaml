@@ -1909,19 +1909,13 @@ paths:
       tags:
       - room members
     delete:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - id
-              type: object
-              properties:
-                id:
-                  description: Id of the member to remove
-                  type: integer
-                  example: 1
-        description: The member to remove
+      parameters:
+      - description: Id of the member to remove
+        in: query
+        name: memberId
+        schema:
+          type: integer
+          format: int32
         required: true
       responses:
         '204':

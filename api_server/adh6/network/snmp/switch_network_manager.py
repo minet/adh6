@@ -3,7 +3,6 @@
 Implements everything related to SNMP-related actions
 """
 from typing import Tuple
-from adh6.constants import CTX_ROLES
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
 from .util.snmp_helper import get_SNMP_value, set_SNMP_value
 
@@ -18,26 +17,26 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         self.port_repository = port_repository
 
     @log_call
-    def get_port_status(self, ctx, port_id: int) -> bool:
+    def get_port_status(self, port_id: int) -> bool:
         """
         Retrieve the status of a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def update_port_status(self, ctx, port_id: int) -> str:
+    def update_port_status(self, port_id: int) -> str:
         """
         Update the status of a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             port_state =  get_SNMP_value(community, ip, 'IF-MIB', 'ifAdminStatus', oid)
             if port_state == "up" :
@@ -48,13 +47,13 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     @log_call
-    def get_port_vlan(self, ctx, port_id: int) -> int:
+    def get_port_vlan(self, port_id: int) -> int:
         """
         Get the VLAN assigned to a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'CISCO-VLAN-MEMBERSHIP-MIB', 'vmVlan', oid)
         except NetworkManagerReadError:
@@ -62,15 +61,16 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
 
     
     @log_call
-    def update_port_vlan(self, ctx, port_id: int, vlan: int = 1) -> str:
+    def update_port_vlan(self, port_id: int, vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
-            roles = ctx.get(CTX_ROLES)
+            from adh6.context import get_roles
+            roles = get_roles()
             vlan = int(vlan)
             if (
                 Roles.NETWORK_WRITE.value not in roles and
@@ -87,26 +87,26 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise e
 
     @log_call
-    def get_port_mab(self, ctx, port_id: int) -> bool:
+    def get_port_mab(self, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def update_port_mab(self, ctx, port_id: int) -> str:
+    def update_port_mab(self, port_id: int) -> str:
         """
         Update whether MAB should be active on a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             mab_state = get_SNMP_value(community, ip, 'CISCO-MAC-AUTH-BYPASS-MIB', 'cmabIfAuthEnabled', oid)
             if mab_state == "false" :
@@ -117,26 +117,26 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     @log_call
-    def get_port_auth(self, ctx, port_id: int) -> bool:
+    def get_port_auth(self, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def update_port_auth(self, ctx, port_id: int) -> None:
+    def update_port_auth(self, port_id: int) -> None:
         """
         Update whether MAB should be active on a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             auth_state = get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortControl', oid)
             if auth_state == "auto" : #auth activée
@@ -148,57 +148,57 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     @log_call
-    def get_port_use(self, ctx, port_id: int) -> bool:
+    def get_port_use(self, port_id: int) -> bool:
         """
         Retrieve usage of a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'IEEE8021-PAE-MIB', 'dot1xAuthAuthControlledPortStatus',oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def get_port_speed(self, ctx, port_id: int) -> int:
+    def get_port_speed(self, port_id: int) -> int:
         """
         Retrieve speed of a port.
 
         :raise PortNotFound
         """
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'IF-MIB', 'ifSpeed', oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def get_port_alias(self, ctx, port_id: int) -> str:
+    def get_port_alias(self, port_id: int) -> str:
         """
         Retrieve alias of a port.
 
         :raise PortNotFound
         """
 
-        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(ctx, port_id)
+        oid, ip, community = self.get_oid_switch_ipand_community_from_port_id(port_id)
         try:
             return get_SNMP_value(community, ip, 'IF-MIB', 'ifAlias', oid)
         except NetworkManagerReadError:
             raise
 
     @log_call
-    def get_oid_switch_ipand_community_from_port_id(self, ctx, port_id) -> Tuple[str, str, str]:
-        port = self.port_repository.get_by_id(ctx, object_id=port_id)
+    def get_oid_switch_ipand_community_from_port_id(self, port_id) -> Tuple[str, str, str]:
+        port = self.port_repository.get_by_id(object_id=port_id)
         if port.oid is None or not isinstance(port.oid, str):
             raise NetworkManagerReadError(f"oidc for port {port_id} is unknown")
         if port.switch_obj is None:
             raise SwitchNotFoundError(port.switch_obj)
-        switch = self.switch_repository.get_by_id(ctx, object_id=port.switch_obj)
-        community = self.switch_repository.get_community(ctx, switch_id=port.switch_obj)
+        switch = self.switch_repository.get_by_id(object_id=port.switch_obj)
+        community = self.switch_repository.get_community(switch_id=port.switch_obj)
         if switch.ip is None or not isinstance(switch.ip, str):
             raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")
-        rcom = self.port_repository.get_rcom(ctx, id=port_id)
+        rcom = self.port_repository.get_rcom(id=port_id)
         if rcom is not None or rcom != 0:
             community += str(rcom)
         return port.oid, switch.ip, community

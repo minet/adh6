@@ -5,12 +5,11 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-from sqlalchemy.orm.session import Session
-
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractPort, Port, Switch, Room
 from adh6.exceptions import RoomNotFoundError, SwitchNotFoundError, PortNotFoundError
 from adh6.decorator import log_call
+from adh6.storage import session
 from adh6.room.storage.models import Chambre as SQLChambre
 
 from .models import Port as SQLPort, Switch as SQLSwitch
@@ -19,17 +18,14 @@ from ..interfaces import PortRepository
 
 class PortSQLRepository(PortRepository):
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractPort:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> AbstractPort:
         obj = session.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
         if obj is None:
             raise PortNotFoundError(object_id)
         return _map_port_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None) -> Tuple[List[AbstractPort], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None) -> Tuple[List[AbstractPort], int]:
         query = session.query(SQLPort)
         query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
         query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
@@ -64,11 +60,8 @@ class PortSQLRepository(PortRepository):
         return list(map(lambda item: _map_port_sql_to_abstract_entity(item), r)), count
 
     @log_call
-    def create(self, ctx, abstract_port: Port) -> Port:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def create(self, abstract_port: Port) -> Port:
         now = datetime.now()
-
         room = None
         if abstract_port.room is not None:
             room = session.query(SQLChambre).filter(SQLChambre.id == abstract_port.room).one_or_none()
@@ -96,9 +89,7 @@ class PortSQLRepository(PortRepository):
         return _map_port_sql_to_entity(port)
 
     @log_call
-    def update(self, ctx, object_to_update: AbstractPort, override=False) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, object_to_update: AbstractPort, override=False) -> object:
         query = session.query(SQLPort)
         query = query.filter(SQLPort.id == object_to_update.id)
         query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
@@ -107,14 +98,12 @@ class PortSQLRepository(PortRepository):
         port = query.one_or_none()
         if port is None:
             raise PortNotFoundError(str(object_to_update.id))
-        new_port = _merge_sql_with_entity(ctx, object_to_update, port, override)
+        new_port = _merge_sql_with_entity(object_to_update, port, override)
 
         return _map_port_sql_to_entity(new_port)
 
     @log_call
-    def delete(self, ctx, object_id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def delete(self, object_id) -> None:
         port = session.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
         if port is None:
             raise PortNotFoundError(object_id)
@@ -123,9 +112,7 @@ class PortSQLRepository(PortRepository):
         session.flush()
 
 
-    def get_rcom(self, ctx, id) -> Optional[int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def get_rcom(self, id) -> Optional[int]:
         port = session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
         if port is None:
             raise PortNotFoundError(id)
@@ -133,7 +120,7 @@ class PortSQLRepository(PortRepository):
         return port[0]
 
 
-def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
+def _merge_sql_with_entity(entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
     now = datetime.now()
     port = sql_object
     if entity.oid is not None or override:
@@ -141,13 +128,11 @@ def _merge_sql_with_entity(ctx, entity: AbstractPort, sql_object: SQLPort, overr
     if entity.port_number is not None or override:
         port.numero = entity.port_number
     if entity.room is not None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
         room = session.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
         if not room:
             raise RoomNotFoundError(entity.room)
         port.chambre_id = room.id
     if entity.switch_obj is not None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
         switch = session.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
         if not switch:
             raise SwitchNotFoundError(entity.switch_obj)

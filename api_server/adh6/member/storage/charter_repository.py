@@ -2,16 +2,14 @@ from datetime import datetime
 from typing import List, Tuple, Union
 
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
-from adh6.constants import CTX_SQL_SESSION
+from adh6.storage import session
 
 from .models import Adherent
 from ..interfaces.charter_repository import CharterRepository
 
 
 class CharterSQLRepository(CharterRepository):
-    def get(self, ctx, charter_id: int, member_id: int) -> Union[datetime, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get(self, charter_id: int, member_id: int) -> Union[datetime, None]:
         if charter_id == 1:
             smt = select(Adherent.datesignedminet)
         else:
@@ -19,8 +17,7 @@ class CharterSQLRepository(CharterRepository):
         smt = smt.where(Adherent.id == member_id)
         return session.execute(smt).scalar_one_or_none()
 
-    def get_members(self, ctx, charter_id: int) -> Tuple[List[int], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_members(self, charter_id: int) -> Tuple[List[int], int]:
         smt = select(Adherent.id)
         if charter_id == 1:
             smt = smt.where(Adherent.datesignedminet)
@@ -29,8 +26,7 @@ class CharterSQLRepository(CharterRepository):
         r = session.execute(smt).scalars().all()
         return r, len(r)
 
-    def update(self, ctx, charter_id: int, member_id: int) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def update(self, charter_id: int, member_id: int) -> None:
         smt = update(Adherent).where(Adherent.id == member_id)
         if charter_id == 1:
             smt = smt.values(datesignedminet=datetime.now())

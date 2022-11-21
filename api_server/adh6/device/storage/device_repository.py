@@ -6,14 +6,13 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Tuple, Union
 
-from sqlalchemy.orm.session import Session
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
 
-from adh6.constants import CTX_SQL_SESSION
 from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
 from adh6.decorator import log_call
 from adh6.member.storage.models import Adherent
+from adh6.storage import session
 from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import DeviceRepository
@@ -27,19 +26,16 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> Union[Device, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> Union[Device, None]:
         obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
-    def get_by_mac(self, ctx, mac: str) -> Union[Device, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_mac(self, mac: str) -> Union[Device, None]:
         obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
-    def search_by(self, ctx, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
         smt: Select = select(SQLDevice)
         if device_filter.terms:
             smt = smt.join(Adherent, SQLDevice.adherent_id==Adherent.id).where(
@@ -60,10 +56,8 @@ class DeviceSQLRepository(DeviceRepository):
         return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
-    def create(self, ctx, obj: DeviceBody) -> Device:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def create(self, obj: DeviceBody) -> Device:
         now = datetime.now()
-
         device = SQLDevice(
             mac=obj.mac,
             created_at=now,
@@ -75,45 +69,39 @@ class DeviceSQLRepository(DeviceRepository):
             ipv6='En attente'
         )
 
-        with track_modifications(ctx, session, device):
+        with track_modifications(session, device):
             session.add(device)
         session.flush()
 
         return _map_device_sql_to_entity(device)
 
     @log_call
-    def update(self, ctx, abstract_device: AbstractDevice, override=False) -> Device:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, abstract_device: AbstractDevice, override=False) -> Device:
         query = session.query(SQLDevice)
         query = query.filter(SQLDevice.id == abstract_device.id)
 
         device = query.one_or_none()
-        with track_modifications(ctx, session, device):
+        with track_modifications(session, device):
             new_device = _merge_sql_with_entity(abstract_device, device, override)
 
         return _map_device_sql_to_entity(new_device)
 
     @log_call
-    def delete(self, ctx, id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def delete(self, id) -> None:
         device = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
-        with track_modifications(ctx, session, device):
+        with track_modifications(session, device):
             session.delete(device)    
 
-    def get_mab(self, ctx, id: int) -> bool:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_mab(self, id: int) -> bool:
         device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
         return device.mab
 
-    def put_mab(self, ctx, id: int, mab: bool) -> bool:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def put_mab(self, id: int, mab: bool) -> bool:
         device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
         device.mab = mab
         return mab
 
-    def owner(self, ctx, id: int) -> Union[int, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def owner(self, id: int) -> Union[int, None]:
         smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
         return session.execute(smt).scalar_one_or_none()
 

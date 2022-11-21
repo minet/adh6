@@ -92,11 +92,9 @@ def test_member_post_add_membership_unknown_payment_method(client, sample_member
     assert result.status_code == 404
 
 def test_membership_validate_membership_no_room(client, sample_room1, sample_member: Adherent, sample_membership_pending_validation_payment_dict):
-    result = client.patch(
-        f'{host_url}/room/{sample_room1.id}/member/del/',
-        data=json.dumps({
-            "id": sample_member.id
-        }),
+    result = client.post(
+        f'{host_url}/room/{sample_room1.id}/member/',
+        data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
     )

@@ -20,51 +20,51 @@ class RoomManager(CRUDManager):
         self.member_manager = member_manager
 
     @log_call
-    def add_member(self, ctx, room_id: int, member_id: int) -> None:
+    def add_member(self, room_id: int, member_id: int) -> None:
         try:
-            room = self.room_repository.get_by_id(ctx, room_id)
+            room = self.room_repository.get_by_id(room_id)
             if not room:
                 raise RoomNotFoundError(room_id)
-            self.member_manager.get_by_id(ctx, member_id)
+            self.member_manager.get_by_id(member_id)
         except NotFoundError as e:
             raise e
         
-        previous_room = self.room_repository.get_from_member(ctx, member_id)
+        previous_room = self.room_repository.get_from_member(member_id)
         if previous_room:
-            self.room_repository.remove_member(ctx, member_id)
+            self.room_repository.remove_member(member_id)
 
-        self.room_repository.add_member(ctx, room_id, member_id)
+        self.room_repository.add_member(room_id, member_id)
         if not previous_room:
-            self.member_manager.update_subnet(ctx, member_id=member_id)
-            self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
+            self.member_manager.update_subnet(member_id=member_id)
+            self.member_manager.ethernet_vlan_changed(member_id, room.vlan)
         elif previous_room.vlan != room.vlan:
-            self.member_manager.ethernet_vlan_changed(ctx, member_id, room.vlan)
+            self.member_manager.ethernet_vlan_changed(member_id, room.vlan)
 
     @log_call
-    def remove_member(self, ctx, room_id: int, member_id: int) -> None:
+    def remove_member(self, room_id: int, member_id: int) -> None:
         try:
-            self.member_manager.get_by_id(ctx, member_id)
-            room = self.room_repository.get_by_id(ctx, room_id)
+            self.member_manager.get_by_id(member_id)
+            room = self.room_repository.get_by_id(room_id)
             if not room:
                 raise RoomNotFoundError(room_id)
         except NotFoundError as e:
             raise e
-        self.room_repository.remove_member(ctx, member_id)
-        self.member_manager.reset_member(ctx, member_id)
+        self.room_repository.remove_member(member_id)
+        self.member_manager.reset_member(member_id)
 
     @log_call
-    def list_members(self, ctx, room_id: int) -> List[int]:
+    def list_members(self, room_id: int) -> List[int]:
         try:
-            room = self.room_repository.get_by_id(ctx, room_id)
+            room = self.room_repository.get_by_id(room_id)
             if not room:
                 raise RoomNotFoundError(room_id)
         except Exception as e:
             raise e
-        return self.room_repository.get_members(ctx, room_id=room_id)
+        return self.room_repository.get_members(room_id=room_id)
 
     @log_call
-    def room_from_member(self, ctx, member_id: int) -> int:
-        room = self.room_repository.get_from_member(ctx, member_id)
+    def room_from_member(self, member_id: int) -> int:
+        room = self.room_repository.get_from_member(member_id)
         if not room:
             raise RoomNotFoundError()
         return room.id

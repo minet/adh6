@@ -6,5 +6,5 @@ from adh6.default.crud_repository import CRUDRepository
 
 class SwitchRepository(CRUDRepository[Switch, AbstractSwitch]):
     @abc.abstractmethod
-    def get_community(self, ctx, switch_id: int) -> str:
+    def get_community(self, switch_id: int) -> str:
         pass  # pragma: no cover

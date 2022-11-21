@@ -14,11 +14,11 @@ class TransactionHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def upload_post(self, ctx, body):
+    def upload_post(self, body):
         pass
 
     @with_context
     @log_call
-    def validate(self, ctx, id_: int):
-        self.transaction_manager.validate(ctx, id=id_)
+    def validate(self, id_: int):
+        self.transaction_manager.validate(id=id_)
         return NoContent, 204

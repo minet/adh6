@@ -2,12 +2,11 @@
 """ Use cases (business rule layer) of everything related to transactions. """
 from typing import Optional, Tuple
 from adh6.authentication import Roles
-from adh6.constants import CTX_ROLES
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from adh6.decorator import log_call
-from adh6.default.crud_manager import CRUDManager
-from adh6.misc import log_extra, LOG
+from adh6.default import CRUDManager
+import logging
 
 from .interfaces import CashboxRepository, TransactionRepository
 
@@ -23,7 +22,7 @@ class TransactionManager(CRUDManager):
         self.cashbox_repository = cashbox_repository
 
     @log_call
-    def update_or_create(self, ctx, abstract_transaction: AbstractTransaction, id: Optional[int] = None) -> Tuple[Transaction, bool]:
+    def update_or_create(self, abstract_transaction: AbstractTransaction, id: Optional[int] = None) -> Tuple[Transaction, bool]:
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
         if abstract_transaction.value is None:
@@ -31,26 +30,25 @@ class TransactionManager(CRUDManager):
         if abstract_transaction.value <= 0:
             raise IntMustBePositive('value')
 
-        if Roles.TRESO_WRITE.value not in ctx.get(CTX_ROLES):
+        from adh6.context import get_roles, get_user
+        if Roles.TRESO_WRITE.value not in get_roles():
             abstract_transaction.pending_validation = True
+        admin_id = get_user()
+        abstract_transaction.author = admin_id
 
-        transaction, created = super().update_or_create(ctx, abstract_transaction, id=id)
+        transaction, created = super().update_or_create(abstract_transaction, id=id)
 
         if created:
-            LOG.info('cashbox_update', extra=log_extra(
-                ctx,
-                value_modifier=abstract_transaction.value,
-                transaction=transaction,
-            ))
+            logging.debug('cashbox_update')
             if transaction.cashbox == "to":
-                self.cashbox_repository.update(ctx, value_modifier=transaction.value, transaction=transaction)
+                self.cashbox_repository.update(value_modifier=transaction.value, transaction=transaction)
             elif transaction.cashbox == "from":
-                self.cashbox_repository.update(ctx, value_modifier=-transaction.value, transaction=transaction)
+                self.cashbox_repository.update(value_modifier=-transaction.value, transaction=transaction)
                 
         return transaction, created
 
     @log_call
-    def partially_update(self, ctx, abstract_transaction: AbstractTransaction, id=None, override=False, **kwargs):
+    def partially_update(self, abstract_transaction: AbstractTransaction, id=None, override=False, **kwargs):
         if any(True for _ in filter(lambda e: e is not None, [
             abstract_transaction.value,
             abstract_transaction.src,
@@ -64,16 +62,16 @@ class TransactionManager(CRUDManager):
         raise NotImplementedError
 
     @log_call
-    def validate(self, ctx, id: int):
-        transaction = self.get_by_id(ctx, id=id)
+    def validate(self, id: int):
+        transaction = self.get_by_id(id=id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to validate a transaction that is already validated")
-        return self.transaction_repository.validate(ctx, id)
+        return self.transaction_repository.validate(id)
 
     @log_call
-    def delete(self, ctx, id: int):
-        transaction = self.get_by_id(ctx, id=id)
+    def delete(self, id: int):
+        transaction = self.get_by_id(id=id)
         if not transaction.pending_validation:
             raise ValidationError("you are trying to delete a transaction that is already validated")
 
-        return super().delete(ctx, id=id)
+        return super().delete(id=id)

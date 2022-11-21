@@ -6,10 +6,8 @@ import decimal
 from datetime import datetime
 from typing import Tuple
 
-from sqlalchemy.orm.session import Session
-
-from adh6.constants import CTX_SQL_SESSION
 from adh6.decorator import log_call
+from adh6.storage import session
 from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Caisse as SQLCashbox
@@ -19,12 +17,10 @@ from ..interfaces import CashboxRepository
 class CashboxSQLRepository(CashboxRepository):
 
     @log_call
-    def update(self, ctx, value_modifier=None, transaction=None):
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, value_modifier=None, transaction=None):
         now = datetime.now()
 
-        fond, coffre = self.get(ctx)
+        fond, coffre = self.get()
 
         fond += decimal.Decimal(value_modifier)
 
@@ -37,14 +33,11 @@ class CashboxSQLRepository(CashboxRepository):
             linked_transaction=transaction.id if transaction is not None else None
         )
 
-        with track_modifications(ctx, session, cashbox_update):
+        with track_modifications(session, cashbox_update):
             session.add(cashbox_update)
-        pass
 
     @log_call
-    def get(self, ctx) -> Tuple[int, int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def get(self) -> Tuple[int, int]:
         query = session.query(SQLCashbox)
         query = query.order_by(SQLCashbox.id.desc())
         query = query.limit(1)

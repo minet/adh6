@@ -5,14 +5,12 @@ Track modification on SQLAlchemy objects.
 from contextlib import contextmanager
 from datetime import datetime
 
-
-from adh6.constants import CTX_ADMIN
 from adh6.storage.sql.models import Modification
 from adh6.storage.sql.trackable import RubyHashTrackable
 
 
 @contextmanager
-def track_modifications(ctx, session, obj: RubyHashTrackable):
+def track_modifications(session, obj: RubyHashTrackable):
     """
     Track the modifications of the specified entry and create a new entry in the modification table containing the diff.
 
@@ -27,7 +25,8 @@ def track_modifications(ctx, session, obj: RubyHashTrackable):
             return  # No modification.
 
         now = datetime.now()
-        user = ctx.get(CTX_ADMIN)
+        from adh6.context import get_user
+        user = get_user()
         member = obj.get_related_member()
 
         m = Modification(

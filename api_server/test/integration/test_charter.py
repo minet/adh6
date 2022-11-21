@@ -1,5 +1,5 @@
 import json
-from connexion.jsonifier import uuid
+import uuid
 import pytest
 from sqlalchemy import select
 from adh6.constants import MembershipStatus

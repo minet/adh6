@@ -9,25 +9,22 @@ from adh6.entity.member import Member
 from adh6.entity.room import Room
 from adh6.exceptions import InvalidMACAddress, MemberNotFoundError
 from adh6.device.device_manager import DeviceManager
-from adh6.device.interfaces.device_repository import DeviceRepository
-from adh6.device.interfaces.ip_allocator import IpAllocator
+from adh6.device.device_ip_manager import DeviceIpManager
+from adh6.device.interfaces import DeviceRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.room.interfaces.room_repository import RoomRepository
-from adh6.subnet.interfaces.vlan_repository import VlanRepository
 
 
 @fixture
 def device_manager(
-        mock_ip_allocator: IpAllocator,
+        mock_device_ip_manager: DeviceIpManager,
         mock_device_repository: DeviceRepository,
-        mock_vlan_repository: VlanRepository,
         mock_member_repository: MemberRepository,
         mock_room_repository: RoomRepository
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
-        ip_allocator=mock_ip_allocator,
-        vlan_repository=mock_vlan_repository,
+        device_ip_manager=mock_device_ip_manager,
         member_repository=mock_member_repository,
         room_repository=mock_room_repository
     )
@@ -35,7 +32,6 @@ def device_manager(
 
 class TestUpdateOrCreate:
     def test_create_happy_path(self,
-                               ctx,
                                mock_device_repository: DeviceRepository,
                                mock_member_repository: MemberRepository,
                                mock_room_repository: RoomRepository,
@@ -57,27 +53,25 @@ class TestUpdateOrCreate:
 
         body = DeviceBody(mac=sample_device.mac, member=sample_device.member, connection_type=sample_device.connection_type)
         # When...
-        device = device_manager.create(ctx, body)
+        device = device_manager.create(body)
 
         # Expect...
         assert device is not None
-        #mock_device_repository.create.assert_called_once_with(ctx, sample_device)
+        #mock_device_repository.create.assert_called_once_with(sample_device)
 
     def test_invalid_mac(self,
-                         ctx,
                          mock_device_repository: MagicMock,
                          device_manager: DeviceManager):
 
         # When...
         with raises(InvalidMACAddress):
-            device_manager.create(ctx, DeviceBody(mac='this is not a valid mac'))
+            device_manager.create(DeviceBody(mac='this is not a valid mac'))
 
         # Expect...
         mock_device_repository.create.assert_not_called()
 
     @mark.skip(reason="Should we implement the relations logic in the managers ?")
     def test_bad_member(self,
-                        ctx,
                         mock_member_repository: MemberRepository,
                         mock_device_repository: MagicMock,
                         device_manager: DeviceManager):
@@ -86,7 +80,7 @@ class TestUpdateOrCreate:
 
         # When...
         with raises(MemberNotFoundError):
-            device_manager.create(ctx, DeviceBody(mac="00:00:00:00:00:00", member=4242))
+            device_manager.create(DeviceBody(mac="00:00:00:00:00:00", member=4242))
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -94,13 +88,8 @@ class TestUpdateOrCreate:
 
 
 @fixture
-def mock_vlan_repository():
-    return MagicMock(spec=VlanRepository)
-
-
-@fixture
-def mock_ip_allocator():
-    return MagicMock(spec=IpAllocator)
+def mock_device_ip_manager():
+    return MagicMock(spec=DeviceIpManager)
 
 
 @fixture

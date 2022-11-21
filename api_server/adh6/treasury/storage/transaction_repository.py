@@ -4,14 +4,14 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
 
-from sqlalchemy.orm.session import Session
 from typing import List, Tuple, Union
 
 
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET, CTX_ADMIN
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
 from adh6.decorator import log_call
+from adh6.storage import session
 from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Transaction as SQLTransaction, Account, PaymentMethod
@@ -22,15 +22,12 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> Union[Transaction, None]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> Union[Transaction, None]:
         obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
         return _map_transaction_sql_to_entity(obj) if obj else obj
 
     @log_call
-    def search_by(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
-        session: Session= ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
         query= session.query(SQLTransaction)
 
         if filter_:
@@ -64,12 +61,8 @@ class TransactionSQLRepository(TransactionRepository):
         return [_map_transaction_sql_to_entity(i) for i in r], count
 
     @log_call
-    def create(self, ctx, abstract_transaction: AbstractTransaction) -> object:
-        session: Session= ctx.get(CTX_SQL_SESSION)
-
+    def create(self, abstract_transaction: AbstractTransaction) -> object:
         now = datetime.now()
-
-        admin_id = ctx.get(CTX_ADMIN)
 
         account_src = None
         if abstract_transaction.src is not None:
@@ -98,38 +91,34 @@ class TransactionSQLRepository(TransactionRepository):
             timestamp=now,
             attachments="",
             type=method.id if method else None,
-            author_id=admin_id,
+            author_id=abstract_transaction.author,
             pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
         )
 
-        with track_modifications(ctx, session, transaction):
+        with track_modifications(session, transaction):
             session.add(transaction)
         session.flush()
 
         return _map_transaction_sql_to_entity(transaction)
 
-    def update(self, ctx, abstract_transaction: AbstractTransaction, override=False) -> object:
+    def update(self, abstract_transaction: AbstractTransaction, override=False) -> object:
         raise NotImplementedError
 
     @log_call
-    def validate(self, ctx, id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def validate(self, id) -> None:
         query= session.query(SQLTransaction)
         query= query.filter(SQLTransaction.id == id)
 
         transaction = query.one()
-        with track_modifications(ctx, session, transaction):
+        with track_modifications(session, transaction):
             transaction.pending_validation = False
         session.flush()
 
     @log_call
-    def delete(self, ctx, object_id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def delete(self, object_id) -> None:
         transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one()
 
-        with track_modifications(ctx, session, transaction):
+        with track_modifications(session, transaction):
             session.delete(transaction)
         session.flush()
     

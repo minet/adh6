@@ -5,37 +5,31 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-from sqlalchemy.orm.session import Session
-
-from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractSwitch, Switch
 from adh6.exceptions import SwitchNotFoundError
 from adh6.decorator import log_call
+from adh6.storage import session
 
 from .models import Switch as SQLSwitch
 from ..interfaces import SwitchRepository
 
 
 class SwitchSQLRepository(SwitchRepository):
-    def get_community(self, ctx, switch_id: int) -> str:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_community(self, switch_id: int) -> str:
         obj = session.query(SQLSwitch.communaute).filter(SQLSwitch.id == switch_id).one_or_none()
         return obj[0]
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> AbstractSwitch:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> AbstractSwitch:
         obj = session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
         if obj is None:
             raise SwitchNotFoundError(object_id)
         return _map_switch_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, ctx, limit: int=DEFAULT_LIMIT, offset: int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractSwitch] = None) -> Tuple[List[AbstractSwitch], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def search_by(self, limit: int=DEFAULT_LIMIT, offset: int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractSwitch] = None) -> Tuple[List[AbstractSwitch], int]:
         query = session.query(SQLSwitch)
-
         if terms:
             query = query.filter(SQLSwitch.description.contains(terms) | SQLSwitch.ip.contains(terms))
         if filter_:
@@ -56,9 +50,7 @@ class SwitchSQLRepository(SwitchRepository):
         return list(map(lambda item: _map_switch_sql_to_abstract_entity(item), r)), count
 
     @log_call
-    def create(self, ctx, abstract_switch: Switch) -> Switch:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def create(self, abstract_switch: Switch) -> Switch:
         now = datetime.now()
 
         switch = SQLSwitch(
@@ -75,9 +67,7 @@ class SwitchSQLRepository(SwitchRepository):
         return _map_switch_sql_to_entity(switch)
 
     @log_call
-    def update(self, ctx, object_to_update: AbstractSwitch, override=False) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, object_to_update: AbstractSwitch, override=False) -> object:
         query = session.query(SQLSwitch)
         query = query.filter(SQLSwitch.id == object_to_update.id)
 
@@ -89,9 +79,7 @@ class SwitchSQLRepository(SwitchRepository):
         return _map_switch_sql_to_entity(new_switch)
 
     @log_call
-    def delete(self, ctx, object_id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def delete(self, object_id) -> None:
         switch = session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
         if switch is None:
             raise SwitchNotFoundError(object_id)

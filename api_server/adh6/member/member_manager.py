@@ -1,16 +1,18 @@
 # coding=utf-8
 import re
+import logging
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
 from typing import List, Optional, Tuple, Union
 
-from adh6.constants import CTX_ADMIN, CTX_ROLES, DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from adh6.entity import (
     AbstractMember, Member,
     MemberStatus,
-    AbstractAccount,
-    MemberFilter,
-    MemberBody,
+    AbstractAccount, 
+    MemberBody, 
+    MemberFilter, 
+    SubscriptionBody,
     Comment,
 )
 from adh6.entity.validators.member_validators import is_member_active
@@ -22,37 +24,33 @@ from adh6.exceptions import (
     LogFetchError,
     UpdateImpossible,
 )
-from adh6.device.interfaces.device_repository import DeviceRepository
-from adh6.device.device_manager import DeviceManager
-from adh6.default.crud_manager import CRUDManager
+from adh6.device import DeviceIpManager, DeviceLogsManager
+from adh6.default import CRUDManager
 from adh6.decorator import log_call
-from adh6.misc import LOG, log_extra
 from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
 
-from .interfaces import LogsRepository, MailinglistRepository, MemberRepository
+from .interfaces import MailinglistRepository, MemberRepository
 from .subscription_manager import SubscriptionManager
 
 
 class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository,
-                 logs_repository: LogsRepository,
-                 device_repository: DeviceRepository, account_repository: AccountRepository,
+                 account_repository: AccountRepository,
                  account_type_repository: AccountTypeRepository,
-                 device_manager: DeviceManager, mailinglist_repository: MailinglistRepository, subscription_manager: SubscriptionManager):
+                 device_ip_manager: DeviceIpManager, device_logs_manager: DeviceLogsManager,
+                 mailinglist_repository: MailinglistRepository, subscription_manager: SubscriptionManager):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.mailinglist_repository = mailinglist_repository
-        self.logs_repository = logs_repository
-        self.device_repository = device_repository
+        self.device_logs_manager = device_logs_manager
+        self.device_ip_manager = device_ip_manager
         self.account_repository = account_repository
         self.account_type_repository = account_type_repository
-        self.device_manager = device_manager
         self.subscription_manager = subscription_manager
 
     @log_call
-    def search(self, ctx, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: Union[MemberFilter, None] = None) -> Tuple[List[int], int]:
+    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: Union[MemberFilter, None] = None) -> Tuple[List[int], int]:
         result, count = self.member_repository.search_by(
-            ctx, 
             limit=limit,
             offset=offset,
             terms=terms,
@@ -61,46 +59,44 @@ class MemberManager(CRUDManager):
         return [r.id for r in result if r.id], count
 
     @log_call
-    def get_by_id(self, ctx, id: int) -> Member:
-        member = self.member_repository.get_by_id(ctx, id)
+    def get_by_id(self, id: int) -> Member:
+        member = self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(ctx, id)
+        latest_sub = self.subscription_manager.latest(id)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
-    def get_by_login(self, ctx, login: str):
-        member = self.member_repository.get_by_login(ctx, login) 
+    def get_by_login(self, login: str):
+        member = self.member_repository.get_by_login(login) 
         if not member or not member.id:
-            raise MemberNotFoundError(id)
-        latest_sub = self.subscription_manager.latest(ctx, member.id)
+            raise MemberNotFoundError(login)
+        latest_sub = self.subscription_manager.latest(member.id)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
-    def get_profile(self, ctx) -> Tuple[AbstractMember, List[str]]:
-        user = ctx.get(CTX_ADMIN)
-        m = self.member_repository.get_by_id(ctx, user)
+    def get_profile(self) -> Tuple[AbstractMember, List[str]]:
+        from adh6.context import get_user, get_roles
+        m = self.member_repository.get_by_id(get_user())
         if not m:
             raise MemberNotFoundError(id)
-        return m, ctx.get(CTX_ROLES)
+        return m, get_roles()
 
     @log_call
-    def create(self, ctx, body: MemberBody) -> Member:
-        LOG.debug("create_member_records", extra=log_extra(ctx, username=body.username))
+    def create(self, body: MemberBody) -> Member:
         # Check that the user exists in the system.
-        fetched_member = self.member_repository.get_by_login(ctx, body.username)
+        fetched_member = self.member_repository.get_by_login(body.username)
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
-        fetched_account_type, _ = self.account_type_repository.search_by(ctx, terms="Adhérent")
+        fetched_account_type, _ = self.account_type_repository.search_by(terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  
         created_member = self.member_repository.create(
-            ctx=ctx, 
             object_to_create=AbstractMember(
                 id=0,
                 username=body.username,
@@ -115,9 +111,9 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_repository.update_from_member(ctx, created_member.id, 249)
+        self.mailinglist_repository.update_from_member(created_member.id, 249)
 
-        _ = self.account_repository.create(ctx, AbstractAccount(
+        _ = self.account_repository.create(AbstractAccount(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,
@@ -130,7 +126,6 @@ class MemberManager(CRUDManager):
         ))
 
         _ = self.subscription_manager.create(
-            ctx=ctx, 
             member_id=created_member.id, 
             body=SubscriptionBody(
                 member=created_member.id
@@ -140,12 +135,12 @@ class MemberManager(CRUDManager):
         return created_member
 
     @log_call
-    def update(self, ctx, id: int, body: MemberBody) -> None:
-        member = self.member_repository.get_by_id(ctx, id)
+    def update(self, id: int, body: MemberBody) -> None:
+        member = self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(ctx, id)
+        latest_sub = self.subscription_manager.latest(id)
         if not latest_sub or latest_sub.status not in [
             MembershipStatus.CANCELLED.value,
             MembershipStatus.ABORTED.value,
@@ -153,7 +148,7 @@ class MemberManager(CRUDManager):
         ]:
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
-        member = self.member_repository.update(ctx, AbstractMember(
+        member = self.member_repository.update(AbstractMember(
                                                    id=id,
                                                    email=body.mail,
                                                    username=body.username,
@@ -162,7 +157,7 @@ class MemberManager(CRUDManager):
                                                ))
 
     @log_call
-    def get_logs(self, ctx, member_id, dhcp=False) -> List[str]:
+    def get_logs(self, member_id, dhcp=False) -> List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -170,14 +165,13 @@ class MemberManager(CRUDManager):
         :raise MemberNotFound
         """
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
-            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=dhcp)
+            logs = self.device_logs_manager.get(member=member, dhcp=dhcp)
 
             return list(map(
                 lambda x: "{} {}".format(x[0], x[1]),
@@ -185,21 +179,20 @@ class MemberManager(CRUDManager):
             ))
 
         except LogFetchError:
-            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
+            logging.warning("log_fetch_failed")
             return []  # We fail open here.
 
 
     @log_call
-    def get_statuses(self, ctx, member_id) -> List[MemberStatus]:
+    def get_statuses(self, member_id) -> List[MemberStatus]:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         # Do the actual log fetching.
         try:
-            devices = self.device_repository.search_by(ctx, limit=100, offset=0, device_filter=DeviceFilter(member=member.id))[0]
-            logs = self.logs_repository.get_logs(ctx, username=member.username, devices=devices, dhcp=False)
+            logs = self.device_logs_manager.get(member=member, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
 
@@ -262,14 +255,14 @@ class MemberManager(CRUDManager):
             return all_statuses
 
         except LogFetchError:
-            LOG.warning("log_fetch_failed", extra=log_extra(ctx, username=member.username))
+            logging.warning("log_fetch_failed")
             return []  # We fail open here.
 
 
     @log_call
-    def change_password(self, ctx, member_id, password: str, hashed_password):
+    def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
@@ -278,20 +271,20 @@ class MemberManager(CRUDManager):
 
         pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
-        self.member_repository.update_password(ctx, member_id, pw)
+        self.member_repository.update_password(member_id, pw)
 
         return True
 
     @log_call
-    def update_subnet(self, ctx, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
-        member = self.member_repository.get_by_id(ctx, member_id)
+    def update_subnet(self, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
-        if not is_member_active(ctx, member):
+        if not is_member_active(member):
             return
 
-        used_wireles_public_ips = self.member_repository.used_wireless_public_ips(ctx)
+        used_wireles_public_ips = self.member_repository.used_wireless_public_ips()
 
         subnet = None
         ip = None
@@ -304,37 +297,37 @@ class MemberManager(CRUDManager):
         if subnet is None:
             raise NoSubnetAvailable("wireless")
 
-        member = self.member_repository.update(ctx, AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+        member = self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
 
-        self.device_manager.allocate_wireless_ips(ctx, member_id, str(subnet))
+        self.device_ip_manager.allocate_ips(member, device_type="wireless")
 
         return subnet, ip
 
     @log_call
-    def reset_member(self, ctx, member_id: int) -> None:
-        self.member_repository.update(ctx, AbstractMember(
+    def reset_member(self, member_id: int) -> None:
+        member = self.member_repository.update(AbstractMember(
             id=member_id,
             ip="", 
             subnet=""
         ))
-        self.device_manager.unallocate_ip_addresses(ctx, member_id)
+        self.device_ip_manager.unallocate_ips(member=member)
 
     @log_call
-    def ethernet_vlan_changed(self, ctx, member_id: int, vlan_number: int):
-        member = self.get_by_id(ctx, id=member_id)
-        self.device_manager.allocate_new_vlan_ips(ctx, member_id=member_id, wireless_subnet=member.subnet if member.subnet else "", vlan_number=vlan_number)
+    def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
+        member = self.get_by_id(id=member_id)
+        self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
 
     @log_call
-    def change_comment(self, ctx, member_id: int, comment: Comment) -> None:
+    def change_comment(self, member_id: int, comment: Comment) -> None:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-        self.member_repository.update_comment(ctx, member_id, comment.comment)
+        self.member_repository.update_comment(member_id, comment.comment)
     
-    def get_comment(self, ctx, member_id: int) -> Comment:
+    def get_comment(self, member_id: int) -> Comment:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(ctx, member_id)
+        member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
         return Comment(member.comment if member.comment else "")

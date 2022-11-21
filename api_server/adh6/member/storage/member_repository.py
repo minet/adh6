@@ -6,13 +6,9 @@ from datetime import date, datetime, timedelta
 import ipaddress
 from typing import List, Optional, Tuple
 
-from sqlalchemy.orm import Session
-
-from adh6.constants import CTX_SQL_SESSION
-from adh6.entity import AbstractMember
-from adh6.entity.member import Member
-from adh6.entity.member_filter import MemberFilter
+from adh6.entity import AbstractMember, Member, MemberFilter
 from adh6.decorator import log_call
+from adh6.storage import session
 from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Adherent, Membership
@@ -21,10 +17,8 @@ from ..interfaces.member_repository import MemberRepository
 
 class MemberSQLRepository(MemberRepository):
     @log_call
-    def search_by(self, ctx, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
         query = session.query(Adherent)
-
         if filter_:
             if filter_.ip:
                 query = query.filter(Adherent.ip == filter_.ip)
@@ -53,22 +47,17 @@ class MemberSQLRepository(MemberRepository):
         return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
-    def get_by_id(self, ctx, object_id: int) -> Optional[AbstractMember]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_id(self, object_id: int) -> Optional[AbstractMember]:
         adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         return _map_member_sql_to_abstract_entity(adh) if adh else None
 
-    def get_by_login(self, ctx, login: str) -> Optional[Member]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def get_by_login(self, login: str) -> Optional[Member]:
         adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
         return _map_member_sql_to_entity(adh) if adh else None
 
     @log_call
-    def create(self, ctx, object_to_create: Member) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def create(self, object_to_create: Member) -> object:
         now = datetime.now()
-
         member: Adherent = Adherent(
             nom=object_to_create.last_name,
             prenom=object_to_create.first_name,
@@ -79,45 +68,38 @@ class MemberSQLRepository(MemberRepository):
             commentaires=object_to_create.comment,
             date_de_depart=object_to_create.departure_date,
         )
-
-        with track_modifications(ctx, session, member):
-            session.add(member)
+        session.add(member)
         session.flush()
 
         return _map_member_sql_to_entity(member)
 
-    def update(self, ctx, abstract_member: AbstractMember, override=False) -> object:
-        session: Session = ctx.get(CTX_SQL_SESSION)
-
+    def update(self, abstract_member: AbstractMember, override=False) -> object:
         query = session.query(Adherent)\
             .filter(Adherent.id == abstract_member.id)
 
         adherent = query.one()
 
-        with track_modifications(ctx, session, adherent):
+        with track_modifications(session, adherent):
             new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
         session.flush()
 
         return _map_member_sql_to_entity(new_adherent)
 
     @log_call
-    def delete(self, ctx, member_id) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def delete(self, member_id) -> None:
         member = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(ctx, session, member):
+        with track_modifications(session, member):
             session.delete(member)
 
     @log_call
-    def update_password(self, ctx, member_id, hashed_password):
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def update_password(self, member_id, hashed_password):
         adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(ctx, session, adherent):
+        with track_modifications(session, adherent):
             adherent.password = hashed_password
 
     @log_call
-    def add_duration(self, ctx, member_id: int, duration_in_mounth: int) -> None:
+    def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
-        session: Session = ctx.get(CTX_SQL_SESSION)
         query = session.query(Adherent).filter(Adherent.id == member_id)
         adherent: Adherent = query.one()
         
@@ -135,17 +117,15 @@ class MemberSQLRepository(MemberRepository):
 
         session.flush()
     
-    def used_wireless_public_ips(self, ctx) -> List[ipaddress.IPv4Address]:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
         q = session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
     @log_call
-    def update_comment(self, ctx, member_id: int, comment: str) -> None:
-        session: Session = ctx.get(CTX_SQL_SESSION)
+    def update_comment(self, member_id: int, comment: str) -> None:
         adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(ctx, session, adherent):
+        with track_modifications(session, adherent):
             adherent.commentaires= comment
 
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:

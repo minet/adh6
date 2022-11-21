@@ -14,7 +14,7 @@ from .models import Device
 
 class IPSQLAllocator(IpAllocator):
     @log_call
-    def available_ip(self, ctx, ip_range: str = "", member_id: Union[int, None] = None) -> str:
+    def available_ip(self, ip_range: str = "", member_id: Union[int, None] = None) -> str:
         if ip_range == "":
             return 'En attente'
 

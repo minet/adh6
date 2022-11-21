@@ -11,6 +11,7 @@ from adh6.misc import is_mac_address
 from adh6.member.interfaces import MemberRepository
 
 from .interfaces import DeviceRepository, IpAllocator
+from .device_ip_manager import DeviceIpManager
 from .storage.device_repository import DeviceType
 
 
@@ -21,14 +22,12 @@ class DeviceManager(CRUDManager):
 
     def __init__(self,
                  device_repository: DeviceRepository,
-                 ip_allocator: IpAllocator,
-                 vlan_repository: VlanRepository,
+                 device_ip_manager: DeviceIpManager,
                  member_repository: MemberRepository,
                  room_repository: RoomRepository):
         super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
-        self.ip_allocator = ip_allocator
-        self.vlan_repository = vlan_repository
+        self.device_ip_manager = device_ip_manager
         self.member_repository = member_repository
         self.room_repository = room_repository
         self.oui_repository = {}
@@ -43,9 +42,8 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    def search(self, ctx, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[int], int]:
+    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[int], int]:
         result, count = self.device_repository.search_by(
-            ctx, 
             limit=limit,
             offset=offset,
             device_filter=device_filter
@@ -53,24 +51,23 @@ class DeviceManager(CRUDManager):
         return [r.id for r in result], count
 
     @log_call
-    def put_mab(self, ctx, id: int) -> bool:
-        device = self.device_repository.get_by_id(ctx, id)
+    def put_mab(self, id: int) -> bool:
+        device = self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
-        mab = self.device_repository.get_mab(ctx, id)
-        return self.device_repository.put_mab(ctx, id, not mab)
+        mab = self.device_repository.get_mab(id)
+        return self.device_repository.put_mab(id, not mab)
 
     @log_call
-    def get_mab(self, ctx, id: int) -> bool:
-        device = self.device_repository.get_by_id(ctx, id)
+    def get_mab(self, id: int) -> bool:
+        device = self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
-        return self.device_repository.get_mab(ctx, id)
-
+        return self.device_repository.get_mab(id)
 
     @log_call
-    def get_mac_vendor(self, ctx, id: int) -> str:
-        device = self.device_repository.get_by_id(ctx, id)
+    def get_mac_vendor(self, id: int) -> str:
+        device = self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
 
@@ -87,16 +84,16 @@ class DeviceManager(CRUDManager):
 
 
     @log_call
-    def create(self, ctx, body: DeviceBody) -> Device:
+    def create(self, body: DeviceBody) -> Device:
         if body.mac is None or not is_mac_address(body.mac):
             raise InvalidMACAddress(body.mac)
 
         if body.member is None:
             raise MemberNotFoundError(None)
-        member = self.member_repository.get_by_id(ctx, body.member)
+        member = self.member_repository.get_by_id(body.member)
         if not member:
             raise MemberNotFoundError(body.member)
-        room = self.room_repository.get_from_member(ctx, body.member)
+        room = self.room_repository.get_from_member(body.member)
         if not room:
             raise RoomNotFoundError(f"for member {member.username}")
 
@@ -104,66 +101,27 @@ class DeviceManager(CRUDManager):
             raise ValueError()
         body.mac = str(body.mac).upper().replace(':', '-')
 
-        d = self.device_repository.get_by_mac(ctx, body.mac)
-        _, count = self.device_repository.search_by(ctx, limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member))
+        d = self.device_repository.get_by_mac(body.mac)
+        _, count = self.device_repository.search_by(limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member))
         if d:
             raise DeviceAlreadyExists()
         elif count >= 20:
             raise DevicesLimitReached()
 
-        device = self.device_repository.create(ctx, body)
-        vlan = self.vlan_repository.get_vlan(ctx, vlan_number=room.vlan)
-        if vlan is None:
-            raise VLANNotFoundError(room.vlan)
+        device = self.device_repository.create(body)
 
-        if body.connection_type == DeviceType.wired.name:
-            self._allocate_or_unallocate_ip(ctx, device, vlan.ipv4_network if vlan.ipv4_network else "", vlan.ipv6_network if vlan.ipv6_network else "")
-        else:
-            self._allocate_or_unallocate_ip(ctx, device, member.subnet if member.subnet else "", vlan.ipv6_network if vlan.ipv6_network else "")
+        self.device_ip_manager.allocate_ip_with_vlan_number(
+            device=device,
+            member=member,
+            vlan_number=room.vlan
+        )
+
         return device
 
     @log_call
-    def allocate_new_vlan_ips(self, ctx, member_id: int, wireless_subnet: str, vlan_number: int) -> None:
-        vlan = self.vlan_repository.get_vlan(ctx, vlan_number=vlan_number)
-        if vlan is None:
-            raise VLANNotFoundError(vlan_number)
-        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wired.name, subnet_v4=vlan.ipv4_network if vlan.ipv4_network else "", subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
-        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wireless.name, subnet_v4=wireless_subnet, subnet_v6=vlan.ipv6_network if vlan.ipv6_network else "")
-
-    @log_call
-    def allocate_wireless_ips(self, ctx, member_id: int, subnet: str) -> None:
-        self._allocate_or_unallocate_ips(ctx=ctx, member_id=member_id, device_type=DeviceType.wireless.name, subnet_v4=subnet)
-
-    @log_call
-    def _allocate_or_unallocate_ips(self, ctx, member_id: int, device_type: Union[Literal["wired", "wireless"], None] = None, subnet_v4: str = "", subnet_v6: str = "") -> None:
-        devices, _ = self.device_repository.search_by(ctx, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, device_filter=DeviceFilter(member=member_id, connection_type=device_type))
-        for d in devices:
-            self._allocate_or_unallocate_ip(
-                ctx=ctx,
-                device=d,
-                subnet_v4=subnet_v4,
-                subnet_v6=subnet_v6
-            )
-
-    @log_call
-    def _allocate_or_unallocate_ip(self, ctx, device: Device, subnet_v4: str = "", subnet_v6: str = "") -> None:
-        self.partially_update(
-            ctx, 
-            AbstractDevice(
-                ipv4_address=self.ip_allocator.available_ip(ctx, subnet_v4),
-                ipv6_address=self.ip_allocator.available_ip(ctx, subnet_v6)
-            ), 
-            device.id
-        )
-
-    @log_call
-    def unallocate_ip_addresses(self, ctx, member_id: int):
-        self._allocate_or_unallocate_ips(ctx, member_id)
-
-    @log_call
-    def get_owner(self, ctx, device_id: int) -> Union[int, None]:
-        d = self.device_repository.get_by_id(ctx, object_id=device_id)
+    def get_owner(self, device_id: int) -> Union[int, None]:
+        d = self.device_repository.get_by_id(object_id=device_id)
         if not d:
             raise DeviceNotFoundError(device_id)
-        return self.device_repository.owner(ctx, id=device_id)
+        return self.device_repository.owner(id=device_id)
 

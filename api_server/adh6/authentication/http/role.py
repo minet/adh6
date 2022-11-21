@@ -11,8 +11,8 @@ class RoleHandler:
         self.role_manager = role_manager
 
     @with_context
-    def search(self, ctx, auth: str, id_: Union[str, None]=None):
-        result, count = self.role_manager.search(ctx=ctx, auth=auth, identifier=id_)
+    def search(self, auth: str, id_: Union[str, None]=None):
+        result, count = self.role_manager.search(auth=auth, identifier=id_)
         headers = {
             "X-Total-Count": str(count),
             'access-control-expose-headers': 'X-Total-Count'
@@ -21,12 +21,12 @@ class RoleHandler:
 
     @with_context
     @log_call
-    def post(self, ctx, body: Dict[str, Any]):
-        self.role_manager.create(ctx=ctx, auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
+    def post(self, body: Dict[str, Any]):
+        self.role_manager.create(auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
         return NoContent, 201
 
     @with_context
     @log_call
-    def delete(self, ctx, id_: int):
-        self.role_manager.delete(ctx=ctx, id=id_)
+    def delete(self, id_: int):
+        self.role_manager.delete(id=id_)
         return NoContent, 204

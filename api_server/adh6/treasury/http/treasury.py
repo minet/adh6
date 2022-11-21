@@ -12,12 +12,12 @@ class TreasuryHandler:
 
     @with_context
     @log_call
-    def get_bank(self, ctx):
-        balance = self.account_manager.get_cav_balance(ctx)
+    def get_bank(self):
+        balance = self.account_manager.get_cav_balance()
         return {'expectedCav': balance}, 200
 
     @with_context
     @log_call
-    def get_cashbox(self, ctx):
-        fond, coffre = self.cashbox_manager.get_cashbox(ctx)
+    def get_cashbox(self):
+        fond, coffre = self.cashbox_manager.get_cashbox()
         return {"fond": fond, "coffre": coffre}, 200
