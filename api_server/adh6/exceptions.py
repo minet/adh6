@@ -10,6 +10,10 @@ class UserInputError(ValueError):
     """
     pass
 
+class UndecalredVariableInTemplate(UserInputError):
+    def __init__(self, undefined_variables: set):
+        super().__init__(f"There are { undefined_variables } undefined variables in template")
+
 
 # INVALID ERRORS.
 class ValidationError(UserInputError):
@@ -153,6 +157,10 @@ class ProductNotFoundError(NotFoundError):
 class NoSubnetAvailable(NotFoundError):
     def __init__(self, device_type: str):
         super().__init__(f'No subnet are avaialble for {device_type} devices')
+
+class TemplateNotFoundError(NotFoundError):
+    def __init__(self, template_name: str):
+        super().__init__(f'Template with name {template_name} not found')
 
 
 # ALREADY EXIST ERRORS.

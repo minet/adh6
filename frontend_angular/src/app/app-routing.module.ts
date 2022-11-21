@@ -3,19 +3,20 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'password/:member_id/:creation', loadChildren: () => import('./member-password-edit/member-password-edit.module').then(m => m.MemberPasswordEditModule) },
+  { path: 'portail', loadComponent: () => import('./portail/portail.component').then(m => m.PortailComponent) },
+  { path: 'password/:member_id/:creation', loadComponent: () => import('./member-password-edit/member-password-edit.component').then(m => m.MemberPasswordEditComponent) },
   { path: 'product', loadChildren: () => import('./product-list/product-list.module').then(m => m.ProductListModule) },
-  { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
-  { path: 'account', loadChildren: () => import('./account/account.module').then(m => m.AccountModule) },
+  { path: 'dashboard', loadChildren: () => import('./dashboard/routes').then(m => m.ROUTES) },
+  { path: 'account', loadChildren: () => import('./account/routes').then(m => m.ROUTES) },
   { path: 'switch', loadChildren: () => import('./switch/switch.module').then(m => m.SwitchModule) },
-  { path: 'port', loadChildren: () => import('./port/port.module').then(m => m.PortModule) },
+  { path: 'port', loadChildren: () => import('./port/routes').then(m => m.ROUTES) },
   { path: 'room', loadChildren: () => import('./room/room.module').then(m => m.RoomModule) },
   { path: 'transaction', loadChildren: () => import('./transaction/transaction.module').then(m => m.TransactionModule) },
-  { path: 'treasury', loadChildren: () => import('./treasury/treasury.module').then(m => m.TreasuryModule) },
+  { path: 'treasury', loadComponent: () => import('./treasury/treasury.component').then(m => m.TreasuryComponent) },
   { path: 'member', loadChildren: () => import('./member/member.module').then(m => m.MemberModule) },
-  { path: 'device', loadChildren: () => import('./device/device.module').then(m => m.DeviceModule) },
-  { path: 'switch_local', loadChildren: () => import('./switch-local/switch-local.module').then(m => m.SwitchLocalModule) },
-  { path: 'auth', loadChildren: () => import('./auth-management/auth-management.module').then(m => m.AuthManagementModule) },
+  { path: 'device', loadComponent: () => import('./device/device-list.component').then(m => m.DeviceListComponent) },
+  { path: 'switch_local', loadComponent: () => import('./switch-local/switch-local.component').then(m => m.SwitchLocalComponent) },
+  { path: 'auth', loadChildren: () => import('./auth-management/routes').then(m => m.ROUTES) },
   { path: '**', redirectTo: '/dashboard' },
 ];
 

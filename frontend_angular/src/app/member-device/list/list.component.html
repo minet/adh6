@@ -1,9 +1,8 @@
 <div *ngIf="result$ | async as result; else loading">
   <p *ngIf="result.length === 0; else theDevices" class="title"
     i18n="device list none|Tells the user they have no registered devices">Aucun appareil enregistré</p>
-  <div #theDevices *ngFor="let deviceId of result; let i = index">
-    <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()">
-    </app-element>
+  <div *ngFor="let deviceId of result; let i = index">
+    <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
   </div>
 </div>
 <ng-template #loading>

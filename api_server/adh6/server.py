@@ -1,10 +1,13 @@
 import os
+from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
+from adh6.member.notification_manager import NotificationManager
 import connexion
 import pinject
 import abc
 
 from connexion.apps.flask_app import FlaskApp
 from flask_migrate import Migrate
+from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
 
 from adh6.resolver import ADHResolver
 from adh6.treasury.http import *
@@ -43,15 +46,18 @@ handlers = [
     CharterHandler
 ]
 
-from adh6.treasury.account_manager import AccountManager
-from adh6.treasury.account_type_manager import AccountTypeManager
-from adh6.treasury.cashbox_manager import CashboxManager
-from adh6.treasury.payment_method_manager import PaymentMethodManager
-from adh6.treasury.transaction_manager import TransactionManager
-from adh6.treasury.product_manager import ProductManager
+from adh6.treasury import (
+    AccountManager, 
+    AccountTypeManager, 
+    CashboxManager, 
+    TransactionManager, 
+    ProductManager, 
+    PaymentMethodManager
+)
 from adh6.member.member_manager import MemberManager
 from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.member.charter_manager import CharterManager
+from adh6.member.subscription_manager import SubscriptionManager
 from adh6.device.device_manager import DeviceManager
 from adh6.default.crud_manager import CRUDManager
 from adh6.metrics.health_manager import HealthManager
@@ -79,39 +85,40 @@ managers = [
     ApiKeyManager,
     RoleManager,
     MailinglistManager,
-    CharterManager
+    CharterManager,
+    NotificationManager,
+    SubscriptionManager,
 ]
 
 from adh6.treasury.storage import (
-    TransactionSQLRepository, 
-    AccountSQLRepository, 
-    PaymentMethodSQLRepository, 
-    AccountTypeSQLRepository, 
-    CashboxSQLRepository,
-    ProductSQLRepository
+    TransactionRepository, 
+    AccountRepository, 
+    PaymentMethodRepository, 
+    AccountTypeRepository, 
+    CashboxRepository,
+    ProductRepository
 )
 from adh6.member.storage import (
-    MembershipSQLRepository,
-    MemberSQLRepository,
-    MailinglistSQLReposiroty,
-    CharterSQLRepository
+    MembershipRepository,
+    MemberRepository,
+    MailinglistReposiroty,
+    CharterRepository,
+    LogsRepository
 )
+from adh6.member.smtp import NotificationRepository
 from adh6.device.storage import (
-    DeviceSQLRepository,
-    IPSQLAllocator
+    DeviceRepository,
+    IPAllocator
 )
 from adh6.authentication.storage import (
-    RoleSQLRepository,
-    ApiKeySQLRepository
+    RoleRepository,
+    ApiKeyRepository
 )
-from adh6.metrics.storage.ping_repository import PingSQLRepository
-from adh6.metrics.storage.ping_repository import PingSQLRepository
-from adh6.network.storage.port_repository import PortSQLRepository
-from adh6.network.storage.switch_repository import SwitchSQLRepository
-from adh6.subnet.storage.vlan_repository import VLANSQLRepository
-from adh6.member.storage.logs_repository import ElasticSearchRepository
-from adh6.room.storage.room_repository import RoomSQLRepository
-from adh6.network.snmp import SwitchSNMPNetworkManager
+from adh6.metrics.storage import PingRepository
+from adh6.network.storage import PortRepository, SwitchRepository
+from adh6.subnet.storage import VLANRepository
+from adh6.room.storage import RoomRepository
+from adh6.network.snmp import SwitchNetworkManager
 from adh6.default.crud_repository import CRUDRepository
 
 
@@ -125,13 +132,13 @@ config = {
 def get_obj_graph():
     _global = managers+ \
         handlers+ \
-        [SwitchSNMPNetworkManager, ElasticSearchRepository]+ \
-        [TransactionSQLRepository, AccountTypeSQLRepository, AccountSQLRepository, PaymentMethodSQLRepository, CashboxSQLRepository, ProductSQLRepository]+ \
-        [MemberSQLRepository, MembershipSQLRepository, MailinglistSQLReposiroty, CharterSQLRepository] + \
-        [DeviceSQLRepository, IPSQLAllocator] + \
-        [PingSQLRepository, VLANSQLRepository, RoomSQLRepository] + \
-        [PortSQLRepository, SwitchSQLRepository] + \
-        [RoleSQLRepository, ApiKeySQLRepository]
+        [SwitchNetworkManager, LogsRepository]+ \
+        [TransactionRepository, AccountTypeRepository, AccountRepository, PaymentMethodRepository, CashboxRepository, ProductRepository]+ \
+        [SubscriptionManager, MemberRepository, MembershipRepository, MailinglistReposiroty, CharterRepository, NotificationRepository, NotificationTemplateSQLRepository ] + \
+        [DeviceRepository, IPAllocator] + \
+        [PingRepository, VLANRepository, RoomRepository] + \
+        [PortRepository, SwitchRepository] + \
+        [RoleRepository, ApiKeyRepository]
 
     _base_interfaces = [
         abc.ABC,
@@ -217,5 +224,10 @@ def init() -> FlaskApp:
     cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
     
     Migrate(app.app, db)
+
+    #from flask_migrate import upgrade
+    #from adh6.treasury import init as treasury_init
+    #upgrade()
+    #treasury_init()
 
     return app

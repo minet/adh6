@@ -1,7 +1,8 @@
 # coding=utf-8
 from adh6.entity import Switch, AbstractSwitch
 from adh6.default.http_handler import DefaultHandler
-from adh6.network.switch_manager import SwitchManager
+
+from ..switch_manager import SwitchManager
 
 
 class SwitchHandler(DefaultHandler):

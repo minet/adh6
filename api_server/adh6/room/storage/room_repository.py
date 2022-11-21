@@ -11,10 +11,13 @@ from sqlalchemy.orm.session import Session
 from adh6.constants import CTX_SQL_SESSION, DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
-from adh6.default.decorator.log_call import log_call
-from adh6.storage.sql.models import Adherent, Chambre, Vlan, RoomMemberLink
+from adh6.decorator import log_call
+from adh6.subnet.storage.models import Vlan
+from adh6.member.storage.models import Adherent
 from adh6.storage.sql.track_modifications import track_modifications
-from adh6.room.interfaces.room_repository import RoomRepository
+
+from .models import Chambre, RoomMemberLink
+from ..interfaces import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):

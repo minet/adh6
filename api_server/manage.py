@@ -12,7 +12,15 @@ import ipaddress
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
-from adh6.storage.sql.models import db, Adherent, AccountType, Adhesion, Membership, Modification, PaymentMethod, Routeur, Transaction, Vlan, Switch, Port, Chambre, Caisse, Account, Device, Product
+from adh6.storage import db
+from adh6.storage.sql.models import Adhesion, Modification, Routeur
+from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
+from adh6.treasury.storage.models import AccountType, PaymentMethod, Transaction, Caisse, Account, Product
+from adh6.device.storage.models import Device
+from adh6.network.storage.models import Switch, Port
+from adh6.subnet.storage.models import Vlan
+from adh6.room.storage.models import Chambre
+
 application = init()
 assert application.app is not None, "No flask application"
 manager: Flask = application.app
@@ -266,6 +274,35 @@ def seed():
         ] 
     )
 
+    print("Seeding email template")
+    session.add(
+        NotificationTemplate(
+            title="Nouvelle cotisation / New subscription",
+            template="""
+-- ENGLISH VERSION BELOW --
+
+Bonjour/Bonsoir,
+
+Ta cotisation de {{ subscription_duration }} mois a bien été prise en compte. Elle expirera le {{ subscription_end.strftime('%d/%m/%Y') }}.
+
+Pour configurer tes appareils, nous t'invitons à te rendre sur le site https://minet.net/fr/tutoriels.html qui t'explique comment configurer tes appareils. En cas de problème, tu peux nous écrire sur https://tickets.minet.net, et nous t'aiderons à régler tes problèmes, ou bien passer au local associatif dans le foyer, aux horaires de permanence (du lundi au vendredi de 18h à 19h30).
+
+Cordialement,
+L'équipe MiNET.
+
+----
+
+Hello/Good evening,
+
+Your subscription of {{ subscription_duration }} months has been taken into account. It will expire on {{ subscription_end.strftime('%m-%d-%Y') }}.
+
+To configure your devices, we invite you to visit https://minet.net/en/tutoriels.html which explains how to configure your devices. In case of problem, you can write to us on https://tickets.minet.net/, and we will help you to solve your problems, or come to the association's office in the foyer, during office hours (Monday to Friday from 6pm to 7:30pm).
+
+Best regard,
+MiNET Team.
+        """
+        )
+    )
     session.commit()
 
 
@@ -319,13 +356,14 @@ def fake(login):
         products="",
         update_at=datetime.now(),
         create_at=datetime.now(),
-        status=MembershipStatus.COMPLETE.value,
+        status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value
     )
 
     session.add(membership)
     session.flush()
 
+    """
     session.add(Transaction(
         value=9,
         timestamp=now,
@@ -348,6 +386,7 @@ def fake(login):
         author_id=1,
         pending_validation=False,
     ))
+    """
     
     for _ in range(1, 4):
         session.add(Device(

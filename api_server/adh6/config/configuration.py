@@ -50,6 +50,8 @@ class DeployedConfig(BaseConfig):
         'database': os.environ.get('DATABASE_DB_NAME', '')
     }
 
+    SMTP_SERVER = os.environ.get("SMTP_SERVER", None)
+
     if os.environ.get("ELK_ENABLED", False):
         # IPs and ports for Elasticsearch nodes
         ELK_HOSTS = [
@@ -69,7 +71,6 @@ class DeployedConfig(BaseConfig):
         ]
         ELK_USER = os.environ.get("ELK_USER")
         ELK_SECRET = os.environ.get("ELK_SECRET")
-
 
 class DevelopmentConfig(DeployedConfig):
     pass

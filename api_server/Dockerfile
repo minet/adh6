@@ -3,7 +3,6 @@
 ###############################################################################
 FROM alpine:3@sha256:4edbd2beb5f78b1014028f4fbb99f3237d9561100b6881aabbf5acce2c4f9454 AS oui
 WORKDIR /tmp
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 RUN apk add --no-cache --update wget \
   && wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 

@@ -1,15 +1,36 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { AccountService, AccountType } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NotificationService } from '../../notification.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   selector: 'app-account-create',
-  templateUrl: './account-create.component.html',
-  styleUrls: ['./account-create.component.css']
+  template: `
+  <h1 class="title is-1">Création d'un compte</h1>
+  <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label>Nom / Intitulé :</label>
+      <input class="input is-fullwidth" type="text" formControlName="accountName" />
+    </div>
+    <div class="field">
+      <label for="accountType">Type de compte :</label>
+      <select class="input" id="accountType" formControlName="accountType">
+        <option *ngFor="let accountType of accountTypes$ | async" value="{{ accountType.id }}">{{ accountType.name }}</option>
+      </select>
+    </div>
+    <div class="field">
+      <button class="button is-primary is-fullwidth" type="submit" [disabled]="disabled || accountForm.status === 'INVALID'">
+        Créer le compte
+      </button>
+    </div>
+  </form>
+  `
 })
 
 export class AccountCreateComponent implements OnInit, OnDestroy {

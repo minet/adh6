@@ -32,8 +32,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - misc
   /profile:
@@ -105,8 +104,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - account
     post:
@@ -134,8 +132,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - account
   /account/{id}:
@@ -163,8 +160,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - account
     put:
@@ -190,8 +186,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - account
   /account_type/:
@@ -221,8 +216,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - account
   /account_type/{id}:
@@ -248,8 +242,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - account
   /device/:
@@ -262,6 +255,8 @@ paths:
         name: filter
         schema:
           $ref: '#/components/schemas/DeviceFilter'
+        style: deepObject
+        explode: true
       responses:
         '200':
           content:
@@ -289,8 +284,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - device
     post:
@@ -321,8 +315,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - device
   /device/{id}:
@@ -347,8 +340,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - device
     get:
@@ -373,8 +365,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - device
   /device/{id}/vendor/:
@@ -403,8 +394,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - device
   /device/{id}/mab/:
@@ -433,8 +423,7 @@ paths:
           - admin:read
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - device
     post:
@@ -458,8 +447,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - device
   /device/{id}/member/:
@@ -485,8 +473,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - device
   /member/:
@@ -526,8 +513,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
     post:
@@ -557,8 +543,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}:
@@ -580,8 +565,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
     get:
@@ -608,8 +592,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
     patch:
@@ -635,8 +618,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}/logs/:
@@ -697,8 +679,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}/password/:
@@ -777,8 +758,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
     put:
@@ -799,8 +779,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}/comment/:
@@ -883,8 +862,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - membership
     patch:
@@ -910,8 +888,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - membership
   /member/{id}/subscription/validate:
@@ -940,8 +917,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - membership
   /charter/{charter_id}/member/:
@@ -982,8 +958,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - charter
   /charter/{charter_id}/member/{id}:
@@ -1014,8 +989,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - charter
     get:
@@ -1039,8 +1013,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - charter
   /mailinglist/member/{id}:
@@ -1069,8 +1042,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - mailinglist
     put:
@@ -1104,8 +1076,7 @@ paths:
           - user
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - mailinglist
   /mailinglist/:
@@ -1140,8 +1111,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - mailinglist
   /payment_method/:
@@ -1171,8 +1141,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - transaction
   /payment_method/{id}:
@@ -1198,8 +1167,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - transaction
   /port/:
@@ -1243,8 +1211,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - port
     post:
@@ -1274,8 +1241,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - port
   /port/{id}:
@@ -1297,8 +1263,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - port
     get:
@@ -1323,8 +1288,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - port
     put:
@@ -1346,8 +1310,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - port
   /port/{id}/mab/:
@@ -1374,8 +1337,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
     put:
@@ -1398,8 +1360,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyNetworkAuth:
-          - network:write
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/alias/:
@@ -1426,8 +1387,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/use/:
@@ -1454,8 +1414,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/speed/:
@@ -1482,8 +1441,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/auth/:
@@ -1510,8 +1468,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
     put:
@@ -1534,8 +1491,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyNetworkAuth:
-          - network:write
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/state/:
@@ -1562,8 +1518,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
     put:
@@ -1586,8 +1541,7 @@ paths:
       security: 
         - OAuth2:
           - network:write
-        - ApiKeyNetworkAuth:
-          - network:write
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /port/{id}/vlan/:
@@ -1615,8 +1569,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - port
     put:
@@ -1651,8 +1604,7 @@ paths:
         - OAuth2:
           - network:write
           - network:write:hosting
-        - ApiKeyNetworkAuth:
-          - network:write
+        - ApiKeyNetworkAuth: []
       tags:
       - port
   /product/:
@@ -1682,8 +1634,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - treasury
   /product/{id}:
@@ -1709,8 +1660,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - treasury
   /product/buy:
@@ -1752,8 +1702,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - treasury
   /room/:
@@ -1795,8 +1744,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - room
     post:
@@ -1824,8 +1772,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room
   /room/{id}:
@@ -1847,8 +1794,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room
     get:
@@ -1873,8 +1819,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - room
     put:
@@ -1902,8 +1847,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room
   /room/{id}/member/:
@@ -1931,14 +1875,75 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+      - room members
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to add
+                  type: integer
+                  example: 1
+        required: true
+      responses:
+        '204':
+          description: The member has been added
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Add a member in a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+      - room members
+    delete:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+              type: object
+              properties:
+                id:
+                  description: Id of the member to remove
+                  type: integer
+                  example: 1
+        description: The member to remove
+        required: true
+      responses:
+        '204':
+          description: The member has been removed
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          $ref: '#/components/responses/Unexpected'
+      summary: Remove a member from a room
+      security: 
+        - OAuth2:
+          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /room/{id}/member/add/:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
+      deprecated: true
       requestBody:
         content:
           application/json:
@@ -1974,6 +1979,7 @@ paths:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
+      deprecated: true
       requestBody:
         content:
           application/json:

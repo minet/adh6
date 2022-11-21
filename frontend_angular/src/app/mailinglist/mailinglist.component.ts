@@ -1,11 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MailinglistService } from '../api';
 import { NotificationService } from '../notification.service';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   selector: 'app-mailinglist',
-  templateUrl: './mailinglist.component.html',
-  styleUrls: ['./mailinglist.component.scss']
+  templateUrl: './mailinglist.component.html'
 })
 export class MailinglistComponent implements OnInit {
   @Input() mailinglistValue: number;

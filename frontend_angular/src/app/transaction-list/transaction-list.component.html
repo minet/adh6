@@ -11,7 +11,7 @@
   </div>
 </div>
 <br>
-<table class="table is-striped is-fullwidth" *ngIf="result$ | async as result; else loadingTable">
+<table class="table is-striped is-fullwidth">
   <thead>
     <tr>
       <th>Date</th>
@@ -21,10 +21,10 @@
       <th *ngIf="asAccount">De / Vers</th>
       <th *ngIf="!asAccount">Vers</th>
       <th>Moyen</th>
-      <th *ngIf="actions">Actions</th>
+      <th *ngIf="actions.length > 0">Actions</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody *ngIf="result$ | async as result; else loadingTable">
     <tr *ngFor="let transactionResult of result" [ngClass]="{
           'has-text-primary-dark' : asAccount && transactionResult.dst===this.asAccount, 
           'has-text-danger-dark' : asAccount && transactionResult.dst!==this.asAccount,
@@ -65,10 +65,7 @@
 </table>
 <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
-  <div class="notification is-info is-light has-text-centered">
-    <h4 class="title is-4">Chargement ...</h4>
-  </div>
-</ng-template>
-<ng-template #noTransaction>
-  <h4 class="title is-4">Aucune transaction</h4>
+      <div class="notification is-info is-light has-text-centered">
+        <h4 class="title is-4">Chargement ...</h4>
+      </div>
 </ng-template>

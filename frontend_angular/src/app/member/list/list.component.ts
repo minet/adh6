@@ -1,12 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { map, Observable, shareReplay, switchMap } from 'rxjs';
 import { MemberService, AbstractMember, RoomMembersService, MemberFilter, Member, RoomService } from '../../api';
+import { PaginationComponent } from '../../pagination/pagination.component';
 import { SearchPage } from '../../search-page';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, RouterModule, PaginationComponent],
   selector: 'app-list',
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.css']
+  templateUrl: './list.component.html'
 })
 export class ListComponent extends SearchPage<number> {
   public cachedMembers: Map<Number, Observable<AbstractMember>> = new Map();

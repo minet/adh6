@@ -19,8 +19,7 @@
     </div>
   </div>
 </div>
-<table class="table is-hoverable is-striped is-fullwidth is-clickable"
-  *ngIf="result$ | async as result; else loadingTable">
+<table class="table is-hoverable is-striped is-fullwidth is-clickable">
   <thead>
     <tr>
       <th>Nom</th>
@@ -29,7 +28,7 @@
       <th>Solde</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody *ngIf="result$ | async as result; else loadingTable">
     <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
       <td class="align-middle">{{ accountResult.name }}</td>
       <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
@@ -43,7 +42,11 @@
 </table>
 <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
-  <div class="notification is-info is-light has-text-centered">
-    <h4 class="title is-4">Chargement ...</h4>
-  </div>
+  <tr>
+    <td colspan="42">
+      <div class="notification is-info is-light has-text-centered">
+        <h4 class="title is-4">Chargement ...</h4>
+      </div>
+    </td>
+  </tr>
 </ng-template>

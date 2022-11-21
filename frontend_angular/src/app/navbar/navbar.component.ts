@@ -1,20 +1,17 @@
 import { Component } from '@angular/core';
-import { SessionService } from '../session.service';
-
+import { Router } from '@angular/router';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Component({
   selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  templateUrl: './navbar.component.html'
 })
 export class NavbarComponent {
   public isMenuActive: boolean = false;
-
-  constructor(
-    public sessionService: SessionService
-  ) { }
+  constructor(public oidcSecurityService: OidcSecurityService) { }
 
   logout() {
-    this.sessionService.logout();
+    this.oidcSecurityService.logoffLocal();
+    location.href = '/portail';
   }
 }

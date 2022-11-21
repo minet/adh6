@@ -34,12 +34,12 @@ class Method(Enum):
     WRITE = 1
 
 
-from adh6.authentication.storage.api_key_repository import ApiKeySQLRepository
-from adh6.authentication.storage.role_repository import RoleSQLRepository
+from adh6.authentication.storage import ApiKeyRepository
+from adh6.authentication.storage import RoleRepository
 
 
-role_repository = RoleSQLRepository() 
-api_key_repository = ApiKeySQLRepository()
+role_repository = RoleRepository() 
+api_key_repository = ApiKeyRepository()
 
 def apikey_admin_auth(token: str, required_scopes):
     return apikey_auth(token, [Roles.ADMIN_READ.value, Roles.ADMIN_WRITE.value])
@@ -73,14 +73,20 @@ def apikey_auth(token: str, required_scopes):
     }
 
 
+user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
+
 def token_info(access_token) -> Optional[Dict[str, Any]]:
     infos = get_sso_groups(access_token)
 
     groups = ['adh6_user']
-    if 'attributes' in infos and 'memberOf' in infos['attributes']:
-        groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
+    if user_id == "id":
+        if 'attributes' in infos and 'memberOf' in infos['attributes']:
+            groups += [e.split(",")[0].split("=")[1] for e in infos['attributes']['memberOf']]
+    else:
+        if 'groups' in infos:
+            groups += infos["groups"]
 
-    uid = role_repository.user_id_from_username(login=infos["id"])
+    uid = role_repository.user_id_from_username(login=infos[user_id])
     if not uid:
         raise Unauthorized('invalid token')
     return {
@@ -92,24 +98,26 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
             )[0]
         ] + [Roles.USER.value] + [i.role for i in role_repository.find(
                     method=AuthenticationMethod.USER,
-                    identifiers=[infos["id"]]
+                    identifiers=[infos[user_id]]
                 )[0]
             ]
     }
 
 def get_sso_groups(token):
     try:
-        headers = {"Authorization": "Bearer " + token}
+        print(user_id)
+        print(os.environ.get("OAUTH2_BASE_PATH", "http://localhost"))
+        headers = {"Authorization": f"Bearer {token}"}
         r = requests.get(
-            url='{}/profile'.format(os.environ.get("OAUTH2_BASE_PATH", "http://localhost")),
+            url=os.environ.get("OAUTH2_BASE_PATH", "http://localhost"),
             headers=headers,
-            timeout=1,
-            verify=True
+            timeout=10,
         )
+        print(r.json())
     except requests.exceptions.ReadTimeout:
         raise OAuthResponseProblem("Could not authenticate")
 
-    if r.status_code != 200 or "id" not in r.json(): 
+    if r.status_code != 200 or user_id not in r.json(): 
         raise OAuthResponseProblem("Could not authenticate")
     return r.json()
 

@@ -11,7 +11,8 @@ RUN yarn install --frozen-lockfile
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
-RUN yarn build --configuration production
+RUN yarn build --configuration development
+RUN yarn purgecss -css dist/adh6/fr/*.css --content dist/adh6/fr/index.html dist/adh6/fr/*.js -o dist/adh6/fr
 
 ###############################################################################
 # 2nd stage, host the app with nginx

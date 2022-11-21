@@ -5,11 +5,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { NotificationService } from '../../notification.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-port-details',
-  templateUrl: './port-details.component.html',
-  styleUrls: ['./port-details.component.css']
+  templateUrl: './port-details.component.html'
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
   vlanForm: UntypedFormGroup;

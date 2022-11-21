@@ -1,0 +1,48 @@
+<ng-container *ngIf="member$ | async as member">
+    <app-member-device [member]="member"></app-member-device>
+    <br />
+    <nav class="level">
+        <div class="level-right">
+            <div class="level-item has-text-centered">
+                <h3 class="title is-3">Journal</h3>
+            </div>
+        </div>
+        <div class="level-left">
+            <div class="level-item has-text-centered">
+                <button (click)="showLogs = !showLogs" class="button"
+                [ngClass]="{'is-warning': !showLogs, 'is-danger': showLogs}" title="Afficher/Masquer le journal">
+                {{showLogs ? "Cacher" : "Afficher"}}
+                </button>
+            </div>
+        </div>
+    </nav>
+    <ng-container *ngIf="showLogs; else logHide">
+        <nav class="level">
+            <div class="level-right">
+                <div class="level-item has-text-centered">
+                <label class="checkbox">
+                    <input (change)="getDhcp = !getDhcp" type="checkbox">
+                    Logs DHCP
+                </label>
+                </div>
+            </div>
+            <div class="level-left">
+                <div class="level-item has-text-centered">
+                    <button (click)="refreshLog()" class="button is-primary" title="Actualiser le journal">&#x27F3;</button>
+                </div>
+            </div>
+        </nav>
+        <div style="overflow:auto; max-height: 30em; font-family: 'Lucida Console', Monaco, monospace; font-size: small;">
+            <ul class="list-unstyled is-fullwidth">
+                <li *ngFor="let log of log$ | async">
+                <span [innerHtml]="extractMsgFromLog(log)"></span>
+                </li>
+            </ul>
+        </div>
+    </ng-container>
+    <ng-template #logHide>
+    <div class="notification has-text-centered is-info is-light">
+        <h6 class="title is-6">Logs masqués</h6>
+    </div>
+    </ng-template>
+</ng-container>

@@ -10,7 +10,7 @@ from adh6.constants import CTX_ADMIN, CTX_ROLES, MembershipDuration, MembershipS
 from adh6.entity import AbstractMember, Member, Membership, Account, PaymentMethod
 from adh6.entity.member_body import MemberBody
 from adh6.entity.subscription_body import SubscriptionBody
-from adh6.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, IntMustBePositive, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
+from adh6.exceptions import AccountNotFoundError, AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MembershipNotFoundError, MembershipStatusNotAllowed, MemberNotFoundError, NoPriceAssignedToThatDuration, PaymentMethodNotFoundError, UnauthorizedError
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.device.device_manager import DeviceManager
 from adh6.device.interfaces.ip_allocator import IpAllocator

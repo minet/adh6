@@ -19,36 +19,38 @@
     </div>
   </div>
 </div>
-<ng-container *ngIf="result$ | async as result; else loadingTable">
-  <table class="table is-hoverable is-fullwidth is-clickable">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Login</th>
-        <th class="roomNumberRow">Chambre</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let i of result">
-        <ng-container *ngIf="getMember(i) | async as member">
-          <tr [routerLink]="['../view', member.id]">
-            <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span>
-            </td>
-            <td>{{ member.username }}</td>
-            <td class="roomNumberRow">
-              <p>
-                {{ (getRoomNumber(member.id) | async) || "Aucune" }}
-              </p>
-            </td>
-          </tr>
-        </ng-container>
+<table class="table is-hoverable is-fullwidth is-clickable">
+  <thead>
+    <tr>
+      <th style="width: 33%;">Nom</th>
+      <th style="width: 33%;">Login</th>
+      <th style="width: 33%;">Chambre</th>
+    </tr>
+  </thead>
+  <tbody *ngIf="result$ | async as result; else loadingTable">
+    <ng-container *ngFor="let i of result">
+      <ng-container *ngIf="getMember(i) | async as member">
+        <tr [routerLink]="['../view', member.id, 'profile']">
+          <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span>
+          </td>
+          <td>{{ member.username }}</td>
+          <td class="roomNumberRow">
+            <p>
+              {{ (getRoomNumber(member.id) | async) || "Aucune" }}
+            </p>
+          </td>
+        </tr>
       </ng-container>
-    </tbody>
-  </table>
-</ng-container>
+    </ng-container>
+  </tbody>
+</table>
 <app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
-  <div class="notification is-info is-light has-text-centered">
-    <h4 class="title is-4">Chargement ...</h4>
-  </div>
+  <tr>
+    <td colspan="42">
+      <div class="notification is-info is-light has-text-centered">
+        <h4 class="title is-4">Chargement ...</h4>
+      </div>
+    </td>
+  </tr>
 </ng-template>

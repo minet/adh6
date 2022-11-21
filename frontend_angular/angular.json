@@ -36,8 +36,10 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/sweetalert2/src/sweetalert2.scss"
             ],
+            "inlineStyleLanguage": "scss",
             "scripts": []
           },
           "configurations": {
@@ -77,11 +79,20 @@
                 }
               ]
             },
-            "en": {
-              "localize": [
-                "en"
-              ],
-              "outputPath": "dist/adh6-en"
+            "development": {
+              "optimization": true,
+              "outputHashing": "all",
+              "namedChunks": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "hidden": true,
+                "vendor": true
+              },
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
             }
           },
           "defaultConfiguration": "production"
@@ -93,6 +104,9 @@
             "host": "0.0.0.0"
           },
           "configurations": {
+            "development": {
+              "browserTarget": "adh6:build:development"
+            },
             "production": {
               "browserTarget": "adh6:build:production"
             },

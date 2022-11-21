@@ -1,14 +1,10 @@
 import { Component } from '@angular/core';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Component({
   selector: 'app-vertical-navbar',
-  templateUrl: './vertical-navbar.component.html',
-  styleUrls: ['./vertical-navbar.component.sass']
+  templateUrl: './vertical-navbar.component.html'
 })
 export class VerticalNavbarComponent {
-  constructor() { }
-
-  public activeFromUrlPath(path: string): boolean {
-    return window.location.pathname.includes(path);
-  }
+  constructor(public oidcSecurityService: OidcSecurityService) { }
 }

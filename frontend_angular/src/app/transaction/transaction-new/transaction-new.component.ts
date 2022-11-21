@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { map, takeWhile } from 'rxjs/operators';
 
@@ -11,14 +11,22 @@ import { NotificationService } from '../../notification.service';
 
 export { ClickOutsideDirective } from '../clickOutside.directive';
 
+interface TransactionForm {
+  name: FormControl<string>;
+  value: FormControl<number>;
+  srcAccount: FormControl<number>;
+  dstAccount: FormControl<number>;
+  paymentMethod: FormControl<number>;
+  caisse: FormControl<Transaction.CashboxEnum>;
+}
+
 @Component({
   selector: 'app-transaction-new',
-  templateUrl: './transaction-new.component.html',
-  styleUrls: ['./transaction-new.component.css']
+  templateUrl: './transaction-new.component.html'
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
-  public transactionDetails: UntypedFormGroup;
+  public transactionDetails: FormGroup<TransactionForm>;
   public reverting = false;
   actions = [
     { name: 'replay', class: 'is-primary', buttonIcon: 'refresh-arrow', condition: (transaction: Transaction) => !transaction.pendingValidation },
@@ -30,8 +38,14 @@ export class TransactionNewComponent implements OnInit {
   refreshTransactions: EventEmitter<{ action: string }> = new EventEmitter();
   private alive = true;
 
+  public cashboxButtons: Array<{act: Transaction.CashboxEnum, text: string}> = [
+    {act: Transaction.CashboxEnum.Direct, text: "Sans"},
+    {act: Transaction.CashboxEnum.From, text: "Sortir"},
+    {act: Transaction.CashboxEnum.To, text: "Ajouter"},
+  ]
+
   constructor(
-    private fb: UntypedFormBuilder,
+    private fb: FormBuilder,
     public transactionService: TransactionService,
     public appConstantService: AppConstantsService,
     private notificationService: NotificationService,
@@ -39,18 +53,18 @@ export class TransactionNewComponent implements OnInit {
   ) {
     this.transactionDetails = this.fb.group({
       name: ['', Validators.required],
-      value: ['', Validators.required],
-      srcAccount: ['', Validators.required],
-      dstAccount: ['', Validators.required],
-      paymentMethod: ['', Validators.required],
-      caisse: ['direct'],
+      value: [0, Validators.required],
+      srcAccount: [0, Validators.required],
+      dstAccount: [0, Validators.required],
+      paymentMethod: [0, Validators.required],
+      caisse: [Transaction.CashboxEnum.Direct, Validators.required],
     });
   }
 
   ngOnInit() {
     this.route.params.pipe(
       map(params => params['account_id']),
-    ).subscribe(account => this.srcAccount = account.id);
+    ).subscribe(account => this.transactionDetails.patchValue({ srcAccount: account.id }));
     this.appConstantService.getPaymentMethods().subscribe(
       data => {
         this.paymentMethods = data;
@@ -60,30 +74,6 @@ export class TransactionNewComponent implements OnInit {
 
   public toogleModal(): void {
     this.transactionModal = !this.transactionModal;
-  }
-
-  get caisse(): string {
-    return this.transactionDetails.get('caisse')?.value as string;
-  }
-
-  set caisse(value: string) {
-    this.transactionDetails.patchValue({ 'caisse': value });
-  }
-
-  get srcAccount(): number {
-    return this.transactionDetails.get("srcAccount")?.value as number
-  }
-
-  set srcAccount(account_id: number) {
-    this.transactionDetails.patchValue({ 'srcAccount': account_id });
-  }
-
-  get dstAccount(): number {
-    return this.transactionDetails.get("dstAccount")?.value as number
-  }
-
-  set dstAccount(account_id: number) {
-    this.transactionDetails.patchValue({ 'dstAccount': account_id });
   }
 
   useTransaction(event: { name: string, transaction: Transaction }) {
@@ -104,17 +94,16 @@ export class TransactionNewComponent implements OnInit {
     }
     this.transactionDetails.reset();
     this.transactionDetails.patchValue(event.transaction);
+    this.reverting = event.name === 'revert'
     if (event.name === 'revert') {
-      this.dstAccount = event.transaction.src ? event.transaction.src : 0;
-      this.srcAccount = event.transaction.dst ? event.transaction.dst : 0;
-      this.transactionDetails.patchValue({ 'name': 'ANNULATION: ' + event.transaction.name });
-      this.reverting = true;
+      this.transactionDetails.patchValue({ dstAccount: event.transaction.src ? event.transaction.src : 0 });
+      this.transactionDetails.patchValue({ srcAccount: event.transaction.dst ? event.transaction.dst : 0 });
+      this.transactionDetails.patchValue({ name: 'ANNULATION: ' + event.transaction.name });
     } else {
-      this.dstAccount = event.transaction.dst ? event.transaction.dst : 0;
-      this.srcAccount = event.transaction.src ? event.transaction.src : 0;
-      this.reverting = false;
+      this.transactionDetails.patchValue({ srcAccount: event.transaction.src ? event.transaction.src : 0 });
+      this.transactionDetails.patchValue({ dstAccount: event.transaction.dst ? event.transaction.dst : 0 });
     }
-    this.transactionDetails.patchValue({ 'paymentMethod': event.transaction.paymentMethod });
+    this.transactionDetails.patchValue({ paymentMethod: event.transaction.paymentMethod });
   }
 
   getPaymentMethodNameById(id: number) {
@@ -123,31 +112,25 @@ export class TransactionNewComponent implements OnInit {
         return pm.name;
       }
     }
-
     return 'Unknown';
   }
 
-  exchangeAccounts() {
-    const srcAccount = this.srcAccount;
-    this.srcAccount = this.dstAccount;
-    this.dstAccount = srcAccount;
+  exchangeAccounts(src: number, dst: number) {
+    this.transactionDetails.patchValue({srcAccount: dst});
+    this.transactionDetails.patchValue({dstAccount: src});
   }
 
   onSubmit() {
     const v = this.transactionDetails.value;
-    const varTransaction: Transaction = {
+    this.transactionService.transactionPost({
       attachments: [],
-      dst: +v.dstAccount,
+      dst: v.dstAccount,
       name: v.name,
-      src: +v.srcAccount,
-      paymentMethod: +v.paymentMethod,
-      value: +v.value,
+      src: v.srcAccount,
+      paymentMethod: v.paymentMethod,
+      value: v.value,
       cashbox: v.caisse,
-    };
-    if (!varTransaction.cashbox) {
-      varTransaction.cashbox = 'direct';
-    }
-    this.transactionService.transactionPost(varTransaction)
+    })
       .pipe(takeWhile(() => this.alive))
       .subscribe((_) => {
         this.transactionDetails.reset();

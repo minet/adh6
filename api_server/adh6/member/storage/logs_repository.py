@@ -11,10 +11,10 @@ from elasticsearch import Elasticsearch
 from adh6.constants import CTX_TESTING, LOG_DEFAULT_LIMIT
 from adh6.entity import Device
 
-from adh6.member.interfaces.logs_repository import LogsRepository
 from adh6.exceptions import LogFetchError
-from adh6.misc.mac import get_mac_variations
-from adh6.misc.log import LOG
+from adh6.misc import get_mac_variations, LOG
+
+from ..interfaces.logs_repository import LogsRepository
 
 
 class ElasticSearchRepository(LogsRepository):

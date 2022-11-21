@@ -3,7 +3,7 @@ import pytest
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url
 
-from adh6.storage.sql.models import AccountType
+from adh6.treasury.storage.models import AccountType
 
 @pytest.fixture
 def sample_account_type1():

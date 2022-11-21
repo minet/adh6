@@ -1,16 +1,41 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { AbstractAccount, Account, AccountService, AccountType } from '../../api';
 import { Observable } from 'rxjs';
 import { switchMap, takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   selector: 'app-account-edit',
-  templateUrl: './account-edit.component.html',
-  styleUrls: ['./account-edit.component.css']
+  template: `
+  <h1 class="title is-1">Modification d'un compte</h1>
+  <form [formGroup]="editAccountForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="field">
+      <label>Nom / Intitulé :</label>
+      <input class="input is-fullwidth" type="text" formControlName="name" disabled />
+    </div>
+    <div class="field">
+      <label for="type">Type de compte :</label>
+      <select class="input" id="type" formControlName="type">
+        <option *ngFor="let accountType of accountTypes$ | async" value="{{ accountType.id }}">{{ accountType.name }}</option>
+      </select>
+    </div>
+    <div class="field">
+      <input type="checkbox" class="form-check-input" id="accountActive" formControlName="actif">
+      <label class="form-check-label" for="accountActive">Actif</label>
+    </div>
+    <div class="form-group">
+      <button class="button is-primary is-fullwidth" type="submit" [disabled]="disabled || editAccountForm.status === 'INVALID'">
+        Éditer le compte
+      </button>
+    </div>
+  </form>
+  `
 })
 
 export class AccountEditComponent implements OnInit, OnDestroy {

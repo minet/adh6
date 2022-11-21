@@ -6,8 +6,8 @@ import { SwitchEditComponent } from './switch-edit/switch-edit.component';
 import { SwitchNewComponent } from './switch-new/switch-new.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PaginationModule } from '../pagination/pagination.module';
-import { PortListModule } from '../port-list/port-list.module';
+import { PaginationComponent } from '../pagination/pagination.component';
+import { PortListComponent } from '../port/list/list.component';
 
 
 
@@ -28,8 +28,8 @@ import { PortListModule } from '../port-list/port-list.module';
       { path: ':switch_id/edit', component: SwitchEditComponent },
       { path: 'add', component: SwitchNewComponent },
     ]),
-    PaginationModule,
-    PortListModule
+    PaginationComponent,
+    PortListComponent
   ]
 })
 export class SwitchModule { }

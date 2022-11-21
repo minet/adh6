@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { first, map, share } from 'rxjs/operators';
 import { TreasuryService } from '../api';
 import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { AccountListComponent } from '../account/account-list/account-list.component';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, AccountListComponent],
   selector: 'app-treasury',
-  templateUrl: './treasury.component.html',
-  styleUrls: ['./treasury.component.css']
+  templateUrl: './treasury.component.html'
 })
 export class TreasuryComponent implements OnInit {
   cashbox$: Observable<any> = new Observable();

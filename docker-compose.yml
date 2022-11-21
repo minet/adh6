@@ -18,26 +18,44 @@ services:
   api_server:
     container_name: adh6_backend
     build: api_server
-    links:
-      - database
+    depends_on:
+      database:
+        condition: service_healthy
     expose:
       - "8080"
     environment:
       ENVIRONMENT: "development"
-      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc"
+      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-      GITLAB_ACCESS_TOKEN: ${GITLAB_ACCESS_TOKEN}
      
+  api_server_member:
+    container_name: adh6_backend_member
+    build: api_server
+    depends_on:
+      database:
+        condition: service_healthy
+    expose:
+      - "8080"
+    environment:
+      ENVIRONMENT: "development"
+      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_DB_NAME: ${DATABASE_DB_NAME}
+
   reverse_proxy:
     container_name: adh6_reverse_proxy
     build: reverse_proxy
     links:
       - frontend_angular
       - api_server
+      - api_server_member
     ports:
       - "443:443"
       - "80:80"
@@ -68,3 +86,15 @@ services:
       - /var/lib/mysql:rw
       - /tmp:rw
       - /run/mysqld/:rw
+    healthcheck:
+      test: "/usr/bin/mysql --user=${DATABASE_USERNAME} --password=${DATABASE_PASSWORD} --execute \"SHOW DATABASES;\""
+      # test: "/usr/local/mysql/bin/mysql --user=foo --password=foo --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 5
+  jaeger:
+    image: jaegertracing/all-in-one:1.22
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+    ports:
+      - 16686:16686

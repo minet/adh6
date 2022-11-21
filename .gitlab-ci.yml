@@ -183,18 +183,64 @@ build:frontend:
 
 
 ###########################################
-########## Deploy in development ##########
+########## Deploy in stagged ##############
 ###########################################
-development:
+stagged:frontend:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   needs:
     - lint:frontend
-    - test:backend
     - generation:frontend_module
     - generation:frontend_assets
+    - build:frontend
+  script:
+    - cp -r frontend_angular/dist/adh6/* /var/www/
+    - cp -r frontend_angular/src/assets /var/www/assets
+  environment:
+    name: stagged
+    url: https://adh6-stagged.minet.net/
+  tags:
+    - adh6-stagged
+
+stagged:backend:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  needs:
     - lint:backend
+    - test:backend
+  before_script:
+    - sudo systemctl stop emperor.uwsgi.service
+    - cd api_server/
+    - sudo -E pip3 install -r ./requirements.txt
+  script:
+    - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
+    - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
+    - cp ../openapi/spec.yaml ./openapi/spec.yaml
+    - export FLASK_APP=manage:manager
+    - ENVIRONMENT=production flask db upgrade
+    - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
+    - sudo rm /etc/uwsgi/vassals/adh6_api.ini
+    - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
+    - sudo systemctl start emperor.uwsgi.service
+  environment:
+    name: stagged
+    url: https://adh6-stagged.minet.net/
+  tags:
+    - adh6-stagged
+
+
+###########################################
+########## Deploy in development ##########
+###########################################
+development:
+  stage: deploy
+  when: manual
+  needs:
+    - generation:backend_entity
+    - generation:frontend_module
+    - generation:frontend_assets
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down

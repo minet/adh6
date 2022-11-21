@@ -3,8 +3,8 @@ import json
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from adh6.storage.sql.models import  Switch, db
-from adh6.storage.sql.models import Port
+from adh6.storage import  db
+from adh6.network.storage.models import  Switch, Port
 from test.integration.resource import base_url as host_url, TEST_HEADERS
 
 

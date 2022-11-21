@@ -5,8 +5,7 @@ import { AbstractDevice, DeviceService } from '../../../api';
 
 @Component({
   selector: 'app-element',
-  templateUrl: './element.component.html',
-  styleUrls: ['./element.component.sass']
+  templateUrl: './element.component.html'
 })
 export class ElementComponent implements OnInit {
   @Input() deviceId: number;

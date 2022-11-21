@@ -1,10 +1,11 @@
 from typing import List, Tuple, Union
-from adh6.authentication import AuthenticationMethod, Roles
-from adh6.authentication.interfaces import ApiKeyRepository, RoleRepository
-from adh6.default.decorator.auto_raise import auto_raise
 from adh6.entity import ApiKey
 from adh6.exceptions import NotFoundError, ValidationError
 from adh6.member.member_manager import MemberManager
+
+from . import AuthenticationMethod, Roles
+from .interfaces import ApiKeyRepository, RoleRepository
+
 
 class ApiKeyManager:
     def __init__(self, 
@@ -15,7 +16,6 @@ class ApiKeyManager:
         self.role_repository = role_repository
         self.member_manager = member_manager
 
-    @auto_raise
     def create(self, ctx, login: str, roles: List[str]) -> str:
         if len(roles) == 0:
             raise ValidationError()
@@ -24,12 +24,9 @@ class ApiKeyManager:
         except:
             raise ValidationError()
 
-        try:
-            t = self.member_manager.get_by_login(ctx, login)
-            if not t:
-                raise NotFoundError("User not found")
-        except Exception as e:
-            raise e
+        t = self.member_manager.get_by_login(ctx, login)
+        if not t:
+            raise NotFoundError("User not found")
 
         id_, value = self.api_key_repository.create(login=login)
         self.role_repository.create(
@@ -41,18 +38,13 @@ class ApiKeyManager:
 
     def search(self, ctx, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:
         if login:
-            try:
-                t = self.member_manager.get_by_login(ctx, login)
-                if not t:
-                    raise NotFoundError("User not found")
-            except Exception as e:
-                raise e
+            t = self.member_manager.get_by_login(ctx, login)
+            if not t:
+                raise NotFoundError("User not found")
         result = self.api_key_repository.find(login=login)
         return result, len(result)
 
     def delete(self, ctx, id: int):
-        try:
-            self.api_key_repository.get(id)
-        except Exception:
-            raise NotFoundError("ApiKey not found")
+        if not self.api_key_repository.get(id):
+            raise NotFoundError("ApiKey not foud")
         self.api_key_repository.delete(id)
