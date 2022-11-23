@@ -4,7 +4,7 @@ from typing import List
 from adh6.decorator import log_call
 from adh6.exceptions import NotFoundError, RoomNotFoundError
 from adh6.default.crud_manager import CRUDManager
-from adh6.member.member_manager import MemberManager
+from adh6.member import MemberManager
 
 from .interfaces import RoomRepository
 

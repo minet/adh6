@@ -122,3 +122,7 @@ def get_sso_groups(token):
         raise OAuthResponseProblem("Could not authenticate")
     return r.json()
 
+from .api_keys_manager import ApiKeyManager
+from .role_manager import RoleManager
+
+__all__ = ["ApiKeyManager", "RoleManager"]

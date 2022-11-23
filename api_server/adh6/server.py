@@ -1,5 +1,4 @@
 import os
-from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
 from adh6.member.notification_manager import NotificationManager
 import connexion
 import pinject
@@ -12,18 +11,14 @@ from adh6.member.storage.notification_template_repository import NotificationTem
 from adh6.resolver import ADHResolver
 from adh6.treasury.http import *
 from adh6.member.http import *
-from adh6.device.http.device import DeviceHandler
-from adh6.metrics.http.health import HealthHandler
-from adh6.network.http.port import PortHandler
-from adh6.subnet.http.vlan import VLANHandler
-from adh6.room.http.room import RoomHandler
-from adh6.network.http.switch import SwitchHandler
-from adh6.authentication.http.api_key import ApiKeyHandler
-from adh6.authentication.http.role import RoleHandler
+from adh6.device.http import DeviceHandler
+from adh6.metrics.http import HealthHandler
+from adh6.network.http import PortHandler, SwitchHandler
+from adh6.subnet.http import VLANHandler
+from adh6.room.http import RoomHandler
+from adh6.authentication.http import ApiKeyHandler, RoleHandler
 
 from adh6.storage import cache, db
-
-from adh6.default.http_handler import DefaultHandler
 
 handlers = [
     AccountHandler,
@@ -54,23 +49,23 @@ from adh6.treasury import (
     ProductManager, 
     PaymentMethodManager
 )
-from adh6.member.member_manager import MemberManager
-from adh6.member.mailinglist_manager import MailinglistManager
-from adh6.member.charter_manager import CharterManager
-from adh6.member.subscription_manager import SubscriptionManager
+from adh6.member import (
+    MemberManager, 
+    MailinglistManager, 
+    CharterManager, 
+    SubscriptionManager
+)
 from adh6.device import (
     DeviceManager, 
     DeviceIpManager, 
     DeviceLogsManager
 )
-from adh6.default import CRUDManager, CRUDRepository
-from adh6.metrics.health_manager import HealthManager
-from adh6.network.port_manager import PortManager
-from adh6.room.room_manager import RoomManager
-from adh6.network.switch_manager import SwitchManager
-from adh6.subnet.vlan_manager import VlanManager
-from adh6.authentication.api_keys_manager import ApiKeyManager
-from adh6.authentication.role_manager import RoleManager
+from adh6.default import CRUDManager, CRUDRepository, DefaultHandler
+from adh6.metrics import HealthManager
+from adh6.network import PortManager, SwitchManager
+from adh6.room import RoomManager
+from adh6.subnet import VlanManager
+from adh6.authentication import ApiKeyManager, RoleManager
 
 managers = [
     DeviceManager,

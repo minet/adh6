@@ -9,7 +9,7 @@ from adh6.exceptions import AccountNotFoundError, MembershipNotFoundError, Membe
 from adh6.member.interfaces import CharterRepository, MemberRepository, MembershipRepository
 from adh6.treasury import TransactionManager
 from adh6.member.notification_manager import NotificationManager
-from adh6.member.subscription_manager import SubscriptionManager
+from adh6.member import SubscriptionManager
 from adh6.treasury.interfaces import PaymentMethodRepository, TransactionRepository, AccountRepository
 
 

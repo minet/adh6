@@ -13,7 +13,6 @@ from adh6.exceptions import (
     MembershipNotFoundError,
     MemberNotFoundError,
     MembershipAlreadyExist,
-    PaymentMethodNotFoundError,
     UnauthorizedError,
     UnknownPaymentMethod,
     NoPriceAssignedToThatDuration,
@@ -22,28 +21,28 @@ from adh6.exceptions import (
 )
 from adh6.decorator import log_call
 from adh6.authentication import Roles
-from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
-from adh6.treasury import TransactionManager
+from adh6.treasury import TransactionManager, PaymentMethodManager, AccountManager
 
 from .notification_manager import NotificationManager
-from .interfaces import CharterRepository, MemberRepository, MembershipRepository
+from .charter_manager import CharterManager
+from .interfaces import MemberRepository, MembershipRepository
 
 
 class SubscriptionManager:
     def __init__(self, 
                 member_repository: MemberRepository, 
                 membership_repository: MembershipRepository, 
-                charter_repository: CharterRepository, 
+                charter_manager: CharterManager, 
                 notification_manager: NotificationManager,
                 transaction_manager: TransactionManager, 
-                payment_method_repository: PaymentMethodRepository, 
-                account_repository: AccountRepository):
+                payment_method_manager: PaymentMethodManager, 
+                account_manager: AccountManager):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
-        self.charter_repository = charter_repository
+        self.charter_manager = charter_manager
         self.notification_manager = notification_manager
-        self.account_repository = account_repository
-        self.payment_method_repository = payment_method_repository
+        self.account_manager = account_manager
+        self.payment_method_manager = payment_method_manager
         self.transaction_manager = transaction_manager
 
     @property
@@ -110,7 +109,7 @@ class SubscriptionManager:
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_repository.get(member_id=member_id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -125,12 +124,8 @@ class SubscriptionManager:
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
-                account = self.account_repository.get_by_id(body.account)
-                if not account:
-                    raise AccountNotFoundError(body.account)
-                payment_method = self.payment_method_repository.get_by_id(body.payment_method)
-                if not payment_method:
-                    raise PaymentMethodNotFoundError(body.payment_method)
+                _ = self.account_manager.get_by_id(body.account)
+                _ = self.payment_method_manager.get_by_id(body.payment_method)
                 logging.debug("create_membership_record_switch_status_to_pending_payment_validation")
                 state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
@@ -175,7 +170,7 @@ class SubscriptionManager:
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_repository.get(member_id=member_id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -194,13 +189,9 @@ class SubscriptionManager:
                 state = MembershipStatus.PENDING_PAYMENT
 
         if body.account is not None:
-            account = self.account_repository.get_by_id(body.account)
-            if not account:
-                raise AccountNotFoundError(body.account)
+            _ = self.account_manager.get_by_id(body.account)
         if body.payment_method is not None:
-            payment_method = self.payment_method_repository.get_by_id(body.payment_method)
-            if not payment_method:
-                raise PaymentMethodNotFoundError(body.payment_method)
+            _ = self.payment_method_manager.get_by_id(body.payment_method)
 
         if state == MembershipStatus.PENDING_PAYMENT:
             if body.account is not None and body.payment_method is not None:
@@ -235,14 +226,14 @@ class SubscriptionManager:
         if free and not Roles.TRESO_WRITE.value in get_roles():
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
-        payment_method = self.payment_method_repository.get_by_id(membership.payment_method)
-        asso_account, _ = self.account_repository.search_by(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
+        payment_method = self.payment_method_manager.get_by_id(membership.payment_method)
+        asso_account, _ = self.account_manager.search(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
         if len(asso_account) != 1:
             raise AccountNotFoundError(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
-        tech_account, _ = self.account_repository.search_by(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value))
+        tech_account, _ = self.account_manager.search(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value))
         if len(tech_account) != 1:
             raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
-        src_account = self.account_repository.get_by_id(membership.account)
+        src_account = self.account_manager.get_by_id(membership.account)
         price = self.duration_price[membership.duration]  # Expressed in EUR.
         title = f'Internet - {self.duration_string.get(membership.duration)}'
         if price == 50 and not membership.has_room:

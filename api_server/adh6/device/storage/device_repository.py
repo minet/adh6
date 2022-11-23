@@ -17,11 +17,7 @@ from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
-
-
-class DeviceType(Enum):
-    wired = 0
-    wireless = 1
+from . import DeviceType
 
 
 class DeviceSQLRepository(DeviceRepository):

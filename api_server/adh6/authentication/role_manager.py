@@ -4,7 +4,7 @@ from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call
 from adh6.entity import RoleMapping
 from adh6.exceptions import MemberNotFoundError, NotFoundError, UpdateImpossible
-from adh6.member.member_manager import MemberManager
+from adh6.member import MemberManager
 
 
 class RoleManager:

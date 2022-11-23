@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 from adh6.authentication import AuthenticationMethod
-from adh6.device.storage.device_repository import DeviceType
+from adh6.device.storage import DeviceType
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
@@ -12,7 +12,6 @@ from adh6.member.storage.models import Adherent, Membership
 from adh6.device.storage.models import Device
 from adh6.room.storage.models import Chambre, RoomMemberLink
 from adh6.subnet.storage.models import Vlan
-from adh6.device.storage.models import Device
 from adh6.network.storage.models import Switch, Port
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from test.integration.context import tomorrow

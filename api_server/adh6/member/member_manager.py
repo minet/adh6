@@ -27,25 +27,26 @@ from adh6.exceptions import (
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.default import CRUDManager
 from adh6.decorator import log_call
-from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
+from adh6.treasury import AccountManager, AccountTypeManager
 
+from .mailinglist_manager import MailinglistManager
 from .interfaces import MailinglistRepository, MemberRepository
 from .subscription_manager import SubscriptionManager
 
 
 class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository,
-                 account_repository: AccountRepository,
-                 account_type_repository: AccountTypeRepository,
+                 account_manager: AccountManager,
+                 account_type_manager: AccountTypeManager,
                  device_ip_manager: DeviceIpManager, device_logs_manager: DeviceLogsManager,
-                 mailinglist_repository: MailinglistRepository, subscription_manager: SubscriptionManager):
+                 mailinglist_manager: MailinglistManager, subscription_manager: SubscriptionManager):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
-        self.mailinglist_repository = mailinglist_repository
+        self.mailinglist_manager = mailinglist_manager
         self.device_logs_manager = device_logs_manager
         self.device_ip_manager = device_ip_manager
-        self.account_repository = account_repository
-        self.account_type_repository = account_type_repository
+        self.account_manager = account_manager
+        self.account_type_manager = account_type_manager
         self.subscription_manager = subscription_manager
 
     @log_call
@@ -92,7 +93,7 @@ class MemberManager(CRUDManager):
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
-        fetched_account_type, _ = self.account_type_repository.search_by(terms="Adhérent")
+        fetched_account_type, _ = self.account_type_manager.search(terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  
@@ -111,9 +112,9 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_repository.update_from_member(created_member.id, 249)
+        self.mailinglist_manager.update_member_mailinglist(created_member.id, 249)
 
-        _ = self.account_repository.create(AbstractAccount(
+        _ = self.account_manager.update_or_create(AbstractAccount(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,

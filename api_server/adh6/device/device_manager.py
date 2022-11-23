@@ -1,18 +1,18 @@
 # coding=utf-8
-from typing import List, Literal, Tuple, Union
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractDevice, DeviceFilter, Device, DeviceBody
-from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, DeviceAlreadyExists, DevicesLimitReached, MemberNotFoundError, RoomNotFoundError, VLANNotFoundError
+import typing as t
+from adh6.constants import DEFAULT_LIMIT
+from adh6.entity import DeviceFilter, Device, DeviceBody
+from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, DeviceAlreadyExists, DevicesLimitReached
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
-from adh6.room.interfaces import RoomRepository
-from adh6.subnet.interfaces import VlanRepository
 from adh6.misc import is_mac_address
-from adh6.member.interfaces import MemberRepository
 
-from .interfaces import DeviceRepository, IpAllocator
-from .device_ip_manager import DeviceIpManager
-from .storage.device_repository import DeviceType
+if t.TYPE_CHECKING:
+    from adh6.member import MemberManager
+    from adh6.room import RoomManager
+
+from .interfaces import DeviceRepository
+from . import DeviceIpManager
 
 
 class DeviceManager(CRUDManager):
@@ -23,13 +23,13 @@ class DeviceManager(CRUDManager):
     def __init__(self,
                  device_repository: DeviceRepository,
                  device_ip_manager: DeviceIpManager,
-                 member_repository: MemberRepository,
-                 room_repository: RoomRepository):
+                 member_manager: 'MemberManager',
+                 room_manager: 'RoomManager'):
         super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
         self.device_ip_manager = device_ip_manager
-        self.member_repository = member_repository
-        self.room_repository = room_repository
+        self.member_manager = member_manager
+        self.room_manager = room_manager
         self.oui_repository = {}
         self.load_mac_oui_dict()
 
@@ -42,7 +42,7 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[int], int]:
+    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> t.Tuple[t.List[int], int]:
         result, count = self.device_repository.search_by(
             limit=limit,
             offset=offset,
@@ -88,14 +88,8 @@ class DeviceManager(CRUDManager):
         if body.mac is None or not is_mac_address(body.mac):
             raise InvalidMACAddress(body.mac)
 
-        if body.member is None:
-            raise MemberNotFoundError(None)
-        member = self.member_repository.get_by_id(body.member)
-        if not member:
-            raise MemberNotFoundError(body.member)
-        room = self.room_repository.get_from_member(body.member)
-        if not room:
-            raise RoomNotFoundError(f"for member {member.username}")
+        member = self.member_manager.get_by_id(body.member)
+        room = self.room_manager.room_from_member(body.member)
 
         if not body.connection_type:
             raise ValueError()
@@ -119,7 +113,7 @@ class DeviceManager(CRUDManager):
         return device
 
     @log_call
-    def get_owner(self, device_id: int) -> Union[int, None]:
+    def get_owner(self, device_id: int) -> t.Union[int, None]:
         d = self.device_repository.get_by_id(object_id=device_id)
         if not d:
             raise DeviceNotFoundError(device_id)
