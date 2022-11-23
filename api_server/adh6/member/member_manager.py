@@ -5,7 +5,7 @@ from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
 from typing import List, Optional, Tuple, Union
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from adh6.entity import (
     AbstractMember, Member,
     MemberStatus,
@@ -29,8 +29,9 @@ from adh6.default import CRUDManager
 from adh6.decorator import log_call
 from adh6.treasury import AccountManager, AccountTypeManager
 
+from . import MembershipStatus
 from .mailinglist_manager import MailinglistManager
-from .interfaces import MailinglistRepository, MemberRepository
+from .interfaces import MemberRepository
 from .subscription_manager import SubscriptionManager
 
 

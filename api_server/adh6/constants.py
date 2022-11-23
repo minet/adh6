@@ -7,46 +7,6 @@ DEFAULT_LIMIT = 100
 DEFAULT_OFFSET = 0
 LOG_DEFAULT_LIMIT = 10
 
-PRICES = {
-    1: 9,
-    2: 18,
-    3: 27,
-    4: 36,
-    5: 45,
-    12: 50,
-}
-
-DURATION_STRING = {
-    1: '1 mois',
-    2: '2 mois',
-    3: '3 mois',
-    4: '4 mois',
-    5: '5 mois',
-    6: '6 mois',
-    12: '1 an',
-}
-
-class MembershipStatus(enum.Enum):
-    INITIAL = "INITIAL"
-    PENDING_RULES = "PENDING_RULES"
-    PENDING_PAYMENT_INITIAL = "PENDING_PAYMENT_INITIAL"
-    PENDING_PAYMENT = "PENDING_PAYMENT"
-    PENDING_PAYMENT_VALIDATION = "PENDING_PAYMENT_VALIDATION"
-    COMPLETE = "COMPLETE"
-    CANCELLED = "CANCELLED"
-    ABORTED = "ABORTED"
-
-
-class MembershipDuration(enum.IntEnum):
-    NONE = 0
-    ONE_MONTH = 1
-    TWO_MONTH = 2
-    THREE_MONTH = 3
-    FOUR_MONTH = 4
-    FIVE_MONTH = 5
-    SIX_MONTH = 6
-    ONE_YEAR = 12
-
 
 class KnownAccountExpense(enum.Enum):
     TECHNICAL_EXPENSE = "MiNET frais techniques"

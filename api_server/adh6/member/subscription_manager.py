@@ -1,7 +1,8 @@
 import typing as t
 import logging
 
-from adh6.constants import PRICES, DURATION_STRING, KnownAccountExpense, MembershipStatus
+from adh6.constants import KnownAccountExpense
+from adh6.member import MembershipStatus
 from adh6.entity import (
     AbstractMembership, Membership,
     AbstractAccount, 
@@ -26,6 +27,27 @@ from adh6.treasury import TransactionManager, PaymentMethodManager, AccountManag
 from .notification_manager import NotificationManager
 from .charter_manager import CharterManager
 from .interfaces import MemberRepository, MembershipRepository
+
+
+DURATION_STRING = {
+    1: '1 mois',
+    2: '2 mois',
+    3: '3 mois',
+    4: '4 mois',
+    5: '5 mois',
+    6: '6 mois',
+    12: '1 an',
+}
+
+
+PRICES = {
+    1: 9,
+    2: 18,
+    3: 27,
+    4: 36,
+    5: 45,
+    12: 50,
+}
 
 
 class SubscriptionManager:

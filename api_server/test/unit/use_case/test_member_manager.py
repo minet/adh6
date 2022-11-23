@@ -4,13 +4,12 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.member import MembershipDuration, MembershipStatus, MemberManager, SubscriptionManager
 from adh6.entity import AbstractMember, Member, Membership, MemberBody
 from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.device.interfaces import IpAllocator, LogsRepository, LogsRepository, DeviceRepository
 from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository, CharterRepository
-from adh6.member import MemberManager, SubscriptionManager
 from adh6.member.notification_manager import NotificationManager
 from adh6.treasury import TransactionManager
 from adh6.treasury.interfaces import PaymentMethodRepository, AccountTypeRepository, AccountRepository

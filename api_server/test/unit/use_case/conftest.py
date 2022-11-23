@@ -1,4 +1,4 @@
-from adh6.constants import MembershipStatus
+from adh6.member import MembershipStatus
 
 from pytest import fixture
 

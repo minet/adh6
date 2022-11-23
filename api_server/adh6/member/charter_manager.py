@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import List, Tuple, Union
-from adh6.constants import MembershipStatus
 from adh6.entity.abstract_membership import AbstractMembership
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.exceptions import MemberNotFoundError, MembershipNotFoundError
+from . import MembershipStatus
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
 
 

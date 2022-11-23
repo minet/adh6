@@ -3,7 +3,7 @@ from uuid import uuid4
 from adh6.authentication import AuthenticationMethod
 from adh6.device.storage import DeviceType
 import pytest
-from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.member import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
