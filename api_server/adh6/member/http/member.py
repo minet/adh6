@@ -9,7 +9,6 @@ from adh6.entity import AbstractMember, Member, SubscriptionBody, Comment, Membe
 from adh6.decorator import log_call, with_context
 from adh6.default import DefaultHandler
 from adh6.exceptions import NotFoundError, UnauthorizedError
-from adh6.misc import handle_error
 from adh6.context import get_roles, get_user
 
 from ..charter_manager import CharterManager
@@ -121,28 +120,19 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def charter_put(self, id_, charter_id) -> Tuple[Any, int]:
-        try:
-            if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
-                raise UnauthorizedError("Unauthorize to access this resource")
-            self.charter_manager.sign(charter_id=charter_id, member_id=id_)
-            return NoContent, 204
-        except Exception as e:
-            return handle_error(e)
+        if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
+            raise UnauthorizedError("Unauthorize to access this resource")
+        self.charter_manager.sign(charter_id=charter_id, member_id=id_)
+        return NoContent, 204
 
     @with_context
     @log_call
     def comment_put(self, id_, body):
         """ Set the comment of a member. """
-        try:
-            self.member_manager.change_comment(id_, Comment.from_dict(body))
-            return NoContent, 204  # 204 No Content
-        except Exception as e:
-            return handle_error(e)
+        self.member_manager.change_comment(id_, Comment.from_dict(body))
+        return NoContent, 204  # 204 No Content
 
     @with_context
     @log_call
     def comment_search(self, id_):
-        try:
-            return self.member_manager.get_comment(member_id=id_).to_dict(), 200
-        except Exception as e:
-            return handle_error(e)
+        return self.member_manager.get_comment(member_id=id_).to_dict(), 200

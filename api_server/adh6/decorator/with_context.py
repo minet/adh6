@@ -4,7 +4,7 @@ With context decator.
 """
 from functools import wraps
 
-from adh6.misc import handle_error
+from adh6.error import handle_error
 
 
 def with_context(f):

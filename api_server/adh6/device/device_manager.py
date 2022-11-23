@@ -5,13 +5,13 @@ from adh6.entity import DeviceFilter, Device, DeviceBody
 from adh6.exceptions import DeviceNotFoundError, InvalidMACAddress, DeviceAlreadyExists, DevicesLimitReached
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
-from adh6.misc import is_mac_address
 
 if t.TYPE_CHECKING:
     from adh6.member import MemberManager
     from adh6.room import RoomManager
 
 from .interfaces import DeviceRepository
+from .utils import is_mac_address
 from . import DeviceIpManager
 
 
