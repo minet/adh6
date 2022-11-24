@@ -2,10 +2,9 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from datetime import datetime
+import typing as t
 
-from sqlalchemy.orm.session import Session
-from typing import List, Optional, Tuple, Union
+from datetime import datetime
 
 from sqlalchemy import func, case, or_
 
@@ -22,7 +21,7 @@ from ..interfaces import AccountRepository
 
 class AccountSQLRepository(AccountRepository):
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractAccount] = None) -> t.Tuple[t.List[AbstractAccount], int]:
         query = session.query(SQLAccount,
                     func.sum(case(value=Transaction.src, whens={
                         SQLAccount.id: -Transaction.value
@@ -56,7 +55,7 @@ class AccountSQLRepository(AccountRepository):
         return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
 
     @log_call
-    def get_by_id(self, object_id: int) -> Union[AbstractAccount, None]:
+    def get_by_id(self, object_id: int) -> t.Union[AbstractAccount, None]:
         obj = session.query(SQLAccount, func.sum(case(value=Transaction.src, whens={ SQLAccount.id: -Transaction.value }, else_=Transaction.value)).label("balance")).outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)).filter(SQLAccount.id == object_id).one_or_none()
         return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None
 

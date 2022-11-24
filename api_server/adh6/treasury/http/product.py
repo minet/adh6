@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import List
+import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call, with_context
@@ -28,6 +28,6 @@ class ProductHandler:
 
     @with_context
     @log_call
-    def buy_post(self, member_id: int, payment_method: int, products: List[int]):
+    def buy_post(self, member_id: int, payment_method: int, products: t.List[int]):
         self.product_manager.buy(member_id, payment_method, products)
         return None, 204

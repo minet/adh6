@@ -2,8 +2,8 @@
 """
 Implements everything related to actions on the SQL database.
 """
+import typing as t
 from datetime import datetime
-from typing import List, Optional, Tuple, Union
 from sqlalchemy import insert, select, delete, update
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -19,7 +19,7 @@ from ..interfaces import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):
-    def get_from_member(self, member_id: int) -> Union[Room, None]:
+    def get_from_member(self, member_id: int) -> t.Union[Room, None]:
         smt = select(Chambre)\
             .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)\
             .where(RoomMemberLink.member_id == member_id)
@@ -28,7 +28,7 @@ class RoomSQLRepository(RoomRepository):
 
         return _map_room_sql_to_entity(result) if result else None
 
-    def get_members(self, room_id: int) -> List[int]:
+    def get_members(self, room_id: int) -> t.List[int]:
         smt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
         return session.execute(smt).scalars().all()
 
@@ -61,7 +61,7 @@ class RoomSQLRepository(RoomRepository):
         return _map_room_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None) -> Tuple[List[AbstractRoom], int]:
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractRoom] = None) -> t.Tuple[t.List[AbstractRoom], int]:
         query = session.query(Chambre)
 
         if terms:

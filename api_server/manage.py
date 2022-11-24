@@ -2,7 +2,7 @@ import click
 from flask import Flask
 import uuid
 from datetime import date, datetime
-from typing import List
+import typing as t
 from sqlalchemy.orm import Session
 from adh6.authentication import AuthenticationMethod
 from adh6.server import init
@@ -40,7 +40,7 @@ def check_subnet():
         mappings[str(subnet)] = str(ip)
 
     session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).all()
+    adherents: t.List[Adherent] = session.query(Adherent).all()
     i = 1
     for a in adherents:
         if a.date_de_depart is None:
@@ -65,20 +65,20 @@ limit_departure_date = date(2019, 1, 1)
 @manager.cli.command("remove_member")
 def remove_members():
     session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+    adherents: t.List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
-    passed_adherents: List[Adherent] = []
+    passed_adherents: t.List[Adherent] = []
     total = len(adherents)
     total_lines = 0
     deleted_devices = 0
     deleted_modifications = 0
     for i, a in enumerate(adherents):
         print(f'{i}/{total}: {a.login}, {a.created_at}')
-        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
+        accounts: t.List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
         pass_adherent = False
         for acc in accounts:
-            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all()
-            transactions_from: List[Transaction] = session.query(Transaction).filter(Transaction.author_id == a.id).all()
+            transactions: t.List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all()
+            transactions_from: t.List[Transaction] = session.query(Transaction).filter(Transaction.author_id == a.id).all()
             if len(transactions) != 0 or len(transactions_from) != 0:
                 print("Adherent passed")
                 passed_adherents.append(a)
@@ -88,20 +88,20 @@ def remove_members():
             total_lines += 1
         if pass_adherent:
             continue
-        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
+        devices: t.List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
         for d in devices:
             session.delete(d)
             total_lines += 1
             deleted_devices += 1
-        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+        adhesions: t.List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
         for add in adhesions:
             session.delete(add)
             total_lines += 1
-        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+        routeurs: t.List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
         for r in routeurs:
             session.delete(r)
             total_lines += 1
-        modifications: List[Modification] = session.query(Modification).filter(Modification.adherent_id == a.id).all()
+        modifications: t.List[Modification] = session.query(Modification).filter(Modification.adherent_id == a.id).all()
         for m in modifications:
             session.delete(m)
             total_lines += 1
@@ -113,24 +113,24 @@ def remove_members():
 @manager.cli.command("check_transactions_member_to_remove")
 def check_transactions_member_to_remove():
     session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
+    adherents: t.List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
     total = len(adherents)
     for i, a in enumerate(adherents):
         print(f'{i}/{total}: {a.login}, {a.created_at}')
-        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
+        devices: t.List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
         for d in devices:
             session.delete(d)
-        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
+        adhesions: t.List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
         for add in adhesions:
             session.delete(add)
-        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
+        routeurs: t.List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
         for r in routeurs:
             session.delete(r)
-        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
+        accounts: t.List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
         for acc in accounts:
             print(acc.id)
-            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all() + session.query(Transaction).filter(Transaction.author_id == a.id).all()
+            transactions: t.List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all() + session.query(Transaction).filter(Transaction.author_id == a.id).all()
             for t in transactions:
                 print(a.id)
                 print(t.name)

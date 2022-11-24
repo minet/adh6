@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import List, Optional, Tuple, Any, Union
+import typing as t
 
 from connexion import NoContent
 from adh6.authentication import Roles
@@ -25,7 +25,7 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_: Optional[Any] = None):
+    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: t.Union[str, None] = None, filter_: t.Optional[t.Any] = None):
         filter_ = MemberFilter.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
         headers = {
@@ -36,9 +36,9 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]]=None):
+    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
         try:
-            def remove(entity: Any) -> Any:
+            def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
                     for k in entity_cp.keys():
@@ -112,14 +112,14 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def charter_get(self, id_, charter_id) -> Tuple[Any, int]:
+    def charter_get(self, id_, charter_id) -> t.Tuple[t.Any, int]:
         if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         return self.charter_manager.get(charter_id=charter_id, member_id=id_), 200
 
     @with_context
     @log_call
-    def charter_put(self, id_, charter_id) -> Tuple[Any, int]:
+    def charter_put(self, id_, charter_id) -> t.Tuple[t.Any, int]:
         if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         self.charter_manager.sign(charter_id=charter_id, member_id=id_)

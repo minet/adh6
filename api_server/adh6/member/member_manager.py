@@ -1,9 +1,8 @@
 # coding=utf-8
 import re
 import logging
-from datetime import datetime
+import typing as t
 from ipaddress import IPv4Address, IPv4Network
-from typing import List, Optional, Tuple, Union
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from adh6.entity import (
@@ -51,7 +50,7 @@ class MemberManager(CRUDManager):
         self.subscription_manager = subscription_manager
 
     @log_call
-    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: Union[MemberFilter, None] = None) -> Tuple[List[int], int]:
+    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: t.Union[MemberFilter, None] = None) -> t.Tuple[t.List[int], int]:
         result, count = self.member_repository.search_by(
             limit=limit,
             offset=offset,
@@ -80,7 +79,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    def get_profile(self) -> Tuple[AbstractMember, List[str]]:
+    def get_profile(self) -> t.Tuple[AbstractMember, t.List[str]]:
         from adh6.context import get_user, get_roles
         m = self.member_repository.get_by_id(get_user())
         if not m:
@@ -98,6 +97,7 @@ class MemberManager(CRUDManager):
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  
+        from datetime import datetime
         created_member = self.member_repository.create(
             object_to_create=AbstractMember(
                 id=0,
@@ -159,7 +159,7 @@ class MemberManager(CRUDManager):
                                                ))
 
     @log_call
-    def get_logs(self, member_id, dhcp=False) -> List[str]:
+    def get_logs(self, member_id, dhcp=False) -> t.List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -186,7 +186,7 @@ class MemberManager(CRUDManager):
 
 
     @log_call
-    def get_statuses(self, member_id) -> List[MemberStatus]:
+    def get_statuses(self, member_id) -> t.List[MemberStatus]:
         # Check that the user exists in the system.
         member = self.member_repository.get_by_id(member_id)
         if not member:
@@ -264,7 +264,7 @@ class MemberManager(CRUDManager):
     @log_call
     def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = self.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
@@ -278,7 +278,7 @@ class MemberManager(CRUDManager):
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
+    def update_subnet(self, member_id) -> t.Optional[t.Tuple[IPv4Network, t.Union[IPv4Address, None]]]:
         member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)

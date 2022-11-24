@@ -1,4 +1,5 @@
-from typing import Dict
+import typing as t
+
 from connexion import NoContent
 from adh6.authentication import Roles
 from adh6.decorator import log_call, with_context
@@ -21,7 +22,7 @@ class MailinglistHandler:
 
     @with_context
     @log_call
-    def member_put(self, id_: int, body: Dict[str, int]):
+    def member_put(self, id_: int, body: t.Dict[str, int]):
         if get_user() != id_ and Roles.ADMIN_WRITE.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         self.mailinglist_manager.update_member_mailinglist(id_, body['value'])
