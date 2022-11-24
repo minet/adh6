@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import List, Optional, Tuple, Any, Union
+import typing as t
 
 from connexion import NoContent
 from adh6.authentication import Roles
@@ -9,7 +9,6 @@ from adh6.entity import AbstractMember, Member, SubscriptionBody, Comment, Membe
 from adh6.decorator import log_call, with_context
 from adh6.default import DefaultHandler
 from adh6.exceptions import NotFoundError, UnauthorizedError
-from adh6.misc import handle_error
 from adh6.context import get_roles, get_user
 
 from ..charter_manager import CharterManager
@@ -26,7 +25,7 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_: Optional[Any] = None):
+    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: t.Union[str, None] = None, filter_: t.Optional[t.Any] = None):
         filter_ = MemberFilter.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
         headers = {
@@ -37,9 +36,9 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]]=None):
+    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
         try:
-            def remove(entity: Any) -> Any:
+            def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
                     for k in entity_cp.keys():
@@ -113,36 +112,27 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def charter_get(self, id_, charter_id) -> Tuple[Any, int]:
+    def charter_get(self, id_, charter_id) -> t.Tuple[t.Any, int]:
         if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         return self.charter_manager.get(charter_id=charter_id, member_id=id_), 200
 
     @with_context
     @log_call
-    def charter_put(self, id_, charter_id) -> Tuple[Any, int]:
-        try:
-            if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
-                raise UnauthorizedError("Unauthorize to access this resource")
-            self.charter_manager.sign(charter_id=charter_id, member_id=id_)
-            return NoContent, 204
-        except Exception as e:
-            return handle_error(e)
+    def charter_put(self, id_, charter_id) -> t.Tuple[t.Any, int]:
+        if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
+            raise UnauthorizedError("Unauthorize to access this resource")
+        self.charter_manager.sign(charter_id=charter_id, member_id=id_)
+        return NoContent, 204
 
     @with_context
     @log_call
     def comment_put(self, id_, body):
         """ Set the comment of a member. """
-        try:
-            self.member_manager.change_comment(id_, Comment.from_dict(body))
-            return NoContent, 204  # 204 No Content
-        except Exception as e:
-            return handle_error(e)
+        self.member_manager.change_comment(id_, Comment.from_dict(body))
+        return NoContent, 204  # 204 No Content
 
     @with_context
     @log_call
     def comment_search(self, id_):
-        try:
-            return self.member_manager.get_comment(member_id=id_).to_dict(), 200
-        except Exception as e:
-            return handle_error(e)
+        return self.member_manager.get_comment(member_id=id_).to_dict(), 200

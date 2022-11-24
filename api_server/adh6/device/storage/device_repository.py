@@ -3,8 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from enum import Enum
-from typing import List, Tuple, Union
+import typing as t
 
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
@@ -17,25 +16,21 @@ from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
-
-
-class DeviceType(Enum):
-    wired = 0
-    wireless = 1
+from . import DeviceType
 
 
 class DeviceSQLRepository(DeviceRepository):
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Device, None]:
+    def get_by_id(self, object_id: int) -> t.Union[Device, None]:
         obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
-    def get_by_mac(self, mac: str) -> Union[Device, None]:
+    def get_by_mac(self, mac: str) -> t.Union[Device, None]:
         obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
-    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
+    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> t.Tuple[t.List[Device], int]:
         smt: Select = select(SQLDevice)
         if device_filter.terms:
             smt = smt.join(Adherent, SQLDevice.adherent_id==Adherent.id).where(
@@ -101,7 +96,7 @@ class DeviceSQLRepository(DeviceRepository):
         device.mab = mab
         return mab
 
-    def owner(self, id: int) -> Union[int, None]:
+    def owner(self, id: int) -> t.Union[int, None]:
         smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
         return session.execute(smt).scalar_one_or_none()
 

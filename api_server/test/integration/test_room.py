@@ -2,7 +2,7 @@ from ipaddress import IPv4Address, IPv4Network
 import json
 import pytest
 from sqlalchemy import select
-from adh6.device.storage.device_repository import DeviceType
+from adh6.device.storage import DeviceType
 
 from adh6.storage import  db
 from adh6.member.storage.models import Adherent

@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-from typing import List, Optional, Tuple
+import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractPort, Port, Switch, Room
@@ -25,7 +25,7 @@ class PortSQLRepository(PortRepository):
         return _map_port_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None) -> Tuple[List[AbstractPort], int]:
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractPort] = None) -> t.Tuple[t.List[AbstractPort], int]:
         query = session.query(SQLPort)
         query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
         query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
@@ -112,7 +112,7 @@ class PortSQLRepository(PortRepository):
         session.flush()
 
 
-    def get_rcom(self, id) -> Optional[int]:
+    def get_rcom(self, id) -> t.Optional[int]:
         port = session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
         if port is None:
             raise PortNotFoundError(id)

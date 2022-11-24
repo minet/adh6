@@ -1,10 +1,10 @@
-from typing import List, Tuple, Union
+import typing as t
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call
 from adh6.entity import RoleMapping
 from adh6.exceptions import MemberNotFoundError, NotFoundError, UpdateImpossible
-from adh6.member.member_manager import MemberManager
+from adh6.member import MemberManager
 
 
 class RoleManager:
@@ -13,14 +13,14 @@ class RoleManager:
         self.member_manager = member_manager
 
     @log_call
-    def search(self, auth: str, identifier: Union[str, None] = None) -> Tuple[List[RoleMapping], int]:
+    def search(self, auth: str, identifier: t.Union[str, None] = None) -> t.Tuple[t.List[RoleMapping], int]:
         return self.role_repository.find(
             method=AuthenticationMethod(auth),
             identifiers=[identifier] if identifier else None,
         )
 
     @log_call
-    def create(self, identifier: str, roles: List[str], auth: str = AuthenticationMethod.USER.value) -> None:
+    def create(self, identifier: str, roles: t.List[str], auth: str = AuthenticationMethod.USER.value) -> None:
         method = AuthenticationMethod(auth)
         if method == AuthenticationMethod.API_KEY:
             raise UpdateImpossible("api key", "The roles for an api key cannot be changed. You might want to delete the key and recreate one")

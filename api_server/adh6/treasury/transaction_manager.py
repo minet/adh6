@@ -1,6 +1,7 @@
 # coding=utf-8
 """ Use cases (business rule layer) of everything related to transactions. """
-from typing import Optional, Tuple
+import typing as t
+
 from adh6.authentication import Roles
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
@@ -22,7 +23,7 @@ class TransactionManager(CRUDManager):
         self.cashbox_repository = cashbox_repository
 
     @log_call
-    def update_or_create(self, abstract_transaction: AbstractTransaction, id: Optional[int] = None) -> Tuple[Transaction, bool]:
+    def update_or_create(self, abstract_transaction: AbstractTransaction, id: t.Optional[int] = None) -> t.Tuple[Transaction, bool]:
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError('the source and destination accounts must not be the same')
         if abstract_transaction.value is None:

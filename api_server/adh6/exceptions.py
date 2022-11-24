@@ -1,7 +1,5 @@
 # coding=utf-8
-
-
-from typing import Optional
+import typing as t
 
 
 class UserInputError(ValueError):
@@ -87,7 +85,7 @@ class NotFoundError(UserInputError):
     Error thrown when something is not found.
     """
 
-    def __init__(self, what, v: Optional[str] = None):
+    def __init__(self, what, v: t.Optional[str] = None):
         err_msg = what + ' ' + str(v) + ' was not found'
         super().__init__(err_msg)
 

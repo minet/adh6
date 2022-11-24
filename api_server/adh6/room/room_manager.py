@@ -1,10 +1,10 @@
 # coding=utf-8
+import typing as t
 
-from typing import List
 from adh6.decorator import log_call
 from adh6.exceptions import NotFoundError, RoomNotFoundError
-from adh6.default.crud_manager import CRUDManager
-from adh6.member.member_manager import MemberManager
+from adh6.default import CRUDManager
+from adh6.member import MemberManager
 
 from .interfaces import RoomRepository
 
@@ -53,7 +53,7 @@ class RoomManager(CRUDManager):
         self.member_manager.reset_member(member_id)
 
     @log_call
-    def list_members(self, room_id: int) -> List[int]:
+    def list_members(self, room_id: int) -> t.List[int]:
         try:
             room = self.room_repository.get_by_id(room_id)
             if not room:

@@ -2,7 +2,7 @@ import os
 import requests
 
 from enum import Enum
-from typing import Any, Dict, Optional
+import typing as t
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
 class Roles(Enum):
@@ -71,7 +71,7 @@ def apikey_auth(token: str, required_scopes):
 
 user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
 
-def token_info(access_token) -> Optional[Dict[str, Any]]:
+def token_info(access_token) -> t.Optional[t.Dict[str, t.Any]]:
     infos = get_sso_groups(access_token)
 
     groups = ['adh6_user']
@@ -122,3 +122,7 @@ def get_sso_groups(token):
         raise OAuthResponseProblem("Could not authenticate")
     return r.json()
 
+from .api_keys_manager import ApiKeyManager
+from .role_manager import RoleManager
+
+__all__ = ["ApiKeyManager", "RoleManager"]

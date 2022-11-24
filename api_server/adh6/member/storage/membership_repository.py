@@ -1,21 +1,20 @@
 from datetime import datetime
 import uuid
-from sqlalchemy.orm.query import Query
+import typing as t
 
-from typing import List, Optional, Tuple
-
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import Membership, AbstractMembership, SubscriptionBody
 from adh6.decorator import log_call
 from adh6.storage import session
 
 from .models import Membership as MembershipSQL
-from ..interfaces.membership_repository import MembershipRepository
+from .. import MembershipStatus
+from ..interfaces import MembershipRepository
 
 
 class MembershipSQLRepository(MembershipRepository):
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractMembership] = None) -> t.Tuple[t.List[Membership], int]:
         query = session.query(MembershipSQL)
         if filter_:
             if filter_.uuid is not None:
@@ -65,7 +64,7 @@ class MembershipSQLRepository(MembershipRepository):
 
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
-        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+        query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
 
         if body.duration:
@@ -84,7 +83,7 @@ class MembershipSQLRepository(MembershipRepository):
         return _map_membership_sql_to_entity(membership)
 
     def validate(self, uuid: str) -> None:
-        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+        query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
         membership.status = MembershipStatus.COMPLETE
         session.flush()

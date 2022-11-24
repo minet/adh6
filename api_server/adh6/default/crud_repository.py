@@ -1,19 +1,19 @@
 # coding=utf-8
 import abc
-from typing import List, Optional, Tuple, TypeVar, Generic, Union
+import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 
-T = TypeVar('T')
-AbstractT = TypeVar('AbstractT')
+T = t.TypeVar('T')
+AbstractT = t.TypeVar('AbstractT')
 
-class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
+class CRUDRepository(abc.ABC, t.Generic[T, AbstractT]):
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> Union[T, None]:
+    def get_by_id(self, object_id: int) -> t.Union[T, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None, filter_: Optional[AbstractT] = None) -> Tuple[List[T], int]:
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: t.Optional[str] = None, filter_: t.Optional[AbstractT] = None) -> t.Tuple[t.List[T], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

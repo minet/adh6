@@ -3,9 +3,9 @@
 Treasury repository.
 """
 import abc
-from typing import Tuple
+import typing as t
 
-from adh6.entity.abstract_transaction import AbstractTransaction
+from adh6.entity import AbstractTransaction
 
 class CashboxRepository(abc.ABC):
     """
@@ -13,7 +13,7 @@ class CashboxRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get(self) -> Tuple[int, int]:
+    def get(self) -> t.Tuple[int, int]:
         """
         Get the current value
         """

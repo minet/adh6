@@ -2,7 +2,7 @@ import json
 import uuid
 import pytest
 from sqlalchemy import select
-from adh6.constants import MembershipStatus
+from adh6.member import MembershipStatus
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url

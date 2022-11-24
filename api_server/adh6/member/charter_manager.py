@@ -1,9 +1,9 @@
-from datetime import datetime
-from typing import List, Tuple, Union
-from adh6.constants import MembershipStatus
-from adh6.entity.abstract_membership import AbstractMembership
-from adh6.entity.subscription_body import SubscriptionBody
+import datetime
+import typing as t
+
+from adh6.entity import AbstractMembership, SubscriptionBody
 from adh6.exceptions import MemberNotFoundError, MembershipNotFoundError
+from . import MembershipStatus
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
 
 
@@ -13,7 +13,7 @@ class CharterManager:
         self.member_repository = member_repository
         self.membership_repository = membership_repository
 
-    def get(self, charter_id: int, member_id: int) -> Union[datetime, None]:
+    def get(self, charter_id: int, member_id: int) -> t.Union[datetime.datetime, None]:
         m = self.member_repository.get_by_id(member_id)
         if not m:
             raise MemberNotFoundError(member_id)
@@ -30,5 +30,5 @@ class CharterManager:
         if subscriptions[0].status == MembershipStatus.PENDING_RULES.value:
             self.membership_repository.update(subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL)
 
-    def get_members(self, charter_id: int) -> Tuple[List[int], int]:
+    def get_members(self, charter_id: int) -> t.Tuple[t.List[int], int]:
         return self.charter_repository.get_members(charter_id)

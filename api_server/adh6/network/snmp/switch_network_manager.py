@@ -2,7 +2,8 @@
 """
 Implements everything related to SNMP-related actions
 """
-from typing import Tuple
+import typing as t
+
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
 from .util.snmp_helper import get_SNMP_value, set_SNMP_value
 
@@ -188,7 +189,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     @log_call
-    def get_oid_switch_ipand_community_from_port_id(self, port_id) -> Tuple[str, str, str]:
+    def get_oid_switch_ipand_community_from_port_id(self, port_id) -> t.Tuple[str, str, str]:
         port = self.port_repository.get_by_id(object_id=port_id)
         if port.oid is None or not isinstance(port.oid, str):
             raise NetworkManagerReadError(f"oidc for port {port_id} is unknown")
