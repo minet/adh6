@@ -1,7 +1,7 @@
 # coding=utf-8
 import abc
 from adh6.entity import Switch, AbstractSwitch
-from adh6.default.crud_repository import CRUDRepository
+from adh6.default import CRUDRepository
 
 
 class SwitchRepository(CRUDRepository[Switch, AbstractSwitch]):

@@ -264,7 +264,7 @@ class MemberManager(CRUDManager):
     @log_call
     def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = self.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 

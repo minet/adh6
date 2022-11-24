@@ -3,7 +3,7 @@ import abc
 import typing as t
 
 from adh6.entity import Port, AbstractPort
-from adh6.default.crud_repository import CRUDRepository
+from adh6.default import CRUDRepository
 
 
 class PortRepository(CRUDRepository[Port, AbstractPort]):

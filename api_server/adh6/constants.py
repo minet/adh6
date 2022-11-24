@@ -5,7 +5,6 @@ import typing as t
 
 DEFAULT_LIMIT = 100
 DEFAULT_OFFSET = 0
-LOG_DEFAULT_LIMIT = 10
 
 
 class KnownAccountExpense(enum.Enum):
