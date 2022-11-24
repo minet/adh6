@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 from datetime import date, datetime, timedelta
 import ipaddress
-from typing import List, Optional, Tuple
+import typing as t
 
 from adh6.entity import AbstractMember, Member, MemberFilter
 from adh6.decorator import log_call
@@ -17,7 +17,7 @@ from ..interfaces.member_repository import MemberRepository
 
 class MemberSQLRepository(MemberRepository):
     @log_call
-    def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
+    def search_by(self, limit: int, offset: int, terms: t.Optional[str] = None, filter_: t.Optional[MemberFilter] = None) -> t.Tuple[t.List[Member], int]:
         query = session.query(Adherent)
         if filter_:
             if filter_.ip:
@@ -47,11 +47,11 @@ class MemberSQLRepository(MemberRepository):
         return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
-    def get_by_id(self, object_id: int) -> Optional[AbstractMember]:
+    def get_by_id(self, object_id: int) -> t.Optional[AbstractMember]:
         adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         return _map_member_sql_to_abstract_entity(adh) if adh else None
 
-    def get_by_login(self, login: str) -> Optional[Member]:
+    def get_by_login(self, login: str) -> t.Optional[Member]:
         adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
         return _map_member_sql_to_entity(adh) if adh else None
 
@@ -117,7 +117,7 @@ class MemberSQLRepository(MemberRepository):
 
         session.flush()
     
-    def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
+    def used_wireless_public_ips(self) -> t.List[ipaddress.IPv4Address]:
         q = session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]

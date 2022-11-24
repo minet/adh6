@@ -3,9 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 from datetime import datetime
-
-from typing import List, Tuple, Union
-
+import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractTransaction, Transaction
@@ -22,12 +20,12 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Transaction, None]:
+    def get_by_id(self, object_id: int) -> t.Union[Transaction, None]:
         obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
         return _map_transaction_sql_to_entity(obj) if obj else obj
 
     @log_call
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
+    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: t.Union[str, None] = None, filter_:  t.Union[AbstractTransaction, None] = None) -> t.Tuple[t.List[Transaction], int]:
         query= session.query(SQLTransaction)
 
         if filter_:

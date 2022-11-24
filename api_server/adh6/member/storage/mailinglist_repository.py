@@ -1,4 +1,4 @@
-from typing import List
+import typing as t
 
 from sqlalchemy import select, update
 from adh6.storage import session
@@ -16,6 +16,6 @@ class MailinglistSQLReposiroty(MailinglistRepository):
         smt = update(Adherent).where(Adherent.id == member_id).values(mail_membership=value)
         session.execute(smt)
 
-    def list_members(self, value: int) -> List[int]:
+    def list_members(self, value: int) -> t.List[int]:
         smt = select(Adherent.id).where(Adherent.mail_membership == value)
         return session.execute(smt).scalars().all()

@@ -1,10 +1,9 @@
-from typing import List, Tuple, Union
-from sqlalchemy.orm import Session
+import typing as t
 
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.sql import Select, Insert
 from adh6.entity import RoleMapping
-from adh6.storage import db
+from adh6.storage import session
 from adh6.member.storage.models import Adherent
 
 from .. import AuthenticationMethod, Roles
@@ -13,11 +12,11 @@ from .models import AuthenticationRoleMapping
 
 
 class RoleSQLRepository(RoleRepository):
-    def get(self, id: int) -> Union[RoleMapping, None]:
+    def get(self, id: int) -> t.Union[RoleMapping, None]:
         smt: Select = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
-        return db.session().execute(smt).one_or_none()
+        return session().execute(smt).one_or_none()
 
-    def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
+    def find(self, method: t.Union[AuthenticationMethod, None] = None, identifiers: t.Union[t.List[str], None] = None, roles: t.Union[t.List[Roles], None] = None) -> t.Tuple[t.List[RoleMapping], int]:
         smt: Select = select(AuthenticationRoleMapping)
         if method is not None: 
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
@@ -25,11 +24,10 @@ class RoleSQLRepository(RoleRepository):
             smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
-        all_roles = db.session().execute(smt).all()
+        all_roles = session().execute(smt).all()
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
-    def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
-        session: Session = db.session
+    def create(self, method: AuthenticationMethod, identifier: str, roles: t.List[Roles]) -> None:
         smt: Insert = insert(AuthenticationRoleMapping).values(
             [
                 {
@@ -49,7 +47,6 @@ class RoleSQLRepository(RoleRepository):
                 session.execute(smt)
 
     def delete(self, id: int) -> None:
-        session: Session = db.session
         role_mapping = session.query(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id).one()
         if role_mapping.authentication == AuthenticationMethod.USER:
             adherent = session.query(Adherent).filter(Adherent.login == role_mapping.identifier).one_or_none()
@@ -63,7 +60,7 @@ class RoleSQLRepository(RoleRepository):
         # force reset nainA column in Adherent for compatibility
 
     def user_id_from_username(self, login: str) -> int:
-        return db.session.execute(select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))).scalar()
+        return session.execute(select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))).scalar()
     
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(

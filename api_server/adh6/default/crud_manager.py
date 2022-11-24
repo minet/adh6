@@ -1,4 +1,5 @@
-from typing import Optional, Tuple
+import typing as t
+
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.base_model_ import Model
 from adh6.exceptions import IntMustBePositive
@@ -12,7 +13,7 @@ class CRUDManager:
         self.not_found_exception = not_found_exception
 
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> t.Tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive('limit')
 
@@ -34,7 +35,7 @@ class CRUDManager:
         return e
 
     @log_call
-    def update_or_create(self, obj, id: Optional[int] = None):
+    def update_or_create(self, obj, id: t.Optional[int] = None):
         current_object = None
         if id is not None:
             current_object = self.repository.get_by_id(id)

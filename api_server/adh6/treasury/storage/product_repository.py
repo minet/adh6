@@ -2,7 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
-from typing import List, Optional, Tuple, Union
+import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.product import Product
@@ -18,11 +18,11 @@ class ProductSQLRepository(ProductRepository):
     Represent the interface to the SQL database.
     """
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Product, None]:
+    def get_by_id(self, object_id: int) -> t.Union[Product, None]:
         obj = session.query(SQLProduct).filter(SQLProduct.id == object_id).one_or_none()
         return _map_product_sql_to_entity(obj) if obj else obj
 
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: Optional[str]=None) -> Tuple[List[Product], int]:
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: t.Optional[str]=None) -> t.Tuple[t.List[Product], int]:
         query = session.query(SQLProduct)
         if terms:
             query = query.filter(SQLProduct.name.contains(terms))

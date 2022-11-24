@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import Union
+import typing as t
 
 
 class IpAllocator(abc.ABC):
@@ -9,7 +9,7 @@ class IpAllocator(abc.ABC):
     """
 
     @abc.abstractmethod
-    def available_ip(self, ip_range: str = "", member_id: Union[int, None] = None) -> str:
+    def available_ip(self, ip_range: str = "", member_id: t.Union[int, None] = None) -> str:
         """
         Allocates a new unused IP address.
 
