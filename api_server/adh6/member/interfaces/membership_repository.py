@@ -6,7 +6,7 @@ import abc
 import typing as t
 
 from adh6.entity import Membership, AbstractMembership, SubscriptionBody
-from .. import MembershipStatus
+from ..enums import MembershipStatus
 
 # TODO: This class should be derive from CRUDRepository
 class MembershipRepository(abc.ABC):

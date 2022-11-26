@@ -2,7 +2,6 @@ import typing as t
 import logging
 
 from adh6.constants import KnownAccountExpense
-from adh6.member import MembershipStatus
 from adh6.entity import (
     AbstractMembership, Membership,
     AbstractAccount, 
@@ -14,16 +13,15 @@ from adh6.exceptions import (
     MembershipNotFoundError,
     MemberNotFoundError,
     MembershipAlreadyExist,
-    UnauthorizedError,
     UnknownPaymentMethod,
     NoPriceAssignedToThatDuration,
     MembershipStatusNotAllowed,
     CharterNotSigned
 )
 from adh6.decorator import log_call
-from adh6.authentication import Roles
 from adh6.treasury import TransactionManager, PaymentMethodManager, AccountManager
 
+from .enums import MembershipStatus
 from .notification_manager import NotificationManager
 from .charter_manager import CharterManager
 from .interfaces import MemberRepository, MembershipRepository
@@ -244,10 +242,6 @@ class SubscriptionManager:
 
     @log_call
     def add_payment_record(self, membership: Membership, free: bool) -> None:
-        from adh6.context import get_roles
-        if free and not Roles.TRESO_WRITE.value in get_roles():
-            raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
-
         payment_method = self.payment_method_manager.get_by_id(membership.payment_method)
         asso_account, _ = self.account_manager.search(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
         if len(asso_account) != 1:

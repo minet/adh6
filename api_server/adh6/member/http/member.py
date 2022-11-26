@@ -106,6 +106,9 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def subscription_validate(self, id_: int, free: bool = False):
+        from adh6.context import get_roles
+        if free and not Roles.TRESO_WRITE.value in get_roles():
+            raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
         self.subscription_manager.validate(id_, free)
         self.member_manager.update_subnet(id_)
         return NoContent, 204

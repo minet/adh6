@@ -2,7 +2,6 @@
 """ Use cases (business rule layer) of everything related to transactions. """
 import typing as t
 
-from adh6.authentication import Roles
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import TransactionNotFoundError, ValidationError, IntMustBePositive
 from adh6.decorator import log_call
@@ -32,7 +31,7 @@ class TransactionManager(CRUDManager):
             raise IntMustBePositive('value')
 
         from adh6.context import get_roles, get_user
-        if Roles.TRESO_WRITE.value not in get_roles():
+        if "treasurer:write" not in get_roles():
             abstract_transaction.pending_validation = True
         admin_id = get_user()
         abstract_transaction.author = admin_id

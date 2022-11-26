@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Boolean, Date, DateTime, Integer, Text
 from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
 
-from .. import MembershipStatus, MembershipDuration
+from ..enums import MembershipStatus, MembershipDuration
 
 from adh6.storage import db
 from adh6.storage.sql.trackable import RubyHashTrackable

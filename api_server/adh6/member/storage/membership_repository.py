@@ -8,7 +8,7 @@ from adh6.decorator import log_call
 from adh6.storage import session
 
 from .models import Membership as MembershipSQL
-from .. import MembershipStatus
+from ..enums import MembershipStatus
 from ..interfaces import MembershipRepository
 
 

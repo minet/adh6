@@ -16,7 +16,7 @@ from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
-from . import DeviceType
+from ..enums import DeviceType
 
 
 class DeviceSQLRepository(DeviceRepository):

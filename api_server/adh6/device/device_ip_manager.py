@@ -7,7 +7,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.subnet.vlan_manager import VlanManager
 
 from .interfaces import IpAllocator, DeviceRepository
-from .storage.device_repository import DeviceType
+from .enums import DeviceType
 
 class DeviceIpManager:
     def __init__(self, ip_allocator: IpAllocator, device_repository: DeviceRepository, vlan_manager: VlanManager) -> None:

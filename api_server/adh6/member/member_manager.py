@@ -28,7 +28,7 @@ from adh6.default import CRUDManager
 from adh6.decorator import log_call
 from adh6.treasury import AccountManager, AccountTypeManager
 
-from . import MembershipStatus
+from .enums import MembershipStatus
 from .mailinglist_manager import MailinglistManager
 from .interfaces import MemberRepository
 from .subscription_manager import SubscriptionManager

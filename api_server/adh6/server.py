@@ -18,7 +18,7 @@ from adh6.subnet.http import VLANHandler
 from adh6.room.http import RoomHandler
 from adh6.authentication.http import ApiKeyHandler, RoleHandler
 
-from adh6.storage import cache, db
+from adh6.storage import db
 
 handlers = [
     AccountHandler,
@@ -47,7 +47,8 @@ from adh6.treasury import (
     CashboxManager, 
     TransactionManager, 
     ProductManager, 
-    PaymentMethodManager
+    PaymentMethodManager,
+    init as treasury_init
 )
 from adh6.member import (
     MemberManager, 
@@ -65,7 +66,11 @@ from adh6.metrics import HealthManager
 from adh6.network import PortManager, SwitchManager
 from adh6.room import RoomManager
 from adh6.subnet import VlanManager
-from adh6.authentication import ApiKeyManager, RoleManager
+from adh6.authentication import (
+    ApiKeyManager, 
+    RoleManager,
+    init as authentication_init
+)
 
 managers = [
     DeviceManager,
@@ -221,17 +226,15 @@ def init() -> FlaskApp:
     )
 
     from .logging import setup_login
-
     setup_login()
 
     db.init_app(app.app)
-    cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
     
     Migrate(app.app, db)
 
-    #from flask_migrate import upgrade
-    #from adh6.treasury import init as treasury_init
-    #upgrade()
-    #treasury_init()
+    from flask_migrate import upgrade
+    upgrade()
+    treasury_init()
+    authentication_init()
 
     return app

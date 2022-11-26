@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 from adh6.authentication import AuthenticationMethod
-from adh6.device.storage import DeviceType
+from adh6.device.enums import DeviceType
 import pytest
 from adh6.member import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
@@ -27,12 +27,8 @@ def prep_db(*args):
     session.add_all(
         [
             oidc_admin_prod_role(),
-            oidc_admin_read_role(),
-            oidc_admin_write_role(),
             oidc_network_read_role(),
             oidc_network_write_role(),
-            oidc_treasurer_read_role(),
-            oidc_treasurer_write_role()
         ]
     )
     session.add_all(args)
@@ -97,8 +93,8 @@ class MockRequestsResponse:
         if self.token == TEST_HEADERS["Authorization"]:
             response['id'] = TESTING_CLIENT
             response['attributes']['memberOf'] = [
-                "cn=admin,ou=groups,dc=minet,dc=net",
-                "cn=treasurer,ou=groups,dc=minet,dc=net",
+                "cn=adh6_admin,ou=groups,dc=minet,dc=net",
+                "cn=adh6_treasurer,ou=groups,dc=minet,dc=net",
                 "cn=network,ou=groups,dc=minet,dc=net",
                 "cn=production,ou=groups,dc=minet,dc=net",
             ]
@@ -308,38 +304,6 @@ def oidc_admin_prod_role():
         authentication=AuthenticationMethod.OIDC,
         identifier="production",
         role=Roles.ADMIN_PROD
-    )
-
-
-def oidc_admin_read_role():
-    return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="admin",
-        role=Roles.ADMIN_READ
-    )
-
-
-def oidc_admin_write_role():
-    return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="admin",
-        role=Roles.ADMIN_WRITE
-    )
-
-
-def oidc_treasurer_read_role():
-    return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="treasurer",
-        role=Roles.TRESO_READ
-    )
-
-
-def oidc_treasurer_write_role():
-    return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="treasurer",
-        role=Roles.TRESO_WRITE
     )
 
 

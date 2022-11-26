@@ -3,7 +3,7 @@ import typing as t
 
 from adh6.entity import AbstractMembership, SubscriptionBody
 from adh6.exceptions import MemberNotFoundError, MembershipNotFoundError
-from . import MembershipStatus
+from .enums import MembershipStatus
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
 
 

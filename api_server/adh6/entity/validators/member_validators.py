@@ -1,15 +1,13 @@
-from datetime import datetime
-
-from sqlalchemy import false
 
 from adh6.entity import Member
 
-from adh6.room.storage.room_repository import RoomSQLRepository as RoomRepository
 
-
-def is_member_active(member: Member):
+def is_member_active(member: Member) -> bool:
+    from datetime import datetime
+    from adh6.room.storage.room_repository import RoomSQLRepository as RoomRepository
+    
     if member.departure_date is None:
-        return false
+        return False
 
     if isinstance(member.departure_date, datetime):
         member_departure = member.departure_date.date()
