@@ -1,7 +1,7 @@
 ###############################################################################
 # 1st stage, build the app
 ###############################################################################
-FROM node:18-alpine@sha256:f4d6916c5625853e81994b5cb53ad3eb27e5fec9451c579d298fee0c508fe621 as build
+FROM node:18-alpine@sha256:9eff44230b2fdcca57a73b8f908c8029e72d24dd05cac5339c79d3dedf6b208b as build
 WORKDIR /adh6/frontend_angular
 
 # Install packages
@@ -17,7 +17,7 @@ RUN yarn purgecss -css dist/adh6/fr/*.css --content dist/adh6/fr/index.html dist
 ###############################################################################
 # 2nd stage, host the app with nginx
 ###############################################################################
-FROM nginx:alpine@sha256:5a0df7fb7c8c03e4158ae9974bfbd6a15da2bdfdeded4fb694367ec812325d31
+FROM nginx:alpine@sha256:455c39afebd4d98ef26dd70284aa86e6810b0485af5f4f222b19b89758cabf1e
 EXPOSE 80
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /adh6/frontend_angular/dist/adh6/fr /usr/share/nginx/html/fr
