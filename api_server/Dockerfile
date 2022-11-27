@@ -1,7 +1,7 @@
 ###############################################################################
 # 1st stage, get OUI.txt
 ###############################################################################
-FROM alpine:3@sha256:4edbd2beb5f78b1014028f4fbb99f3237d9561100b6881aabbf5acce2c4f9454 AS oui
+FROM alpine:3@sha256:8914eb54f968791faf6a8638949e480fef81e697984fba772b3976835194c6d4 AS oui
 WORKDIR /tmp
 RUN apk add --no-cache --update wget \
   && wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
@@ -9,7 +9,7 @@ RUN apk add --no-cache --update wget \
 ###############################################################################
 # 2nd stage, get wheel files
 ###############################################################################
-FROM python:3.9-alpine@sha256:602cd35ea12a7abc69078f447be06634700bdea7a2642712f8d21cfc35792df0 AS wheel
+FROM python:3.9-alpine@sha256:ea679ee27dbb8f36fbfc304be1b488b4fd7bea95dd230a47f97187c2e3fd4807 AS wheel
 WORKDIR /wheels
 # Install dependencies
 RUN apk add --no-cache --update \
@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir -U pip \
 ###############################################################################
 # 3rd stage, deploy the application
 ###############################################################################
-FROM python:3.9-alpine@sha256:602cd35ea12a7abc69078f447be06634700bdea7a2642712f8d21cfc35792df0
+FROM python:3.9-alpine@sha256:ea679ee27dbb8f36fbfc304be1b488b4fd7bea95dd230a47f97187c2e3fd4807
 RUN apk add --no-cache --update \ 
   git \
   mariadb-connector-c

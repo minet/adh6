@@ -1,7 +1,7 @@
 ###############################################################################
 # 1st stage, launch the app
 ###############################################################################
-FROM node:18-alpine@sha256:f4d6916c5625853e81994b5cb53ad3eb27e5fec9451c579d298fee0c508fe621
+FROM node:18-alpine@sha256:9eff44230b2fdcca57a73b8f908c8029e72d24dd05cac5339c79d3dedf6b208b
 WORKDIR /adh6/frontend_angular
 
 RUN apk --no-cache --update add openssl
