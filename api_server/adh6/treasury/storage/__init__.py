@@ -7,25 +7,30 @@ from .product_repository import ProductSQLRepository as ProductRepository
 
 __all__ = ["AccountRepository", "AccountTypeRepository", "PaymentMethodRepository", "TransactionRepository", "CashboxRepository", "ProductRepository"]
 
-def init_storage():
-    from adh6.storage import db
+def init():
+    from adh6.storage import session
     from .models import PaymentMethod, AccountType, Account
+    from ..config import Config
 
-    session = db.session()
-    payment_methods = ["Liquide", "Chèque", "Carte bancaire", "Virement", "Stripe", "Aucun"]
-    for e in payment_methods:
+    import logging
+
+    logging.info(f"--- Setup payment methods: {Config.DEFAULT_PAYMENT_METHOD} ---")
+    for e in Config.DEFAULT_PAYMENT_METHOD:
         if session.query(PaymentMethod).filter(PaymentMethod.name == e).one_or_none() is None:
+            logging.warning(f"Payment method not found creating it: {e}")
             session.add(PaymentMethod(name=e))
 
-    account_types = ["Special", "Adherent", "Club interne", "Club externe", "Association externe"]
-    for e in account_types:
+    logging.info(f"--- Setup account types: {Config.DEFAULT_ACCOUNT_TYPES} ---")
+    for e in Config.DEFAULT_ACCOUNT_TYPES:
         if session.query(AccountType).filter(AccountType.name == e).one_or_none() is None:
+            logging.warning(f"account types not found creating it: {e}")
             session.add(AccountType(name=e))
 
-    special = session.query(AccountType).filter(AccountType.name == account_types[0]).one()
-    accounts = ["MiNET frais techniques", "MiNET frais asso"]
-    for e in accounts:
+    special = session.query(AccountType).filter(AccountType.name == Config.DEFAULT_ACCOUNT_TYPES[0]).one()
+    logging.info(f"--- Setup default accounts: {Config.DEFAULT_ACCOUNT_TYPES} ---")
+    for e in Config.DEFAULT_ACCOUNT_TYPES:
         if session.query(Account).filter(Account.name == e).one_or_none() is None:
+            logging.warning(f"default account not found creating it: {e}")
             session.add(
                 Account(
                     type=special.id,

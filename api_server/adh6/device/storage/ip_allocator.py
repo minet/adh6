@@ -1,10 +1,10 @@
 # coding=utf-8
 from ipaddress import AddressValueError, IPv4Network, ip_network
-from typing import Union
+import typing as t
 
 from sqlalchemy import select
 
-from adh6.storage import db
+from adh6.storage import session
 from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
 from adh6.decorator import log_call
 
@@ -14,7 +14,7 @@ from .models import Device
 
 class IPSQLAllocator(IpAllocator):
     @log_call
-    def available_ip(self, ip_range: str = "", member_id: Union[int, None] = None) -> str:
+    def available_ip(self, ip_range: str = "", member_id: t.Union[int, None] = None) -> str:
         if ip_range == "":
             return 'En attente'
 
@@ -31,7 +31,7 @@ class IPSQLAllocator(IpAllocator):
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        ips = db.session().execute(smt).scalars().all()
+        ips = session().execute(smt).scalars().all()
         for i, h in enumerate(network.hosts()):
             if i == 0:
                 continue

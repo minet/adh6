@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import Any, List, Optional, Type
+import typing as t
 from connexion import NoContent
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -9,15 +9,15 @@ from adh6.entity.base_model_ import Model
 
 
 class DefaultHandler:
-    def __init__(self, entity_class: Type[Model], abstract_entity_class: Type[Model], main_manager: CRUDManager):
+    def __init__(self, entity_class: t.Type[Model], abstract_entity_class: t.Type[Model], main_manager: CRUDManager):
         self.entity_class = entity_class
         self.abstract_entity_class = abstract_entity_class
         self.main_manager = main_manager
 
     @with_context
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
-        def remove(entity: Any) -> Any:
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[t.Any] = None, only: t.Optional[t.List[str]]=None):
+        def remove(entity: t.Any) -> t.Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
                 for k in entity_cp.keys():
@@ -34,8 +34,8 @@ class DefaultHandler:
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]]=None):
-        def remove(entity: Any) -> Any:
+    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
+        def remove(entity: t.Any) -> t.Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
                 for k in entity_cp.keys():
@@ -64,7 +64,7 @@ class DefaultHandler:
         self.main_manager.delete(id=id_)
         return NoContent, 204  # 204 No Content
 
-    def _update(self, function, klass: Type[Model], body, id: Optional[int] = None):
+    def _update(self, function, klass: t.Type[Model], body, id: t.Optional[int] = None):
         body['id'] = 0  # Set a dummy id to pass the initial validation
         to_update = klass.from_dict(body) 
         the_object, created = function(to_update, id=id)

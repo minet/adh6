@@ -1,5 +1,6 @@
 # coding=utf-8
-from typing import List
+import typing as t
+
 from adh6.entity import AbstractAccount, AbstractTransaction
 from adh6.decorator import log_call
 from adh6.constants import KnownAccountExpense
@@ -22,7 +23,7 @@ class ProductManager(CRUDManager):
         self.account_repository = account_repository
 
     @log_call
-    def buy(self, member_id: int, payment_method_id: int, product_ids: List[int] = []) -> None:
+    def buy(self, member_id: int, payment_method_id: int, product_ids: t.List[int] = []) -> None:
         if not product_ids:
             raise ProductNotFoundError("None")
 

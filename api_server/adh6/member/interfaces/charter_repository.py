@@ -1,14 +1,14 @@
 import abc
-from datetime import datetime
-from typing import List, Tuple, Union
+import datetime
+import typing as t
 
 class CharterRepository(abc.ABC):
     @abc.abstractmethod
-    def get(self, charter_id, member_id) -> Union[datetime, None]:
+    def get(self, charter_id, member_id) -> t.Union[datetime.datetime, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_members(self, charter_id) -> Tuple[List[int], int]:
+    def get_members(self, charter_id) -> t.Tuple[t.List[int], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

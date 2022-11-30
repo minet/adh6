@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+import typing as t
 
 from connexion import NoContent
 from adh6.decorator import with_context
@@ -11,7 +11,7 @@ class ApiKeyHandler:
         self.api_key_manager = api_key_manager
 
     @with_context
-    def search(self, limit, offset, login: Union[str, None] = None):
+    def search(self, limit, offset, login: t.Union[str, None] = None):
         result, count = self.api_key_manager.search(limit=limit, offset=offset, login=login)
         headers = {
             "X-Total-Count": str(count),
@@ -20,7 +20,7 @@ class ApiKeyHandler:
         return [r.to_dict() for r in result], 200, headers
 
     @with_context
-    def post(self, body: Dict[str, Any]):
+    def post(self, body: t.Dict[str, t.Any]):
         return self.api_key_manager.create(login=body.get('login', ''), roles=body.get('roles', [])), 200
 
     @with_context

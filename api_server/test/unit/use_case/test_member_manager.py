@@ -4,20 +4,13 @@ from unittest.mock import MagicMock
 
 from pytest import fixture, raises
 
-from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.entity import AbstractMember, Member, Membership
-from adh6.entity.member_body import MemberBody
+from adh6.member import MembershipDuration, MembershipStatus, MemberManager, SubscriptionManager
+from adh6.entity import AbstractMember, Member, Membership, MemberBody
 from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
-from adh6.device.interfaces.device_repository import DeviceRepository
-from adh6.device.device_ip_manager import DeviceIpManager
-from adh6.device.device_logs_manager import DeviceLogsManager
-from adh6.device.interfaces import IpAllocator, LogsRepository
-from adh6.member.interfaces.charter_repository import CharterRepository
-from adh6.device.interfaces.logs_repository import LogsRepository
-from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository
-from adh6.member.member_manager import MemberManager
+from adh6.device import DeviceIpManager, DeviceLogsManager
+from adh6.device.interfaces import IpAllocator, LogsRepository, LogsRepository, DeviceRepository
+from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository, CharterRepository
 from adh6.member.notification_manager import NotificationManager
-from adh6.member.subscription_manager import SubscriptionManager
 from adh6.treasury import TransactionManager
 from adh6.treasury.interfaces import PaymentMethodRepository, AccountTypeRepository, AccountRepository
 from adh6.room.interfaces import RoomRepository

@@ -2,7 +2,7 @@ import json
 
 import pytest
 from pytest_lazyfixture import lazy_fixture
-from adh6.device.storage.device_repository import DeviceType
+from adh6.device.enums import DeviceType
 
 from adh6.storage import db
 from adh6.member.storage.models import Adherent

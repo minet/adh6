@@ -1,3 +1,3 @@
-from adh6.device.http.device import DeviceHandler
+from .device import DeviceHandler
 
 __all__ = ["DeviceHandler"]

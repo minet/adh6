@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import List, Tuple, Union
+import typing as t
 from adh6.entity import Device, AbstractDevice, DeviceFilter, DeviceBody
 from adh6.default.crud_repository import CRUDRepository
 
@@ -11,11 +11,11 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover 
 
     @abc.abstractmethod
-    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
+    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> t.Tuple[t.List[Device], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_mac(self, mac: str) -> Union[Device, None]:
+    def get_by_mac(self, mac: str) -> t.Union[Device, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -27,5 +27,5 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def owner(self, id: int) -> Union[int, None]:
+    def owner(self, id: int) -> t.Union[int, None]:
         pass  # pragma: no cover

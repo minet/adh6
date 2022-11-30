@@ -2,22 +2,23 @@
 
 import abc
 import ipaddress
-from typing import List, Optional, Tuple, Union
+import typing as t
+
 from adh6.entity import Member, AbstractMember, MemberFilter
-from adh6.default.crud_repository import CRUDRepository
+from adh6.default import CRUDRepository
 
 
 class MemberRepository(CRUDRepository[Member, AbstractMember]):
     @abc.abstractmethod
-    def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
+    def search_by(self, limit: int, offset: int, terms: t.Optional[str] = None, filter_: t.Optional[MemberFilter] = None) -> t.Tuple[t.List[Member], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> Union[Member, None]:
+    def get_by_id(self, object_id: int) -> t.Union[Member, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_login(self, login: str) -> Union[Member, None]:
+    def get_by_login(self, login: str) -> t.Union[Member, None]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -29,7 +30,7 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
+    def used_wireless_public_ips(self) -> t.List[ipaddress.IPv4Address]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

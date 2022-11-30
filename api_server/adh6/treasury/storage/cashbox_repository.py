@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 import decimal
 from datetime import datetime
-from typing import Tuple
+import typing as t
 
 from adh6.decorator import log_call
 from adh6.storage import session
@@ -37,7 +37,7 @@ class CashboxSQLRepository(CashboxRepository):
             session.add(cashbox_update)
 
     @log_call
-    def get(self) -> Tuple[int, int]:
+    def get(self) -> t.Tuple[int, int]:
         query = session.query(SQLCashbox)
         query = query.order_by(SQLCashbox.id.desc())
         query = query.limit(1)

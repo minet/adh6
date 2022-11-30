@@ -21,5 +21,5 @@ class Config:
 
 
 def init():
-    from .storage import init_storage
+    from .storage import init as init_storage
     init_storage()

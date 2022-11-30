@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+import typing as t
 
 from connexion import NoContent
 from adh6.decorator import log_call, with_context
@@ -11,7 +11,7 @@ class RoleHandler:
         self.role_manager = role_manager
 
     @with_context
-    def search(self, auth: str, id_: Union[str, None]=None):
+    def search(self, auth: str, id_: t.Union[str, None]=None):
         result, count = self.role_manager.search(auth=auth, identifier=id_)
         headers = {
             "X-Total-Count": str(count),
@@ -21,7 +21,7 @@ class RoleHandler:
 
     @with_context
     @log_call
-    def post(self, body: Dict[str, Any]):
+    def post(self, body: t.Dict[str, t.Any]):
         self.role_manager.create(auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
         return NoContent, 201
 

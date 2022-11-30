@@ -1,11 +1,10 @@
 # coding=utf-8
 import re
 import logging
-from datetime import datetime
+import typing as t
 from ipaddress import IPv4Address, IPv4Network
-from typing import List, Optional, Tuple, Union
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from adh6.entity import (
     AbstractMember, Member,
     MemberStatus,
@@ -27,29 +26,31 @@ from adh6.exceptions import (
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.default import CRUDManager
 from adh6.decorator import log_call
-from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
+from adh6.treasury import AccountManager, AccountTypeManager
 
-from .interfaces import MailinglistRepository, MemberRepository
+from .enums import MembershipStatus
+from .mailinglist_manager import MailinglistManager
+from .interfaces import MemberRepository
 from .subscription_manager import SubscriptionManager
 
 
 class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository,
-                 account_repository: AccountRepository,
-                 account_type_repository: AccountTypeRepository,
+                 account_manager: AccountManager,
+                 account_type_manager: AccountTypeManager,
                  device_ip_manager: DeviceIpManager, device_logs_manager: DeviceLogsManager,
-                 mailinglist_repository: MailinglistRepository, subscription_manager: SubscriptionManager):
+                 mailinglist_manager: MailinglistManager, subscription_manager: SubscriptionManager):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
-        self.mailinglist_repository = mailinglist_repository
+        self.mailinglist_manager = mailinglist_manager
         self.device_logs_manager = device_logs_manager
         self.device_ip_manager = device_ip_manager
-        self.account_repository = account_repository
-        self.account_type_repository = account_type_repository
+        self.account_manager = account_manager
+        self.account_type_manager = account_type_manager
         self.subscription_manager = subscription_manager
 
     @log_call
-    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: Union[MemberFilter, None] = None) -> Tuple[List[int], int]:
+    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str = "", filter_: t.Union[MemberFilter, None] = None) -> t.Tuple[t.List[int], int]:
         result, count = self.member_repository.search_by(
             limit=limit,
             offset=offset,
@@ -78,7 +79,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    def get_profile(self) -> Tuple[AbstractMember, List[str]]:
+    def get_profile(self) -> t.Tuple[AbstractMember, t.List[str]]:
         from adh6.context import get_user, get_roles
         m = self.member_repository.get_by_id(get_user())
         if not m:
@@ -92,10 +93,11 @@ class MemberManager(CRUDManager):
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
-        fetched_account_type, _ = self.account_type_repository.search_by(terms="Adhérent")
+        fetched_account_type, _ = self.account_type_manager.search(terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent") 
  
+        from datetime import datetime
         created_member = self.member_repository.create(
             object_to_create=AbstractMember(
                 id=0,
@@ -111,9 +113,9 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_repository.update_from_member(created_member.id, 249)
+        self.mailinglist_manager.update_member_mailinglist(created_member.id, 249)
 
-        _ = self.account_repository.create(AbstractAccount(
+        _ = self.account_manager.update_or_create(AbstractAccount(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,
@@ -157,7 +159,7 @@ class MemberManager(CRUDManager):
                                                ))
 
     @log_call
-    def get_logs(self, member_id, dhcp=False) -> List[str]:
+    def get_logs(self, member_id, dhcp=False) -> t.List[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -184,7 +186,7 @@ class MemberManager(CRUDManager):
 
 
     @log_call
-    def get_statuses(self, member_id) -> List[MemberStatus]:
+    def get_statuses(self, member_id) -> t.List[MemberStatus]:
         # Check that the user exists in the system.
         member = self.member_repository.get_by_id(member_id)
         if not member:
@@ -262,7 +264,7 @@ class MemberManager(CRUDManager):
     @log_call
     def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = self.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
@@ -276,7 +278,7 @@ class MemberManager(CRUDManager):
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
+    def update_subnet(self, member_id) -> t.Optional[t.Tuple[IPv4Network, t.Union[IPv4Address, None]]]:
         member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)

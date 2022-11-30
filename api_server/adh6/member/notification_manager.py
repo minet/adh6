@@ -3,8 +3,7 @@ from adh6.decorator import log_call
 from adh6.exceptions import TemplateNotFoundError, UndecalredVariableInTemplate
 from jinja2 import Template, Environment, meta
 
-from .interfaces import NotificationRepository
-from .interfaces import NotificationTemplateRepository
+from .interfaces import NotificationRepository, NotificationTemplateRepository
 
 
 class NotificationManager:

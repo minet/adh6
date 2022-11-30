@@ -1,7 +1,7 @@
 # coding=utf-8
 import abc
-from typing import List, Tuple, Union
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+import typing as t
+
 from adh6.entity import AccountType
 
 class AccountTypeRepository(abc.ABC):
@@ -10,5 +10,5 @@ class AccountTypeRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None) -> Tuple[List[AccountType], int]:
+    def search_by(self, limit: int, offset: int, terms: t.Union[str, None] = None) -> t.Tuple[t.List[AccountType], int]:
         pass  # pragma: no cover

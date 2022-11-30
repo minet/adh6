@@ -1,34 +1,9 @@
 import os
 import requests
 
-from enum import Enum
-from typing import Any, Dict, Optional
+from .enums import Roles, AuthenticationMethod
+import typing as t
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
-
-class Roles(Enum):
-    USER = "user"
-    ADMIN_READ = "admin:read"
-    ADMIN_WRITE = "admin:write"
-    ADMIN_PROD = "admin:prod"
-    TRESO_READ = "treasurer:read"
-    TRESO_WRITE = "treasurer:write"
-    NETWORK_READ = "network:read"
-    NETWORK_WRITE = "network:write"
-    NETWORK_PROD = "network:write:prod"
-    NETWORK_DEV = "network:write:dev"
-    NETWORK_HOSTING = "network:write:hosting" 
-
-
-class AuthenticationMethod(Enum):
-    NONE = "none"
-    API_KEY = "api_key"
-    OIDC = "oidc"
-    USER = "user"
-
-
-class Method(Enum):
-    READ = 0
-    WRITE = 1
 
 
 from adh6.authentication.storage import ApiKeyRepository
@@ -71,7 +46,7 @@ def apikey_auth(token: str, required_scopes):
 
 user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
 
-def token_info(access_token) -> Optional[Dict[str, Any]]:
+def token_info(access_token) -> t.Optional[t.Dict[str, t.Any]]:
     infos = get_sso_groups(access_token)
 
     groups = ['adh6_user']
@@ -122,3 +97,11 @@ def get_sso_groups(token):
         raise OAuthResponseProblem("Could not authenticate")
     return r.json()
 
+from .api_keys_manager import ApiKeyManager
+from .role_manager import RoleManager
+
+def init():
+    from .storage import init as init_storage
+    init_storage()
+
+__all__ = ["ApiKeyManager", "RoleManager"]

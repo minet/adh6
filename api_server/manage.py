@@ -2,20 +2,17 @@ import click
 from flask import Flask
 import uuid
 from datetime import date, datetime
-from typing import List
-from sqlalchemy.orm import Session
-from adh6.authentication import AuthenticationMethod
+import typing as t
 from adh6.server import init
 from faker import Faker
 
 import ipaddress
-from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.member import MembershipDuration, MembershipStatus
 from adh6.authentication import Roles
-from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
-from adh6.storage import db
-from adh6.storage.sql.models import Adhesion, Modification, Routeur
+from adh6.authentication.storage.models import ApiKey
+from adh6.storage import session
 from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
-from adh6.treasury.storage.models import AccountType, PaymentMethod, Transaction, Caisse, Account, Product
+from adh6.treasury.storage.models import Caisse, Account, Product
 from adh6.device.storage.models import Device
 from adh6.network.storage.models import Switch, Port
 from adh6.subnet.storage.models import Vlan
@@ -39,8 +36,7 @@ def check_subnet():
             continue
         mappings[str(subnet)] = str(ip)
 
-    session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).all()
+    adherents: t.List[Adherent] = session.query(Adherent).all()
     i = 1
     for a in adherents:
         if a.date_de_depart is None:
@@ -61,88 +57,12 @@ def check_subnet():
             print(f'{a.login}: {a.subnet} is not in mapped to {a.ip} but to {mappings[a.subnet]}')
     print(i)
 
-limit_departure_date = date(2019, 1, 1)
-@manager.cli.command("remove_member")
-def remove_members():
-    session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
-
-    passed_adherents: List[Adherent] = []
-    total = len(adherents)
-    total_lines = 0
-    deleted_devices = 0
-    deleted_modifications = 0
-    for i, a in enumerate(adherents):
-        print(f'{i}/{total}: {a.login}, {a.created_at}')
-        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
-        pass_adherent = False
-        for acc in accounts:
-            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all()
-            transactions_from: List[Transaction] = session.query(Transaction).filter(Transaction.author_id == a.id).all()
-            if len(transactions) != 0 or len(transactions_from) != 0:
-                print("Adherent passed")
-                passed_adherents.append(a)
-                pass_adherent = True
-                continue
-            session.delete(acc)
-            total_lines += 1
-        if pass_adherent:
-            continue
-        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
-        for d in devices:
-            session.delete(d)
-            total_lines += 1
-            deleted_devices += 1
-        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
-        for add in adhesions:
-            session.delete(add)
-            total_lines += 1
-        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
-        for r in routeurs:
-            session.delete(r)
-            total_lines += 1
-        modifications: List[Modification] = session.query(Modification).filter(Modification.adherent_id == a.id).all()
-        for m in modifications:
-            session.delete(m)
-            total_lines += 1
-            deleted_modifications += 1
-        session.delete(a)
-    print(f'deleted lines: {total_lines}, ')
-    session.commit()
    
-@manager.cli.command("check_transactions_member_to_remove")
-def check_transactions_member_to_remove():
-    session: Session = db.session
-    adherents: List[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
-
-    total = len(adherents)
-    for i, a in enumerate(adherents):
-        print(f'{i}/{total}: {a.login}, {a.created_at}')
-        devices: List[Device] = session.query(Device).filter(Device.adherent_id == a.id).all()
-        for d in devices:
-            session.delete(d)
-        adhesions: List[Adhesion] = session.query(Adhesion).filter(Adhesion.adherent_id == a.id).all()
-        for add in adhesions:
-            session.delete(add)
-        routeurs: List[Routeur] = session.query(Routeur).filter(Routeur.adherent_id == a.id).all()
-        for r in routeurs:
-            session.delete(r)
-        accounts: List[Account] = session.query(Account).filter(Account.adherent_id == a.id).all()
-        for acc in accounts:
-            print(acc.id)
-            transactions: List[Transaction] = session.query(Transaction).filter(Transaction.src == acc.id).all() + session.query(Transaction).filter(Transaction.author_id == a.id).all()
-            for t in transactions:
-                print(a.id)
-                print(t.name)
-    session.commit() 
-
 
 @manager.cli.command("api_key")
 @click.argument("login")
 def api_key(login: str = "dev-api-key"):
     """Add seed data to the database."""
-    session: Session = db.session
-
     print("Generate api key")
     api_key = (str(uuid.uuid4()), login, Roles.ADMIN_READ.value)
     session.add(
@@ -159,31 +79,6 @@ def api_key(login: str = "dev-api-key"):
 @manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
-    session: Session = db.session
-
-    print("Seeding account types")
-    account_types = [1,"Special"],[2,"Adherent"],[3,"Club interne"],[4,"Club externe"],[5,"Association externe"]
-    session.bulk_save_objects([
-        AccountType(
-            id=e[0],
-            name=e[1]
-        ) for e in account_types
-    ])
-
-    print("Seeding MiNET accounts")
-    accounts = [1, 1, "MiNET frais techniques", True, None, True, True],[2, 1, "MiNET frais asso", True, None, True, True]
-    session.bulk_save_objects([
-        Account(
-            id=e[0],
-            type=e[1],
-            name=e[2],
-            actif=e[3],
-            adherent_id=e[4],
-            compte_courant=e[5],
-            pinned=e[6]
-        ) for e in accounts
-    ])
-
     print("Seeding Products")
     products = [1,"Cable 3m", 3, 3],[2,"Cable 5m", 5, 5],[3,"Adaptateur USB/Ethernet", 13.00, 13.00],[4,"Adaptateur USB-C/Ethernet", 12.00, 12.00]
     session.bulk_save_objects([
@@ -193,15 +88,6 @@ def seed():
             buying_price=e[2],
             selling_price=e[3]
         ) for e in products
-    ])
-
-    print("Seeding payment methods")
-    payment_methods = [1,"Liquide"],[2,"Chèque"],[3,"Carte bancaire"],[4,"Virement"],[5,"Stripe"],[6,"Aucun"]
-    session.bulk_save_objects([
-        PaymentMethod(
-            id=e[0],
-            name=e[1]
-        ) for e in payment_methods
     ])
 
     print("Seeding cashbox")
@@ -253,26 +139,6 @@ def seed():
             chambre_id=i
         ) for i in range(1, 30)
     ])
-    print("Seeding role mapping for oidc")
-    session.bulk_save_objects(
-        [
-            AuthenticationRoleMapping(
-                identifier="adh6_admin",
-                role=i,
-                authentication=AuthenticationMethod.OIDC
-            ) for i in [Roles.ADMIN_READ, Roles.ADMIN_WRITE, Roles.NETWORK_READ, Roles.NETWORK_WRITE, Roles.ADMIN_PROD]
-        ] 
-    )
-
-    session.bulk_save_objects(
-        [
-            AuthenticationRoleMapping(
-                identifier="adh6_treso",
-                role=i,
-                authentication=AuthenticationMethod.OIDC
-            ) for i in [Roles.TRESO_READ, Roles.TRESO_WRITE]
-        ] 
-    )
 
     print("Seeding email template")
     session.add(
@@ -311,8 +177,6 @@ MiNET Team.
 def fake(login):
     """Add dummy data to the database."""
     fake = Faker()
-    session: Session = db.session
-
     import datetime as dt
 
     now = datetime.now()

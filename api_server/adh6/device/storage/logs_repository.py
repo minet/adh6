@@ -3,17 +3,14 @@
 Logs repository.
 """
 
-
-from typing import List
+import typing as t
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
-from adh6.constants import LOG_DEFAULT_LIMIT
 from adh6.entity import Device, Member
 
-from adh6.misc import get_mac_variations
-
-from ..interfaces.logs_repository import LogsRepository
+from ..utils import get_mac_variations
+from ..interfaces import LogsRepository
 
 
 class ElasticsearchLogsRepository(LogsRepository):
@@ -30,7 +27,7 @@ class ElasticsearchLogsRepository(LogsRepository):
 
         self.es = Elasticsearch(self.config['ELK_HOSTS'], http_auth=(self.config['ELK_USER'], self.config['ELK_SECRET']))
 
-    def get(self, member: Member, devices: List[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False):
+    def get(self, member: Member, devices: t.List[Device] = [], limit: int = 10, dhcp: bool = False):
         """
         Get the logs related to the username and to the devices.
         :param ctx:  context
