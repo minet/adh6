@@ -3411,6 +3411,8 @@ components:
           description: The date-time at which the subscription of this member expires
           format: date-time
           type: string
+          readOnly: true
+          nullable: true
         mailinglist:
           deprecated: true
           description: The number of the room this member lives in
@@ -3429,6 +3431,7 @@ components:
           type: string
         membership:
           type: string
+          readOnly: true
           nullable: true
           enum:
             - INITIAL

@@ -2703,6 +2703,7 @@ components:
         minimum: 0
         maximum: 100
         type: integer
+        format: int32
     skip:
       description: Skip the first n results
       in: query
@@ -2710,8 +2711,10 @@ components:
       required: false
       schema:
         default: 0
-        minimum: 0
         type: integer
+        minimum: 0
+        maximum: 1024
+        format: int64
     searchTerm:
       description: The generic search terms (will search in any field)
       in: query
@@ -3411,6 +3414,7 @@ components:
           description: The date-time at which the subscription of this member expires
           format: date-time
           type: string
+          readOnly: true
         mailinglist:
           deprecated: true
           description: The number of the room this member lives in
