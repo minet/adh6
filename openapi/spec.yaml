@@ -806,8 +806,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
     get:
@@ -828,8 +827,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}/subscription/:
@@ -1965,8 +1963,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /room/{id}/member/del/:
@@ -2000,8 +1997,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /room/member/{id}:
@@ -2030,8 +2026,7 @@ paths:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /switch/:
@@ -2073,8 +2068,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     post:
@@ -2103,8 +2097,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - switch
   /switch/{id}:
@@ -2126,8 +2119,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     get:
@@ -2152,8 +2144,7 @@ paths:
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     put:
@@ -2179,8 +2170,7 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - switch
   /vlan/:
@@ -2211,8 +2201,7 @@ paths:
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - vlan
   /transaction/:
@@ -2256,8 +2245,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     post:
@@ -2288,8 +2276,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}/upload/:
@@ -2317,8 +2304,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}/validate:
@@ -2341,8 +2327,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}:
@@ -2370,8 +2355,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     patch:
@@ -2397,8 +2381,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     delete:
@@ -2417,8 +2400,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /treasury/cashbox:
@@ -2449,8 +2431,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - treasury
   /treasury/bank:
@@ -2477,8 +2458,7 @@ paths:
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - treasury
   /role/:
@@ -2525,8 +2505,7 @@ paths:
         - OAuth2:
           - admin:read
           - admin:prod
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - authentication
     post:
@@ -2587,8 +2566,7 @@ paths:
         - OAuth2:
           - admin:write
           - admin:prod
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - authentication
   /api_keys/:
@@ -2729,6 +2707,9 @@ components:
       required: true
       schema:
         type: integer
+        format: int64
+        minimum: 0
+        maximum: 100000
         example: 0
     onlyDevice:
       description: Limit to specific attributes
@@ -2737,6 +2718,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 5
           type: string
           enum:
             - mac
@@ -2752,6 +2734,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 5
           type: string
           enum:
             - id
@@ -2767,6 +2750,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 4
           type: string
           enum:
             - id
@@ -2781,6 +2765,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 10
           type: string
           enum:
             - uuid
@@ -2801,6 +2786,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 5
           type: string
           enum:
             - id
@@ -2816,6 +2802,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 3
           type: string
           enum:
             - id
@@ -2829,6 +2816,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 4
           type: string
           enum:
             - id
@@ -2843,6 +2831,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 10
           type: string
           enum:
             - id
@@ -2863,6 +2852,7 @@ components:
       schema:
         type: array
         items:
+          maxItems: 10
           type: string
           enum:
             - id
@@ -2930,6 +2920,7 @@ components:
           description: When this status was last reported
     SubscriptionBody:
       type: object
+      additionalProperties: false
       properties:
         duration:
           description: The requested duration (in months) for this membership
@@ -2957,6 +2948,7 @@ components:
           nullable: true
     AbstractMembership:
       type: object
+      additionalProperties: false
       properties:
         uuid:
           description: The UUID associated with this membership request
@@ -3035,6 +3027,7 @@ components:
       type: object
     AbstractAccount:
       type: object
+      additionalProperties: false
       properties:
         actif:
           description: Whether this account is active or not
@@ -3095,6 +3088,7 @@ components:
       type: object
     AccountType:
       type: object
+      additionalProperties: false
       properties:
         id:
           example: 1
@@ -3105,6 +3099,7 @@ components:
           type: string
     AbstractTransaction:
       type: object
+      additionalProperties: false
       properties:
         id:
           readOnly: true
@@ -3174,6 +3169,7 @@ components:
       type: object
     AbstractPaymentMethod:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this payment method
@@ -3204,6 +3200,7 @@ components:
       type: object
     AbstractProduct:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this product
@@ -3233,6 +3230,7 @@ components:
       type: object
     DeviceFilter:
       type: object
+      additionalProperties: false
       properties:
         connectionType:
           description: The connection type of this device
@@ -3248,6 +3246,7 @@ components:
           type: string
     AbstractDevice:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this device
@@ -3291,6 +3290,7 @@ components:
       type: object
     DeviceBody:
       type: object
+      additionalProperties: false
       required:
         - connectionType
         - mac
@@ -3314,6 +3314,7 @@ components:
           type: integer
     Comment:
       type: object
+      additionalProperties: false
       required:
         - comment
       properties:
@@ -3325,6 +3326,7 @@ components:
           description: Comment
     MemberFilter:
       type: object
+      additionalProperties: false
       properties:
         membership:
           type: string
@@ -3366,6 +3368,7 @@ components:
           example: 192.168.0.1
     MemberBody:
       type: object
+      additionalProperties: false
       properties:
         username:
           type: string
@@ -3382,6 +3385,7 @@ components:
           format: email
     AbstractMember:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this member
@@ -3468,6 +3472,7 @@ components:
       type: object
     AbstractRoom:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this room
@@ -3497,6 +3502,7 @@ components:
       type: object
     AbstractPort:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this port
@@ -3532,6 +3538,7 @@ components:
       type: object
     AbstractSwitch:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this switch
@@ -3563,6 +3570,7 @@ components:
       type: object
     AbstractVlan:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this vlan
@@ -3595,6 +3603,7 @@ components:
       type: object
     Error:
       type: object
+      additionalProperties: false
       properties:
         code:
           description: The error code
@@ -3606,6 +3615,7 @@ components:
           example: Not found
     ApiKey:
       type: object
+      additionalProperties: false
       required:
         - id
         - login
@@ -3622,6 +3632,7 @@ components:
           nullable: false
     RoleMapping:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: integer
@@ -3656,8 +3667,9 @@ components:
     OAuth2:
       type: oauth2
       flows:
-        implicit:
+        authorizationCode:
           authorizationUrl: https://cas.minet.net/oidc/authorize
+          tokenUrl: https://cas.minet.net/oidc/token
           scopes:
             profile: The user's basic information, including groups they are a part of
     ApiKeyAdminAuth:
