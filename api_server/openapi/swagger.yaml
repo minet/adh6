@@ -2304,9 +2304,18 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - room
-  /room/{id}:
+  /room/{roomNumber}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - description: The number of the room that need to be fetched.
+        in: path
+        name: roomNumber
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 8000
+          example: 0
     delete:
       responses:
         '204':
@@ -2397,9 +2406,18 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - room
-  /room/{id}/member/:
+  /room/{roomNumber}/member/:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - description: The number of the room that need to be fetched.
+        in: path
+        name: roomNumber
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 8000
+          example: 0
     get:
       responses:
         '200':

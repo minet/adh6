@@ -54,6 +54,11 @@ class RoomSQLRepository(RoomRepository):
         session.execute(smt)
 
     @log_call
+    def get_by_number(self, room_number: int) -> t.Union[Room, None]:
+        obj = session.query(Chambre).filter(Chambre.numero == room_number).one_or_none()
+        return _map_room_sql_to_entity(obj) if obj else None
+
+    @log_call
     def get_by_id(self, object_id: int) -> AbstractRoom:
         obj = session.query(Chambre).filter(Chambre.id == object_id).one_or_none()
         if obj is None:

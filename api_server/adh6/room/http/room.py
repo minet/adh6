@@ -19,8 +19,8 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
-        room = self.room_manager.get_by_id(id_)
+    def get(self, room_number: int, only: t.Optional[t.List[str]]=None):
+        room = self.room_manager.get_by_number(room_number)
         def remove(entity: t.Any) -> t.Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -32,30 +32,43 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def member_search(self, id_: int):
-        return self.room_manager.list_members(id_), 200
+    def put(self, room_number: int, body):
+        r = self.room_manager.get_by_number(room_number)
+        return super().put(body, r.id)
 
     @with_context
     @log_call
-    def member_post(self, id_: int, body):
-        self.room_manager.add_member(id_, body.get("id", -1))
+    def delete(self, room_number: int):
+        r = self.room_manager.get_by_number(room_number)
+        self.room_manager.delete(r.id)
         return NoContent, 204
 
     @with_context
     @log_call
-    def member_delete(self, id_: int, member_id: int):
-        self.room_manager.remove_member(id_, member_id)
+    def member_search(self, room_number: int):
+        return self.room_manager.list_members(room_number), 200
+
+    @with_context
+    @log_call
+    def member_post(self, room_number: int, body):
+        self.room_manager.add_member(room_number, body.get("id", -1))
         return NoContent, 204
 
     @with_context
     @log_call
-    def member_add_patch(self, id_: int, body):
-        return self.member_post(id_=id_, body=body)
+    def member_delete(self, room_number: int, member_id: int):
+        self.room_manager.remove_member(room_number, member_id)
+        return NoContent, 204
 
     @with_context
     @log_call
-    def member_del_patch(self, id_: int, member_id: int):
-        return self.member_delete(id_=id_, member_id=member_id)
+    def member_add_patch(self, room_number: int, body):
+        return self.member_post(room_number=room_number, body=body)
+
+    @with_context
+    @log_call
+    def member_del_patch(self, room_number: int, member_id: int):
+        return self.member_delete(room_number=room_number, member_id=member_id)
 
     @with_context
     @log_call

@@ -117,7 +117,7 @@ def test_room_filter_by_term(client, sample_room1):
 
 def test_room_get_valid_room(client, sample_room1):
     r = client.get(
-        f"{base_url}{sample_room1.id}",
+        f"{base_url}{sample_room1.numero}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -171,7 +171,7 @@ def test_room_put_update_room(client, sample_room1, sample_vlan):
         "description": "Chambre 5111"
     }
     r = client.put(
-        f"{base_url}{sample_room1.id}",
+        f"{base_url}{sample_room1.numero}",
         data=json.dumps(room),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -182,14 +182,14 @@ def test_room_put_update_room(client, sample_room1, sample_vlan):
 
 def test_room_delete_existant_room(client, sample_room1):
     r = client.delete(
-        f"{base_url}{sample_room1.id}",
+        f"{base_url}{sample_room1.numero}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
 
     s = db.session()
     q = s.query(Chambre)
-    q = q.filter(Chambre.id == sample_room1.id)
+    q = q.filter(Chambre.numero == sample_room1.numero)
     assert q.count() == 0
 
 
@@ -213,7 +213,7 @@ def test_room_add_member_unknown_room(client, sample_member):
 
 def test_room_add_member_unknown_member(client, sample_room1):
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": 4242}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -223,7 +223,7 @@ def test_room_add_member_unknown_member(client, sample_room1):
 
 def test_room_add_member(client, sample_room1, sample_member):
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -241,7 +241,7 @@ def test_room_member_not_in_room(client, sample_member):
 
 def test_room_member_in_room(client, sample_room1, sample_member):
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -258,7 +258,7 @@ def test_room_member_in_room(client, sample_room1, sample_member):
 
 def test_room_add_member_change_vlan_check_wired(client, sample_room1, sample_room2, sample_member, sample_vlan, sample_vlan69):
     r = client.post(
-        f"{base_url}{sample_room2.id}/member/",
+        f"{base_url}{sample_room2.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -266,7 +266,7 @@ def test_room_add_member_change_vlan_check_wired(client, sample_room1, sample_ro
     assert r.status_code == 204
     assert IPv4Address(db.session().execute(select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))).scalar()) in IPv4Network(sample_vlan69.adresses)
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -277,14 +277,14 @@ def test_room_add_member_change_vlan_check_wired(client, sample_room1, sample_ro
 
 def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
     r = client.delete(
-        f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
+        f"{base_url}{sample_room1.numero}/member/?memberId={sample_member.id}",
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert db.session().execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
     assert db.session().execute(select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))).scalar() == 'En attente'
     r = client.post(
-        f"{base_url}{sample_room2.id}/member/",
+        f"{base_url}{sample_room2.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -295,7 +295,7 @@ def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample
 
 def test_room_member_in_room_user_authorized(client, sample_room1, sample_member):
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
@@ -321,7 +321,7 @@ def test_room_delete_member_unknown_room(client, sample_member):
 
 def test_room_delete_member_unknown_member(client, sample_room1):
     r = client.delete(
-        f"{base_url}{sample_room1.id}/member/?memberId=4242",
+        f"{base_url}{sample_room1.numero}/member/?memberId=4242",
         content_type='application/json',
         headers=TEST_HEADERS,
     )
@@ -330,7 +330,7 @@ def test_room_delete_member_unknown_member(client, sample_room1):
 
 def test_room_delete_member(client, sample_room1, sample_member):
     r = client.delete(
-        f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
+        f"{base_url}{sample_room1.numero}/member/?memberId={sample_member.id}",
         content_type='application/json',
         headers=TEST_HEADERS,
     )
@@ -339,7 +339,7 @@ def test_room_delete_member(client, sample_room1, sample_member):
 
 def test_room_delete_member_unauthorized(client, sample_room1, sample_member):
     r = client.delete(
-        f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
+        f"{base_url}{sample_room1.numero}/member/?memberId={sample_member.id}",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS_SAMPLE,
@@ -349,14 +349,14 @@ def test_room_delete_member_unauthorized(client, sample_room1, sample_member):
 
 def test_room_list_member(client, sample_room1, sample_member):
     r = client.post(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         data=json.dumps({"id": sample_member.id}),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
     r = client.get(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -366,7 +366,7 @@ def test_room_list_member(client, sample_room1, sample_member):
 
 def test_room_list_member_unauthorized_user(client, sample_room1):
     r = client.get(
-        f"{base_url}{sample_room1.id}/member/",
+        f"{base_url}{sample_room1.numero}/member/",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

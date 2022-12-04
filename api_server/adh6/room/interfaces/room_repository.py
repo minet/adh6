@@ -8,6 +8,10 @@ from adh6.default import CRUDRepository
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):
     @abc.abstractmethod
+    def get_by_number(self, room_number: int) -> t.Union[Room, None]:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
     def get_from_member(self, member_id: int) -> t.Union[Room, None]:
         pass  # pragma: no cover
 
