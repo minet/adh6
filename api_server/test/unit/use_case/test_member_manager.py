@@ -9,10 +9,9 @@ from adh6.entity import AbstractMember, Member, Membership, MemberBody
 from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.device.interfaces import IpAllocator, LogsRepository, LogsRepository, DeviceRepository
-from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository, CharterRepository
-from adh6.member.notification_manager import NotificationManager
-from adh6.treasury import TransactionManager
-from adh6.treasury.interfaces import PaymentMethodRepository, AccountTypeRepository, AccountRepository
+from adh6.member.interfaces import MemberRepository, MembershipRepository
+from adh6.member import MailinglistManager
+from adh6.treasury import AccountManager, AccountTypeManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
 
@@ -62,11 +61,13 @@ class TestGetByID:
     def test_happy_path(self,
                         mock_member_repository: MemberRepository,
                         mock_membership_repository: MembershipRepository,
+                        mock_subscription_manager: SubscriptionManager,
                         sample_member: Member,
                         member_manager: MemberManager):
         # Given...
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
         mock_membership_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_manager.latest = MagicMock(return_value=(None))
 
         # When...
         result = member_manager.get_by_id(id=sample_member.id)
@@ -128,11 +129,11 @@ class TestNewMember:
 
     def test_no_account_type_adherent(self,
                         mock_member_repository: MemberRepository,
-                        mock_account_type_repository: AccountTypeRepository,
+                        mock_account_type_manager: AccountTypeManager,
                         member_manager: MemberManager):
         # Given...
         mock_member_repository.get_by_login = MagicMock(return_value=(None))
-        mock_account_type_repository.search_by = MagicMock(return_value=([], 0))
+        mock_account_type_manager.search = MagicMock(return_value=([], 0))
 
         # When...
         with pytest.raises(AccountTypeNotFoundError):
@@ -141,7 +142,7 @@ class TestNewMember:
                                   ))
 
         # Expect...
-        mock_account_type_repository.search_by.assert_called_once_with(terms="Adhérent")
+        mock_account_type_manager.search.assert_called_once_with(terms="Adhérent")
 
 
 class TestCreateOrUpdate:
@@ -160,12 +161,14 @@ class TestCreateOrUpdate:
         mock_member_repository.create.assert_called_once_with(sample_mutation_request)
 
     def test_update_happy_path(self,
-                               mock_member_repository: MagicMock,
+                               mock_member_repository: MemberRepository,
                                sample_mutation_request: AbstractMember,
+                               mock_subscription_manager: SubscriptionManager,
                                sample_member: Member,
                                member_manager: MemberManager):
         # Given that there is a user in the DB (user will be updated).
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
+        mock_subscription_manager.latest = MagicMock(return_value=(None))
 
         # Given a request that updates some fields.
         req = sample_mutation_request
@@ -288,6 +291,7 @@ class TestGetLogs:
 @fixture
 def sample_mutation_request(faker):
     return AbstractMember(
+        id=0,
         username=faker.user_name(),
         email=faker.email(),
         first_name=faker.first_name(),
@@ -310,73 +314,42 @@ def mock_device_ip_manager():
 @fixture
 def member_manager(
         mock_member_repository,
-        mock_account_repository,
-        mock_account_type_repository,
-        subscription_manager,
-        mock_mailinglist_repository,
+        mock_account_manager,
+        mock_account_type_manager,
+        mock_subscription_manager,
+        mock_mailinglist_manager,
         mock_device_logs_manager,
         mock_device_ip_manager,
 ):
     return MemberManager(
         member_repository=mock_member_repository,
-        account_repository=mock_account_repository,
-        account_type_repository=mock_account_type_repository,
+        account_manager=mock_account_manager,
+        account_type_manager=mock_account_type_manager,
         device_ip_manager=mock_device_ip_manager,
         device_logs_manager=mock_device_logs_manager,
-        mailinglist_repository=mock_mailinglist_repository,
-        subscription_manager=subscription_manager
+        mailinglist_manager=mock_mailinglist_manager,
+        subscription_manager=mock_subscription_manager
     )
 
 
 @fixture
-def subscription_manager(
-        mock_member_repository,
-        mock_membership_repository,
-        mock_charter_repository,
-        mock_account_repository,
-        mock_payment_method_repository,
-        mock_transaction_manager,
-        mock_notification_manager,
-):
-    return SubscriptionManager(
-        member_repository=mock_member_repository,
-        membership_repository=mock_membership_repository,
-        charter_repository=mock_charter_repository,
-        notification_manager=mock_notification_manager,
-        transaction_manager=mock_transaction_manager,
-        payment_method_repository=mock_payment_method_repository,
-        account_repository=mock_account_repository
-    )
+def mock_subscription_manager():
+    return MagicMock(spec=SubscriptionManager)
 
 
 @fixture
-def mock_mailinglist_repository():
-    return MagicMock(spec=MailinglistRepository)
+def mock_mailinglist_manager():
+    return MagicMock(spec=MailinglistManager)
 
 
 @fixture
-def mock_notification_manager():
-    return MagicMock(spec=NotificationManager)
+def mock_account_manager():
+    return MagicMock(spec=AccountManager)
 
 
 @fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)
-
-
-@fixture
-def mock_account_type_repository():
-    return MagicMock(spec=AccountTypeRepository)
-
-
-@fixture
-def mock_transaction_manager():
-    return MagicMock(spec=TransactionManager)
-
-
-@fixture
-def mock_payment_method_repository():
-    return MagicMock(spec=PaymentMethodRepository)
+def mock_account_type_manager():
+    return MagicMock(spec=AccountTypeManager)
 
 
 @fixture
@@ -387,11 +360,6 @@ def mock_member_repository():
 @fixture
 def mock_membership_repository():
     return MagicMock(spec=MembershipRepository)
-
-
-@fixture
-def mock_charter_repository():
-    return MagicMock(spec=CharterRepository)
 
 
 @fixture

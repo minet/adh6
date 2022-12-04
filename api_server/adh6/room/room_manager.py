@@ -5,6 +5,7 @@ from adh6.decorator import log_call
 from adh6.exceptions import NotFoundError, RoomNotFoundError
 from adh6.default import CRUDManager
 from adh6.member import MemberManager
+from adh6.entity import Room
 
 from .interfaces import RoomRepository
 
@@ -63,8 +64,8 @@ class RoomManager(CRUDManager):
         return self.room_repository.get_members(room_id=room_id)
 
     @log_call
-    def room_from_member(self, member_id: int) -> int:
+    def room_from_member(self, member_id: int) -> Room:
         room = self.room_repository.get_from_member(member_id)
         if not room:
             raise RoomNotFoundError()
-        return room.id
+        return room

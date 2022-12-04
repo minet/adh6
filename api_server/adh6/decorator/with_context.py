@@ -26,7 +26,6 @@ def with_context(f):
         from adh6.storage import session
         try:
             result = f(*args, **kwargs)
-
             # It makes things clearer and less error-prone.
             if not isinstance(result, tuple) or len(result) <= 1:
                 raise ValueError("Please always pass the result AND the HTTP code.")
@@ -36,10 +35,9 @@ def with_context(f):
                 session.commit()
             else:
                 raise Exception()
-            return result
-
         except Exception as e:
             session.rollback()
             return handle_error(e)
+        return result
 
     return wrapper

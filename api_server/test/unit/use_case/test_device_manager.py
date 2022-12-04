@@ -7,43 +7,43 @@ from adh6.entity import AbstractDevice, DeviceBody, Member, Room
 from adh6.exceptions import InvalidMACAddress, MemberNotFoundError
 from adh6.device import DeviceManager, DeviceIpManager
 from adh6.device.interfaces import DeviceRepository
-from adh6.member.interfaces import MemberRepository
-from adh6.room.interfaces import RoomRepository
+from adh6.member import MemberManager
+from adh6.room import RoomManager
 
 
 @fixture
 def device_manager(
         mock_device_ip_manager: DeviceIpManager,
         mock_device_repository: DeviceRepository,
-        mock_member_repository: MemberRepository,
-        mock_room_repository: RoomRepository
+        mock_member_manager: MemberManager,
+        mock_room_manager: RoomManager
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
         device_ip_manager=mock_device_ip_manager,
-        member_repository=mock_member_repository,
-        room_repository=mock_room_repository
+        member_manager=mock_member_manager,
+        room_manager=mock_room_manager
     )
 
 
 class TestUpdateOrCreate:
     def test_create_happy_path(self,
                                mock_device_repository: DeviceRepository,
-                               mock_member_repository: MemberRepository,
-                               mock_room_repository: RoomRepository,
+                               mock_member_manager: MemberManager,
+                               mock_room_manager: RoomManager,
                                sample_member: Member,
                                sample_room: Room,
                                sample_device: AbstractDevice,
                                device_manager: DeviceManager):
         # That the owner exists:
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
+        mock_member_manager.get_by_id = MagicMock(return_value=(sample_member))
 
         # That the device does not exist in the DB:
         mock_device_repository.get_by_mac = MagicMock(return_value=(None))
         # That the device does not exist in the DB:
         mock_device_repository.search_by = MagicMock(return_value=([], 0))
         # That the owner has a room (needed to get the ip range to allocate the IP):
-        mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
+        mock_room_manager.search_by = MagicMock(return_value=([sample_room], 1))
         # That the owner has a room (needed to get the ip range to allocate the IP):
         mock_device_repository.create = MagicMock(return_value=(sample_device))
 
@@ -56,7 +56,7 @@ class TestUpdateOrCreate:
         #mock_device_repository.create.assert_called_once_with(sample_device)
 
     def test_invalid_mac(self,
-                         mock_device_repository: MagicMock,
+                         mock_device_repository: DeviceRepository,
                          device_manager: DeviceManager):
 
         # When...
@@ -68,11 +68,11 @@ class TestUpdateOrCreate:
 
     @mark.skip(reason="Should we implement the relations logic in the managers ?")
     def test_bad_member(self,
-                        mock_member_repository: MemberRepository,
-                        mock_device_repository: MagicMock,
+                        mock_member_manager: MemberManager,
+                        mock_device_repository: DeviceRepository,
                         device_manager: DeviceManager):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None))
+        mock_member_manager.get_by_id = MagicMock(return_value=(None))
 
         # When...
         with raises(MemberNotFoundError):
@@ -89,13 +89,13 @@ def mock_device_ip_manager():
 
 
 @fixture
-def mock_member_repository():
-    return MagicMock(spec=MemberRepository)
+def mock_member_manager():
+    return MagicMock(spec=MemberManager)
 
 
 @fixture
-def mock_room_repository():
-    return MagicMock(spec=RoomRepository)
+def mock_room_manager():
+    return MagicMock(spec=RoomManager)
 
 
 @fixture

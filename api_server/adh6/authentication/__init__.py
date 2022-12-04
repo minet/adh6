@@ -60,7 +60,6 @@ def token_info(access_token) -> t.Optional[t.Dict[str, t.Any]]:
     uid = role_repository.user_id_from_username(login=infos[user_id])
     if not uid:
         raise Unauthorized('invalid token')
-
     roles = [ 
         i.role for i in role_repository.find(
             method=AuthenticationMethod.OIDC, 

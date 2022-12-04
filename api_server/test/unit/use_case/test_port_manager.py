@@ -42,12 +42,12 @@ class TestCreate:
 class TestUpdate:
 
     def test_unknown_room(self,
-                          mock_port_repository,
+                          mock_port_repository: PortRepository,
                           sample_port: Port,
                           port_manager: PortManager):
         # Given...
         mock_port_repository.update = MagicMock(side_effect=RoomNotFoundError)
-        mock_port_repository.search_by = MagicMock(return_value=([sample_port], 1))
+        mock_port_repository.get_by_id = MagicMock(return_value=(sample_port))
 
         # When...
         with raises(RoomNotFoundError):
@@ -57,12 +57,12 @@ class TestUpdate:
         mock_port_repository.update.assert_called_once()
 
     def test_unknown_switch(self,
-                            mock_port_repository,
+                            mock_port_repository: PortRepository,
                             sample_port: Port,
                             port_manager: PortManager):
         # Given...
         mock_port_repository.update = MagicMock(side_effect=SwitchNotFoundError)
-        mock_port_repository.search_by = MagicMock(return_value=([sample_port], 1))
+        mock_port_repository.get_by_id = MagicMock(return_value=(sample_port))
 
         # When...
         with raises(SwitchNotFoundError):

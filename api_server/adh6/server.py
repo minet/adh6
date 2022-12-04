@@ -174,7 +174,7 @@ def get_obj_graph():
     )
 
 
-def init() -> FlaskApp:
+def init(testing: bool = False) -> FlaskApp:
     environment = os.environ.get('ENVIRONMENT', 'default').lower()
     if environment == "default" or environment not in config:
         raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development, testing")
@@ -229,12 +229,13 @@ def init() -> FlaskApp:
     setup_login()
 
     db.init_app(app.app)
-    
-    Migrate(app.app, db)
 
-    from flask_migrate import upgrade
-    upgrade()
-    treasury_init()
-    authentication_init()
+    if not testing:    
+        Migrate(app.app, db)
+
+        from flask_migrate import upgrade
+        upgrade()
+        treasury_init()
+        authentication_init()
 
     return app

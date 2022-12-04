@@ -5,7 +5,7 @@ import os
 os.environ["ENVIRONMENT"] = "testing"
 #os.environ["TOKENINFO_FUNC"] = "test.auth.token_info"
 
-app = server.init()
+app = server.init(testing=True)
 
 from datetime import datetime, timedelta
 

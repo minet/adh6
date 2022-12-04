@@ -79,7 +79,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    def get_profile(self) -> t.Tuple[AbstractMember, t.List[str]]:
+    def get_profile(self) -> t.Tuple[Member, t.List[str]]:
         from adh6.context import get_user, get_roles
         m = self.member_repository.get_by_id(get_user())
         if not m:

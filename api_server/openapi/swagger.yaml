@@ -27,8 +27,31 @@ paths:
       responses:
         '200':
           description: ADH6 is alive!
+          content:
+            application/json:
+              schema:
+                type: string
+                default: ""
+                minimum: 0
+                maxLength: 255
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '503':
           description: Database is down.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        default:
+          $ref: '#/components/responses/DefaultError'
       security: 
         - OAuth2:
           - admin:read
@@ -47,6 +70,8 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                additionalProperties: false
                 properties:
                   member:
                     $ref: '#/components/schemas/Member'
@@ -54,10 +79,20 @@ paths:
                     type: array
                     items:
                       type: string
-        '403':
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'      
+          $ref: '#/components/responses/DefaultError'      
       security: 
         - OAuth2:
           - user
@@ -88,18 +123,30 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractAccount'
                 type: array
+                maxItems: 100
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Filter accounts
       security: 
         - OAuth2:
@@ -123,11 +170,19 @@ paths:
                 $ref: '#/components/schemas/Account'
           description: The created account
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Create an account
       security: 
         - OAuth2:
@@ -149,13 +204,19 @@ paths:
                 $ref: '#/components/schemas/AbstractAccount'
           description: The fetched account
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Retrieve an account
       security: 
         - OAuth2:
@@ -175,13 +236,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Udate an account
       security: 
         - OAuth2:
@@ -203,15 +270,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/AccountType'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError' 
       summary: Filter account types
       security: 
         - OAuth2:
@@ -231,13 +314,19 @@ paths:
                 $ref: '#/components/schemas/AccountType'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Retrieve an account type
       security: 
         - OAuth2:
@@ -264,20 +353,35 @@ paths:
               schema:
                 items:
                   type: integer
+                  format: int64
                   minimum: 0
+                  maximum: 100000
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
+                example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Return the list of the device ids
       security: 
         - OAuth2:
@@ -301,14 +405,25 @@ paths:
             application/json:
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100000
                 example: 0
           description: The id of the created device
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Create a device
       security: 
         - OAuth2:
@@ -327,13 +442,19 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Delete a device
       security: 
         - OAuth2:
@@ -352,13 +473,19 @@ paths:
                 $ref: '#/components/schemas/AbstractDevice'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError' 
       summary: Retrieve a device
       security: 
         - OAuth2:
@@ -381,13 +508,19 @@ paths:
                 type: string
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the vendor of a device based on its MAC
       security: 
         - OAuth2:
@@ -410,13 +543,19 @@ paths:
                 type: boolean
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retreive the MAB of the device
       security: 
         - OAuth2:
@@ -436,13 +575,19 @@ paths:
                 type: boolean
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the MAB of the device
       security: 
         - OAuth2:
@@ -460,15 +605,26 @@ paths:
             application/json:
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100000
                 example: 0
                 nullable: true
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Get user of the device
       security: 
         - OAuth2:
@@ -496,19 +652,35 @@ paths:
               schema:
                 items:
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
+                example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter members
       security: 
         - OAuth2:
@@ -531,14 +703,25 @@ paths:
               schema:
                 description: The id of the created user
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100000
                 example: 1
           description: The created account
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a member
       security: 
         - OAuth2:
@@ -554,13 +737,19 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a member
       security: 
         - OAuth2:
@@ -579,13 +768,19 @@ paths:
                 $ref: '#/components/schemas/AbstractMember'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a member
       security: 
         - OAuth2:
@@ -607,13 +802,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Partially update a member
       security: 
         - OAuth2:
@@ -641,13 +842,22 @@ paths:
                   example: 2018-07-14T04:44:51.537Z Password OK
                   type: string
                 type: array
+                maxItems: 100
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the most recent logs of a member
       security: 
         - OAuth2:
@@ -666,13 +876,22 @@ paths:
                 items:
                   $ref: '#/components/schemas/MemberStatus'
                 type: array
+                maxItems: 100
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieves some common status updates concerning a member
       security: 
         - OAuth2:
@@ -690,6 +909,8 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              additionalProperties: false
               properties:
                 password:
                   example: '&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;'
@@ -701,20 +922,25 @@ paths:
                   type: string
                   format: md4
                   description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
-              type: object
         description: The new value for the password, either in plaintext or pre-hashed client-side
         required: true
       responses:
         '204':
           description: Modified
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the password of a member
       security: 
         - OAuth2:
@@ -747,11 +973,19 @@ paths:
                 format: date-time
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieves if the hosting charter has been signed
       security: 
         - OAuth2:
@@ -768,11 +1002,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update if the hosting/MiNET charter has been signed
       security: 
         - OAuth2:
@@ -795,19 +1037,24 @@ paths:
         '204':
           description: Modified
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the comment of a member
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - member
     get:
@@ -819,17 +1066,24 @@ paths:
                 $ref: '#/components/schemas/Comment'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieves the comment of the user
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - member
   /member/{id}/subscription/:
@@ -851,13 +1105,19 @@ paths:
                 $ref: '#/components/schemas/Membership'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Add a membership record for a member
       security: 
         - OAuth2:
@@ -877,13 +1137,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Add a membership record for a member
       security: 
         - OAuth2:
@@ -906,13 +1172,19 @@ paths:
         '204':
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Validate a pending transaction
       security: 
         - OAuth2:
@@ -938,22 +1210,37 @@ paths:
             application/json:
               schema:
                 type: array
+                maxItems: 2
                 items:
                   type: integer
+                  format: int64
                   minimum: 0
+                  maximum: 100000
+                  example: 0
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
           description: number of member that have signed the charter
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: List of the members that have signed the charter
       security: 
         - OAuth2:
@@ -978,11 +1265,19 @@ paths:
         '201':
           description: Signed
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Sign the specific charter
       security: 
         - OAuth2:
@@ -1002,11 +1297,19 @@ paths:
                 format: date-time
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retreive the signature date of the specific charter
       security: 
         - OAuth2:
@@ -1027,15 +1330,25 @@ paths:
               schema:
                 description: The value of the mailinglist (see documentation for more information)
                 type: integer
+                format: int32
                 minimum: 0
                 maximum: 255
+                example: 0
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retreive mailinglist memberships of the specific member
       security: 
         - OAuth2:
@@ -1053,10 +1366,12 @@ paths:
               required:
                 - value
               type: object
+              additionalProperties: false
               properties:
                 value:
                   description: the value of the subscription
                   type: integer
+                  format: int64
                   example: 1
                   minimum: 0
                   maximum: 255
@@ -1065,11 +1380,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the mailing list membership of the member
       security:
         - OAuth2:
@@ -1087,6 +1410,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int64
           minimum: 0
           maximum: 255
     get:
@@ -1097,16 +1421,28 @@ paths:
               schema:
                 description: The id of the members that are subscribe to the mailinglist
                 type: array
+                maxItems: 1000
                 items:
                   description: Id of a member
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retreive the members of a specific mailinglist memberships
       security: 
         - OAuth2:
@@ -1128,15 +1464,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/PaymentMethod'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
       summary: Filter payment methods
       security: 
         - OAuth2:
@@ -1156,13 +1508,19 @@ paths:
                 $ref: '#/components/schemas/PaymentMethod'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a payment method
       security: 
         - OAuth2:
@@ -1192,21 +1550,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractPort'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter ports
       security: 
         - OAuth2:
@@ -1223,20 +1591,26 @@ paths:
         description: The port to create
         required: true
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Port'
           description: The created port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a port
       security: 
         - OAuth2:
@@ -1252,13 +1626,19 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a port
       security: 
         - OAuth2:
@@ -1277,13 +1657,19 @@ paths:
                 $ref: '#/components/schemas/AbstractPort'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a port
       security: 
         - OAuth2:
@@ -1303,9 +1689,19 @@ paths:
         '204':
           description: Updated
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
-          description: Not found
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
       summary: Update a port
       security: 
         - OAuth2:
@@ -1326,13 +1722,19 @@ paths:
                 type: boolean
           description: Whether MAB is enabled on this port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve whether MAB is enabled on this port
       security: 
         - OAuth2:
@@ -1349,13 +1751,19 @@ paths:
                 type: boolean
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the state of MAB on a port
       security: 
         - OAuth2:
@@ -1376,13 +1784,19 @@ paths:
                 type: string
           description: Check the alias of the port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the alias on a port
       security: 
         - OAuth2:
@@ -1403,13 +1817,19 @@ paths:
                 type: string
           description: Check if the port is currently used
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the current use of a port
       security: 
         - OAuth2:
@@ -1430,13 +1850,19 @@ paths:
                 type: string
           description: Check the speed of the port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the speed on a port
       security: 
         - OAuth2:
@@ -1457,13 +1883,19 @@ paths:
                 type: boolean
           description: Whether authentication is enabled on this port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve whether authentication is enabled on this port
       security: 
         - OAuth2:
@@ -1480,13 +1912,19 @@ paths:
                 type: boolean
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the state of authentication on a port
       security: 
         - OAuth2:
@@ -1507,13 +1945,19 @@ paths:
                 type: boolean
           description: Whether the port is active
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the state of a port
       security: 
         - OAuth2:
@@ -1530,13 +1974,19 @@ paths:
                 type: boolean
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the state of a port
       security: 
         - OAuth2:
@@ -1554,17 +2004,26 @@ paths:
           content:
             application/json:
               schema:
-                example: 48
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 4096
+                example: 48
           description: The VLAN assigned to this port
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the VLAN assigned to a port
       security: 
         - OAuth2:
@@ -1577,22 +2036,31 @@ paths:
         content:
           application/json:
             schema:
-              example: 48
               nullable: true
               type: integer
+              format: int64
+              minimum: 0
+              maximum: 4096
+              example: 48
         description: The VLAN to assign. Set to `null` to simply restore to the default VLAN
         required: true
       responses:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update the VLAN assigned to a port
       security: 
         - OAuth2:
@@ -1621,15 +2089,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/Product'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
       summary: Filter products
       security: 
         - OAuth2:
@@ -1649,13 +2133,19 @@ paths:
                 $ref: '#/components/schemas/Product'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a product
       security: 
         - OAuth2:
@@ -1671,14 +2161,23 @@ paths:
         required: true
         schema:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 100000
+          example: 0
       - description: List of the products to add in the transaction
         in: query
         name: products
         required: true
         schema:
           type: array
+          maxItems: 10
           items:
             type: integer
+            format: int64
+            minimum: 0
+            maximum: 100000
+            example: 0
         explode: false
       - description: Payment Method used to buy the products
         in: query
@@ -1686,18 +2185,28 @@ paths:
         required: true
         schema:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 100000
+          example: 0
     post:
       responses:
         '204':
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Generate a new transaction for a product
       security: 
         - OAuth2:
@@ -1727,19 +2236,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractRoom'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter rooms
       security: 
         - OAuth2:
@@ -1756,18 +2277,26 @@ paths:
         description: The room to create
         required: true
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
           description: The created room
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a room
       security: 
         - OAuth2:
@@ -1783,13 +2312,19 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a room
       security: 
         - OAuth2:
@@ -1808,13 +2343,19 @@ paths:
                 $ref: '#/components/schemas/AbstractRoom'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a room
       security: 
         - OAuth2:
@@ -1836,13 +2377,19 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update a room
       security: 
         - OAuth2:
@@ -1862,15 +2409,27 @@ paths:
                 items:
                   description: id of the member in the room
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
                   example: 0
                 type: array
+                maxItems: 100
           description: OK
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: List the members in a room
       security: 
         - OAuth2:
@@ -1886,21 +2445,33 @@ paths:
               required:
                 - id
               type: object
+              additionalProperties: false
               properties:
                 id:
                   description: Id of the member to add
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000 
                   example: 1
         required: true
       responses:
         '204':
           description: The member has been added
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Add a member in a room
       security: 
         - OAuth2:
@@ -1915,17 +2486,28 @@ paths:
         name: memberId
         schema:
           type: integer
-          format: int32
+          format: int64
+          minimum: 0
+          maximum: 100000
+          example: 0
         required: true
       responses:
         '204':
           description: The member has been removed
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Remove a member from a room
       security: 
         - OAuth2:
@@ -1945,10 +2527,14 @@ paths:
               required:
                 - id
               type: object
+              additionalProperties: false
               properties:
                 id:
                   description: Id of the member to remove
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
                   example: 1
         description: The member to add
         required: true
@@ -1956,17 +2542,24 @@ paths:
         '204':
           description: The member has been added
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Add a member in a room
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /room/{id}/member/del/:
@@ -1981,27 +2574,38 @@ paths:
               required:
                 - id
               type: object
+              additionalProperties: false
               properties:
                 id:
                   description: Id of the member to remove
                   type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
                   example: 1
         required: true
       responses:
         '204':
           description: The member has been removed
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Remove a member from a room
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /room/member/{id}:
@@ -2015,23 +2619,33 @@ paths:
               schema:
                 description: id of the room the member is in
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100000
                 example: 0
                 nullable: true
           description: OK
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: List the members in a room
       security: 
         - OAuth2:
           - user
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - room members
   /switch/:
@@ -2056,25 +2670,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractSwitch'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter switches
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     post:
@@ -2087,24 +2712,31 @@ paths:
         description: The switch to create
         required: true
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Switch'
           description: The created switch
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a switch
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - switch
   /switch/{id}:
@@ -2115,19 +2747,24 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a switch
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     get:
@@ -2141,19 +2778,24 @@ paths:
                 $ref: '#/components/schemas/AbstractSwitch'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a switch
       security: 
         - OAuth2:
           - admin:read
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - switch
     put:
@@ -2168,19 +2810,24 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Update a switch
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - switch
   /vlan/:
@@ -2191,6 +2838,10 @@ paths:
         name: vlan_number
         schema:
           type: integer
+          format: int64
+          minimum: 0
+          maximum: 4096
+          example: 0
         required: true
         description: Number of the Vlan
       - $ref: '#/components/parameters/onlyVlan'
@@ -2202,17 +2853,24 @@ paths:
                 $ref: '#/components/schemas/AbstractVlan'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter vlans
       security: 
         - OAuth2:
           - network:read
-        - ApiKeyNetworkAuth:
-          - network:read
+        - ApiKeyNetworkAuth: []
       tags:
       - vlan
   /transaction/:
@@ -2237,27 +2895,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/AbstractTransaction'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
-                example: 0
+                format: int64
+                minimum: 0
+                maximum: 100
+                example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter transactions
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     post:
@@ -2277,19 +2944,24 @@ paths:
                 $ref: '#/components/schemas/Transaction'
           description: The created transaction
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a transaction
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}/upload/:
@@ -2306,19 +2978,24 @@ paths:
         '204':
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Upload an attachment to a transaction
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}/validate:
@@ -2330,19 +3007,24 @@ paths:
         '204':
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Validate a pending transaction
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /transaction/{id}:
@@ -2359,19 +3041,24 @@ paths:
                 $ref: '#/components/schemas/AbstractTransaction'
           description: Success
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve a transaction
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     patch:
@@ -2386,19 +3073,24 @@ paths:
         '204':
           description: Updated
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Partially update a transaction
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
     delete:
@@ -2406,19 +3098,24 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
       security: 
         - OAuth2:
           - treasurer:write
-        - ApiKeyTreasuryAuth:
-          - treasurer:write
+        - ApiKeyTreasuryAuth: []
       tags:
       - transaction
   /treasury/cashbox:
@@ -2429,6 +3126,8 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                additionalProperties: false
                 properties:
                   fond:
                     description: balance in the cashbox
@@ -2438,19 +3137,27 @@ paths:
                     description: balance in the coffre
                     example: 1
                     type: number
-                type: object
                 title: cashbox
           description: Success
-        '403':
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the state of the cashbox
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - treasury
   /treasury/bank:
@@ -2461,24 +3168,34 @@ paths:
           content:
             application/json:
               schema:
+                type: object
+                additionalProperties: false
                 properties:
                   expectedCav:
                     description: the expected balance of MiNET's CAV accunt
                     type: number
                     format: double
-                type: object
                 title: bank
           description: Success
-        '403':
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Retrieve the expected state of MiNET's bank accounts
       security: 
         - OAuth2:
           - treasurer:read
-        - ApiKeyTreasuryAuth:
-          - treasurer:read
+        - ApiKeyTreasuryAuth: []
       tags:
       - treasury
   /role/:
@@ -2507,26 +3224,37 @@ paths:
                 items:
                   $ref: '#/components/schemas/RoleMapping'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Filter roles
       security: 
         - OAuth2:
           - admin:read
           - admin:prod
-        - ApiKeyAdminAuth:
-          - admin:read
+        - ApiKeyAdminAuth: []
       tags:
       - authentication
     post:
@@ -2535,9 +3263,11 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               properties:
                 roles:
                   type: array
+                  maxItems: 100
                   items:
                     $ref: '#/components/schemas/Role'
                 identifier:
@@ -2555,11 +3285,19 @@ paths:
         '201':
           description: OK
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create a temporary role for a user
       security: 
         - OAuth2:
@@ -2575,20 +3313,25 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete a Role
       security: 
         - OAuth2:
           - admin:write
           - admin:prod
-        - ApiKeyAdminAuth:
-          - admin:write
+        - ApiKeyAdminAuth: []
       tags:
       - authentication
   /api_keys/:
@@ -2610,19 +3353,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/ApiKey'
                 type: array
+                maxItems: 100
           description: Success
           headers:
             X-Total-Count:
               description: Total count of filtered entities
               schema:
                 type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
                 example: 25
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: List api keys
       security: 
         - OAuth2:
@@ -2636,6 +3391,7 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties: false
               required:
                 - login
                 - roles
@@ -2644,6 +3400,7 @@ paths:
                   type: string
                 roles:
                   type: array
+                  maxItems: 100
                   items:
                     $ref: '#/components/schemas/Role'
         description: The room to create
@@ -2657,11 +3414,19 @@ paths:
                 format: uuid
           description: The value of the Api Key
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Create an ApiKey
       security: 
         - OAuth2:
@@ -2677,13 +3442,19 @@ paths:
         '204':
           description: Deleted
         '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
+          $ref: '#/components/responses/Invalid'  
+        '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: '#/components/responses/DefaultError'
       summary: Delete an Api Key
       security: 
         - OAuth2:
@@ -2699,19 +3470,22 @@ components:
       name: limit
       required: false
       schema:
-        default: 25
+        type: integer
+        format: int32
         minimum: 0
         maximum: 100
-        type: integer
+        default: 25
     skip:
       description: Skip the first n results
       in: query
       name: offset
       required: false
       schema:
-        default: 0
-        minimum: 0
         type: integer
+        format: int64
+        minimum: 0
+        maximum: 1024
+        default: 0
     searchTerm:
       description: The generic search terms (will search in any field)
       in: query
@@ -2719,6 +3493,9 @@ components:
       required: false
       schema:
         type: string
+        minLength: 0
+        maxLength: 255
+        example: ""
     idPath:
       description: The id of the account that needs to be fetched.
       in: path
@@ -2726,6 +3503,9 @@ components:
       required: true
       schema:
         type: integer
+        format: int64
+        minimum: 0
+        maximum: 100000
         example: 0
     onlyDevice:
       description: Limit to specific attributes
@@ -2733,6 +3513,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 5
         items:
           type: string
           enum:
@@ -2748,6 +3529,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 5
         items:
           type: string
           enum:
@@ -2763,6 +3545,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 4
         items:
           type: string
           enum:
@@ -2777,6 +3560,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 10
         items:
           type: string
           enum:
@@ -2797,6 +3581,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 5
         items:
           type: string
           enum:
@@ -2812,6 +3597,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 3
         items:
           type: string
           enum:
@@ -2825,6 +3611,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 4
         items:
           type: string
           enum:
@@ -2839,6 +3626,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 10
         items:
           type: string
           enum:
@@ -2859,6 +3647,7 @@ components:
       name: only
       schema:
         type: array
+        maxItems: 10
         items:
           type: string
           enum:
@@ -2874,33 +3663,58 @@ components:
             - pinned
       explode: false
   responses:
+    DefaultError:
+      description: "Unhandled error"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     NotFound:
       description: The specified resource was not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorMessage'
+    Forbiden:
+      description: The user is not logged-in
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     Unauthorized:
       description: The user has insufficient permissions
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorMessage'
+    TooManyRequests:
+      description: Their is too many requests on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    Unacceptable:
+      description: Their is too many requests on the server
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     Invalid:
       description: The request received invalid parameters
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorMessage'
     Unexpected:
       description: The request encountered an unexpected error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: '#/components/schemas/ErrorMessage'
   schemas:
     MemberStatus:
       type: object
+      additionalProperties: false
       properties:
         status:
           type: string
@@ -2919,6 +3733,9 @@ components:
              * `LOGIN_DEVICE_ERROR` - A device could not be authentified, the other statuses might provide more details
         comment:
           type: string
+          minLength: 0
+          maxLength: 255
+          #pattern: ^[a-zA-Z0-9._ ]+$
           description: Additionnal data regarding this status
           example: Occurred for MAC address 00-11-22-33-44-55
         lastTimestamp:
@@ -2927,6 +3744,7 @@ components:
           description: When this status was last reported
     SubscriptionBody:
       type: object
+      additionalProperties: false
       properties:
         duration:
           description: The requested duration (in months) for this membership
@@ -2938,27 +3756,38 @@ components:
           type: boolean
           nullable: true
         paymentMethod:
+          nullable: true
           description: The payment method id to be used for the transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
-          nullable: true
         account:
+          nullable: true
           description: The id of the source account from which to execute the transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
-          nullable: true
         member:
+          nullable: true
           description: The id of the member to whom this membership applies
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
-          nullable: true
     AbstractMembership:
       type: object
+      additionalProperties: false
       properties:
         uuid:
           description: The UUID associated with this membership request
           type: string
           format: uuid
+          maxLength: 36
           example: "123e4567-e89b-12d3-a456-426614174000"
           readOnly: true
         duration:
@@ -2977,16 +3806,25 @@ components:
         paymentMethod:
           description: The payment method id to be used for the transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
           nullable: true
         account:
           description: The id of the source account from which to execute the transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
           nullable: true
         member:
           description: The id of the member to whom this membership applies
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
         status:
           type: string
@@ -3030,8 +3868,10 @@ components:
           - member
           - status
       type: object
+      additionalProperties: true
     AbstractAccount:
       type: object
+      additionalProperties: false
       properties:
         actif:
           description: Whether this account is active or not
@@ -3048,25 +3888,36 @@ components:
         accountType:
           description: The type of this account
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 2
         creationDate:
           description: The date-time at which this account was first created
           format: date-time
           type: string
         member:
-          description: The member this account belongs to
           nullable: true
+          description: The member this account belongs to
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
         name:
           description: The name of this account
           example: MiNET
           type: string
+          minLength: 0
+          maxLength: 255
         id:
-          description: The unique identifier of this account
-          example: 1
           readOnly: true
+          description: The unique identifier of this account
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
+          example: 1
         balance:
           description: The current balance of this account
           readOnly: true
@@ -3090,35 +3941,54 @@ components:
             - balance
             - pendingBalance
       type: object
+      additionalProperties: true
     AccountType:
       type: object
+      additionalProperties: false
       properties:
         id:
-          example: 1
           readOnly: true
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
+          example: 1
         name:
-          example: "Adh\xE9rent"
+          example: "Adhérent"
           type: string
+          minLength: 0
+          maxLength: 255
     AbstractTransaction:
       type: object
+      additionalProperties: false
       properties:
         id:
           readOnly: true
           description: The unique identifier of this transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
         name:
           description: The description of this transaction
           example: Sample transaction
           type: string
+          minLength: 0
+          maxLength: 255
         src:
           description: The source account of this transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
         dst:
           description: The destination account of this transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 1
         timestamp:
           readOnly: true
@@ -3138,13 +4008,17 @@ components:
         attachments:
           description: The list of attachments linked with this transaction
           type: array
+          maxItems: 10000
           items:
             type: string
           example: [ "3b2f552df763bc9444f9f31a4fd831a3e3ace994" ]
         author:
-          readOnly: true
           description: The member who executed this transaction
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
+          readOnly: true
           example: 6
         pendingValidation:
           readOnly: true
@@ -3169,14 +4043,19 @@ components:
             - paymentMethod
             - value
       type: object
+      additionalProperties: true
     AbstractPaymentMethod:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this payment method
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         staticFee:
           nullable: true
           description: The static fee for this payment method in euros
@@ -3199,14 +4078,19 @@ components:
         - required:
             - name
       type: object
+      additionalProperties: true
     AbstractProduct:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this product
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         buyingPrice:
           description: The buying price of this product
           example: 42.3
@@ -3222,14 +4106,16 @@ components:
           example: "C\xE2ble 5m"
           type: string
     Product:
+      type: object
+      additionalProperties: true
       allOf:
         - $ref: '#/components/schemas/AbstractProduct'
         - required:
             - name
             - sellingPrice
-      type: object
     DeviceFilter:
       type: object
+      additionalProperties: false
       properties:
         connectionType:
           description: The connection type of this device
@@ -3243,14 +4129,20 @@ components:
           example: 0
         terms:
           type: string
+          minLength: 0
+          maxLength: 255
     AbstractDevice:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this device
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         connectionType:
           description: The connection type of this device
           enum:
@@ -3286,8 +4178,10 @@ components:
             - connectionType
             - mac
       type: object
+      additionalProperties: true
     DeviceBody:
       type: object
+      additionalProperties: false
       required:
         - connectionType
         - mac
@@ -3311,6 +4205,7 @@ components:
           type: integer
     Comment:
       type: object
+      additionalProperties: false
       required:
         - comment
       properties:
@@ -3318,10 +4213,12 @@ components:
           example: 'Je suis un commentaire'
           nullable: false
           type: string
+          minLength: 0
           maxLength: 255
           description: Comment
     MemberFilter:
       type: object
+      additionalProperties: false
       properties:
         membership:
           type: string
@@ -3363,15 +4260,22 @@ components:
           example: 192.168.0.1
     MemberBody:
       type: object
+      additionalProperties: false
       properties:
         username:
           type: string
+          minLength: 0
+          maxLength: 255
           example: minet_adh6
         firstName:
           type: string
+          minLength: 0
+          maxLength: 255
           example: Ubuntoutou
         lastName:
           type: string
+          minLength: 0
+          maxLength: 255
           example: MiNET
         mail:
           type: string
@@ -3379,24 +4283,34 @@ components:
           format: email
     AbstractMember:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this member
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         username:
           description: The username of this member
           example: michel_j
           type: string
+          minLength: 0
+          maxLength: 255
         firstName:
           description: The first name of this member
           example: Jean-Michel
           type: string
+          minLength: 0
+          maxLength: 255
         lastName:
           description: The last name of this member
           example: Martin
           type: string
+          minLength: 0
+          maxLength: 255
         email:
           description: The email address of this member
           example: jean-michel.martin@example.com
@@ -3406,13 +4320,14 @@ components:
           description: The optional comment for this member
           nullable: true
           type: string
+          minLength: 0
+          maxLength: 255
           example: Aime bien les bananes
         departureDate:
           description: The date-time at which the subscription of this member expires
           format: date-time
           type: string
           readOnly: true
-          nullable: true
         mailinglist:
           deprecated: true
           description: The number of the room this member lives in
@@ -3431,7 +4346,6 @@ components:
           type: string
         membership:
           type: string
-          readOnly: true
           nullable: true
           enum:
             - INITIAL
@@ -3465,23 +4379,33 @@ components:
             - firstName
             - lastName
       type: object
+      additionalProperties: true
     AbstractRoom:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this room
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         description:
           description: The friendly description of this room
           example: Chambre 5110
           nullable: true
           type: string
+          minLength: 0
+          maxLength: 255
         roomNumber:
           description: The room number according to the Maisel
           example: 5110
           type: integer
+          format: int64
+          maximum: 8000
+          minimum: 0
         vlan:
           description: The main vlan number assigned to this room
           type: integer
@@ -3494,31 +4418,47 @@ components:
             - roomNumber
             - vlan
       type: object
+      additionalProperties: true
     AbstractPort:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this port
+          type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 0
           readOnly: true
-          type: integer
         portNumber:
           description: The friendly (Cisco) number of this port
           nullable: true
           example: 1/0/4
           type: string
+          minLength: 0
+          maxLength: 6
         oid:
           description: The oid of this port for SNMP access
           example: '10104'
           type: string
+          minLength: 0
+          maxLength: 10
+          #pattern: ^[0-9]+$
         room:
           description: The room this port is in
-          nullable: true
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
+          nullable: true
           example: 4
         switchObj:
           description: The switch this port is a member of
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
           example: 4
     Port:
       allOf:
@@ -3529,23 +4469,34 @@ components:
             - room
             - switchObj
       type: object
+      additionalProperties: true
     AbstractSwitch:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this switch
           example: 0
           readOnly: true
           type: integer
+          format: int64
+          maximum: 100000
+          minimum: 0
         description:
           description: The friendly name of this switch
           example: Switch U5
           type: string
+          minLength: 0
+          maxLength: 255
+          #pattern: ^([a-zA-Z0-9._- ])?+$
         community:
           description: The community string used for SNMP access to this switch
           example: ghWgpQvHRkrYuqpMLWYkstS3
           format: password
           type: string
+          minLength: 0
+          maxLength: 255
+          #pattern: ^[a-zA-Z0-9._ ]+$
           nullable: true
           deprecated: true
         ip:
@@ -3560,8 +4511,10 @@ components:
             - description
             - ip
       type: object
+      additionalProperties: true
     AbstractVlan:
       type: object
+      additionalProperties: false
       properties:
         id:
           description: The unique identifier of this vlan
@@ -3578,6 +4531,8 @@ components:
           description: The IPv4 network range for this VLAN
           type: string
           example: "157.159.41.0/24"
+          minLength: 9
+          maxLength: 18
           nullable: true
         ipv6Network:
           description: The IPv6 network range for this VLAN
@@ -3592,19 +4547,21 @@ components:
           - ipv4Network
           - ipv6Network
       type: object
-    Error:
+      additionalProperties: true
+    ErrorMessage:
       type: object
+      additionalProperties: false
       properties:
-        code:
-          description: The error code
-          type: integer
-          example: 404
         message:
-          description: The friendly description of the error
+          description: Description of the error
           type: string
+          minLength: 0
+          maxLength: 255
+          default: ""
           example: Not found
     ApiKey:
       type: object
+      additionalProperties: false
       required:
         - id
         - login
@@ -3618,9 +4575,13 @@ components:
           description: The login of the user link to the api key
           type: string
           example: "jenkins"
+          minLength: 0
+          maxLength: 255
+          #pattern: ^[a-zA-Z0-9._ ]+$
           nullable: false
     RoleMapping:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: integer
@@ -3636,6 +4597,9 @@ components:
           description: The login of the user link to the api key
           type: string
           example: "jenkins"
+          minLength: 0
+          maxLength: 255
+          #pattern: ^[a-zA-Z0-9._ ]+$
           nullable: false
     Role:
       type: string
@@ -3655,8 +4619,9 @@ components:
     OAuth2:
       type: oauth2
       flows:
-        implicit:
+        authorizationCode:
           authorizationUrl: https://cas.minet.net/oidc/authorize
+          tokenUrl: https://cas.minet.net/oidc/token
           scopes:
             profile: The user's basic information, including groups they are a part of
     ApiKeyAdminAuth:
