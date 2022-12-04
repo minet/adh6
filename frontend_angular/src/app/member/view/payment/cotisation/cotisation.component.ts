@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { AbstractAccount, AccountService, AbstractMembership, MembershipService, Member, PaymentMethod, SubscriptionBody } from '../../../../api';
+import { AbstractAccount, AccountService, Membership, MembershipService, Member, PaymentMethod, SubscriptionBody } from '../../../../api';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Toast } from '../../../../notification.service';
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,7 @@ export class CotisationComponent {
 
   // The last one is necessaraly without a room
   public subscriptionPrices: number[] = [9, 18, 27, 36, 45, 50, 9];
-  public subscriptionDuration: AbstractMembership.DurationEnum[] = [1, 2, 3, 4, 5, 12, 12];
+  public subscriptionDuration: Membership.DurationEnum[] = [1, 2, 3, 4, 5, 12, 12];
 
   private options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -64,10 +64,10 @@ export class CotisationComponent {
       if (this.isSubscriptionFinished) {
         this.membershipService.memberIdSubscriptionPost(this.member.id, subscription, 'body')
           .subscribe(m => {
-            if (m.status === AbstractMembership.StatusEnum.PendingRules) {
+            if (m.status === Membership.StatusEnum.PendingRules) {
               this.needSignature = true
             }
-            if (m.status === AbstractMembership.StatusEnum.PendingPaymentValidation) {
+            if (m.status === Membership.StatusEnum.PendingPaymentValidation) {
               this.needSignature = false
             }
             Toast.fire("Inscription créée")
@@ -90,6 +90,6 @@ export class CotisationComponent {
   }
 
   get isSubscriptionFinished(): boolean {
-    return this.member.membership === AbstractMembership.StatusEnum.Complete || this.member.membership === AbstractMembership.StatusEnum.Cancelled || this.member.membership === AbstractMembership.StatusEnum.Aborted
+    return this.member.membership === Membership.StatusEnum.Complete || this.member.membership === Membership.StatusEnum.Cancelled || this.member.membership === Membership.StatusEnum.Aborted
   }
 }

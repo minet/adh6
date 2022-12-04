@@ -5,7 +5,7 @@ Membership repository.
 import abc
 import typing as t
 
-from adh6.entity import Membership, AbstractMembership, SubscriptionBody
+from adh6.entity import Membership, SubscriptionBody, Member
 from ..enums import MembershipStatus
 
 # TODO: This class should be derive from CRUDRepository
@@ -29,15 +29,15 @@ class MembershipRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search(self, limit: int, offset: int, terms=None, filter_: t.Optional[AbstractMembership] = None) -> t.Tuple[t.List[Membership], int]:
+    def validate(self, uuid: str) -> None:
         """
         Add a membership.
         """
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def validate(self, uuid: str) -> None:
+    def from_member(self, member: Member) -> t.List[Membership]:
         """
-        Add a membership.
+        Search the subscriptions of a member.
         """
         pass  # pragma: no cover

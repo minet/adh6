@@ -27,8 +27,12 @@ def prep_db(*args):
     session.add_all(
         [
             oidc_admin_prod_role(),
+            oidc_admin_read_role(),
+            oidc_admin_write_role(),
             oidc_network_read_role(),
             oidc_network_write_role(),
+            oidc_treasurer_read_role(),
+            oidc_treasurer_write_role(),
         ]
     )
     session.add_all(args)
@@ -307,6 +311,38 @@ def oidc_admin_prod_role():
     )
 
 
+def oidc_admin_read_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="adh6_admin",
+        role=Roles.ADMIN_READ
+    )
+
+
+def oidc_admin_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="adh6_admin",
+        role=Roles.ADMIN_WRITE
+    )
+
+
+def oidc_treasurer_read_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="adh6_treasurer",
+        role=Roles.TRESO_READ
+    )
+
+
+def oidc_treasurer_write_role():
+    return AuthenticationRoleMapping(
+        authentication=AuthenticationMethod.OIDC,
+        identifier="adh6_treasurer",
+        role=Roles.TRESO_WRITE
+    )
+
+
 def oidc_network_read_role():
     return AuthenticationRoleMapping(
         authentication=AuthenticationMethod.OIDC,
@@ -321,6 +357,7 @@ def oidc_network_write_role():
         identifier="network",
         role=Roles.NETWORK_WRITE
     )
+
 
 
 @pytest.fixture

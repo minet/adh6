@@ -62,4 +62,4 @@ class RoomHandler(DefaultHandler):
     def member_get(self, id_: int):
         if get_user() != id_ and Roles.ADMIN_WRITE.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
-        return self.room_manager.room_from_member(id_), 200
+        return self.room_manager.room_from_member(id_).id, 200

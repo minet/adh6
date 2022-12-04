@@ -6,7 +6,7 @@ import typing as t
 
 from datetime import datetime
 
-from sqlalchemy import func, case, or_
+from sqlalchemy import func, case, or_, select
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractAccount, Account
@@ -21,7 +21,12 @@ from ..interfaces import AccountRepository
 
 class AccountSQLRepository(AccountRepository):
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractAccount] = None) -> t.Tuple[t.List[AbstractAccount], int]:
+    def get_by_name(self, name: str) -> t.Union[Account, None]:
+        smt = select(SQLAccount).where(SQLAccount.name == name)
+        return session.execute(smt).one_or_none()
+
+    @log_call
+    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractAccount] = None) -> t.Tuple[t.List[Account], int]:
         query = session.query(SQLAccount,
                     func.sum(case(value=Transaction.src, whens={
                         SQLAccount.id: -Transaction.value
@@ -52,12 +57,12 @@ class AccountSQLRepository(AccountRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
+        return list(map(lambda item: _map_account_sql_to_entity(item, True), r)), count
 
     @log_call
-    def get_by_id(self, object_id: int) -> t.Union[AbstractAccount, None]:
+    def get_by_id(self, object_id: int) -> t.Union[Account, None]:
         obj = session.query(SQLAccount, func.sum(case(value=Transaction.src, whens={ SQLAccount.id: -Transaction.value }, else_=Transaction.value)).label("balance")).outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)).filter(SQLAccount.id == object_id).one_or_none()
-        return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None
+        return _map_account_sql_to_entity(obj, True) if obj[0] else None
 
     @log_call
     def create(self, abstract_account: Account) -> object:
@@ -109,25 +114,6 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
     if has_balance:
         (a, balance) = a
     return Account(
-        id=a.id,
-        name=a.name,
-        actif=a.actif,
-        account_type=a.type,
-        creation_date=a.creation_date,
-        member=a.adherent_id if a.adherent_id else None,
-        balance=balance or 0,
-        pending_balance=balance or 0,
-        compte_courant=a.compte_courant,
-        pinned=a.pinned
-    )
-def _map_account_sql_to_abstract_entity(a: SQLAccount, has_balance=False) -> AbstractAccount:
-    """
-    Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
-    """
-    balance = None
-    if has_balance:
-        (a, balance) = a
-    return AbstractAccount(
         id=a.id,
         name=a.name,
         actif=a.actif,

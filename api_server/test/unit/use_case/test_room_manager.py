@@ -33,7 +33,7 @@ class TestUpdateOrCreate:
                                    sample_room: Room,
                                    mutation_request: AbstractRoom,
                                    room_manager: RoomManager):
-        mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
+        mock_room_repository.get_by_id = MagicMock(return_value=(sample_room))
         mock_room_repository.update = MagicMock(side_effect=VLANNotFoundError)
         with raises(VLANNotFoundError):
             room_manager.update_or_create(mutation_request, **{"id": sample_room.id})

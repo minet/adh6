@@ -8,7 +8,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSE
 from adh6.entity import (
     AbstractMember, Member,
     MemberStatus,
-    AbstractAccount, 
+    Account, 
     MemberBody, 
     MemberFilter, 
     SubscriptionBody,
@@ -79,7 +79,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    def get_profile(self) -> t.Tuple[AbstractMember, t.List[str]]:
+    def get_profile(self) -> t.Tuple[Member, t.List[str]]:
         from adh6.context import get_user, get_roles
         m = self.member_repository.get_by_id(get_user())
         if not m:
@@ -115,7 +115,7 @@ class MemberManager(CRUDManager):
 
         self.mailinglist_manager.update_member_mailinglist(created_member.id, 249)
 
-        _ = self.account_manager.update_or_create(AbstractAccount(
+        _ = self.account_manager.update_or_create(Account(
             id=0,
             actif=True,
             account_type=fetched_account_type[0].id,

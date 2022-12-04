@@ -4,7 +4,7 @@ import pytest
 from adh6.member.storage.models import Adherent
 from adh6.treasury.storage.models import Account, PaymentMethod
 from test.integration.resource import (base_url as host_url, TEST_HEADERS)
-from adh6.constants import MembershipDuration
+from adh6.member import MembershipDuration
 
 
 def base_url(id) -> str:

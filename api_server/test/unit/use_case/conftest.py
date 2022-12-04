@@ -13,7 +13,7 @@ from adh6.entity import (
     Room,
     Switch,
     Transaction,
-    AbstractMembership,
+    Membership,
     Vlan
 )
 from adh6.authentication import Roles
@@ -97,7 +97,7 @@ def sample_subscription_duration_account_payment_method(sample_member, sample_ac
 
 @fixture
 def sample_membership_empty(sample_member):
-    return AbstractMembership(
+    return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value
@@ -105,7 +105,7 @@ def sample_membership_empty(sample_member):
 
 @fixture
 def sample_membership_duration_no_account(sample_member):
-    return AbstractMembership(
+    return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value,
@@ -114,7 +114,7 @@ def sample_membership_duration_no_account(sample_member):
 
 @fixture
 def sample_membership_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
-    return AbstractMembership(
+    return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.INITIAL.value,
