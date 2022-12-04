@@ -4,12 +4,10 @@ import logging
 from adh6.constants import KnownAccountExpense
 from adh6.entity import (
     Membership,
-    AbstractAccount, 
     AbstractTransaction,
     SubscriptionBody
 )
 from adh6.exceptions import (
-    AccountNotFoundError,
     MembershipNotFoundError,
     MemberNotFoundError,
     MembershipAlreadyExist,
@@ -246,12 +244,8 @@ class SubscriptionManager:
     @log_call
     def add_payment_record(self, membership: Membership, free: bool) -> None:
         payment_method = self.payment_method_manager.get_by_id(membership.payment_method)
-        asso_account, _ = self.account_manager.search(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value))
-        if len(asso_account) != 1:
-            raise AccountNotFoundError(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
-        tech_account, _ = self.account_manager.search(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value))
-        if len(tech_account) != 1:
-            raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
+        asso_account = self.account_manager.get_by_name(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
+        tech_account = self.account_manager.get_by_name(KnownAccountExpense.TECHNICAL_EXPENSE.value)
         src_account = self.account_manager.get_by_id(membership.account)
         price = self.duration_price[membership.duration]  # Expressed in EUR.
         title = f'Internet - {self.duration_string.get(membership.duration)}'
