@@ -3779,9 +3779,14 @@ components:
           maximum: 100000
           minimum: 0
           example: 4
-    AbstractMembership:
+    Membership:
       type: object
       additionalProperties: false
+      required:
+        - uuid
+        - hasRoom
+        - member
+        - status
       properties:
         uuid:
           description: The UUID associated with this membership request
@@ -3794,11 +3799,13 @@ components:
           description: The requested duration (in months) for this membership
           type: integer
           enum: [0, 1, 2, 3, 4, 5, 6, 12]
-          nullable: true
+          default: 0
+          nullable: false
         hasRoom:
           description: if the Member ask for a room or not
           type: boolean
-          nullable: true
+          default: false
+          nullable: false
         firstTime:
           description: Whether this is the first membership request ever for this member
           type: boolean
@@ -3810,6 +3817,7 @@ components:
           maximum: 100000
           minimum: 0
           example: 4
+          default: null
           nullable: true
         account:
           description: The id of the source account from which to execute the transaction
@@ -3818,6 +3826,7 @@ components:
           maximum: 100000
           minimum: 0
           example: 4
+          default: null
           nullable: true
         member:
           description: The id of the member to whom this membership applies
@@ -3826,6 +3835,7 @@ components:
           maximum: 100000
           minimum: 0
           example: 4
+          nullable: false
         status:
           type: string
           enum:
@@ -3859,16 +3869,6 @@ components:
           format: date-time
           type: string
           nullable: true
-    Membership:
-      allOf:
-        - $ref: '#/components/schemas/AbstractMembership'
-        - required:
-          - uuid
-          - hasRoom
-          - member
-          - status
-      type: object
-      additionalProperties: true
     AbstractAccount:
       type: object
       additionalProperties: false

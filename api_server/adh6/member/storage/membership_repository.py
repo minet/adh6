@@ -2,8 +2,9 @@ from datetime import datetime
 import uuid
 import typing as t
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import Membership, AbstractMembership, SubscriptionBody
+from sqlalchemy import select
+
+from adh6.entity import Membership, SubscriptionBody, Member
 from adh6.decorator import log_call
 from adh6.storage import session
 
@@ -14,30 +15,9 @@ from ..interfaces import MembershipRepository
 
 class MembershipSQLRepository(MembershipRepository):
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractMembership] = None) -> t.Tuple[t.List[Membership], int]:
-        query = session.query(MembershipSQL)
-        if filter_:
-            if filter_.uuid is not None:
-                query = query.filter(MembershipSQL.uuid == filter_.uuid)
-            if filter_.status is not None:
-                query = query.filter(MembershipSQL.status == filter_.status)
-            if filter_.first_time is not None:
-                query = query.filter(MembershipSQL.first_time == filter_.first_time)
-            if filter_.duration is not None:
-                query = query.filter(MembershipSQL.duration == filter_.duration)
-            if filter_.payment_method is not None:
-                query = query.filter(MembershipSQL.payment_method_id == filter_.payment_method)
-            if filter_.account is not None:
-                query = query.filter(MembershipSQL.account_id == filter_.account)
-            if filter_.member is not None:
-                query = query.filter(MembershipSQL.adherent_id == filter_.member)
-
-        query = query.order_by(MembershipSQL.uuid)
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
-
-        return list(map(_map_membership_sql_to_entity, r)), query.count()
+    def from_member(self, member: Member) -> t.List[Membership]:
+        smt = select(MembershipSQL).where(MembershipSQL.adherent_id == member.id)
+        return [_map_membership_sql_to_entity(i[0]) for i in session.execute(smt)]
 
     def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
