@@ -77,6 +77,7 @@ def token_info(access_token) -> t.Optional[t.Dict[str, t.Any]]:
     
     return {
         "uid": uid,
+        "login": infos[user_id],
         "scope":  [Roles.USER.value] + roles
     }
 

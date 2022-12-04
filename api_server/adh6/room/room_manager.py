@@ -28,9 +28,9 @@ class RoomManager(CRUDManager):
         return r
 
     @log_call
-    def add_member(self, room_number: int, member_id: int) -> None:
+    def add_member(self, room_number: int, login: str) -> None:
         room = self.get_by_number(room_number)
-        member = self.member_manager.get_by_id(member_id)
+        member = self.member_manager.get_by_login(login)
         
         previous_room = self.room_repository.get_from_member(member)
         if previous_room:
@@ -38,17 +38,16 @@ class RoomManager(CRUDManager):
 
         self.room_repository.add_member(room.id, member)
         if not previous_room:
-            self.member_manager.update_subnet(member_id=member_id)
-            self.member_manager.ethernet_vlan_changed(member_id, room.vlan)
+            self.member_manager.update_subnet(member_id=member.id)
+            self.member_manager.ethernet_vlan_changed(member.id, room.vlan)
         elif previous_room.vlan != room.vlan:
-            self.member_manager.ethernet_vlan_changed(member_id, room.vlan)
+            self.member_manager.ethernet_vlan_changed(member.id, room.vlan)
 
     @log_call
-    def remove_member(self, room_number: int, member_id: int) -> None:
-        member = self.member_manager.get_by_id(member_id)
-        self.get_by_number(room_number)
+    def remove_member(self, login: str) -> None:
+        member = self.member_manager.get_by_login(login)
         self.room_repository.remove_member(member)
-        self.member_manager.reset_member(member_id)
+        self.member_manager.reset_member(member.id)
 
     @log_call
     def list_members(self, room_number: int) -> t.List[int]:
@@ -56,8 +55,8 @@ class RoomManager(CRUDManager):
         return self.room_repository.get_members(room_id=room.id)
 
     @log_call
-    def room_from_member(self, member_id: int) -> Room:
-        member = self.member_manager.get_by_id(member_id)
+    def room_from_member(self, login: str) -> Room:
+        member = self.member_manager.get_by_login(login)
         room = self.room_repository.get_from_member(member)
         if not room:
             raise RoomNotFoundError()

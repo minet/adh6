@@ -7,7 +7,7 @@ from adh6.decorator import log_call, with_context
 from adh6.entity import Room, AbstractRoom
 from adh6.default import DefaultHandler
 from adh6.exceptions import UnauthorizedError
-from adh6.context import get_user, get_roles
+from adh6.context import get_user, get_roles, get_login
 
 from ..room_manager import RoomManager
 
@@ -51,28 +51,18 @@ class RoomHandler(DefaultHandler):
     @with_context
     @log_call
     def member_post(self, room_number: int, body):
-        self.room_manager.add_member(room_number, body.get("id", -1))
+        self.room_manager.add_member(room_number, body.get("login", ""))
         return NoContent, 204
 
     @with_context
     @log_call
-    def member_delete(self, room_number: int, member_id: int):
-        self.room_manager.remove_member(room_number, member_id)
+    def member_delete(self, login: str):
+        self.room_manager.remove_member(login=login)
         return NoContent, 204
 
     @with_context
     @log_call
-    def member_add_patch(self, room_number: int, body):
-        return self.member_post(room_number=room_number, body=body)
-
-    @with_context
-    @log_call
-    def member_del_patch(self, room_number: int, member_id: int):
-        return self.member_delete(room_number=room_number, member_id=member_id)
-
-    @with_context
-    @log_call
-    def member_get(self, id_: int):
-        if get_user() != id_ and Roles.ADMIN_WRITE.value not in get_roles():
+    def member_get(self, login: int):
+        if get_login() != login and Roles.ADMIN_WRITE.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
-        return self.room_manager.room_from_member(id_).id, 200
+        return self.room_manager.room_from_member(login=login).id, 200
