@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy import insert, select, delete, update
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractRoom, Room
+from adh6.entity import AbstractRoom, Room, Member
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
 from adh6.decorator import log_call
 from adh6.storage import session
@@ -19,37 +19,41 @@ from ..interfaces import RoomRepository
 
 
 class RoomSQLRepository(RoomRepository):
-    def get_from_member(self, member_id: int) -> t.Union[Room, None]:
+    @log_call
+    def get_from_member(self, member: Member) -> t.Union[Room, None]:
         smt = select(Chambre)\
             .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)\
-            .where(RoomMemberLink.member_id == member_id)
+            .where(RoomMemberLink.member_id == member.id)
         
         result = session.execute(smt).scalar_one_or_none()
 
         return _map_room_sql_to_entity(result) if result else None
 
+    @log_call
     def get_members(self, room_id: int) -> t.List[int]:
         smt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
         return session.execute(smt).scalars().all()
 
-    def remove_member(self, member_id: int) -> None:
-        smt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
+    @log_call
+    def remove_member(self, member: Member) -> None:
+        smt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member.id)
         session.execute(smt)
 
         # lines needed for compatibility
-        adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+        adherent = session.query(Adherent).filter(Adherent.id == member.id).one()
         smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
         session.execute(smt)
 
-    def add_member(self, room_id: int, member_id: int) -> None:
+    @log_call
+    def add_member(self, room_id: int, member: Member) -> None:
         smt = insert(RoomMemberLink).values(
-            member_id=member_id,
+            member_id=member.id,
             room_id=room_id
         )
         session.execute(smt)
 
         # Those lines are needed for compatibility
-        adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+        adherent = session.query(Adherent).filter(Adherent.id == member.id).one()
         smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=room_id)
         session.execute(smt)
 

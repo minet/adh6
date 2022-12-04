@@ -2,10 +2,10 @@
 import typing as t
 
 from adh6.decorator import log_call
-from adh6.exceptions import NotFoundError, RoomNotFoundError
+from adh6.exceptions import RoomNotFoundError
 from adh6.default import CRUDManager
 from adh6.member import MemberManager
-from adh6.entity import Room, AbstractRoom
+from adh6.entity import Room
 
 from .interfaces import RoomRepository
 
@@ -30,13 +30,13 @@ class RoomManager(CRUDManager):
     @log_call
     def add_member(self, room_number: int, member_id: int) -> None:
         room = self.get_by_number(room_number)
-        self.member_manager.get_by_id(member_id)
+        member = self.member_manager.get_by_id(member_id)
         
-        previous_room = self.room_repository.get_from_member(member_id)
+        previous_room = self.room_repository.get_from_member(member)
         if previous_room:
-            self.room_repository.remove_member(member_id)
+            self.room_repository.remove_member(member)
 
-        self.room_repository.add_member(room.id, member_id)
+        self.room_repository.add_member(room.id, member)
         if not previous_room:
             self.member_manager.update_subnet(member_id=member_id)
             self.member_manager.ethernet_vlan_changed(member_id, room.vlan)
@@ -45,9 +45,9 @@ class RoomManager(CRUDManager):
 
     @log_call
     def remove_member(self, room_number: int, member_id: int) -> None:
-        self.member_manager.get_by_id(member_id)
+        member = self.member_manager.get_by_id(member_id)
         self.get_by_number(room_number)
-        self.room_repository.remove_member(member_id)
+        self.room_repository.remove_member(member)
         self.member_manager.reset_member(member_id)
 
     @log_call
@@ -57,7 +57,8 @@ class RoomManager(CRUDManager):
 
     @log_call
     def room_from_member(self, member_id: int) -> Room:
-        room = self.room_repository.get_from_member(member_id)
+        member = self.member_manager.get_by_id(member_id)
+        room = self.room_repository.get_from_member(member)
         if not room:
             raise RoomNotFoundError()
         return room
