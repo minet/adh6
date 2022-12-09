@@ -11,10 +11,6 @@ upstream adh6_api {
 	server ${API_HOST}:${API_PORT};
 }
 
-upstream adh6_api_member {
-	server ${API_MEMBER_HOST}:${API_PORT};
-}
-
 server {
         listen          80;
         listen          [::]:80;
@@ -60,18 +56,7 @@ server {
 	gzip_proxied        expired no-cache no-store private auth;
 	gzip_disable        "MSIE [1-6]\.";
 	gzip_vary           on;
-  location /api/member {
-    include uwsgi_params;
-		uwsgi_request_buffering off;
-		uwsgi_pass adh6_api_member;
-		
-		# Force nginx a aussi passer les headers
-		# Authorization est le header contenant le token pour authentifier les utilisateurs
-		include uwsgi_params;
-		uwsgi_pass_header Authorization;
-		uwsgi_pass_request_headers on;
 
-  }
   location /api {
     include uwsgi_params;
 		uwsgi_request_buffering off;
