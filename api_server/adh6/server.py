@@ -227,15 +227,7 @@ def init(testing: bool = False) -> FlaskApp:
 
     from .logging import setup_login
     setup_login()
-
     db.init_app(app.app)
-
-    if not testing:    
-        Migrate(app.app, db)
-
-        from flask_migrate import upgrade
-        upgrade()
-        treasury_init()
-        authentication_init()
+    Migrate(app.app, db)
 
     return app

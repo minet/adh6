@@ -31,23 +31,6 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-     
-  api_server_member:
-    container_name: adh6_backend_member
-    build: api_server
-    depends_on:
-      database:
-        condition: service_healthy
-    expose:
-      - "8080"
-    environment:
-      ENVIRONMENT: "development"
-      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
-      DATABASE_HOST: ${DATABASE_HOST}
-      DATABASE_PORT: ${DATABASE_PORT}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      DATABASE_DB_NAME: ${DATABASE_DB_NAME}
 
   reverse_proxy:
     container_name: adh6_reverse_proxy
@@ -55,7 +38,6 @@ services:
     links:
       - frontend_angular
       - api_server
-      - api_server_member
     ports:
       - "443:443"
       - "80:80"

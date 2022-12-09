@@ -27,17 +27,9 @@ export class ListComponent extends SearchPage<number> {
       .pipe(
         map(response => {
           for (let i of response.body) {
-            this.cachedMembers.set(+i, this.memberService.memberIdGet(+i)
-              .pipe(
-                shareReplay(1)
-              )
-            );
-            this.cachedRoomNumbers.set(+i, this.roomMemberService.roomMemberIdGet(+i)
-              .pipe(
-                shareReplay(1),
-                switchMap((response) => this.roomService.roomIdGet(response, ["roomNumber"]).pipe(map((r) => r.roomNumber)))
-              )
-            );
+            let member$ = this.memberService.memberIdGet(+i).pipe(shareReplay(1))
+            this.cachedMembers.set(+i, member$);
+            this.cachedRoomNumbers.set(+i, member$.pipe(switchMap(m => this.roomMemberService.roomMemberLoginGet(m.username))));
           }
           return response
         }),

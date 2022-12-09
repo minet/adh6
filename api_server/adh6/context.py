@@ -6,3 +6,6 @@ def get_roles() -> t.List[str]:
 
 def get_user() -> str:
     return context.get("token_info", {}).get("uid", [])
+
+def get_login() -> str:
+    return context.get("token_info", {}).get("login", [])

@@ -53,7 +53,7 @@ export class RoomEditComponent implements OnInit {
           vlan: vlan.id,
           description: v.description
         };
-        this.roomService.roomIdPut(v.id, room)
+        this.roomService.roomRoomNumberPut(v.roomNumber, room)
           .subscribe(() => {
             this.router.navigate(['/room/view', v.roomNumber]);
             this.notificationService.successNotification();
@@ -64,7 +64,7 @@ export class RoomEditComponent implements OnInit {
   ngOnInit() {
     this.room$ = this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) => this.roomService.roomIdGet(+params.get('room_id'))),
+        switchMap((params: ParamMap) => this.roomService.roomRoomNumberGet(+params.get('room_id'))),
         tap(room => this.roomEdit.patchValue({
           id: room.id,
           roomNumber: room.roomNumber,

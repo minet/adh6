@@ -27,7 +27,6 @@ export class DetailsComponent {
 
   constructor(
     public memberDetailService: MemberDetailService,
-    private notificationService: NotificationService,
     public roomService: RoomService,
     public roomMemberService: RoomMembersService
   ) {
@@ -35,16 +34,11 @@ export class DetailsComponent {
   }
 
   public refreshRoom(): void {
-    this.room$ = this.memberDetailService.member$
-      .pipe(
-        switchMap(member => this.roomMemberService.roomMemberIdGet(member.id)
-          .pipe(
-            switchMap(roomNumber => this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: roomNumber })
-              .pipe(map(rooms => rooms[0]))
-            )
-          )
-        )
+    this.room$ = this.memberDetailService.member$.pipe(
+      switchMap(member => this.roomMemberService.roomMemberLoginGet(member.username)
+        .pipe(switchMap(roomNumber => this.roomService.roomRoomNumberGet(roomNumber)))
       )
+    );
   }
 
   collapseMoveIn(): void {
@@ -52,21 +46,11 @@ export class DetailsComponent {
   }
 
   submitRoom(member: AbstractMember): void {
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: this.roomForm.value.roomNumber })
-      .subscribe(rooms => {
-        if (rooms.length === 0) {
-          this.notificationService.errorNotification(
-            404,
-            'No Room',
-            'There is no room with this number'
-          )
-          return;
-        }
-        this.roomMemberService.roomIdMemberPost(rooms[0].id, { id: member.id }).subscribe(() => {
-          this.refreshRoom();
-          this.collapseMoveIn();
-          this.memberDetailService.updateMemberInfos.emit("Chambre mise à jour");
-        });
+    this.roomMemberService.roomRoomNumberMemberPost(this.roomForm.value.roomNumber, { login: member.username })
+      .subscribe(() => {
+        this.refreshRoom();
+        this.collapseMoveIn();
+        this.memberDetailService.updateMemberInfos.emit("Chambre mise à jour");
       });
   }
 }

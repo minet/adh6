@@ -7,7 +7,7 @@
       <br />
       <div class="field is-grouped is-grouped-centered">
         <div class="control">
-          <a [routerLink]="['/room/edit', room.id]">
+          <a [routerLink]="['/room', room.roomNumber, 'edit']">
             <button class="button is-primary">Éditer</button>
           </a>
         </div>
@@ -29,9 +29,9 @@
     <div class="column">
       <h4 class="title is-4 has-text-centered">Adhérents</h4>
       <div class="box">
-        <ng-container *ngIf="memberIds$ | async as memberIds">
-          <ng-container *ngFor="let memberId of memberIds">
-            <ng-container *ngIf="getMemberUsername(memberId) | async as member">
+        <ng-container *ngIf="memberLogins$ | async as memberLogins; else loading">
+          <ng-container *ngFor="let memberLogin of memberLogins">
+            <ng-container *ngIf="(cachedMembers.get(memberLogin) | async) as member">
               <div class="columns is-vcentered">
                 <div class="column is-one-fifth">
                   <strong>{{ member.firstName }} {{ member.lastName }}</strong>
@@ -39,19 +39,19 @@
                 <div class="column">
                   <div class="field is-grouped is-grouped-centered">
                     <div class="control">
-                      <a [routerLink]="['/member/view', memberId, 'profile']">
+                      <a [routerLink]="['/member/view', member.id, 'profile']">
                         <button class="button is-primary" [disabled]="enabled">
                           Consulter le profil
                         </button>
                       </a>
                     </div>
                     <div class="control">
-                      <button class="button is-primary" (click)="onDemenager(memberId)" [disabled]="enabled">
+                      <button class="button is-primary" (click)="ref = ref === member.username ? '' : member.username" [disabled]="enabled">
                         Déménager
                       </button>
                     </div>
                     <div class="control">
-                      <a (click)="onRemoveFromRoom(memberId)">
+                      <a (click)="onRemove(member.username)">
                         <button class="button is-danger" [disabled]="enabled">
                           Supprimer de la chambre
                         </button>
@@ -60,28 +60,26 @@
                   </div>
                 </div>
               </div>
-              <div *ngIf="isDemenager">
-                <div *ngIf="ref === memberId">
-                  <hr>
-                  <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(memberId)" novalidate>
-                    <div class="field has-addons has-addons-fullwidth">
-                      <div class="control">
-                        <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
-                          placeholder="Nouveau numéro de chambre" />
-                      </div>
-                      <div class="control">
-                        <button type="submit" class="button is-primary" [disabled]="roomForm.status === 'INVALID'">
-                          Valider
-                        </button>
-                      </div>
+              <div *ngIf="ref === member.username">
+                <hr>
+                <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" novalidate>
+                  <div class="field has-addons has-addons-fullwidth">
+                    <div class="control">
+                      <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
+                        placeholder="Nouveau numéro de chambre" />
                     </div>
-                  </form>
-                </div>
+                    <div class="control">
+                      <button type="submit" class="button is-primary" [disabled]="roomForm.status === 'INVALID'">
+                        Valider
+                      </button>
+                    </div>
+                  </div>
+                </form>
                 <hr>
               </div>
             </ng-container>
           </ng-container>
-          <ng-container *ngIf="memberIds.length === 0">
+          <ng-container *ngIf="memberLogins.length === 0">
             <h6 class="title is-6 has-text-centered">Aucun adhérent dans la chambre</h6>
           </ng-container>
         </ng-container>
@@ -89,3 +87,6 @@
     </div>
   </div>
 </div>
+<ng-template #loading>
+  <p class="has-text-centered"><img src="../../../assets/icons/spin.svg" /></p>
+</ng-template>

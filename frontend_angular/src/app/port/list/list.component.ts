@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { map, Observable, shareReplay } from 'rxjs';
+import { map, Observable, shareReplay, switchMap } from 'rxjs';
 import { AbstractPort, PortService, RoomService, SwitchService } from '../../api';
 import { PaginationComponent } from '../../pagination/pagination.component';
 import { SearchPage } from '../../search-page';
@@ -28,10 +28,13 @@ export class PortListComponent extends SearchPage<AbstractPort> implements OnIni
         map(response => {
           for (let p of response.body) {
             if (p.room && !this.cachedRoomDescription.has(p.room)) {
-              this.cachedRoomDescription.set(p.room, this.roomService.roomIdGet(p.room).pipe(
-                shareReplay(1),
-                map(room => room.description)
-              ));
+              this.cachedRoomDescription.set(p.room, this.roomService.roomGet(1, 0, undefined, {id: p.room})
+                .pipe(
+                  switchMap(r => this.roomService.roomRoomNumberGet(r[0])), 
+                  shareReplay(1),
+                  map(room => room.description)
+                )
+              );
             }
             if (p.switchObj && !this.cachedSwitchDescription.has(p.switchObj)) {
               this.cachedSwitchDescription.set(p.switchObj, this.switchService.switchIdGet(p.switchObj).pipe(

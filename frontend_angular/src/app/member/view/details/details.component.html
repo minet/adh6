@@ -29,7 +29,7 @@
                 <td>Chambre</td>
                 <td>
                     <ng-container *ngIf="room$ | async as room; else elseNoRoom">
-                    <a [routerLink]='["/room/view/", room.id]'>
+                    <a [routerLink]='["/room", room.roomNumber, "view"]'>
                         {{ room.roomNumber }}
                     </a>
                     </ng-container>
