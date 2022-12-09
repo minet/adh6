@@ -2227,14 +2227,17 @@ paths:
           $ref: '#/components/schemas/AbstractRoom'
         style: deepObject
         explode: true
-      - $ref: '#/components/parameters/onlyRoom'
       responses:
         '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractRoom'
+                  type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
+                  example: 25
                 type: array
                 maxItems: 100
           description: Success
@@ -2261,7 +2264,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         default:
           $ref: '#/components/responses/DefaultError'
-      summary: Filter rooms
+      summary: List of th room numbers get with a specific filter
       security: 
         - OAuth2:
           - admin:read
@@ -2425,12 +2428,10 @@ paths:
             application/json:
               schema:
                 items:
-                  description: id of the member in the room
-                  type: integer
-                  format: int64
-                  minimum: 0
-                  maximum: 100000
-                  example: 0
+                  description: login of the member in the room
+                  type: string
+                  maxLength: 255
+                  example: tux
                 type: array
                 maxItems: 100
           description: OK

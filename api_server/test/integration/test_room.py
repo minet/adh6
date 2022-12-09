@@ -253,7 +253,7 @@ def test_room_member_in_room(client, sample_room1, sample_member):
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode('utf-8'))
-    assert response == sample_room1.id
+    assert response == sample_room1.numero
 
 
 def test_room_add_member_change_vlan_check_wired(client, sample_room1, sample_room2, sample_member, sample_vlan, sample_vlan69):
@@ -307,7 +307,7 @@ def test_room_member_in_room_user_authorized(client, sample_room1, sample_member
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode('utf-8'))
-    assert response == sample_room1.id
+    assert response == sample_room1.numero
 
 
 def test_room_delete_member_unknown_member(client):
@@ -352,7 +352,7 @@ def test_room_list_member(client, sample_room1, sample_member):
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode('utf-8'))
-    assert response == [sample_member.id] 
+    assert response == [sample_member.login] 
 
 
 def test_room_list_member_unauthorized_user(client, sample_room1):

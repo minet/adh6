@@ -1,97 +1,52 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { MemberBody, MemberService, RoomMembersService, RoomService } from '../../api';
-import { mergeMap } from 'rxjs/operators';
-import { EMPTY, of } from 'rxjs';
+import { AbstractMember, Member, MemberBody, MemberService, RoomMembersService } from '../../api';
+import { switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 import { Toast } from '../../notification.service';
 import { CommonModule } from '@angular/common';
-
-interface MemberEditForm {
-  firstName: FormControl<string>;
-  lastName: FormControl<string>;
-  username: FormControl<string>;
-  email: FormControl<string>;
-  roomNumber: FormControl<number>;
-}
+import { FormComponent } from './form/form.component';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, FormComponent],
   selector: 'app-create-edit',
   templateUrl: './create-or-edit.component.html'
 })
 export class CreateOrEditComponent implements OnInit {
-  create = false;
-  public memberEdit: FormGroup<MemberEditForm>;
-  private member_id: number;
+  public member$: Observable<AbstractMember>;
 
   constructor(
-    public memberService: MemberService,
-    public roomService: RoomService,
-    public roomMemberService: RoomMembersService,
+    private memberService: MemberService,
+    private roomMemberService: RoomMembersService,
     private route: ActivatedRoute,
     private router: Router
-  ) {
-    this.memberEdit = new FormGroup<MemberEditForm>({
-      firstName: new FormControl('', [Validators.required]),
-      lastName: new FormControl('', Validators.required),
-      username: new FormControl('', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      roomNumber: new FormControl(null),
-    });
-  }
+  ) { }
 
-  editMember() {
-    const v = this.memberEdit.value;
-    const body: MemberBody = {
-      mail: v.email,
-      firstName: v.firstName,
-      lastName: v.lastName,
-      username: v.username,
+  editMember(newMember: {member: MemberBody, room: number}, member?: Member) {
+    if (member.username) {
+      this.memberService.memberIdPatch(member.id, newMember.member)
+        .subscribe(() => {
+          this.roomMemberService.roomRoomNumberMemberPost(newMember.room, { login: newMember.member.username }).subscribe(() => this.router.navigate(['member/view', member.id]))
+        });
+    } else {
+      this.memberService.memberPost(newMember.member)
+        .subscribe((id) => {
+          this.roomMemberService.roomRoomNumberMemberPost(newMember.room, { login: newMember.member.username }).subscribe(() => this.router.navigate(['/password', id, 1]))
+        });
     };
-    this.roomService.roomGet(1, 0, undefined, { roomNumber: v.roomNumber })
-      .subscribe(rooms => {
-        if (!this.create) {
-          this.memberService.memberIdPatch(this.member_id, body)
-            .subscribe(() => {
-              this.roomMemberService.roomIdMemberPost(rooms[0].id, { id: this.member_id }).subscribe(() => this.router.navigate(['member/view', this.member_id]))
-            });
-        } else {
-          this.memberService.memberPost(body)
-            .subscribe((id) => {
-              this.roomMemberService.roomIdMemberPost(rooms[0].id, { id: id }).subscribe(() => this.router.navigate(['/password', id, 1]))
-            });
-        };
-      });
   }
 
-  delete() {
-    this.memberService.memberIdDelete(this.member_id)
-      .subscribe((_) => {
+  delete(member: Member) {
+    this.memberService.memberIdDelete(member.id)
+      .subscribe(() => {
         this.router.navigate(['member/search']);
         Toast.fire("User suprimé", "", 'success')
       });
   }
 
   ngOnInit() {
-    this.route.paramMap
-      .pipe(
-        mergeMap((params: ParamMap) => {
-          if (params.has('member_id')) {
-            return of(params.get('member_id'));
-          } else {
-            // If username is not provided, we assume this is a create request
-            this.create = true;
-            return EMPTY;
-          }
-        }),
-        mergeMap((member_id) => this.memberService.memberIdGet(+member_id)),
-      )
-      .subscribe((member) => {
-        this.member_id = member.id;
-        this.memberEdit.patchValue(member);
-      });
+    this.member$ = this.route.paramMap.pipe(switchMap((params: ParamMap) => params.has('member_id') ? this.memberService.memberIdGet(+params.get('member_id')) : of(<AbstractMember>{})))
   }
 }

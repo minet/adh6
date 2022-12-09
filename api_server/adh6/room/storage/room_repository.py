@@ -30,8 +30,10 @@ class RoomSQLRepository(RoomRepository):
         return _map_room_sql_to_entity(result) if result else None
 
     @log_call
-    def get_members(self, room_id: int) -> t.List[int]:
-        smt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
+    def get_members(self, room_id: int) -> t.List[str]:
+        smt = select(Adherent.login)\
+            .join(RoomMemberLink, Adherent.id == RoomMemberLink.member_id)\
+            .where(RoomMemberLink.room_id == room_id)
         return session.execute(smt).scalars().all()
 
     @log_call

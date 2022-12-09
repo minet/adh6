@@ -2,12 +2,13 @@
 import typing as t
 
 from connexion import NoContent
+from adh6.constants import DEFAULT_OFFSET, DEFAULT_LIMIT
 from adh6.authentication import Roles
 from adh6.decorator import log_call, with_context
 from adh6.entity import Room, AbstractRoom
 from adh6.default import DefaultHandler
 from adh6.exceptions import UnauthorizedError
-from adh6.context import get_user, get_roles, get_login
+from adh6.context import get_roles, get_login
 
 from ..room_manager import RoomManager
 
@@ -16,6 +17,17 @@ class RoomHandler(DefaultHandler):
     def __init__(self, room_manager: RoomManager):
         super().__init__(Room, AbstractRoom, room_manager)
         self.room_manager = room_manager
+
+    @with_context
+    @log_call
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[t.Any] = None):
+        filter_ = self.abstract_entity_class.from_dict(filter_) if filter_ else None
+        result, total_count = self.room_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
+        headers = {
+            "X-Total-Count": str(total_count),
+            'access-control-expose-headers': 'X-Total-Count'
+        }
+        return list(map(lambda x: x.room_number, result)), 200, headers
 
     @with_context
     @log_call
@@ -65,4 +77,4 @@ class RoomHandler(DefaultHandler):
     def member_get(self, login: int):
         if get_login() != login and Roles.ADMIN_WRITE.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
-        return self.room_manager.room_from_member(login=login).id, 200
+        return self.room_manager.room_from_member(login=login).room_number, 200

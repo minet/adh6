@@ -50,7 +50,7 @@ class RoomManager(CRUDManager):
         self.member_manager.reset_member(member.id)
 
     @log_call
-    def list_members(self, room_number: int) -> t.List[int]:
+    def list_members(self, room_number: int) -> t.List[str]:
         room = self.get_by_number(room_number)
         return self.room_repository.get_members(room_id=room.id)
 
