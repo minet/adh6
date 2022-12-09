@@ -79,6 +79,12 @@ def api_key(login: str = "dev-api-key"):
 @manager.cli.command("seed")
 def seed():
     """Add seed data to the database."""
+
+    from adh6.treasury import init as treasury_init
+    from adh6.authentication import init as auth_init
+    treasury_init()
+    auth_init()
+
     print("Seeding Products")
     products = [1,"Cable 3m", 3, 3],[2,"Cable 5m", 5, 5],[3,"Adaptateur USB/Ethernet", 13.00, 13.00],[4,"Adaptateur USB-C/Ethernet", 12.00, 12.00]
     session.bulk_save_objects([
