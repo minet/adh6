@@ -140,7 +140,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.port$ = this.portService.portIdGet(this.portID)
         .pipe(map(p => {
           if (p.room) {
-            this.room_number$ = this.roomService.roomIdGet(p.room, ["roomNumber"]).pipe(shareReplay(1), map(r => r.roomNumber));
+            this.room_number$ = this.roomService.roomGet(1, 0, undefined, {id: p.room}).pipe(shareReplay(1), map(r => r[0]));
           }
           if (p.switchObj) {
             this.switch_description$ = this.switchService.switchIdGet(p.switchObj, ["description"]).pipe(shareReplay(1), map(s => s.description));

@@ -28,7 +28,7 @@ def init():
 
     special = session.query(AccountType).filter(AccountType.name == Config.DEFAULT_ACCOUNT_TYPES[0]).one()
     logging.info(f"--- Setup default accounts: {Config.DEFAULT_ACCOUNT_TYPES} ---")
-    for e in Config.DEFAULT_ACCOUNT_TYPES:
+    for e in Config.DEFAULT_ACCOUNTS:
         if session.query(Account).filter(Account.name == e).one_or_none() is None:
             logging.warning(f"default account not found creating it: {e}")
             session.add(

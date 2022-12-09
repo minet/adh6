@@ -55,6 +55,7 @@ class DefaultHandler:
         return self._update(function=self.main_manager.update_or_create, klass=self.entity_class, body=body, id=id_)
 
     @with_context
+    @log_call
     def patch(self, body, id_: int):
         return self._update(function=self.main_manager.partially_update, klass=self.abstract_entity_class, body=body, id=id_)
 

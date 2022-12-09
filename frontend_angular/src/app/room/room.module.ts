@@ -23,8 +23,10 @@ import { PaginationComponent } from '../pagination/pagination.component';
       { path: '', redirectTo: 'search', pathMatch: 'full' },
       { path: 'search', component: RoomListComponent },
       { path: 'add', component: RoomNewComponent },
-      { path: 'view/:room_id', component: RoomDetailsComponent },
-      { path: 'edit/:room_id', component: RoomEditComponent },
+      { path: ':room_number', children: [
+        { path: 'view', component: RoomDetailsComponent },
+        { path: 'edit', component: RoomEditComponent },
+      ]}
     ]),
     PaginationComponent
   ]

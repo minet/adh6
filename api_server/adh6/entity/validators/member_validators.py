@@ -13,7 +13,7 @@ def is_member_active(member: Member) -> bool:
         member_departure = member.departure_date.date()
     else:
         member_departure = member.departure_date
-    return member_departure > datetime.now().date() and RoomRepository().get_from_member(member.id) is not None
+    return member_departure > datetime.now().date() and RoomRepository().get_from_member(member) is not None
 
 
 def has_member_subnet(member: Member):

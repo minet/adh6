@@ -1,0 +1,30 @@
+<form [formGroup]="memberEdit" (ngSubmit)="onSubmit()">
+  <div class="field">
+    <label class="label">Prénom / First name :</label>
+    <input class="input is-fullwidth" type="text" formControlName="firstName" required>
+  </div>
+  <div class="field">
+    <label class="label">Nom / Last name :</label>
+    <input class="input is-fullwidth" type="text" formControlName="lastName" required>
+  </div>
+  <div class="field">
+    <label class="label">Login :</label>
+    <input class="input is-fullwidth" type="text" formControlName="username" minlength="7" required>
+    <p *ngIf="memberEdit.controls.username.invalid" class="help is-danger">
+      <span class="invalid" *ngIf="memberEdit.controls.username.errors.minlength">
+        Le nom d'utilisateur doit contenir au moins 7 caractères
+      </span>
+    </p>
+  </div>
+  <div class="field">
+    <label class="label">Mail :</label>
+    <input class="input is-fullwidth" type="email" formControlName="email" required>
+  </div>
+  <div class="field">
+    <label class="label">Numéro de chambre / Room number :</label>
+    <input class="input is-fullwidth" formControlName="roomNumber" type="number" placeholder="Aucune chambre" required>
+  </div>
+  <button type="submit" [disabled]="memberEdit.invalid" class="button is-primary is-fullwidth">
+    <span *ngIf="!member">Éditer</span><span *ngIf="member">Créer</span>
+  </button>
+</form>

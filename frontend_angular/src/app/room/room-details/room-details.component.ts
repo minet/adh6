@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AbstractMember, AbstractPort, MemberService, PortService, RoomService, AbstractRoom, RoomMembersService } from '../../api';
-import { map, shareReplay } from 'rxjs/operators';
-import { NotificationService } from '../../notification.service';
+import { AbstractMember, AbstractPort, MemberService, PortService, RoomService, AbstractRoom, RoomMembersService, Room } from '../../api';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { NotificationService, Toast } from '../../notification.service';
 
 @Component({
   selector: 'app-room-details',
@@ -13,13 +13,11 @@ import { NotificationService } from '../../notification.service';
 export class RoomDetailsComponent implements OnInit {
   public room$: Observable<AbstractRoom>;
   public ports$: Observable<Array<AbstractPort>>;
-  public memberIds$: Observable<Array<number>>;
-  private room_id: number;
+  public memberLogins$: Observable<Array<string>>;
   public roomForm: UntypedFormGroup;
   public EmmenagerForm: UntypedFormGroup;
-  public isDemenager = false;
-  public ref: number;
-  public cachedMemberUsernames: Map<Number, Observable<AbstractMember>> = new Map();
+  public ref: string;
+  public cachedMembers: Map<string, Observable<AbstractMember>> = new Map();
 
   constructor(
     private notificationService: NotificationService,
@@ -31,11 +29,6 @@ export class RoomDetailsComponent implements OnInit {
     private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
   ) {
-    this.createForm();
-  }
-
-  createForm() {
-    this.ngOnInit();
     this.roomForm = this.fb.group({
       roomNumberNew: ['', [Validators.min(-1), Validators.max(9999), Validators.required]],
     });
@@ -44,79 +37,45 @@ export class RoomDetailsComponent implements OnInit {
     });
   }
 
-  onDemenager(memberId: number) {
-    this.ref = memberId;
-    this.isDemenager = !this.isDemenager;
-  }
-
   refreshInfo() {
-    this.room$ = this.roomService.roomIdGet(this.room_id)
-      .pipe(map(room => {
-        this.memberIds$ = this.roomMemberService.roomIdMemberGet(this.room_id)
-          .pipe(
-            map(response => {
-              for (let i of response) {
-                this.cachedMemberUsernames.set(+i, this.memberService.memberIdGet(+i).pipe(shareReplay(1)));
-              }
-              return response
-            })
-          );
-        return room;
-      }));
-    this.ports$ = this.portService.portGet(undefined, undefined, undefined, <AbstractPort>{ room: this.room_id });
+    this.memberLogins$ = this.room$.pipe(switchMap(room => this.roomMemberService.roomRoomNumberMemberGet(room.roomNumber)
+      .pipe(
+        map(response => {
+          for (let i of response) {
+            this.cachedMembers.set(i, this.memberService.memberGet(1, 0, i)
+              .pipe(map(response => response[0]))
+              .pipe(switchMap(r => this.memberService.memberIdGet(r)))
+              .pipe(shareReplay(1)));
+          }
+          return response
+        })
+      )
+    ));
+    this.ports$ = this.room$.pipe(switchMap(room => this.portService.portGet(undefined, undefined, undefined, <AbstractPort>{ room: room.id })));
   }
 
-  onSubmitComeInRoom() {
-    const v = this.EmmenagerForm.value;
-    this.memberService.memberGet(1, 0, v.username)
-      .subscribe((member_list) => {
-        const member = member_list[0];
-        this.roomMemberService.roomIdMemberAddPatch(this.room_id, { id: member })
-          .subscribe((_) => {
-            this.refreshInfo();
-            this.notificationService.successNotification();
-          });
-      }, (_) => {
-        this.notificationService.errorNotification(404, undefined, 'Member ' + v.username + ' does not exists');
+  onSubmit() {
+    const v = this.roomForm.value;
+    this.roomMemberService.roomRoomNumberMemberPost(v.roomNumberNew, {login: this.ref})
+      .subscribe(() => {
+        this.ref = "";
+        this.router.navigate(['/room', v.roomNumberNew, 'view']);
+        Toast.fire("Adhérent déménagé", undefined, "success");
       });
   }
 
-  onSubmitMoveRoom(memberId: number) {
-    const v = this.roomForm.value;
-
-    this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: v.roomNumberNew })
-      .subscribe(rooms => {
-        if (rooms.length == 0) {
-          this.notificationService.errorNotification(404, undefined, "The room with number: " + v.roomNumberNew + " does not exists");
-          return
-        }
-        const room = rooms[0];
-        this.roomMemberService.roomIdMemberAddPatch(room.id, { id: memberId })
-          .subscribe((_) => {
-            this.refreshInfo();
-            this.onDemenager(memberId);
-            this.router.navigate(['room', 'view', v.roomNumberNew]);
-            this.notificationService.successNotification();
-          });
-      })
-  }
-
-  onRemoveFromRoom(memberId: number) {
-    this.roomMemberService.roomIdMemberDelPatch(this.room_id, { id: memberId })
-      .subscribe((_) => {
+  onRemove(login: string) {
+    this.roomMemberService.roomMemberLoginDelete(login)
+      .subscribe(() => {
         this.refreshInfo();
-        this.notificationService.successNotification();
+        Toast.fire("Adhérent enlevé", undefined, "success");
       });
   }
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.room_id = +params['room_id'];
-      this.refreshInfo();
-    });
-  }
-
-  public getMemberUsername(id: number) {
-    return this.cachedMemberUsernames.get(id)
+    this.room$ = this.route.params.pipe(switchMap(params => {
+      return this.roomService.roomRoomNumberGet(+params['room_number'], ["roomNumber", "vlan"]).pipe(shareReplay(1));
+    }));
+    this.refreshInfo();
   }
 }

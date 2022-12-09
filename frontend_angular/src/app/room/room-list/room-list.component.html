@@ -19,10 +19,10 @@
     </tr>
   </thead>
   <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr *ngFor="let room of result" [routerLink]="['/room/view',room.id]">
-      <td>{{ room.roomNumber }}</td>
-      <td>{{ room.description }}</td>
-      <td>{{ room.vlan }}</td>
+    <tr *ngFor="let roomNumber of result" [routerLink]="['/room', roomNumber, 'view']">
+      <td>{{ roomNumber }}</td>
+      <td>{{ (cachedRoom$.get(roomNumber) | async).description }}</td>
+      <td>{{ (cachedRoom$.get(roomNumber) | async).vlan }}</td>
     </tr>
   </tbody>
 </table>

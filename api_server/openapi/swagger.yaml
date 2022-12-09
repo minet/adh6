@@ -2227,14 +2227,17 @@ paths:
           $ref: '#/components/schemas/AbstractRoom'
         style: deepObject
         explode: true
-      - $ref: '#/components/parameters/onlyRoom'
       responses:
         '200':
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractRoom'
+                  type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
+                  example: 25
                 type: array
                 maxItems: 100
           description: Success
@@ -2261,7 +2264,7 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
         default:
           $ref: '#/components/responses/DefaultError'
-      summary: Filter rooms
+      summary: List of th room numbers get with a specific filter
       security: 
         - OAuth2:
           - admin:read
@@ -2304,9 +2307,18 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - room
-  /room/{id}:
+  /room/{roomNumber}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - description: The number of the room that need to be fetched.
+        in: path
+        name: roomNumber
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 8000
+          example: 0
     delete:
       responses:
         '204':
@@ -2397,9 +2409,18 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - room
-  /room/{id}/member/:
+  /room/{roomNumber}/member/:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - description: The number of the room that need to be fetched.
+        in: path
+        name: roomNumber
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 8000
+          example: 0
     get:
       responses:
         '200':
@@ -2407,12 +2428,10 @@ paths:
             application/json:
               schema:
                 items:
-                  description: id of the member in the room
-                  type: integer
-                  format: int64
-                  minimum: 0
-                  maximum: 100000
-                  example: 0
+                  description: login of the member in the room
+                  type: string
+                  maxLength: 255
+                  example: tux
                 type: array
                 maxItems: 100
           description: OK
@@ -2443,17 +2462,14 @@ paths:
           application/json:
             schema:
               required:
-                - id
+                - login
               type: object
               additionalProperties: false
               properties:
-                id:
-                  description: Id of the member to add
-                  type: integer
-                  format: int64
-                  minimum: 0
-                  maximum: 100000 
-                  example: 1
+                login:
+                  type: string
+                  maxLength: 255
+                  example: tux
         required: true
       responses:
         '204':
@@ -2479,149 +2495,27 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - room members
-    delete:
-      parameters:
-      - description: Id of the member to remove
-        in: query
-        name: memberId
+  /room/member/{login}:
+    parameters:
+      - description: The login of the user
+        in: path
+        name: login
+        required: true
         schema:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 100000
-          example: 0
-        required: true
-      responses:
-        '204':
-          description: The member has been removed
-        '400':
-          $ref: '#/components/responses/Invalid'  
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbiden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '406':
-          $ref: '#/components/responses/Unacceptable'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        default:
-          $ref: '#/components/responses/DefaultError'
-      summary: Remove a member from a room
-      security: 
-        - OAuth2:
-          - admin:write
-        - ApiKeyAdminAuth: []
-      tags:
-      - room members
-  /room/{id}/member/add/:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-    patch:
-      deprecated: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - id
-              type: object
-              additionalProperties: false
-              properties:
-                id:
-                  description: Id of the member to remove
-                  type: integer
-                  format: int64
-                  minimum: 0
-                  maximum: 100000
-                  example: 1
-        description: The member to add
-        required: true
-      responses:
-        '204':
-          description: The member has been added
-        '400':
-          $ref: '#/components/responses/Invalid'  
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbiden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '406':
-          $ref: '#/components/responses/Unacceptable'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        default:
-          $ref: '#/components/responses/DefaultError'
-      summary: Add a member in a room
-      security: 
-        - OAuth2:
-          - admin:write
-        - ApiKeyAdminAuth: []
-      tags:
-      - room members
-  /room/{id}/member/del/:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-    patch:
-      deprecated: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - id
-              type: object
-              additionalProperties: false
-              properties:
-                id:
-                  description: Id of the member to remove
-                  type: integer
-                  format: int64
-                  minimum: 0
-                  maximum: 100000
-                  example: 1
-        required: true
-      responses:
-        '204':
-          description: The member has been removed
-        '400':
-          $ref: '#/components/responses/Invalid'  
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbiden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '406':
-          $ref: '#/components/responses/Unacceptable'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        default:
-          $ref: '#/components/responses/DefaultError'
-      summary: Remove a member from a room
-      security: 
-        - OAuth2:
-          - admin:write
-        - ApiKeyAdminAuth: []
-      tags:
-      - room members
-  /room/member/{id}:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
+          type: string
+          maxLength: 255
+          example: tux
     get:
       responses:
         '200':
           content:
             application/json:
               schema:
-                description: id of the room the member is in
+                description: Room number the member is int
                 type: integer
                 format: int64
                 minimum: 0
-                maximum: 100000
+                maximum: 8000
                 example: 0
                 nullable: true
           description: OK
@@ -2645,6 +2539,31 @@ paths:
           - user
         - OAuth2:
           - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+      - room members
+    delete:
+      responses:
+        '204':
+          description: The member has been removed
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
+      summary: Remove a member from a room
+      security: 
+        - OAuth2:
+          - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - room members
