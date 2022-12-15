@@ -2,7 +2,7 @@
 import typing as t
 from connexion.decorators.produces import NoContent
 from adh6.authentication import Roles
-from adh6.context import get_roles, get_user
+from adh6.context import get_roles, get_user, get_login
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
 from adh6.decorator import log_call, with_context
@@ -10,12 +10,14 @@ from adh6.default.http_handler import DefaultHandler
 from adh6.exceptions import NotFoundError, UnauthorizedError
 
 from ..device_manager import DeviceManager
+from ..device_logs_manager import DeviceLogsManager
 
 
 class DeviceHandler(DefaultHandler):
-    def __init__(self, device_manager: DeviceManager):
+    def __init__(self, device_manager: DeviceManager, device_logs_manager: DeviceLogsManager):
         super().__init__(Device, AbstractDevice, device_manager)
         self.device_manager = device_manager
+        self.device_logs_manager = device_logs_manager
 
     @with_context
     @log_call
@@ -29,8 +31,6 @@ class DeviceHandler(DefaultHandler):
     @log_call
     def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, filter_: dict = {}):
         device_filter = DeviceFilter.from_dict(filter_)
-        if get_user() != device_filter.member and Roles.ADMIN_READ.value not in get_roles():
-            raise UnauthorizedError("Unauthorize to access this resource")
         result, total_count = self.device_manager.search(limit=limit, offset=offset, device_filter=device_filter)
         headers = {
             "X-Total-Count": str(total_count),
@@ -101,3 +101,32 @@ class DeviceHandler(DefaultHandler):
     @log_call
     def member_search(self, id_: int):
         return self.device_manager.get_owner(device_id=id_), 200
+
+    @with_context
+    @log_call
+    def member_get(self, login: str, connection_type: str):
+        """ Get logs from a member. """
+        if get_login() != login and Roles.ADMIN_READ.value not in get_roles():
+            raise UnauthorizedError("Unauthorize to access this resource")
+        devices = self.device_manager.get_by_user_login(login, connection_type)
+        headers = {
+            "X-Total-Count": str(len(devices)),
+            'access-control-expose-headers': 'X-Total-Count'
+        }
+        return devices, 200, headers
+
+    @with_context
+    @log_call
+    def member_logs_search(self, login, dhcp=False):
+        """ Get logs from a member. """
+        return self.device_logs_manager.get_logs(login=login, dhcp=dhcp), 200
+
+    @with_context
+    @log_call
+    def member_statuses_search(self, login: int):
+        try:
+            return list(map(lambda x: x.to_dict(), self.device_logs_manager.get_statuses(login))), 200
+        except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
+                e = UnauthorizedError("cannot access this resource")
+            raise e

@@ -1,13 +1,10 @@
 # coding=utf-8
-import re
-import logging
 import typing as t
 from ipaddress import IPv4Address, IPv4Network
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS
 from adh6.entity import (
     AbstractMember, Member,
-    MemberStatus,
     Account, 
     MemberBody, 
     MemberFilter, 
@@ -20,10 +17,9 @@ from adh6.exceptions import (
     NoSubnetAvailable,
     MemberNotFoundError,
     MemberAlreadyExist,
-    LogFetchError,
     UpdateImpossible,
 )
-from adh6.device import DeviceIpManager, DeviceLogsManager
+from adh6.device import DeviceIpManager
 from adh6.default import CRUDManager
 from adh6.decorator import log_call
 from adh6.treasury import AccountManager, AccountTypeManager
@@ -38,12 +34,11 @@ class MemberManager(CRUDManager):
     def __init__(self, member_repository: MemberRepository,
                  account_manager: AccountManager,
                  account_type_manager: AccountTypeManager,
-                 device_ip_manager: DeviceIpManager, device_logs_manager: DeviceLogsManager,
+                 device_ip_manager: DeviceIpManager,
                  mailinglist_manager: MailinglistManager, subscription_manager: SubscriptionManager):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
         self.mailinglist_manager = mailinglist_manager
-        self.device_logs_manager = device_logs_manager
         self.device_ip_manager = device_ip_manager
         self.account_manager = account_manager
         self.account_type_manager = account_type_manager
@@ -157,108 +152,6 @@ class MemberManager(CRUDManager):
                                                    first_name=body.first_name,
                                                    last_name=body.last_name
                                                ))
-
-    @log_call
-    def get_logs(self, member_id, dhcp=False) -> t.List[str]:
-        """
-        User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
-        issues.
-
-        :raise MemberNotFound
-        """
-        # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-
-        # Do the actual log fetching.
-        try:
-            logs = self.device_logs_manager.get(member=member, dhcp=dhcp)
-
-            return list(map(
-                lambda x: "{} {}".format(x[0], x[1]),
-                logs
-            ))
-
-        except LogFetchError:
-            logging.warning("log_fetch_failed")
-            return []  # We fail open here.
-
-
-    @log_call
-    def get_statuses(self, member_id) -> t.List[MemberStatus]:
-        # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-
-        # Do the actual log fetching.
-        try:
-            logs = self.device_logs_manager.get(member=member, dhcp=False)
-            device_to_statuses = {}
-            last_ok_login_mac = {}
-
-            def add_to_statuses(status, timestamp, mac):
-                if mac not in device_to_statuses:
-                    device_to_statuses[mac] = {}
-                if status not in device_to_statuses[mac] or device_to_statuses[mac][
-                    status].last_timestamp < timestamp:
-                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp,
-                                                                   comment=mac)
-
-            prev_log = ["", ""]
-            for log in logs:
-                if "Login OK" in log[1]:
-                    match = re.search(r'.*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*', log[1])
-                    if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
-                        if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
-                            last_ok_login_mac[mac] = log[0]
-                if "EAP sub-module failed" in prev_log[1] \
-                        and "mschap: MS-CHAP2-Response is incorrect" in log[1] \
-                        and (prev_log[0] - log[0]).total_seconds() < 1:
-                    match = re.search(r'.*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
-                                      prev_log[1])
-                    if match:
-                        login, mac = match.group(1), match.group(2).upper()
-                        if login != member.username:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                        else:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
-                if 'rlm_python' in log[1]:
-                    match = re.search(r'.*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)', log[1])
-                    if match is not None:
-                        login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
-                        if 'MAC not found and not association period' in reason:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
-                        if 'Adherent not found' in reason:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
-                    # @TODO a read access denied means the user is validating the certificate
-                    # @TODO a read/write protocol version is ???
-                    # @TODO a write unknown CA means the user is validating the certificate
-                    # @TODO a write decryption failed is ???
-                    # @TODO a read internal error is most likely not user-related
-                    # @TODO a write unexpected_message is ???
-                    match = re.search(
-                        r'.*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*',
-                        log[1])
-                    if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
-                        add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
-                prev_log = log
-
-            all_statuses = []
-            for mac, statuses in device_to_statuses.items():
-                for _, object in statuses.items():
-                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
-                        continue
-                    all_statuses.append(object)
-            return all_statuses
-
-        except LogFetchError:
-            logging.warning("log_fetch_failed")
-            return []  # We fail open here.
 
 
     @log_call
