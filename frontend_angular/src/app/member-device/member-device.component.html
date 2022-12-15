@@ -5,11 +5,11 @@
   <div class="columns">
     <div class="column has-text-centered">
       <h4 class="title is-4" i18n="@@wired">Filaire</h4>
-      <app-member-device-list #wiredList [abstractDeviceFilter]="wiredDeviceFilter"></app-member-device-list>
+      <app-member-device-list #wiredList [member]="member" [deviceType]="'wired'"></app-member-device-list>
     </div>
     <div class="column has-text-centered">
       <h4 class="title is-4" i18n="@@wireless">Wifi</h4>
-      <app-member-device-list #wirelessList [abstractDeviceFilter]="wirelessDeviceFilter"></app-member-device-list>
+      <app-member-device-list #wirelessList [member]="member" [deviceType]="'wireless'"></app-member-device-list>
     </div>
   </div>
 </div>

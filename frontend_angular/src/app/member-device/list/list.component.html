@@ -1,7 +1,7 @@
-<div *ngIf="result$ | async as result; else loading">
-  <p *ngIf="result.length === 0; else theDevices" class="title"
+<div *ngIf="deviceIds$ | async as deviceIds; else loading">
+  <p *ngIf="deviceIds.length === 0; else theDevices" class="title"
     i18n="device list none|Tells the user they have no registered devices">Aucun appareil enregistré</p>
-  <div *ngFor="let deviceId of result; let i = index">
+  <div *ngFor="let deviceId of deviceIds; let i = index">
     <app-element [elementName]="i" [deviceId]="deviceId" style="padding: 0% 0%;" (removed)="updateSearch()"></app-element>
   </div>
 </div>
