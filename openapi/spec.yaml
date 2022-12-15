@@ -383,9 +383,7 @@ paths:
         default:
           $ref: '#/components/responses/DefaultError' 
       summary: Return the list of the device ids
-      security: 
-        - OAuth2:
-          - user
+      security:
         - OAuth2:
           - admin:read
         - ApiKeyAdminAuth: []
@@ -632,6 +630,163 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - device
+  /device/member/{login}:
+    parameters:
+      - description: The login of the user
+        in: path
+        name: login
+        required: true
+        schema:
+          type: string
+          maxLength: 255
+          example: tux
+      - description: The type of device
+        in: query
+        name: connectionType
+        schema:
+          type: string
+          enum:
+          - wired
+          - wireless
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: integer
+                  format: int64
+                  minimum: 0
+                  maximum: 100000
+                type: array
+                maxItems: 100
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                format: int64
+                minimum: 0
+                maximum: 100
+                example: 25
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError' 
+      summary: Return the list of the device ids of the specific user
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+      - device
+  /device/member/{login}/statuses/:
+    parameters:
+      - description: The login of the user
+        in: path
+        name: login
+        required: true
+        schema:
+          type: string
+          maxLength: 255
+          example: tux
+    get:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MemberStatus'
+                type: array
+                maxItems: 100
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
+      summary: Retrieves some common status updates concerning the device of a member
+      security: 
+        - OAuth2:
+          - user
+        - OAuth2:
+          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+      - device
+  /device/member/{login}/logs/:
+    parameters:
+      - description: The login of the user
+        in: path
+        name: login
+        required: true
+        schema:
+          type: string
+          maxLength: 255
+          example: tux
+    get:
+      parameters:
+      - description: Whether to fetch DHCP logs
+        in: query
+        name: dhcp
+        required: false
+        schema:
+            type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  example: 2018-07-14T04:44:51.537Z Password OK
+                  type: string
+                type: array
+                maxItems: 100
+          description: Success
+        '400':
+          $ref: '#/components/responses/Invalid'  
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbiden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/Unacceptable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/DefaultError'
+      summary: Retrieve the most recent logs of a member
+      security: 
+        - OAuth2:
+          - admin:read
+      tags:
+      - device
   /member/:
     get:
       parameters:
@@ -819,85 +974,6 @@ paths:
       security: 
         - OAuth2:
           - admin:write
-        - ApiKeyAdminAuth: []
-      tags:
-      - member
-  /member/{id}/logs/:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-    get:
-      parameters:
-      - description: Whether to fetch DHCP logs
-        in: query
-        name: dhcp
-        required: false
-        schema:
-            type: boolean
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                items:
-                  example: 2018-07-14T04:44:51.537Z Password OK
-                  type: string
-                type: array
-                maxItems: 100
-          description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'  
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbiden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '406':
-          $ref: '#/components/responses/Unacceptable'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        default:
-          $ref: '#/components/responses/DefaultError'
-      summary: Retrieve the most recent logs of a member
-      security: 
-        - OAuth2:
-          - admin:read
-      tags:
-      - member
-  /member/{id}/statuses/:
-    parameters:
-      - $ref: '#/components/parameters/idPath'
-    get:
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/MemberStatus'
-                type: array
-                maxItems: 100
-          description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'  
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbiden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '406':
-          $ref: '#/components/responses/Unacceptable'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        default:
-          $ref: '#/components/responses/DefaultError'
-      summary: Retrieves some common status updates concerning a member
-      security: 
-        - OAuth2:
-          - user
-        - OAuth2:
-          - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - member
