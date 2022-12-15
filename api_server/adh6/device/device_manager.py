@@ -51,6 +51,16 @@ class DeviceManager(CRUDManager):
         return [r.id for r in result], count
 
     @log_call
+    def get_by_user_login(self, login: str, device_type: str) -> t.List[int]:
+        member = self.member_manager.get_by_login(login=login)
+        result, _ = self.device_repository.search_by(
+            limit=25,
+            offset=0,
+            device_filter=DeviceFilter(member=member.id, connection_type=device_type)
+        )
+        return [r.id for r in result]
+
+    @log_call
     def put_mab(self, id: int) -> bool:
         device = self.device_repository.get_by_id(id)
         if not device:

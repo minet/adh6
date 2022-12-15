@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpEvent } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Observable, switchMap, timer } from 'rxjs';
-import { MemberService } from '../../../api';
+import { DeviceService } from '../../../api';
 import { MemberDeviceModule } from '../../../member-device/member-device.module';
 import { MemberDetailService } from '../member-detail.service';
 
@@ -21,7 +21,7 @@ export class DevicesComponent implements OnInit {
   private content: string;  // for log formatting
 
   constructor(
-    private memberService: MemberService,
+    private deviceService: DeviceService,
     private memberDetailService: MemberDetailService
   ) { }
 
@@ -33,7 +33,7 @@ export class DevicesComponent implements OnInit {
     this.log$ = timer(0, 10 * 1000)
       .pipe(switchMap(
         () => this.member$
-          .pipe(switchMap((member) => this.memberService.memberIdLogsGet(member.id, this.getDhcp, 'body')))
+          .pipe(switchMap((member) => this.deviceService.deviceMemberLoginLogsGet(member.username, this.getDhcp, 'body')))
       ));
   }
 

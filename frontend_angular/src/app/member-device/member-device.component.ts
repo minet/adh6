@@ -12,19 +12,5 @@ export class MemberDeviceComponent {
   @ViewChild(MemberDeviceListComponent) wiredList: MemberDeviceListComponent;
   @ViewChild(MemberDeviceListComponent) wirelessList: MemberDeviceListComponent;
 
-  get wiredDeviceFilter(): AbstractDevice {
-    return {
-      member: this.member.id,
-      connectionType: 'wired'
-    }
-  }
-
-  get wirelessDeviceFilter(): AbstractDevice {
-    return {
-      member: this.member.id,
-      connectionType: 'wireless'
-    }
-  }
-
   constructor() {}
 }

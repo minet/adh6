@@ -257,7 +257,7 @@ class SubscriptionManager:
             AbstractTransaction(
                 value=9 if not free else 0,
                 src=src_account.id,
-                dst=asso_account[0].id,
+                dst=asso_account.id,
                 name=title + " (gratuit)" if free else title,
                 payment_method=payment_method.id
             )
@@ -267,7 +267,7 @@ class SubscriptionManager:
                 AbstractTransaction(
                     value=price-9,
                     src=src_account.id,
-                    dst=tech_account[0].id,
+                    dst=tech_account.id,
                     name=title,
                     payment_method=payment_method.id
                 )

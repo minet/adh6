@@ -57,13 +57,13 @@ class TestBuy:
 
     def test_src_account_not_found(self, sample_account1, sample_payment_method, mock_payment_method_repository: PaymentMethodRepository, mock_account_repository: AccountRepository, product_manager: ProductManager):
         mock_payment_method_repository.get_by_id = MagicMock(return_value=(sample_payment_method))
-        mock_account_repository.search_by = MagicMock(side_effect=[([sample_account1], 1), ([], 0)])
+        mock_account_repository.get_by_name = MagicMock(return_value=(sample_account1))
 
         with pytest.raises(AccountNotFoundError):
             product_manager.buy(0, 0, [1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
-        mock_account_repository.search_by.assert_called()
+        mock_account_repository.get_by_name.assert_called()
 
     def test_product_not_found(self,
                                sample_account1: Account, 
@@ -74,14 +74,14 @@ class TestBuy:
                                mock_product_repository: ProductRepository,
                                product_manager: ProductManager):
         mock_payment_method_repository.get_by_id = MagicMock(return_value=(sample_payment_method))
-        mock_account_repository.search_by = MagicMock(side_effect=[([sample_account1], 1), ([sample_account2], 1)])
-        mock_product_repository.get_by_id = MagicMock(return_value=(None), side_effect=ProductNotFoundError(""))
+        mock_account_repository.get_by_name = MagicMock(return_value=(sample_account1))
+        mock_product_repository.get_by_id = MagicMock(side_effect=ProductNotFoundError(""))
 
         with pytest.raises(ProductNotFoundError):
             product_manager.buy(0, 0, [1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
-        mock_account_repository.search_by.assert_called()
+        mock_account_repository.get_by_name.assert_called()
         mock_product_repository.get_by_id.assert_called_once_with(1)
 
 
