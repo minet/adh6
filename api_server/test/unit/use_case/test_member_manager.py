@@ -8,7 +8,7 @@ from adh6.member import MembershipDuration, MembershipStatus, MemberManager, Sub
 from adh6.entity import AbstractMember, Member, Membership, MemberBody
 from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
 from adh6.device import DeviceIpManager, DeviceLogsManager
-from adh6.device.interfaces import IpAllocator, LogsRepository, LogsRepository, DeviceRepository
+from adh6.device.interfaces import IpAllocator, LogsRepository, DeviceRepository
 from adh6.member.interfaces import MemberRepository, MembershipRepository
 from adh6.member import MailinglistManager
 from adh6.treasury import AccountManager, AccountTypeManager
@@ -236,58 +236,6 @@ class TestDelete:
             member_manager.delete(id=sample_member.id)
 
 
-class TestGetLogs:
-    """
-    def test_happy_path(self,
-                        mock_membership_repository: MembershipRepository,
-                        mock_logs_repository: MagicMock,
-                        mock_member_repository: MagicMock,
-                        mock_device_repository: MagicMock,
-                        sample_member: Member,
-                        member_manager: MemberManager):
-        # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        mock_membership_repository.search = MagicMock(return_value=([], 0))
-        mock_logs_repository.get_logs = MagicMock(return_value=([FAKE_LOGS]))
-
-        # When...
-        result = member_manager.get_logs(sample_member.id)
-
-        # Expect...
-        assert [FAKE_LOGS] == result
-        devices = mock_device_repository.search_by(username=sample_member.username)
-        mock_logs_repository.get_logs.assert_called_once_with(devices=devices.__getitem__(),
-                                                              username=sample_member.username, dhcp=False)
-    """
-    def test_fetch_failed(self,
-                        mock_membership_repository: MembershipRepository,
-                          mock_logs_repository: MagicMock,
-                          mock_member_repository: MagicMock,
-                          sample_member: Member,
-                          member_manager: MemberManager):
-        # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        mock_membership_repository.search = MagicMock(return_value=([], 0))
-        mock_logs_repository.get_logs = MagicMock(side_effect=LogFetchError)
-
-        # When...
-        result = member_manager.get_logs(sample_member.username)
-
-        # Expect use case to 'fail open', do not throw any error, assume there is no log.
-        assert [] == result
-
-    def test_not_found(self,
-                        mock_member_repository: MemberRepository,
-                       sample_member,
-                       member_manager: MemberManager):
-        # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None))
-
-        # When...
-        with raises(MemberNotFoundError):
-            member_manager.get_logs(sample_member.username)
-
-
 @fixture
 def sample_mutation_request(faker):
     return AbstractMember(
@@ -302,11 +250,6 @@ def sample_mutation_request(faker):
 
 
 @fixture
-def mock_device_logs_manager():
-    return MagicMock(spec=DeviceLogsManager)
-
-
-@fixture
 def mock_device_ip_manager():
     return MagicMock(spec=DeviceIpManager)
 
@@ -318,7 +261,6 @@ def member_manager(
         mock_account_type_manager,
         mock_subscription_manager,
         mock_mailinglist_manager,
-        mock_device_logs_manager,
         mock_device_ip_manager,
 ):
     return MemberManager(
@@ -326,7 +268,6 @@ def member_manager(
         account_manager=mock_account_manager,
         account_type_manager=mock_account_type_manager,
         device_ip_manager=mock_device_ip_manager,
-        device_logs_manager=mock_device_logs_manager,
         mailinglist_manager=mock_mailinglist_manager,
         subscription_manager=mock_subscription_manager
     )
@@ -360,13 +301,6 @@ def mock_member_repository():
 @fixture
 def mock_membership_repository():
     return MagicMock(spec=MembershipRepository)
-
-
-@fixture
-def mock_logs_repository():
-    r = MagicMock(spec=LogsRepository)
-    r.get_logs = MagicMock(return_value=[FAKE_LOGS_OBJ])
-    return r
 
 
 @fixture

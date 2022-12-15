@@ -32,7 +32,7 @@ class TestNewMembership:
                         sample_subscription_empty: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value="")
         # When...
         subscription_manager.create(sample_member.id, sample_subscription_empty)
@@ -47,7 +47,7 @@ class TestNewMembership:
                         mock_charter_manager: CharterManager,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
         subscription_manager.create(sample_member.id, SubscriptionBody())
@@ -63,7 +63,7 @@ class TestNewMembership:
                         sample_subscription_duration_no_account: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
         subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
@@ -83,7 +83,7 @@ class TestNewMembership:
                         sample_payment_method: PaymentMethod,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
@@ -112,7 +112,7 @@ class TestNewMembership:
                         sample_subscription_duration_account_payment_method: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_account_manager.get_by_id = MagicMock(return_value=(None), side_effect=AccountNotFoundError(""))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
 
@@ -130,7 +130,7 @@ class TestNewMembership:
                         sample_account1: Account,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(None), side_effect=PaymentMethodNotFoundError(""))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
@@ -146,7 +146,7 @@ class TestNewMembership:
                         sample_subscription_empty: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         sample_subscription_empty.duration = 5
 
@@ -164,7 +164,7 @@ class TestPatchMembership:
                         sample_subscription_empty: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
         subscription_manager.update(sample_member.id, sample_subscription_empty)
@@ -172,8 +172,8 @@ class TestPatchMembership:
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
         
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_charter_manager.get.assert_called_once()
 
     def test_from_pending_rules_to_pending_payment(self,
@@ -185,7 +185,7 @@ class TestPatchMembership:
                         sample_membership_pending_rules: Membership,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
         subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
@@ -193,8 +193,8 @@ class TestPatchMembership:
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
         
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_charter_manager.get.assert_called_once()
 
     def test_from_pending_rules_to_pending_payment_validation(self,
@@ -210,7 +210,7 @@ class TestPatchMembership:
                         sample_payment_method: PaymentMethod,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method))
@@ -220,8 +220,8 @@ class TestPatchMembership:
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
         
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_charter_manager.get.assert_called_once()
         mock_account_manager.get_by_id.assert_called_once()
         mock_payment_method_manager.get_by_id.assert_called_once()
@@ -235,7 +235,7 @@ class TestPatchMembership:
                         sample_subscription_duration_no_account: SubscriptionBody,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_payment_initial]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
         subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
@@ -243,8 +243,8 @@ class TestPatchMembership:
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
         
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_charter_manager.get.assert_not_called()
 
     def test_from_pending_payment_initial_to_pending_payment_validation(self,
@@ -259,7 +259,7 @@ class TestPatchMembership:
                         sample_payment_method: PaymentMethod,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_payment_initial]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method))
         # When...
@@ -267,8 +267,8 @@ class TestPatchMembership:
 
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_account_manager.get_by_id.assert_called_once()
 
     def test_from_pending_payment_to_pending_payment_validation(self,
@@ -283,7 +283,7 @@ class TestPatchMembership:
                         sample_payment_method: PaymentMethod,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_payment], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_payment]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method))
         # When...
@@ -291,8 +291,8 @@ class TestPatchMembership:
 
         # Expect to create a new membership record...
         mock_subscription_repository.update.assert_called_once()
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_account_manager.get_by_id.assert_called_once()
 
     def test_unknown_member(self,
@@ -313,11 +313,10 @@ class TestPatchMembership:
                         sample_member: Member,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0), side_effect=MembershipNotFoundError(""))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
 
         with pytest.raises(MembershipNotFoundError):
             subscription_manager.update(sample_member.id, SubscriptionBody())
-            mock_subscription_repository.update.assert_not_called()
 
     def test_unknown_account(self,
                         mock_subscription_repository: MembershipRepository,
@@ -329,15 +328,15 @@ class TestPatchMembership:
                         sample_membership_pending_rules: Membership,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_account_manager.get_by_id = MagicMock(return_value=(None), side_effect=AccountNotFoundError(""))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
 
         with pytest.raises(AccountNotFoundError):
             subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_account_manager.get_by_id.assert_called_once()
         mock_charter_manager.get.assert_called_once()
         mock_subscription_repository.update.assert_not_called()
@@ -354,7 +353,7 @@ class TestPatchMembership:
                         sample_account1: Account,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(None), side_effect=PaymentMethodNotFoundError(""))
@@ -362,8 +361,8 @@ class TestPatchMembership:
         with pytest.raises(PaymentMethodNotFoundError):
             subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
         mock_account_manager.get_by_id.assert_called_once()
         mock_charter_manager.get.assert_called_once()
         mock_payment_method_manager.get_by_id.assert_called_once()
@@ -378,15 +377,15 @@ class TestPatchMembership:
                         sample_membership_pending_rules: Membership,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_rules]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         sample_subscription_duration_account_payment_method.duration = 5
 
         with pytest.raises(NoPriceAssignedToThatDuration):
             subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
             
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called()
+        mock_member_repository.get_by_id.assert_called()
         mock_charter_manager.get.assert_called_once()
         mock_subscription_repository.update.assert_not_called()
 
@@ -408,13 +407,13 @@ class TestValidateMembership:
                         sample_member: Member,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([], 0))
+        mock_subscription_repository.from_member = MagicMock(return_value=([]))
 
         with pytest.raises(MembershipNotFoundError):
             subscription_manager.validate(sample_member.id, False)
 
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_subscription_repository.search.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
+        mock_subscription_repository.from_member.assert_called_once()
 
     def test_not_payment_validation(self,
                         mock_subscription_repository: MembershipRepository,
@@ -423,13 +422,13 @@ class TestValidateMembership:
                         sample_membership_pending_payment: Membership,
                         subscription_manager: SubscriptionManager):
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_subscription_repository.search = MagicMock(return_value=([sample_membership_pending_payment], 1))
+        mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_payment]))
 
         with pytest.raises(MembershipStatusNotAllowed):
             subscription_manager.validate(sample_member.id, False)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.from_member.assert_called_once()
+        mock_member_repository.get_by_id.assert_called()
 
 
 class TestAddMembershipPaymentRecord:
@@ -439,13 +438,13 @@ class TestAddMembershipPaymentRecord:
                         subscription_manager: SubscriptionManager,
                         sample_membership_empty: Membership):
         mock_payment_method_manager.get_by_id = MagicMock(return_value=()) # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_manager.search = MagicMock(side_effect=[([], 0)])
+        mock_account_manager.get_by_name = MagicMock(side_effect=AccountNotFoundError(""))
 
         with pytest.raises(AccountNotFoundError):
             subscription_manager.add_payment_record(sample_membership_empty, False)
 
         mock_payment_method_manager.get_by_id.assert_called_once()
-        mock_account_manager.search.assert_called_once()
+        mock_account_manager.get_by_name.assert_called_once()
 
     def test_no_tech_account(self,
                         mock_payment_method_manager: PaymentMethodManager,
@@ -455,13 +454,13 @@ class TestAddMembershipPaymentRecord:
                         sample_account1: Account,
                         sample_payment_method: PaymentMethod):
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method)) # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_manager.search = MagicMock(side_effect=[([sample_account1], 0), ([], 0)])
+        mock_account_manager.get_by_name = MagicMock(side_effect=AccountNotFoundError(""))
 
         with pytest.raises(AccountNotFoundError):
             subscription_manager.add_payment_record(sample_membership_empty, False)
 
         mock_payment_method_manager.get_by_id.assert_called_once()
-        mock_account_manager.search.assert_called()
+        mock_account_manager.get_by_name.assert_called()
 
     def test_no_src_account(self,
                         mock_payment_method_manager: PaymentMethodManager,
@@ -471,15 +470,13 @@ class TestAddMembershipPaymentRecord:
                         sample_account1: Account,
                         sample_payment_method: PaymentMethod):
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method)) # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_manager.search = MagicMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_manager.get_by_id = MagicMock(side_effect=AccountNotFoundError(""))
+        mock_account_manager.get_by_name = MagicMock(side_effect=AccountNotFoundError(""))
 
         with pytest.raises(AccountNotFoundError):
             subscription_manager.add_payment_record(sample_membership_empty, False)
 
         mock_payment_method_manager.get_by_id.assert_called_once()
-        mock_account_manager.search.assert_called()
-        mock_account_manager.get_by_id.assert_called_once()
+        mock_account_manager.get_by_name.assert_called()
 
     def test_no_room(self,
                         mock_payment_method_manager: PaymentMethodManager,
@@ -490,8 +487,7 @@ class TestAddMembershipPaymentRecord:
                         sample_account1: Account,
                         sample_payment_method: PaymentMethod):
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method)) # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_manager.search = MagicMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
+        mock_account_manager.get_by_name = MagicMock(return_value=(sample_account1))
         mock_transaction_manager.update_or_create = MagicMock(return_value=(None))
 
         sample_membership_pending_payment_validation.has_room = False
@@ -499,8 +495,7 @@ class TestAddMembershipPaymentRecord:
         subscription_manager.add_payment_record(sample_membership_pending_payment_validation, False)
 
         mock_payment_method_manager.get_by_id.assert_called_once()
-        mock_account_manager.search.assert_called()
-        mock_account_manager.get_by_id.assert_called_once()
+        mock_account_manager.get_by_name.assert_called()
         mock_transaction_manager.update_or_create.assert_called_once()
 
     def test_free(self,
@@ -512,15 +507,13 @@ class TestAddMembershipPaymentRecord:
                         sample_account1: Account,
                         sample_payment_method: PaymentMethod):
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method)) # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_manager.search = MagicMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_manager.get_by_id = MagicMock(return_value=(sample_account1))
+        mock_account_manager.get_by_name = MagicMock(return_value=(sample_account1))
         mock_transaction_manager.update_or_create = MagicMock(return_value=(None))
 
         subscription_manager.add_payment_record(sample_membership_pending_payment_validation, True)
 
         mock_payment_method_manager.get_by_id.assert_called_once()
-        mock_account_manager.search.assert_called()
-        mock_account_manager.get_by_id.assert_called_once()
+        mock_account_manager.get_by_name.assert_called()
         mock_transaction_manager.update_or_create.assert_called_once()
 
 
