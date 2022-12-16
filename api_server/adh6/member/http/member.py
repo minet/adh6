@@ -110,7 +110,7 @@ class MemberHandler(DefaultHandler):
         if free and not Roles.TRESO_WRITE.value in get_roles():
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
         self.subscription_manager.validate(id_, free)
-        self.member_manager.update_subnet(id_)
+        self.member_manager.update_subnet(self.member_manager.get_by_id(id_))
         return NoContent, 204
 
     @with_context
