@@ -62,7 +62,8 @@ class DeviceHandler(DefaultHandler):
     @log_call
     def delete(self, id_: int):
         try: 
-            if get_user() != self.device_manager.get_owner(id_) and Roles.ADMIN_WRITE.value not in get_roles():
+            device: Device = self.device_manager.get_by_id(id_)
+            if get_user() != device.member and Roles.ADMIN_WRITE.value not in get_roles():
                 raise UnauthorizedError("Unauthorize to access this resource")
             self.main_manager.delete(id=id_)
             return NoContent, 204  # 204 No Content
@@ -70,7 +71,7 @@ class DeviceHandler(DefaultHandler):
             if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
             raise e
-    
+
     @with_context
     @log_call
     def vendor_search(self, id_: int):
@@ -100,7 +101,7 @@ class DeviceHandler(DefaultHandler):
     @with_context
     @log_call
     def member_search(self, id_: int):
-        return self.device_manager.get_owner(device_id=id_), 200
+        return self.device_manager.get_by_id(id_).member, 200
 
     @with_context
     @log_call

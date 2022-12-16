@@ -128,9 +128,7 @@ class MemberManager(CRUDManager):
 
     @log_call
     def update(self, id: int, body: MemberBody) -> None:
-        member = self.member_repository.get_by_id(id)
-        if not member:
-            raise MemberNotFoundError(id)
+        member = self.get_by_id(id)
 
         latest_sub = self.subscription_manager.latest(member)
         if not latest_sub or latest_sub.status not in [
@@ -141,7 +139,7 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
         member = self.member_repository.update(AbstractMember(
-                                                   id=id,
+                                                   id=member.id,
                                                    email=body.mail,
                                                    username=body.username,
                                                    first_name=body.first_name,
@@ -153,15 +151,13 @@ class MemberManager(CRUDManager):
     def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
         member = self.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
 
         from binascii import hexlify
         import hashlib
 
         pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
-        self.member_repository.update_password(member_id, pw)
+        self.member_repository.update_password(member.id, pw)
 
         return True
 
@@ -199,14 +195,10 @@ class MemberManager(CRUDManager):
     @log_call
     def change_comment(self, member_id: int, comment: Comment) -> None:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-        self.member_repository.update_comment(member_id, comment.comment)
+        member = self.get_by_id(member_id)
+        self.member_repository.update_comment(member.id, comment.comment)
     
     def get_comment(self, member_id: int) -> Comment:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
+        member = self.get_by_id(member_id)
         return Comment(member.comment if member.comment else "")
