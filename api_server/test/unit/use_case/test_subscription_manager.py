@@ -37,7 +37,7 @@ class TestNewMembership:
         mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
-        subscription_manager.create(sample_member.id, SubscriptionBody())
+        subscription_manager.create(sample_member, SubscriptionBody())
 
         # Expect to create a new membership record...
         mock_subscription_repository.create.assert_called_once()
@@ -50,7 +50,7 @@ class TestNewMembership:
         mock_subscription_repository.from_member = MagicMock(return_value=([]))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
-        subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
+        subscription_manager.create(sample_member, SubscriptionBody(duration=1))
 
         # Expect to create a new membership record...
         mock_subscription_repository.create.assert_called_once()
@@ -70,7 +70,7 @@ class TestNewMembership:
         mock_payment_method_manager.get_by_id = MagicMock(return_value=(sample_payment_method))
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
         # When...
-        subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
+        subscription_manager.create(sample_member, sample_subscription_duration_account_payment_method)
 
         # Expect to create a new membership record...
         mock_subscription_repository.create.assert_called_once()
@@ -87,7 +87,7 @@ class TestNewMembership:
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
 
         with pytest.raises(AccountNotFoundError):
-            subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
+            subscription_manager.create(sample_member, sample_subscription_duration_account_payment_method)
 
     def test_unknown_payment_method(self,
                         mock_subscription_repository: MembershipRepository,
@@ -104,7 +104,7 @@ class TestNewMembership:
         mock_charter_manager.get = MagicMock(return_value=str(datetime.datetime.today()))
 
         with pytest.raises(PaymentMethodNotFoundError):
-            subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
+            subscription_manager.create(sample_member, sample_subscription_duration_account_payment_method)
 
     def test_unknown_price_asign_to_duration(self,
                         mock_subscription_repository: MembershipRepository,
@@ -117,7 +117,7 @@ class TestNewMembership:
         sample_subscription_empty.duration = 5
 
         with pytest.raises(NoPriceAssignedToThatDuration):
-            subscription_manager.create(sample_member.id, sample_subscription_empty)
+            subscription_manager.create(sample_member, sample_subscription_empty)
 
 
 class TestPatchMembership:

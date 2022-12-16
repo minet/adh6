@@ -124,7 +124,7 @@ class SubscriptionManager:
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_manager.get(member_id=member.id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member=member, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -181,7 +181,7 @@ class SubscriptionManager:
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_manager.get(member_id=member.id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member=member, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
