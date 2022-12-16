@@ -60,7 +60,7 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(id)
+        latest_sub = self.subscription_manager.latest(member)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
@@ -69,17 +69,14 @@ class MemberManager(CRUDManager):
         member = self.member_repository.get_by_login(login) 
         if not member or not member.id:
             raise MemberNotFoundError(login)
-        latest_sub = self.subscription_manager.latest(member.id)
+        latest_sub = self.subscription_manager.latest(member)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
     def get_profile(self) -> t.Tuple[Member, t.List[str]]:
-        from adh6.context import get_user, get_roles
-        m = self.member_repository.get_by_id(get_user())
-        if not m:
-            raise MemberNotFoundError(id)
-        return m, get_roles()
+        from adh6.context import get_login, get_roles
+        return self.get_by_login(get_login()), get_roles()
 
     @log_call
     def create(self, body: MemberBody) -> Member:
@@ -137,7 +134,7 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(id)
+        latest_sub = self.subscription_manager.latest(member)
         if not latest_sub or latest_sub.status not in [
             MembershipStatus.CANCELLED.value,
             MembershipStatus.ABORTED.value,

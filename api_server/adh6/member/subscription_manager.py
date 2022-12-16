@@ -5,7 +5,8 @@ from adh6.constants import KnownAccountExpense
 from adh6.entity import (
     Membership,
     AbstractTransaction,
-    SubscriptionBody
+    SubscriptionBody,
+    Member
 )
 from adh6.exceptions import (
     MembershipNotFoundError,
@@ -79,11 +80,8 @@ class SubscriptionManager:
         ]
 
     @log_call
-    def latest(self, member_id: int) -> t.Union[Membership, None]:
-        m = self.member_repository.get_by_id(member_id)
-        if not m:
-            raise MemberNotFoundError(member_id)
-        subscriptions = self.membership_repository.from_member(m)
+    def latest(self, member: Member) -> t.Union[Membership, None]:
+        subscriptions = self.membership_repository.from_member(member=member)
         if not subscriptions:
             return None
         if n := next(filter(lambda x: not self.is_finished(MembershipStatus(x.status)), subscriptions), None):
@@ -226,11 +224,8 @@ class SubscriptionManager:
 
 
     @log_call
-    def validate(self, member_id: int, free: bool) -> None:
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-        subscription = self.latest(member_id=member_id)    
+    def validate(self, member: Member, free: bool) -> None:
+        subscription = self.latest(member_id=member.id)    
         if not subscription:
             raise MembershipNotFoundError(None)
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
