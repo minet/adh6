@@ -120,10 +120,8 @@ class MemberManager(CRUDManager):
         ))
 
         _ = self.subscription_manager.create(
-            member_id=created_member.id, 
-            body=SubscriptionBody(
-                member=created_member.id
-            ),
+            member=created_member, 
+            body=SubscriptionBody(member=created_member.id)
         )
 
         return created_member

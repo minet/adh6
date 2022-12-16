@@ -66,7 +66,8 @@ class MemberHandler(DefaultHandler):
     @log_call
     def subscription_post(self, id_: int, body: dict):
         """ Add a membership record in the database """
-        created_membership = self.subscription_manager.create(id_, SubscriptionBody.from_dict(body))
+        member = self.member_manager.get_by_id(id_)
+        created_membership = self.subscription_manager.create(member=member, body=SubscriptionBody.from_dict(body))
         return created_membership.to_dict(), 200  # 200 OK
 
     @with_context
@@ -100,7 +101,8 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def subscription_patch(self, id_, body):
-        self.subscription_manager.update(id_, SubscriptionBody.from_dict(body))
+        member = self.member_manager.get_by_id(id_)
+        self.subscription_manager.update(member=member, body=SubscriptionBody.from_dict(body))
         return NoContent, 204
 
     @with_context
