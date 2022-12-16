@@ -171,16 +171,11 @@ class MemberManager(CRUDManager):
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> t.Optional[t.Tuple[IPv4Network, t.Union[IPv4Address, None]]]:
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-
+    def update_subnet(self, member: Member) -> t.Optional[t.Tuple[IPv4Network, t.Union[IPv4Address, None]]]:
         if not is_member_active(member):
             return
 
         used_wireles_public_ips = self.member_repository.used_wireless_public_ips()
-
         subnet = None
         ip = None
         if len(used_wireles_public_ips) < len(SUBNET_PUBLIC_ADDRESSES_WIRELESS):
@@ -192,25 +187,19 @@ class MemberManager(CRUDManager):
         if subnet is None:
             raise NoSubnetAvailable("wireless")
 
-        member = self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+        member = self.member_repository.update(AbstractMember(id=member.id, subnet=str(subnet), ip=str(ip)))
 
         self.device_ip_manager.allocate_ips(member, device_type="wireless")
 
         return subnet, ip
 
     @log_call
-    def reset_member(self, member_id: int) -> None:
-        member = self.member_repository.update(AbstractMember(
-            id=member_id,
+    def reset_member(self, member: Member) -> None:
+        self.member_repository.update(AbstractMember(
+            id=member.id,
             ip="", 
             subnet=""
         ))
-        self.device_ip_manager.unallocate_ips(member=member)
-
-    @log_call
-    def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
-        member = self.get_by_id(id=member_id)
-        self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
 
     @log_call
     def change_comment(self, member_id: int, comment: Comment) -> None:

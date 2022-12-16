@@ -31,8 +31,8 @@ class DeviceIpManager:
             )
 
     @log_call
-    def unallocate_ips(self, member: Member) -> None:
-        devices, _ = self.device_repository.search_by(limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, device_filter=DeviceFilter(member=member.id))
+    def unallocate_ips(self, member: Member, device_type: t.Union[t.Literal["wired", "wireless"], None] = None) -> None:
+        devices, _ = self.device_repository.search_by(limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, device_filter=DeviceFilter(member=member.id, connection_type=device_type))
         for d in devices:
             self.unallocate_ip(device=d)
 
@@ -53,9 +53,7 @@ class DeviceIpManager:
         elif device.connection_type == DeviceType.wireless.name:
             ipv4_network = member.subnet
 
-        ipv6_network = ""
-        if vlan:
-            ipv6_network = vlan.ipv6_network
+        ipv6_network = vlan.ipv6_network if vlan else ""
 
         self._allocate_ip(
             device=device, 
