@@ -1,25 +1,22 @@
 import typing as t
-from adh6.exceptions import MemberNotFoundError
+from adh6.entity import Member
+from adh6.decorator import log_call
 
-from .interfaces import MailinglistRepository, MemberRepository
+from .interfaces import MailinglistRepository
 
 
 class MailinglistManager:
-    def __init__(self, member_repository: MemberRepository, mailinglist_repository: MailinglistRepository) -> None:
-        self.member_repository = member_repository
+    def __init__(self, mailinglist_repository: MailinglistRepository) -> None:
         self.mailinglist_repository = mailinglist_repository
     
-    def get_member_mailinglist(self, member_id: int) -> int:
-        m = self.member_repository.get_by_id(member_id)
-        if not m:
-            raise MemberNotFoundError(member_id)
-        return self.mailinglist_repository.get_from_member(member_id)
-         
-    def update_member_mailinglist(self, member_id: int, value: int) -> None:
-        m = self.member_repository.get_by_id(member_id)
-        if not m:
-            raise MemberNotFoundError(member_id)
-        self.mailinglist_repository.update_from_member(member_id, value)
+    @log_call
+    def get_member_mailinglist(self, member: Member) -> int:
+        return self.mailinglist_repository.get_from_member(member.id)
+        
+    @log_call 
+    def update_member_mailinglist(self, member: Member, value: int) -> None:
+        self.mailinglist_repository.update_from_member(member.id, value)
     
+    @log_call
     def get_members(self, value: int) -> t.List[int]:
         return self.mailinglist_repository.list_members(value)

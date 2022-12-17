@@ -62,35 +62,22 @@ class DeviceManager(CRUDManager):
 
     @log_call
     def put_mab(self, id: int) -> bool:
-        device = self.device_repository.get_by_id(id)
-        if not device:
-            raise DeviceNotFoundError(id)
+        _ = self.get_by_id(id)
         mab = self.device_repository.get_mab(id)
         return self.device_repository.put_mab(id, not mab)
 
     @log_call
     def get_mab(self, id: int) -> bool:
-        device = self.device_repository.get_by_id(id)
-        if not device:
-            raise DeviceNotFoundError(id)
+        _ = self.get_by_id(id)
         return self.device_repository.get_mab(id)
 
     @log_call
     def get_mac_vendor(self, id: int) -> str:
-        device = self.device_repository.get_by_id(id)
-        if not device:
-            raise DeviceNotFoundError(id)
-
+        device = self.get_by_id(id)
         if not device.mac:
             return "-"
-
         mac_address = device.mac[:8].replace(":", "-")
-        if mac_address not in self.oui_repository:
-            vendor = "-"
-        else:
-            vendor = self.oui_repository[mac_address]
-
-        return vendor
+        return "-" if mac_address not in self.oui_repository else self.oui_repository[mac_address]
 
 
     @log_call
@@ -121,11 +108,3 @@ class DeviceManager(CRUDManager):
         )
 
         return device
-
-    @log_call
-    def get_owner(self, device_id: int) -> t.Union[int, None]:
-        d = self.device_repository.get_by_id(object_id=device_id)
-        if not d:
-            raise DeviceNotFoundError(device_id)
-        return self.device_repository.owner(id=device_id)
-

@@ -5,7 +5,8 @@ from adh6.constants import KnownAccountExpense
 from adh6.entity import (
     Membership,
     AbstractTransaction,
-    SubscriptionBody
+    SubscriptionBody,
+    Member
 )
 from adh6.exceptions import (
     MembershipNotFoundError,
@@ -79,11 +80,8 @@ class SubscriptionManager:
         ]
 
     @log_call
-    def latest(self, member_id: int) -> t.Union[Membership, None]:
-        m = self.member_repository.get_by_id(member_id)
-        if not m:
-            raise MemberNotFoundError(member_id)
-        subscriptions = self.membership_repository.from_member(m)
+    def latest(self, member: Member) -> t.Union[Membership, None]:
+        subscriptions = self.membership_repository.from_member(member=member)
         if not subscriptions:
             return None
         if n := next(filter(lambda x: not self.is_finished(MembershipStatus(x.status)), subscriptions), None):
@@ -93,7 +91,7 @@ class SubscriptionManager:
 
 
     @log_call
-    def create(self, member_id: int, body: SubscriptionBody) -> Membership:
+    def create(self, member: Member, body: SubscriptionBody) -> Membership:
         """
         Core use case of ADH. Registers a Subscription.
 
@@ -105,7 +103,6 @@ class SubscriptionManager:
             body (SubscriptionBody): _description_
 
         Raises:
-            MemberNotFoundError: _description_
             MembershipAlreadyExist: _description_
             NoPriceAssignedToThatDuration: _description_
             AccountNotFoundError: _description_
@@ -114,11 +111,8 @@ class SubscriptionManager:
         Returns:
             Membership: the subscription created
         """
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
 
-        latest_subscription = self.latest(member_id=member_id)
+        latest_subscription = self.latest(member=member)
         
         if latest_subscription and latest_subscription.status not in[
             MembershipStatus.COMPLETE.value,
@@ -130,7 +124,7 @@ class SubscriptionManager:
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_manager.get(member_id=member_id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member=member, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
@@ -160,7 +154,7 @@ class SubscriptionManager:
 
 
     @log_call
-    def update(self, member_id: int, body: SubscriptionBody) -> None:
+    def update(self, member: Member, body: SubscriptionBody) -> None:
         """Update a subscription if not completed
 
         Args:
@@ -177,11 +171,7 @@ class SubscriptionManager:
             AccountNotFoundError: _description_
             PaymentMethodNotFoundError: _description_
         """
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-        
-        subscription = self.latest(member_id=member_id)    
+        subscription = self.latest(member=member)    
         if not subscription:
             raise MembershipNotFoundError()
 
@@ -191,12 +181,12 @@ class SubscriptionManager:
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = self.charter_manager.get(member_id=member_id, charter_id=1)
+            date_signed_minet = self.charter_manager.get(member=member, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
                 logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
             else:
-                raise CharterNotSigned(str(member_id))
+                raise CharterNotSigned(str(member.id))
 
 
         if body.duration is not None and body.duration != 0:
@@ -226,11 +216,8 @@ class SubscriptionManager:
 
 
     @log_call
-    def validate(self, member_id: int, free: bool) -> None:
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-        subscription = self.latest(member_id=member_id)    
+    def validate(self, member: Member, free: bool) -> None:
+        subscription = self.latest(member_id=member.id)    
         if not subscription:
             raise MembershipNotFoundError(None)
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:

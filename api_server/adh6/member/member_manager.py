@@ -60,7 +60,7 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(id)
+        latest_sub = self.subscription_manager.latest(member)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
@@ -69,17 +69,14 @@ class MemberManager(CRUDManager):
         member = self.member_repository.get_by_login(login) 
         if not member or not member.id:
             raise MemberNotFoundError(login)
-        latest_sub = self.subscription_manager.latest(member.id)
+        latest_sub = self.subscription_manager.latest(member)
         member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
     def get_profile(self) -> t.Tuple[Member, t.List[str]]:
-        from adh6.context import get_user, get_roles
-        m = self.member_repository.get_by_id(get_user())
-        if not m:
-            raise MemberNotFoundError(id)
-        return m, get_roles()
+        from adh6.context import get_login, get_roles
+        return self.get_by_login(get_login()), get_roles()
 
     @log_call
     def create(self, body: MemberBody) -> Member:
@@ -123,21 +120,17 @@ class MemberManager(CRUDManager):
         ))
 
         _ = self.subscription_manager.create(
-            member_id=created_member.id, 
-            body=SubscriptionBody(
-                member=created_member.id
-            ),
+            member=created_member, 
+            body=SubscriptionBody(member=created_member.id)
         )
 
         return created_member
 
     @log_call
     def update(self, id: int, body: MemberBody) -> None:
-        member = self.member_repository.get_by_id(id)
-        if not member:
-            raise MemberNotFoundError(id)
+        member = self.get_by_id(id)
 
-        latest_sub = self.subscription_manager.latest(id)
+        latest_sub = self.subscription_manager.latest(member)
         if not latest_sub or latest_sub.status not in [
             MembershipStatus.CANCELLED.value,
             MembershipStatus.ABORTED.value,
@@ -146,7 +139,7 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f'member {member.username}', 'membership not validated')
 
         member = self.member_repository.update(AbstractMember(
-                                                   id=id,
+                                                   id=member.id,
                                                    email=body.mail,
                                                    username=body.username,
                                                    first_name=body.first_name,
@@ -158,15 +151,13 @@ class MemberManager(CRUDManager):
     def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
         member = self.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
 
         from binascii import hexlify
         import hashlib
 
         pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
-        self.member_repository.update_password(member_id, pw)
+        self.member_repository.update_password(member.id, pw)
 
         return True
 
@@ -204,14 +195,10 @@ class MemberManager(CRUDManager):
     @log_call
     def change_comment(self, member_id: int, comment: Comment) -> None:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-        self.member_repository.update_comment(member_id, comment.comment)
+        member = self.get_by_id(member_id)
+        self.member_repository.update_comment(member.id, comment.comment)
     
     def get_comment(self, member_id: int) -> Comment:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
+        member = self.get_by_id(member_id)
         return Comment(member.comment if member.comment else "")
