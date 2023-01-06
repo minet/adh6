@@ -175,7 +175,7 @@ build:frontend:
     - generation:frontend_assets
   script:
     - export NODE_OPTIONS=--openssl-legacy-provider
-    - yarn build --configuration production
+    - yarn build
   artifacts:
     paths:
     - frontend_angular/dist/
