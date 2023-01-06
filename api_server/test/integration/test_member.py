@@ -244,6 +244,12 @@ def test_member_get_unauthorized(client):
     )
     assert r.status_code == 403
 
+def test_member_get_another_user(client, sample_member):
+    r = client.get(
+        f'{base_url}{sample_member.id}',
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
 
 def test_member_delete_existant(client, sample_member):
     r = client.delete(
