@@ -199,6 +199,6 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         if switch.ip is None or not isinstance(switch.ip, str):
             raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")
         rcom = self.port_repository.get_rcom(id=port_id)
-        if rcom is not None or rcom != 0:
+        if rcom is not None and rcom != 0:
             community += str(rcom)
         return port.oid, switch.ip, community
