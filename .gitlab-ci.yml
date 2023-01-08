@@ -69,9 +69,6 @@ generation:backend_entity:
   image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
   script:
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
-    - ls
-    - ls tmpsrc
-    - ls tmpsrc/adh6
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp tmpsrc/adh6/typing_utils.py api_server/adh6/
     - cp tmpsrc/adh6/util.py api_server/adh6/

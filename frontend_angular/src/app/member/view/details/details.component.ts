@@ -39,9 +39,7 @@ export class DetailsComponent {
       .pipe(
         switchMap(member => this.roomMemberService.roomMemberIdGet(member.id)
           .pipe(
-            switchMap(roomNumber => this.roomService.roomGet(1, 0, undefined, <AbstractRoom>{ roomNumber: roomNumber })
-              .pipe(map(rooms => rooms[0]))
-            )
+            switchMap(roomId => this.roomService.roomIdGet(roomId))
           )
         )
       )
