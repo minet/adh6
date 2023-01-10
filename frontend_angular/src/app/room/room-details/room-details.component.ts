@@ -71,7 +71,7 @@ export class RoomDetailsComponent implements OnInit {
     this.memberService.memberGet(1, 0, v.username)
       .subscribe((member_list) => {
         const member = member_list[0];
-        this.roomMemberService.roomIdMemberAddPatch(this.room_id, { id: member })
+        this.roomMemberService.roomIdMemberPost(this.room_id, { id: member })
           .subscribe((_) => {
             this.refreshInfo();
             this.notificationService.successNotification();
@@ -91,7 +91,7 @@ export class RoomDetailsComponent implements OnInit {
           return
         }
         const room = rooms[0];
-        this.roomMemberService.roomIdMemberAddPatch(room.id, { id: memberId })
+        this.roomMemberService.roomIdMemberPost(room.id, { id: memberId })
           .subscribe((_) => {
             this.refreshInfo();
             this.onDemenager(memberId);
@@ -102,7 +102,7 @@ export class RoomDetailsComponent implements OnInit {
   }
 
   onRemoveFromRoom(memberId: number) {
-    this.roomMemberService.roomIdMemberDelPatch(this.room_id, { id: memberId })
+    this.roomMemberService.roomIdMemberDelete(this.room_id, memberId)
       .subscribe((_) => {
         this.refreshInfo();
         this.notificationService.successNotification();
