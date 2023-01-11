@@ -2,14 +2,14 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { finalize, map, Observable, of, shareReplay } from 'rxjs';
 import { PortService, Room, RoomService, SwitchService, AbstractPort } from '../../api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { NotificationService } from '../../notification.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   selector: 'app-port-details',
   templateUrl: './port-details.component.html'
 })

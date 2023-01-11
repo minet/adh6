@@ -939,8 +939,6 @@ paths:
       summary: Retrieve a member
       security: 
         - OAuth2:
-          - user
-        - OAuth2:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:

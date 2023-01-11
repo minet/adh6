@@ -89,7 +89,6 @@ def get_sso_groups(token):
             headers=headers,
             timeout=10,
         )
-        print(r.json())
     except requests.exceptions.ReadTimeout:
         raise OAuthResponseProblem("Could not authenticate")
 

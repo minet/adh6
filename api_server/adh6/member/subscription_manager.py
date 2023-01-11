@@ -226,7 +226,7 @@ class SubscriptionManager:
         self.membership_repository.validate(subscription.uuid)
         self.add_payment_record(subscription, free)
         self.member_repository.add_duration(subscription.member, subscription.duration)
-        self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
+        #self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
 
     @log_call
     def add_payment_record(self, membership: Membership, free: bool) -> None:
