@@ -157,6 +157,7 @@ test:python_check_for_vuln_deps:
 test:backend:
   stage: test
   needs:
+    - generation:backend_entity
     - lint:backend
     - test:python_check_for_vuln_deps
   image: python:3.9-alpine
@@ -195,6 +196,67 @@ build:frontend:
     paths:
     - frontend_angular/dist/
     expire_in: 1 day
+
+build:frontend-docker:
+  stage: build
+  image: quay.io/buildah/stable
+  needs:
+    - lint:frontend
+    - generation:frontend_module
+    - generation:frontend_assets
+  variables:
+    # Use vfs with buildah. Docker offers overlayfs as a default, but buildah
+    # cannot stack overlayfs on top of another overlayfs filesystem.
+    STORAGE_DRIVER: vfs
+    # Write all image metadata in the docker format, not the standard OCI format.
+    # Newer versions of docker can handle the OCI format, but older versions, like
+    # the one shipped with Fedora 30, cannot handle the format.
+    BUILDAH_FORMAT: docker
+    # You may need this workaround for some errors: https://stackoverflow.com/a/70438141/1233435
+    BUILDAH_ISOLATION: chroot
+    FQ_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/adh6-frontend"
+  before_script:
+    - cd frontend_angular/
+    # Log in to the GitLab container registry
+    - export REGISTRY_AUTH_FILE=${HOME}/auth.json
+    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - buildah images
+    - buildah build -t $FQ_IMAGE_NAME
+    - buildah images
+    - buildah push $FQ_IMAGE_NAME
+  allow_failure: true
+
+build:backend-docker:
+  stage: build
+  image: quay.io/buildah/stable
+  needs:
+    - test:python_check_for_vuln_deps
+    - test:backend
+    - lint:backend
+    - generation:backend_entity
+  variables:
+    # Use vfs with buildah. Docker offers overlayfs as a default, but buildah
+    # cannot stack overlayfs on top of another overlayfs filesystem.
+    STORAGE_DRIVER: vfs
+    # Write all image metadata in the docker format, not the standard OCI format.
+    # Newer versions of docker can handle the OCI format, but older versions, like
+    # the one shipped with Fedora 30, cannot handle the format.
+    BUILDAH_FORMAT: docker
+    # You may need this workaround for some errors: https://stackoverflow.com/a/70438141/1233435
+    BUILDAH_ISOLATION: chroot
+    FQ_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/adh6-backend"
+  before_script:
+    - cd api_server/
+    # Log in to the GitLab container registry
+    - export REGISTRY_AUTH_FILE=${HOME}/auth.json
+    - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - buildah images
+    - buildah build -t $FQ_IMAGE_NAME
+    - buildah images
+    - buildah push $FQ_IMAGE_NAME
+  allow_failure: true
 
 
 ###########################################
