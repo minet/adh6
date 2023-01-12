@@ -38,10 +38,6 @@ authlib
 cryptography>=3.3.2
 jinja2>=2.11.3
 bcrypt
-pytest
-pytest-coverage
-pytest-cases
-pytest-lazy-fixture
 Faker
 
 opentelemetry-instrumentation-flask

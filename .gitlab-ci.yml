@@ -1,22 +1,7 @@
-cache:
-  paths:
-    - ~/.cache/pip 
-    - frontend_angular/node_modules
-
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   BACKEND_DIR: $CI_PROJECT_DIR/api_server
   FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
   OPENAPI_CLI: /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
-
-# We declare a job that gitlab ignores and put a YAML anchor
-# See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
-.setup_test_jobs: &before_python_jobs
-  image: python:3.9-slim
-  before_script:
-    - apt update
-    - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
-    - pip install -r api_server/requirements.txt
 
 .setup_angular_jobs: &before_angular_jobs
   image: node:18-alpine
@@ -116,12 +101,28 @@ lint:frontend:
   script:
     - yarn lint
 
-lint:backend:
-  image: python:3.9-slim
+lint:backend-code-quality:
+  image: python:3.9-alpine
   stage: lint
   needs:
     - generation:backend_entity
   script:
+    - cd api_server/
+    - pip install black isort
+    - pylint --fail-under=1 adh6/* > code_quality.txt
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - api_server/code_quality.txt
+  allow_failure: true
+
+lint:backend:
+  image: python:3.9-alpine
+  stage: lint
+  needs:
+    - generation:backend_entity
+  script:
+    - cd api_server/
     - pip install black isort
     - black . --extend-exclude migrations,venv
     - isort . --skip venv --skip migrations
@@ -134,30 +135,38 @@ lint:backend:
 ####################################
 ########## Backends Tests ##########
 ####################################
+test:python_check_for_vuln_deps:
+  stage: test
+  image: python:3.9-alpine
+  script:
+    - pip install safety
+    - safety check -r api_server/requirements.txt
+    - safety check
+  allow_failure: true
+
 test:backend:
   stage: test
   needs:
     - lint:backend
-  <<: *before_python_jobs # We reference our previous anchor
+    - lint:backend-code-quality
+    - test:python_check_for_vuln_deps
+  image: python:3.9-alpine
+  before_script:
+    - cd api_server/
+    - apk add --no-cache wget mariadb-dev build-base libffi-dev
+    - pip install -r api_server/requirements.txt
   script:
-  - cd api_server/
-  - apt update -q
-  - apt install -qy sqlite3
-  - pytest -vvv --cov-fail-under=70 --cov-report=term --junitxml=report.xml
+    - apk add --no-cache sqlite3
+    - pip install -r requirements-test.txt
+    - coverage run -m pytest
+    - coverage report
+    - coverage xml
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-      - api_server/htmlcov/
     reports:
-      junit: report.xml
-
-# test:python_check_for_vuln_deps:
-#   stage: test
-#   <<: *before_python_jobs # We reference our previous anchor
-#   script:
-#     - cd api_server/
-#     - pip install safety
-#     - safety check -r requirements.txt
-#     - safety check
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 
 ###########################
