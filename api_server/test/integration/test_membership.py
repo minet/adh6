@@ -93,12 +93,13 @@ def test_member_post_add_membership_unknown_payment_method(client, sample_member
 
 def test_membership_validate_membership_no_room(client, sample_room1, sample_member: Adherent, sample_membership_pending_validation_payment_dict):
     result = client.post(
-        f'{host_url}/room/{sample_room1.id}/member/',
-        data=json.dumps({"id": sample_member.id}),
+        f'{host_url}/room/{sample_room1.numero}/member/',
+        data=json.dumps({"login": sample_member.login}),
         content_type='application/json',
         headers=TEST_HEADERS,
     )
 
+    print(result.text)
     assert result.status_code == 204
 
     result = client.post(

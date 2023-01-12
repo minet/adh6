@@ -14,6 +14,7 @@ from adh6.member import MailinglistManager
 from adh6.treasury import AccountManager, AccountTypeManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
+from test import SAMPLE_CLIENT
 
 INVALID_MUTATION_REQ_ARGS = [
     ('empty_email', {'email': ''}),
@@ -36,25 +37,23 @@ FAKE_LOGS = "1  "
 class TestProfile:
     def test_happy_path(self,
                         mock_member_repository: MemberRepository,
+                        mock_subscription_manager: SubscriptionManager,
                         sample_member: Member,
                         member_manager: MemberManager):
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
+        mock_member_repository.get_by_login = MagicMock(return_value=(sample_member))
+        mock_subscription_manager.latest = MagicMock(return_value=(None))
         m, _ = member_manager.get_profile()
         assert sample_member == m
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_member_repository.get_by_login.assert_called_once()
 
     def test_member_not_found(self,
                         mock_member_repository: MemberRepository,
-                        member_manager: MemberManager):
-        # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
-
-        # When...
+                        member_manager: MemberManager,
+                        sample_member: Member):
+        mock_member_repository.get_by_login = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
         with pytest.raises(MemberNotFoundError):
             member_manager.get_profile()
-
-        # Expect...
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_member_repository.get_by_login.assert_called_once_with(sample_member.username)
 
 
 class TestGetByID:

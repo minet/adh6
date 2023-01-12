@@ -8,6 +8,7 @@ from adh6.exceptions import VLANNotFoundError
 from adh6.member import MemberManager
 from adh6.room.interfaces import RoomRepository
 from adh6.room import RoomManager
+from adh6.device import DeviceIpManager
 
 
 class TestUpdateOrCreate:
@@ -40,10 +41,11 @@ class TestUpdateOrCreate:
 
 
 @fixture
-def room_manager(mock_room_repository, mock_member_manager):
+def room_manager(mock_room_repository, mock_member_manager, mock_device_ip_manager):
     return RoomManager(
         room_repository=mock_room_repository,
-        member_manager=mock_member_manager
+        member_manager=mock_member_manager,
+        device_ip_manager=mock_device_ip_manager
     )
 
 
@@ -55,3 +57,8 @@ def mock_member_manager():
 @fixture
 def mock_room_repository():
     return MagicMock(spec=RoomRepository)
+
+
+@fixture
+def mock_device_ip_manager():
+    return MagicMock(spec=DeviceIpManager)

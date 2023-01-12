@@ -434,47 +434,6 @@ def test_member_patch_unauthorized(client):
     )
     assert r.status_code == 403
 
-
-def test_member_get_logs(client, sample_member):
-    body = {
-        "dhcp": False,
-    }
-    result = client.get(
-        f'{base_url}{sample_member.id}/logs/',
-        data=json.dumps(body),
-        content_type='application/json',
-        headers=TEST_HEADERS,
-    )
-    assert result.status_code == 200
-    assert json.loads(result.data.decode('utf-8')) == ["1 test_log"]
-
-
-def test_member_get_logs_unauthorized(client):
-    r = client.get(
-        f'{base_url}{4242}/logs/',
-        data=json.dumps({}),
-        headers=TEST_HEADERS_SAMPLE,
-    )
-    assert r.status_code == 403
-
-
-@pytest.mark.parametrize('headers', [TEST_HEADERS, TEST_HEADERS_SAMPLE])
-def test_member_get_statuses(client, sample_member, headers):
-    result = client.get(
-        f'{base_url}{sample_member.id}/statuses/',
-        content_type='application/json',
-        headers=headers,
-    )
-    assert result.status_code == 200
-
-
-def test_member_get_statuses_unauthorized(client):
-    r = client.get(
-        f'{base_url}{4242}/statuses/',
-        headers=TEST_HEADERS_SAMPLE,
-    )
-    assert r.status_code == 403
-
 def test_member_comment_put(client, sample_member):
     body = {
         "comment": "test_comment",

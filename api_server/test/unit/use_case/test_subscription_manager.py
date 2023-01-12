@@ -319,32 +319,26 @@ class TestPatchMembership:
 class TestValidateMembership:
     def test_unknown_membership(self,
                         mock_subscription_repository: MembershipRepository, 
-                        mock_member_repository: MemberRepository,
                         sample_member: Member,
                         subscription_manager: SubscriptionManager):
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
         mock_subscription_repository.from_member = MagicMock(return_value=([]))
 
         with pytest.raises(MembershipNotFoundError):
             subscription_manager.validate(sample_member, False)
 
-        mock_member_repository.get_by_id.assert_called()
         mock_subscription_repository.from_member.assert_called_once()
 
     def test_not_payment_validation(self,
                         mock_subscription_repository: MembershipRepository,
-                        mock_member_repository: MemberRepository,
                         sample_member: Member,
                         sample_membership_pending_payment: Membership,
                         subscription_manager: SubscriptionManager):
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
         mock_subscription_repository.from_member = MagicMock(return_value=([sample_membership_pending_payment]))
 
         with pytest.raises(MembershipStatusNotAllowed):
             subscription_manager.validate(sample_member, False)
 
         mock_subscription_repository.from_member.assert_called_once()
-        mock_member_repository.get_by_id.assert_called()
 
 
 class TestAddMembershipPaymentRecord:

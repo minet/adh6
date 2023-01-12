@@ -30,6 +30,7 @@ def mock_test_configuration(monkeypatch):
 def ctx(sample_member: Member, monkeypatch):
     import adh6.context as context
     monkeypatch.setattr(context, "get_user", lambda: sample_member.id, raising=False)
+    monkeypatch.setattr(context, "get_login", lambda: sample_member.username, raising=False)
     monkeypatch.setattr(context, "get_roles", lambda: [Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value, Roles.TRESO_WRITE.value, Roles.TRESO_READ.value], raising=False)
 
 @fixture
