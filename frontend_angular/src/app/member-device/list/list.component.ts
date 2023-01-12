@@ -11,7 +11,8 @@ export class MemberDeviceListComponent implements OnInit {
   @Input() member: Member;
 
   public deviceIds$: Observable<number[]>;
-  public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
+  private cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
+  
   constructor(private deviceService: DeviceService) { }
 
   ngOnInit(): void {
@@ -21,9 +22,7 @@ export class MemberDeviceListComponent implements OnInit {
   updateSearch() {
     this.deviceIds$ = this.deviceService.deviceMemberLoginGet(this.member.username, (this.deviceType == "wireless") ? this.deviceType : "wired").pipe(
       map(deviceIds => {
-        for (let i of deviceIds) {
-          this.cachedDevices.set(+i, this.deviceService.deviceIdGet(i).pipe(shareReplay(1)));
-        }
+        deviceIds.forEach(i => this.cachedDevices.set(+i, this.deviceService.deviceIdGet(i).pipe(shareReplay(1))));
         return deviceIds;
       })
     )

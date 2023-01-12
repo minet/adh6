@@ -70,10 +70,7 @@ export class TransactionListComponent extends SearchPage<AbstractTransaction> im
       return this.transactionService.transactionGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, abstractTransaction, undefined, "response")
         .pipe(
           map(response => {
-            if (!response.body) {
-              return response
-            }
-            for (let i of response.body) {
+            response.body.forEach(i => {
               if (i.src && !this.cachedAccountName.has(i.src)) {
                 this.cachedAccountName.set(i.src, this.accountService.accountIdGet(i.src).pipe(
                   shareReplay(1),
@@ -98,7 +95,7 @@ export class TransactionListComponent extends SearchPage<AbstractTransaction> im
                   map(result => result.username || "")
                 ));
               }
-            }
+            })
             return response;
           })
         );

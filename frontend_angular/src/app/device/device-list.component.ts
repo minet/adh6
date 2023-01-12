@@ -54,12 +54,12 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
     super((terms, page) => this.deviceService.deviceGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, <DeviceFilter>{ terms: terms }, "response")
       .pipe(
         map(response => {
-          for (let i of response.body) {
+          response.body.forEach(i => {
             this.cachedDevices.set(+i, this.deviceService.deviceIdGet(i).pipe(shareReplay(1)));
-            if (i && !this.memberUsernames.has(i)) {
+            if (!this.memberUsernames.has(i)) {
               this.memberUsernames.set(i, this.memberUsername$(i));
             }
-          }
+          })
           return response;
         })
       )
@@ -80,16 +80,9 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
 
   public memberUsername$(id: number): Observable<string> {
     return this.cachedDevices.get(id).pipe(
-      switchMap(
-        response => {
-          return this.memberService.memberIdGet(response.member, ["username"])
-            .pipe(
-              shareReplay(1),
-              map(result => {
-                return result.username
-              })
-            )
-        })
+      switchMap(response => this.memberService.memberIdGet(response.member, ["username"])),
+      shareReplay(1),
+      map(result => result.username)
     );
   }
 

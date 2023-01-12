@@ -41,12 +41,13 @@ export class RoomDetailsComponent implements OnInit {
     this.memberLogins$ = this.room$.pipe(switchMap(room => this.roomMemberService.roomRoomNumberMemberGet(room.roomNumber)
       .pipe(
         map(response => {
-          for (let i of response) {
-            this.cachedMembers.set(i, this.memberService.memberGet(1, 0, i)
-              .pipe(map(response => response[0]))
-              .pipe(switchMap(r => this.memberService.memberIdGet(r)))
-              .pipe(shareReplay(1)));
-          }
+          response.forEach(i => 
+            this.cachedMembers.set(i, this.memberService.memberGet(1, 0, i).pipe(
+              map(response => response[0]),
+              switchMap(r => this.memberService.memberIdGet(r)),
+              shareReplay(1)
+            ))
+          );
           return response
         })
       )
@@ -73,9 +74,7 @@ export class RoomDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.room$ = this.route.params.pipe(switchMap(params => {
-      return this.roomService.roomRoomNumberGet(+params['room_number'], ["roomNumber", "vlan"]).pipe(shareReplay(1));
-    }));
+    this.room$ = this.route.params.pipe(switchMap(params => this.roomService.roomRoomNumberGet(+params['room_number'], ["roomNumber", "vlan"]).pipe(shareReplay(1))));
     this.refreshInfo();
   }
 }

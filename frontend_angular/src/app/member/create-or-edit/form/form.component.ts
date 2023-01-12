@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { Member, MemberBody } from '../../../api';
+import { Member, MemberBody, RoomMembersService } from '../../../api';
 import { CommonModule } from '@angular/common';
 
 interface MemberEditForm {
@@ -25,17 +25,22 @@ export class FormComponent implements OnInit {
 
   public memberEdit: FormGroup<MemberEditForm>;
 
-  constructor() {
+  constructor(private roomMemberService: RoomMembersService) {
     this.memberEdit = new FormGroup<MemberEditForm>({
       firstName: new FormControl(),
       lastName: new FormControl(),
       username: new FormControl(),
       email: new FormControl(),
-      roomNumber: new FormControl(this.roomNumber),
+      roomNumber: new FormControl(),
     });
   }
 
-  ngOnInit() { this.memberEdit.patchValue(this.member); }
+  ngOnInit() { 
+    this.memberEdit.patchValue(this.member);
+    if (this.member) {
+      this.roomMemberService.roomMemberLoginGet(this.member.username).subscribe(roomNumber => this.memberEdit.patchValue({roomNumber: roomNumber}))
+    }
+  }
 
   onSubmit() {
     const v = this.memberEdit.value;

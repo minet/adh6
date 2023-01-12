@@ -35,7 +35,7 @@
                     </ng-container>
                     <ng-template #elseNoRoom>
                     <button class="button is-warning" (click)="collapseMoveIn()"
-                        [disabled]="member.membership !== 'ABORTED' && member.membership !== 'CANCELLED' && member.membership !== 'COMPLETE'">
+                        [disabled]="!isMembershipValidated(member)">
                         Emmenager
                     </button>
                     </ng-template>
@@ -58,25 +58,28 @@
             <p>{{ member.comment }}<p>
         </div>
     </div>
-    <h3 class="title is-4">Edition</h3>
-    <hr />
-    <div class="columns">
-        <div class="column">
-            <a [routerLink]="['/member/edit/', member.id ]">
-                <button class="button is-primary is-fullwidth">Éditer le profil</button>
-            </a>
+    <ng-container *ngIf="isMembershipValidated(member)">
+        <br />
+        <h3 class="title is-4">Edition</h3>
+        <hr />
+        <div class="columns">
+            <div class="column">
+                <a [routerLink]="['/member/edit/', member.id ]">
+                    <button class="button is-primary is-fullwidth">Éditer le profil</button>
+                </a>
+            </div>
+            <div class="column">
+                <a [routerLink]="['comment']">
+                    <button class="button is-primary is-fullwidth"> {{member.comment ? "Modifier le commentaire" : "Ajouter un commentaire"}} </button>
+                </a>
+            </div>
+            <div class="column">
+                <a [routerLink]="['/password', member.id, 0 ]">
+                    <button class="button is-danger is-fullwidth">Changer mot de passe</button>
+                </a>
+            </div>
         </div>
-        <div class="column">
-            <a [routerLink]="['comment']">
-                <button class="button is-primary is-fullwidth"> {{member.comment ? "Modifier le commentaire" : "Ajouter un commentaire"}} </button>
-            </a>
-        </div>
-        <div class="column">
-            <a [routerLink]="['/password', member.id, 0 ]">
-                <button class="button is-danger is-fullwidth">Changer mot de passe</button>
-            </a>
-        </div>
-    </div>
+    </ng-container>
     <app-mailinglist [mailinglistValue]="member.mailinglist" [memberId]="member.id"></app-mailinglist>
 </ng-container>
 <router-outlet></router-outlet>

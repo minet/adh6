@@ -25,6 +25,6 @@
     <input class="input is-fullwidth" formControlName="roomNumber" type="number" placeholder="Aucune chambre" required>
   </div>
   <button type="submit" [disabled]="memberEdit.invalid" class="button is-primary is-fullwidth">
-    <span *ngIf="!member">Éditer</span><span *ngIf="member">Créer</span>
+    <span *ngIf="member">Éditer</span><span *ngIf="!member">Créer</span>
   </button>
 </form>

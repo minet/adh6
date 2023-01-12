@@ -26,7 +26,7 @@ export class PortListComponent extends SearchPage<AbstractPort> implements OnIni
     super((terms, page) => this.portService.portGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.filter, ["portNumber", "room", "switchObj"], 'response')
       .pipe(
         map(response => {
-          for (let p of response.body) {
+          response.body.forEach(p => {
             if (p.room && !this.cachedRoomDescription.has(p.room)) {
               this.cachedRoomDescription.set(p.room, this.roomService.roomGet(1, 0, undefined, {id: p.room})
                 .pipe(
@@ -42,7 +42,7 @@ export class PortListComponent extends SearchPage<AbstractPort> implements OnIni
                 map(s => s.description)
               ));
             }
-          }
+          })
           return response;
         })
       ));

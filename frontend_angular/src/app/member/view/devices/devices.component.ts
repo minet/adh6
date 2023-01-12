@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpEvent } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Observable, switchMap, timer } from 'rxjs';
 import { DeviceService } from '../../../api';
@@ -14,42 +13,33 @@ import { MemberDetailService } from '../member-detail.service';
 })
 export class DevicesComponent implements OnInit {
   public getDhcp = false;
-  public log$: Observable<Array<string> | HttpEvent<string[]>>;
-
   public showLogs = false;
-  public member$ = this.memberDetailService.member$;
-  private content: string;  // for log formatting
+  public log$: Observable<Array<string>>;
 
   constructor(
     private deviceService: DeviceService,
-    private memberDetailService: MemberDetailService
+    public memberDetailService: MemberDetailService
   ) { }
 
   ngOnInit(): void {
-    this.refreshLog();
-  }
-
-  refreshLog(): void {
     this.log$ = timer(0, 10 * 1000)
-      .pipe(switchMap(
-        () => this.member$
-          .pipe(switchMap((member) => this.deviceService.deviceMemberLoginLogsGet(member.username, this.getDhcp, 'body')))
-      ));
+      .pipe(
+        switchMap(() => this.memberDetailService.member$),
+        switchMap((member) => this.deviceService.deviceMemberLoginLogsGet(member.username, this.getDhcp))
+      );
   }
 
   extractMsgFromLog(log: string): string {
-    this.content = ' ' + log.substr(log.indexOf(' ') + 1);
-
-    if (this.content.includes('Login OK')) {
-      return this.content.replace(new RegExp('Login OK:', 'gi'), match => {
+    let content = ' ' + log.substr(log.indexOf(' ') + 1);
+    if (content.includes('Login OK')) {
+      content.replace(new RegExp('Login OK:', 'gi'), match => {
         return '<font color="green">'.concat(match).concat('</font>');
       });
-    } else if (this.content.includes('Login incorrect')) {
-      return this.content.replace(new RegExp('Login incorrect', 'gi'), match => {
+    } else if (content.includes('Login incorrect')) {
+      content.replace(new RegExp('Login incorrect', 'gi'), match => {
         return '<font color="red">'.concat(match).concat('</font>');
       });
-    } else {
-      return this.content;
     }
+    return content;
   }
 }

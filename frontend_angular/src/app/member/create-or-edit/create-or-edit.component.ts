@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { AbstractMember, Member, MemberBody, MemberService, RoomMembersService } from '../../api';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Toast } from '../../notification.service';
 import { CommonModule } from '@angular/common';
@@ -27,9 +27,8 @@ export class CreateOrEditComponent implements OnInit {
   editMember(newMember: {member: MemberBody, room: number}, member?: Member) {
     if (member.username) {
       this.memberService.memberIdPatch(member.id, newMember.member)
-        .subscribe(() => {
-          this.roomMemberService.roomRoomNumberMemberPost(newMember.room, { login: newMember.member.username }).subscribe(() => this.router.navigate(['member/view', member.id]))
-        });
+        .pipe(map(() => this.roomMemberService.roomRoomNumberMemberPost(newMember.room, { login: newMember.member.username })))
+        .subscribe(() => this.router.navigate(['member/view', member.id]))
     } else {
       this.memberService.memberPost(newMember.member)
         .subscribe((id) => {

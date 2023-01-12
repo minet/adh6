@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { AbstractDevice, DeviceBody, DeviceService } from '../../api';
+import { AbstractDevice, DeviceBody, DeviceService, Member } from '../../api';
 import { takeWhile } from 'rxjs/operators';
 import { LOCALE_ID, Inject } from '@angular/core';
 import { NotificationService } from '../../notification.service';
@@ -13,7 +13,7 @@ export class NewComponent {
   deviceForm: UntypedFormGroup;
   private alive = true;
 
-  @Input() member_id: number;
+  @Input() member: Member;
   @Output() added: EventEmitter<AbstractDevice> = new EventEmitter();
 
   constructor(
@@ -29,7 +29,7 @@ export class NewComponent {
     const device: DeviceBody = {
       mac: v.mac,
       connectionType: v.connectionType,
-      member: this.member_id
+      member: this.member.username
     };
 
     this.deviceService.devicePost(device)

@@ -1,4 +1,4 @@
-<ng-container *ngIf="member$ | async">
+<ng-container *ngIf="member$ | async as member">
   <div class="tabs is-centered is-large">
     <ul>
       <li routerLinkActive="is-active">
@@ -11,6 +11,10 @@
         <a [routerLink]="['device']">Appareils</a>
       </li>
     </ul>
+  </div>
+  <div class="notification is-info is-light" *ngIf="member.membership !== 'ABORTED' && member.membership !== 'CANCELLED' && member.membership !== 'COMPLETE'">
+    <p><strong>Cotisation en cours</strong></p>
+    <p><strong>Édition</strong> du profile, du mot de passe ou de la chambre n'est <strong>pas possible</strong></p>
   </div>
   <router-outlet></router-outlet>
 </ng-container>

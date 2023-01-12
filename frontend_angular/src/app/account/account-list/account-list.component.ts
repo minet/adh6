@@ -28,14 +28,14 @@ export class AccountListComponent extends SearchPage<AbstractAccount> implements
     super((terms, page) => this.accountService.accountGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.abstractAccountFilter, ["name", "balance", "actif", "accountType"], "response")
       .pipe(
         map(response => {
-          for (let i of response.body) {
+          response.body.forEach(i => {
             if (i.accountType && !this.cachedAccountType.has(i.accountType)) {
               this.cachedAccountType.set(i.accountType, this.accountService.accountTypeIdGet(i.accountType).pipe(
                 shareReplay(1),
                 map(result => result.name)
               ));
             }
-          }
+          });
           return response;
         })
       ));

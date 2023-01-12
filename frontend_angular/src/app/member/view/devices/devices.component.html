@@ -1,4 +1,4 @@
-<ng-container *ngIf="member$ | async as member">
+<ng-container *ngIf="memberDetailService.member$ | async as member">
     <app-member-device [member]="member"></app-member-device>
     <br />
     <nav class="level">

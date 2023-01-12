@@ -1,4 +1,4 @@
-<app-device-new  [member_id]="member.id" (added)="$event.connectionType === 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()"></app-device-new>
+<app-device-new  [member]="member" (added)="$event.connectionType === 'wired' ? wiredList.updateSearch() : wirelessList.updateSearch()"></app-device-new>
 <br />
 <!--<app-auto-troubleshoot [member]="member"></app-auto-troubleshoot>-->
 <div class="content">

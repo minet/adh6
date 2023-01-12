@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { map, Observable, switchMap } from 'rxjs';
-import { AbstractMember, AbstractRoom, RoomMembersService, RoomService } from '../../../api';
+import { AbstractMember, AbstractRoom, Member, RoomMembersService, RoomService } from '../../../api';
 import { MailinglistComponent } from '../../../mailinglist/mailinglist.component';
 import { NotificationService } from '../../../notification.service';
 import { MemberDetailService } from '../member-detail.service';
@@ -35,9 +35,8 @@ export class DetailsComponent {
 
   public refreshRoom(): void {
     this.room$ = this.memberDetailService.member$.pipe(
-      switchMap(member => this.roomMemberService.roomMemberLoginGet(member.username)
-        .pipe(switchMap(roomNumber => this.roomService.roomRoomNumberGet(roomNumber)))
-      )
+      switchMap(member => this.roomMemberService.roomMemberLoginGet(member.username)),
+      switchMap(roomNumber => this.roomService.roomRoomNumberGet(roomNumber))
     );
   }
 
@@ -52,5 +51,9 @@ export class DetailsComponent {
         this.collapseMoveIn();
         this.memberDetailService.updateMemberInfos.emit("Chambre mise à jour");
       });
+  }
+
+  public isMembershipValidated(member: Member): boolean {
+    return member.membership === 'ABORTED' || member.membership === 'CANCELLED' || member.membership === 'COMPLETE'
   }
 }

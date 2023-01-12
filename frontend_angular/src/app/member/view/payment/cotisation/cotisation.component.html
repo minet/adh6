@@ -1,12 +1,6 @@
 <div class="notification">
   <p>Dans le cas d'une cotisation ou d'une recotisation, une validation manuelle est nécessaire.</p>
 </div>
-<div class="notification is-danger is-light" *ngIf="member.membership === 'PENDING_RULES'">
-  <p>
-    La charte n'est pas signée: <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer">aller sur
-      charte</a>
-  </p>
-</div>
 <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
   <div class="field">
     <label class="label">Durée de cotisation</label>

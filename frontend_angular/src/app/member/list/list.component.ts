@@ -26,11 +26,11 @@ export class ListComponent extends SearchPage<number> {
     super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.subscriptionFilter !== "" ? <MemberFilter>{ membership: this.subscriptionFilter } : undefined, "response")
       .pipe(
         map(response => {
-          for (let i of response.body) {
-            let member$ = this.memberService.memberIdGet(+i).pipe(shareReplay(1))
-            this.cachedMembers.set(+i, member$);
-            this.cachedRoomNumbers.set(+i, member$.pipe(switchMap(m => this.roomMemberService.roomMemberLoginGet(m.username))));
-          }
+          response.body.forEach(i => {
+            let member$ = this.memberService.memberIdGet(i).pipe(shareReplay(1))
+            this.cachedMembers.set(i, member$);
+            this.cachedRoomNumbers.set(i, member$.pipe(switchMap(m => this.roomMemberService.roomMemberLoginGet(m.username))));
+          });
           return response
         }),
       ));
