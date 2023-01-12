@@ -40,7 +40,7 @@ class RoomManager(CRUDManager):
 
         self.room_repository.add_member(room.id, member)
         if not previous_room:
-            self.member_manager.update_subnet(member_id=member)
+            self.member_manager.update_subnet(member=member)
             self.device_ip_manager.allocate_ips(member=member, device_type="wired", vlan_number=room.vlan)
         elif previous_room.vlan != room.vlan:
             self.device_ip_manager.allocate_ips(member=member, device_type="wired", vlan_number=room.vlan)

@@ -53,5 +53,5 @@ class CRUDManager:
 
     @log_call
     def delete(self, id: int):
-        _ = self.get_by_id(object_id=id)
+        _ = self.get_by_id(id=id)
         return self.repository.delete(id)

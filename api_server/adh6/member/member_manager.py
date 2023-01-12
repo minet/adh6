@@ -105,7 +105,7 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_manager.update_member_mailinglist(created_member.id, 249)
+        self.mailinglist_manager.update_member_mailinglist(created_member, 249)
 
         _ = self.account_manager.update_or_create(Account(
             id=0,

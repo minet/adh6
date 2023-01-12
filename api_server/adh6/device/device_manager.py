@@ -85,7 +85,7 @@ class DeviceManager(CRUDManager):
         if body.mac is None or not is_mac_address(body.mac):
             raise InvalidMACAddress(body.mac)
 
-        member = self.member_manager.get_by_id(body.member)
+        member = self.member_manager.get_by_login(body.member)
         room = self.room_manager.room_from_member(body.member)
 
         if not body.connection_type:
@@ -93,13 +93,13 @@ class DeviceManager(CRUDManager):
         body.mac = str(body.mac).upper().replace(':', '-')
 
         d = self.device_repository.get_by_mac(body.mac)
-        _, count = self.device_repository.search_by(limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member))
+        _, count = self.device_repository.search_by(limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=member.id))
         if d:
             raise DeviceAlreadyExists()
         elif count >= 20:
             raise DevicesLimitReached()
 
-        device = self.device_repository.create(body)
+        device = self.device_repository.create(body, member)
 
         self.device_ip_manager.allocate_ip_with_vlan_number(
             device=device,

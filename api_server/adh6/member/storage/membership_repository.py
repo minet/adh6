@@ -19,6 +19,7 @@ class MembershipSQLRepository(MembershipRepository):
         smt = select(MembershipSQL).where(MembershipSQL.adherent_id == member.id)
         return [_map_membership_sql_to_entity(i[0]) for i in session.execute(smt)]
 
+    @log_call
     def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
         Add a membership record.
@@ -42,6 +43,7 @@ class MembershipSQLRepository(MembershipRepository):
         session.flush()
         return _map_membership_sql_to_entity(to_add)
 
+    @log_call
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
         query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
@@ -62,6 +64,7 @@ class MembershipSQLRepository(MembershipRepository):
         session.flush()
         return _map_membership_sql_to_entity(membership)
 
+    @log_call
     def validate(self, uuid: str) -> None:
         query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()

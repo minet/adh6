@@ -19,7 +19,7 @@ def log_call(f):
         Wrap http_api function.
         """
         import logging
-        #print(kwargs)
+        #print(f"{type(cls).__name__}_{f.__name__}_called | {args} | {kwargs}")
         logging.debug(f"{type(cls).__name__}_{f.__name__}_called | {args} | {kwargs}")
         with tracer.start_as_current_span(f"{type(cls).__name__}.{f.__name__}"):
             return f(cls, *args, **kwargs)

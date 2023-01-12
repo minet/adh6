@@ -1,13 +1,13 @@
 # coding=utf-8
 import abc
 import typing as t
-from adh6.entity import Device, AbstractDevice, DeviceFilter, DeviceBody
+from adh6.entity import Device, AbstractDevice, DeviceFilter, DeviceBody, Member
 from adh6.default.crud_repository import CRUDRepository
 
 
 class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
     @abc.abstractmethod
-    def create(self, obj: DeviceBody) -> Device:
+    def create(self, obj: DeviceBody, member: Member) -> Device:
         pass  # pragma: no cover 
 
     @abc.abstractmethod

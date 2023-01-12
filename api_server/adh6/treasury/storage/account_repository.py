@@ -23,7 +23,8 @@ class AccountSQLRepository(AccountRepository):
     @log_call
     def get_by_name(self, name: str) -> t.Union[Account, None]:
         smt = select(SQLAccount).where(SQLAccount.name == name)
-        return session.execute(smt).one_or_none()
+        a = session.execute(smt).scalars().one_or_none()
+        return _map_account_sql_to_entity(a, False) if a else None
 
     @log_call
     def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: t.Optional[AbstractAccount] = None) -> t.Tuple[t.List[Account], int]:

@@ -4181,21 +4181,23 @@ components:
         - member
       properties:
         connectionType:
+          nullable: false
           description: The connection type of this device
           enum:
           - wired
           - wireless
           type: string
         mac:
+          nullable: false
           description: The MAC address of this device
           example: 01-23-45-67-89-AB
           format: mac
           type: string
         member:
-          nullable: true
-          description: The id of the owner of the device
-          example: 0
-          type: integer
+          nullable: false
+          description: The login of the owner of the device
+          example: tux
+          type: string
     Comment:
       type: object
       additionalProperties: false

@@ -8,7 +8,7 @@ import typing as t
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
 
-from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
+from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody, Member
 from adh6.decorator import log_call
 from adh6.member.storage.models import Adherent
 from adh6.storage import session
@@ -51,7 +51,7 @@ class DeviceSQLRepository(DeviceRepository):
         return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
-    def create(self, obj: DeviceBody) -> Device:
+    def create(self, obj: DeviceBody, member: Member) -> Device:
         now = datetime.now()
         device = SQLDevice(
             mac=obj.mac,
@@ -59,7 +59,7 @@ class DeviceSQLRepository(DeviceRepository):
             updated_at=now,
             last_seen=now,
             type=DeviceType[obj.connection_type].value,
-            adherent_id=obj.member,
+            adherent_id=member.id,
             ip='En attente',
             ipv6='En attente'
         )

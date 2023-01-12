@@ -30,7 +30,6 @@ requests
 # Easily create requirements.txt
 # pip-tools
 
-python-gitlab
 Flask-Migrate
 Flask-Caching
 authlib

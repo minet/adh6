@@ -217,7 +217,7 @@ class SubscriptionManager:
 
     @log_call
     def validate(self, member: Member, free: bool) -> None:
-        subscription = self.latest(member_id=member.id)    
+        subscription = self.latest(member=member)    
         if not subscription:
             raise MembershipNotFoundError(None)
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
@@ -240,6 +240,7 @@ class SubscriptionManager:
             price = 9
             title = title + " (sans chambre)"
 
+        print(asso_account.to_dict())
         self.transaction_manager.update_or_create(
             AbstractTransaction(
                 value=9 if not free else 0,

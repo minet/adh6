@@ -37,6 +37,8 @@ def with_context(f):
                 raise Exception()
         except Exception as e:
             session.rollback()
+            import traceback
+            traceback.print_exc()
             return handle_error(e)
         return result
 
