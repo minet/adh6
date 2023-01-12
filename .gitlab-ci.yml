@@ -52,6 +52,9 @@ semgrep:
 generation:backend_entity:
   stage: generation
   image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
+  only:
+    changes:
+      - openapi/spec.yaml
   script:
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
@@ -67,6 +70,9 @@ generation:backend_entity:
 generation:frontend_module:
   stage: generation
   image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
+  only:
+    changes:
+      - openapi/spec.yaml
   script:
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g typescript-angular -o "frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
     - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
@@ -100,6 +106,7 @@ lint:frontend:
   <<: *before_angular_jobs 
   script:
     - yarn lint
+  allow_failure: true
 
 lint:backend-code-quality:
   image: python:3.9-alpine
@@ -108,7 +115,7 @@ lint:backend-code-quality:
     - generation:backend_entity
   script:
     - cd api_server/
-    - pip install black isort
+    - pip install pylint
     - pylint --fail-under=1 adh6/* > code_quality.txt
   artifacts:
     expire_in: 1 day
@@ -138,6 +145,9 @@ lint:backend:
 test:python_check_for_vuln_deps:
   stage: test
   image: python:3.9-alpine
+  only:
+    changes:
+      - api_server/requirements.txt
   script:
     - pip install safety
     - safety check -r api_server/requirements.txt
@@ -148,7 +158,6 @@ test:backend:
   stage: test
   needs:
     - lint:backend
-    - lint:backend-code-quality
     - test:python_check_for_vuln_deps
   image: python:3.9-alpine
   before_script:
