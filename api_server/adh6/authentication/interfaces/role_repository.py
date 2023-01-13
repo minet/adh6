@@ -1,7 +1,7 @@
 import abc
 import typing as t
 
-from adh6.authentication import AuthenticationMethod, Roles
+from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.entity import RoleMapping
 
 

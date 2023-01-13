@@ -6,7 +6,7 @@ from adh6.entity import RoleMapping
 from adh6.storage import session
 from adh6.member.storage.models import Adherent
 
-from .. import AuthenticationMethod, Roles
+from ..enums import AuthenticationMethod, Roles
 from ..interfaces import RoleRepository
 from .models import AuthenticationRoleMapping
 

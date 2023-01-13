@@ -1,10 +1,11 @@
 import typing as t
-from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call
 from adh6.entity import RoleMapping
 from adh6.exceptions import MemberNotFoundError, NotFoundError, UpdateImpossible
 from adh6.member import MemberManager
+
+from .enums import AuthenticationMethod, Roles
 
 
 class RoleManager:
