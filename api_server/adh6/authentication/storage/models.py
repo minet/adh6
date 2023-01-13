@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Enum, Integer
 
-from adh6.authentication import AuthenticationMethod, Roles
+from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.storage import db
 
 
