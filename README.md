@@ -14,6 +14,7 @@ Si vous voyez une modification à apporter (correction de faute, éclaircissemen
 
 ## Présentation
 ADH est le système de gestion d'adhérent de l'association [MiNET](https://minet.net). Ce document a pour but de présenter la sixième version de notre outil.
+
 ## Motivations
 Nous voulons produire un outil de gestion des adhérent **simple à maintenir**. Pour cela, nous prônons la *simplicité* dans *toutes* les parties de notre projet. Le but est de créer un outil maintenable, qui effectue **sa mission et qui l'a fait bien**.
 
@@ -73,20 +74,13 @@ make generate-database-fixtures LOGIN=<votre LDAP>
 Vous pouvez tester l'application dans votre navigateur à l'adresse https://adh6-local.minet.net
 Vous pouvez vous identifier avec vos identifiants LDAPs
 
-
-**NOTE**: Le certificat est auto-signé. Les navigateurs web récents permettent d'activer une option pour toujours faire confiance aux certificats pour localhost.
-
-Chromium: https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate
-
-
-
 Normalement, une fois que le projet est lancé, vous aurez les logs de tous les dockers dans la console.
 Si vous éditez le code du Frontend (angular) dans votre dossier, les modifications seront automatiquement réfléchies (vous allez voir des logs comme quoi il recompile automatiquement). 
-Pour le code de l'API, modifiez votre code et faites `docker-compose restart api_server`.
+Pour le code de l'API, modifiez votre code et faites `docker-compose restart --build api_server`.
 
 Si vous modifiez autre chose, vous pouvez aussi tout relancer.
 
-PS: Parfois, lorsque que vous ajoutez un fichier, il faudra éteindre adh6 puis faire `make`.
+> Parfois, lorsque que vous ajoutez un fichier, il faudra éteindre adh6 puis faire `make`.
 
 
 ### Faire des modifs en live sur la BDD
@@ -138,7 +132,7 @@ pip-sync # Telecharge les deps et supprime les anciennes.
 
 3) Pour ensuite quitter cet environnement vous avez juste à taper `deactivate`
 
-4) ancer les tests ?
+4) Lancer les tests ?
 Lancez `pytest -vvv` dans la console, ou utilisez votre IDE... ce dernier est configuré pour faire en même ttemps le coverage du code
 
 #### Frontend
@@ -199,7 +193,7 @@ Si vous êtes un PGM et que vous voulez juste lire le code, sachez juste que tou
 Pour que python se comporte en serveur Web on utilise `Flask`, et pour pas avoir à faire de trucs compliqués on utilise `connexion` qui est la librairie faisant le binding entre Flask et les fonctions en python qui sont appelées.
 
 Si vous voulez modifier l'API, modifiez le fichier de [spec](openapi/spec.yaml).
-Le site permet just d'avoir une jolie représentation de l'API.
+Le site permet just d'avoir une jolie représentation de l'API. La spécification API actuellement en production est [https://adh6.minet.net/api/ui](https://adh6.minet.net/api/ui)
 
 ## Architecture
 Dans le dossier api_server, le nom des sous dossiers sont assez directs:
@@ -225,6 +219,23 @@ Le serveur peut être séparé en modules. C'est derniers correpondent chacun à
 - [**metrics**](api_server/adh6/metrics/README.md) : gère les metrics liées à la plateforme.
 
 Un module a de préférencce une architecture définie sous la forme suivante.
+
+#### Graph macro des dépendances entre modules 
+```mermaid
+graph TD
+    Metrics
+    Network
+
+    Authentication --> Member
+    Authentication --> Member
+    Member --> Device
+    Member --> Treasury
+    Device --> Member
+    Device --> Room
+    Device --> Subnet
+    Room --> Member
+    Room --> Device
+```
 
 ### Architecture d'un module
 
