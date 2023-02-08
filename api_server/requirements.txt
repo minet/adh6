@@ -36,7 +36,7 @@ connexion==2.14.0
     # via -r requirements.in
 coverage[toml]==6.4.2
     # via pytest-cov
-cryptography==37.0.4
+cryptography==39.0.1
     # via
     #   -r requirements.in
     #   authlib
