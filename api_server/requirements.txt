@@ -179,7 +179,7 @@ urllib3==1.26.11
     #   requests
 uwsgi==2.0.20
     # via -r requirements.in
-werkzeug==2.2.1
+werkzeug==2.2.3
     # via
     #   connexion
     #   flask
