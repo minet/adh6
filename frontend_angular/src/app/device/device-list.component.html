@@ -1,0 +1,32 @@
+<input #searchBox id="search-box" placeholder="Rechercher..." (keyup)="search(searchBox.value)" class="input is-fullwidth" type="text" />
+<br>
+<table class="table is-hoverable is-fullwidth is-clickable">
+  <thead>
+    <tr>
+      <th style="width: 33%;">Utilisateur</th>
+      <th style="width: 33%;">MAC de l'appareil</th>
+      <th style="width: 33%;">Type d'appareil</th>
+    </tr>
+  </thead>
+  <tbody *ngIf="result$ | async as result; else loadingTable">
+    <ng-container *ngFor="let i of result">
+      <ng-container *ngIf="getDevice(i) | async as device">
+        <tr [routerLink]="['/member/view', device.member, 'profile']">
+          <td>{{ (getUsername(i) | async) || "chargement..." }}</td>
+          <td>{{ device.mac }}</td>
+          <td>{{ device.connectionType }}</td>
+        </tr>
+      </ng-container>
+    </ng-container>
+  </tbody>
+</table>
+<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<ng-template #loadingTable>
+  <tr>
+    <td colspan="42">
+      <div class="notification is-info is-light has-text-centered">
+        <h4 class="title is-4">Chargement ...</h4>
+      </div>
+    </td>
+  </tr>
+</ng-template>
