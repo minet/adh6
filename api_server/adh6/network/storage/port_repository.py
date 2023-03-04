@@ -52,6 +52,7 @@ class PortSQLRepository(PortRepository):
                 query = query.filter(SQLPort.switch_id == filter_.switch_obj)
 
         count = query.count()
+        query = query.order_by(SQLPort.chambre_id.asc())
         query = query.order_by(SQLPort.id.asc())
         query = query.offset(offset)
         query = query.limit(limit)
