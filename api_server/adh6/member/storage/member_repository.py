@@ -35,7 +35,9 @@ class MemberSQLRepository(MemberRepository):
                 (Adherent.prenom.contains(terms)) |
                 (Adherent.mail.contains(terms)) |
                 (Adherent.login.contains(terms)) |
-                (Adherent.commentaires.contains(terms))
+                (Adherent.commentaires.contains(terms)) |
+                (Adherent.ip.contains(terms)) |
+                (Adherent.subnet.contains(terms))
             )
 
         count = query.count()
