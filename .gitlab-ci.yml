@@ -186,6 +186,7 @@ stagged:frontend:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
   needs:
     - lint:frontend
     - generation:frontend_module
@@ -204,11 +205,14 @@ stagged:backend:
   stage: deploy
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  when: manual
   needs:
     - lint:backend
     - test:backend
   before_script:
     - sudo systemctl stop emperor.uwsgi.service
+    - export http_proxy=$HTTP_PROXY
+    - export https_proxy=$HTTPS_PROXY
     - cd api_server/
     - sudo -E pip3 install -r ./requirements.txt
   script:
