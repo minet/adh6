@@ -243,9 +243,9 @@ development:
     - generation:frontend_module
     - generation:frontend_assets
   script:
-    - docker-compose -f docker-compose-deploy.yml build
-    - docker-compose -f docker-compose-deploy.yml down
-    - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
+    - docker compose -f docker-compose-deploy.yml build
+    - docker compose -f docker-compose-deploy.yml down
+    - docker compose -f docker-compose-deploy.yml up --force-recreate -d 
   environment:
     name: development
     url: https://adh6-dev.minet.net/
