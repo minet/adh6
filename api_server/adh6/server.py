@@ -135,6 +135,7 @@ config = {
 
 
 def get_obj_graph():
+    # List of all classes that will be used for dependency injection
     _global = managers+ \
         handlers+ \
         [SwitchNetworkManager]+ \
@@ -145,6 +146,7 @@ def get_obj_graph():
         [PortRepository, SwitchRepository] + \
         [RoleRepository, ApiKeyRepository]
 
+    # List of base interfaces for each class
     _base_interfaces = [
         abc.ABC,
         CRUDManager,
@@ -153,15 +155,18 @@ def get_obj_graph():
         object
     ]
 
+    # Recursive function that gets the base class for each class, based on the list of base interfaces
     def get_base_class(cls):
         if len(cls.__bases__) == 0 or set(_base_interfaces)&set(cls.__bases__):
             return cls
         return get_base_class(cls.__bases__[0])
 
+    # Dictionnary that maps each class name to its base class
     _class_name_to_abstract = {
         cls.__name__: get_base_class(cls) for cls in _global
     }
 
+    # Function that returns the argument names for a given class name, by calling a function from the pinject library
     def get_arg_names(class_name):
         if class_name in _class_name_to_abstract:
             class_name = _class_name_to_abstract[class_name].__name__
@@ -175,31 +180,37 @@ def get_obj_graph():
 
 
 def init() -> FlaskApp:
+    # Get the environment variable and convert it to lowercase to know which configuration to use
     environment = os.environ.get('ENVIRONMENT', 'default').lower()
+    # Raise an error if the environment variable is not set or is not production, development or testing
     if environment == "default" or environment not in config:
-        raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development, testing")
+        raise EnvironmentError("The server cannot be started because environment variable has not been set or is not production, development or testing")
 
-    # Connexion will use this function to authenticate and fetch the information of the user.
+    # Set environment variables that will be used for authentication and authorization
     os.environ['TOKENINFO_FUNC'] = os.environ.get('TOKENINFO_FUNC', 'adh6.authentication.token_info')
     os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.apikey_auth')
 
-    # Initialize the application
+    # Initialize the flask application using the connexion library
     app = connexion.App(__name__, specification_dir='../openapi')
 
+    # Raise an exception if there was an error setting up the flask application
     if app.app is None:
         raise Exception("Error when setting the flask application")
 
-    # Setup the configuration
+    # Set the configuration for the flask application
     app.app.config.from_object(config[environment])
 
+    # Push the flask application context onto the stack
     app.app.app_context().push()
+    # Get the pinject object graph
     obj_graph = get_obj_graph()
 
+    # Add the API routes using the ADHResolver class
     app.add_api(
         'swagger.yaml',
         resolver=ADHResolver(
             {
-                'health': obj_graph.provide(HealthHandler),
+                'health': obj_graph.provide(HealthHandler), # The key is the name of the route and the value is the class that will handle the route
                 'profile': obj_graph.provide(ProfileHandler),
                 'transaction': obj_graph.provide(TransactionHandler),
                 'member': obj_graph.provide(MemberHandler),
@@ -225,13 +236,15 @@ def init() -> FlaskApp:
         auth_all_paths=True,
     )
 
+    # Import and setup the application logging
     from .logging import setup_login
-
     setup_login()
 
+    # Initialize the database and cache
     db.init_app(app.app)
     cache.init_app(app.app, config={'CACHE_TYPE': 'SimpleCache'})
     
+    # Create and run database migrations
     Migrate(app.app, db)
 
     #from flask_migrate import upgrade
