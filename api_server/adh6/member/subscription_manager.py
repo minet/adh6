@@ -23,7 +23,7 @@ from adh6.exceptions import (
 from adh6.decorator import log_call
 from adh6.authentication import Roles
 from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
-from adh6.treasury import TransactionManager
+from adh6.treasury.transaction_manager import TransactionManager
 
 from .notification_manager import NotificationManager
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository

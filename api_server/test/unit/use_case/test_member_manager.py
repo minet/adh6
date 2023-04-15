@@ -18,7 +18,7 @@ from adh6.member.interfaces import MailinglistRepository, MemberRepository, Memb
 from adh6.member.member_manager import MemberManager
 from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
-from adh6.treasury import TransactionManager
+from adh6.treasury.transaction_manager import TransactionManager
 from adh6.treasury.interfaces import PaymentMethodRepository, AccountTypeRepository, AccountRepository
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
