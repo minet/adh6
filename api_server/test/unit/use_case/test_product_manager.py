@@ -6,7 +6,7 @@ from adh6.exceptions import AccountNotFoundError, NotFoundError, PaymentMethodNo
 from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 from adh6.treasury.interfaces.product_repository import ProductRepository
-from adh6.treasury import TransactionManager
+from adh6.treasury.transaction_manager import TransactionManager
 from adh6.treasury.product_manager import ProductManager
 
 

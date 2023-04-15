@@ -8,8 +8,8 @@ from adh6.exceptions import AccountNotFoundError, ProductNotFoundError
 from adh6.default import CRUDManager
 
 # Import custom interfaces
-from .interfaces import ProductRepository, AccountRepository, PaymentMethodRepository
-from . import TransactionManager
+from adh6.treasury.interfaces import ProductRepository, AccountRepository, PaymentMethodRepository
+from adh6.treasury.transaction_manager import TransactionManager
 
 # Define a class for managing products and transactions related to them
 class ProductManager(CRUDManager):
