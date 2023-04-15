@@ -50,10 +50,10 @@ from adh6.treasury import (
     AccountManager, 
     AccountTypeManager, 
     CashboxManager, 
-    TransactionManager, 
     ProductManager, 
     PaymentMethodManager
 )
+from adh6.treasury.transaction_manager import TransactionManager
 from adh6.member.member_manager import MemberManager
 from adh6.member.mailinglist_manager import MailinglistManager
 from adh6.member.charter_manager import CharterManager
