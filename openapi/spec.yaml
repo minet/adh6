@@ -719,6 +719,8 @@ paths:
           - user
         - OAuth2:
           - admin:write
+        - ApiKeyAdminAuth:
+          - admin:write
       tags:
       - member
   /member/{id}/charter/{charter_id}:
