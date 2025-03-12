@@ -7,8 +7,14 @@ WORKDIR /adh6/frontend_angular
 RUN apk --no-cache --update add openssl
 
 COPY package.json .
-RUN yarn install --frozen-lockfile
-
+# RUN yarn install --frozen-lockfile
+RUN apk add --no-cache --virtual .gyp \
+        python3 \
+        make \
+        g++ \
+    && yarn install --frozen-lockfile \
+    && apk del .gyp
+  
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
@@ -16,5 +22,3 @@ CMD  openssl genrsa -out private.key 4096 \
   && openssl req -new -key private.key -out private.csr -subj "/C=FR/ST=Essonne/O=MiNET/CN=reverse_proxy" \
   && openssl x509 -req -days 365 -in private.csr -signkey private.key -out private.crt \
   && yarn start:en --watch --host 0.0.0.0 --disable-host-check
-
-
