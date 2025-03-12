@@ -52,6 +52,7 @@ services:
   reverse_proxy:
     container_name: adh6_reverse_proxy
     build: reverse_proxy
+    init: true
     links:
       - frontend_angular
       - api_server
@@ -72,7 +73,7 @@ services:
   database:
     read_only: true
     container_name: adh6_database
-    image: mariadb:latest
+    image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_DATABASE: ${DATABASE_DB_NAME}
