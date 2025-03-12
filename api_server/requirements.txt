@@ -195,7 +195,7 @@ python-dotenv==0.21.0
     # via -r requirements.in
 python-gitlab==3.9.0
     # via -r requirements.in
-pyyaml==6.0
+pyyaml
     # via
     #   -r requirements.in
     #   clickclick
