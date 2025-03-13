@@ -1,12 +1,18 @@
 ###############################################################################
 # 1st stage, build the app
 ###############################################################################
-FROM node:18-alpine@sha256:9eff44230b2fdcca57a73b8f908c8029e72d24dd05cac5339c79d3dedf6b208b as build
+FROM node:22-alpine as build
 WORKDIR /adh6/frontend_angular
 
 # Install packages
 COPY package.json .
-RUN yarn install --frozen-lockfile
+# RUN yarn install --frozen-lockfile
+RUN apk add --no-cache --virtual .gyp \
+    python \
+    make \
+    g++ \
+    && yarn install --frozen-lockfile \
+    && apk del .gyp
 # Copy source code
 COPY . .
 ENV NODE_OPTIONS=--openssl-legacy-provider
@@ -23,4 +29,3 @@ COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /adh6/frontend_angular/dist/adh6/fr /usr/share/nginx/html/fr
 COPY --from=build /adh6/frontend_angular/dist/adh6/en /usr/share/nginx/html/en
 COPY --from=build /adh6/frontend_angular/src/assets /usr/share/nginx/html/assets
-
