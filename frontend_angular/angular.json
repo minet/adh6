@@ -135,16 +135,16 @@
           },
           "configurations": {
             "development": {
-              "browserTarget": "adh6:build:development"
+              "buildTarget": "adh6:build:development"
             },
             "production": {
-              "browserTarget": "adh6:build:production"
+              "buildTarget": "adh6:build:production"
             },
             "fr": {
-              "browserTarget": "adh6:build:fr"
+              "buildTarget": "adh6:build:fr"
             },
             "en": {
-              "browserTarget": "adh6:build:en"
+              "buildTarget": "adh6:build:en"
             }
           },
           "defaultConfiguration": "production"
@@ -152,7 +152,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "adh6:build:production"
+            "buildTarget": "adh6:build:production"
           }
         },
         "test": {
