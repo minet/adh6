@@ -4,7 +4,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule, Configuration } from './api';
 import { NavbarComponent } from './navbar/navbar.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NotifInterceptor } from './http-interceptor/notif-interceptor';
 import { environment } from '../environments/environment';
 import { Ability, AbilityClass, PureAbility } from '@casl/ability';
@@ -29,39 +29,33 @@ function load(): Configuration {
   return new Configuration(params);
 }
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    NavbarComponent,
-    FooterComponent,
-    VerticalNavbarComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    HttpClientModule,
-    AbilityModule,
-    ApiModule,
-    AuthConfigModule
-  ],
-  providers: [
-    AppComponent,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: NotifInterceptor,
-      multi: true
-    },
-    {
-      provide: AppAbility, useValue: new AppAbility()
-    },
-    { provide: PureAbility, useExisting: AppAbility },
-    {
-      provide: Configuration,
-      useFactory: load,
-      multi: false
-    },
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        NavbarComponent,
+        FooterComponent,
+        VerticalNavbarComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        AbilityModule,
+        ApiModule,
+        AuthConfigModule], providers: [
+        AppComponent,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: NotifInterceptor,
+            multi: true
+        },
+        {
+            provide: AppAbility, useValue: new AppAbility()
+        },
+        { provide: PureAbility, useExisting: AppAbility },
+        {
+            provide: Configuration,
+            useFactory: load,
+            multi: false
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}
