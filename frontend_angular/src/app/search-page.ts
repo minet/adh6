@@ -1,7 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
+import { Directive, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, shareReplay, switchMap } from 'rxjs/operators';
-import { OnInit, Directive } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
 import { PagingConf } from './paging.config';
 
 @Directive()
