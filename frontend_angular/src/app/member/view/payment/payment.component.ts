@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 import { Member, MembershipService, TransactionService } from '../../../api';
 import { BuyProductComponent } from './product/buy-product.component';
 import { CotisationComponent } from './cotisation/cotisation.component';
-import { AbilityModule } from '@casl/angular';
+import { AblePipe } from '@casl/angular';
 import { MemberDetailService } from '../member-detail.service';
 
 @Component({
-    imports: [CommonModule, BuyProductComponent, CotisationComponent, AbilityModule],
+    imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
     selector: 'app-payment',
     templateUrl: './payment.component.html'
 })

@@ -4,11 +4,13 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ApiModule, Configuration } from './api';
 import { NavbarComponent } from './navbar/navbar.component';
+import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NotifInterceptor } from './http-interceptor/notif-interceptor';
 import { environment } from '../environments/environment';
+import { ReactiveFormsModule } from '@angular/forms';
 import { Ability, AbilityClass, PureAbility } from '@casl/ability';
-import { AbilityModule } from '@casl/angular';
+import { AblePipe } from '@casl/angular';
 import '@angular/common/locales/global/fr';
 import '@angular/common/locales/global/en';
 import { FooterComponent } from './footer/footer.component';
@@ -29,18 +31,25 @@ function load(): Configuration {
   return new Configuration(params);
 }
 
-@NgModule({ declarations: [
+@NgModule({
+    declarations: [
         AppComponent,
         NavbarComponent,
         FooterComponent,
         VerticalNavbarComponent
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         BrowserAnimationsModule,
         AppRoutingModule,
-        AbilityModule,
+        CommonModule,
+        AblePipe,
+        ReactiveFormsModule,
         ApiModule,
-        AuthConfigModule], providers: [
+        AuthConfigModule
+    ],
+    providers: [
         AppComponent,
         {
             provide: HTTP_INTERCEPTORS,
@@ -57,5 +66,6 @@ function load(): Configuration {
             multi: false
         },
         provideHttpClient(withInterceptorsFromDi()),
-    ] })
+    ]
+})
 export class AppModule {}
