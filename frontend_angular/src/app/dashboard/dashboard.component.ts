@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Member, MiscService } from '../api';
 import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { AccountComponent } from './tab-account.component';
 import { MemberDeviceModule } from '../member-device/member-device.module';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { animate, animateChild, group, query, style, transition, trigger } from '@angular/animations';
@@ -36,7 +35,7 @@ function slideTo(direction: string) {
 }
 
 @Component({
-    imports: [CommonModule, RouterModule, AccountComponent, MemberDeviceModule],
+    imports: [CommonModule, RouterModule, MemberDeviceModule],
     animations: [slider],
     selector: 'app-dashboard',
     styles: ['img { height: 130px; }'],
