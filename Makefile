@@ -54,7 +54,7 @@ $(BACKEND_VENV_PATH): $(BACKEND_PATH)/requirements.txt
 	cd $(BACKEND_PATH) && source $(BACKEND_VENV_PATH)/bin/activate && pip3 install --ignore-pipfile -r requirements.txt
 
 $(FRONTEND_ENV_PATH): $(FRONTEND_PATH)/package.json
-	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH):/app node:18-alpine yarn install --frozen-lockfile
+	cd $(FRONTEND_PATH) && docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH):/app node:22-alpine yarn install --frozen-lockfile
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
@@ -78,7 +78,7 @@ $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i'' -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 
 $(FRONTEND_PATH)/src/assets/*.min.svg: $(FRONTEND_PATH)/src/assets/*.svg
-	docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH)/src/assets:/app node:18-alpine /bin/sh -c "yarn global add svgo && /home/node/.yarn/bin/svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg"
+	docker run --rm -w /app -u $(CURRENT_UID):$(CURRENT_GID) -v $(CURDIR)/$(FRONTEND_PATH)/src/assets:/app node:22-alpine /bin/sh -c "yarn global add svgo && /home/node/.yarn/bin/svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg"
 
 ### Generate database fixture, only for test purpose
 .PHONY: generate-database-fixtures
@@ -118,4 +118,3 @@ lint-backend:
 #	cd $(CURDIR)/api_server && source venv/bin/activate && flake8 .
 #	cd $(CURDIR)/api_server && source venv/bin/activate && pep8 .
 	cd $(CURDIR)/api_server && source venv/bin/activate && pip uninstall black flake8 mypy isort pylint
-
