@@ -7,6 +7,7 @@ import { AblePipe } from '@casl/angular';
 import { MemberDetailService } from '../member-detail.service';
 
 @Component({
+    standalone: true,
     imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
     selector: 'app-payment',
     templateUrl: './payment.component.html'
