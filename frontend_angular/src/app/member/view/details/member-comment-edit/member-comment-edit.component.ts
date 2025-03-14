@@ -11,10 +11,9 @@ interface CommentForm {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  selector: 'app-member-comment-edit',
-  templateUrl: './member-comment-edit.component.html',
+    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    selector: 'app-member-comment-edit',
+    templateUrl: './member-comment-edit.component.html'
 })
 export class MemberCommentEditComponent {
   public memberComment: FormGroup<CommentForm>;

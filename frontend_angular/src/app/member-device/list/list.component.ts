@@ -4,8 +4,9 @@ import { AbstractDevice, DeviceFilter, DeviceService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
-  selector: 'app-member-device-list',
-  templateUrl: './list.component.html'
+    selector: 'app-member-device-list',
+    templateUrl: './list.component.html',
+    standalone: false
 })
 export class MemberDeviceListComponent extends SearchPage<number> {
   @Input() abstractDeviceFilter: AbstractDevice = {};

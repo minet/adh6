@@ -8,9 +8,10 @@ import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
-  selector: 'app-room-new',
-  templateUrl: './room-new.component.html',
-  styleUrls: ['./room-new.component.css']
+    selector: 'app-room-new',
+    templateUrl: './room-new.component.html',
+    styleUrls: ['./room-new.component.css'],
+    standalone: false
 })
 
 export class RoomNewComponent implements OnDestroy {

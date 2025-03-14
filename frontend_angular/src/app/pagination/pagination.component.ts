@@ -3,10 +3,9 @@ import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChange
 import { PagingConf } from '../paging.config';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule],
-  selector: 'app-pagination',
-  templateUrl: './pagination.component.html'
+    imports: [CommonModule],
+    selector: 'app-pagination',
+    templateUrl: './pagination.component.html'
 })
 export class PaginationComponent implements OnInit, OnChanges {
   @Input() maxItems: number | undefined;

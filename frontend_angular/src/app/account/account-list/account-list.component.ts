@@ -10,10 +10,9 @@ import { CommonModule } from '@angular/common';
 import { PaginationComponent } from '../../pagination/pagination.component';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, PaginationComponent, RouterModule],
-  selector: 'app-account-list',
-  templateUrl: './account-list.component.html'
+    imports: [CommonModule, PaginationComponent, RouterModule],
+    selector: 'app-account-list',
+    templateUrl: './account-list.component.html'
 })
 export class AccountListComponent extends SearchPage<AbstractAccount> implements OnInit {
   accountTypes: Array<AccountType>;

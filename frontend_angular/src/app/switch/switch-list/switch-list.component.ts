@@ -3,9 +3,10 @@ import { AbstractSwitch, SwitchService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
-  selector: 'app-switch-list',
-  templateUrl: './switch-list.component.html',
-  styleUrls: ['./switch-list.component.css']
+    selector: 'app-switch-list',
+    templateUrl: './switch-list.component.html',
+    styleUrls: ['./switch-list.component.css'],
+    standalone: false
 })
 export class SwitchListComponent extends SearchPage<AbstractSwitch> implements OnInit {
   constructor(public switchService: SwitchService) {

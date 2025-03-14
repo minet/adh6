@@ -3,8 +3,8 @@ import { Observable } from 'rxjs';
 import { Member, MemberService, MemberStatus } from '../../api';
 
 @Component({
-  selector: 'app-auto-troubleshoot',
-  template: `
+    selector: 'app-auto-troubleshoot',
+    template: `
   <ng-container *ngIf="statuses$ | async as statuses">
     <div class="alert alert-danger mt-4" *ngIf="statuses.length > 0">
       <h4 i18n="dashboard auto troubleshoot">Dépannage automatique</h4>
@@ -18,7 +18,8 @@ import { Member, MemberService, MemberStatus } from '../../api';
       </ul>
     </div>
   </ng-container>
-  `
+  `,
+    standalone: false
 })
 export class AutoTroubleshootComponent implements OnInit {
   statuses$: Observable<MemberStatus[]>;

@@ -8,10 +8,9 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AbstractAccount } from '../api/model/abstractAccount';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, PaginationComponent, RouterModule],
-  selector: 'app-device-list',
-  templateUrl: './device-list.component.html'
+    imports: [CommonModule, PaginationComponent, RouterModule],
+    selector: 'app-device-list',
+    templateUrl: './device-list.component.html'
 })
 export class DeviceListComponent extends SearchPage<number> implements OnInit {
   public memberUsernames: Map<Number, Observable<string>> = new Map<Number, Observable<string>>();

@@ -7,10 +7,9 @@ import { PaginationComponent } from '../../pagination/pagination.component';
 import { SearchPage } from '../../search-page';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule, PaginationComponent],
-  selector: 'app-list',
-  templateUrl: './list.component.html'
+    imports: [CommonModule, RouterModule, PaginationComponent],
+    selector: 'app-list',
+    templateUrl: './list.component.html'
 })
 export class ListComponent extends SearchPage<number> {
   public cachedMembers: Map<Number, Observable<AbstractMember>> = new Map();

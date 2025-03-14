@@ -4,8 +4,9 @@ import { AbstractRoom, RoomService } from '../../api';
 import { SearchPage } from '../../search-page';
 
 @Component({
-  selector: 'app-rooms',
-  templateUrl: './room-list.component.html'
+    selector: 'app-rooms',
+    templateUrl: './room-list.component.html',
+    standalone: false
 })
 
 export class RoomListComponent extends SearchPage<AbstractRoom> implements OnInit {

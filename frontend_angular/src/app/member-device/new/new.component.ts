@@ -6,8 +6,9 @@ import { LOCALE_ID, Inject } from '@angular/core';
 import { NotificationService } from '../../notification.service';
 
 @Component({
-  selector: 'app-device-new',
-  templateUrl: './new.component.html'
+    selector: 'app-device-new',
+    templateUrl: './new.component.html',
+    standalone: false
 })
 export class NewComponent {
   deviceForm: UntypedFormGroup;

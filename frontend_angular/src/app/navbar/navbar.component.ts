@@ -3,8 +3,9 @@ import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html'
+    selector: 'app-navbar',
+    templateUrl: './navbar.component.html',
+    standalone: false
 })
 export class NavbarComponent {
   public isMenuActive: boolean = false;

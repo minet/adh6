@@ -32,9 +32,10 @@ export const fadeAnimation = trigger('fadeAnimation', [
 
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  animations: [fadeAnimation]
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    animations: [fadeAnimation],
+    standalone: false
 })
 export class AppComponent {
   constructor(

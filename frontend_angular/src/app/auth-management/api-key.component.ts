@@ -6,10 +6,9 @@ import Swal from 'sweetalert2';
 import { ApiKey, ApiKeysGetRequest, AuthenticationService, Role } from '../api';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  selector: 'app-api-key',
-  template: `
+    imports: [CommonModule, FormsModule],
+    selector: 'app-api-key',
+    template: `
   <div class="level">
     <div class="level-item is-fullwidth mr-2">
       <input class="input" placeholder="Identifiant" type="text" [(ngModel)]="login" />

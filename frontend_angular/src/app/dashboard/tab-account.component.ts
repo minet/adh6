@@ -5,10 +5,9 @@ import { Member } from '../api';
 import { MailinglistComponent } from '../mailinglist/mailinglist.component';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, MailinglistComponent, RouterModule],
-  selector: 'app-account',
-  template: `    
+    imports: [CommonModule, MailinglistComponent, RouterModule],
+    selector: 'app-account',
+    template: `    
     <div class="box has-text-centered">
       <h4 *ngIf="isDepartureDateFuture, else invalidDate"
         i18n="dashboard active subscription|Describes until when a subscription is active">

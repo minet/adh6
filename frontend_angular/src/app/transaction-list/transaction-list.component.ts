@@ -14,13 +14,12 @@ class Action {
 }
 
 @Component({
-  standalone: true,
-  imports: [
-    CommonModule,
-    PaginationComponent
-  ],
-  selector: 'app-transaction-list',
-  templateUrl: './transaction-list.component.html'
+    imports: [
+        CommonModule,
+        PaginationComponent
+    ],
+    selector: 'app-transaction-list',
+    templateUrl: './transaction-list.component.html'
 })
 export class TransactionListComponent extends SearchPage<AbstractTransaction> implements OnInit {
   @Input() asAccount: number = 0;

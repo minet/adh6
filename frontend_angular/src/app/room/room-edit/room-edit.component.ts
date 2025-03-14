@@ -9,9 +9,10 @@ import { Observable } from 'rxjs';
 import { NotificationService } from '../../notification.service';
 
 @Component({
-  selector: 'app-room-edit',
-  templateUrl: './room-edit.component.html',
-  styleUrls: ['./room-edit.component.css']
+    selector: 'app-room-edit',
+    templateUrl: './room-edit.component.html',
+    styleUrls: ['./room-edit.component.css'],
+    standalone: false
 })
 
 export class RoomEditComponent implements OnInit {

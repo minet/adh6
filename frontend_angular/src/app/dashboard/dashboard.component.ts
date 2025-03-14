@@ -36,12 +36,11 @@ function slideTo(direction: string) {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule, AccountComponent, MemberDeviceModule],
-  animations: [slider],
-  selector: 'app-dashboard',
-  styles: ['img { height: 130px; }'],
-  template: `
+    imports: [CommonModule, RouterModule, AccountComponent, MemberDeviceModule],
+    animations: [slider],
+    selector: 'app-dashboard',
+    styles: ['img { height: 130px; }'],
+    template: `
   <div class="columns column is-centered">
     <figure>
       <img alt="adh6 logo" src="../assets/adh6.min.svg">

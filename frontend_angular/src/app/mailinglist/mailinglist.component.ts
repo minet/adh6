@@ -5,10 +5,9 @@ import { MailinglistService } from '../api';
 import { NotificationService } from '../notification.service';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  selector: 'app-mailinglist',
-  templateUrl: './mailinglist.component.html'
+    imports: [CommonModule, FormsModule],
+    selector: 'app-mailinglist',
+    templateUrl: './mailinglist.component.html'
 })
 export class MailinglistComponent implements OnInit {
   @Input() mailinglistValue: number;

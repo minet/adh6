@@ -3,9 +3,10 @@ import { Product, TreasuryService } from '../api';
 import { SearchPage } from '../search-page';
 
 @Component({
-  selector: 'app-product-list',
-  templateUrl: './product-list.component.html',
-  styleUrls: ['./product-list.component.css']
+    selector: 'app-product-list',
+    templateUrl: './product-list.component.html',
+    styleUrls: ['./product-list.component.css'],
+    standalone: false
 })
 export class ProductListComponent extends SearchPage<Product> implements OnInit {
   constructor(public treasuryService: TreasuryService) {

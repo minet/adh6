@@ -7,9 +7,10 @@ import { takeWhile } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
-  selector: 'app-switch-new',
-  templateUrl: './switch-new.component.html',
-  styleUrls: ['./switch-new.component.css']
+    selector: 'app-switch-new',
+    templateUrl: './switch-new.component.html',
+    styleUrls: ['./switch-new.component.css'],
+    standalone: false
 })
 export class SwitchNewComponent {
 

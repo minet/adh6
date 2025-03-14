@@ -7,10 +7,9 @@ import { PaginationComponent } from '../../pagination/pagination.component';
 import { SearchPage } from '../../search-page';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule, PaginationComponent],
-  selector: 'app-port-list',
-  templateUrl: './list.component.html'
+    imports: [CommonModule, RouterModule, PaginationComponent],
+    selector: 'app-port-list',
+    templateUrl: './list.component.html'
 })
 export class PortListComponent extends SearchPage<AbstractPort> implements OnInit {
   @Input() switchId: number | undefined;

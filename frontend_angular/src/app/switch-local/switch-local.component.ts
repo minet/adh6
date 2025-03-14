@@ -6,10 +6,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  selector: 'app-switch-local',
-  template: `
+    imports: [CommonModule, RouterModule],
+    selector: 'app-switch-local',
+    template: `
   <style>
     area {
       cursor: pointer;

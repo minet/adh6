@@ -7,8 +7,9 @@ import { map, shareReplay } from 'rxjs/operators';
 import { NotificationService } from '../../notification.service';
 
 @Component({
-  selector: 'app-room-details',
-  templateUrl: './room-details.component.html'
+    selector: 'app-room-details',
+    templateUrl: './room-details.component.html',
+    standalone: false
 })
 export class RoomDetailsComponent implements OnInit {
   public room$: Observable<AbstractRoom>;

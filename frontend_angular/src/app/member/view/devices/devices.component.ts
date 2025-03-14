@@ -7,10 +7,9 @@ import { MemberDeviceModule } from '../../../member-device/member-device.module'
 import { MemberDetailService } from '../member-detail.service';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, MemberDeviceModule],
-  selector: 'app-devices',
-  templateUrl: './devices.component.html'
+    imports: [CommonModule, MemberDeviceModule],
+    selector: 'app-devices',
+    templateUrl: './devices.component.html'
 })
 export class DevicesComponent implements OnInit {
   public getDhcp = false;

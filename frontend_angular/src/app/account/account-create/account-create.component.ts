@@ -8,10 +8,9 @@ import { NotificationService } from '../../notification.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-account-create',
-  template: `
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-account-create',
+    template: `
   <h1 class="title is-1">Création d'un compte</h1>
   <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
     <div class="field">

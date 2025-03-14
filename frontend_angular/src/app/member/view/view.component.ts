@@ -8,10 +8,9 @@ import { MemberDetailService } from './member-detail.service';
 import { Toast } from '../../notification.service';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  selector: 'app-view',
-  templateUrl: './view.component.html'
+    imports: [CommonModule, RouterModule],
+    selector: 'app-view',
+    templateUrl: './view.component.html'
 })
 
 export class ViewComponent implements OnInit {

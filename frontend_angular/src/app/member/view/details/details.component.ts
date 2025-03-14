@@ -13,10 +13,9 @@ interface RoomForm {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, RouterModule, MailinglistComponent, ReactiveFormsModule],
-  selector: 'app-details',
-  templateUrl: './details.component.html'
+    imports: [CommonModule, RouterModule, MailinglistComponent, ReactiveFormsModule],
+    selector: 'app-details',
+    templateUrl: './details.component.html'
 })
 export class DetailsComponent {
   public moveIn: boolean = false;

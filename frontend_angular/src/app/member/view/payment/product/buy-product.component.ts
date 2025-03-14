@@ -16,10 +16,9 @@ interface ProductForm {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-buy-product',
-  templateUrl: './buy-product.component.html'
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-buy-product',
+    templateUrl: './buy-product.component.html'
 })
 export class BuyProductComponent {
   @Input() member: Member;

@@ -6,9 +6,10 @@ import { ActivatedRoute } from '@angular/router';
 import { AbstractSwitch, SwitchService } from '../../api';
 
 @Component({
-  selector: 'app-switch-details',
-  templateUrl: './switch-details.component.html',
-  styleUrls: ['./switch-details.component.css']
+    selector: 'app-switch-details',
+    templateUrl: './switch-details.component.html',
+    styleUrls: ['./switch-details.component.css'],
+    standalone: false
 })
 export class SwitchDetailsComponent implements OnInit {
   switch$: Observable<AbstractSwitch>;

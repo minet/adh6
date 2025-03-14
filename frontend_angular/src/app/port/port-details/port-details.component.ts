@@ -8,10 +8,9 @@ import { NotificationService } from '../../notification.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-port-details',
-  templateUrl: './port-details.component.html'
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-port-details',
+    templateUrl: './port-details.component.html'
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
   vlanForm: UntypedFormGroup;

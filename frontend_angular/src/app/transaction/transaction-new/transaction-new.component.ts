@@ -21,8 +21,9 @@ interface TransactionForm {
 }
 
 @Component({
-  selector: 'app-transaction-new',
-  templateUrl: './transaction-new.component.html'
+    selector: 'app-transaction-new',
+    templateUrl: './transaction-new.component.html',
+    standalone: false
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;

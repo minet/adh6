@@ -3,9 +3,10 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { SwitchService } from '../../api';
 
 @Component({
-  selector: 'app-switch-edit',
-  templateUrl: './switch-edit.component.html',
-  styleUrls: ['./switch-edit.component.css']
+    selector: 'app-switch-edit',
+    templateUrl: './switch-edit.component.html',
+    styleUrls: ['./switch-edit.component.css'],
+    standalone: false
 })
 export class SwitchEditComponent {
   switchForm: UntypedFormGroup;

@@ -23,10 +23,9 @@ function passwordConfirming(c: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-member-password-edit',
-  templateUrl: './member-password-edit.component.html'
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-member-password-edit',
+    templateUrl: './member-password-edit.component.html'
 })
 export class MemberPasswordEditComponent implements OnInit {
   public showPassword: boolean = false;

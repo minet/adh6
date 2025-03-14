@@ -6,8 +6,9 @@ import { SearchPage } from '../../../search-page';
 export { ClickOutsideDirective } from '../../clickOutside.directive';
 
 @Component({
-  selector: 'app-account-search',
-  templateUrl: './account-search.component.html'
+    selector: 'app-account-search',
+    templateUrl: './account-search.component.html',
+    standalone: false
 })
 export class AccountSearchComponent extends SearchPage<AbstractAccount> implements OnInit {
   public display = false;

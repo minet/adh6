@@ -9,10 +9,9 @@ import { CommonModule, Location } from '@angular/common';
 import { TransactionListComponent } from '../../transaction-list/transaction-list.component';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, TransactionListComponent],
-  selector: 'app-account-view',
-  templateUrl: './account-view.component.html'
+    imports: [CommonModule, TransactionListComponent],
+    selector: 'app-account-view',
+    templateUrl: './account-view.component.html'
 })
 export class AccountViewComponent implements OnInit {
   account$: Observable<AbstractAccount>;

@@ -10,10 +10,9 @@ interface SubscriptionForm {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-cotisation',
-  templateUrl: './cotisation.component.html'
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-cotisation',
+    templateUrl: './cotisation.component.html'
 })
 export class CotisationComponent {
   @Input() member: Member;

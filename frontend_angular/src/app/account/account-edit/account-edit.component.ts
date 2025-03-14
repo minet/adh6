@@ -9,10 +9,9 @@ import { NotificationService } from '../../notification.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-account-edit',
-  template: `
+    imports: [CommonModule, ReactiveFormsModule],
+    selector: 'app-account-edit',
+    template: `
   <h1 class="title is-1">Modification d'un compte</h1>
   <form [formGroup]="editAccountForm" (ngSubmit)="onSubmit()" novalidate>
     <div class="field">

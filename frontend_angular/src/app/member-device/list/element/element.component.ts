@@ -4,8 +4,9 @@ import Swal from 'sweetalert2';
 import { AbstractDevice, DeviceService } from '../../../api';
 
 @Component({
-  selector: 'app-element',
-  templateUrl: './element.component.html'
+    selector: 'app-element',
+    templateUrl: './element.component.html',
+    standalone: false
 })
 export class ElementComponent implements OnInit {
   @Input() deviceId: number;

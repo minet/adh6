@@ -7,10 +7,9 @@ import { AbilityModule } from '@casl/angular';
 import { MemberDetailService } from '../member-detail.service';
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, BuyProductComponent, CotisationComponent, AbilityModule],
-  selector: 'app-payment',
-  templateUrl: './payment.component.html'
+    imports: [CommonModule, BuyProductComponent, CotisationComponent, AbilityModule],
+    selector: 'app-payment',
+    templateUrl: './payment.component.html'
 })
 export class PaymentComponent {
   public member$ = this.memberDetailService.member$;

@@ -17,10 +17,9 @@ interface MemberEditForm {
 }
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  selector: 'app-create-edit',
-  templateUrl: './create-or-edit.component.html'
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
+    selector: 'app-create-edit',
+    templateUrl: './create-or-edit.component.html'
 })
 export class CreateOrEditComponent implements OnInit {
   create = false;

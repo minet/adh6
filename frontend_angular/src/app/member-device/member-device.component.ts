@@ -3,8 +3,9 @@ import { AbstractDevice, Member } from '../api';
 import { MemberDeviceListComponent } from './list/list.component';
 
 @Component({
-  selector: 'app-member-device',
-  templateUrl: './member-device.component.html'
+    selector: 'app-member-device',
+    templateUrl: './member-device.component.html',
+    standalone: false
 })
 export class MemberDeviceComponent {
   @Input() member: Member;
