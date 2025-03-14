@@ -121,9 +121,9 @@
                 "vendor": true
               },
               "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
+              "extractLicenses": true
+              // "vendorChunk": false,
+              // "buildOptimizer": true
             }
           },
           "defaultConfiguration": "production"
