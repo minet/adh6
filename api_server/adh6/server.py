@@ -231,7 +231,7 @@ def init() -> FlaskApp:
             }
         ),
         validate_responses=True,
-        strict_validation=True,
+        strict_validation=False,
         pythonic_params=True,
         auth_all_paths=True,
     )

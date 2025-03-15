@@ -1,7 +1,5 @@
 from adh6.server import init
 
-from uwsgidecorators import postfork
-
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -14,8 +12,8 @@ tracer = trace.get_tracer(__name__)
 application = init()
 FlaskInstrumentor().instrument_app(application.app)
 
-@postfork
-def init_tracing():
+def post_fork(server, worker):
+    server.log.info("Worker spawned (pid: %s)", worker.pid)
     resource = Resource.create(attributes={SERVICE_NAME: "api-service"})
 
     trace.set_tracer_provider(TracerProvider(resource=resource))

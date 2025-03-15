@@ -9,7 +9,7 @@ RUN apk add --no-cache --update wget \
 ###############################################################################
 # 2nd stage, get wheel files
 ###############################################################################
-FROM python:3.9-alpine@sha256:ea679ee27dbb8f36fbfc304be1b488b4fd7bea95dd230a47f97187c2e3fd4807 AS wheel
+FROM python:3.12 AS wheel
 WORKDIR /wheels
 # Install dependencies
 RUN apk add --no-cache --update \
@@ -28,7 +28,7 @@ RUN pip install --no-cache-dir -U pip \
 ###############################################################################
 # 3rd stage, deploy the application
 ###############################################################################
-FROM python:3.9-alpine@sha256:ea679ee27dbb8f36fbfc304be1b488b4fd7bea95dd230a47f97187c2e3fd4807
+FROM python:3.12-alpine
 RUN apk add --no-cache --update \ 
   git \
   mariadb-connector-c
@@ -38,6 +38,7 @@ WORKDIR /adh6/api_server
 
 RUN adduser -s /bin/bash uwsgi -h /home/uwsgi -D
 COPY --from=wheel /wheels /wheels
+RUN pip install gunicorn
 RUN chown uwsgi:uwsgi -R /wheels
 RUN pip install --no-cache-dir -U pip \
   && pip install -r /wheels/requirements.txt \
@@ -57,4 +58,4 @@ RUN mibdump.py --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB
 COPY . .
 
 # Launch the app 
-CMD ["uwsgi", "--ini", "uwsgi.ini"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", ":8080", "main:application"]
