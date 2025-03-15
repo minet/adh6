@@ -12,7 +12,8 @@ jsonschema
 
 # ADH <-> Switches communication
 pysnmplib
-pysmi==0.3.4
+pysnmp-pysmi
+
 
 # ELK communication
 elasticsearch
