@@ -8,9 +8,10 @@ mysqlclient
 # Misc
 python-dateutil
 PyYAML
+jsonschema
 
 # ADH <-> Switches communication
-pysnmp
+pysnmplib
 pysmi==0.3.4
 
 # ELK communication

@@ -1,6 +1,6 @@
 # coding=utf-8
 import typing as t
-from connexion.decorators.produces import NoContent
+from connexion.datastructures import NoContent
 from adh6.authentication import Roles
 from adh6.context import get_roles, get_user
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET

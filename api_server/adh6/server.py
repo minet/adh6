@@ -5,7 +5,7 @@ import connexion
 import pinject
 import abc
 
-from connexion.apps.flask_app import FlaskApp
+from connexion import FlaskApp
 from flask_migrate import Migrate
 from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
 
@@ -191,7 +191,7 @@ def init() -> FlaskApp:
     os.environ['APIKEYINFO_FUNC'] = os.environ.get('APIKEYINFO_FUNC', 'adh6.authentication.apikey_auth')
 
     # Initialize the flask application using the connexion library
-    app = connexion.App(__name__, specification_dir='../openapi')
+    app = connexion.FlaskApp(__name__, specification_dir='../openapi')
 
     # Raise an exception if there was an error setting up the flask application
     if app.app is None:
