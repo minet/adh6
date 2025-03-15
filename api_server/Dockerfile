@@ -9,7 +9,7 @@ RUN apk add --no-cache --update wget \
 ###############################################################################
 # 2nd stage, get wheel files
 ###############################################################################
-FROM python:3.12 AS wheel
+FROM python:3.12-alpine AS wheel
 WORKDIR /wheels
 # Install dependencies
 RUN apk add --no-cache --update \
@@ -51,6 +51,13 @@ USER uwsgi
 COPY --from=oui /tmp/OUIs.txt .
 
 # Build all MIBs required by pysnmp
+# MIB is a text file that describes the structure of a SNMP device in a human-readable format
+# SNMP is the protocol used to manage and monitor network devices 
+# CISCO-VLAN-MEMBERSHIP-MIB: Describes the VLAN membership of a device
+# IF-MIB: Describes the interfaces of a device
+# CISCO-MAC-AUTH-BYPASS-MIB: Describes the MAC authentication bypass of a device
+# IEEE8021-PAE-MIB: Describes the 802.1X port access entity of a device
+# mibdump.py is a tool provided by pysnmp to convert MIB files into Python code
 COPY mibs.zip .
 RUN mibdump.py --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 

@@ -1,6 +1,5 @@
 # HTTP API
-swagger-ui-bundle
-connexion[flask, uvicorn]
+connexion[flask, uvicorn, swagger-ui]
 
 # SQL 
 SQLAlchemy
@@ -9,10 +8,10 @@ mysqlclient
 # Misc
 python-dateutil
 PyYAML
-jsonschema<4.0
 
 # ADH <-> Switches communication
 pysnmp
+pysmi==0.3.4
 
 # ELK communication
 elasticsearch
