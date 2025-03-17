@@ -59,7 +59,7 @@ COPY --from=oui /tmp/OUIs.txt .
 # IEEE8021-PAE-MIB: Describes the 802.1X port access entity of a device
 # mibdump.py is a tool provided by pysnmp to convert MIB files into Python code
 COPY mibs.zip .
-RUN mibdump.py --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
+RUN mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 
 # Copy source files
 COPY . .
