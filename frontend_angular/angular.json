@@ -156,23 +156,6 @@
             "buildTarget": "adh6:build:production"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
@@ -180,45 +163,6 @@
               "src/**/*.ts",
               "src/**/*.html"
             ]
-          }
-        },
-        "e2e": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "adh6:serve",
-            "watch": true,
-            "headless": false
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "adh6:serve:production"
-            },
-            "en": {
-              "devServerTarget": "adh6:serve:en"
-            }
-          },
-          "defaultConfiguration": "en"
-        },
-        "cypress-run": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "adh6:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "adh6:serve:production"
-            },
-            "en": {
-              "devServerTarget": "adh6:serve:en"
-            }
-          },
-          "defaultConfiguration": "en"
-        },
-        "cypress-open": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "watch": true,
-            "headless": false
           }
         }
       }

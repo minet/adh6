@@ -14,9 +14,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local"
   },
   "private": true,
   "dependencies": {
@@ -30,7 +28,6 @@
     "@angular/router": "^19.2.2",
     "@casl/ability": "^6.7.3",
     "@casl/angular": "^9.0.3",
-    "@cypress/schematic": "^3.0.0",
     "@fortawesome/angular-fontawesome": "^1.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
@@ -58,16 +55,8 @@
     "@types/node": "^22.13.10",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
-    "cypress": "^14.2.0",
     "eslint": "^9.22.0",
     "eslint-plugin-security": "^3.0.1",
-    "jasmine-core": "~5.6.0",
-    "jasmine-spec-reporter": "~7.0.0",
-    "karma": "~6.4.4",
-    "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage-istanbul-reporter": "~3.0.3",
-    "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "^2.1.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.2"
   },
