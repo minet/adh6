@@ -1,7 +1,7 @@
 BACKEND_PATH = api_server
 FRONTEND_PATH = frontend_angular
 OPENAPI_PATH = openapi
-BACKEND_ENV_PATH = $(BACKEND_PATH)/venv
+BACKEND_ENV_PATH = $(BACKEND_PATH)/.venv
 FRONTEND_ENV_PATH = $(FRONTEND_PATH)/node_modules
 
 SWAGGER_GENERATOR_CLI = $(OPENAPI_PATH)/swagger-codegen-cli.jar
@@ -83,9 +83,9 @@ $(FRONTEND_PATH)/src/assets/*.min.svg: $(FRONTEND_PATH)/src/assets/*.svg
 ### Generate database fixture, only for test purpose
 .PHONY: generate-database-fixtures
 generate-database-fixtures: $(BACKEND_ENV_PATH)
-	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh db upgrade
-	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh seed
-	cd $(BACKEND_PATH) && source venv/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)
+	cd $(BACKEND_PATH) && source .venv/bin/activate && ENVIRONMENT=development ./manage.sh db upgrade
+	cd $(BACKEND_PATH) && source .venv/bin/activate && ENVIRONMENT=development ./manage.sh seed
+	cd $(BACKEND_PATH) && source .venv/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)
 
 .PHONY: run
 run:
