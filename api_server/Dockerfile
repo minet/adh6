@@ -1,68 +1,56 @@
-###############################################################################
-# 1st stage, get OUI.txt
-###############################################################################
-FROM alpine:3@sha256:8914eb54f968791faf6a8638949e480fef81e697984fba772b3976835194c6d4 AS oui
-WORKDIR /tmp
+# syntax=docker/dockerfile-upstream:master-labs
+
+# Pre-tasks
+FROM python:3.11-alpine AS prebuild
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+WORKDIR /adh6
+
+# Get OUIs.txt
 RUN apk add --no-cache --update wget \
-  && wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
+    && wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
 
-###############################################################################
-# 2nd stage, get wheel files
-###############################################################################
-FROM python:3.12-alpine AS wheel
-WORKDIR /wheels
-# Install dependencies
-RUN apk add --no-cache --update \
-  git \
-  mariadb-dev \
-  build-base \
-  libffi-dev
+RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
+USER adh6
 
-WORKDIR /wheels
-
-# Install python requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -U pip \
-  && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-###############################################################################
-# 3rd stage, deploy the application
-###############################################################################
-FROM python:3.12-alpine
-RUN apk add --no-cache --update \ 
-  git \
-  mariadb-connector-c
-
-EXPOSE 443
-WORKDIR /adh6/api_server
-
-RUN adduser -s /bin/bash uwsgi -h /home/uwsgi -D
-COPY --from=wheel /wheels /wheels
-RUN pip install gunicorn
-RUN chown uwsgi:uwsgi -R /wheels
-RUN pip install --no-cache-dir -U pip \
-  && pip install -r /wheels/requirements.txt \
-  -f /wheels
-
-USER root 
-RUN rm -rf /wheels
-
-USER uwsgi
-COPY --from=oui /tmp/OUIs.txt .
-
-# Build all MIBs required by pysnmp
-# MIB is a text file that describes the structure of a SNMP device in a human-readable format
-# SNMP is the protocol used to manage and monitor network devices 
-# CISCO-VLAN-MEMBERSHIP-MIB: Describes the VLAN membership of a device
-# IF-MIB: Describes the interfaces of a device
-# CISCO-MAC-AUTH-BYPASS-MIB: Describes the MAC authentication bypass of a device
-# IEEE8021-PAE-MIB: Describes the 802.1X port access entity of a device
-# mibdump.py is a tool provided by pysnmp to convert MIB files into Python code
+# Dump MIBs
 COPY mibs.zip .
-RUN mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
+RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 
-# Copy source files
+
+# Build
+FROM python:3.11-alpine AS build
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+ENV UV_LINK_MODE=copy
+ENV UV_COMPILE_BYTECODE=1
+
+WORKDIR /adh6
+RUN --mount=type=cache,target=/var/cache/apk \
+    --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    : \
+    && apk add --no-cache --update git mariadb-dev build-base libffi-dev \
+    && uv sync --no-dev --locked --extra gunicorn
+
+
+# Production
+FROM python:3.11-alpine
+WORKDIR /adh6
+RUN adduser -s /bin/bash adh6 -h /home/adh6 -D
+
+COPY --from=prebuild /adh6/OUIs.txt .
+COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/ 
+COPY --from=build /adh6/.venv/ /adh6/.venv/
+
+ENV PATH="/adh6/.venv/bin:$PATH"
+RUN apk add --no-cache --update \ 
+    git \
+    mariadb-connector-c
+
+USER adh6
+
+WORKDIR /adh6/api_server
 COPY . .
 
 # Launch the app 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-b", ":8080", "main:application"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornH11Worker", "-b", ":8080", "main:application"]
