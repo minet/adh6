@@ -99,7 +99,8 @@ def token_info(access_token) -> Optional[Dict[str, Any]]:
     import logging
     if Roles.ADMIN_READ.value in roles or Roles.ADMIN_WRITE.value in roles:
         from flask import request
-        logging.info(infos[user_id] + ": " + request.method + " " + request.path)
+        # logging.info(infos[user_id] + ": " + request.method + " " + request.path)
+        # TODO: fix
     
     return {
         "uid": uid,
@@ -120,4 +121,3 @@ def get_sso_groups(token):
     if r.status_code != 200 or user_id not in r.json(): 
         raise OAuthResponseProblem("Could not authenticate")
     return r.json()
-
