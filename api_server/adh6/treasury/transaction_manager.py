@@ -2,7 +2,7 @@
 """Use cases (business rule layer) of everything related to transactions."""
 
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 
 from adh6.authentication import Roles
 from adh6.decorator import log_call

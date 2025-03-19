@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter

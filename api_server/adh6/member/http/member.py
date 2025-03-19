@@ -1,5 +1,5 @@
 # coding=utf-8
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Tuple
 
 from connexion import NoContent
 

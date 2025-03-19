@@ -3,7 +3,7 @@
 Implements everything related to actions on the SQL database.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call

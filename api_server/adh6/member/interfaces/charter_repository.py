@@ -1,6 +1,6 @@
 import abc
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 
 class CharterRepository(abc.ABC):

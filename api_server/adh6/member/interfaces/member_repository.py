@@ -2,7 +2,7 @@
 
 import abc
 import ipaddress
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractMember, Member, MemberFilter

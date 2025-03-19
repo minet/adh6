@@ -1,5 +1,5 @@
 import abc
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.entity import RoleMapping

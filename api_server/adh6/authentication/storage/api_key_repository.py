@@ -1,6 +1,5 @@
-import typing as t
 import uuid
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from sqlalchemy import delete, select
 

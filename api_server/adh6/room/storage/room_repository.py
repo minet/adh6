@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Sequence, Tuple
 
 from sqlalchemy import delete, insert, select, update
 

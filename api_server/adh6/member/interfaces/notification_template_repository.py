@@ -1,5 +1,4 @@
 import abc
-import typing as t
 
 
 class NotificationTemplate:

@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import List, Union
+from typing import List
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractRoom, Room

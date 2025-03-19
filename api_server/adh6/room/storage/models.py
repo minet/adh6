@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime as dt
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 

@@ -1,6 +1,5 @@
 # coding=utf-8
 from ipaddress import AddressValueError, IPv4Network, ip_network
-from typing import Union
 
 from sqlalchemy import select
 

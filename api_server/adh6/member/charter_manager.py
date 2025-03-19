@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from adh6.constants import MembershipStatus
 from adh6.entity.abstract_membership import AbstractMembership

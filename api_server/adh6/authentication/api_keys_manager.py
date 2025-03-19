@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from adh6.entity import ApiKey
 from adh6.exceptions import NotFoundError, ValidationError

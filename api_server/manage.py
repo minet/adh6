@@ -5,7 +5,7 @@ from typing import List
 
 import click
 from adh6.authentication import AuthenticationMethod, Roles
-from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
+from adh6.authentication.storage.models import AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.device.storage.models import Device
 from adh6.member.storage.models import Adherent, Membership, NotificationTemplate

@@ -16,7 +16,7 @@ from adh6.exceptions import (
 from adh6.member.interfaces import CharterRepository, MemberRepository, MembershipRepository
 from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
-from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository, TransactionRepository
+from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 

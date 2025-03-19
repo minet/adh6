@@ -1,9 +1,8 @@
 # coding: utf-8
 import datetime as dt
-from enum import unique
 from typing import Any
 
-from sqlalchemy import Boolean, Column, Date, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum

@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select

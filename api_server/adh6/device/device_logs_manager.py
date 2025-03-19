@@ -1,5 +1,3 @@
-import typing as t
-
 from adh6.decorator import log_call
 from adh6.entity import DeviceFilter, Member
 

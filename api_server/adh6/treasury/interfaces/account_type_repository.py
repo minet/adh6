@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AccountType

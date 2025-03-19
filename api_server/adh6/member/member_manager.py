@@ -3,7 +3,7 @@ import logging
 import re
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
 from adh6.decorator import log_call

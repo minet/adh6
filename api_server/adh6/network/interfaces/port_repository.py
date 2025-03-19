@@ -1,6 +1,5 @@
 # coding=utf-8
 import abc
-from typing import Optional
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractPort, Port

@@ -1,6 +1,6 @@
 # coding=utf-8
 import abc
-from typing import Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Generic, List, Tuple, TypeVar
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 

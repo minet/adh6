@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 
 import ipaddress
 from datetime import date, datetime, timedelta
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from adh6.decorator import log_call
 from adh6.entity import AbstractMember, Member, MemberFilter

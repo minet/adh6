@@ -1,6 +1,5 @@
 # coding=utf-8
 import abc
-from typing import Union
 
 
 class IpAllocator(abc.ABC):

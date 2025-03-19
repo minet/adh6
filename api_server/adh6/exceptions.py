@@ -1,9 +1,6 @@
 # coding=utf-8
 
 
-from typing import Optional
-
-
 class UserInputError(ValueError):
     """
     Type of error thrown when the user input is responsible for the failure of the flow.

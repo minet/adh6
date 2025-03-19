@@ -11,7 +11,6 @@ from adh6.authentication.http.role import RoleHandler
 from adh6.default.http_handler import DefaultHandler
 from adh6.device.http.device import DeviceHandler
 from adh6.member.http import *
-from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
 from adh6.member.notification_manager import NotificationManager
 from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
 from adh6.metrics.http.health import HealthHandler
