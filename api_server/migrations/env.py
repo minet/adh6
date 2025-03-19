@@ -24,9 +24,9 @@ logger = logging.getLogger('alembic.env')
 from flask import current_app
 config.set_main_option(
     'sqlalchemy.url', current_app.config.get(
-        'SQLALCHEMY_DATABASE_URI').replace('%', '%%'))
-from adh6.storage import db
-target_metadata = db.Model.metadata
+        'SQLALCHEMY_ENGINES').get('default').replace('%', '%%'))
+from adh6.storage import Base
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

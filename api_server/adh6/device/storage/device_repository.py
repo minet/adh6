@@ -12,7 +12,7 @@ from sqlalchemy.sql.selectable import Select
 from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
 from adh6.decorator import log_call
 from adh6.member.storage.models import Adherent
-from adh6.storage import session
+from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import DeviceRepository
@@ -27,11 +27,11 @@ class DeviceType(Enum):
 class DeviceSQLRepository(DeviceRepository):
     @log_call
     def get_by_id(self, object_id: int) -> Union[Device, None]:
-        obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
+        obj = db.session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
     def get_by_mac(self, mac: str) -> Union[Device, None]:
-        obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
+        obj = db.session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
@@ -50,8 +50,8 @@ class DeviceSQLRepository(DeviceRepository):
         if device_filter.connection_type:
             smt = smt.where(SQLDevice.type == DeviceType[device_filter.connection_type].value)
 
-        count = len(session.execute(smt).all())
-        r = session.scalars(smt.offset(offset).limit(limit))
+        count = len(db.session.execute(smt).all())
+        r = db.session.scalars(smt.offset(offset).limit(limit))
 
         return list(map(_map_device_sql_to_entity, r)), count
 
@@ -63,47 +63,47 @@ class DeviceSQLRepository(DeviceRepository):
             created_at=now,
             updated_at=now,
             last_seen=now,
-            type=DeviceType[obj.connection_type].value,
+            type=DeviceType[obj.connection_type].value,  # type: ignore  # TODO: typing is baaaaad
             adherent_id=obj.member,
             ip='En attente',
             ipv6='En attente'
         )
 
-        with track_modifications(session, device):
-            session.add(device)
-        session.flush()
+        with track_modifications(db.session, device):
+            db.session.add(device)
+        db.session.flush()
 
         return _map_device_sql_to_entity(device)
 
     @log_call
     def update(self, abstract_device: AbstractDevice, override=False) -> Device:
-        query = session.query(SQLDevice)
+        query = db.session.query(SQLDevice)
         query = query.filter(SQLDevice.id == abstract_device.id)
 
-        device = query.one_or_none()
-        with track_modifications(session, device):
+        device = query.one()
+        with track_modifications(db.session, device):
             new_device = _merge_sql_with_entity(abstract_device, device, override)
 
         return _map_device_sql_to_entity(new_device)
 
     @log_call
     def delete(self, id) -> None:
-        device = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
-        with track_modifications(session, device):
-            session.delete(device)    
+        device = db.session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
+        with track_modifications(db.session, device):
+            db.session.delete(device)    
 
     def get_mab(self, id: int) -> bool:
-        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
+        device = db.session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
         return device.mab
 
     def put_mab(self, id: int, mab: bool) -> bool:
-        device: SQLDevice = session.query(SQLDevice).filter(SQLDevice.id == id).one_or_none()
+        device = db.session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
         device.mab = mab
         return mab
 
     def owner(self, id: int) -> Union[int, None]:
         smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
-        return session.execute(smt).scalar_one_or_none()
+        return db.session.execute(smt).scalar_one_or_none()
 
 
 def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:

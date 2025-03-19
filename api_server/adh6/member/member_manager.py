@@ -83,7 +83,7 @@ class MemberManager(CRUDManager):
         m = self.member_repository.get_by_id(get_user())
         if not m:
             raise MemberNotFoundError(id)
-        return m, get_roles()
+        return m, get_roles()  # type: ignore  # TODO: typing is baaaaad
 
     @log_call
     def create(self, body: MemberBody) -> Member:
@@ -111,7 +111,7 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_repository.update_from_member(created_member.id, 249)
+        self.mailinglist_repository.update_from_member(created_member.id, 249)  # type: ignore  # TODO: typing is baaaaad
 
         _ = self.account_repository.create(AbstractAccount(
             id=0,
@@ -271,7 +271,7 @@ class MemberManager(CRUDManager):
 
         pw = hashed_password or hexlify(hashlib.new('md4', password.encode('utf-16le')).digest())
 
-        self.member_repository.update_password(member_id, pw)
+        self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing is baaaaad
 
         return True
 

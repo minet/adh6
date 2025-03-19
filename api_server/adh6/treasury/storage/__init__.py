@@ -11,7 +11,7 @@ def init_storage():
     from adh6.storage import db
     from .models import PaymentMethod, AccountType, Account
 
-    session = db.session()
+    session = db.session
     payment_methods = ["Liquide", "Chèque", "Carte bancaire", "Virement", "Stripe", "Aucun"]
     for e in payment_methods:
         if session.query(PaymentMethod).filter(PaymentMethod.name == e).one_or_none() is None:

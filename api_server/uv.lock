@@ -24,6 +24,7 @@ dependencies = [
     { name = "flask" },
     { name = "flask-caching" },
     { name = "flask-migrate" },
+    { name = "flask-sqlalchemy-lite" },
     { name = "jinja2" },
     { name = "jsonschema" },
     { name = "mysqlclient" },
@@ -82,6 +83,7 @@ requires-dist = [
     { name = "flask" },
     { name = "flask-caching" },
     { name = "flask-migrate" },
+    { name = "flask-sqlalchemy-lite" },
     { name = "gunicorn", marker = "extra == 'gunicorn'" },
     { name = "jinja2" },
     { name = "jsonschema" },
@@ -556,14 +558,14 @@ wheels = [
 
 [[package]]
 name = "faker"
-version = "37.0.0"
+version = "37.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/82/c6/6820408cdd87c11f1fbbd2349b05bbda28174d746e6d708ad0f0a934f9d7/faker-37.0.0.tar.gz", hash = "sha256:d2e4e2a30d459a8ec0ae52a552aa51c48973cb32cf51107dee90f58a8322a880", size = 1875487 }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/ab/031aa33d72420f074aceaa77e262476d30992db8b9b1bb2bf5dc9fcd8418/faker-37.0.1.tar.gz", hash = "sha256:3a71763f28d796c1d770b90e6b7519d75120a84b5dc4cdd27237870cc0451ff7", size = 1875530 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c6/03/0ffcbc5ab352c266a648d029f79de54ca205c04661203d46a42e3f03492b/faker-37.0.0-py3-none-any.whl", hash = "sha256:2598f78b76710a4ed05e197dda5235be409b4c291ba5c9c7514989cfbc7a5144", size = 1918764 },
+    { url = "https://files.pythonhosted.org/packages/f3/ee/a01924560811622e742d4b9b2e796f481f5852a265515f3e5eab9b97af1e/faker-37.0.1-py3-none-any.whl", hash = "sha256:92bb009dcc708244b446be2f0c11a843fca90ea6e412a2addfef0cf2849c94f9", size = 1918376 },
 ]
 
 [[package]]
@@ -625,6 +627,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/91/53/b0a9fcc1b1297f51e68b69ed3b7c3c40d8c45be1391d77ae198712914392/flask_sqlalchemy-3.1.1.tar.gz", hash = "sha256:e4b68bb881802dda1a7d878b2fc84c06d1ee57fb40b874d3dc97dabfa36b8312", size = 81899 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1d/6a/89963a5c6ecf166e8be29e0d1bf6806051ee8fe6c82e232842e3aeac9204/flask_sqlalchemy-3.1.1-py3-none-any.whl", hash = "sha256:4ba4be7f419dc72f4efd8802d69974803c37259dd42f3913b0dcf75c9447e0a0", size = 25125 },
+]
+
+[[package]]
+name = "flask-sqlalchemy-lite"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flask", extra = ["async"] },
+    { name = "sqlalchemy", extra = ["asyncio"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4f/e5/17bfe7ef0a575c82b87157d5ad67cdb73f5d124509d1be8180950bdfc358/flask_sqlalchemy_lite-0.1.0.tar.gz", hash = "sha256:953173780a974940e6d0cfde1b1fe7097dae66dd7d18bc728f441847f6c48e09", size = 6613 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/24/c8/a6ae83d1d24c2795ce08f8504dbbe326ab2efb4ad32d78256f5fc9865275/flask_sqlalchemy_lite-0.1.0-py3-none-any.whl", hash = "sha256:90ec1d5f4692b7369d88adcff1b9a8ca27baaff040bc4246c6ffee0af9421ce9", size = 8057 },
 ]
 
 [[package]]
@@ -1540,6 +1555,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b4/60/76714cecb528da46bc53a0dd36d1ccef2f74ef25448b630a0a760ad07bdb/sqlalchemy-2.0.39-cp313-cp313-win32.whl", hash = "sha256:23c5aa33c01bd898f879db158537d7e7568b503b15aad60ea0c8da8109adf3e7", size = 2075315 },
     { url = "https://files.pythonhosted.org/packages/5b/7c/76828886d913700548bac5851eefa5b2c0251ebc37921fe476b93ce81b50/sqlalchemy-2.0.39-cp313-cp313-win_amd64.whl", hash = "sha256:4dabd775fd66cf17f31f8625fc0e4cfc5765f7982f94dc09b9e5868182cb71c0", size = 2099175 },
     { url = "https://files.pythonhosted.org/packages/7b/0f/d69904cb7d17e65c65713303a244ec91fd3c96677baf1d6331457fd47e16/sqlalchemy-2.0.39-py3-none-any.whl", hash = "sha256:a1c6b0a5e3e326a466d809b651c63f278b1256146a377a528b6938a279da334f", size = 1898621 },
+]
+
+[package.optional-dependencies]
+asyncio = [
+    { name = "greenlet" },
 ]
 
 [[package]]

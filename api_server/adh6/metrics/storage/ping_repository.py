@@ -1,5 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError
-from adh6.storage import session
+from adh6.storage import db
+from sqlalchemy.sql import text
 
 from ..interfaces import PingRepository
 
@@ -7,7 +8,7 @@ from ..interfaces import PingRepository
 class PingSQLRepository(PingRepository):
     def ping(self) -> bool:
         try:
-            result = session.execute('SELECT 42 AS result').fetchall()
+            result = db.session.execute(text('SELECT 42 AS result')).fetchall()
             if 1 != len(result):
                 return False
 

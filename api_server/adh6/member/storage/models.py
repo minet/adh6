@@ -1,44 +1,47 @@
 # coding: utf-8
 from enum import unique
+from typing import Any
 from sqlalchemy import Column, String, Boolean, Date, DateTime, Integer, Text
 from sqlalchemy.sql import func, text
+from sqlalchemy.orm import Mapped, mapped_column
+import datetime as dt
 from sqlalchemy.sql.sqltypes import Enum
 
 from adh6.constants import MembershipStatus, MembershipDuration
 
-from adh6.storage import db
+from adh6.storage import Base
 from adh6.storage.sql.trackable import RubyHashTrackable
 from adh6.storage.sql.rubydiff import rubydiff
 
 
-class Adherent(db.Model, RubyHashTrackable):
+class Adherent(Base, RubyHashTrackable):
     __tablename__ = 'adherents'
 
-    id = Column(Integer, primary_key=True)
-    nom = Column(String(255))
-    prenom = Column(String(255))
-    mail = Column(String(255))
-    login = Column(String(255))
-    password = Column(String(255))
-    chambre_id = Column(Integer, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nom: Mapped[str] = mapped_column(String(255))
+    prenom: Mapped[str] = mapped_column(String(255))
+    mail: Mapped[str] = mapped_column(String(255))
+    login: Mapped[str] = mapped_column(String(255))
+    password: Mapped[str] = mapped_column(String(255))
+    chambre_id: Mapped[int] = mapped_column(Integer, index=True)
 
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-    date_de_depart = Column(Date)
-    commentaires = Column(String(255))
-    mode_association = Column(
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    date_de_depart: Mapped[dt.date] = mapped_column(Date)
+    commentaires: Mapped[str] = mapped_column(String(255))
+    mode_association: Mapped[dt.datetime] = mapped_column(
         DateTime,
         server_default=text("'2011-04-30 17:50:17'")
     )
-    access_token = Column(String(255))
-    subnet = Column(String(255))
-    ip = Column(String(255))
-    ldap_login = Column(String(255))
-    is_naina = Column(Boolean, default=False, nullable=False)
-    datesignedminet = Column(DateTime, nullable=True)
-    datesignedhosting = Column(DateTime, nullable=True)
-    mail_membership = Column(Integer, nullable=False, default=0, server_default='1')
-    mailinglist = Column(Boolean, nullable=True, default=True)
+    access_token: Mapped[str] = mapped_column(String(255))
+    subnet: Mapped[str] = mapped_column(String(255))
+    ip: Mapped[str] = mapped_column(String(255))
+    ldap_login: Mapped[str] = mapped_column(String(255))
+    is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    datesignedminet: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
+    datesignedhosting: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
+    mail_membership: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default='1')
+    mailinglist: Mapped[bool] = mapped_column(Boolean, nullable=True, default=True)
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -59,24 +62,24 @@ class Adherent(db.Model, RubyHashTrackable):
         return self.id
 
 
-class Membership(db.Model):
+class Membership(Base):
     __tablename__ = "membership"
 
-    uuid = Column(String(36), primary_key=True)
-    account_id = Column(Integer, index=True, nullable=True)
-    duration = Column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)
-    has_room = Column(Boolean, default=True, nullable=False)
-    first_time = Column(Boolean, default=False, nullable=False)
-    adherent_id = Column(Integer, index=True, nullable=False)
-    payment_method_id = Column(Integer, index=True, nullable=True)
-    products = Column(String(255), nullable=True)
-    status = Column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)
-    create_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    update_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    uuid: Mapped[str] = mapped_column(String(36), primary_key=True)
+    account_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    duration: Mapped[Any] = mapped_column(Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False)  # TODO: typing
+    has_room: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    first_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    payment_method_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    products: Mapped[str] = mapped_column(String(255), nullable=True)
+    status: Mapped[Any] = mapped_column(Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False)  # TODO: typing
+    create_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    update_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
 
-class NotificationTemplate(db.Model):
+class NotificationTemplate(Base):
     __tablename__ = "notification_templates"
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(255), nullable=False, unique=True)
-    template = Column(Text, nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    template: Mapped[str] = mapped_column(Text, nullable=True)  # why Text ? Vs String ?

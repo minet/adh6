@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import Membership, AbstractMembership, SubscriptionBody
 from adh6.decorator import log_call
-from adh6.storage import session
+from adh6.storage import db
 
 from .models import Membership as MembershipSQL
 from ..interfaces.membership_repository import MembershipRepository
@@ -16,7 +16,7 @@ from ..interfaces.membership_repository import MembershipRepository
 class MembershipSQLRepository(MembershipRepository):
     @log_call
     def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
-        query = session.query(MembershipSQL)
+        query = db.session.query(MembershipSQL)
         if filter_:
             if filter_.uuid is not None:
                 query = query.filter(MembershipSQL.uuid == filter_.uuid)
@@ -56,16 +56,16 @@ class MembershipSQLRepository(MembershipRepository):
             status=state,
             create_at=now,
             update_at=now,
-            first_time=session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
+            first_time=db.session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
             has_room=body.has_room if body.has_room is not None else True
         )
-        session.add(to_add)
-        session.flush()
+        db.session.add(to_add)
+        db.session.flush()
         return _map_membership_sql_to_entity(to_add)
 
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
-        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+        query: Query = db.session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
 
         if body.duration:
@@ -80,14 +80,14 @@ class MembershipSQLRepository(MembershipRepository):
         membership.status = state
         membership.update_at = now
 
-        session.flush()
+        db.session.flush()
         return _map_membership_sql_to_entity(membership)
 
     def validate(self, uuid: str) -> None:
-        query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+        query: Query = db.session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
         membership: MembershipSQL = query.one()
         membership.status = MembershipStatus.COMPLETE
-        session.flush()
+        db.session.flush()
 
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:

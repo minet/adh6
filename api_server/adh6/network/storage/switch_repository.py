@@ -9,7 +9,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractSwitch, Switch
 from adh6.exceptions import SwitchNotFoundError
 from adh6.decorator import log_call
-from adh6.storage import session
+from adh6.storage import db
 
 from .models import Switch as SQLSwitch
 from ..interfaces import SwitchRepository
@@ -17,19 +17,19 @@ from ..interfaces import SwitchRepository
 
 class SwitchSQLRepository(SwitchRepository):
     def get_community(self, switch_id: int) -> str:
-        obj = session.query(SQLSwitch.communaute).filter(SQLSwitch.id == switch_id).one_or_none()
+        obj = db.session.query(SQLSwitch.communaute).filter(SQLSwitch.id == switch_id).one()
         return obj[0]
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractSwitch:
-        obj = session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
+        obj = db.session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
         if obj is None:
             raise SwitchNotFoundError(object_id)
         return _map_switch_sql_to_abstract_entity(obj)
 
     @log_call
     def search_by(self, limit: int=DEFAULT_LIMIT, offset: int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractSwitch] = None) -> Tuple[List[AbstractSwitch], int]:
-        query = session.query(SQLSwitch)
+        query = db.session.query(SQLSwitch)
         if terms:
             query = query.filter(SQLSwitch.description.contains(terms) | SQLSwitch.ip.contains(terms))
         if filter_:
@@ -61,14 +61,14 @@ class SwitchSQLRepository(SwitchRepository):
             updated_at=now
         )
 
-        session.add(switch)
-        session.flush()
+        db.session.add(switch)
+        db.session.flush()
 
         return _map_switch_sql_to_entity(switch)
 
     @log_call
     def update(self, object_to_update: AbstractSwitch, override=False) -> object:
-        query = session.query(SQLSwitch)
+        query = db.session.query(SQLSwitch)
         query = query.filter(SQLSwitch.id == object_to_update.id)
 
         switch = query.one_or_none()
@@ -80,12 +80,12 @@ class SwitchSQLRepository(SwitchRepository):
 
     @log_call
     def delete(self, object_id) -> None:
-        switch = session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
+        switch = db.session.query(SQLSwitch).filter(SQLSwitch.id == object_id).one_or_none()
         if switch is None:
             raise SwitchNotFoundError(object_id)
 
-        session.delete(switch)
-        session.flush()
+        db.session.delete(switch)
+        db.session.flush()
 
 
 def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:

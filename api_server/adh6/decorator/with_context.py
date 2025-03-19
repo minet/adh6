@@ -23,7 +23,7 @@ def with_context(f):
         """
         Wrap http_api function.
         """
-        from adh6.storage import session
+        from adh6.storage import db
         try:
             result = f(*args, **kwargs)
 
@@ -33,13 +33,15 @@ def with_context(f):
 
             status_code = result[1]
             if status_code and (200 <= status_code <= 299 or status_code == 302):
-                session.commit()
+                if db.session.dirty or db.session.new or db.session.deleted:
+                    db.session.commit()  # this is bad imo  # TODO: big change
             else:
                 raise Exception()
             return result
 
         except Exception as e:
-            session.rollback()
+            print(e)
+            db.session.rollback()
             return handle_error(e)
 
     return wrapper

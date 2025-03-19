@@ -1,58 +1,63 @@
 # coding: utf-8
 from sqlalchemy import Column, String, DateTime, Integer, Text
 from sqlalchemy.sql import func
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+import datetime as dt
 
 from adh6.storage.sql.trackable import RubyHashTrackable
 from adh6.storage.sql.rubydiff import rubydiff
 
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy_lite import SQLAlchemy
+
+class Base(DeclarativeBase):
+  pass
+
 db = SQLAlchemy()
-session = db.session
 
 
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet
-class Admin(db.Model):
+class Admin(Base):
     __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
     roles = Column(String(255))
 
 
-class Inscription(db.Model):
+class Inscription(Base):
     __tablename__ = 'inscriptions'
 
-    id = Column(Integer, primary_key=True)
-    nom = Column(String(255))
-    prenom = Column(String(255))
-    email = Column(String(255))
-    login = Column(String(255))
-    password = Column(String(255))
-    chambre_id = Column(Integer, index=True)
-    duree_cotisation = Column(Integer)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nom: Mapped[int] = mapped_column(String(255))
+    prenom: Mapped[str] = mapped_column(String(255))
+    email: Mapped[str] = mapped_column(String(255))
+    login: Mapped[str] = mapped_column(String(255))
+    password: Mapped[str] = mapped_column(String(255))
+    chambre_id: Mapped[int] = mapped_column(Integer, index=True)
+    duree_cotisation: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
 
 
-class Modification(db.Model):
+class Modification(Base):
     __tablename__ = 'modifications'
 
-    id = Column(Integer, primary_key=True)
-    adherent_id = Column(Integer, index=True)
-    action = Column(Text)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-    utilisateur_id = Column(Integer, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    adherent_id: Mapped[int] = mapped_column(Integer, index=True)
+    action: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    utilisateur_id: Mapped[int] = mapped_column(Integer, index=True)
 
 
-class Routeur(db.Model, RubyHashTrackable):
+class Routeur(Base, RubyHashTrackable):
     __tablename__ = 'routeurs'
 
-    id = Column(Integer, primary_key=True)
-    mac = Column(String(255))
-    ip = Column(String(255))
-    adherent_id = Column(Integer, index=True, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    mac: Mapped[str] = mapped_column(String(255))
+    ip: Mapped[str] = mapped_column(String(255))
+    adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -73,37 +78,35 @@ class Routeur(db.Model, RubyHashTrackable):
         return self.adherent_id
 
 
-class Adhesion(db.Model):
+class Adhesion(Base):
     __tablename__ = 'adhesions'
 
-    id = Column(Integer, primary_key=True)
-    adherent_id = Column(Integer, index=True, nullable=False)
-    depart = Column(DateTime, nullable=False)
-    fin = Column(DateTime, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    depart: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
+    fin: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False)
 
 
-class Utilisateur(db.Model):
+class Utilisateur(Base):
     __tablename__ = 'utilisateurs'
 
-    id = Column(Integer, primary_key=True)
-    nom = Column(String(255))
-    access = Column(Integer)
-    email = Column(String(255))
-    login = Column(String(255))
-    password_hash = Column(String(255))
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-    access_token = Column(String(255))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nom: Mapped[str] = mapped_column(String(255))
+    access: Mapped[str] = mapped_column(Integer)
+    email: Mapped[str] = mapped_column(String(255))
+    login: Mapped[str] = mapped_column(String(255))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    access_token: Mapped[str] = mapped_column(String(255))
 
 
-class MailTemplates(db.Model):
+class MailTemplates(Base):
     __tablename__ = 'mail_templates'
 
-    id = Column(Integer, primary_key=True)
-    description = Column(String(255))
-    sujet = Column(String(255))
-    template = Column(Text)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-
-
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    description: Mapped[str] = mapped_column(String(255))
+    sujet: Mapped[str] = mapped_column(String(255))
+    template: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())

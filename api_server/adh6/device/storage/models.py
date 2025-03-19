@@ -1,25 +1,26 @@
 # coding: utf-8
-from sqlalchemy import Column, String, Boolean, DateTime, Integer
+from sqlalchemy import String, Boolean, DateTime, Integer
 from sqlalchemy.sql import func
+from sqlalchemy.orm import Mapped, mapped_column
 
-from adh6.storage import db
+from adh6.storage import Base
 from adh6.storage.sql.trackable import RubyHashTrackable
 from adh6.storage.sql.rubydiff import rubydiff
+import datetime as dt
 
-
-class Device(db.Model, RubyHashTrackable):
+class Device(Base, RubyHashTrackable):
     __tablename__ = 'devices'
 
-    id = Column(Integer, primary_key=True)
-    mac = Column(String(255))
-    ip = Column(String(255))
-    adherent_id = Column(Integer, index=True, nullable=False)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-    last_seen = Column(DateTime)
-    ipv6 = Column(String(255))
-    type = Column(Integer)
-    mab = Column(Boolean, nullable=False, default=False, server_default='0')
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    mac: Mapped[str] = mapped_column(String(255))
+    ip: Mapped[str] = mapped_column(String(255))
+    adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    last_seen: Mapped[dt.datetime] = mapped_column(DateTime)
+    ipv6: Mapped[str] = mapped_column(String(255))
+    type: Mapped[int] = mapped_column(Integer)
+    mab: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default='0')
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """

@@ -1,7 +1,7 @@
 import os
 import re
 
-class BaseConfig(object):
+class BaseConfig:
     DEBUG = True
     TESTING = True
 
@@ -9,16 +9,6 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_RECORD_QUERIES = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'isolation_level': 'SERIALIZABLE',
-        'echo': False,
-        'pool_pre_ping': True
-    }
-    DATABASE = {
-        'drivername': 'sqlite',
-        'database': ':memory:',
-    }
     SESSION_TYPE = 'memcached'
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
@@ -35,19 +25,13 @@ class DeployedConfig(BaseConfig):
     DEBUG = False
     TESTING = False
 
-    SQLALCHEMY_DATABASE_URI = "mysql+mysqldb://{}:{}@{}/{}".format(
-        os.environ.get("DATABASE_USERNAME"),
-        os.environ.get("DATABASE_PASSWORD"),
-        os.environ.get("DATABASE_HOST"),
-        os.environ.get("DATABASE_DB_NAME")
-    )
-    DATABASE = {
-        'drivername': 'mysql+mysqldb',
-        'host': os.environ.get('DATABASE_HOST', ''),
-        'port': os.environ.get('DATABASE_PORT', ''),
-        'username': os.environ.get('DATABASE_USERNAME', ''),
-        'password': os.environ.get('DATABASE_PASSWORD', ''),
-        'database': os.environ.get('DATABASE_DB_NAME', '')
+    SQLALCHEMY_ENGINES = {
+        "default": "mysql+mysqldb://{}:{}@{}/{}".format(
+            os.environ.get("DATABASE_USERNAME"),
+            os.environ.get("DATABASE_PASSWORD"),
+            os.environ.get("DATABASE_HOST"),
+            os.environ.get("DATABASE_DB_NAME")
+        )
     }
 
     SMTP_SERVER = os.environ.get("SMTP_SERVER", None)
@@ -79,4 +63,3 @@ class DevelopmentConfig(DeployedConfig):
 class ProductionConfig(DeployedConfig):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_RECORD_QUERIES = False
-

@@ -31,7 +31,7 @@ class IPSQLAllocator(IpAllocator):
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        ips = db.session().execute(smt).scalars().all()
+        ips = db.session.execute(smt).scalars().all()
         for i, h in enumerate(network.hosts()):
             if i == 0:
                 continue

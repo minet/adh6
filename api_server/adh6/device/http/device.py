@@ -43,7 +43,7 @@ class DeviceHandler(DefaultHandler):
     def get(self, id_: int, only: t.Optional[t.List[str]]=None):
         try:
             device = self.device_manager.get_by_id(id=id_)
-            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
                 raise UnauthorizedError("Unauthorize to access this resource")
             def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
@@ -77,7 +77,7 @@ class DeviceHandler(DefaultHandler):
         """ Return the vendor associated with the given device """
         try:
             device = self.device_manager.get_by_id(id=id_)
-            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
                 raise UnauthorizedError("Unauthorize to access this resource")
             return self.device_manager.get_mac_vendor(id=id_), 200
         except Exception as e:

@@ -1,29 +1,31 @@
 # coding: utf-8
-from adh6.storage import db
+from sqlalchemy.orm import Mapped, mapped_column
+import datetime as dt
+
+from adh6.storage import Base
 from sqlalchemy import Column, String, DateTime, Integer
 from sqlalchemy.sql import func
 
 
-class Switch(db.Model):
+class Switch(Base):
     __tablename__ = 'switches'
 
-    id = Column(Integer, primary_key=True)
-    description = Column(String(255))
-    ip = Column(String(15))
-    communaute = Column(String(255))
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    description: Mapped[str] = mapped_column(String(255))
+    ip: Mapped[str] = mapped_column(String(15))
+    communaute: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
 
 
-class Port(db.Model):
+class Port(Base):
     __tablename__ = 'ports'
 
-    id = Column(Integer, primary_key=True)
-    rcom = Column(Integer)
-    numero = Column(String(255), nullable=False)
-    oid = Column(String(255), nullable=False)
-    switch_id = Column(Integer, index=True, nullable=False)
-    chambre_id = Column(Integer, index=True, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at = Column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
-
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    rcom: Mapped[int] = mapped_column(Integer)
+    numero: Mapped[str] = mapped_column(String(255), nullable=False)
+    oid: Mapped[str] = mapped_column(String(255), nullable=False)
+    switch_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    chambre_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())

@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 
 from adh6.entity import AbstractMember, Member, MemberFilter
 from adh6.decorator import log_call
-from adh6.storage import session
+from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Adherent, Membership
@@ -18,7 +18,7 @@ from ..interfaces.member_repository import MemberRepository
 class MemberSQLRepository(MemberRepository):
     @log_call
     def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
-        query = session.query(Adherent)
+        query = db.session.query(Adherent)
         if filter_:
             if filter_.ip:
                 query = query.filter(Adherent.ip == filter_.ip)
@@ -50,11 +50,11 @@ class MemberSQLRepository(MemberRepository):
 
     @log_call
     def get_by_id(self, object_id: int) -> Optional[AbstractMember]:
-        adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
+        adh = db.session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         return _map_member_sql_to_abstract_entity(adh) if adh else None
 
     def get_by_login(self, login: str) -> Optional[Member]:
-        adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
+        adh = db.session.query(Adherent).filter(Adherent.login == login).one_or_none()
         return _map_member_sql_to_entity(adh) if adh else None
 
     @log_call
@@ -70,39 +70,39 @@ class MemberSQLRepository(MemberRepository):
             commentaires=object_to_create.comment,
             date_de_depart=object_to_create.departure_date,
         )
-        session.add(member)
-        session.flush()
+        db.session.add(member)
+        db.session.flush()
 
         return _map_member_sql_to_entity(member)
 
     def update(self, abstract_member: AbstractMember, override=False) -> object:
-        query = session.query(Adherent)\
+        query = db.session.query(Adherent)\
             .filter(Adherent.id == abstract_member.id)
 
         adherent = query.one()
 
-        with track_modifications(session, adherent):
+        with track_modifications(db.session, adherent):
             new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
-        session.flush()
+        db.session.flush()
 
         return _map_member_sql_to_entity(new_adherent)
 
     @log_call
     def delete(self, member_id) -> None:
-        member = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(session, member):
-            session.delete(member)
+        member = db.session.query(Adherent).filter(Adherent.id == member_id).one()
+        with track_modifications(db.session, member):
+            db.session.delete(member)
 
     @log_call
     def update_password(self, member_id, hashed_password):
-        adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(session, adherent):
+        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
+        with track_modifications(db.session, adherent):
             adherent.password = hashed_password
 
     @log_call
     def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
-        query = session.query(Adherent).filter(Adherent.id == member_id)
+        query = db.session.query(Adherent).filter(Adherent.id == member_id)
         adherent: Adherent = query.one()
         
         if adherent.date_de_depart is None or adherent.date_de_depart < now:
@@ -117,17 +117,17 @@ class MemberSQLRepository(MemberRepository):
                 days_to_add += calendar.monthrange(adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12)[1]
         adherent.date_de_depart += timedelta(days=days_to_add)
 
-        session.flush()
+        db.session.flush()
     
     def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
-        q = session.query(Adherent.ip).filter(Adherent.ip != None)
+        q = db.session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
     @log_call
     def update_comment(self, member_id: int, comment: str) -> None:
-        adherent = session.query(Adherent).filter(Adherent.id == member_id).one_or_none()
-        with track_modifications(session, adherent):
+        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
+        with track_modifications(db.session, adherent):
             adherent.commentaires= comment
 
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
@@ -142,9 +142,9 @@ def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, overrid
     if entity.last_name is not None or override:
         adherent.nom = entity.last_name
     if entity.ip is not None or override:
-        adherent.ip = entity.ip if entity.ip != "" else None
+        adherent.ip = entity.ip if entity.ip != "" else None  # type: ignore  # TODO: typing
     if entity.subnet is not None or override:
-        adherent.subnet = entity.subnet if entity.subnet != "" else None
+        adherent.subnet = entity.subnet if entity.subnet != "" else None  # type: ignore  # TODO: typing
     if entity.comment is not None or override:
         adherent.commentaires = entity.comment
 

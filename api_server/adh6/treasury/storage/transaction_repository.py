@@ -11,7 +11,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
 from adh6.decorator import log_call
-from adh6.storage import session
+from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
 from .models import Transaction as SQLTransaction, Account, PaymentMethod
@@ -23,12 +23,12 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 class TransactionSQLRepository(TransactionRepository):
     @log_call
     def get_by_id(self, object_id: int) -> Union[Transaction, None]:
-        obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
+        obj = db.session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
         return _map_transaction_sql_to_entity(obj) if obj else obj
 
     @log_call
     def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
-        query= session.query(SQLTransaction)
+        query= db.session.query(SQLTransaction)
 
         if filter_:
             if filter_.id is not None:
@@ -66,19 +66,19 @@ class TransactionSQLRepository(TransactionRepository):
 
         account_src = None
         if abstract_transaction.src is not None:
-            account_src = session.query(Account).filter(Account.id == abstract_transaction.src).one_or_none()
+            account_src = db.session.query(Account).filter(Account.id == abstract_transaction.src).one_or_none()
             if not account_src:
                 raise AccountNotFoundError(abstract_transaction.src)
 
         account_dst = None
         if abstract_transaction.dst is not None:
-            account_dst = session.query(Account).filter(Account.id == abstract_transaction.dst).one_or_none()
+            account_dst = db.session.query(Account).filter(Account.id == abstract_transaction.dst).one_or_none()
             if not account_dst:
                 raise AccountNotFoundError(abstract_transaction.dst)
 
         method = None
         if abstract_transaction.payment_method is not None:
-            method = session.query(PaymentMethod).filter(
+            method = db.session.query(PaymentMethod).filter(
                 PaymentMethod.id == abstract_transaction.payment_method).one_or_none()
             if not method:
                 raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
@@ -95,9 +95,9 @@ class TransactionSQLRepository(TransactionRepository):
             pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
         )
 
-        with track_modifications(session, transaction):
-            session.add(transaction)
-        session.flush()
+        with track_modifications(db.session, transaction):
+            db.session.add(transaction)
+        db.session.flush()
 
         return _map_transaction_sql_to_entity(transaction)
 
@@ -106,21 +106,21 @@ class TransactionSQLRepository(TransactionRepository):
 
     @log_call
     def validate(self, id) -> None:
-        query= session.query(SQLTransaction)
+        query= db.session.query(SQLTransaction)
         query= query.filter(SQLTransaction.id == id)
 
         transaction = query.one()
-        with track_modifications(session, transaction):
+        with track_modifications(db.session, transaction):
             transaction.pending_validation = False
-        session.flush()
+        db.session.flush()
 
     @log_call
     def delete(self, object_id) -> None:
-        transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one()
+        transaction = db.session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one()
 
-        with track_modifications(session, transaction):
-            session.delete(transaction)
-        session.flush()
+        with track_modifications(db.session, transaction):
+            db.session.delete(transaction)
+        db.session.flush()
     
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
