@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Tuple
 
 from adh6.constants import MembershipStatus
 from adh6.entity.abstract_membership import AbstractMembership
@@ -41,5 +40,5 @@ class CharterManager:
                 subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL
             )
 
-    def get_members(self, charter_id: int) -> Tuple[List[int], int]:
+    def get_members(self, charter_id: int) -> tuple[list[int], int]:
         return self.charter_repository.get_members(charter_id)

@@ -3,7 +3,6 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
@@ -27,7 +26,7 @@ class PortSQLRepository(PortRepository):
     @log_call
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractPort | None = None
-    ) -> Tuple[List[AbstractPort], int]:
+    ) -> tuple[list[AbstractPort], int]:
         query = db.session.query(SQLPort)
         query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
         query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)

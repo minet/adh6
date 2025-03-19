@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
@@ -21,9 +19,9 @@ class RoleSQLRepository(RoleRepository):
     def find(
         self,
         method: AuthenticationMethod | None = None,
-        identifiers: List[str] | None = None,
-        roles: List[Roles] | None = None,
-    ) -> Tuple[List[RoleMapping], int]:
+        identifiers: list[str] | None = None,
+        roles: list[Roles] | None = None,
+    ) -> tuple[list[RoleMapping], int]:
         smt: Select = select(AuthenticationRoleMapping)
         if method is not None:
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
@@ -34,7 +32,7 @@ class RoleSQLRepository(RoleRepository):
         all_roles = db.session.execute(smt).all()
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
-    def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
+    def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
         session: Session = db.session
         smt = insert(AuthenticationRoleMapping).values(
             [{"identifier": identifier, "authentication": method, "role": r} for r in roles]

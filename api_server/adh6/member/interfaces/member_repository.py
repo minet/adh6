@@ -1,6 +1,5 @@
 import abc
 import ipaddress
-from typing import List, Tuple
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractMember, Member, MemberFilter
@@ -10,7 +9,7 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
     @abc.abstractmethod
     def search_by(
         self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
-    ) -> Tuple[List[Member], int]:
+    ) -> tuple[list[Member], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -30,7 +29,7 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
+    def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

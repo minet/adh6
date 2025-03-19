@@ -1,7 +1,6 @@
 """Use cases (business rule layer) of everything related to the cashbox."""
 
 import logging
-from typing import Tuple
 
 from .interfaces import CashboxRepository
 
@@ -14,7 +13,7 @@ class CashboxManager:
     def __init__(self, cashbox_repository: CashboxRepository):
         self.cashbox_repository = cashbox_repository
 
-    def get_cashbox(self) -> Tuple[int, int]:
+    def get_cashbox(self) -> tuple[int, int]:
         fond, coffre = self.cashbox_repository.get()
         logging.debug("cashbox_get")
         return fond, coffre

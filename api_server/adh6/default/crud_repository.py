@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, List, Tuple, TypeVar
+from typing import Generic, TypeVar
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 
@@ -19,7 +19,7 @@ class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
         offset: int = DEFAULT_OFFSET,
         terms: str | None = None,
         filter_: AbstractT | None = None,
-    ) -> Tuple[List[T], int]:
+    ) -> tuple[list[T], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

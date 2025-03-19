@@ -44,11 +44,11 @@ class SubscriptionManager:
         self.transaction_manager = transaction_manager
 
     @property
-    def duration_price(self) -> t.Dict[int, int]:
+    def duration_price(self) -> dict[int, int]:
         return PRICES
 
     @property
-    def duration_string(self) -> t.Dict[int, str]:
+    def duration_string(self) -> dict[int, str]:
         return DURATION_STRING
 
     def is_finished(self, status: MembershipStatus) -> bool:

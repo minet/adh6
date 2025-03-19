@@ -1,5 +1,3 @@
-from typing import List
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call, with_context
 from adh6.treasury.product_manager import ProductManager
@@ -36,7 +34,7 @@ class ProductHandler:
     # Method to buy products
     @with_context
     @log_call
-    def buy_post(self, member_id: int, payment_method: int, products: List[int]):
+    def buy_post(self, member_id: int, payment_method: int, products: list[int]):
         # Calls the buy method of the ProductManager object with the provided parameters
         self.product_manager.buy(member_id, payment_method, products)
         # Return None and a status code indicating success

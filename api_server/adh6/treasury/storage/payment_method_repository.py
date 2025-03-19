@@ -2,8 +2,6 @@
 Implements everything related to actions on the SQL database.
 """
 
-from typing import List, Tuple
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
 from adh6.entity import PaymentMethod
@@ -29,7 +27,7 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         offset: int = DEFAULT_OFFSET,
         terms: str | None = None,
         filter_: PaymentMethod | None = None,
-    ) -> Tuple[List[PaymentMethod], int]:
+    ) -> tuple[list[PaymentMethod], int]:
         query = db.session.query(SQLPaymentMethod)
 
         if filter_:

@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from adh6.entity import ApiKey
 from adh6.exceptions import NotFoundError, ValidationError
 from adh6.member.member_manager import MemberManager
@@ -16,7 +14,7 @@ class ApiKeyManager:
         self.role_repository = role_repository
         self.member_manager = member_manager
 
-    def create(self, login: str, roles: List[str]) -> str:
+    def create(self, login: str, roles: list[str]) -> str:
         if len(roles) == 0:
             raise ValidationError()
         try:
@@ -32,7 +30,7 @@ class ApiKeyManager:
         self.role_repository.create(method=AuthenticationMethod.API_KEY, identifier=str(id_), roles=roles_)
         return value
 
-    def search(self, limit: int = 25, offset: int = 0, login: str | None = None) -> Tuple[List[ApiKey], int]:
+    def search(self, limit: int = 25, offset: int = 0, login: str | None = None) -> tuple[list[ApiKey], int]:
         if login:
             t = self.member_manager.get_by_login(login)
             if not t:

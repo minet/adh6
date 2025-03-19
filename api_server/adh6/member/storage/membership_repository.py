@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import List, Tuple
 
 from sqlalchemy.orm.query import Query
 
@@ -17,7 +16,7 @@ class MembershipSQLRepository(MembershipRepository):
     @log_call
     def search(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
-    ) -> Tuple[List[Membership], int]:
+    ) -> tuple[list[Membership], int]:
         query = db.session.query(MembershipSQL)
         if filter_:
             if filter_.uuid is not None:

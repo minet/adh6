@@ -4,7 +4,6 @@ Implements everything related to actions on the SQL database.
 
 from collections.abc import Sequence
 from datetime import datetime
-from typing import List, Tuple
 
 from sqlalchemy import delete, insert, select, update
 
@@ -65,7 +64,7 @@ class RoomSQLRepository(RoomRepository):
     @log_call
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractRoom | None = None
-    ) -> Tuple[List[AbstractRoom], int]:
+    ) -> tuple[list[AbstractRoom], int]:
         query = db.session.query(Chambre)
 
         if terms:

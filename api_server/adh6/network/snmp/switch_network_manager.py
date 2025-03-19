@@ -2,8 +2,6 @@
 Implements everything related to SNMP-related actions
 """
 
-from typing import Tuple
-
 from adh6.authentication import Roles
 from adh6.decorator import log_call
 from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
@@ -186,7 +184,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             raise
 
     @log_call
-    def get_oid_switch_ipand_community_from_port_id(self, port_id) -> Tuple[str, str, str]:
+    def get_oid_switch_ipand_community_from_port_id(self, port_id) -> tuple[str, str, str]:
         port = self.port_repository.get_by_id(object_id=port_id)
         if port.oid is None or not isinstance(port.oid, str):  # type: ignore  # TODO: typing
             raise NetworkManagerReadError(f"oidc for port {port_id} is unknown")

@@ -3,7 +3,6 @@ Membership repository.
 """
 
 import abc
-from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import AbstractMembership, Membership, SubscriptionBody
@@ -32,7 +31,7 @@ class MembershipRepository(abc.ABC):
     @abc.abstractmethod
     def search(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
-    ) -> Tuple[List[Membership], int]:
+    ) -> tuple[list[Membership], int]:
         """
         Add a membership.
         """

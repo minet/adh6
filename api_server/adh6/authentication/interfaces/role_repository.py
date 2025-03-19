@@ -1,5 +1,4 @@
 import abc
-from typing import List, Tuple
 
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.entity import RoleMapping
@@ -11,16 +10,16 @@ class RoleRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
+    def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
     def find(
         self,
         method: AuthenticationMethod | None = None,
-        identifiers: List[str] | None = None,
-        roles: List[Roles] | None = None,
-    ) -> Tuple[List[RoleMapping], int]:
+        identifiers: list[str] | None = None,
+        roles: list[Roles] | None = None,
+    ) -> tuple[list[RoleMapping], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

@@ -2,7 +2,6 @@ import logging
 import re
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
-from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
 from adh6.decorator import log_call
@@ -60,7 +59,7 @@ class MemberManager(CRUDManager):
         offset: int = DEFAULT_OFFSET,
         terms: str = "",
         filter_: MemberFilter | None = None,
-    ) -> Tuple[List[int], int]:
+    ) -> tuple[list[int], int]:
         result, count = self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
         return [r.id for r in result if r.id], count
 
@@ -84,7 +83,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    def get_profile(self) -> Tuple[AbstractMember, List[str]]:
+    def get_profile(self) -> tuple[AbstractMember, list[str]]:
         from adh6.context import get_roles, get_user
 
         m = self.member_repository.get_by_id(get_user())
@@ -162,7 +161,7 @@ class MemberManager(CRUDManager):
         )
 
     @log_call
-    def get_logs(self, member_id, dhcp=False) -> List[str]:
+    def get_logs(self, member_id, dhcp=False) -> list[str]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -185,7 +184,7 @@ class MemberManager(CRUDManager):
             return []  # We fail open here.
 
     @log_call
-    def get_statuses(self, member_id) -> List[MemberStatus]:
+    def get_statuses(self, member_id) -> list[MemberStatus]:
         # Check that the user exists in the system.
         member = self.member_repository.get_by_id(member_id)
         if not member:
@@ -273,7 +272,7 @@ class MemberManager(CRUDManager):
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> Tuple[IPv4Network, IPv4Address | None] | None:
+    def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:
         member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)

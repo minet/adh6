@@ -1,10 +1,9 @@
 import abc
-from typing import List
 
 
 class MailinglistRepository(abc.ABC):
     @abc.abstractmethod
-    def list_members(self, value: int) -> List[int]:
+    def list_members(self, value: int) -> list[int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

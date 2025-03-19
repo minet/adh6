@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List, Tuple
 
 from sqlalchemy import select, update
 
@@ -18,7 +17,7 @@ class CharterSQLRepository(CharterRepository):
         smt = smt.where(Adherent.id == member_id)
         return db.session.execute(smt).scalar_one_or_none()
 
-    def get_members(self, charter_id: int) -> Tuple[List[int], int]:
+    def get_members(self, charter_id: int) -> tuple[list[int], int]:
         smt = select(Adherent.id)
         if charter_id == 1:
             smt = smt.where(Adherent.datesignedminet)  # type: ignore # TODO: what is the check ?

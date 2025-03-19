@@ -1,6 +1,5 @@
 import abc
 from datetime import datetime
-from typing import List, Tuple
 
 
 class CharterRepository(abc.ABC):
@@ -9,7 +8,7 @@ class CharterRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_members(self, charter_id) -> Tuple[List[int], int]:
+    def get_members(self, charter_id) -> tuple[list[int], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

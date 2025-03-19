@@ -2,8 +2,6 @@
 Implements everything related to actions on the SQL database.
 """
 
-from typing import List, Tuple
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
 from adh6.entity.product import Product
@@ -25,7 +23,7 @@ class ProductSQLRepository(ProductRepository):
 
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
-    ) -> Tuple[List[Product], int]:
+    ) -> tuple[list[Product], int]:
         query = db.session.query(SQLProduct)
         if terms:
             query = query.filter(SQLProduct.name.contains(terms))

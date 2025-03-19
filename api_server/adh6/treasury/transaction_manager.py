@@ -1,7 +1,6 @@
 """Use cases (business rule layer) of everything related to transactions."""
 
 import logging
-from typing import Tuple
 
 from adh6.authentication import Roles
 from adh6.decorator import log_call
@@ -25,7 +24,7 @@ class TransactionManager(CRUDManager):
     @log_call
     def update_or_create(
         self, abstract_transaction: AbstractTransaction, id: int | None = None
-    ) -> Tuple[Transaction, bool]:
+    ) -> tuple[Transaction, bool]:
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError("the source and destination accounts must not be the same")
         if abstract_transaction.value is None:

@@ -4,7 +4,6 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
@@ -35,7 +34,7 @@ class DeviceSQLRepository(DeviceRepository):
         return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
-    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
+    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         smt: Select = select(SQLDevice)
         if device_filter.terms:
             smt = smt.join(Adherent, SQLDevice.adherent_id == Adherent.id).where(

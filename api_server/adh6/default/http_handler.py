@@ -1,4 +1,4 @@
-from typing import Any, List, Type
+from typing import Any
 
 from connexion import NoContent
 
@@ -9,7 +9,7 @@ from adh6.entity.base_model import Model
 
 
 class DefaultHandler:
-    def __init__(self, entity_class: Type[Model], abstract_entity_class: Type[Model], main_manager: CRUDManager):
+    def __init__(self, entity_class: type[Model], abstract_entity_class: type[Model], main_manager: CRUDManager):
         self.entity_class = entity_class
         self.abstract_entity_class = abstract_entity_class
         self.main_manager = main_manager
@@ -22,7 +22,7 @@ class DefaultHandler:
         offset=DEFAULT_OFFSET,
         terms=None,
         filter_: Any | None = None,
-        only: List[str] | None = None,
+        only: list[str] | None = None,
     ):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
@@ -39,7 +39,7 @@ class DefaultHandler:
 
     @with_context
     @log_call
-    def get(self, id_: int, only: List[str] | None = None):
+    def get(self, id_: int, only: list[str] | None = None):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -72,7 +72,7 @@ class DefaultHandler:
         self.main_manager.delete(id=id_)
         return NoContent, 204  # 204 No Content
 
-    def _update(self, function, klass: Type[Model], body, id: int | None = None):
+    def _update(self, function, klass: type[Model], body, id: int | None = None):
         body["id"] = 0  # Set a dummy id to pass the initial validation
         to_update = klass.from_dict(body)
         the_object, created = function(to_update, id=id)

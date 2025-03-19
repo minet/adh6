@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple
+from typing import Any
 
 from connexion import NoContent
 
@@ -41,7 +41,7 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: List[str] | None = None):
+    def get(self, id_: int, only: list[str] | None = None):
         try:
 
             def remove(entity: Any) -> Any:
@@ -119,14 +119,14 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def charter_get(self, id_, charter_id) -> Tuple[Any, int]:
+    def charter_get(self, id_, charter_id) -> tuple[Any, int]:
         if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         return self.charter_manager.get(charter_id=charter_id, member_id=id_), 200
 
     @with_context
     @log_call
-    def charter_put(self, id_, charter_id) -> Tuple[Any, int]:
+    def charter_put(self, id_, charter_id) -> tuple[Any, int]:
         try:
             if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
                 raise UnauthorizedError("Unauthorize to access this resource")

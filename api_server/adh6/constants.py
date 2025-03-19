@@ -1,6 +1,5 @@
 import enum
 import ipaddress
-from typing import Dict
 
 DEFAULT_LIMIT = 100
 DEFAULT_OFFSET = 0
@@ -56,7 +55,7 @@ class KnownAccountExpense(enum.Enum):
 PUBLIC_RANGE = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
 
 
-def dictionnary_subnet_public_ip_wireless() -> Dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:
+def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:
     # These are perfectly valid addresses, but we exclude them to avoid confusion
     excluded_addresses = [
         "157.159.192.0",
@@ -75,7 +74,7 @@ def dictionnary_subnet_public_ip_wireless() -> Dict[ipaddress.IPv4Address, ipadd
 
     private_range = ipaddress.IPv4Network("10.42.0.0/16").subnets(new_prefix=28)
 
-    mappings: Dict[ipaddress.IPv4Address, ipaddress.IPv4Network] = {}
+    mappings: dict[ipaddress.IPv4Address, ipaddress.IPv4Network] = {}
     for subnet, ip in zip(private_range, hosts):
         if str(ip) in excluded_addresses:
             continue

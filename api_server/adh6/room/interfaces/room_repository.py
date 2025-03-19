@@ -1,5 +1,4 @@
 import abc
-from typing import List
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractRoom, Room
@@ -11,7 +10,7 @@ class RoomRepository(CRUDRepository[Room, AbstractRoom]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_members(self, room_id: int) -> List[int]:
+    def get_members(self, room_id: int) -> list[int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

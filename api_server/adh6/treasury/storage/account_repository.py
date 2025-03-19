@@ -3,7 +3,6 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-from typing import List, Tuple
 
 from sqlalchemy import case, func, or_
 
@@ -22,7 +21,7 @@ class AccountSQLRepository(AccountRepository):
     @log_call
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractAccount | None = None
-    ) -> Tuple[List[AbstractAccount], int]:
+    ) -> tuple[list[AbstractAccount], int]:
         query = db.session.query(
             SQLAccount,
             func.sum(

@@ -12,8 +12,8 @@ class LogsRepository(abc.ABC):
 
     @abc.abstractmethod
     def get(
-        self, member: Member, devices: t.List[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False
-    ) -> t.List[t.Any]:
+        self, member: Member, devices: list[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False
+    ) -> list[t.Any]:
         """
         Get all the logs concerning the provided username and MAC addresses.
         """

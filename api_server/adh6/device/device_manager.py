@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from adh6.constants import DEFAULT_LIMIT
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
@@ -49,7 +47,7 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[int], int]:
+    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[int], int]:
         result, count = self.device_repository.search_by(limit=limit, offset=offset, device_filter=device_filter)
         return [r.id for r in result], count
 

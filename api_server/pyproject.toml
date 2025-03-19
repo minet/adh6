@@ -74,6 +74,7 @@ tox = ["tox", "tox-uv"]
 [tool.pyright]
 typeCheckingMode = "basic"  # TODO: passer en strict
 include = ["adh6", "test"]
+exclude = ["adh6/entity/*.py"]
 
 # https://tox.wiki/en/latest/
 [tool.tox]
@@ -96,7 +97,7 @@ line-length = 120
 indent-width = 4
 target-version = "py311"
 src = ["adh6"]
-exclude = ["migrations"]
+exclude = ["migrations", "adh6/entity/*.py"]
 
 [tool.ruff.lint]
 select = [

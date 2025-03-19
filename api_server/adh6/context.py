@@ -3,7 +3,7 @@ import typing as t
 from connexion import request
 
 
-def get_roles() -> t.List[str]:
+def get_roles() -> list[str]:
     return request.context.get("token_info", {}).get("scope", [])
 
 

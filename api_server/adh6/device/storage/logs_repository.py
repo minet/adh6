@@ -2,8 +2,6 @@
 Logs repository.
 """
 
-from typing import List
-
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
@@ -31,7 +29,7 @@ class ElasticsearchLogsRepository(LogsRepository):
             self.config["ELK_HOSTS"], http_auth=(self.config["ELK_USER"], self.config["ELK_SECRET"])
         )
 
-    def get(self, member: Member, devices: List[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False):
+    def get(self, member: Member, devices: list[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False):
         """
         Get the logs related to the username and to the devices.
         :param ctx:  context

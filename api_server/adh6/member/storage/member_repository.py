@@ -4,7 +4,6 @@ Implements everything related to actions on the SQL database.
 
 import ipaddress
 from datetime import date, datetime, timedelta
-from typing import List, Tuple
 
 from adh6.decorator import log_call
 from adh6.entity import AbstractMember, Member, MemberFilter
@@ -19,7 +18,7 @@ class MemberSQLRepository(MemberRepository):
     @log_call
     def search_by(
         self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
-    ) -> Tuple[List[Member], int]:
+    ) -> tuple[list[Member], int]:
         query = db.session.query(Adherent)
         if filter_:
             if filter_.ip:
@@ -125,7 +124,7 @@ class MemberSQLRepository(MemberRepository):
 
         db.session.flush()
 
-    def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
+    def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
         q = db.session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]

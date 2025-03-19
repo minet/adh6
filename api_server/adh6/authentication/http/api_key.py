@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from connexion import NoContent
 
@@ -18,7 +18,7 @@ class ApiKeyHandler:
         return [r.to_dict() for r in result], 200, headers
 
     @with_context
-    def post(self, body: Dict[str, Any]):
+    def post(self, body: dict[str, Any]):
         return self.api_key_manager.create(login=body.get("login", ""), roles=body.get("roles", [])), 200
 
     @with_context

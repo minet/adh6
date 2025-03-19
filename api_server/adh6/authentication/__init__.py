@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
@@ -73,7 +73,7 @@ def apikey_auth(token: str, required_scopes):
 user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
 
 
-def token_info(access_token) -> Dict[str, Any] | None:
+def token_info(access_token) -> dict[str, Any] | None:
     infos = get_sso_groups(access_token)
 
     groups = ["adh6_user"]

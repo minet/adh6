@@ -1,6 +1,3 @@
-# Import necessary modules and classes
-from typing import List
-
 from adh6.constants import KnownAccountExpense
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
@@ -32,7 +29,7 @@ class ProductManager(CRUDManager):
 
     # Define a method for buying products
     @log_call
-    def buy(self, member_id: int, payment_method_id: int, product_ids: List[int] = []) -> None:
+    def buy(self, member_id: int, payment_method_id: int, product_ids: list[int] = []) -> None:
         # If no product IDs are provided, raise an error
         if not product_ids:
             raise ProductNotFoundError("None")

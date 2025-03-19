@@ -1,5 +1,4 @@
 import uuid
-from typing import List, Tuple
 
 from sqlalchemy import delete, select
 
@@ -16,7 +15,7 @@ class ApiKeySQLRepository(ApiKeyRepository):
         key = db.session.execute(smt).scalar_one_or_none()
         return self._map_to_api_key(key) if key else None
 
-    def create(self, login: str) -> Tuple[int, str]:
+    def create(self, login: str) -> tuple[int, str]:
         from hashlib import sha3_512
 
         session = db.session
@@ -31,7 +30,7 @@ class ApiKeySQLRepository(ApiKeyRepository):
         smt = delete(SQLApiKey).where(SQLApiKey.id == id)
         db.session.execute(smt)
 
-    def find(self, login: str | None = None, token_hash: str | None = None) -> List[ApiKey]:
+    def find(self, login: str | None = None, token_hash: str | None = None) -> list[ApiKey]:
         smt = select(SQLApiKey)
         if login is not None:
             smt = smt.where(SQLApiKey.user_login == login)

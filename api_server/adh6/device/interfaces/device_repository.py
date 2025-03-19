@@ -1,5 +1,4 @@
 import abc
-from typing import List, Tuple
 
 from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
@@ -11,7 +10,7 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
+    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

@@ -22,5 +22,5 @@ class MailinglistManager:
             raise MemberNotFoundError(member_id)
         self.mailinglist_repository.update_from_member(member_id, value)
 
-    def get_members(self, value: int) -> t.List[int]:
+    def get_members(self, value: int) -> list[int]:
         return self.mailinglist_repository.list_members(value)

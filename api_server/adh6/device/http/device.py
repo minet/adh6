@@ -38,7 +38,7 @@ class DeviceHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: t.List[str] | None = None):
+    def get(self, id_: int, only: list[str] | None = None):
         try:
             device = self.device_manager.get_by_id(id=id_)
             if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing

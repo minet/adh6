@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from connexion import NoContent
 
@@ -19,7 +19,7 @@ class RoleHandler:
 
     @with_context
     @log_call
-    def post(self, body: Dict[str, Any]):
+    def post(self, body: dict[str, Any]):
         self.role_manager.create(auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
         return NoContent, 201
 

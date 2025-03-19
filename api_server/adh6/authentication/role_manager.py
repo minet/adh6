@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call
@@ -14,14 +12,14 @@ class RoleManager:
         self.member_manager = member_manager
 
     @log_call
-    def search(self, auth: str, identifier: str | None = None) -> Tuple[List[RoleMapping], int]:
+    def search(self, auth: str, identifier: str | None = None) -> tuple[list[RoleMapping], int]:
         return self.role_repository.find(
             method=AuthenticationMethod(auth),
             identifiers=[identifier] if identifier else None,
         )
 
     @log_call
-    def create(self, identifier: str, roles: List[str], auth: str = AuthenticationMethod.USER.value) -> None:
+    def create(self, identifier: str, roles: list[str], auth: str = AuthenticationMethod.USER.value) -> None:
         method = AuthenticationMethod(auth)
         if method == AuthenticationMethod.API_KEY:
             raise UpdateImpossible(

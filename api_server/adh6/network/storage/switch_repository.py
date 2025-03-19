@@ -3,7 +3,6 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
@@ -34,7 +33,7 @@ class SwitchSQLRepository(SwitchRepository):
         offset: int = DEFAULT_OFFSET,
         terms: str | None = None,
         filter_: AbstractSwitch | None = None,
-    ) -> Tuple[List[AbstractSwitch], int]:
+    ) -> tuple[list[AbstractSwitch], int]:
         query = db.session.query(SQLSwitch)
         if terms:
             query = query.filter(SQLSwitch.description.contains(terms) | SQLSwitch.ip.contains(terms))

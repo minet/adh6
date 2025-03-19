@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
 from adh6.entity.base_model import Model
@@ -14,7 +12,7 @@ class CRUDManager:
         self.not_found_exception = not_found_exception
 
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
+    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive("limit")
 
