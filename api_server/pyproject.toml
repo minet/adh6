@@ -73,8 +73,7 @@ tox = ["tox", "tox-uv"]
 # - pyright: https://microsoft.github.io/pyright/#/
 [tool.pyright]
 typeCheckingMode = "basic"  # TODO: passer en strict
-exclude = ["./migrations/**"]
-
+include = ["adh6", "test"]
 
 # https://tox.wiki/en/latest/
 [tool.tox]
