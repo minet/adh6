@@ -5,7 +5,8 @@ services:
     container_name: adh6_frontend
     build:
       context: frontend_angular
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      target: dev
     expose:
       - "80" # app does not start as root here
     volumes:
@@ -31,7 +32,7 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-     
+
   api_server_member:
     container_name: adh6_backend_member
     build: api_server
@@ -64,12 +65,12 @@ services:
       - ./reverse_proxy:/etc/nginx/templates
     environment:
       ADH6_URL: "adh6-local.minet.net"
-      API_HOST: "api_server" 
-      API_PORT: "8080"        
+      API_HOST: "api_server"
+      API_PORT: "8080"
       FRONTEND_HOST: "frontend_angular"
       FRONTEND_PORT: "80"
-    command: ['nginx-debug', '-g', 'daemon off;']
-  
+    command: [ 'nginx-debug', '-g', 'daemon off;' ]
+
   database:
     read_only: true
     container_name: adh6_database
