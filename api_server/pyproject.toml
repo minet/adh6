@@ -9,35 +9,7 @@
 [project]
 name = "ADH6"
 version = "6.0"  # https://packaging.python.org/en/latest/specifications/version-specifiers/
-requires-python = "~=3.11"
-# dependencies = [
-#     # https://packaging.python.org/en/latest/specifications/dependency-specifiers/
-#     "flask==2.2.2",  # serveur HTTP pour recevoir / répondre aux requêtes
-#     "connexion==2.14.1",  # faire le lien entre la spec OpenAPI et les handlers Flask
-#     "swagger-ui-bundle==0.0.9",  # TODO: vérifier qu'il s'agisse de ce qui est utilisé par /api/ui
-#     "SQLAlchemy==1.4.41",  # ORM pour communiquer avec la base de donnée
-#     "mysqlclient==2.1.1",  # TODO: vérifier qu'il s'agisse bien du driver
-#     "python-dateutil==2.8.2",  # Un ensemble d'utilitaires pour gérer une base de donnée
-#     "PyYAML",
-#     "jsonschema<4.0",
-#     "pysnmp==4.4.12",  # communiquer avec les switches
-#     "elasticsearch==8.4.1",  # ELK communication  # TODO: meilleurs explications
-#     "pinject==0.14.1",  # TODO: deprecated
-#     "python-dotenv",  # à priori inutile vu que Docker
-#     "requests==2.28.1",   # make HTTP web requests
-#     "Flask-Migrate==3.1.0",  # alembic bindings for flask
-#     "Flask-Caching==2.0.1",  # TODO: determiner l'utilité exacte (le cache)
-#     "authlib==1.1.0",  # TODO: vérifier qu'il s'agisse du support du CAS
-#     "cryptography==38.0.1",  # TODO: vérifier de quoi il s'agit
-#     "jinja2==3.1.2",  # TODO: devrait être inclus avec flask
-#     "bcrypt==4.0.0",  # TODO: vérifier de quoi il s'agit
-#     "Faker==14.2.0",  # TODO: vérifier de quoi il s'agit / si c'est du test-time only
-#     "opentelemetry-instrumentation-flask==0.33b0",
-#     "opentelemetry-instrumentation-requests==0.33b0",
-#     "opentelemetry-api==1.12.0",
-#     "opentelemetry-sdk==1.12.0",
-#     "opentelemetry-exporter-jaeger==1.12.0",
-# ]
+requires-python = "~=3.11.0"
 dependencies = [
     # https://packaging.python.org/en/latest/specifications/dependency-specifiers/
     "flask",  # serveur HTTP pour recevoir / répondre aux requêtes
@@ -74,7 +46,6 @@ dependencies = [
 # - Technical: https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
 # - UV: https://docs.astral.sh/uv/concepts/projects/dependencies/#optional-dependencies
 [project.optional-dependencies]
-uwsgi = ["uwsgi", "a2wsgi"]
 gunicorn = ["gunicorn", "uvicorn"]
 
 
@@ -85,9 +56,8 @@ gunicorn = ["gunicorn", "uvicorn"]
 [dependency-groups]
 dev = [
     { include-group = "lint" },
-    # { include-group = "tox" },
-    "pytest",
-    # "debugpy",
+    { include-group = "tox" },
+    { include-group = "tests" },
 ]
 tests = [  #
     "pytest",
@@ -96,29 +66,29 @@ tests = [  #
     "pytest-lazy-fixtures"
 ]
 lint = ["pyright", "ruff"]
-# tox = ["tox", "tox-uv"]
+tox = ["tox", "tox-uv"]
 
 
 # Docs:
 # - pyright: https://microsoft.github.io/pyright/#/
 [tool.pyright]
 typeCheckingMode = "basic"  # TODO: passer en strict
+exclude = ["./migrations/**"]
 
 
 # https://tox.wiki/en/latest/
 [tool.tox]
 envlist = ["py311"]
 
-# [tool.tox.env_run_base]
-# runner = "uv-venv-lock-runner"
-# description = "run all checks on the code"
-# extras = ["dev"]
-# commands = [
-#     #fmt
-#     ["ruff", "format", "--check", "src"],
-#     ["ruff", "check", "src"],
-#     ["pyright", "src"],
-# ]
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+description = "run all checks on the code"
+extras = ["dev"]
+commands = [ #fmt
+    ["ruff", "format", "--check"],
+    ["ruff", "check"],
+    ["pyright"],
+]
 
 
 # https://docs.astral.sh/ruff/
@@ -127,7 +97,7 @@ line-length = 120
 indent-width = 4
 target-version = "py311"
 src = ["adh6"]
-# exclude = ["bin"]
+exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = [
@@ -169,14 +139,14 @@ select = [
 ignore = [
     "E501", # line too long (we relate on the formater)
     "N818", # Error suffix for exceptions names
-    # "PIE796", # Enum contains duplicate value
+    "PIE796", # Enum contains duplicate value
     "TRY003", # Avoid specifying long messages outsides the exception class
     "ISC001", # To avoid conflicts with the formatter
 ]
 dummy-variable-rgx = '^\*{0,2}(_$|__$|unused_|dummy_)'
 
 [tool.ruff.lint.extend-per-file-ignores]
-"tests/**/*.py" = [
+"test/**/*.py" = [
     "S101", # asserts allowed in tests...
     "ARG",  # Unused function args -> fixtures nevertheless are functionally relevant...
     "FBT",  # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
@@ -192,3 +162,21 @@ skip-magic-trailing-comma = false
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "test/"
+]
+addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "test/*",
+    "adh6/entity/*",
+    "venv/*",
+    "migration/*",
+    ".vscode/*",
+    "adh6/typing_utils.py",
+    "adh6/util.py"
+]
