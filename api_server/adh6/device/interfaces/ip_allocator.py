@@ -13,4 +13,4 @@ class IpAllocator(abc.ABC):
 
         :raise NoMoreIPAvailable
         """
-        pass  # pragma: no cover
+        # pragma: no cover

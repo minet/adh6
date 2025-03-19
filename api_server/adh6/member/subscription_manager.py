@@ -1,5 +1,4 @@
 import logging
-import typing as t
 
 from adh6.authentication import Roles
 from adh6.constants import DURATION_STRING, PRICES, KnownAccountExpense, MembershipStatus
@@ -104,32 +103,30 @@ class SubscriptionManager:
         if state == MembershipStatus.PENDING_RULES:
             date_signed_minet = self.charter_repository.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
-                logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
+                logging.debug("create_membership_record_switch_status_to_pending_payment_initial")  # noqa: LOG015  # TODO: use a proper logger
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
 
-        if state == MembershipStatus.PENDING_PAYMENT_INITIAL:
-            if body.duration is not None and body.duration != 0:
-                if body.duration not in self.duration_price:
-                    logging.warning(f"create_membership_record_no_price_defined - duration: {body.duration}")
-                    raise NoPriceAssignedToThatDuration(body.duration)
-                logging.debug("create_membership_record_switch_status_to_pending_payment")
-                state = MembershipStatus.PENDING_PAYMENT
+        if state == MembershipStatus.PENDING_PAYMENT_INITIAL and body.duration is not None and body.duration != 0:
+            if body.duration not in self.duration_price:
+                logging.warning("create_membership_record_no_price_defined - duration: %s", body.duration)  # noqa: LOG015  # TODO: use a proper logger
+                raise NoPriceAssignedToThatDuration(body.duration)
+            logging.debug("create_membership_record_switch_status_to_pending_payment")  # noqa: LOG015  # TODO: use a proper logger
+            state = MembershipStatus.PENDING_PAYMENT
 
-        if state == MembershipStatus.PENDING_PAYMENT:
-            if body.account is not None and body.payment_method is not None:
-                account = self.account_repository.get_by_id(body.account)
-                if not account:
-                    raise AccountNotFoundError(body.account)
-                payment_method = self.payment_method_repository.get_by_id(body.payment_method)
-                if not payment_method:
-                    raise PaymentMethodNotFoundError(body.payment_method)
-                logging.debug("create_membership_record_switch_status_to_pending_payment_validation")
-                state = MembershipStatus.PENDING_PAYMENT_VALIDATION
+        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
+            account = self.account_repository.get_by_id(body.account)
+            if not account:
+                raise AccountNotFoundError(body.account)
+            payment_method = self.payment_method_repository.get_by_id(body.payment_method)
+            if not payment_method:
+                raise PaymentMethodNotFoundError(body.payment_method)
+            logging.debug("create_membership_record_switch_status_to_pending_payment_validation")  # noqa: LOG015  # TODO: use a proper logger
+            state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         try:
             membership_created = self.membership_repository.create(body, state)
         except UnknownPaymentMethod:
-            logging.warning("create_membership_record_unknown_payment_method")
+            logging.warning("create_membership_record_unknown_payment_method")  # noqa: LOG015  # TODO: use a proper logger
             raise
 
         return membership_created
@@ -158,7 +155,7 @@ class SubscriptionManager:
 
         subscription = self.latest(member_id=member_id)
         if not subscription:
-            raise MembershipNotFoundError()
+            raise MembershipNotFoundError
 
         if subscription.status in [MembershipStatus.COMPLETE, MembershipStatus.CANCELLED, MembershipStatus.ABORTED]:
             raise MembershipStatusNotAllowed(subscription.status, "membership already completed, cancelled or aborted")
@@ -168,20 +165,18 @@ class SubscriptionManager:
         if state == MembershipStatus.PENDING_RULES:
             date_signed_minet = self.charter_repository.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
-                logging.debug("create_membership_record_switch_status_to_pending_payment_initial")
+                logging.debug("create_membership_record_switch_status_to_pending_payment_initial")  # noqa: LOG015  # TODO: use a proper logger
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
             else:
                 raise CharterNotSigned(str(member_id))
 
-        if body.duration is not None and body.duration != 0:
-            if body.duration not in self.duration_price:
-                logging.warning(f"create_membership_record_no_price_defined - duration: {body.duration}")
-                raise NoPriceAssignedToThatDuration(body.duration)
+        if body.duration is not None and body.duration != 0 and body.duration not in self.duration_price:
+            logging.warning("create_membership_record_no_price_defined - duration: %s", body.duration)  # noqa: LOG015  # TODO: use a proper logger
+            raise NoPriceAssignedToThatDuration(body.duration)
 
-        if state == MembershipStatus.PENDING_PAYMENT_INITIAL:
-            if body.duration is not None:
-                logging.debug("create_membership_record_switch_status_to_pending_payment")
-                state = MembershipStatus.PENDING_PAYMENT
+        if state == MembershipStatus.PENDING_PAYMENT_INITIAL and body.duration is not None:
+            logging.debug("create_membership_record_switch_status_to_pending_payment")  # noqa: LOG015  # TODO: use a proper logger
+            state = MembershipStatus.PENDING_PAYMENT
 
         if body.account is not None:
             account = self.account_repository.get_by_id(body.account)
@@ -192,15 +187,11 @@ class SubscriptionManager:
             if not payment_method:
                 raise PaymentMethodNotFoundError(body.payment_method)
 
-        if state == MembershipStatus.PENDING_PAYMENT:
-            if body.account is not None and body.payment_method is not None:
-                logging.debug("create_membership_record_switch_status_to_pending_payment_validation")
-                state = MembershipStatus.PENDING_PAYMENT_VALIDATION
+        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
+            logging.debug("create_membership_record_switch_status_to_pending_payment_validation")  # noqa: LOG015  # TODO: use a proper logger
+            state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
-        try:
-            self.membership_repository.update(subscription.uuid, body, state)
-        except Exception:
-            raise
+        self.membership_repository.update(subscription.uuid, body, state)
 
     @log_call
     def validate(self, member_id: int, free: bool) -> None:
@@ -222,7 +213,7 @@ class SubscriptionManager:
     def add_payment_record(self, membership: Membership, free: bool) -> None:
         from adh6.context import get_roles
 
-        if free and not Roles.TRESO_WRITE.value in get_roles():
+        if free and Roles.TRESO_WRITE.value not in get_roles():
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
         payment_method = self.payment_method_repository.get_by_id(membership.payment_method)

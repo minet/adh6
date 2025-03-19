@@ -5,7 +5,7 @@ from adh6.device.storage.device_repository import DeviceType
 from adh6.device.storage.models import Device
 from adh6.member.storage.models import Adherent
 from adh6.storage import db
-from pytest_lazyfixture import lazy_fixture
+from pytest_lazy_fixtures import lf
 
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 from test.integration.conftest import sample_member_admin
@@ -130,8 +130,8 @@ def test_device_filter_all_devices(client):
 @pytest.mark.parametrize(
     "member,header,expected",
     [
-        (lazy_fixture("sample_member3"), TEST_HEADERS, 1),
-        (lazy_fixture("sample_member"), TEST_HEADERS_SAMPLE, 3),
+        (lf("sample_member3"), TEST_HEADERS, 1),
+        (lf("sample_member"), TEST_HEADERS_SAMPLE, 3),
     ],
 )
 def test_device_filter_wired_by_member(client, header, member, expected):
@@ -167,11 +167,11 @@ def test_device_filter_invalid_limit(client):
 
 
 def test_device_filter_hit_limit(client, sample_member: Adherent):
-    s = db.session()
-    LIMIT = 10
+    s = db.session
+    limit = 10
 
     # Create a lot of devices
-    for _ in range(LIMIT * 2):
+    for _ in range(limit * 2):
         suffix = "{0:04X}"
         dev = Device(
             adherent_id=sample_member.id,
@@ -184,15 +184,15 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
     s.commit()
 
     r = client.get(
-        f"{base_url}?limit={LIMIT}",
+        f"{base_url}?limit={limit}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
     response = json.loads(r.data.decode("utf-8"))
-    assert len(response) == LIMIT
+    assert len(response) == limit
 
 
-@pytest.mark.parametrize("device", [lazy_fixture("wireless_device"), lazy_fixture("wired_device")])
+@pytest.mark.parametrize("device", [lf("wireless_device"), lf("wired_device")])
 def test_device_filter_by_connection_type(client, device: Device):
     r = client.get(
         f"{base_url}?filter[connectionType]={'wireless'}"
@@ -213,7 +213,7 @@ def test_device_filter_unauthorized(client):
     assert r.status_code == 403
 
 
-@pytest.mark.parametrize("device_to_add", [lazy_fixture("wireless_device_dict"), lazy_fixture("wired_device_dict")])
+@pytest.mark.parametrize("device_to_add", [lf("wireless_device_dict"), lf("wired_device_dict")])
 def test_device_post(client, sample_room1, device_to_add, sample_member: Adherent):
     """Can create a valid device"""
     r = client.patch(
@@ -227,9 +227,9 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
         f"{base_url}", data=json.dumps(device_to_add), content_type="application/json", headers=TEST_HEADERS
     )
     assert r.status_code == 201
-    assert_modification_was_created(db.session())
+    assert_modification_was_created(db.session)
 
-    s = db.session()
+    s = db.session
     q = s.query(Device)
     q = q.filter(
         Device.type
@@ -292,8 +292,9 @@ def test_device_post_create_multiple_wireless(faker, client, sample_room1, sampl
             headers=TEST_HEADERS,
             content_type="application/json",
         )
+
         res = r.json
-        subnet = sample_member.subnet if SAMPLE_CLIENT_ID == d["member"] else sample_member_admin().subnet
+        subnet = sample_member.subnet if d["member"] == SAMPLE_CLIENT_ID else sample_member_admin().subnet
         subnet_header = ".".join(subnet.split(".")[:3])
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         start_number_v6 = [2, 5]
@@ -479,9 +480,9 @@ def test_device_post_create_unauthorized(client, wired_device_dict):
 @pytest.mark.parametrize(
     "device, status_code",
     [
-        (lazy_fixture("wired_device"), 200),
-        (lazy_fixture("wireless_device"), 200),
-        (lazy_fixture("unknown_device"), 404),
+        (lf("wired_device"), 200),
+        (lf("wireless_device"), 200),
+        (lf("unknown_device"), 404),
     ],
 )
 def test_device_get_valid(client, device, status_code):
@@ -523,9 +524,9 @@ def test_device_get_unauthorized_unknown_device(client):
 @pytest.mark.parametrize(
     "device, status_code",
     [
-        (lazy_fixture("wired_device"), 204),
-        (lazy_fixture("wireless_device"), 204),
-        (lazy_fixture("unknown_device"), 404),
+        (lf("wired_device"), 204),
+        (lf("wireless_device"), 204),
+        (lf("unknown_device"), 404),
     ],
 )
 def test_device_delete(client, device: Device, status_code: int):
@@ -535,9 +536,9 @@ def test_device_delete(client, device: Device, status_code: int):
     )
     assert r.status_code == status_code
     if status_code == 204:
-        assert_modification_was_created(db.session())
+        assert_modification_was_created(db.session)
 
-        s = db.session()
+        s = db.session
         q = s.query(Device)
         q = q.filter(Device.type == "wired")
         q = q.filter(Device.mac == device.mac)
@@ -563,8 +564,8 @@ def test_device_delete_unauthorized_unknown_device(client):
 @pytest.mark.parametrize(
     "device",
     [
-        (lazy_fixture("wired_device")),
-        (lazy_fixture("wireless_device")),
+        (lf("wired_device")),
+        (lf("wireless_device")),
     ],
 )
 def test_device_get_mab(client, device):
@@ -595,8 +596,8 @@ def test_device_get_mab_unauthorized(client, wired_device: Device):
 @pytest.mark.parametrize(
     "device",
     [
-        (lazy_fixture("wired_device")),
-        (lazy_fixture("wireless_device")),
+        (lf("wired_device")),
+        (lf("wireless_device")),
     ],
 )
 def test_device_post_mab(client, device):
@@ -633,8 +634,8 @@ def test_device_post_mab_unauthorized(client, wired_device: Device):
 @pytest.mark.parametrize(
     "device",
     [
-        (lazy_fixture("wired_device")),
-        (lazy_fixture("wireless_device")),
+        (lf("wired_device")),
+        (lf("wireless_device")),
     ],
 )
 def test_device_get_owner(client, device, sample_member):

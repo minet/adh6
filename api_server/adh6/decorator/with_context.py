@@ -30,19 +30,19 @@ def with_context(f):
 
             # It makes things clearer and less error-prone.
             if not isinstance(result, tuple) or len(result) <= 1:
-                raise ValueError("Please always pass the result AND the HTTP code.")
+                raise ValueError("Please always pass the result AND the HTTP code.")  # noqa: TRY301
 
             status_code = result[1]
             if status_code and (200 <= status_code <= 299 or status_code == 302):
                 if db.session.dirty or db.session.new or db.session.deleted:
                     db.session.commit()  # this is bad imo  # TODO: big change
             else:
-                raise Exception()
-            return result
-
+                raise Exception  # noqa: TRY002, TRY301 # TODO: own exception
         except Exception as e:
             print(e)
             db.session.rollback()
             return handle_error(e)
+        else:
+            return result
 
     return wrapper

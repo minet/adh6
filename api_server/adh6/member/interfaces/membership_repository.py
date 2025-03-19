@@ -19,14 +19,14 @@ class MembershipRepository(abc.ABC):
         """
         Add a membership.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus):
         """
         Add a membership.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def search(
@@ -35,11 +35,11 @@ class MembershipRepository(abc.ABC):
         """
         Add a membership.
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def validate(self, uuid: str) -> None:
         """
         Add a membership.
         """
-        pass  # pragma: no cover
+        # pragma: no cover

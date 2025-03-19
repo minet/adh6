@@ -21,7 +21,7 @@ class ProductHandler:
         # Set the headers to be returned with the result
         headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         # Map each product in the result to a dictionnary representation and return the result and headers
-        result = list(map(lambda x: x.to_dict(), result))
+        result = [x.to_dict() for x in result]
         return result, 200, headers
 
     # Method to get a product by its id

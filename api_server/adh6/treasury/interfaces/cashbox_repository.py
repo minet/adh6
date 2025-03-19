@@ -17,11 +17,11 @@ class CashboxRepository(abc.ABC):
         """
         Get the current value
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update(self, value_modifier: int, transaction: AbstractTransaction):
         """
         Add or remove value
         """
-        pass  # pragma: no cover
+        # pragma: no cover

@@ -12,7 +12,7 @@ class RubyHashTrackable:
         """
         Converts a SQLAlchemy row to a dictionnary of Column:Value
         """
-        return dict((column.name, getattr(self, column.name)) for column in self.__table__.columns)  # type: ignore  # TODO: maybe this class should subclass Base instead of this reverse inheritance that make no sense.
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}  # type: ignore  # TODO: maybe this class should subclass Base instead of this reverse inheritance that make no sense.
 
     def get_related_member(self):
         raise NotImplementedError

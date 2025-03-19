@@ -15,7 +15,7 @@ class NotificationSMTPRepository(NotificationRepository):
     def send(self, recipient: str, subject: str, body: str):
         smtp = current_app.config["SMTP_SERVER"]
         if not smtp:
-            logging.warning("No SMTP server defined, not sending emails")
+            logging.warning("No SMTP server defined, not sending emails")  # noqa: LOG015  # TODO: use local logger
             return
         server = smtplib.SMTP(smtp, 25)
         msg = EmailMessage()

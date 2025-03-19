@@ -5,6 +5,8 @@ from typing import Any
 import requests
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
+from adh6.authentication.storage import ApiKeyRepository, RoleRepository
+
 
 class Roles(Enum):
     USER = "user"
@@ -31,8 +33,6 @@ class Method(Enum):
     READ = 0
     WRITE = 1
 
-
-from adh6.authentication.storage import ApiKeyRepository, RoleRepository
 
 role_repository = RoleRepository()
 api_key_repository = ApiKeyRepository()
@@ -64,8 +64,8 @@ def apikey_auth(token: str, required_scopes):
             )[0]
         ]
         if len(set(roles) & set(required_scopes)) != len(required_scopes):
-            raise Unauthorized("invalid api key")
-    except Exception as e:
+            raise Unauthorized("invalid api key")  # noqa: TRY301
+    except Exception:
         raise Unauthorized("invalid api key")
     return {"uid": role_repository.user_id_from_username(login=api_key.login), "scope": roles}
 
@@ -97,14 +97,15 @@ def token_info(access_token) -> dict[str, Any] | None:
         + role_repository.find(method=AuthenticationMethod.USER, identifiers=[infos[user_id]])[0]
     ]
 
-    import logging
+    # import logging
 
     if Roles.ADMIN_READ.value in roles or Roles.ADMIN_WRITE.value in roles:
-        from flask import request
+        # from flask import request
         # logging.info(infos[user_id] + ": " + request.method + " " + request.path)
         # TODO: fix
+        pass
 
-    return {"uid": uid, "scope": [Roles.USER.value] + roles}
+    return {"uid": uid, "scope": [Roles.USER.value, *roles]}
 
 
 def get_sso_groups(token):

@@ -77,15 +77,15 @@ def _records_contains_fields(record: LogRecord, fields: dict):
         return True
 
     try:
-        record.extra
+        record.extra  # type: ignore
     except AttributeError:
         return False
 
     for k, v in fields.items():
-        if k not in record.extra:
+        if k not in record.extra:  # type: ignore
             return False
 
-        if record.extra[k] != v:
+        if record.extra[k] != v:  # type: ignore
             return False
 
     return True

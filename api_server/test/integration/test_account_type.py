@@ -31,7 +31,7 @@ def client(sample_account_type1, sample_account_type2, sample_member):
 
 def test_account_type_filter_all_with_invalid_limit(client):
     r = client.get(
-        "{}/account_type/?limit={}".format(base_url, -1),
+        f"{base_url}/account_type/?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -39,7 +39,7 @@ def test_account_type_filter_all_with_invalid_limit(client):
 
 def test_account_type_filter_all_with_limit(client):
     r = client.get(
-        "{}/account_type/?limit={}".format(base_url, 1),
+        f"{base_url}/account_type/?limit={1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200

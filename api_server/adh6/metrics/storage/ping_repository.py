@@ -10,10 +10,10 @@ class PingSQLRepository(PingRepository):
     def ping(self) -> bool:
         try:
             result = db.session.execute(text("SELECT 42 AS result")).fetchall()
-            if 1 != len(result):
+            if len(result) != 1:
                 return False
-
-            return [(42,)] == result
 
         except SQLAlchemyError:
             return False
+        else:
+            return result == [(42,)]

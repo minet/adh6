@@ -36,7 +36,7 @@ class TestSearch:
         result, count = transaction_manager.search(limit=42, offset=2, terms="abc")
 
         assert [sample_transaction] == result
-        assert 1 == count
+        assert count == 1
         mock_transaction_repository.search_by.assert_called_once_with(limit=42, offset=2, terms="abc")
 
     def test_offset_negative(self, transaction_manager: TransactionManager):
@@ -209,7 +209,7 @@ class TestValidate:
     ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
-        transaction_manager.validate(**{"id": sample_transaction_pending.id})
+        transaction_manager.validate(id=sample_transaction_pending.id)
 
         # Expect...
         mock_transaction_repository.validate.assert_called_once_with(sample_transaction_pending.id)
@@ -223,7 +223,7 @@ class TestValidate:
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
-            transaction_manager.validate(**{"id": sample_transaction.id})
+            transaction_manager.validate(id=sample_transaction.id)
 
 
 class TestDelete:
@@ -235,7 +235,7 @@ class TestDelete:
     ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
-        transaction_manager.delete(**{"id": sample_transaction_pending.id})
+        transaction_manager.delete(id=sample_transaction_pending.id)
 
         # Expect...
         mock_transaction_repository.delete.assert_called_once_with(sample_transaction_pending.id)
@@ -246,14 +246,14 @@ class TestDelete:
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
-            transaction_manager.delete(**{"id": sample_transaction.id})
+            transaction_manager.delete(id=sample_transaction.id)
 
     def test_object_not_found(self, mock_transaction_repository, transaction_manager: TransactionManager):
         # Given
         mock_transaction_repository.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
 
         with raises(NotFoundError):
-            transaction_manager.delete(**{"id": 0})
+            transaction_manager.delete(id=0)
 
 
 @fixture

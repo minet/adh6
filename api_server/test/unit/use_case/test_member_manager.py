@@ -6,7 +6,6 @@ from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_logs_manager import DeviceLogsManager
 from adh6.device.interfaces import IpAllocator, LogsRepository
 from adh6.device.interfaces.device_repository import DeviceRepository
-from adh6.device.interfaces.logs_repository import LogsRepository
 from adh6.entity import AbstractMember, Member, Membership
 from adh6.entity.member_body import MemberBody
 from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
@@ -265,7 +264,7 @@ class TestGetLogs:
         result = member_manager.get_logs(sample_member.username)
 
         # Expect use case to 'fail open', do not throw any error, assume there is no log.
-        assert [] == result
+        assert result == []
 
     def test_not_found(self, mock_member_repository: MemberRepository, sample_member, member_manager: MemberManager):
         # Given...

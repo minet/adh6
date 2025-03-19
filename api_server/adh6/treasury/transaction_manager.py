@@ -42,7 +42,7 @@ class TransactionManager(CRUDManager):
         transaction, created = super().update_or_create(abstract_transaction, id=id)
 
         if created:
-            logging.debug("cashbox_update")
+            logging.debug("cashbox_update")  # noqa: LOG015  # TODO: use a dedicated logger
             if transaction.cashbox == "to":
                 self.cashbox_repository.update(value_modifier=transaction.value, transaction=transaction)
             elif transaction.cashbox == "from":

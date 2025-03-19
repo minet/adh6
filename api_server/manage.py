@@ -20,7 +20,8 @@ from flask import Flask
 from sqlalchemy.orm import Session
 
 application = init()
-assert application.app is not None, "No flask application"
+if application.app is None:
+    raise Exception("Error when setting the flask application")  # noqa: TRY002  # TODO?
 manager: Flask = application.app
 
 

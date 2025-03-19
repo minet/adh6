@@ -125,7 +125,7 @@ class MemberSQLRepository(MemberRepository):
         db.session.flush()
 
     def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
-        q = db.session.query(Adherent.ip).filter(Adherent.ip != None)
+        q = db.session.query(Adherent.ip).filter(Adherent.ip.is_not(None))
         r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 

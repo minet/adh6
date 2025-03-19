@@ -94,7 +94,7 @@ def client(sample_transaction, sample_transaction_pending):
 
 
 def assert_transaction_in_db(body):
-    s = db.session()
+    s = db.session
     q = s.query(Transaction)
     q = q.filter(Transaction.name == body["name"])
     sw = q.one()
@@ -192,7 +192,7 @@ def test_transaction_search_with_only(client, sample_only: str):
 
     response = json.loads(r.data.decode("utf-8"))
     assert len(response) == 2
-    assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
+    assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
 
 def test_transaction_search_with_unknown_only(client):
@@ -210,11 +210,11 @@ def test_transaction_validate_pending(client, sample_transaction_pending):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    s = db.session()
+    s = db.session
     q = s.query(Transaction)
     q = q.filter(Transaction.name == sample_transaction_pending.name)
     sw = q.one()
-    assert sw.pending_validation == False, "Transaction was not actually validated"
+    assert sw.pending_validation is False, "Transaction was not actually validated"
 
 
 def test_device_validate_nonpending(client, sample_transaction):
@@ -232,9 +232,9 @@ def test_transaction_delete_pending(client, sample_transaction_pending):
     )
     assert r.status_code == 204
 
-    s = db.session()
+    s = db.session
     q = s.query(Transaction)
-    q = q.filter(Transaction.pending_validation == True)
+    q = q.filter(Transaction.pending_validation.is_(True))
     q = q.filter(Transaction.name == "description 2")
     assert not s.query(q.exists()).scalar(), "Object not actually deleted"
 

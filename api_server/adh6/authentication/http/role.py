@@ -15,7 +15,7 @@ class RoleHandler:
     def search(self, auth: str, id_: str | None = None):
         result, count = self.role_manager.search(auth=auth, identifier=id_)
         headers = {"X-Total-Count": str(count), "access-control-expose-headers": "X-Total-Count"}
-        return list(map(lambda x: x.to_dict(), result)), 200, headers
+        return [x.to_dict() for x in result], 200, headers
 
     @with_context
     @log_call

@@ -177,10 +177,10 @@ class MemberManager(CRUDManager):
         try:
             logs = self.device_logs_manager.get(member=member, dhcp=dhcp)
 
-            return list(map(lambda x: "{} {}".format(x[0], x[1]), logs))
+            return [f"{x[0]} {x[1]}" for x in logs]
 
         except LogFetchError:
-            logging.warning("log_fetch_failed")
+            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
             return []  # We fail open here.
 
     @log_call
@@ -245,15 +245,15 @@ class MemberManager(CRUDManager):
 
             all_statuses = []
             for mac, statuses in device_to_statuses.items():
-                for _, object in statuses.items():
+                for object in statuses.values():
                     if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
                         continue
                     all_statuses.append(object)
-            return all_statuses
-
         except LogFetchError:
-            logging.warning("log_fetch_failed")
+            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
             return []  # We fail open here.
+        else:
+            return all_statuses
 
     @log_call
     def change_password(self, member_id, password: str, hashed_password):
@@ -265,9 +265,9 @@ class MemberManager(CRUDManager):
         import hashlib
         from binascii import hexlify
 
-        pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())
+        pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # noqa: S324  # TODO: check for better hashing for security purpose
 
-        self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing is baaaaad
+        self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
 
         return True
 

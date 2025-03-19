@@ -9,5 +9,5 @@ def get_mac_variations(addr):
     variations += ["{}:{}:{}:{}:{}:{}".format(*(addr[i * 2 : (i + 1) * 2] for i in range(6)))]
     variations += ["{}-{}-{}-{}-{}-{}".format(*(addr[i * 2 : (i + 1) * 2] for i in range(6)))]
     variations += ["{}.{}.{}".format(*(addr[i * 4 : (i + 1) * 4] for i in range(3)))]
-    variations += list(map(lambda x: x.upper(), variations))
+    variations += [x.upper() for x in variations]
     return variations

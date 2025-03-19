@@ -1,6 +1,6 @@
 from adh6.decorator import log_call
 from adh6.default.crud_manager import CRUDManager
-from adh6.exceptions import NotFoundError, RoomNotFoundError
+from adh6.exceptions import RoomNotFoundError
 from adh6.member.member_manager import MemberManager
 
 from .interfaces import RoomRepository
@@ -18,13 +18,10 @@ class RoomManager(CRUDManager):
 
     @log_call
     def add_member(self, room_id: int, member_id: int) -> None:
-        try:
-            room = self.room_repository.get_by_id(room_id)
-            if not room:
-                raise RoomNotFoundError(room_id)
-            self.member_manager.get_by_id(member_id)
-        except NotFoundError as e:
-            raise e
+        room = self.room_repository.get_by_id(room_id)
+        if not room:
+            raise RoomNotFoundError(room_id)
+        self.member_manager.get_by_id(member_id)
 
         previous_room = self.room_repository.get_from_member(member_id)
         if previous_room:
@@ -39,29 +36,25 @@ class RoomManager(CRUDManager):
 
     @log_call
     def remove_member(self, room_id: int, member_id: int) -> None:
-        try:
-            self.member_manager.get_by_id(member_id)
-            room = self.room_repository.get_by_id(room_id)
-            if not room:
-                raise RoomNotFoundError(room_id)
-        except NotFoundError as e:
-            raise e
+        self.member_manager.get_by_id(member_id)
+        room = self.room_repository.get_by_id(room_id)
+        if not room:
+            raise RoomNotFoundError(room_id)
+
         self.room_repository.remove_member(member_id)
         self.member_manager.reset_member(member_id)
 
     @log_call
     def list_members(self, room_id: int) -> list[int]:
-        try:
-            room = self.room_repository.get_by_id(room_id)
-            if not room:
-                raise RoomNotFoundError(room_id)
-        except Exception as e:
-            raise e
+        room = self.room_repository.get_by_id(room_id)
+        if not room:
+            raise RoomNotFoundError(room_id)
+
         return self.room_repository.get_members(room_id=room_id)
 
     @log_call
     def room_from_member(self, member_id: int) -> int:
         room = self.room_repository.get_from_member(member_id)
         if not room:
-            raise RoomNotFoundError()
+            raise RoomNotFoundError
         return room.id

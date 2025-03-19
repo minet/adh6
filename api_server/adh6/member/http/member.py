@@ -47,8 +47,8 @@ class MemberHandler(DefaultHandler):
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
-                    for k in entity_cp.keys():
-                        if k not in only + ["id"]:
+                    for k in entity_cp:
+                        if k not in [*only, "id"]:
                             del entity[k]
                 return entity
 
@@ -56,7 +56,7 @@ class MemberHandler(DefaultHandler):
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
 
     @with_context
     @log_call
@@ -82,11 +82,12 @@ class MemberHandler(DefaultHandler):
         """Set the password of a member."""
         try:
             self.member_manager.change_password(id_, body.get("password"), body.get("hashedPassword"))
-            return NoContent, 204  # 204 No Content
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
+        else:
+            return NoContent, 204  # 204 No Content
 
     @with_context
     @log_call
@@ -98,11 +99,11 @@ class MemberHandler(DefaultHandler):
     @log_call
     def statuses_search(self, id_: int):
         try:
-            return list(map(lambda x: x.to_dict(), self.member_manager.get_statuses(id_))), 200
+            return [x.to_dict() for x in self.member_manager.get_statuses(id_)], 200
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
 
     @with_context
     @log_call
@@ -129,11 +130,12 @@ class MemberHandler(DefaultHandler):
     def charter_put(self, id_, charter_id) -> tuple[Any, int]:
         try:
             if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
-                raise UnauthorizedError("Unauthorize to access this resource")
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
             self.charter_manager.sign(charter_id=charter_id, member_id=id_)
-            return NoContent, 204
         except Exception as e:
             return handle_error(e)
+        else:
+            return NoContent, 204
 
     @with_context
     @log_call
@@ -141,9 +143,10 @@ class MemberHandler(DefaultHandler):
         """Set the comment of a member."""
         try:
             self.member_manager.change_comment(id_, Comment.from_dict(body))
-            return NoContent, 204  # 204 No Content
         except Exception as e:
             return handle_error(e)
+        else:
+            return NoContent, 204  # 204 No Content
 
     @with_context
     @log_call

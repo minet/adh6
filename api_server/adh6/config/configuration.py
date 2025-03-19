@@ -1,5 +1,6 @@
 import os
 import re
+from typing import ClassVar
 
 
 class BaseConfig:
@@ -26,7 +27,7 @@ class DeployedConfig(BaseConfig):
     DEBUG = False
     TESTING = False
 
-    SQLALCHEMY_ENGINES = {
+    SQLALCHEMY_ENGINES: ClassVar = {
         "default": "mysql+mysqldb://{}:{}@{}/{}".format(
             os.environ.get("DATABASE_USERNAME"),
             os.environ.get("DATABASE_PASSWORD"),

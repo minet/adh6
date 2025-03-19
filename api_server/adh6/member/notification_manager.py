@@ -1,5 +1,3 @@
-from pipes import Template
-
 from jinja2 import Environment, Template, meta
 
 from adh6.decorator import log_call
@@ -26,7 +24,7 @@ class NotificationManager:
             raise TemplateNotFoundError(template_title)
 
         # TODO: Check exactly all args for the template, no more, no less
-        env = Environment()
+        env = Environment(autoescape=True)  # autoescape for XSS protection
         template_parsed = env.parse(template.template)
         variables_in_template = set(meta.find_undeclared_variables(template_parsed))
         variables_in_parameter = set(kwargs.keys())

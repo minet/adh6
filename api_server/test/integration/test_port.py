@@ -3,7 +3,7 @@ import json
 import pytest
 from adh6.network.storage.models import Port, Switch
 from adh6.storage import db
-from pytest_lazyfixture import lazy_fixture
+from pytest_lazy_fixtures import lf
 
 from test.integration.resource import TEST_HEADERS, base_url as host_url
 
@@ -24,7 +24,7 @@ def client(sample_port1, sample_port2, sample_room1, sample_member, sample_switc
 
 
 def assert_port_in_db(body):
-    s = db.session()
+    s = db.session
     q = s.query(Port)
     q = q.filter(Port.numero == body["portNumber"])
     p = q.one()
@@ -62,7 +62,7 @@ def test_port_search_with_only(client, sample_only: str):
 
     response = json.loads(r.data.decode("utf-8"))
     assert len(response) == 2
-    assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
+    assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
 
 def test_port_get_filter_all_with_invalid_limit(client):
@@ -82,7 +82,7 @@ def test_port_get_filter_all_with_limit(client, limit: int):
     assert r.status_code == 200
     ports = json.loads(r.data.decode())
     assert ports
-    assert len(ports) == (limit if limit <= 2 else 2)
+    assert len(ports) == (min(limit, 2))
 
 
 @pytest.fixture
@@ -98,8 +98,8 @@ def sample_port1_room_id(sample_port1: Port):
 @pytest.mark.parametrize(
     "filter_name,filter_value,quantity",
     [
-        ("switchObj", lazy_fixture("sample_switch2_id"), 1),
-        ("room", lazy_fixture("sample_port1_room_id"), 2),
+        ("switchObj", lf("sample_switch2_id"), 1),
+        ("room", lf("sample_port1_room_id"), 2),
         ("room", 4242, 0),
     ],
 )
@@ -184,9 +184,9 @@ def sample_ports1_id(sample_port1: Port):
 @pytest.mark.parametrize(
     "port_id,key,value,status_code",
     [
-        (lazy_fixture("sample_ports1_id"), "switchObj", 999, 404),
+        (lf("sample_ports1_id"), "switchObj", 999, 404),
         (4242, None, None, 404),
-        (lazy_fixture("sample_ports1_id"), "portNumber", "1/2/3", 204),
+        (lf("sample_ports1_id"), "portNumber", "1/2/3", 204),
     ],
 )
 def test_port_put_update_port(
@@ -213,7 +213,7 @@ def test_port_put_update_port(
         assert_port_in_db(body)
 
 
-@pytest.mark.parametrize("port_id, status_code", [(lazy_fixture("sample_ports1_id"), 204), (4242, 404)])
+@pytest.mark.parametrize("port_id, status_code", [(lf("sample_ports1_id"), 204), (4242, 404)])
 def test_port_delete_port(client, port_id: int, status_code: int):
     r = client.delete(
         f"{base_url}{port_id}",
@@ -222,7 +222,7 @@ def test_port_delete_port(client, port_id: int, status_code: int):
     assert r.status_code == status_code
 
     if status_code == 204:
-        s = db.session()
+        s = db.session
         q = s.query(Port)
         q = q.filter(Port.id == port_id)
         assert not s.query(q.exists()).scalar()

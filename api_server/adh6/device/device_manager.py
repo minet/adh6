@@ -39,7 +39,7 @@ class DeviceManager(CRUDManager):
         self.load_mac_oui_dict()
 
     def load_mac_oui_dict(self):
-        with open("OUIs.txt", "r", encoding="utf-8") as f:
+        with open("OUIs.txt", encoding="utf-8") as f:
             line = f.readline()
             while line != "":
                 oui, company = line.split("\t")
@@ -76,10 +76,7 @@ class DeviceManager(CRUDManager):
             return "-"
 
         mac_address = device.mac[:8].replace(":", "-")
-        if mac_address not in self.oui_repository:
-            vendor = "-"
-        else:
-            vendor = self.oui_repository[mac_address]
+        vendor = self.oui_repository.get(mac_address, "-")
 
         return vendor
 
@@ -98,7 +95,7 @@ class DeviceManager(CRUDManager):
             raise RoomNotFoundError(f"for member {member.username}")
 
         if not body.connection_type:
-            raise ValueError()
+            raise ValueError
         body.mac = str(body.mac).upper().replace(":", "-")
 
         d = self.device_repository.get_by_mac(body.mac)
@@ -106,9 +103,9 @@ class DeviceManager(CRUDManager):
             limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member)
         )
         if d:
-            raise DeviceAlreadyExists()
+            raise DeviceAlreadyExists
         elif count >= 20:
-            raise DevicesLimitReached()
+            raise DevicesLimitReached
 
         device = self.device_repository.create(body)
 

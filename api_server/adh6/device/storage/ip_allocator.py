@@ -23,11 +23,11 @@ class IPSQLAllocator(IpAllocator):
 
         if isinstance(network, IPv4Network):
             smt = select(Device.ip).where(
-                (Device.ip != None) & (Device.ip != "En attente")
+                (Device.ip.is_not(None)) & (Device.ip != "En attente")
             )  # @TODO retrocompatibilité ADH5, à retirer à terme)
         else:
             smt = select(Device.ipv6).where(
-                (Device.ipv6 != None) & (Device.ipv6 != "En attente")
+                (Device.ipv6.is_not(None)) & (Device.ipv6 != "En attente")
             )  # @TODO retrocompatibilité ADH5, à retirer à terme)
 
         if member_id:

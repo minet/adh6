@@ -39,15 +39,13 @@ class RoleSQLRepository(RoleRepository):
         )
         session.execute(smt)
 
-        if method == AuthenticationMethod.USER:
-            # in case a NainA is created put is_naina to true for compatibility
-            if (
-                len(set([Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ]) & set(roles))
-                == 4
-            ):
-                adherent = session.query(Adherent).filter(Adherent.login == identifier).scalar()
-                smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=True)
-                session.execute(smt)
+        # in case a NainA is created put is_naina to true for compatibility
+        if method == AuthenticationMethod.USER and (
+            len({Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ} & set(roles)) == 4
+        ):
+            adherent = session.query(Adherent).filter(Adherent.login == identifier).scalar()
+            smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=True)
+            session.execute(smt)
 
     def delete(self, id: int) -> None:
         role_mapping = db.session.query(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id).one()

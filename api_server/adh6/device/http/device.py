@@ -42,13 +42,13 @@ class DeviceHandler(DefaultHandler):
         try:
             device = self.device_manager.get_by_id(id=id_)
             if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
-                raise UnauthorizedError("Unauthorize to access this resource")
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
 
             def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
-                    for k in entity_cp.keys():
-                        if k not in only + ["id"]:
+                    for k in entity_cp:
+                        if k not in [*only, "id"]:  # TODO: this looks like duplicate code at multiple places
                             del entity[k]
                 return entity
 
@@ -56,20 +56,21 @@ class DeviceHandler(DefaultHandler):
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
 
     @with_context
     @log_call
     def delete(self, id_: int):
         try:
             if get_user() != self.device_manager.get_owner(id_) and Roles.ADMIN_WRITE.value not in get_roles():
-                raise UnauthorizedError("Unauthorize to access this resource")
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
             self.main_manager.delete(id=id_)
-            return NoContent, 204  # 204 No Content
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
+        else:
+            return NoContent, 204  # 204 No Content
 
     @with_context
     @log_call
@@ -78,12 +79,12 @@ class DeviceHandler(DefaultHandler):
         try:
             device = self.device_manager.get_by_id(id=id_)
             if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
-                raise UnauthorizedError("Unauthorize to access this resource")
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
             return self.device_manager.get_mac_vendor(id=id_), 200
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
-            raise e
+            raise e  # noqa: TRY201
 
     @with_context
     @log_call

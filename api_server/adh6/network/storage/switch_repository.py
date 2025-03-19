@@ -51,7 +51,7 @@ class SwitchSQLRepository(SwitchRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_switch_sql_to_abstract_entity(item), r)), count
+        return [_map_switch_sql_to_abstract_entity(item) for item in r], count
 
     @log_call
     def create(self, abstract_switch: Switch) -> Switch:

@@ -153,6 +153,8 @@ dummy-variable-rgx = '^\*{0,2}(_$|__$|unused_|dummy_)'
 
     "PLR2004", # Magic value used in comparison, ...
     "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "S105", # Possible hardcoded password
+    "S106", # Possible hardcoded password
 ]
 
 [tool.ruff.format]

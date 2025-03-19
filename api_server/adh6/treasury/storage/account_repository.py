@@ -60,7 +60,7 @@ class AccountSQLRepository(AccountRepository):
         query = query.limit(limit)
         r = query.all()
 
-        return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
+        return [_map_account_sql_to_abstract_entity(item, True) for item in r], count
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractAccount | None:
@@ -68,8 +68,11 @@ class AccountSQLRepository(AccountRepository):
             db.session.query(
                 SQLAccount,
                 func.sum(
-                    case(value=Transaction.src, whens={SQLAccount.id: -Transaction.value}, else_=Transaction.value)
-                ).label("balance"),
+                    case(
+                        [(Transaction.src == SQLAccount.id, -Transaction.value)],  # type: ignore  # TODO: typing / deprecated
+                        else_=Transaction.value,
+                    )
+                ).label("balance"),  # type: ignore  # TODO: typing / deprecated
             )
             .outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
             .filter(SQLAccount.id == object_id)

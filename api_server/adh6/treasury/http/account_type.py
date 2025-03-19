@@ -12,7 +12,7 @@ class AccountTypeHandler:
     def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
         result, total_count = self.account_type_manager.search(limit=limit, offset=offset, terms=terms)
         headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
-        result = list(map(lambda x: x.to_dict(), result))
+        result = [x.to_dict() for x in result]
         return result, 200, headers
 
     @with_context

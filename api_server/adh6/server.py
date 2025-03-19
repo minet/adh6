@@ -4,23 +4,67 @@ import os
 import connexion
 import pinject
 from connexion import FlaskApp
-from flask_migrate import Migrate
 
+# from flask_migrate import Migrate
+from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.http.api_key import ApiKeyHandler
 from adh6.authentication.http.role import RoleHandler
+from adh6.authentication.role_manager import RoleManager
+from adh6.authentication.storage import ApiKeyRepository, RoleRepository
+from adh6.default import CRUDManager, CRUDRepository
 from adh6.default.http_handler import DefaultHandler
+from adh6.device import DeviceIpManager, DeviceLogsManager, DeviceManager
 from adh6.device.http.device import DeviceHandler
-from adh6.member.http import *
+from adh6.device.storage import DeviceRepository, IPAllocator, LogsRepository
+from adh6.member.charter_manager import CharterManager
+from adh6.member.http import CharterHandler, MailinglistHandler, MemberHandler, ProfileHandler
+from adh6.member.mailinglist_manager import MailinglistManager
+from adh6.member.member_manager import MemberManager
 from adh6.member.notification_manager import NotificationManager
+from adh6.member.smtp import NotificationRepository
+from adh6.member.storage import (
+    CharterRepository,
+    MailinglistReposiroty,
+    MemberRepository,
+    MembershipRepository,
+)
 from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
+from adh6.member.subscription_manager import SubscriptionManager
+from adh6.metrics.health_manager import HealthManager
 from adh6.metrics.http.health import HealthHandler
+from adh6.metrics.storage import PingRepository
 from adh6.network.http.port import PortHandler
 from adh6.network.http.switch import SwitchHandler
+from adh6.network.port_manager import PortManager
+from adh6.network.snmp import SwitchNetworkManager
+from adh6.network.storage import PortRepository, SwitchRepository
+from adh6.network.switch_manager import SwitchManager
 from adh6.resolver import ADHResolver
 from adh6.room.http.room import RoomHandler
+from adh6.room.room_manager import RoomManager
+from adh6.room.storage import RoomRepository
 from adh6.storage import cache, db
 from adh6.subnet.http.vlan import VLANHandler
-from adh6.treasury.http import *
+from adh6.subnet.storage import VLANRepository
+from adh6.subnet.vlan_manager import VlanManager
+from adh6.treasury import AccountManager, AccountTypeManager, CashboxManager, PaymentMethodManager, ProductManager
+from adh6.treasury.http import (
+    AccountHandler,
+    AccountTypeHandler,
+    PaymentMethodHandler,
+    ProductHandler,
+    TransactionHandler,
+    TreasuryHandler,
+)
+from adh6.treasury.storage import (
+    AccountRepository,
+    AccountTypeRepository,
+    CashboxRepository,
+    PaymentMethodRepository,
+    ProductRepository,
+    TransactionRepository,
+)
+from adh6.treasury.transaction_manager import TransactionManager
 
 handlers = [
     AccountHandler,
@@ -43,21 +87,6 @@ handlers = [
     CharterHandler,
 ]
 
-from adh6.authentication.api_keys_manager import ApiKeyManager
-from adh6.authentication.role_manager import RoleManager
-from adh6.default import CRUDManager, CRUDRepository
-from adh6.device import DeviceIpManager, DeviceLogsManager, DeviceManager
-from adh6.member.charter_manager import CharterManager
-from adh6.member.mailinglist_manager import MailinglistManager
-from adh6.member.member_manager import MemberManager
-from adh6.member.subscription_manager import SubscriptionManager
-from adh6.metrics.health_manager import HealthManager
-from adh6.network.port_manager import PortManager
-from adh6.network.switch_manager import SwitchManager
-from adh6.room.room_manager import RoomManager
-from adh6.subnet.vlan_manager import VlanManager
-from adh6.treasury import AccountManager, AccountTypeManager, CashboxManager, PaymentMethodManager, ProductManager
-from adh6.treasury.transaction_manager import TransactionManager
 
 managers = [
     DeviceManager,
@@ -83,28 +112,6 @@ managers = [
     SubscriptionManager,
 ]
 
-from adh6.authentication.storage import ApiKeyRepository, RoleRepository
-from adh6.device.storage import DeviceRepository, IPAllocator, LogsRepository
-from adh6.member.smtp import NotificationRepository
-from adh6.member.storage import (
-    CharterRepository,
-    MailinglistReposiroty,
-    MemberRepository,
-    MembershipRepository,
-)
-from adh6.metrics.storage import PingRepository
-from adh6.network.snmp import SwitchNetworkManager
-from adh6.network.storage import PortRepository, SwitchRepository
-from adh6.room.storage import RoomRepository
-from adh6.subnet.storage import VLANRepository
-from adh6.treasury.storage import (
-    AccountRepository,
-    AccountTypeRepository,
-    CashboxRepository,
-    PaymentMethodRepository,
-    ProductRepository,
-    TransactionRepository,
-)
 
 config = {
     "production": "adh6.config.configuration.ProductionConfig",
@@ -168,7 +175,7 @@ def init() -> FlaskApp:
     environment = os.environ.get("ENVIRONMENT", "default").lower()
     # Raise an error if the environment variable is not set or is not production, development or testing
     if environment == "default" or environment not in config:
-        raise EnvironmentError(
+        raise OSError(
             "The server cannot be started because environment variable has not been set or is not production, development or testing"
         )
 
@@ -182,7 +189,7 @@ def init() -> FlaskApp:
 
     # Raise an exception if there was an error setting up the flask application
     if app.app is None:
-        raise Exception("Error when setting the flask application")
+        raise Exception("Error when setting the flask application")  # noqa: TRY002  # TODO?
 
     # Set the configuration for the flask application
     app.app.config.from_object(config[environment])
@@ -235,7 +242,7 @@ def init() -> FlaskApp:
     cache.init_app(app.app, config={"CACHE_TYPE": "SimpleCache"})
 
     # Create and run database migrations
-    Migrate(app.app, db)
+    # Migrate(app.app, db)  # TODO: search for an alternative for flask-sqlalchemy-lite
 
     # from flask_migrate import upgrade
     # from adh6.treasury import init as treasury_init

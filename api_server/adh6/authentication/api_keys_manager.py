@@ -16,11 +16,11 @@ class ApiKeyManager:
 
     def create(self, login: str, roles: list[str]) -> str:
         if len(roles) == 0:
-            raise ValidationError()
+            raise ValidationError
         try:
             roles_ = [Roles(r) for r in roles]
-        except:
-            raise ValidationError()
+        except Exception:
+            raise ValidationError
 
         t = self.member_manager.get_by_login(login)
         if not t:

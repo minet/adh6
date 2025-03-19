@@ -79,7 +79,7 @@ class Routeur(Base, RubyHashTrackable):
         modif = rubydiff(snap_before, snap_after)
         if snap_after is None:
             proper_mac = snap_before.get("mac").upper().replace(":", "-")
-            return "---\ndevice: Suppression du périphérique {}\n".format(proper_mac)
+            return f"---\ndevice: Suppression du périphérique {proper_mac}\n"
 
         modif = "device: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
         return modif

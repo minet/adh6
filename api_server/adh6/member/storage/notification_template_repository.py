@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select
+from sqlalchemy import select
 
 from adh6.storage import db
 
@@ -13,7 +13,8 @@ class NotificationTemplateSQLRepository(NotificationTemplateRepository):
         return _map_template_to_sql_entity(sql_template[0]) if sql_template[0] else None
 
     def put(self, template: NotificationTemplate) -> int:
-        smt = insert(SQLNotificationTemplate).values(title=template.title, template=template.template)
+        # TODO: I think something is broken here. Did notification already worked ?
+        # smt = insert(SQLNotificationTemplate).values(title=template.title, template=template.template)
         return db.session.execute(
             select(SQLNotificationTemplate.id).where(SQLNotificationTemplate.title == template.title)
         ).scalar_one()

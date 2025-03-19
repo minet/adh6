@@ -15,4 +15,4 @@ class VlanRepository(abc.ABC):
 
         :raise VlanNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover

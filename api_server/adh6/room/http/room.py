@@ -25,8 +25,8 @@ class RoomHandler(DefaultHandler):
         def remove(entity: t.Any) -> t.Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
-                for k in entity_cp.keys():
-                    if k not in only + ["id"]:
+                for k in entity_cp:
+                    if k not in [*only, "id"]:
                         del entity[k]
             return entity
 

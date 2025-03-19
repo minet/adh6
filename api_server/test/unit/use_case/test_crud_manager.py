@@ -14,15 +14,15 @@ from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepo
 from adh6.treasury.payment_method_manager import PaymentMethodManager
 from pytest import raises
 from pytest_cases import unpack_fixture
-from pytest_lazyfixture import lazy_fixture
+from pytest_lazy_fixtures import lf
 
 
 @pytest.fixture(
     params=[
-        (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture("sample_switch")),
-        (PortRepository, PortManager, AbstractPort, lazy_fixture("sample_port")),
-        (AccountRepository, AccountManager, AbstractAccount, lazy_fixture("sample_account1")),
-        (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture("sample_payment_method")),
+        (SwitchRepository, SwitchManager, AbstractSwitch, lf("sample_switch")),
+        (PortRepository, PortManager, AbstractPort, lf("sample_port")),
+        (AccountRepository, AccountManager, AbstractAccount, lf("sample_account1")),
+        (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lf("sample_payment_method")),
     ]
 )
 def data_set(request):
@@ -66,7 +66,7 @@ class TestSearch:
 
         # Expect...
         assert [mock_object] == result
-        assert 1 == count
+        assert count == 1
         mock_repo.search_by.assert_called_once_with(
             limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms
         )
@@ -102,7 +102,7 @@ class TestUpdateOrCreate:
         mock_id = mock_object.id
 
         # When...
-        object, result = mock_manager.update_or_create(mock_object, **{"id": mock_id})
+        object, result = mock_manager.update_or_create(mock_object, id=mock_id)
 
         # Expect...
         assert mock_object == object
@@ -114,7 +114,7 @@ class TestUpdateOrCreate:
         mock_id = mock_object.id
 
         with raises(NotFoundError):
-            mock_manager.update_or_create(mock_object, **{"id": mock_id})
+            mock_manager.update_or_create(mock_object, id=mock_id)
 
         mock_repo.get_by_id.assert_called_once_with(mock_id)
         mock_repo.update.assert_not_called()
@@ -126,10 +126,10 @@ class TestPartiallyUpdate:
         mock_repo.update = MagicMock(return_value=mock_object)
         mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
         mock_id = mock_object.id
-        object, result = mock_manager.partially_update(mock_object, **{"id": mock_id})
+        object, result = mock_manager.partially_update(mock_object, id=mock_id)
 
         assert mock_object == object
-        assert result == False
+        assert result is False
         mock_repo.update.assert_called_once_with(mock_object, override=False)
 
 

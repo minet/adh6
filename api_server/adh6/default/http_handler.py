@@ -27,15 +27,15 @@ class DefaultHandler:
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
-                for k in entity_cp.keys():
-                    if k not in only + ["id"]:
+                for k in entity_cp:
+                    if k not in [*only, "id"]:
                         del entity[k]
             return entity
 
         filter_ = self.abstract_entity_class.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
         headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
-        return list(map(remove, map(lambda x: x.to_dict(), result))), 200, headers
+        return list(map(remove, (x.to_dict() for x in result))), 200, headers
 
     @with_context
     @log_call
@@ -43,8 +43,8 @@ class DefaultHandler:
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
-                for k in entity_cp.keys():
-                    if k not in only + ["id"]:
+                for k in entity_cp:
+                    if k not in [*only, "id"]:
                         del entity[k]
             return entity
 

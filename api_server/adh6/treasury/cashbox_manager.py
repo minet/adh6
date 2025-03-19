@@ -15,5 +15,5 @@ class CashboxManager:
 
     def get_cashbox(self) -> tuple[int, int]:
         fond, coffre = self.cashbox_repository.get()
-        logging.debug("cashbox_get")
+        logging.debug("cashbox_get")  # noqa: LOG015  # TODO: use a dedicated logger
         return fond, coffre

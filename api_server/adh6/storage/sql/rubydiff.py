@@ -20,6 +20,6 @@ def rubydiff(snap_before, snap_after) -> str:
         new = new if new is not None else ""
 
         if old != new:
-            txt += ["{}:\n- {}\n- {}\n".format(key, old, new)]
+            txt += [f"{key}:\n- {old}\n- {new}\n"]
 
     return "".join(txt)

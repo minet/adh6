@@ -86,7 +86,7 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the "should"
         for d in devices:
             addr = d.mac
-            variations = map(lambda x: {"match_phrase": {"src_mac": x}}, get_mac_variations(addr))
+            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
 
             if not dhcp:
                 # noinspection PyTypeChecker
@@ -106,4 +106,4 @@ class ElasticsearchLogsRepository(LogsRepository):
                 # r["_source"]["message"] = r["_source"]["message"]
                 pass
 
-        return list(map(lambda x: [dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]], res))
+        return [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]

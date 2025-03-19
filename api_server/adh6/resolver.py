@@ -45,25 +45,22 @@ class ADHResolver(Resolver):
         def is_fixed_url_part(x: str) -> bool:
             """Everything that is "{something}" is not a fixed part of the URL."""
 
-            if x.startswith("{") and x.endswith("}"):
-                return False
-            return True
+            return not (x.startswith("{") and x.endswith("}"))
 
         # GETs on a global resource (for instance GET /vlan/), without an ID, are replaced with 'search'.
         # This is the same behavior as connexion's native RestyResolver.
-        if method_name == "get":
-            if path_suffix == [] or is_fixed_url_part(path_suffix[-1]):
-                method_name = "search"
+        if method_name == "get" and (path_suffix == [] or is_fixed_url_part(path_suffix[-1])):
+            method_name = "search"
 
         # Remove all variables from the URL to keep the 'fixed' parts.
         # For instance '['{MAC}', 'vlan', '{VLAN}'] would become ['vlan']
         fixed_url = filter(is_fixed_url_part, path_suffix)
-        fixed_url = map(lambda s: s.lower(), fixed_url)
+        fixed_url = (s.lower() for s in fixed_url)
         fixed_url = list(fixed_url)
 
         # Endpoint ID is the function name of your class.
         # It is a snake_case string ending with the method name.
-        endpoint_id = "_".join(fixed_url + [method_name])
+        endpoint_id = "_".join([*fixed_url, method_name])
 
         return f"{path_prefix}|{endpoint_id}"
 

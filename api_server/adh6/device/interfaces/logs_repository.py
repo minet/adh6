@@ -17,4 +17,4 @@ class LogsRepository(abc.ABC):
         """
         Get all the logs concerning the provided username and MAC addresses.
         """
-        pass  # pragma: no cover
+        # pragma: no cover

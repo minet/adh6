@@ -3,8 +3,6 @@ class UserInputError(ValueError):
     Type of error thrown when the user input is responsible for the failure of the flow.
     """
 
-    pass
-
 
 class UndecalredVariableInTemplate(UserInputError):
     def __init__(self, undefined_variables: set):
@@ -16,8 +14,6 @@ class ValidationError(UserInputError):
     """
     Type of error thrown when we are provided with data that fails the validation.
     """
-
-    pass
 
 
 class UpdateImpossible(ValidationError):
@@ -234,15 +230,13 @@ class LogFetchError(RuntimeError):
     Cannot fetch the logs error.
     """
 
-    pass  # pragma: no cover
+    # pragma: no cover
 
 
 class NetworkManagerReadError(RuntimeError):
     """
     Thrown whenever a network manager fails to read values from a remote device
     """
-
-    pass
 
 
 class UnauthorizedError(PermissionError):

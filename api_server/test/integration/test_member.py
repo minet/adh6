@@ -17,7 +17,7 @@ base_url = f"{host_url}/member/"
 
 def assert_member_in_db(body):
     # Actually check that the object was inserted
-    s = db.session()
+    s = db.session
     q = s.query(Adherent)
     q = q.filter(Adherent.login == body["username"])
     r = q.one()
@@ -214,7 +214,7 @@ def test_member_get_with_only(client, sample_member, sample_only: str):
     assert r.status_code == 200
 
     response = json.loads(r.data.decode("utf-8"))
-    assert len(set(sample_only.split(",") + ["id"])) == len(set(response.keys()))
+    assert len({*sample_only.split(","), "id"}) == len(set(response.keys()))
 
 
 def test_member_get_with_unknown_only(client, sample_member):
@@ -262,9 +262,9 @@ def test_member_get_another_user(client, sample_member):
 def test_member_delete_existant(client, sample_member):
     r = client.delete(f"{base_url}{sample_member.id}", headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.session())
+    assert_modification_was_created(db.session)
 
-    s = db.session()
+    s = db.session
     q = s.query(Adherent)
     q = q.filter(Adherent.login == "dubois_j")
     assert not s.query(q.exists()).scalar()
@@ -292,7 +292,7 @@ def test_member_post_member_create_invalid_email(client):
 def test_member_post_member_create(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
     res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
-    assert 201 == res.status_code
+    assert res.status_code == 201
     assert_member_in_db(body)
 
     r = client.get(
@@ -307,10 +307,10 @@ def test_member_post_member_create(client):
 def test_member_post_member_same_login(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
     res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
-    assert 201 == res.status_code
+    assert res.status_code == 201
 
     res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
-    assert 400 == res.status_code
+    assert res.status_code == 400
 
 
 def test_member_post_unauthorized(client):
@@ -341,7 +341,7 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         f"{base_url}{sample_member.id}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.session())
+    assert_modification_was_created(db.session)
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,

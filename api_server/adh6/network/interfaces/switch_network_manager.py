@@ -17,7 +17,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update_port_status(self, port_id: int) -> str:
@@ -26,7 +26,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_auth(self, port_id: int) -> bool:
@@ -35,7 +35,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update_port_auth(self, port_id: int) -> str:
@@ -44,7 +44,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_vlan(self, port_id: int) -> int:
@@ -53,7 +53,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update_port_vlan(self, port_id: int, vlan: int = 1) -> str:
@@ -62,7 +62,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_mab(self, port_id: int) -> bool:
@@ -71,7 +71,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def update_port_mab(self, port_id: int) -> str:
@@ -80,7 +80,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_use(self, port_id: int) -> bool:
@@ -89,7 +89,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_alias(self, port_id: int) -> str:
@@ -98,7 +98,7 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover
 
     @abc.abstractmethod
     def get_port_speed(self, port_id: int) -> int:
@@ -107,4 +107,4 @@ class SwitchNetworkManager(abc.ABC):
 
         :raise PortNotFound
         """
-        pass  # pragma: no cover
+        # pragma: no cover

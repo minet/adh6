@@ -33,7 +33,7 @@ def client(sample_switch1):
 
 
 def assert_switch_in_db(body):
-    s = db.session()
+    s = db.session
     q = s.query(Switch)
     q = q.filter(Switch.ip == body["ip"])
     sw = q.one()
@@ -79,7 +79,7 @@ def test_switch_search_with_only(client, sample_only: str):
 
     response = json.loads(r.data.decode("utf-8"))
     assert len(response) == 1
-    assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
+    assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
 
 def test_switch_search_with_unknown_only(client):
@@ -277,7 +277,7 @@ def test_switch_update_non_existant_switch(client):
 def test_switch_delete_existant_switch(client, sample_switch1: Switch):
     r = client.delete(f"{base_url}{sample_switch1.id}", headers=TEST_HEADERS)
     assert r.status_code == 204
-    s = db.session()
+    s = db.session
     q = s.query(Switch)
     q = q.filter(Switch.id == sample_switch1.id)
 
