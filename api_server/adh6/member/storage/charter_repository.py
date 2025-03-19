@@ -10,7 +10,7 @@ from .models import Adherent
 
 
 class CharterSQLRepository(CharterRepository):
-    def get(self, charter_id: int, member_id: int) -> Union[datetime, None]:
+    def get(self, charter_id: int, member_id: int) -> datetime | None:
         if charter_id == 1:
             smt = select(Adherent.datesignedminet)
         else:

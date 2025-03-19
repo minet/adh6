@@ -16,7 +16,7 @@ from .models import Membership as MembershipSQL
 class MembershipSQLRepository(MembershipRepository):
     @log_call
     def search(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
     ) -> Tuple[List[Membership], int]:
         query = db.session.query(MembershipSQL)
         if filter_:

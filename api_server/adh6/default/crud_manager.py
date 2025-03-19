@@ -31,7 +31,7 @@ class CRUDManager:
         return e
 
     @log_call
-    def update_or_create(self, obj, id: Optional[int] = None):
+    def update_or_create(self, obj, id: int | None = None):
         current_object = None
         if id is not None:
             current_object = self.repository.get_by_id(id)

@@ -32,7 +32,7 @@ class ApiKeyManager:
         self.role_repository.create(method=AuthenticationMethod.API_KEY, identifier=str(id_), roles=roles_)
         return value
 
-    def search(self, limit: int = 25, offset: int = 0, login: Union[str, None] = None) -> Tuple[List[ApiKey], int]:
+    def search(self, limit: int = 25, offset: int = 0, login: str | None = None) -> Tuple[List[ApiKey], int]:
         if login:
             t = self.member_manager.get_by_login(login)
             if not t:

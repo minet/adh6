@@ -12,7 +12,7 @@ from .models import ApiKey as SQLApiKey
 
 
 class ApiKeySQLRepository(ApiKeyRepository):
-    def get(self, id: int) -> t.Union[ApiKey, None]:
+    def get(self, id: int) -> ApiKey | None:
         smt = select(SQLApiKey).where(SQLApiKey.id == id)
         key = db.session.execute(smt).scalar_one_or_none()
         return self._map_to_api_key(key) if key else None
@@ -32,7 +32,7 @@ class ApiKeySQLRepository(ApiKeyRepository):
         smt = delete(SQLApiKey).where(SQLApiKey.id == id)
         db.session.execute(smt)
 
-    def find(self, login: Union[str, None] = None, token_hash: Union[str, None] = None) -> List[ApiKey]:
+    def find(self, login: str | None = None, token_hash: str | None = None) -> List[ApiKey]:
         smt = select(SQLApiKey)
         if login is not None:
             smt = smt.where(SQLApiKey.user_login == login)

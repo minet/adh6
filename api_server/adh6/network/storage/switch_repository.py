@@ -33,8 +33,8 @@ class SwitchSQLRepository(SwitchRepository):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: Optional[str] = None,
-        filter_: Optional[AbstractSwitch] = None,
+        terms: str | None = None,
+        filter_: AbstractSwitch | None = None,
     ) -> Tuple[List[AbstractSwitch], int]:
         query = db.session.query(SQLSwitch)
         if terms:

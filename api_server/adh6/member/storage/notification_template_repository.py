@@ -13,7 +13,7 @@ from .models import NotificationTemplate as SQLNotificationTemplate
 
 
 class NotificationTemplateSQLRepository(NotificationTemplateRepository):
-    def get(self, template_title: str) -> t.Union[NotificationTemplate, None]:
+    def get(self, template_title: str) -> NotificationTemplate | None:
         smt = select(SQLNotificationTemplate).where(SQLNotificationTemplate.title == template_title)
         sql_template = db.session.execute(smt).one()
         return _map_template_to_sql_entity(sql_template[0]) if sql_template[0] else None

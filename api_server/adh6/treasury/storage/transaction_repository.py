@@ -21,7 +21,7 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 class TransactionSQLRepository(TransactionRepository):
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Transaction, None]:
+    def get_by_id(self, object_id: int) -> Transaction | None:
         obj = db.session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
         return _map_transaction_sql_to_entity(obj) if obj else obj
 
@@ -30,8 +30,8 @@ class TransactionSQLRepository(TransactionRepository):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: Union[str, None] = None,
-        filter_: Union[AbstractTransaction, None] = None,
+        terms: str | None = None,
+        filter_: AbstractTransaction | None = None,
     ) -> Tuple[List[Transaction], int]:
         query = db.session.query(SQLTransaction)
 

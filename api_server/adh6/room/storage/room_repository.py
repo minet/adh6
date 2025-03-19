@@ -21,7 +21,7 @@ from .models import Chambre, RoomMemberLink
 
 
 class RoomSQLRepository(RoomRepository):
-    def get_from_member(self, member_id: int) -> Union[Room, None]:
+    def get_from_member(self, member_id: int) -> Room | None:
         smt = (
             select(Chambre)
             .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)
@@ -64,7 +64,7 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractRoom | None = None
     ) -> Tuple[List[AbstractRoom], int]:
         query = db.session.query(Chambre)
 

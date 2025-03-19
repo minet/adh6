@@ -8,7 +8,7 @@ from adh6.entity import AbstractRoom, Room
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):
     @abc.abstractmethod
-    def get_from_member(self, member_id: int) -> Union[Room, None]:
+    def get_from_member(self, member_id: int) -> Room | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod

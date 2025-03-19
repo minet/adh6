@@ -13,6 +13,6 @@ class AccountTypeRepository(abc.ABC):
 
     @abc.abstractmethod
     def search_by(
-        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> Tuple[List[AccountType], int]:
         pass  # pragma: no cover

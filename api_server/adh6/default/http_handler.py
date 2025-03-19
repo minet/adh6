@@ -22,8 +22,8 @@ class DefaultHandler:
         limit=DEFAULT_LIMIT,
         offset=DEFAULT_OFFSET,
         terms=None,
-        filter_: Optional[Any] = None,
-        only: Optional[List[str]] = None,
+        filter_: Any | None = None,
+        only: List[str] | None = None,
     ):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
@@ -40,7 +40,7 @@ class DefaultHandler:
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]] = None):
+    def get(self, id_: int, only: List[str] | None = None):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -73,7 +73,7 @@ class DefaultHandler:
         self.main_manager.delete(id=id_)
         return NoContent, 204  # 204 No Content
 
-    def _update(self, function, klass: Type[Model], body, id: Optional[int] = None):
+    def _update(self, function, klass: Type[Model], body, id: int | None = None):
         body["id"] = 0  # Set a dummy id to pass the initial validation
         to_update = klass.from_dict(body)
         the_object, created = function(to_update, id=id)

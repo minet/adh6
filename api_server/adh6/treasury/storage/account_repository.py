@@ -22,7 +22,7 @@ from .models import Account as SQLAccount, AccountType, Transaction
 class AccountSQLRepository(AccountRepository):
     @log_call
     def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractAccount | None = None
     ) -> Tuple[List[AbstractAccount], int]:
         query = db.session.query(
             SQLAccount,
@@ -65,7 +65,7 @@ class AccountSQLRepository(AccountRepository):
         return list(map(lambda item: _map_account_sql_to_abstract_entity(item, True), r)), count
 
     @log_call
-    def get_by_id(self, object_id: int) -> Union[AbstractAccount, None]:
+    def get_by_id(self, object_id: int) -> AbstractAccount | None:
         obj = (
             db.session.query(
                 SQLAccount,

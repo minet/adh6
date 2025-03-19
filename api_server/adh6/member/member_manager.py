@@ -60,7 +60,7 @@ class MemberManager(CRUDManager):
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
         terms: str = "",
-        filter_: Union[MemberFilter, None] = None,
+        filter_: MemberFilter | None = None,
     ) -> Tuple[List[int], int]:
         result, count = self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
         return [r.id for r in result if r.id], count
@@ -274,7 +274,7 @@ class MemberManager(CRUDManager):
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> Optional[Tuple[IPv4Network, Union[IPv4Address, None]]]:
+    def update_subnet(self, member_id) -> Tuple[IPv4Network, IPv4Address | None] | None:
         member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)

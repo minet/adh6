@@ -16,7 +16,7 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_mac(self, mac: str) -> Union[Device, None]:
+    def get_by_mac(self, mac: str) -> Device | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -28,5 +28,5 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def owner(self, id: int) -> Union[int, None]:
+    def owner(self, id: int) -> int | None:
         pass  # pragma: no cover

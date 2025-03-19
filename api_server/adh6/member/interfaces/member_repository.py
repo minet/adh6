@@ -11,16 +11,16 @@ from adh6.entity import AbstractMember, Member, MemberFilter
 class MemberRepository(CRUDRepository[Member, AbstractMember]):
     @abc.abstractmethod
     def search_by(
-        self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None
+        self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
     ) -> Tuple[List[Member], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> Union[Member, None]:
+    def get_by_id(self, object_id: int) -> Member | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_by_login(self, login: str) -> Union[Member, None]:
+    def get_by_login(self, login: str) -> Member | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod

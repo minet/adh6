@@ -19,7 +19,7 @@ from .models import Adherent, Membership
 class MemberSQLRepository(MemberRepository):
     @log_call
     def search_by(
-        self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None
+        self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
     ) -> Tuple[List[Member], int]:
         query = db.session.query(Adherent)
         if filter_:
@@ -54,11 +54,11 @@ class MemberSQLRepository(MemberRepository):
         return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
-    def get_by_id(self, object_id: int) -> Optional[AbstractMember]:
+    def get_by_id(self, object_id: int) -> AbstractMember | None:
         adh = db.session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         return _map_member_sql_to_abstract_entity(adh) if adh else None
 
-    def get_by_login(self, login: str) -> Optional[Member]:
+    def get_by_login(self, login: str) -> Member | None:
         adh = db.session.query(Adherent).filter(Adherent.login == login).one_or_none()
         return _map_member_sql_to_entity(adh) if adh else None
 

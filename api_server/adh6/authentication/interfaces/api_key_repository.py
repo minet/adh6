@@ -6,7 +6,7 @@ from adh6.entity import ApiKey
 
 class ApiKeyRepository(ABC):
     @abstractmethod
-    def get(self, id: int) -> t.Union[ApiKey, None]:
+    def get(self, id: int) -> ApiKey | None:
         pass  # pragma: no cover
 
     @abstractmethod
@@ -14,7 +14,7 @@ class ApiKeyRepository(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    def find(self, login: t.Union[str, None] = None, token_hash: t.Union[str, None] = None) -> t.List[ApiKey]:
+    def find(self, login: str | None = None, token_hash: str | None = None) -> t.List[ApiKey]:
         pass  # pragma: no cover
 
     @abstractmethod

@@ -20,12 +20,12 @@ class ProductSQLRepository(ProductRepository):
     """
 
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Product, None]:
+    def get_by_id(self, object_id: int) -> Product | None:
         obj = db.session.query(SQLProduct).filter(SQLProduct.id == object_id).one_or_none()
         return _map_product_sql_to_entity(obj) if obj else obj
 
     def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: Optional[str] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
     ) -> Tuple[List[Product], int]:
         query = db.session.query(SQLProduct)
         if terms:

@@ -20,7 +20,7 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: t.Optional[t.List[str]] = None):
+    def get(self, id_: int, only: t.List[str] | None = None):
         room = self.room_manager.get_by_id(id_)
 
         def remove(entity: t.Any) -> t.Any:

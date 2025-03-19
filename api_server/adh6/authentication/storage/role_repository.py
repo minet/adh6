@@ -14,15 +14,15 @@ from .models import AuthenticationRoleMapping
 
 
 class RoleSQLRepository(RoleRepository):
-    def get(self, id: int) -> Union[RoleMapping, None]:
+    def get(self, id: int) -> RoleMapping | None:
         smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         return db.session.execute(smt).scalar_one_or_none()  # type: ignore TODO: typing
 
     def find(
         self,
-        method: Union[AuthenticationMethod, None] = None,
-        identifiers: Union[List[str], None] = None,
-        roles: Union[List[Roles], None] = None,
+        method: AuthenticationMethod | None = None,
+        identifiers: List[str] | None = None,
+        roles: List[Roles] | None = None,
     ) -> Tuple[List[RoleMapping], int]:
         smt: Select = select(AuthenticationRoleMapping)
         if method is not None:

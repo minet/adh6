@@ -32,8 +32,8 @@ class MemberHandler(DefaultHandler):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: Union[str, None] = None,
-        filter_: Optional[Any] = None,
+        terms: str | None = None,
+        filter_: Any | None = None,
     ):
         filter_ = MemberFilter.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
@@ -42,7 +42,7 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]] = None):
+    def get(self, id_: int, only: List[str] | None = None):
         try:
 
             def remove(entity: Any) -> Any:

@@ -5,7 +5,7 @@ from typing import List, Tuple, Union
 
 class CharterRepository(abc.ABC):
     @abc.abstractmethod
-    def get(self, charter_id, member_id) -> Union[datetime, None]:
+    def get(self, charter_id, member_id) -> datetime | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod

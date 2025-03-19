@@ -25,7 +25,7 @@ class TransactionManager(CRUDManager):
 
     @log_call
     def update_or_create(
-        self, abstract_transaction: AbstractTransaction, id: Optional[int] = None
+        self, abstract_transaction: AbstractTransaction, id: int | None = None
     ) -> Tuple[Transaction, bool]:
         if abstract_transaction.src == abstract_transaction.dst:
             raise ValidationError("the source and destination accounts must not be the same")

@@ -18,7 +18,7 @@ from .models import AccountType as SQLAccountType
 class AccountTypeSQLRepository(AccountTypeRepository):
     @log_call
     def search_by(
-        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> Tuple[List[AccountType], int]:
         query = db.session.query(SQLAccountType)
 

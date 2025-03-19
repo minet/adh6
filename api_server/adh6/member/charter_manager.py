@@ -20,7 +20,7 @@ class CharterManager:
         self.member_repository = member_repository
         self.membership_repository = membership_repository
 
-    def get(self, charter_id: int, member_id: int) -> Union[datetime, None]:
+    def get(self, charter_id: int, member_id: int) -> datetime | None:
         m = self.member_repository.get_by_id(member_id)
         if not m:
             raise MemberNotFoundError(member_id)

@@ -27,11 +27,11 @@ class DeviceType(Enum):
 
 class DeviceSQLRepository(DeviceRepository):
     @log_call
-    def get_by_id(self, object_id: int) -> Union[Device, None]:
+    def get_by_id(self, object_id: int) -> Device | None:
         obj = db.session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
-    def get_by_mac(self, mac: str) -> Union[Device, None]:
+    def get_by_mac(self, mac: str) -> Device | None:
         obj = db.session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
         return _map_device_sql_to_entity(obj) if obj else None
 
@@ -102,7 +102,7 @@ class DeviceSQLRepository(DeviceRepository):
         device.mab = mab
         return mab
 
-    def owner(self, id: int) -> Union[int, None]:
+    def owner(self, id: int) -> int | None:
         smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
         return db.session.execute(smt).scalar_one_or_none()
 

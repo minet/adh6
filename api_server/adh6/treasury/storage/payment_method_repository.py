@@ -28,8 +28,8 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: Optional[str] = None,
-        filter_: Optional[PaymentMethod] = None,
+        terms: str | None = None,
+        filter_: PaymentMethod | None = None,
     ) -> Tuple[List[PaymentMethod], int]:
         query = db.session.query(SQLPaymentMethod)
 

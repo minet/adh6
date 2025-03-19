@@ -14,7 +14,7 @@ class RoleManager:
         self.member_manager = member_manager
 
     @log_call
-    def search(self, auth: str, identifier: Union[str, None] = None) -> Tuple[List[RoleMapping], int]:
+    def search(self, auth: str, identifier: str | None = None) -> Tuple[List[RoleMapping], int]:
         return self.role_repository.find(
             method=AuthenticationMethod(auth),
             identifiers=[identifier] if identifier else None,

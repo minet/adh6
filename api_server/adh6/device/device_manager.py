@@ -123,7 +123,7 @@ class DeviceManager(CRUDManager):
         return device
 
     @log_call
-    def get_owner(self, device_id: int) -> Union[int, None]:
+    def get_owner(self, device_id: int) -> int | None:
         d = self.device_repository.get_by_id(object_id=device_id)
         if not d:
             raise DeviceNotFoundError(device_id)

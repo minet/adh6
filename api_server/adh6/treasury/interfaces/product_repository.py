@@ -13,6 +13,6 @@ class ProductRepository(abc.ABC):
 
     @abc.abstractmethod
     def search_by(
-        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> Tuple[List[AbstractProduct], int]:
         pass  # pragma: no cover

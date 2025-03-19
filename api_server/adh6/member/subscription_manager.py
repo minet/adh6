@@ -55,7 +55,7 @@ class SubscriptionManager:
         return status in [MembershipStatus.CANCELLED, MembershipStatus.ABORTED, MembershipStatus.COMPLETE]
 
     @log_call
-    def latest(self, member_id: int) -> t.Union[Membership, None]:
+    def latest(self, member_id: int) -> Membership | None:
         subscriptions, _ = self.membership_repository.search(filter_=AbstractMembership(member=member_id))
         if not subscriptions:
             return None

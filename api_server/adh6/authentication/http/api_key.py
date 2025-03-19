@@ -12,7 +12,7 @@ class ApiKeyHandler:
         self.api_key_manager = api_key_manager
 
     @with_context
-    def search(self, limit, offset, login: Union[str, None] = None):
+    def search(self, limit, offset, login: str | None = None):
         result, count = self.api_key_manager.search(limit=limit, offset=offset, login=login)
         headers = {"X-Total-Count": str(count), "access-control-expose-headers": "X-Total-Count"}
         return [r.to_dict() for r in result], 200, headers

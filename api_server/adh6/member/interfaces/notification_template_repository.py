@@ -10,7 +10,7 @@ class NotificationTemplate:
 
 class NotificationTemplateRepository(abc.ABC):
     @abc.abstractmethod
-    def get(self, template_title: str) -> t.Union[NotificationTemplate, None]:
+    def get(self, template_title: str) -> NotificationTemplate | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod

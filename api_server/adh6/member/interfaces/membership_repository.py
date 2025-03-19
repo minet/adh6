@@ -32,7 +32,7 @@ class MembershipRepository(abc.ABC):
 
     @abc.abstractmethod
     def search(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
     ) -> Tuple[List[Membership], int]:
         """
         Add a membership.

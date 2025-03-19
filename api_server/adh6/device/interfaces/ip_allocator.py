@@ -9,7 +9,7 @@ class IpAllocator(abc.ABC):
     """
 
     @abc.abstractmethod
-    def available_ip(self, ip_range: str = "", member_id: Union[int, None] = None) -> str:
+    def available_ip(self, ip_range: str = "", member_id: int | None = None) -> str:
         """
         Allocates a new unused IP address.
 

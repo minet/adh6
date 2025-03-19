@@ -22,8 +22,8 @@ class DeviceIpManager:
     def allocate_ips(
         self,
         member: Member,
-        device_type: t.Union[t.Literal["wired", "wireless"], None] = None,
-        vlan_number: t.Union[int, None] = None,
+        device_type: t.Literal["wired", "wireless"] | None = None,
+        vlan_number: int | None = None,
     ) -> None:
         if not vlan_number and device_type == DeviceType.wired.name:
             raise ValueError("Cannot have both parameters: device_type to wired and vlan_number to None")

@@ -92,7 +92,7 @@ class NotFoundError(UserInputError):
     Error thrown when something is not found.
     """
 
-    def __init__(self, what, v: Optional[str] = None):
+    def __init__(self, what, v: str | None = None):
         err_msg = what + " " + str(v) + " was not found"
         super().__init__(err_msg)
 

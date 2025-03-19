@@ -27,7 +27,7 @@ class PortSQLRepository(PortRepository):
 
     @log_call
     def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractPort | None = None
     ) -> Tuple[List[AbstractPort], int]:
         query = db.session.query(SQLPort)
         query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
@@ -114,7 +114,7 @@ class PortSQLRepository(PortRepository):
         db.session.delete(port)
         db.session.flush()
 
-    def get_rcom(self, id) -> Optional[int]:
+    def get_rcom(self, id) -> int | None:
         port = db.session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
         if port is None:
             raise PortNotFoundError(id)
