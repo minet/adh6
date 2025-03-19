@@ -3,8 +3,9 @@ from typing import Any
 from sqlalchemy import Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from adh6.authentication import AuthenticationMethod, Roles
 from adh6.storage import Base
+
+from ..enums import AuthenticationMethod, Roles
 
 
 class ApiKey(Base):

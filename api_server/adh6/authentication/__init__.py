@@ -7,26 +7,7 @@ from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
 from adh6.authentication.storage import ApiKeyRepository, RoleRepository
 
-
-class Roles(Enum):
-    USER = "user"
-    ADMIN_READ = "admin:read"
-    ADMIN_WRITE = "admin:write"
-    ADMIN_PROD = "admin:prod"
-    TRESO_READ = "treasurer:read"
-    TRESO_WRITE = "treasurer:write"
-    NETWORK_READ = "network:read"
-    NETWORK_WRITE = "network:write"
-    NETWORK_PROD = "network:write:prod"
-    NETWORK_DEV = "network:write:dev"
-    NETWORK_HOSTING = "network:write:hosting"
-
-
-class AuthenticationMethod(Enum):
-    NONE = "none"
-    API_KEY = "api_key"
-    OIDC = "oidc"
-    USER = "user"
+from .enums import AuthenticationMethod, Roles
 
 
 class Method(Enum):

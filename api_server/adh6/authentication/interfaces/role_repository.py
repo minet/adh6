@@ -1,7 +1,11 @@
-import abc
+from __future__ import annotations
 
-from adh6.authentication import AuthenticationMethod, Roles
-from adh6.entity import RoleMapping
+import abc
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from adh6.authentication import AuthenticationMethod, Roles
+    from adh6.entity import RoleMapping
 
 
 class RoleRepository(abc.ABC):
