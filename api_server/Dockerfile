@@ -38,7 +38,7 @@ FROM python:3.11-alpine
 WORKDIR /adh6
 RUN adduser -s /bin/bash adh6 -h /home/adh6 -D
 
-COPY --from=prebuild /adh6/OUIs.txt .
+COPY --from=prebuild /adh6/OUIs.txt ./api_server/
 COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/ 
 COPY --from=build /adh6/.venv/ /adh6/.venv/
 
@@ -50,7 +50,7 @@ RUN apk add --no-cache --update \
 USER adh6
 
 WORKDIR /adh6/api_server
-COPY . .
+COPY --parents ./openapi ./adh6 ./main.py ./
 
 # Launch the app 
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornH11Worker", "-b", ":8080", "main:application"]
