@@ -1,5 +1,3 @@
-# coding=utf-8
-
 import abc
 import ipaddress
 from typing import List, Tuple

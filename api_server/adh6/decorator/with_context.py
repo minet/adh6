@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 With context decator.
 """

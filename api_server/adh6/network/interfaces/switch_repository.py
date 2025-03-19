@@ -1,4 +1,3 @@
-# coding=utf-8
 import abc
 
 from adh6.default.crud_repository import CRUDRepository

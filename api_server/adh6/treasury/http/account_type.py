@@ -1,4 +1,3 @@
-# coding=utf-8
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call, with_context
 from adh6.treasury.account_type_manager import AccountTypeManager

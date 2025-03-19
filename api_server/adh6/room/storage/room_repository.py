@@ -1,10 +1,10 @@
-# coding=utf-8
 """
 Implements everything related to actions on the SQL database.
 """
 
+from collections.abc import Sequence
 from datetime import datetime
-from typing import List, Sequence, Tuple
+from typing import List, Tuple
 
 from sqlalchemy import delete, insert, select, update
 

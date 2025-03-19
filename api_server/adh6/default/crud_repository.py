@@ -1,4 +1,3 @@
-# coding=utf-8
 import abc
 from typing import Generic, List, Tuple, TypeVar
 

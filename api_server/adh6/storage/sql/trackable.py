@@ -1,4 +1,3 @@
-# coding=utf-8
 class RubyHashTrackable:
     """
     Define a class on which you can record modification and get the result as

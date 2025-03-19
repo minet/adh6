@@ -1,6 +1,3 @@
-# coding=utf-8
-
-
 class UserInputError(ValueError):
     """
     Type of error thrown when the user input is responsible for the failure of the flow.

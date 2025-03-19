@@ -1,4 +1,3 @@
-# coding=utf-8
 from adh6.default.http_handler import DefaultHandler
 from adh6.entity import AbstractAccount, Account
 from adh6.treasury.account_manager import AccountManager

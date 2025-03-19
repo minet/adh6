@@ -1,4 +1,3 @@
-# coding=utf-8
 from ipaddress import AddressValueError, IPv4Network, ip_network
 
 from sqlalchemy import select

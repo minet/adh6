@@ -1,4 +1,3 @@
-# coding=utf-8
 from adh6.decorator import log_call, with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.entity import AbstractVlan, Vlan

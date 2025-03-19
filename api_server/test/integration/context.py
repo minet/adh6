@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 
 import adh6.server as server

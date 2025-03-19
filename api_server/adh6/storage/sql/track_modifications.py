@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Track modification on SQLAlchemy objects.
 """

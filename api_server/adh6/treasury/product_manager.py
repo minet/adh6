@@ -1,4 +1,3 @@
-# coding=utf-8
 # Import necessary modules and classes
 from typing import List
 

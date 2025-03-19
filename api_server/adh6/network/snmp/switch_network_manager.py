@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Implements everything related to SNMP-related actions
 """

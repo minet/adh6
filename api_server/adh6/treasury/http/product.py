@@ -1,4 +1,3 @@
-# coding=utf-8
 from typing import List
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET

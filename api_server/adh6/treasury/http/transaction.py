@@ -1,4 +1,3 @@
-# coding=utf-8
 from connexion import NoContent
 
 from adh6.decorator import log_call, with_context

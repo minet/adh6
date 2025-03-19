@@ -1,5 +1,3 @@
-# coding=utf-8
-
 from adh6.default.crud_manager import CRUDManager
 from adh6.exceptions import AccountTypeNotFoundError
 

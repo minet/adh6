@@ -1,4 +1,3 @@
-# coding=utf-8
 """Use cases (business rule layer) of everything related to transactions."""
 
 import logging

@@ -1,4 +1,3 @@
-# coding=utf-8
 from adh6.decorator import log_call, with_context
 from adh6.treasury.account_manager import AccountManager
 from adh6.treasury.cashbox_manager import CashboxManager

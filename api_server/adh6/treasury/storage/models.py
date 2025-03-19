@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime as dt
 
 from sqlalchemy import DECIMAL, TEXT, Boolean, DateTime, Integer, Numeric, String

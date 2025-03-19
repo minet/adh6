@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Log function call decorator.
 """

@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime as dt
 
 from sqlalchemy import Boolean, DateTime, Integer, String

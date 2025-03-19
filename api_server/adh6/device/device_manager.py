@@ -1,4 +1,3 @@
-# coding=utf-8
 from typing import List, Tuple
 
 from adh6.constants import DEFAULT_LIMIT
