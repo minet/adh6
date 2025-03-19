@@ -63,7 +63,7 @@ clean-docker-run-dev:
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
-generate: $(BACKEND_PATH)/adh6/entity/*.py $(BACKEND_PATH)/openapi/swagger.yaml $(FRONTEND_PATH)/src/app/api $(FRONTEND_PATH)/src/assets/*.min.svg
+generate: $(BACKEND_PATH)/adh6/entity/*.py $(BACKEND_PATH)/openapi/swagger.yaml $(FRONTEND_PATH)/src/app/api
 
 $(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
 	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
