@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import date, datetime, timedelta
 import ipaddress
 from typing import List, Optional, Tuple
@@ -17,7 +18,9 @@ from ..interfaces.member_repository import MemberRepository
 
 class MemberSQLRepository(MemberRepository):
     @log_call
-    def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
+    def search_by(
+        self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None
+    ) -> Tuple[List[Member], int]:
         query = db.session.query(Adherent)
         if filter_:
             if filter_.ip:
@@ -27,17 +30,19 @@ class MemberSQLRepository(MemberRepository):
             if filter_.until:
                 query = query.filter(Adherent.date_de_depart <= filter_.until)
             if filter_.membership:
-                query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(Membership.status == filter_.membership)
+                query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(
+                    Membership.status == filter_.membership
+                )
 
         if terms:
             query = query.filter(
-                (Adherent.nom.contains(terms)) |
-                (Adherent.prenom.contains(terms)) |
-                (Adherent.mail.contains(terms)) |
-                (Adherent.login.contains(terms)) |
-                (Adherent.commentaires.contains(terms)) |
-                (Adherent.ip.contains(terms)) |
-                (Adherent.subnet.contains(terms))
+                (Adherent.nom.contains(terms))
+                | (Adherent.prenom.contains(terms))
+                | (Adherent.mail.contains(terms))
+                | (Adherent.login.contains(terms))
+                | (Adherent.commentaires.contains(terms))
+                | (Adherent.ip.contains(terms))
+                | (Adherent.subnet.contains(terms))
             )
 
         count = query.count()
@@ -76,8 +81,7 @@ class MemberSQLRepository(MemberRepository):
         return _map_member_sql_to_entity(member)
 
     def update(self, abstract_member: AbstractMember, override=False) -> object:
-        query = db.session.query(Adherent)\
-            .filter(Adherent.id == abstract_member.id)
+        query = db.session.query(Adherent).filter(Adherent.id == abstract_member.id)
 
         adherent = query.one()
 
@@ -104,21 +108,24 @@ class MemberSQLRepository(MemberRepository):
         now = date.today()
         query = db.session.query(Adherent).filter(Adherent.id == member_id)
         adherent: Adherent = query.one()
-        
+
         if adherent.date_de_depart is None or adherent.date_de_depart < now:
             adherent.date_de_depart = now
-        
+
         import calendar
+
         days_to_add = 0
         for i in range(duration_in_mounth):
-            if adherent.date_de_depart.month+i <= 12:
-                days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month+i)[1]
+            if adherent.date_de_depart.month + i <= 12:
+                days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month + i)[1]
             else:
-                days_to_add += calendar.monthrange(adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12)[1]
+                days_to_add += calendar.monthrange(
+                    adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12
+                )[1]
         adherent.date_de_depart += timedelta(days=days_to_add)
 
         db.session.flush()
-    
+
     def used_wireless_public_ips(self) -> List[ipaddress.IPv4Address]:
         q = db.session.query(Adherent.ip).filter(Adherent.ip != None)
         r = q.all()
@@ -128,7 +135,8 @@ class MemberSQLRepository(MemberRepository):
     def update_comment(self, member_id: int, comment: str) -> None:
         adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
         with track_modifications(db.session, adherent):
-            adherent.commentaires= comment
+            adherent.commentaires = comment
+
 
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
@@ -151,6 +159,7 @@ def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, overrid
     adherent.updated_at = now
     return adherent
 
+
 def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
@@ -165,8 +174,9 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
         comment=adh.commentaires,
         ip=adh.ip,
         subnet=adh.subnet,
-        mailinglist=adh.mail_membership
+        mailinglist=adh.mail_membership,
     )
+
 
 def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
@@ -182,5 +192,5 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         comment=adh.commentaires,
         ip=adh.ip,
         subnet=adh.subnet,
-        mailinglist=adh.mail_membership
+        mailinglist=adh.mail_membership,
     )

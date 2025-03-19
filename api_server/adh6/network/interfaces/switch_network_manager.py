@@ -2,7 +2,9 @@
 """
 Switch network manager interface.
 """
+
 import abc
+
 
 class SwitchNetworkManager(abc.ABC):
     """
@@ -55,7 +57,7 @@ class SwitchNetworkManager(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_vlan(self, port_id: int, vlan: int=1) -> str:
+    def update_port_vlan(self, port_id: int, vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 

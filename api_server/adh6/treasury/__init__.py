@@ -5,13 +5,7 @@ from .cashbox_manager import CashboxManager
 from .payment_method_manager import PaymentMethodManager
 
 
-__all__ = [
-    "AccountManager",
-    "AccountTypeManager",
-    "ProductManager",
-    "CashboxManager",
-    "PaymentMethodManager"
-]
+__all__ = ["AccountManager", "AccountTypeManager", "ProductManager", "CashboxManager", "PaymentMethodManager"]
 
 
 class Config:
@@ -20,4 +14,5 @@ class Config:
 
 def init():
     from .storage import init_storage
+
     init_storage()

@@ -1,5 +1,6 @@
 from adh6.misc import get_mac_variations
 
+
 def test_mac_variation():
     v = get_mac_variations("Ab:00:00:00:00:00")
 

@@ -16,7 +16,14 @@ class DefaultHandler:
 
     @with_context
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[Any] = None, only: Optional[List[str]]=None):
+    def search(
+        self,
+        limit=DEFAULT_LIMIT,
+        offset=DEFAULT_OFFSET,
+        terms=None,
+        filter_: Optional[Any] = None,
+        only: Optional[List[str]] = None,
+    ):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -24,17 +31,15 @@ class DefaultHandler:
                     if k not in only + ["id"]:
                         del entity[k]
             return entity
+
         filter_ = self.abstract_entity_class.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
-        headers = {
-            "X-Total-Count": str(total_count),
-            'access-control-expose-headers': 'X-Total-Count'
-        }
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         return list(map(remove, map(lambda x: x.to_dict(), result))), 200, headers
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]]=None):
+    def get(self, id_: int, only: Optional[List[str]] = None):
         def remove(entity: Any) -> Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -42,6 +47,7 @@ class DefaultHandler:
                     if k not in only + ["id"]:
                         del entity[k]
             return entity
+
         return remove(self.main_manager.get_by_id(id=id_).to_dict()), 200
 
     @with_context
@@ -56,7 +62,9 @@ class DefaultHandler:
 
     @with_context
     def patch(self, body, id_: int):
-        return self._update(function=self.main_manager.partially_update, klass=self.abstract_entity_class, body=body, id=id_)
+        return self._update(
+            function=self.main_manager.partially_update, klass=self.abstract_entity_class, body=body, id=id_
+        )
 
     @with_context
     @log_call
@@ -65,7 +73,7 @@ class DefaultHandler:
         return NoContent, 204  # 204 No Content
 
     def _update(self, function, klass: Type[Model], body, id: Optional[int] = None):
-        body['id'] = 0  # Set a dummy id to pass the initial validation
-        to_update = klass.from_dict(body) 
+        body["id"] = 0  # Set a dummy id to pass the initial validation
+        to_update = klass.from_dict(body)
         the_object, created = function(to_update, id=id)
         return the_object.to_dict(), 201 if created else 204

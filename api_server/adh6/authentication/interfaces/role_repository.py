@@ -15,7 +15,12 @@ class RoleRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
+    def find(
+        self,
+        method: Union[AuthenticationMethod, None] = None,
+        identifiers: Union[List[str], None] = None,
+        roles: Union[List[Roles], None] = None,
+    ) -> Tuple[List[RoleMapping], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

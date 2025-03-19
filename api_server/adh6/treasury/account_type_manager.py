@@ -8,4 +8,4 @@ from .interfaces import AccountTypeRepository
 
 class AccountTypeManager(CRUDManager):
     def __init__(self, account_type_repository: AccountTypeRepository):
-        super().__init__(account_type_repository, AccountTypeNotFoundError)
+        super().__init__(account_type_repository, AccountTypeNotFoundError)  # type: ignore  # TODO: typing is baaaad

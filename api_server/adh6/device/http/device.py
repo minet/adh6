@@ -22,7 +22,7 @@ class DeviceHandler(DefaultHandler):
     def post(self, body: dict = {}):
         device_body = DeviceBody.from_dict(body)
         if get_user() != device_body.member and Roles.ADMIN_WRITE.value not in get_roles():
-            raise UnauthorizedError("Unauthorize to access this resource") 
+            raise UnauthorizedError("Unauthorize to access this resource")
         return self.device_manager.create(device_body).id, 201
 
     @with_context
@@ -32,19 +32,17 @@ class DeviceHandler(DefaultHandler):
         if get_user() != device_filter.member and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
         result, total_count = self.device_manager.search(limit=limit, offset=offset, device_filter=device_filter)
-        headers = {
-            "X-Total-Count": str(total_count),
-            'access-control-expose-headers': 'X-Total-Count'
-        }
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         return result, 200, headers
 
     @with_context
     @log_call
-    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
+    def get(self, id_: int, only: t.Optional[t.List[str]] = None):
         try:
             device = self.device_manager.get_by_id(id=id_)
             if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
                 raise UnauthorizedError("Unauthorize to access this resource")
+
             def remove(entity: t.Any) -> t.Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
@@ -52,6 +50,7 @@ class DeviceHandler(DefaultHandler):
                         if k not in only + ["id"]:
                             del entity[k]
                 return entity
+
             return remove(device.to_dict()), 200
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
@@ -61,7 +60,7 @@ class DeviceHandler(DefaultHandler):
     @with_context
     @log_call
     def delete(self, id_: int):
-        try: 
+        try:
             if get_user() != self.device_manager.get_owner(id_) and Roles.ADMIN_WRITE.value not in get_roles():
                 raise UnauthorizedError("Unauthorize to access this resource")
             self.main_manager.delete(id=id_)
@@ -70,11 +69,11 @@ class DeviceHandler(DefaultHandler):
             if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
                 e = UnauthorizedError("cannot access this resource")
             raise e
-    
+
     @with_context
     @log_call
     def vendor_search(self, id_: int):
-        """ Return the vendor associated with the given device """
+        """Return the vendor associated with the given device"""
         try:
             device = self.device_manager.get_by_id(id=id_)
             if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
@@ -88,13 +87,13 @@ class DeviceHandler(DefaultHandler):
     @with_context
     @log_call
     def mab_search(self, id_: int):
-        """ Return the vendor associated with the given device """
+        """Return the vendor associated with the given device"""
         return self.device_manager.get_mab(id=id_), 200
 
     @with_context
     @log_call
     def mab_post(self, id_: int):
-        """ Return the vendor associated with the given device """
+        """Return the vendor associated with the given device"""
         return self.device_manager.put_mab(id=id_), 200
 
     @with_context

@@ -2,6 +2,7 @@ import abc
 from datetime import datetime
 from typing import List, Tuple, Union
 
+
 class CharterRepository(abc.ABC):
     @abc.abstractmethod
     def get(self, charter_id, member_id) -> Union[datetime, None]:

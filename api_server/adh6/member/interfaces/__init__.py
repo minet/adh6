@@ -11,5 +11,5 @@ __all__ = [
     "MemberRepository",
     "MembershipRepository",
     "NotificationRepository",
-    "NotificationTemplateRepository"
+    "NotificationTemplateRepository",
 ]

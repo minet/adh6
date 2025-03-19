@@ -20,8 +20,10 @@ from hashlib import sha512
 
 m = sha512()
 
+
 def prep_db(*args):
     from adh6.storage.sql.models import db as _db
+
     _db.create_all()
     session = _db.session()
     session.add(sample_member_admin())
@@ -33,33 +35,47 @@ def prep_db(*args):
             oidc_network_read_role(),
             oidc_network_write_role(),
             oidc_treasurer_read_role(),
-            oidc_treasurer_write_role()
+            oidc_treasurer_write_role(),
         ]
     )
     session.add_all(args)
     session.add_all(
         [
             api_key_admin(),
-        ] + 
-        [
-            api_key_admin_read_roles(),
-            api_key_admin_write_roles()
         ]
+        + [api_key_admin_read_roles(), api_key_admin_write_roles()]
     )
     session.commit()
 
+
 def close_db():
     from adh6.storage.sql.models import db as _db
+
     _db.session.close()
     _db.drop_all()
 
 
 @pytest.fixture
-def client(sample_member, sample_member2, sample_member13,
-        wired_device, wireless_device, sample_room_member_link,
-        account_type, sample_payment_method, sample_account_frais_asso, sample_account_frais_techniques,
-        sample_room1, sample_room2, sample_vlan, sample_account, sample_complete_membership, sample_pending_validation_membership):
+def client(
+    sample_member,
+    sample_member2,
+    sample_member13,
+    wired_device,
+    wireless_device,
+    sample_room_member_link,
+    account_type,
+    sample_payment_method,
+    sample_account_frais_asso,
+    sample_account_frais_techniques,
+    sample_room1,
+    sample_room2,
+    sample_vlan,
+    sample_account,
+    sample_complete_membership,
+    sample_pending_validation_membership,
+):
     from .context import app
+
     if app.app is None:
         return
     with app.app.test_client() as c:
@@ -79,7 +95,7 @@ def client(sample_member, sample_member2, sample_member13,
             sample_account_frais_techniques,
             sample_complete_membership,
             sample_pending_validation_membership,
-            sample_room_member_link
+            sample_room_member_link,
         )
         yield c
         close_db()
@@ -88,44 +104,41 @@ def client(sample_member, sample_member2, sample_member13,
 class MockRequestsResponse:
     token: str
     status_code = 200
+
     def json(self):
-        response = {
-            'id': '',
-            'attributes': {
-                'memberOf': [] 
-            }
-        }
+        response = {"id": "", "attributes": {"memberOf": []}}
         if self.token == TEST_HEADERS["Authorization"]:
-            response['id'] = TESTING_CLIENT
-            response['attributes']['memberOf'] = [
+            response["id"] = TESTING_CLIENT
+            response["attributes"]["memberOf"] = [
                 "cn=admin,ou=groups,dc=minet,dc=net",
                 "cn=treasurer,ou=groups,dc=minet,dc=net",
                 "cn=network,ou=groups,dc=minet,dc=net",
                 "cn=production,ou=groups,dc=minet,dc=net",
             ]
-        else: 
-            response['id'] = SAMPLE_CLIENT
-            del response['attributes']
+        else:
+            response["id"] = SAMPLE_CLIENT
+            del response["attributes"]
         return response
 
 
 @pytest.fixture(autouse=True)
 def mock_oidc_authentication(monkeypatch):
     from adh6.authentication import requests
+
     """Mock the response for our cas"""
+
     def mock_get(*args, **kwargs):
         r = MockRequestsResponse()
         r.token = kwargs.get("headers", {}).get("Authorization", "")
         return r
+
     monkeypatch.setattr(requests, "get", mock_get, raising=False)
 
 
 @pytest.fixture
 def account_type(faker):
-    yield AccountType(
-        id=faker.random_digit_not_null(),
-        name="Adhérent"
-    )
+    yield AccountType(id=faker.random_digit_not_null(), name="Adhérent")
+
 
 @pytest.fixture
 def sample_account(account_type: AccountType, sample_member: Adherent):
@@ -137,8 +150,9 @@ def sample_account(account_type: AccountType, sample_member: Adherent):
         actif=True,
         compte_courant=False,
         pinned=False,
-        adherent_id=sample_member.id
+        adherent_id=sample_member.id,
     )
+
 
 @pytest.fixture
 def sample_account_frais_asso(account_type: AccountType):
@@ -149,8 +163,9 @@ def sample_account_frais_asso(account_type: AccountType):
         name="MiNET frais asso",
         actif=True,
         compte_courant=True,
-        pinned=True
+        pinned=True,
     )
+
 
 @pytest.fixture
 def sample_account_frais_techniques(account_type: AccountType):
@@ -161,15 +176,13 @@ def sample_account_frais_techniques(account_type: AccountType):
         name="MiNET frais techniques",
         actif=True,
         compte_courant=True,
-        pinned=True
+        pinned=True,
     )
+
 
 @pytest.fixture
 def sample_payment_method():
-    return PaymentMethod(
-        id=1,
-        name='liquide'
-    )
+    return PaymentMethod(id=1, name="liquide")
 
 
 @pytest.fixture
@@ -259,11 +272,13 @@ def sample_member_admin():
         mail_membership=1,
         date_de_depart=datetime.now() - timedelta(days=1),
         subnet="10.42.0.16/28",
-        ip="157.159.40.1"
+        ip="157.159.40.1",
     )
+
 
 def api_key_user():
     from hashlib import sha3_512
+
     return ApiKey(
         id=1,
         user_login=TESTING_CLIENT,
@@ -273,14 +288,13 @@ def api_key_user():
 
 def api_key_user_roles():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        identifier=str(api_key_user().id),
-        role=Roles.USER
+        authentication=AuthenticationMethod.API_KEY, identifier=str(api_key_user().id), role=Roles.USER
     )
 
 
 def api_key_admin():
     from hashlib import sha3_512
+
     return ApiKey(
         id=2,
         user_login=TESTING_CLIENT,
@@ -290,73 +304,55 @@ def api_key_admin():
 
 def api_key_admin_read_roles():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        identifier=str(api_key_admin().id),
-        role=Roles.ADMIN_READ
+        authentication=AuthenticationMethod.API_KEY, identifier=str(api_key_admin().id), role=Roles.ADMIN_READ
     )
 
 
 def api_key_admin_write_roles():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.API_KEY,
-        identifier=str(api_key_admin().id),
-        role=Roles.ADMIN_WRITE
+        authentication=AuthenticationMethod.API_KEY, identifier=str(api_key_admin().id), role=Roles.ADMIN_WRITE
     )
 
 
 def oidc_admin_prod_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="production",
-        role=Roles.ADMIN_PROD
+        authentication=AuthenticationMethod.OIDC, identifier="production", role=Roles.ADMIN_PROD
     )
 
 
 def oidc_admin_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="admin",
-        role=Roles.ADMIN_READ
+        authentication=AuthenticationMethod.OIDC, identifier="admin", role=Roles.ADMIN_READ
     )
 
 
 def oidc_admin_write_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="admin",
-        role=Roles.ADMIN_WRITE
+        authentication=AuthenticationMethod.OIDC, identifier="admin", role=Roles.ADMIN_WRITE
     )
 
 
 def oidc_treasurer_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="treasurer",
-        role=Roles.TRESO_READ
+        authentication=AuthenticationMethod.OIDC, identifier="treasurer", role=Roles.TRESO_READ
     )
 
 
 def oidc_treasurer_write_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="treasurer",
-        role=Roles.TRESO_WRITE
+        authentication=AuthenticationMethod.OIDC, identifier="treasurer", role=Roles.TRESO_WRITE
     )
 
 
 def oidc_network_read_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="network",
-        role=Roles.NETWORK_READ
+        authentication=AuthenticationMethod.OIDC, identifier="network", role=Roles.NETWORK_READ
     )
 
 
 def oidc_network_write_role():
     return AuthenticationRoleMapping(
-        authentication=AuthenticationMethod.OIDC,
-        identifier="network",
-        role=Roles.NETWORK_WRITE
+        authentication=AuthenticationMethod.OIDC, identifier="network", role=Roles.NETWORK_WRITE
     )
 
 
@@ -376,9 +372,10 @@ def sample_complete_membership(sample_account: Account, sample_member: Adherent,
         payment_method_id=sample_payment_method.id,
     )
 
+
 @pytest.fixture
 def sample_pending_validation_membership(sample_account: Account, sample_member2: Adherent):
-    """ Membership that is not completed """
+    """Membership that is not completed"""
     yield Membership(
         uuid=str(uuid4()),
         account_id=sample_account.id,
@@ -389,25 +386,26 @@ def sample_pending_validation_membership(sample_account: Account, sample_member2
         adherent_id=sample_member2.id,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION,
         update_at=datetime.now(),
-        products="[]"
+        products="[]",
     )
+
 
 # Member that have an account and a membership
 @pytest.fixture
 def sample_member(faker, sample_room1):
     yield Adherent(
         id=SAMPLE_CLIENT_ID,
-        nom='Dubois',
-        prenom='Jean-Louis',
-        mail='j.dubois@free.fr',
+        nom="Dubois",
+        prenom="Jean-Louis",
+        mail="j.dubois@free.fr",
         login=SAMPLE_CLIENT,
-        password='a',
+        password="a",
         chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         datesignedminet=datetime.now(),
         ip=faker.ipv4_public(),
         subnet="10.42.172.16/28",
-        mail_membership=249
+        mail_membership=249,
     )
 
 
@@ -415,12 +413,12 @@ def sample_member(faker, sample_room1):
 def sample_member2(sample_room1):
     yield Adherent(
         id=2,
-        nom='Reignier',
-        prenom='Edouard',
-        mail='bgdu78@hotmail.fr',
-        login='reignier',
-        commentaires='Desauthent pour routeur',
-        password='a',
+        nom="Reignier",
+        prenom="Edouard",
+        mail="bgdu78@hotmail.fr",
+        login="reignier",
+        commentaires="Desauthent pour routeur",
+        password="a",
         chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         mail_membership=1,
@@ -431,12 +429,12 @@ def sample_member2(sample_room1):
 def sample_member3(sample_room1):
     yield Adherent(
         id=3,
-        nom='Dupont',
-        prenom='Jean',
-        mail='test@oyopmail.fr',
+        nom="Dupont",
+        prenom="Jean",
+        mail="test@oyopmail.fr",
         login="jamaislememe",
-        commentaires='abcdef',
-        password='b',
+        commentaires="abcdef",
+        password="b",
         chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
         mail_membership=1,
@@ -445,15 +443,15 @@ def sample_member3(sample_room1):
 
 @pytest.fixture
 def sample_member13():
-    """ Membre sans chambre """
+    """Membre sans chambre"""
     yield Adherent(
         id=13,
-        nom='Robert',
-        prenom='Dupond',
-        mail='robi@hotmail.fr',
-        login='dupond_r',
-        commentaires='a',
-        password='a',
+        nom="Robert",
+        prenom="Dupond",
+        mail="robi@hotmail.fr",
+        login="dupond_r",
+        commentaires="a",
+        password="a",
         date_de_depart=tomorrow,
         mail_membership=1,
     )
@@ -498,12 +496,9 @@ def sample_port2(sample_switch2, sample_room1):
         oid="1.1.2",
         switch_id=sample_switch2.id,
         chambre_id=sample_room1.id,
-
     )
+
 
 @pytest.fixture
 def sample_room_member_link(sample_room1, sample_member):
-    yield RoomMemberLink(
-        room_id=sample_room1.id,
-        member_id=sample_member.id
-    )
+    yield RoomMemberLink(room_id=sample_room1.id, member_id=sample_member.id)

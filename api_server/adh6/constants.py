@@ -17,14 +17,15 @@ PRICES = {
 }
 
 DURATION_STRING = {
-    1: '1 mois',
-    2: '2 mois',
-    3: '3 mois',
-    4: '4 mois',
-    5: '5 mois',
-    6: '6 mois',
-    12: '1 an',
+    1: "1 mois",
+    2: "2 mois",
+    3: "3 mois",
+    4: "4 mois",
+    5: "5 mois",
+    6: "6 mois",
+    12: "1 an",
 }
+
 
 class MembershipStatus(enum.Enum):
     INITIAL = "INITIAL"
@@ -55,9 +56,20 @@ class KnownAccountExpense(enum.Enum):
 
 PUBLIC_RANGE = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
 
+
 def dictionnary_subnet_public_ip_wireless() -> Dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:
     # These are perfectly valid addresses, but we exclude them to avoid confusion
-    excluded_addresses = ["157.159.192.0", "157.159.192.1", "157.159.192.255", "157.159.193.0", "157.159.193.1", "157.159.193.255", "157.159.194.0", "157.159.194.1", "157.159.194.255"]
+    excluded_addresses = [
+        "157.159.192.0",
+        "157.159.192.1",
+        "157.159.192.255",
+        "157.159.193.0",
+        "157.159.193.1",
+        "157.159.193.255",
+        "157.159.194.0",
+        "157.159.194.1",
+        "157.159.194.255",
+    ]
     hosts = []
     for r in PUBLIC_RANGE:
         hosts.extend(list(r.hosts()))
@@ -71,5 +83,6 @@ def dictionnary_subnet_public_ip_wireless() -> Dict[ipaddress.IPv4Address, ipadd
         mappings[ip] = subnet
 
     return mappings
+
 
 SUBNET_PUBLIC_ADDRESSES_WIRELESS = dictionnary_subnet_public_ip_wireless()

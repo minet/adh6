@@ -16,7 +16,7 @@ class IPSQLAllocator(IpAllocator):
     @log_call
     def available_ip(self, ip_range: str = "", member_id: Union[int, None] = None) -> str:
         if ip_range == "":
-            return 'En attente'
+            return "En attente"
 
         try:
             network = ip_network(ip_range)
@@ -24,9 +24,13 @@ class IPSQLAllocator(IpAllocator):
             raise BadSubnetError("Unknown ip subnet")
 
         if isinstance(network, IPv4Network):
-            smt = select(Device.ip).where((Device.ip != None) & (Device.ip != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme)
+            smt = select(Device.ip).where(
+                (Device.ip != None) & (Device.ip != "En attente")
+            )  # @TODO retrocompatibilité ADH5, à retirer à terme)
         else:
-            smt = select(Device.ipv6).where((Device.ipv6 != None) & (Device.ipv6 != "En attente"))  # @TODO retrocompatibilité ADH5, à retirer à terme) 
+            smt = select(Device.ipv6).where(
+                (Device.ipv6 != None) & (Device.ipv6 != "En attente")
+            )  # @TODO retrocompatibilité ADH5, à retirer à terme)
 
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
@@ -37,5 +41,4 @@ class IPSQLAllocator(IpAllocator):
                 continue
             if str(h) not in ips:
                 return str(h)
-        raise NoMoreIPAvailableException(ip_range) 
-
+        raise NoMoreIPAvailableException(ip_range)

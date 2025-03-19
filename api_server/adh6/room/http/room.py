@@ -19,8 +19,9 @@ class RoomHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get(self, id_: int, only: t.Optional[t.List[str]]=None):
+    def get(self, id_: int, only: t.Optional[t.List[str]] = None):
         room = self.room_manager.get_by_id(id_)
+
         def remove(entity: t.Any) -> t.Any:
             if isinstance(entity, dict) and only is not None:
                 entity_cp = entity.copy()
@@ -28,6 +29,7 @@ class RoomHandler(DefaultHandler):
                     if k not in only + ["id"]:
                         del entity[k]
             return entity
+
         return remove(room.to_dict()), 200
 
     @with_context

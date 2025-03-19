@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 from typing import List, Optional, Sequence, Tuple, Union
 from sqlalchemy import insert, select, delete, update
@@ -20,10 +21,12 @@ from ..interfaces import RoomRepository
 
 class RoomSQLRepository(RoomRepository):
     def get_from_member(self, member_id: int) -> Union[Room, None]:
-        smt = select(Chambre)\
-            .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)\
+        smt = (
+            select(Chambre)
+            .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)
             .where(RoomMemberLink.member_id == member_id)
-        
+        )
+
         result = db.session.execute(smt).scalar_one_or_none()
 
         return _map_room_sql_to_entity(result) if result else None
@@ -42,10 +45,7 @@ class RoomSQLRepository(RoomRepository):
         db.session.execute(smt)
 
     def add_member(self, room_id: int, member_id: int) -> None:
-        smt = insert(RoomMemberLink).values(
-            member_id=member_id,
-            room_id=room_id
-        )
+        smt = insert(RoomMemberLink).values(member_id=member_id, room_id=room_id)
         db.session.execute(smt)
 
         # Those lines are needed for compatibility
@@ -62,7 +62,9 @@ class RoomSQLRepository(RoomRepository):
         return _map_room_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None) -> Tuple[List[AbstractRoom], int]:
+    def search_by(
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractRoom] = None
+    ) -> Tuple[List[AbstractRoom], int]:
         query = db.session.query(Chambre)
 
         if terms:
@@ -75,7 +77,6 @@ class RoomSQLRepository(RoomRepository):
                 query = query.filter(Chambre.description.contains(filter_.description))
             if filter_.room_number is not None:
                 query = query.filter(Chambre.numero == filter_.room_number)
-
 
         count = query.count()
         query = query.order_by(Chambre.numero.asc())
@@ -145,22 +146,13 @@ def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=F
     chambre.updated_at = now
     return chambre
 
+
 def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
     with db.sessionmaker() as session:
         vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
-    return AbstractRoom(
-        id=r.id,
-        room_number=r.numero,
-        description=r.description,
-        vlan=vlan[0].numero if vlan else None
-    )
+    return AbstractRoom(id=r.id, room_number=r.numero, description=r.description, vlan=vlan[0].numero if vlan else None)
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
     vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
-    return Room(
-        id=r.id,
-        room_number=r.numero,
-        description=r.description,
-        vlan=vlan[0].numero if vlan else None
-    )
+    return Room(id=r.id, room_number=r.numero, description=r.description, vlan=vlan[0].numero if vlan else None)

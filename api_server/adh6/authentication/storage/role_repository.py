@@ -17,9 +17,14 @@ class RoleSQLRepository(RoleRepository):
         smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         return db.session.execute(smt).scalar_one_or_none()  # type: ignore TODO: typing
 
-    def find(self, method: Union[AuthenticationMethod, None] = None, identifiers: Union[List[str], None] = None, roles: Union[List[Roles], None] = None) -> Tuple[List[RoleMapping], int]:
+    def find(
+        self,
+        method: Union[AuthenticationMethod, None] = None,
+        identifiers: Union[List[str], None] = None,
+        roles: Union[List[Roles], None] = None,
+    ) -> Tuple[List[RoleMapping], int]:
         smt: Select = select(AuthenticationRoleMapping)
-        if method is not None: 
+        if method is not None:
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
         if identifiers is not None:
             smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
@@ -31,19 +36,16 @@ class RoleSQLRepository(RoleRepository):
     def create(self, method: AuthenticationMethod, identifier: str, roles: List[Roles]) -> None:
         session: Session = db.session
         smt = insert(AuthenticationRoleMapping).values(
-            [
-                {
-                    'identifier': identifier,
-                    'authentication': method,
-                    'role': r
-                } for r in roles
-            ]
+            [{"identifier": identifier, "authentication": method, "role": r} for r in roles]
         )
         session.execute(smt)
 
         if method == AuthenticationMethod.USER:
             # in case a NainA is created put is_naina to true for compatibility
-            if len(set([Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ])&set(roles)) == 4:
+            if (
+                len(set([Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ]) & set(roles))
+                == 4
+            ):
                 adherent = session.query(Adherent).filter(Adherent.login == identifier).scalar()
                 smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=True)
                 session.execute(smt)
@@ -54,7 +56,6 @@ class RoleSQLRepository(RoleRepository):
             adherent = db.session.query(Adherent).filter(Adherent.login == role_mapping.identifier).scalar()
             smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=False)
             db.session.execute(smt)
-            
 
         smt = delete(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         db.session.execute(smt)
@@ -62,12 +63,11 @@ class RoleSQLRepository(RoleRepository):
         # force reset nainA column in Adherent for compatibility
 
     def user_id_from_username(self, login: str) -> int:
-        return db.session.execute(select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))).scalar_one()
-    
+        return db.session.execute(
+            select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))
+        ).scalar_one()
+
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(
-            id=role.id,
-            identifier=role.identifier,
-            role=role.role.value,
-            authentication=role.authentication.value
+            id=role.id, identifier=role.identifier, role=role.role.value, authentication=role.authentication.value
         )

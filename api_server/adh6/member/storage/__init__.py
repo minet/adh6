@@ -3,10 +3,4 @@ from .membership_repository import MembershipSQLRepository as MembershipReposito
 from .mailinglist_repository import MailinglistSQLReposiroty as MailinglistReposiroty
 from .charter_repository import CharterSQLRepository as CharterRepository
 
-__all__ = [
-    "MemberRepository",
-    "MembershipRepository",
-    "MailinglistReposiroty",
-    "CharterRepository",
-    "LogsRepository"
-]
+__all__ = ["MemberRepository", "MembershipRepository", "MailinglistReposiroty", "CharterRepository", "LogsRepository"]

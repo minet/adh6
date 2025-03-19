@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 from typing import List, Optional, Tuple
 
@@ -25,16 +26,17 @@ class PortSQLRepository(PortRepository):
         return _map_port_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None) -> Tuple[List[AbstractPort], int]:
+    def search_by(
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractPort] = None
+    ) -> Tuple[List[AbstractPort], int]:
         query = db.session.query(SQLPort)
         query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
         query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
 
-
         if terms:
-            query = query.filter(SQLPort.numero.contains(terms)|
-                         SQLPort.oid.contains(terms) |
-                         SQLPort.numero.contains(terms))
+            query = query.filter(
+                SQLPort.numero.contains(terms) | SQLPort.oid.contains(terms) | SQLPort.numero.contains(terms)
+            )
         if filter_:
             if filter_.id is not None:
                 query = query.filter(SQLPort.id == filter_.id)
@@ -81,7 +83,7 @@ class PortSQLRepository(PortRepository):
             switch_id=switch.id if switch else None,
             chambre_id=room.id if room else None,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
 
         db.session.add(port)
@@ -111,7 +113,6 @@ class PortSQLRepository(PortRepository):
 
         db.session.delete(port)
         db.session.flush()
-
 
     def get_rcom(self, id) -> Optional[int]:
         port = db.session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
@@ -147,21 +148,11 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
     """
     Map a Port object from SQLAlchemy to a Port (from the entity folder/layer).
     """
-    return Port(
-        id=a.id,
-        port_number=a.numero,
-        oid=a.oid,
-        room=a.chambre_id,
-        switch_obj=a.switch_id
-    )
+    return Port(id=a.id, port_number=a.numero, oid=a.oid, room=a.chambre_id, switch_obj=a.switch_id)
+
+
 def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
     """
     Map a Port object from SQLAlchemy to a Port (from the entity folder/layer).
     """
-    return AbstractPort(
-        id=a.id,
-        port_number=a.numero,
-        oid=a.oid,
-        room=a.chambre_id,
-        switch_obj=a.switch_id
-    )
+    return AbstractPort(id=a.id, port_number=a.numero, oid=a.oid, room=a.chambre_id, switch_obj=a.switch_id)

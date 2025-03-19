@@ -8,7 +8,7 @@ from ..interfaces import PingRepository
 class PingSQLRepository(PingRepository):
     def ping(self) -> bool:
         try:
-            result = db.session.execute(text('SELECT 42 AS result')).fetchall()
+            result = db.session.execute(text("SELECT 42 AS result")).fetchall()
             if 1 != len(result):
                 return False
 

@@ -17,28 +17,30 @@ from adh6.room.interfaces.room_repository import RoomRepository
 
 @fixture
 def device_manager(
-        mock_device_ip_manager: DeviceIpManager,
-        mock_device_repository: DeviceRepository,
-        mock_member_repository: MemberRepository,
-        mock_room_repository: RoomRepository
+    mock_device_ip_manager: DeviceIpManager,
+    mock_device_repository: DeviceRepository,
+    mock_member_repository: MemberRepository,
+    mock_room_repository: RoomRepository,
 ):
     return DeviceManager(
         device_repository=mock_device_repository,
         device_ip_manager=mock_device_ip_manager,
         member_repository=mock_member_repository,
-        room_repository=mock_room_repository
+        room_repository=mock_room_repository,
     )
 
 
 class TestUpdateOrCreate:
-    def test_create_happy_path(self,
-                               mock_device_repository: DeviceRepository,
-                               mock_member_repository: MemberRepository,
-                               mock_room_repository: RoomRepository,
-                               sample_member: Member,
-                               sample_room: Room,
-                               sample_device: AbstractDevice,
-                               device_manager: DeviceManager):
+    def test_create_happy_path(
+        self,
+        mock_device_repository: DeviceRepository,
+        mock_member_repository: MemberRepository,
+        mock_room_repository: RoomRepository,
+        sample_member: Member,
+        sample_room: Room,
+        sample_device: AbstractDevice,
+        device_manager: DeviceManager,
+    ):
         # That the owner exists:
         mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
 
@@ -51,30 +53,28 @@ class TestUpdateOrCreate:
         # That the owner has a room (needed to get the ip range to allocate the IP):
         mock_device_repository.create = MagicMock(return_value=(sample_device))
 
-        body = DeviceBody(mac=sample_device.mac, member=sample_device.member, connection_type=sample_device.connection_type)
+        body = DeviceBody(
+            mac=sample_device.mac, member=sample_device.member, connection_type=sample_device.connection_type
+        )
         # When...
         device = device_manager.create(body)
 
         # Expect...
         assert device is not None
-        #mock_device_repository.create.assert_called_once_with(sample_device)
+        # mock_device_repository.create.assert_called_once_with(sample_device)
 
-    def test_invalid_mac(self,
-                         mock_device_repository: MagicMock,
-                         device_manager: DeviceManager):
-
+    def test_invalid_mac(self, mock_device_repository: MagicMock, device_manager: DeviceManager):
         # When...
         with raises(InvalidMACAddress):
-            device_manager.create(DeviceBody(mac='this is not a valid mac'))
+            device_manager.create(DeviceBody(mac="this is not a valid mac"))
 
         # Expect...
         mock_device_repository.create.assert_not_called()
 
     @mark.skip(reason="Should we implement the relations logic in the managers ?")
-    def test_bad_member(self,
-                        mock_member_repository: MemberRepository,
-                        mock_device_repository: MagicMock,
-                        device_manager: DeviceManager):
+    def test_bad_member(
+        self, mock_member_repository: MemberRepository, mock_device_repository: MagicMock, device_manager: DeviceManager
+    ):
         # Given...
         mock_member_repository.get_by_id = MagicMock(return_value=(None))
 

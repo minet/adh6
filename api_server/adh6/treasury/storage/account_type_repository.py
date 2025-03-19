@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from typing import List, Optional, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -16,7 +17,9 @@ from ..interfaces import AccountTypeRepository
 
 class AccountTypeSQLRepository(AccountTypeRepository):
     @log_call
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AccountType], int]:
+    def search_by(
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None
+    ) -> Tuple[List[AccountType], int]:
         query = db.session.query(SQLAccountType)
 
         if terms:

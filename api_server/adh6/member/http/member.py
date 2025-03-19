@@ -18,7 +18,9 @@ from ..subscription_manager import SubscriptionManager
 
 
 class MemberHandler(DefaultHandler):
-    def __init__(self, member_manager: MemberManager, charter_manager: CharterManager, subscription_manager: SubscriptionManager):
+    def __init__(
+        self, member_manager: MemberManager, charter_manager: CharterManager, subscription_manager: SubscriptionManager
+    ):
         super().__init__(Member, AbstractMember, member_manager)
         self.member_manager = member_manager
         self.charter_manager = charter_manager
@@ -26,19 +28,23 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def search(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_: Optional[Any] = None):
+    def search(
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: Union[str, None] = None,
+        filter_: Optional[Any] = None,
+    ):
         filter_ = MemberFilter.from_dict(filter_) if filter_ else None
         result, total_count = self.main_manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
-        headers = {
-            "X-Total-Count": str(total_count),
-            'access-control-expose-headers': 'X-Total-Count'
-        }
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         return result, 200, headers
 
     @with_context
     @log_call
-    def get(self, id_: int, only: Optional[List[str]]=None):
+    def get(self, id_: int, only: Optional[List[str]] = None):
         try:
+
             def remove(entity: Any) -> Any:
                 if isinstance(entity, dict) and only is not None:
                     entity_cp = entity.copy()
@@ -46,6 +52,7 @@ class MemberHandler(DefaultHandler):
                         if k not in only + ["id"]:
                             del entity[k]
                 return entity
+
             return remove(self.main_manager.get_by_id(id=id_).to_dict()), 200
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
@@ -66,16 +73,16 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def subscription_post(self, id_: int, body: dict):
-        """ Add a membership record in the database """
+        """Add a membership record in the database"""
         created_membership = self.subscription_manager.create(id_, SubscriptionBody.from_dict(body))
         return created_membership.to_dict(), 200  # 200 OK
 
     @with_context
     @log_call
     def password_put(self, id_, body):
-        """ Set the password of a member. """
+        """Set the password of a member."""
         try:
-            self.member_manager.change_password(id_, body.get('password'), body.get("hashedPassword"))
+            self.member_manager.change_password(id_, body.get("password"), body.get("hashedPassword"))
             return NoContent, 204  # 204 No Content
         except Exception as e:
             if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
@@ -85,7 +92,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def logs_search(self, id_, dhcp=False):
-        """ Get logs from a member. """
+        """Get logs from a member."""
         return self.member_manager.get_logs(id_, dhcp=dhcp), 200
 
     @with_context
@@ -132,7 +139,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     def comment_put(self, id_, body):
-        """ Set the comment of a member. """
+        """Set the comment of a member."""
         try:
             self.member_manager.change_comment(id_, Comment.from_dict(body))
             return NoContent, 204  # 204 No Content

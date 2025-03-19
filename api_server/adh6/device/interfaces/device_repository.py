@@ -8,7 +8,7 @@ from adh6.default.crud_repository import CRUDRepository
 class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
     @abc.abstractmethod
     def create(self, obj: DeviceBody) -> Device:
-        pass  # pragma: no cover 
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:

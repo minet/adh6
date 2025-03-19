@@ -5,7 +5,15 @@ from .transaction_repository import TransactionSQLRepository as TransactionRepos
 from .cashbox_repository import CashboxSQLRepository as CashboxRepository
 from .product_repository import ProductSQLRepository as ProductRepository
 
-__all__ = ["AccountRepository", "AccountTypeRepository", "PaymentMethodRepository", "TransactionRepository", "CashboxRepository", "ProductRepository"]
+__all__ = [
+    "AccountRepository",
+    "AccountTypeRepository",
+    "PaymentMethodRepository",
+    "TransactionRepository",
+    "CashboxRepository",
+    "ProductRepository",
+]
+
 
 def init_storage():
     from adh6.storage import db
@@ -26,13 +34,5 @@ def init_storage():
     accounts = ["MiNET frais techniques", "MiNET frais asso"]
     for e in accounts:
         if session.query(Account).filter(Account.name == e).one_or_none() is None:
-            session.add(
-                Account(
-                    type=special.id,
-                    name=e,
-                    actif=True,
-                    compte_courant=True,
-                    pinned=True
-                )
-            )
+            session.add(Account(type=special.id, name=e, actif=True, compte_courant=True, pinned=True))
     session.commit()

@@ -21,10 +21,7 @@ class ApiKeySQLRepository(ApiKeyRepository):
 
         session = db.session
         value = str(uuid.uuid4())
-        elem = SQLApiKey(
-            value=sha3_512(value.encode("utf-8")).hexdigest(),
-            user_login=login
-        )
+        elem = SQLApiKey(value=sha3_512(value.encode("utf-8")).hexdigest(), user_login=login)
         session.add(elem)
         session.commit()
 
@@ -39,11 +36,8 @@ class ApiKeySQLRepository(ApiKeyRepository):
         if login is not None:
             smt = smt.where(SQLApiKey.user_login == login)
         if token_hash is not None:
-            smt = smt.where(SQLApiKey.value == token_hash) 
+            smt = smt.where(SQLApiKey.value == token_hash)
         return [self._map_to_api_key(i[0]) for i in db.session.execute(smt)]
 
     def _map_to_api_key(self, api_key: SQLApiKey) -> ApiKey:
-        return ApiKey(
-            id=api_key.id,
-            login=api_key.user_login
-        )
+        return ApiKey(id=api_key.id, login=api_key.user_login)

@@ -14,10 +14,7 @@ class CharterHandler:
     @with_context
     def member_search(self, charter_id: int):
         result, total_count = self.charter_manager.get_members(charter_id)
-        headers = {
-            "X-Total-Count": str(total_count),
-            'access-control-expose-headers': 'X-Total-Count'
-        }
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         return result, 200, headers
 
     @with_context

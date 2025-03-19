@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from typing import List, Optional, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -23,7 +24,13 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         return _map_payment_method_sql_to_entity(obj)
 
     @log_call
-    def search_by(self, limit:int=DEFAULT_LIMIT, offset:int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[PaymentMethod] = None) -> Tuple[List[PaymentMethod], int]:
+    def search_by(
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: Optional[str] = None,
+        filter_: Optional[PaymentMethod] = None,
+    ) -> Tuple[List[PaymentMethod], int]:
         query = db.session.query(SQLPaymentMethod)
 
         if filter_:

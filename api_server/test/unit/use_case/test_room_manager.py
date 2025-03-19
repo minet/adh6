@@ -14,25 +14,26 @@ class TestUpdateOrCreate:
     @fixture
     def mutation_request(self):
         return AbstractRoom(
-            room_number='1234',
-            description='desc',
-            vlan='vlan',
+            room_number="1234",
+            description="desc",
+            vlan="vlan",
         )
 
-    def test_create_vlan_not_found(self,
-                                   mock_room_repository: RoomRepository,
-                                   mutation_request: AbstractRoom,
-                                   room_manager: RoomManager):
+    def test_create_vlan_not_found(
+        self, mock_room_repository: RoomRepository, mutation_request: AbstractRoom, room_manager: RoomManager
+    ):
         mock_room_repository.search_by = MagicMock(return_value=([], 0))
         mock_room_repository.create = MagicMock(side_effect=VLANNotFoundError)
         with raises(VLANNotFoundError):
             room_manager.update_or_create(mutation_request)
 
-    def test_update_vlan_not_found(self,
-                                   mock_room_repository: RoomRepository,
-                                   sample_room: Room,
-                                   mutation_request: AbstractRoom,
-                                   room_manager: RoomManager):
+    def test_update_vlan_not_found(
+        self,
+        mock_room_repository: RoomRepository,
+        sample_room: Room,
+        mutation_request: AbstractRoom,
+        room_manager: RoomManager,
+    ):
         mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
         mock_room_repository.update = MagicMock(side_effect=VLANNotFoundError)
         with raises(VLANNotFoundError):
@@ -41,10 +42,7 @@ class TestUpdateOrCreate:
 
 @fixture
 def room_manager(mock_room_repository, mock_member_manager):
-    return RoomManager(
-        room_repository=mock_room_repository,
-        member_manager=mock_member_manager
-    )
+    return RoomManager(room_repository=mock_room_repository, member_manager=mock_member_manager)
 
 
 @fixture

@@ -9,11 +9,7 @@ from adh6.network.port_manager import PortManager
 
 
 class TestCreate:
-
-    def test_unknown_room(self,
-                          mock_port_repository,
-                          sample_port: Port,
-                          port_manager: PortManager):
+    def test_unknown_room(self, mock_port_repository, sample_port: Port, port_manager: PortManager):
         # Given...
         mock_port_repository.create = MagicMock(side_effect=RoomNotFoundError)
 
@@ -24,10 +20,7 @@ class TestCreate:
         # Expect..
         mock_port_repository.create.assert_called_once()
 
-    def test_unknown_switch(self,
-                            mock_port_repository: PortRepository,
-                            sample_port: Port,
-                            port_manager: PortManager):
+    def test_unknown_switch(self, mock_port_repository: PortRepository, sample_port: Port, port_manager: PortManager):
         # Given...
         mock_port_repository.create = MagicMock(side_effect=SwitchNotFoundError)
 
@@ -40,26 +33,19 @@ class TestCreate:
 
 
 class TestUpdate:
-
-    def test_unknown_room(self,
-                          mock_port_repository,
-                          sample_port: Port,
-                          port_manager: PortManager):
+    def test_unknown_room(self, mock_port_repository, sample_port: Port, port_manager: PortManager):
         # Given...
         mock_port_repository.update = MagicMock(side_effect=RoomNotFoundError)
         mock_port_repository.search_by = MagicMock(return_value=([sample_port], 1))
 
         # When...
         with raises(RoomNotFoundError):
-                port_manager.update_or_create(sample_port, id=1)
+            port_manager.update_or_create(sample_port, id=1)
 
         # Expect..
         mock_port_repository.update.assert_called_once()
 
-    def test_unknown_switch(self,
-                            mock_port_repository,
-                            sample_port: Port,
-                            port_manager: PortManager):
+    def test_unknown_switch(self, mock_port_repository, sample_port: Port, port_manager: PortManager):
         # Given...
         mock_port_repository.update = MagicMock(side_effect=SwitchNotFoundError)
         mock_port_repository.search_by = MagicMock(return_value=([sample_port], 1))
@@ -74,11 +60,9 @@ class TestUpdate:
 
 @fixture
 def port_manager(
-        mock_port_repository,
+    mock_port_repository,
 ):
-    return PortManager(
-        port_repository=mock_port_repository
-    )
+    return PortManager(port_repository=mock_port_repository)
 
 
 @fixture

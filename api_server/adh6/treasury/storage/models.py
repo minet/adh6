@@ -10,24 +10,26 @@ from adh6.storage.sql.rubydiff import rubydiff
 
 
 class AccountType(Base):
-    __tablename__ = 'account_types'
+    __tablename__ = "account_types"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
 
 class PaymentMethod(Base):
-    __tablename__ = 'payment_methods'
+    __tablename__ = "payment_methods"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
 
 class Product(Base, RubyHashTrackable):
-    __tablename__ = 'products'
+    __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True)
-    buying_price: Mapped[float] = mapped_column(DECIMAL(8, 2), nullable=False)  # TODO: I think Numeric is better than DECIMAL, mais il faudrait se renseigner
+    buying_price: Mapped[float] = mapped_column(
+        DECIMAL(8, 2), nullable=False
+    )  # TODO: I think Numeric is better than DECIMAL, mais il faudrait se renseigner
     selling_price: Mapped[float] = mapped_column(DECIMAL(8, 2), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
 
@@ -36,7 +38,7 @@ class Product(Base, RubyHashTrackable):
         Override this method to add the prefix.
         """
         modif = rubydiff(snap_before, snap_after)
-        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        modif = "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
         return modif
 
     def get_related_member(self):
@@ -44,11 +46,13 @@ class Product(Base, RubyHashTrackable):
 
 
 class Account(Base, RubyHashTrackable):
-    __tablename__ = 'accounts'
+    __tablename__ = "accounts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, unique=True)
     type: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    creation_date: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    creation_date: Mapped[dt.datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), server_default=func.now()
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     actif: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default=text("1"))
     compte_courant: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False, server_default=text("0"))
@@ -60,7 +64,7 @@ class Account(Base, RubyHashTrackable):
         Override this method to add the prefix.
         """
         modif = rubydiff(snap_before, snap_after)
-        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        modif = "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
         return modif
 
     def get_related_member(self):
@@ -68,15 +72,19 @@ class Account(Base, RubyHashTrackable):
 
 
 class Transaction(Base, RubyHashTrackable):
-    __tablename__ = 'transactions'
+    __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     value: Mapped[float] = mapped_column(DECIMAL(8, 2), nullable=False)
-    timestamp: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
+    timestamp: Mapped[dt.datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), server_default=func.now()
+    )
     src: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     dst: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    attachments: Mapped[str] = mapped_column(TEXT(65535), nullable=False)  # TODO: regarder String vs TEXT et choisir le plus adapté
+    attachments: Mapped[str] = mapped_column(
+        TEXT(65535), nullable=False
+    )  # TODO: regarder String vs TEXT et choisir le plus adapté
     type: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     author_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     pending_validation: Mapped[bool] = mapped_column(Boolean(), nullable=False)
@@ -89,7 +97,7 @@ class Transaction(Base, RubyHashTrackable):
         """
 
         modif = rubydiff(snap_before, snap_after)
-        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        modif = "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
         return modif
 
     def get_related_member(self):
@@ -97,14 +105,18 @@ class Transaction(Base, RubyHashTrackable):
 
 
 class Caisse(Base, RubyHashTrackable):
-    __tablename__ = 'caisse'
+    __tablename__ = "caisse"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     fond: Mapped[float] = mapped_column(Numeric(10, 2))
     coffre: Mapped[float] = mapped_column(Numeric(10, 2))
     date: Mapped[dt.datetime] = mapped_column(DateTime)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_default=func.now())
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=func.now(), server_onupdate=func.now())
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), server_default=func.now()
+    )
+    updated_at: Mapped[dt.datetime] = mapped_column(
+        DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
+    )
     linked_transaction: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
@@ -113,7 +125,7 @@ class Caisse(Base, RubyHashTrackable):
         """
 
         modif = rubydiff(snap_before, snap_after)
-        modif = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n' + modif
+        modif = "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
         return modif
 
     def get_related_member(self):

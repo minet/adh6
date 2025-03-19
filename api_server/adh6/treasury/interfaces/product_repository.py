@@ -11,5 +11,7 @@ class ProductRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None) -> Tuple[List[AbstractProduct], int]:
+    def search_by(
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Optional[str] = None
+    ) -> Tuple[List[AbstractProduct], int]:
         pass  # pragma: no cover

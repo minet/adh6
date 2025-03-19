@@ -8,7 +8,12 @@ from .interfaces import CharterRepository, MemberRepository, MembershipRepositor
 
 
 class CharterManager:
-    def __init__(self, charter_repository: CharterRepository, member_repository: MemberRepository, membership_repository: MembershipRepository) -> None:
+    def __init__(
+        self,
+        charter_repository: CharterRepository,
+        member_repository: MemberRepository,
+        membership_repository: MembershipRepository,
+    ) -> None:
         self.charter_repository = charter_repository
         self.member_repository = member_repository
         self.membership_repository = membership_repository
@@ -23,12 +28,16 @@ class CharterManager:
         m = self.member_repository.get_by_id(member_id)
         if not m:
             raise MemberNotFoundError(member_id)
-        subscriptions, _ = self.membership_repository.search(limit=1, filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value))
+        subscriptions, _ = self.membership_repository.search(
+            limit=1, filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value)
+        )
         if not subscriptions:
             raise MembershipNotFoundError(member_id)
         self.charter_repository.update(charter_id, member_id)
         if subscriptions[0].status == MembershipStatus.PENDING_RULES.value:
-            self.membership_repository.update(subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL)
+            self.membership_repository.update(
+                subscriptions[0].uuid, SubscriptionBody(), MembershipStatus.PENDING_PAYMENT_INITIAL
+            )
 
     def get_members(self, charter_id: int) -> Tuple[List[int], int]:
         return self.charter_repository.get_members(charter_id)

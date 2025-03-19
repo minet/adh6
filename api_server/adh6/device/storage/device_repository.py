@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 from enum import Enum
 from typing import List, Tuple, Union
@@ -38,12 +39,12 @@ class DeviceSQLRepository(DeviceRepository):
     def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> Tuple[List[Device], int]:
         smt: Select = select(SQLDevice)
         if device_filter.terms:
-            smt = smt.join(Adherent, SQLDevice.adherent_id==Adherent.id).where(
-                (SQLDevice.mac.contains(device_filter.terms)) |
-                (SQLDevice.mac.contains(device_filter.terms.replace("-", ":"))) |
-                (SQLDevice.ip.contains(device_filter.terms)) |
-                (SQLDevice.ipv6.contains(device_filter.terms)) |
-                (Adherent.login.contains(device_filter.terms))
+            smt = smt.join(Adherent, SQLDevice.adherent_id == Adherent.id).where(
+                (SQLDevice.mac.contains(device_filter.terms))
+                | (SQLDevice.mac.contains(device_filter.terms.replace("-", ":")))
+                | (SQLDevice.ip.contains(device_filter.terms))
+                | (SQLDevice.ipv6.contains(device_filter.terms))
+                | (Adherent.login.contains(device_filter.terms))
             )
         if device_filter.member:
             smt = smt.where(SQLDevice.adherent_id == device_filter.member)
@@ -65,8 +66,8 @@ class DeviceSQLRepository(DeviceRepository):
             last_seen=now,
             type=DeviceType[obj.connection_type].value,  # type: ignore  # TODO: typing is baaaaad
             adherent_id=obj.member,
-            ip='En attente',
-            ipv6='En attente'
+            ip="En attente",
+            ipv6="En attente",
         )
 
         with track_modifications(db.session, device):
@@ -90,7 +91,7 @@ class DeviceSQLRepository(DeviceRepository):
     def delete(self, id) -> None:
         device = db.session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
         with track_modifications(db.session, device):
-            db.session.delete(device)    
+            db.session.delete(device)
 
     def get_mab(self, id: int) -> bool:
         device = db.session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
@@ -127,6 +128,6 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         mac=d.mac,
         member=d.adherent_id,
         connection_type=DeviceType(d.type).name,
-        ipv4_address=d.ip if d.ip != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
-        ipv6_address=d.ipv6 if d.ipv6 != 'En attente' else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv4_address=d.ip if d.ip != "En attente" else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        ipv6_address=d.ipv6 if d.ipv6 != "En attente" else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
     )

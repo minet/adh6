@@ -14,5 +14,5 @@ class VLANHandler(DefaultHandler):
     @with_context
     @log_call
     def get_from_number(self, vlan_number):
-        """ Get the state of a port """
+        """Get the state of a port"""
         return self.vlan_manager.get_from_number(vlan_number).to_dict(), 200

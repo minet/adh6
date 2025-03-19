@@ -13,10 +13,7 @@ def rubydiff(snap_before, snap_after) -> str:
     snap_after = snap_after if snap_after is not None else {}
 
     txt = []
-    for key in sorted(set().union(
-            snap_before,
-            snap_after
-    )):
+    for key in sorted(set().union(snap_before, snap_after)):
         old = snap_before.get(key)
         new = snap_after.get(key)
 

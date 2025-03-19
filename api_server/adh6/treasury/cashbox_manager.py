@@ -1,5 +1,6 @@
 # coding=utf-8
-""" Use cases (business rule layer) of everything related to the cashbox. """
+"""Use cases (business rule layer) of everything related to the cashbox."""
+
 from typing import Tuple
 import logging
 
@@ -16,5 +17,5 @@ class CashboxManager:
 
     def get_cashbox(self) -> Tuple[int, int]:
         fond, coffre = self.cashbox_repository.get()
-        logging.debug('cashbox_get')
+        logging.debug("cashbox_get")
         return fond, coffre

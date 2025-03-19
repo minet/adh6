@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 from typing import List, Optional, Tuple
 
@@ -28,7 +29,13 @@ class SwitchSQLRepository(SwitchRepository):
         return _map_switch_sql_to_abstract_entity(obj)
 
     @log_call
-    def search_by(self, limit: int=DEFAULT_LIMIT, offset: int=DEFAULT_OFFSET, terms: Optional[str]=None, filter_: Optional[AbstractSwitch] = None) -> Tuple[List[AbstractSwitch], int]:
+    def search_by(
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: Optional[str] = None,
+        filter_: Optional[AbstractSwitch] = None,
+    ) -> Tuple[List[AbstractSwitch], int]:
         query = db.session.query(SQLSwitch)
         if terms:
             query = query.filter(SQLSwitch.description.contains(terms) | SQLSwitch.ip.contains(terms))
@@ -39,7 +46,6 @@ class SwitchSQLRepository(SwitchRepository):
                 query = query.filter(SQLSwitch.description.contains(filter_.description))
             if filter_.ip is not None:
                 query = query.filter(SQLSwitch.ip == filter_.ip)
-
 
         count = query.count()
         query = query.order_by(SQLSwitch.created_at.asc())
@@ -58,7 +64,7 @@ class SwitchSQLRepository(SwitchRepository):
             communaute=abstract_switch.community,
             description=abstract_switch.description,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
 
         db.session.add(switch)
@@ -111,6 +117,7 @@ def _map_switch_sql_to_entity(a: SQLSwitch) -> Switch:
         description=a.description,
         ip=a.ip,
     )
+
 
 def _map_switch_sql_to_abstract_entity(a: SQLSwitch) -> AbstractSwitch:
     """

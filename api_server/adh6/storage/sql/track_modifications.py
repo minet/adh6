@@ -2,6 +2,7 @@
 """
 Track modification on SQLAlchemy objects.
 """
+
 from contextlib import contextmanager
 from datetime import datetime
 
@@ -26,6 +27,7 @@ def track_modifications(session, obj: RubyHashTrackable):
 
         now = datetime.now()
         from adh6.context import get_user
+
         user = get_user()
         member = obj.get_related_member()
 

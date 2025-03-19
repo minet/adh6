@@ -1,13 +1,14 @@
 import pytest
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
-base_url = f'{host_url}/profile'
+base_url = f"{host_url}/profile"
 
 
 @pytest.fixture
 def client(sample_member):
     from .context import app
     from .conftest import prep_db, close_db
+
     if app.app is None:
         return
     with app.app.test_client() as c:

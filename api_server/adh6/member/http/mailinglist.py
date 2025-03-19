@@ -24,7 +24,7 @@ class MailinglistHandler:
     def member_put(self, id_: int, body: Dict[str, int]):
         if get_user() != id_ and Roles.ADMIN_WRITE.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
-        self.mailinglist_manager.update_member_mailinglist(id_, body['value'])
+        self.mailinglist_manager.update_member_mailinglist(id_, body["value"])
         return NoContent, 204
 
     @with_context

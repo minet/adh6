@@ -17,14 +17,11 @@ class NotificationTemplateSQLRepository(NotificationTemplateRepository):
         return _map_template_to_sql_entity(sql_template[0]) if sql_template[0] else None
 
     def put(self, template: NotificationTemplate) -> int:
-        smt = insert(SQLNotificationTemplate).values(
-            title = template.title,
-            template = template.template
-        )
-        return db.session.execute(select(SQLNotificationTemplate.id).where(SQLNotificationTemplate.title == template.title)).scalar_one()
+        smt = insert(SQLNotificationTemplate).values(title=template.title, template=template.template)
+        return db.session.execute(
+            select(SQLNotificationTemplate.id).where(SQLNotificationTemplate.title == template.title)
+        ).scalar_one()
+
 
 def _map_template_to_sql_entity(template: SQLNotificationTemplate) -> NotificationTemplate:
-    return NotificationTemplate(
-        title = template.title,
-        template = template.template
-    )
+    return NotificationTemplate(title=template.title, template=template.template)

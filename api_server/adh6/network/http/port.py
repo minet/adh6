@@ -15,7 +15,7 @@ class PortHandler(DefaultHandler):
     @with_context
     @log_call
     def state_get(self, id_):
-        """ Get the state of a port """
+        """Get the state of a port"""
         return self.switch_network_manager.get_port_status(port_id=id_) == "up", 200
 
     @with_context
@@ -26,14 +26,14 @@ class PortHandler(DefaultHandler):
     @with_context
     @log_call
     def vlan_get(self, id_):
-        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID" :
+        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
             return 1, 200
         return int(self.switch_network_manager.get_port_vlan(port_id=id_)), 200
 
     @with_context
     @log_call
     def vlan_put(self, id_, body):
-        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID" :
+        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
             return 1, 200
         self.switch_network_manager.update_port_vlan(port_id=id_, vlan=int(body))
         return int(body), 204
@@ -46,7 +46,7 @@ class PortHandler(DefaultHandler):
     @with_context
     @log_call
     def mab_put(self, id_):
-        return self.switch_network_manager.update_port_mab(port_id=id_) == 'true', 200
+        return self.switch_network_manager.update_port_mab(port_id=id_) == "true", 200
 
     @with_context
     @log_call

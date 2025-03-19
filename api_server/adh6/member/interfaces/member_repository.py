@@ -9,7 +9,9 @@ from adh6.default.crud_repository import CRUDRepository
 
 class MemberRepository(CRUDRepository[Member, AbstractMember]):
     @abc.abstractmethod
-    def search_by(self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None) -> Tuple[List[Member], int]:
+    def search_by(
+        self, limit: int, offset: int, terms: Optional[str] = None, filter_: Optional[MemberFilter] = None
+    ) -> Tuple[List[Member], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

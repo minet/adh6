@@ -28,7 +28,7 @@ class RoomManager(CRUDManager):
             self.member_manager.get_by_id(member_id)
         except NotFoundError as e:
             raise e
-        
+
         previous_room = self.room_repository.get_from_member(member_id)
         if previous_room:
             self.room_repository.remove_member(member_id)

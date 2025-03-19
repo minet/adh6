@@ -23,7 +23,10 @@ class RoleManager:
     def create(self, identifier: str, roles: List[str], auth: str = AuthenticationMethod.USER.value) -> None:
         method = AuthenticationMethod(auth)
         if method == AuthenticationMethod.API_KEY:
-            raise UpdateImpossible("api key", "The roles for an api key cannot be changed. You might want to delete the key and recreate one")
+            raise UpdateImpossible(
+                "api key",
+                "The roles for an api key cannot be changed. You might want to delete the key and recreate one",
+            )
         if method == AuthenticationMethod.USER:
             t = self.member_manager.get_by_login(login=identifier)
             if not t:

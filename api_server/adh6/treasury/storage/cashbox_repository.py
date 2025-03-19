@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 import decimal
 from datetime import datetime
 from typing import Tuple
@@ -15,7 +16,6 @@ from ..interfaces import CashboxRepository
 
 
 class CashboxSQLRepository(CashboxRepository):
-
     @log_call
     def update(self, value_modifier=None, transaction=None):
         now = datetime.now()
@@ -30,7 +30,7 @@ class CashboxSQLRepository(CashboxRepository):
             date=now,
             created_at=now,
             updated_at=now,
-            linked_transaction=transaction.id if transaction is not None else None
+            linked_transaction=transaction.id if transaction is not None else None,
         )
 
         with track_modifications(db.session, cashbox_update):

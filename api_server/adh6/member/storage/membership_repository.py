@@ -15,7 +15,9 @@ from ..interfaces.membership_repository import MembershipRepository
 
 class MembershipSQLRepository(MembershipRepository):
     @log_call
-    def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None) -> Tuple[List[Membership], int]:
+    def search(
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractMembership] = None
+    ) -> Tuple[List[Membership], int]:
         query = db.session.query(MembershipSQL)
         if filter_:
             if filter_.uuid is not None:
@@ -57,7 +59,7 @@ class MembershipSQLRepository(MembershipRepository):
             create_at=now,
             update_at=now,
             first_time=db.session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
-            has_room=body.has_room if body.has_room is not None else True
+            has_room=body.has_room if body.has_room is not None else True,
         )
         db.session.add(to_add)
         db.session.flush()
@@ -76,7 +78,7 @@ class MembershipSQLRepository(MembershipRepository):
             membership.payment_method_id = body.payment_method
         if body.has_room is not None:
             membership.has_room = body.has_room
-        
+
         membership.status = state
         membership.update_at = now
 
@@ -103,5 +105,5 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         account=obj_sql.account_id,
         member=obj_sql.adherent_id,
         status=obj_sql.status.value,
-        created_at=obj_sql.create_at
+        created_at=obj_sql.create_at,
     )

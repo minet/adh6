@@ -18,6 +18,8 @@ class AuthenticationRoleMapping(Base):
     __tablename__ = "role_mappings"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    authentication: Mapped[Any] = mapped_column(Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False)  # TODO: typing
+    authentication: Mapped[Any] = mapped_column(
+        Enum(AuthenticationMethod), default=AuthenticationMethod.NONE, nullable=False
+    )  # TODO: typing
     identifier: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[Any] = mapped_column(Enum(Roles), default=Roles.USER, nullable=False)  # TODO: typing

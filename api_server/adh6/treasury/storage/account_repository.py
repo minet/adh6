@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 
 from typing import List, Optional, Tuple, Union
@@ -21,11 +22,21 @@ from ..interfaces import AccountRepository
 
 class AccountSQLRepository(AccountRepository):
     @log_call
-    def search_by(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None) -> Tuple[List[AbstractAccount], int]:
-        query = db.session.query(SQLAccount,
-                    func.sum(case(value=Transaction.src, whens={  # type: ignore  # TODO: typing
+    def search_by(
+        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: Optional[AbstractAccount] = None
+    ) -> Tuple[List[AbstractAccount], int]:
+        query = db.session.query(
+            SQLAccount,
+            func.sum(
+                case(
+                    value=Transaction.src,
+                    whens={  # type: ignore  # TODO: typing
                         SQLAccount.id: -Transaction.value
-                    }, else_=Transaction.value)).label("balance")).group_by(SQLAccount.id)
+                    },
+                    else_=Transaction.value,
+                )
+            ).label("balance"),
+        ).group_by(SQLAccount.id)
         query = query.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
         if terms:
@@ -56,7 +67,17 @@ class AccountSQLRepository(AccountRepository):
 
     @log_call
     def get_by_id(self, object_id: int) -> Union[AbstractAccount, None]:
-        obj = db.session.query(SQLAccount, func.sum(case(value=Transaction.src, whens={ SQLAccount.id: -Transaction.value }, else_=Transaction.value)).label("balance")).outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)).filter(SQLAccount.id == object_id).one()  # type: ignore  # TODO: typing
+        obj = (
+            db.session.query(
+                SQLAccount,
+                func.sum(
+                    case(value=Transaction.src, whens={SQLAccount.id: -Transaction.value}, else_=Transaction.value)
+                ).label("balance"),
+            )
+            .outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
+            .filter(SQLAccount.id == object_id)
+            .one()
+        )  # type: ignore  # TODO: typing
         return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None
 
     @log_call
@@ -86,7 +107,7 @@ class AccountSQLRepository(AccountRepository):
             creation_date=now,
             compte_courant=abstract_account.compte_courant,
             pinned=abstract_account.pinned,
-            adherent_id=adherent.id if adherent else None
+            adherent_id=adherent.id if adherent else None,
         )
         db.session.add(account)
         db.session.flush()
@@ -118,8 +139,10 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,
-        pinned=a.pinned
+        pinned=a.pinned,
     )
+
+
 def _map_account_sql_to_abstract_entity(a: SQLAccount, has_balance=False) -> AbstractAccount:
     """
     Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
@@ -137,5 +160,5 @@ def _map_account_sql_to_abstract_entity(a: SQLAccount, has_balance=False) -> Abs
         balance=balance or 0,
         pending_balance=balance or 0,
         compte_courant=a.compte_courant,
-        pinned=a.pinned
+        pinned=a.pinned,
     )

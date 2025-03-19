@@ -4,13 +4,14 @@ import pytest
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
 
-base_url = f'{host_url}/mailinglist/'
+base_url = f"{host_url}/mailinglist/"
 
 
 @pytest.fixture
 def client(sample_member):
     from .context import app
     from .conftest import prep_db, close_db
+
     if app.app is None:
         return
     with app.app.test_client() as c:
@@ -18,7 +19,8 @@ def client(sample_member):
         yield c
         close_db()
 
-@pytest.mark.parametrize('value', [(-1,), (256,)])
+
+@pytest.mark.parametrize("value", [(-1,), (256,)])
 def test_mailinglist_list_members_bad_value(client, value):
     r = client.get(
         f"{base_url}?value={value}",
@@ -33,8 +35,8 @@ def test_mailinglist_list_members(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode('utf-8'))
-    assert response == [sample_member.id] 
+    response = json.loads(r.data.decode("utf-8"))
+    assert response == [sample_member.id]
 
 
 def test_room_mailinglist_member_unauthorized_user(client):
@@ -51,7 +53,7 @@ def test_mailinglist_get_member_membership(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert response == sample_member.mail_membership
 
 
@@ -61,7 +63,7 @@ def test_mailinglist_get_member_membership_user_authorized(client, sample_member
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert response == sample_member.mail_membership
 
 
@@ -94,7 +96,7 @@ def test_mailinglist_update_member_membership(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert response == 251
 
 
@@ -111,7 +113,7 @@ def test_mailinglist_update_member_membership_user_authorized(client, sample_mem
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert response == 251
 
 
@@ -125,8 +127,8 @@ def test_mailinglist_update_member_membership_unknown_member(client):
     assert r.status_code == 404
 
 
-@pytest.mark.parametrize('headers', [TEST_HEADERS, TEST_HEADERS_SAMPLE])
-@pytest.mark.parametrize('value', [-1, 256])
+@pytest.mark.parametrize("headers", [TEST_HEADERS, TEST_HEADERS_SAMPLE])
+@pytest.mark.parametrize("value", [-1, 256])
 def test_mailinglist_update_member_membership_bad_value(client, sample_member, value, headers):
     r = client.put(
         f"{base_url}member/{sample_member.id}",

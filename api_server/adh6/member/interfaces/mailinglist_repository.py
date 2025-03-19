@@ -1,6 +1,7 @@
 from typing import List
 import abc
 
+
 class MailinglistRepository(abc.ABC):
     @abc.abstractmethod
     def list_members(self, value: int) -> List[int]:

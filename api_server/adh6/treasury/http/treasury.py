@@ -5,8 +5,7 @@ from adh6.treasury.cashbox_manager import CashboxManager
 
 
 class TreasuryHandler:
-    def __init__(self, cashbox_manager: CashboxManager,
-                 account_manager: AccountManager):
+    def __init__(self, cashbox_manager: CashboxManager, account_manager: AccountManager):
         self.cashbox_manager = cashbox_manager
         self.account_manager = account_manager
 
@@ -14,7 +13,7 @@ class TreasuryHandler:
     @log_call
     def get_bank(self):
         balance = self.account_manager.get_cav_balance()
-        return {'expectedCav': balance}, 200
+        return {"expectedCav": balance}, 200
 
     @with_context
     @log_call

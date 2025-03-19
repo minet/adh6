@@ -2,10 +2,12 @@
 """
 Treasury repository.
 """
+
 import abc
 from typing import Tuple
 
 from adh6.entity.abstract_transaction import AbstractTransaction
+
 
 class CashboxRepository(abc.ABC):
     """
@@ -25,4 +27,3 @@ class CashboxRepository(abc.ABC):
         Add or remove value
         """
         pass  # pragma: no cover
-

@@ -2,7 +2,13 @@ import pytest
 import json
 from test import SAMPLE_CLIENT
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_API_KEY_ADMIN,
+    TEST_HEADERS_API_KEY_USER,
+    TEST_HEADERS_SAMPLE,
+    base_url as host_url,
+)
 
 
 base_url = f"{host_url}/role/"
@@ -12,6 +18,7 @@ base_url = f"{host_url}/role/"
 def client(sample_member):
     from .context import app
     from .conftest import prep_db, close_db
+
     if app.app is None:
         return
     with app.app.test_client() as c:
@@ -26,7 +33,7 @@ def test_role_search(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 7
 
 
@@ -36,7 +43,7 @@ def test_role_search_no_result(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 0
 
 
@@ -70,20 +77,16 @@ def test_role_search_filter_no_result_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 0
 
 
 def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
@@ -92,20 +95,16 @@ def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
 def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
@@ -114,20 +113,16 @@ def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
 def test_role_post(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
@@ -136,20 +131,16 @@ def test_role_post(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
 def test_role_post_multiple_roles(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write", "admin:read"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write", "admin:read"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
@@ -158,65 +149,49 @@ def test_role_post_multiple_roles(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
 def test_role_post_unknown_user(client):
-    body = {
-        "auth": "user",
-        "identifier": "minet",
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": "minet", "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 404
 
 
 def test_role_post_unknown_role(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["minet"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["minet"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
 
 
 def test_role_post_unauthorized_user(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
 
 
 def test_role_post_unauthorized_api_key_admin(client):
-    body = {
-        "auth": "user",
-        "identifier": SAMPLE_CLIENT,
-        "roles": ["admin:write"]
-    }
+    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write"]}
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type='application/json',
+        content_type="application/json",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 401

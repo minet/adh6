@@ -14,17 +14,12 @@ class CRUDManager:
     @log_call
     def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> Tuple[list, int]:
         if limit < 0:
-            raise IntMustBePositive('limit')
+            raise IntMustBePositive("limit")
 
         if offset < 0:
-            raise IntMustBePositive('offset')
+            raise IntMustBePositive("offset")
 
-        return self.repository.search_by(
-            limit=limit,
-            offset=offset,
-            terms=terms,
-            **kwargs
-        )
+        return self.repository.search_by(limit=limit, offset=offset, terms=terms, **kwargs)
 
     @log_call
     def get_by_id(self, id: int) -> Model:

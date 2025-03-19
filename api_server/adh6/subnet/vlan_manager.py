@@ -9,7 +9,7 @@ from .interfaces import VlanRepository
 
 class VlanManager(CRUDManager):
     def __init__(self, vlan_repository: VlanRepository):
-        super().__init__(vlan_repository, VLANNotFoundError)
+        super().__init__(vlan_repository, VLANNotFoundError)  # type: ignore # TODO: typing
         self.vlan_repository = vlan_repository
 
     @log_call

@@ -2,6 +2,7 @@
 """
 With context decator.
 """
+
 from functools import wraps
 
 from adh6.misc import handle_error
@@ -19,11 +20,12 @@ def with_context(f):
     """
 
     @wraps(f)
-    def wrapper(*args,**kwargs):
+    def wrapper(*args, **kwargs):
         """
         Wrap http_api function.
         """
         from adh6.storage import db
+
         try:
             result = f(*args, **kwargs)
 

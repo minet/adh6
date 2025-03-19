@@ -13,20 +13,16 @@ from adh6.treasury.transaction_manager import TransactionManager
 
 
 class TestGetByID:
-    def test_happy_path(self,
-                        mock_transaction_repository,
-                        sample_transaction,
-                        transaction_manager: TransactionManager):
+    def test_happy_path(self, mock_transaction_repository, sample_transaction, transaction_manager: TransactionManager):
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         result = transaction_manager.get_by_id(id=sample_transaction.id)
 
         assert sample_transaction == result
         mock_transaction_repository.get_by_id.assert_called_once()
 
-    def test_transaction_not_found(self,
-                                   faker,
-                                   mock_transaction_repository: TransactionRepository,
-                                   transaction_manager: TransactionManager):
+    def test_transaction_not_found(
+        self, faker, mock_transaction_repository: TransactionRepository, transaction_manager: TransactionManager
+    ):
         mock_transaction_repository.get_by_id = MagicMock(return_value=(None), side_effect=TransactionNotFoundError(""))
 
         with raises(TransactionNotFoundError):
@@ -34,40 +30,39 @@ class TestGetByID:
 
 
 class TestSearch:
-    def test_happy_path(self,
-                        mock_transaction_repository,
-                        sample_transaction: Transaction,
-                        transaction_manager: TransactionManager):
+    def test_happy_path(
+        self, mock_transaction_repository, sample_transaction: Transaction, transaction_manager: TransactionManager
+    ):
         mock_transaction_repository.search_by = MagicMock(return_value=([sample_transaction], 1))
-        result, count = transaction_manager.search(limit=42, offset=2, terms='abc')
+        result, count = transaction_manager.search(limit=42, offset=2, terms="abc")
 
         assert [sample_transaction] == result
         assert 1 == count
-        mock_transaction_repository.search_by.assert_called_once_with(limit=42, offset=2, terms='abc')
+        mock_transaction_repository.search_by.assert_called_once_with(limit=42, offset=2, terms="abc")
 
-    def test_offset_negative(self,
-                             transaction_manager: TransactionManager):
+    def test_offset_negative(self, transaction_manager: TransactionManager):
         with raises(IntMustBePositive):
             transaction_manager.search(offset=-1)
 
-    def test_limit_negative(self,
-                            transaction_manager: TransactionManager):
+    def test_limit_negative(self, transaction_manager: TransactionManager):
         with raises(IntMustBePositive):
             transaction_manager.search(limit=-1)
 
 
 class TestCreateOrUpdate:
-    def test_happy_path_update(self,
-                               mock_transaction_repository: TransactionRepository,
-                               transaction_manager: TransactionManager,
-                               sample_transaction: Transaction):
+    def test_happy_path_update(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        transaction_manager: TransactionManager,
+        sample_transaction: Transaction,
+    ):
         req = AbstractTransaction(
             src=sample_transaction.src,
             dst=sample_transaction.dst,
             name=sample_transaction.name,
             value=sample_transaction.value,
             payment_method=sample_transaction.payment_method,
-            attachments=sample_transaction.attachments
+            attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = MagicMock(return_value=(sample_transaction))
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
@@ -80,18 +75,13 @@ class TestCreateOrUpdate:
         mock_transaction_repository.get_by_id.assert_called_once()
         mock_transaction_repository.update.assert_called_once()
 
-    def test_happy_path_create(self,
-                               mock_transaction_repository: TransactionRepository,
-                               transaction_manager: TransactionManager,
-                               sample_transaction: Transaction):
-        req = AbstractTransaction(
-            src='1',
-            dst='2',
-            name='test',
-            value=1,
-            payment_method='1',
-            attachments=None
-        )
+    def test_happy_path_create(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        transaction_manager: TransactionManager,
+        sample_transaction: Transaction,
+    ):
+        req = AbstractTransaction(src="1", dst="2", name="test", value=1, payment_method="1", attachments=None)
         mock_transaction_repository.create = MagicMock(return_value=(sample_transaction))
 
         _, c = transaction_manager.update_or_create(req)
@@ -99,17 +89,19 @@ class TestCreateOrUpdate:
         assert c is True
         mock_transaction_repository.create.assert_called_once_with(req)
 
-    def test_happy_path_create_only_admin(self,
-                               mock_transaction_repository: TransactionRepository,
-                               transaction_manager: TransactionManager,
-                               sample_transaction_pending: Transaction):
+    def test_happy_path_create_only_admin(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        transaction_manager: TransactionManager,
+        sample_transaction_pending: Transaction,
+    ):
         req = AbstractTransaction(
             src=sample_transaction_pending.src,
             dst=sample_transaction_pending.dst,
             name=sample_transaction_pending.name,
             value=sample_transaction_pending.value,
             payment_method=sample_transaction_pending.payment_method,
-            attachments=sample_transaction_pending.attachments
+            attachments=sample_transaction_pending.attachments,
         )
         mock_transaction_repository.create = MagicMock(return_value=(sample_transaction_pending))
 
@@ -119,11 +111,13 @@ class TestCreateOrUpdate:
         assert c is True
         mock_transaction_repository.create.assert_called_once_with(req)
 
-    def test_happy_path_create_add_cashbox(self,
-                               mock_transaction_repository: TransactionRepository,
-                                           mock_cashbox_repository: CashboxRepository,
-                               transaction_manager: TransactionManager,
-                               sample_transaction: Transaction):
+    def test_happy_path_create_add_cashbox(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        mock_cashbox_repository: CashboxRepository,
+        transaction_manager: TransactionManager,
+        sample_transaction: Transaction,
+    ):
         sample_transaction.cashbox = "to"
         req = AbstractTransaction(
             src=sample_transaction.src,
@@ -131,7 +125,7 @@ class TestCreateOrUpdate:
             name=sample_transaction.name,
             value=sample_transaction.value,
             payment_method=sample_transaction.payment_method,
-            attachments=sample_transaction.attachments
+            attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = MagicMock(return_value=(sample_transaction))
         mock_cashbox_repository.update = MagicMock(return_value=(None))
@@ -140,13 +134,17 @@ class TestCreateOrUpdate:
 
         assert c is True
         mock_transaction_repository.create.assert_called_once_with(req)
-        mock_cashbox_repository.update.assert_called_once_with(value_modifier=sample_transaction.value, transaction=sample_transaction)
+        mock_cashbox_repository.update.assert_called_once_with(
+            value_modifier=sample_transaction.value, transaction=sample_transaction
+        )
 
-    def test_happy_path_create_remove_cashbox(self,
-                                              mock_transaction_repository: TransactionRepository,
-                                              mock_cashbox_repository: CashboxRepository,
-                                              transaction_manager: TransactionManager,
-                                              sample_transaction: Transaction):
+    def test_happy_path_create_remove_cashbox(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        mock_cashbox_repository: CashboxRepository,
+        transaction_manager: TransactionManager,
+        sample_transaction: Transaction,
+    ):
         sample_transaction.cashbox = "from"
         req = AbstractTransaction(
             src=sample_transaction.src,
@@ -154,7 +152,7 @@ class TestCreateOrUpdate:
             name=sample_transaction.name,
             value=sample_transaction.value,
             payment_method=sample_transaction.payment_method,
-            attachments=sample_transaction.attachments
+            attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = MagicMock(return_value=(sample_transaction))
         mock_cashbox_repository.update = MagicMock(return_value=(None))
@@ -164,69 +162,34 @@ class TestCreateOrUpdate:
         assert c is True
         assert sample_transaction.value is not None
         mock_transaction_repository.create.assert_called_once_with(req)
-        mock_cashbox_repository.update.assert_called_once_with(value_modifier=-sample_transaction.value, transaction=sample_transaction)
-
-    def test_same_account(self,
-                          transaction_manager: TransactionManager):
-        req = AbstractTransaction(
-            src='1',
-            dst='1',
-            name='test',
-            value=1,
-            payment_method='1',
-            attachments=None
-
+        mock_cashbox_repository.update.assert_called_once_with(
+            value_modifier=-sample_transaction.value, transaction=sample_transaction
         )
+
+    def test_same_account(self, transaction_manager: TransactionManager):
+        req = AbstractTransaction(src="1", dst="1", name="test", value=1, payment_method="1", attachments=None)
         with raises(ValidationError):
             transaction_manager.update_or_create(req)
 
     def test_no_value(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(
-            src='1',
-            dst='2',
-            name='test',
-            value=None,
-            payment_method='1',
-            attachments=None
-
-        )
+        req = AbstractTransaction(src="1", dst="2", name="test", value=None, payment_method="1", attachments=None)
         with raises(ValidationError):
             transaction_manager.update_or_create(req)
 
     def test_negative_value(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(
-            src='1',
-            dst='2',
-            name='test',
-            value=-1,
-            payment_method='1',
-            attachments=None
-
-        )
+        req = AbstractTransaction(src="1", dst="2", name="test", value=-1, payment_method="1", attachments=None)
         with raises(ValidationError):
             transaction_manager.update_or_create(req)
 
     def test_happy_path(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(
-            src='1',
-            dst='2',
-            name='test',
-            value=-1,
-            payment_method='1',
-            attachments=None
-
-        )
+        req = AbstractTransaction(src="1", dst="2", name="test", value=-1, payment_method="1", attachments=None)
         with raises(ValidationError):
             transaction_manager.update_or_create(req)
 
 
 class TestPartiallyUpdate:
     def test_happy_path(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(
-            name='test',
-            attachments=None
-
-        )
+        req = AbstractTransaction(name="test", attachments=None)
         with pytest.raises(NotImplementedError):
             transaction_manager.partially_update(req)
 
@@ -239,10 +202,12 @@ class TestPartiallyUpdate:
 
 
 class TestValidate:
-    def test_happy_path(self,
-                        mock_transaction_repository,
-                        sample_transaction_pending: Transaction,
-                        transaction_manager: TransactionManager):
+    def test_happy_path(
+        self,
+        mock_transaction_repository,
+        sample_transaction_pending: Transaction,
+        transaction_manager: TransactionManager,
+    ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
         transaction_manager.validate(**{"id": sample_transaction_pending.id})
@@ -250,10 +215,12 @@ class TestValidate:
         # Expect...
         mock_transaction_repository.validate.assert_called_once_with(sample_transaction_pending.id)
 
-    def test_cannot_validate_nonpending(self,
-                        mock_transaction_repository: TransactionRepository,
-                        sample_transaction: Transaction,
-                        transaction_manager: TransactionManager):
+    def test_cannot_validate_nonpending(
+        self,
+        mock_transaction_repository: TransactionRepository,
+        sample_transaction: Transaction,
+        transaction_manager: TransactionManager,
+    ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
@@ -261,10 +228,12 @@ class TestValidate:
 
 
 class TestDelete:
-    def test_happy_path(self,
-                        mock_transaction_repository,
-                        sample_transaction_pending: Transaction,
-                        transaction_manager: TransactionManager):
+    def test_happy_path(
+        self,
+        mock_transaction_repository,
+        sample_transaction_pending: Transaction,
+        transaction_manager: TransactionManager,
+    ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction_pending))
         transaction_manager.delete(**{"id": sample_transaction_pending.id})
@@ -272,19 +241,15 @@ class TestDelete:
         # Expect...
         mock_transaction_repository.delete.assert_called_once_with(sample_transaction_pending.id)
 
-    def test_cannot_delete_nonpending(self,
-                        mock_transaction_repository,
-                        sample_transaction: Transaction,
-                        transaction_manager: TransactionManager):
+    def test_cannot_delete_nonpending(
+        self, mock_transaction_repository, sample_transaction: Transaction, transaction_manager: TransactionManager
+    ):
         # When...
         mock_transaction_repository.get_by_id = MagicMock(return_value=(sample_transaction))
         with raises(UserInputError):
             transaction_manager.delete(**{"id": sample_transaction.id})
 
-
-    def test_object_not_found(self,
-                        mock_transaction_repository,
-                        transaction_manager: TransactionManager):
+    def test_object_not_found(self, mock_transaction_repository, transaction_manager: TransactionManager):
         # Given
         mock_transaction_repository.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
 
@@ -295,8 +260,7 @@ class TestDelete:
 @fixture
 def transaction_manager(mock_transaction_repository, mock_cashbox_repository):
     return TransactionManager(
-        transaction_repository=mock_transaction_repository,
-        cashbox_repository=mock_cashbox_repository
+        transaction_repository=mock_transaction_repository, cashbox_repository=mock_cashbox_repository
     )
 
 

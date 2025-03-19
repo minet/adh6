@@ -2,6 +2,7 @@
 """
 Implements everything related to actions on the SQL database.
 """
+
 from datetime import datetime
 
 from typing import List, Tuple, Union
@@ -20,6 +21,7 @@ from ..interfaces import TransactionRepository
 
 auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
+
 class TransactionSQLRepository(TransactionRepository):
     @log_call
     def get_by_id(self, object_id: int) -> Union[Transaction, None]:
@@ -27,35 +29,36 @@ class TransactionSQLRepository(TransactionRepository):
         return _map_transaction_sql_to_entity(obj) if obj else obj
 
     @log_call
-    def search_by(self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: Union[str, None] = None, filter_:  Union[AbstractTransaction, None] = None) -> Tuple[List[Transaction], int]:
-        query= db.session.query(SQLTransaction)
+    def search_by(
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: Union[str, None] = None,
+        filter_: Union[AbstractTransaction, None] = None,
+    ) -> Tuple[List[Transaction], int]:
+        query = db.session.query(SQLTransaction)
 
         if filter_:
             if filter_.id is not None:
-                query= query.filter(SQLTransaction.id == filter_.id)
+                query = query.filter(SQLTransaction.id == filter_.id)
             if filter_.payment_method is not None:
-                query= query.filter(SQLTransaction.type == filter_.payment_method)
+                query = query.filter(SQLTransaction.type == filter_.payment_method)
             if filter_.pending_validation is not None:
-                query= query.filter(
-                    (SQLTransaction.pending_validation == filter_.pending_validation)
-                )
+                query = query.filter((SQLTransaction.pending_validation == filter_.pending_validation))
             if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-                query= query.filter(
-                    (SQLTransaction.src == filter_.src) |
-                    (SQLTransaction.dst == filter_.dst)
-                )
+                query = query.filter((SQLTransaction.src == filter_.src) | (SQLTransaction.dst == filter_.dst))
             elif filter_.src is not None:
-                query= query.filter(SQLTransaction.src == filter_.src)
+                query = query.filter(SQLTransaction.src == filter_.src)
             elif filter_.dst is not None:
-                query= query.filter(SQLTransaction.dst == filter_.dst)
+                query = query.filter(SQLTransaction.dst == filter_.dst)
 
         if terms:
-            query= query.filter((SQLTransaction.name.contains(terms)))
+            query = query.filter((SQLTransaction.name.contains(terms)))
 
         count = query.count()
-        query= query.order_by(SQLTransaction.timestamp.desc())
-        query= query.offset(offset)
-        query= query.limit(limit)
+        query = query.order_by(SQLTransaction.timestamp.desc())
+        query = query.offset(offset)
+        query = query.limit(limit)
         r = query.all()
 
         return [_map_transaction_sql_to_entity(i) for i in r], count
@@ -78,8 +81,11 @@ class TransactionSQLRepository(TransactionRepository):
 
         method = None
         if abstract_transaction.payment_method is not None:
-            method = db.session.query(PaymentMethod).filter(
-                PaymentMethod.id == abstract_transaction.payment_method).one_or_none()
+            method = (
+                db.session.query(PaymentMethod)
+                .filter(PaymentMethod.id == abstract_transaction.payment_method)
+                .one_or_none()
+            )
             if not method:
                 raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
 
@@ -92,7 +98,9 @@ class TransactionSQLRepository(TransactionRepository):
             attachments="",
             type=method.id if method else None,
             author_id=abstract_transaction.author,
-            pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
+            pending_validation=abstract_transaction.pending_validation
+            if abstract_transaction.pending_validation
+            else False,
         )
 
         with track_modifications(db.session, transaction):
@@ -106,8 +114,8 @@ class TransactionSQLRepository(TransactionRepository):
 
     @log_call
     def validate(self, id) -> None:
-        query= db.session.query(SQLTransaction)
-        query= query.filter(SQLTransaction.id == id)
+        query = db.session.query(SQLTransaction)
+        query = query.filter(SQLTransaction.id == id)
 
         transaction = query.one()
         with track_modifications(db.session, transaction):
@@ -121,7 +129,7 @@ class TransactionSQLRepository(TransactionRepository):
         with track_modifications(db.session, transaction):
             db.session.delete(transaction)
         db.session.flush()
-    
+
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
     """
@@ -137,5 +145,5 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         payment_method=t.type,
         attachments=[],
         author=t.author_id,
-        pending_validation=t.pending_validation
+        pending_validation=t.pending_validation,
     )

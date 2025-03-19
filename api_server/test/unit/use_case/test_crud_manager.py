@@ -20,28 +20,25 @@ from adh6.network.interfaces.switch_repository import SwitchRepository
 
 @pytest.fixture(
     params=[
-        (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture('sample_switch')),
-        (PortRepository, PortManager, AbstractPort, lazy_fixture('sample_port')),
-        (AccountRepository, AccountManager, AbstractAccount, lazy_fixture('sample_account1')),
-        (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture('sample_payment_method')),
+        (SwitchRepository, SwitchManager, AbstractSwitch, lazy_fixture("sample_switch")),
+        (PortRepository, PortManager, AbstractPort, lazy_fixture("sample_port")),
+        (AccountRepository, AccountManager, AbstractAccount, lazy_fixture("sample_account1")),
+        (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lazy_fixture("sample_payment_method")),
     ]
 )
 def data_set(request):
     return request.param
 
 
-@pytest.fixture(
-    ids=[
-        "switch", "port", "account", "payment_method"
-    ]
-)
+@pytest.fixture(ids=["switch", "port", "account", "payment_method"])
 def manager(data_set):
     mock_repo = MagicMock(spec=data_set[0])
     return mock_repo, data_set[1](mock_repo), data_set[2], data_set[3]
 
 
 mock_repo, mock_manager, abstract_object, mock_object = unpack_fixture(
-    "mock_repo, mock_manager, abstract_object, mock_object", manager)
+    "mock_repo, mock_manager, abstract_object, mock_object", manager
+)
 
 
 class TestGetByID:
@@ -62,7 +59,7 @@ class TestGetByID:
 class TestSearch:
     def test_happy_path(self, mock_repo, mock_object, mock_manager, abstract_object):
         # Given...
-        terms = 'blah blah blah'
+        terms = "blah blah blah"
         mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
 
         # When...
@@ -71,21 +68,22 @@ class TestSearch:
         # Expect...
         assert [mock_object] == result
         assert 1 == count
-        mock_repo.search_by.assert_called_once_with(limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms)
+        mock_repo.search_by.assert_called_once_with(
+            limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms
+        )
 
     def test_invalid_offset(self, mock_manager):
         # When...
         with raises(IntMustBePositive):
-            mock_manager.search(limit=1, offset=-1, filter_=None, terms='blabla')
+            mock_manager.search(limit=1, offset=-1, filter_=None, terms="blabla")
 
     def test_invalid_limit(self, mock_manager):
         # When...
         with raises(IntMustBePositive):
-            mock_manager.search(limit=-1, offset=1, filter_=None, terms='blabla')
+            mock_manager.search(limit=-1, offset=1, filter_=None, terms="blabla")
 
 
 class TestUpdateOrCreate:
-
     def test_happy_path_create(self, mock_repo, mock_object, mock_manager):
         # Given...
         mock_repo.create = MagicMock(return_value=mock_object)

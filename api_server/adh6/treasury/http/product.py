@@ -22,10 +22,7 @@ class ProductHandler:
         # Call the search method of the ProductManager object and stores the result and total count in variables
         result, total_count = self.product_manager.search(limit=limit, offset=offset, terms=terms)
         # Set the headers to be returned with the result
-        headers = {
-            "X-Total-Count": str(total_count),
-            'access-control-expose-headers': 'X-Total-Count'
-        }
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
         # Map each product in the result to a dictionnary representation and return the result and headers
         result = list(map(lambda x: x.to_dict(), result))
         return result, 200, headers

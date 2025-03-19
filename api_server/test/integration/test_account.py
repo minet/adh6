@@ -9,66 +9,61 @@ from adh6.member.storage.models import Adherent
 
 base_url = f"{host_url}/account/"
 
+
 @pytest.fixture
 def sample_account_type1():
-    return AccountType(
-        id=1,
-        name='adherent'
-    )
+    return AccountType(id=1, name="adherent")
+
 
 @pytest.fixture
 def sample_account_type2():
-    return AccountType(
-        id=2,
-        name='adherent'
-    )
+    return AccountType(id=2, name="adherent")
 
 
 @pytest.fixture
 def sample_account1(sample_member: Adherent, sample_account_type1: AccountType):
     return Account(
         id=1,
-        name='test1',
+        name="test1",
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 30),
         type=sample_account_type1.id,
         adherent_id=sample_member.id,
         compte_courant=False,
-        pinned=True)
+        pinned=True,
+    )
 
 
 @pytest.fixture
 def sample_account2(sample_account_type2: AccountType):
     return Account(
         id=2,
-        name='test3',
+        name="test3",
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 31),
         type=sample_account_type2.id,
         adherent_id=None,
         compte_courant=False,
-        pinned=False)
+        pinned=False,
+    )
 
 
 @pytest.fixture
 def client(sample_member, sample_room1, sample_account1, sample_account2):
     from .context import app
     from .conftest import prep_db, close_db
+
     if app.app is None:
         return
     with app.app.test_client() as c:
-        prep_db(
-            sample_room1,
-            sample_member,
-            sample_account1,
-            sample_account2
-        )
+        prep_db(sample_room1, sample_member, sample_account1, sample_account2)
         yield c
         close_db()
 
+
 def test_account_filter_all_with_invalid_limit(client):
     r = client.get(
-        f'{base_url}?limit={-1}',
+        f"{base_url}?limit={-1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -76,12 +71,12 @@ def test_account_filter_all_with_invalid_limit(client):
 
 def test_account_filter_all_with_limit(client):
     r = client.get(
-        f'{base_url}?limit={1}',
+        f"{base_url}?limit={1}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -91,7 +86,7 @@ def test_account_filter_by_terms(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -101,7 +96,7 @@ def test_account_filter_by_terms_one_result(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -111,7 +106,7 @@ def test_account_filter_by_id(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -121,7 +116,7 @@ def test_account_filter_by_name(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -131,7 +126,7 @@ def test_account_filter_by_compte_courant(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -141,7 +136,7 @@ def test_account_filter_by_actif(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -151,7 +146,7 @@ def test_account_filter_by_pinned(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -161,7 +156,7 @@ def test_account_filter_by_account_type(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -171,7 +166,7 @@ def test_account_filter_by_member(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 

@@ -11,17 +11,19 @@ from adh6.default import CRUDManager
 from adh6.treasury.interfaces import ProductRepository, AccountRepository, PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
+
 # Define a class for managing products and transactions related to them
 class ProductManager(CRUDManager):
-    
     # Initialize the class with repositories for managing products, transactions, payment methods, and accounts
-    def __init__(self, 
-                 product_repository: ProductRepository, 
-                 transaction_manager: TransactionManager,
-                 payment_method_repository: PaymentMethodRepository,
-                 account_repository: AccountRepository):
+    def __init__(
+        self,
+        product_repository: ProductRepository,
+        transaction_manager: TransactionManager,
+        payment_method_repository: PaymentMethodRepository,
+        account_repository: AccountRepository,
+    ):
         # Call the parent class's __init__ method to set up basic CRUD functionality for the product repository
-        super().__init__(product_repository, ProductNotFoundError)
+        super().__init__(product_repository, ProductNotFoundError)  # type: ignore # TODO
         # Set the remaining repositories as attributes of the class
         self.transaction_manager = transaction_manager
         self.payment_method_repository = payment_method_repository
@@ -39,7 +41,9 @@ class ProductManager(CRUDManager):
         payment_method = self.payment_method_repository.get_by_id(payment_method_id)
 
         # Search for the technical expense account using the account repository
-        dst_accounts, _ = self.account_repository.search_by(limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value))
+        dst_accounts, _ = self.account_repository.search_by(
+            limit=1, filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value)
+        )
         # If the account is not found, raise an error
         if not dst_accounts:
             raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
@@ -62,5 +66,6 @@ class ProductManager(CRUDManager):
                     dst=dst_accounts[0].id,
                     name=product.name,
                     value=product.selling_price,
-                    payment_method=payment_method.id,
-                ))
+                    payment_method=payment_method.id,  # type: ignore # TODO: typing
+                )
+            )

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from adh6.storage import  db
+from adh6.storage import db
 from adh6.treasury.storage.models import Transaction, Account, AccountType
 from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url as host_url
 
@@ -13,42 +13,40 @@ base_url = f"{host_url}/transaction/"
 
 @pytest.fixture
 def sample_account_type1():
-    return AccountType(
-        id=1,
-        name='adherent'
-    )
+    return AccountType(id=1, name="adherent")
+
 
 @pytest.fixture
 def sample_account_type2():
-    return AccountType(
-        id=2,
-        name='adherent'
-    )
+    return AccountType(id=2, name="adherent")
+
 
 @pytest.fixture
 def sample_account1(sample_account_type1):
     return Account(
         id=1,
-        name='test1',
+        name="test1",
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 30),
         type=sample_account_type1.id,
         adherent_id=None,
         compte_courant=False,
-        pinned=False)
+        pinned=False,
+    )
 
 
 @pytest.fixture
 def sample_account2(sample_account_type2):
     return Account(
         id=2,
-        name='test3',
+        name="test3",
         actif=True,
         creation_date=datetime.datetime(2005, 7, 14, 12, 31),
         type=sample_account_type2.id,
         adherent_id=None,
         compte_courant=False,
-        pinned=False)
+        pinned=False,
+    )
 
 
 @pytest.fixture
@@ -57,13 +55,14 @@ def sample_transaction(sample_member, sample_account1, sample_account2, sample_p
         id=91,
         src=sample_account1.id,
         dst=sample_account2.id,
-        name='description',
+        name="description",
         value=200,
-        attachments='',
+        attachments="",
         timestamp=datetime.datetime(2005, 7, 14, 12, 30),
         type=sample_payment_method.id,
         author_id=sample_member.id,
-        pending_validation=False)
+        pending_validation=False,
+    )
 
 
 @pytest.fixture
@@ -72,26 +71,25 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
         id=92,
         src=sample_account1.id,
         dst=sample_account2.id,
-        name='description 2',
+        name="description 2",
         value=230,
-        attachments='',
+        attachments="",
         timestamp=datetime.datetime(2005, 7, 14, 12, 31),
         type=sample_payment_method.id,
         author_id=sample_member.id,
-        pending_validation=True)
+        pending_validation=True,
+    )
 
 
 @pytest.fixture
 def client(sample_transaction, sample_transaction_pending):
     from .context import app
     from .conftest import prep_db, close_db
+
     if app.app is None:
         return
     with app.app.test_client() as c:
-        prep_db(
-            sample_transaction,
-            sample_transaction_pending
-        )
+        prep_db(sample_transaction, sample_transaction_pending)
         yield c
         close_db()
 
@@ -115,17 +113,15 @@ def test_switch_post_invalid_value(client, test_value):
         "name": "test",
         "attachments": "",
         "value": test_value,
-        "payment_method": "liquide"
+        "payment_method": "liquide",
     }
     r = client.post(
-        f"{base_url}",
-        data=json.dumps(sample_transaction1),
-        content_type='application/json',
-        headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_transaction1), content_type="application/json", headers=TEST_HEADERS
     )
     assert r.status_code == 400
 
-#TODO: author should not be send and should be in readonly
+
+# TODO: author should not be send and should be in readonly
 @pytest.mark.xfail(reason="author id should not be send and instead be compute in the backend")
 def test_transaction_post_valid(client, sample_member_admin):
     sample_transaction1 = {
@@ -135,15 +131,12 @@ def test_transaction_post_valid(client, sample_member_admin):
         "attachments": [],
         "value": 400,
         "paymentMethod": 1,
-        "author": sample_member_admin.id
+        "author": sample_member_admin.id,
     }
 
     # Insert data to the database
     r = client.post(
-        f"{base_url}",
-        data=json.dumps(sample_transaction1),
-        content_type='application/json',
-        headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_transaction1), content_type="application/json", headers=TEST_HEADERS
     )
     assert r.status_code == 201
     assert_transaction_in_db(sample_transaction1)
@@ -163,7 +156,7 @@ def test_transaction_get_all_limit(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode('utf-8'))
+    t = json.loads(r.data.decode("utf-8"))
     assert len(t) == 0
 
 
@@ -173,12 +166,13 @@ def test_transaction_get_all(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode('utf-8'))
+    t = json.loads(r.data.decode("utf-8"))
     assert t
     assert len(t) == 2
 
+
 @pytest.mark.parametrize(
-    'sample_only', 
+    "sample_only",
     [
         ("id"),
         ("dst"),
@@ -188,15 +182,16 @@ def test_transaction_get_all(client):
         ("pendingValidation"),
         ("timestamp"),
         ("value"),
-    ])
+    ],
+)
 def test_transaction_search_with_only(client, sample_only: str):
     r = client.get(
-        f'{base_url}?only={sample_only}',
+        f"{base_url}?only={sample_only}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode('utf-8'))
+    response = json.loads(r.data.decode("utf-8"))
     assert len(response) == 2
     assert len(set(sample_only.split(",") + ["id"])) == len(set(response[0].keys()))
 
@@ -204,7 +199,7 @@ def test_transaction_search_with_only(client, sample_only: str):
 def test_transaction_search_with_unknown_only(client):
     sample_only = "azerty"
     r = client.get(
-        f'{base_url}?only={sample_only}',
+        f"{base_url}?only={sample_only}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -212,7 +207,7 @@ def test_transaction_search_with_unknown_only(client):
 
 def test_transaction_validate_pending(client, sample_transaction_pending):
     r = client.get(
-        f'{base_url}{sample_transaction_pending.id}/validate',
+        f"{base_url}{sample_transaction_pending.id}/validate",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -225,7 +220,7 @@ def test_transaction_validate_pending(client, sample_transaction_pending):
 
 def test_device_validate_nonpending(client, sample_transaction):
     r = client.get(
-        f'{base_url}{sample_transaction.id}/validate',
+        f"{base_url}{sample_transaction.id}/validate",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -233,7 +228,7 @@ def test_device_validate_nonpending(client, sample_transaction):
 
 def test_transaction_delete_pending(client, sample_transaction_pending):
     r = client.delete(
-        f'{base_url}{sample_transaction_pending.id}',
+        f"{base_url}{sample_transaction_pending.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
@@ -247,7 +242,7 @@ def test_transaction_delete_pending(client, sample_transaction_pending):
 
 def test_device_delete_nonpending(client, sample_transaction):
     r = client.delete(
-        f'{base_url}{sample_transaction.id}',
+        f"{base_url}{sample_transaction.id}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 400
@@ -259,7 +254,7 @@ def test_transaction_get_existant_transaction(client, sample_transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode('utf-8'))
+    assert json.loads(r.data.decode("utf-8"))
 
 
 def test_transaction_get_non_existant_transaction(client):
@@ -277,7 +272,7 @@ def test_transaction_filter_by_term_desc(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert result
     assert len(result) == 2
 
@@ -289,7 +284,7 @@ def test_transaction_filter_by_term_nonexistant(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert not result
 
 
@@ -299,7 +294,7 @@ def test_transaction_filter_by_id(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -309,7 +304,7 @@ def test_transaction_filter_by_payment_method(client, sample_transaction: Transa
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -319,7 +314,7 @@ def test_transaction_filter_by_pending_validation(client, sample_transaction: Tr
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -329,7 +324,7 @@ def test_transaction_filter_by_src(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -339,5 +334,5 @@ def test_transaction_filter_by_dst(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode('utf-8'))
+    result = json.loads(r.data.decode("utf-8"))
     assert len(result) == 2

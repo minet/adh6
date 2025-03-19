@@ -5,4 +5,11 @@ from adh6.treasury.http.payment_method import PaymentMethodHandler
 from adh6.treasury.http.transaction import TransactionHandler
 from adh6.treasury.http.product import ProductHandler
 
-__all__ = ["TreasuryHandler", "AccountTypeHandler", "AccountHandler", "PaymentMethodHandler", "TransactionHandler", "ProductHandler"]
+__all__ = [
+    "TreasuryHandler",
+    "AccountTypeHandler",
+    "AccountHandler",
+    "PaymentMethodHandler",
+    "TransactionHandler",
+    "ProductHandler",
+]

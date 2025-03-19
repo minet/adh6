@@ -8,19 +8,19 @@ from test import TESTING_CLIENT_TOKEN, SAMPLE_CLIENT_TOKEN
 base_url = "api"
 api_key_admin = str(uuid.uuid4())
 device_cazal = {
-    'mac': 'FF-FF-FF-FF-FF-FF',
-    'ipAddress': '127.0.0.1',
-    'ipv6Address': 'fe80::0',
-    'connectionType': 'wired',
-    'username': 'cazal_k'
+    "mac": "FF-FF-FF-FF-FF-FF",
+    "ipAddress": "127.0.0.1",
+    "ipv6Address": "fe80::0",
+    "connectionType": "wired",
+    "username": "cazal_k",
 }
 
 device_bonnet = {
-    'mac': '00-00-00-00-00-00',
-    'ipAddress': '127.0.0.2',
-    'ipv6Address': 'fe80::1',
-    'connectionType': 'wireless',
-    'username': 'bonnet_n'
+    "mac": "00-00-00-00-00-00",
+    "ipAddress": "127.0.0.2",
+    "ipv6Address": "fe80::1",
+    "connectionType": "wireless",
+    "username": "bonnet_n",
 }
 
 INVALID_IPv6 = [
@@ -64,14 +64,8 @@ TEST_HEADERS_API_KEY_NETWORK_DEV = {"X-API-KEY": str(uuid.uuid4())}
 TEST_HEADERS_API_KEY_NETWORK_PROD = {"X-API-KEY": str(uuid.uuid4())}
 TEST_HEADERS_API_KEY_NETWORK_HOSTING = {"X-API-KEY": str(uuid.uuid4())}
 
-INVALID_TRANSACTION_VALUE = [
-    "",
-    "-1",
-    "-1120192834923949",
-    "0.123",
-    "0,123",
-    "test"
-]
+INVALID_TRANSACTION_VALUE = ["", "-1", "-1120192834923949", "0.123", "0,123", "test"]
+
 
 def assert_modification_was_created(s):
     q = s.query(Modification)
@@ -87,7 +81,7 @@ def _records_contains_fields(record: LogRecord, fields: dict):
     except AttributeError:
         return False
 
-    for k,v in fields.items():
+    for k, v in fields.items():
         if k not in record.extra:
             return False
 

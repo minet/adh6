@@ -1,6 +1,7 @@
 """
 Our own connexion resolver.
 """
+
 import re
 
 from connexion import Resolver
@@ -23,17 +24,17 @@ class ADHResolver(Resolver):
 
         # Path prefix is the first element of the URL. For instance for "/device/{MAC}/vlan/{VLAN}/" it would be
         # "device".
-        if re.match(r'^/(.*?)/', operation.path):
-            path_prefix = re.search(r'^/(.*?)/', operation.path).group(1)
+        if re.match(r"^/(.*?)/", operation.path):
+            path_prefix = re.search(r"^/(.*?)/", operation.path).group(1)  # type: ignore # TODO
         else:
-            path_prefix = re.search(r'^/(.+)', operation.path).group(1)
+            path_prefix = re.search(r"^/(.+)", operation.path).group(1)  # type: ignore # TODO
         # If an operation ID is specified, we override the behavior by this function and use the operationID as
         # function name.
         if operation.operation_id is not None:
-            return f'{path_prefix}|{operation.operation_id}'
+            return f"{path_prefix}|{operation.operation_id}"
 
         # This part extracts the rest of the URL as in a list (for instance ['{MAC}', 'vlan', '{VLAN}'])
-        path_suffix = re.search(r'^/.*?/(.*)$', operation.path).group(1)
+        path_suffix = re.search(r"^/.*?/(.*)$", operation.path).group(1)  # type: ignore # TODO
         path_suffix = path_suffix.split("/")
         path_suffix = filter(bool, path_suffix)  # Remove empty strings.
         path_suffix = list(path_suffix)
@@ -42,17 +43,17 @@ class ADHResolver(Resolver):
         method_name = operation.method
 
         def is_fixed_url_part(x: str) -> bool:
-            """ Everything that is "{something}" is not a fixed part of the URL."""
+            """Everything that is "{something}" is not a fixed part of the URL."""
 
-            if x.startswith('{') and x.endswith('}'):
+            if x.startswith("{") and x.endswith("}"):
                 return False
             return True
 
         # GETs on a global resource (for instance GET /vlan/), without an ID, are replaced with 'search'.
         # This is the same behavior as connexion's native RestyResolver.
-        if method_name == 'get':
+        if method_name == "get":
             if path_suffix == [] or is_fixed_url_part(path_suffix[-1]):
-                method_name = 'search'
+                method_name = "search"
 
         # Remove all variables from the URL to keep the 'fixed' parts.
         # For instance '['{MAC}', 'vlan', '{VLAN}'] would become ['vlan']
@@ -64,10 +65,10 @@ class ADHResolver(Resolver):
         # It is a snake_case string ending with the method name.
         endpoint_id = "_".join(fixed_url + [method_name])
 
-        return f'{path_prefix}|{endpoint_id}'
+        return f"{path_prefix}|{endpoint_id}"
 
     def resolve_function_from_operation_id(self, operation_id):
-        class_name, func_name = operation_id.split('|')
+        class_name, func_name = operation_id.split("|")
         cls = self.bindings.get(class_name)
         if cls is None:
             raise ValueError(f'endpoint handler "{class_name}" is not provided to the resolver')
