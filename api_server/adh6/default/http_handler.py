@@ -5,7 +5,7 @@ from connexion import NoContent
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call, with_context
 from adh6.default.crud_manager import CRUDManager
-from adh6.entity.base_model_ import Model
+from adh6.entity.base_model import Model
 
 
 class DefaultHandler:
