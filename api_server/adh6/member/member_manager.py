@@ -1,33 +1,33 @@
 # coding=utf-8
-import re
 import logging
+import re
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
 from typing import List, Optional, Tuple, Union
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus, SUBNET_PUBLIC_ADDRESSES_WIRELESS
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
+from adh6.decorator import log_call
+from adh6.default import CRUDManager
+from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.entity import (
-    AbstractMember,
-    Member,
-    MemberStatus,
     AbstractAccount,
+    AbstractMember,
+    Comment,
+    Member,
     MemberBody,
     MemberFilter,
+    MemberStatus,
     SubscriptionBody,
-    Comment,
 )
 from adh6.entity.validators.member_validators import is_member_active
 from adh6.exceptions import (
     AccountTypeNotFoundError,
-    NoSubnetAvailable,
-    MemberNotFoundError,
-    MemberAlreadyExist,
     LogFetchError,
+    MemberAlreadyExist,
+    MemberNotFoundError,
+    NoSubnetAvailable,
     UpdateImpossible,
 )
-from adh6.device import DeviceIpManager, DeviceLogsManager
-from adh6.default import CRUDManager
-from adh6.decorator import log_call
 from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
 
 from .interfaces import MailinglistRepository, MemberRepository
@@ -86,7 +86,7 @@ class MemberManager(CRUDManager):
 
     @log_call
     def get_profile(self) -> Tuple[AbstractMember, List[str]]:
-        from adh6.context import get_user, get_roles
+        from adh6.context import get_roles, get_user
 
         m = self.member_repository.get_by_id(get_user())
         if not m:
@@ -264,8 +264,8 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(member_id)
 
-        from binascii import hexlify
         import hashlib
+        from binascii import hexlify
 
         pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())
 

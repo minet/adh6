@@ -3,7 +3,6 @@ from datetime import datetime
 from sqlalchemy import false
 
 from adh6.entity import Member
-
 from adh6.room.storage.room_repository import RoomSQLRepository as RoomRepository
 
 

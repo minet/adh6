@@ -1,25 +1,26 @@
 # coding=utf-8
 from typing import List, Literal, Tuple, Union
+
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractDevice, DeviceFilter, Device, DeviceBody
+from adh6.decorator import log_call
+from adh6.default import CRUDManager
+from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.exceptions import (
-    DeviceNotFoundError,
-    InvalidMACAddress,
     DeviceAlreadyExists,
+    DeviceNotFoundError,
     DevicesLimitReached,
+    InvalidMACAddress,
     MemberNotFoundError,
     RoomNotFoundError,
     VLANNotFoundError,
 )
-from adh6.decorator import log_call
-from adh6.default import CRUDManager
+from adh6.member.interfaces import MemberRepository
+from adh6.misc import is_mac_address
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
-from adh6.misc import is_mac_address
-from adh6.member.interfaces import MemberRepository
 
-from .interfaces import DeviceRepository, IpAllocator
 from .device_ip_manager import DeviceIpManager
+from .interfaces import DeviceRepository, IpAllocator
 from .storage.device_repository import DeviceType
 
 

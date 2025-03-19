@@ -1,7 +1,8 @@
-import pytest
 import json
-from test import SAMPLE_CLIENT
 
+import pytest
+
+from test import SAMPLE_CLIENT
 from test.integration.resource import (
     TEST_HEADERS,
     TEST_HEADERS_API_KEY_ADMIN,
@@ -10,14 +11,13 @@ from test.integration.resource import (
     base_url as host_url,
 )
 
-
 base_url = f"{host_url}/role/"
 
 
 @pytest.fixture
 def client(sample_member):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

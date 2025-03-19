@@ -1,8 +1,9 @@
 # coding=utf-8
-from typing import List, Union
-from adh6.entity import Room, AbstractRoom
-from adh6.default.crud_repository import CRUDRepository
 import abc
+from typing import List, Union
+
+from adh6.default.crud_repository import CRUDRepository
+from adh6.entity import AbstractRoom, Room
 
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):

@@ -5,18 +5,19 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 from typing import List, Optional, Sequence, Tuple, Union
-from sqlalchemy import insert, select, delete, update
+
+from sqlalchemy import delete, insert, select, update
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.decorator import log_call
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
-from adh6.decorator import log_call
+from adh6.member.storage.models import Adherent
 from adh6.storage import db
 from adh6.subnet.storage.models import Vlan
-from adh6.member.storage.models import Adherent
 
-from .models import Chambre, RoomMemberLink
 from ..interfaces import RoomRepository
+from .models import Chambre, RoomMemberLink
 
 
 class RoomSQLRepository(RoomRepository):

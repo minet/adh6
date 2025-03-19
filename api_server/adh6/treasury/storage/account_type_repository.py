@@ -6,13 +6,13 @@ Implements everything related to actions on the SQL database.
 from typing import List, Optional, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.storage import db
+from adh6.decorator import log_call
 from adh6.entity import AccountType
 from adh6.exceptions import AccountTypeNotFoundError
-from adh6.decorator import log_call
+from adh6.storage import db
 
-from .models import AccountType as SQLAccountType
 from ..interfaces import AccountTypeRepository
+from .models import AccountType as SQLAccountType
 
 
 class AccountTypeSQLRepository(AccountTypeRepository):

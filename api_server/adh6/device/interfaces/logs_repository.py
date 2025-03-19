@@ -2,8 +2,8 @@
 import abc
 import typing as t
 
-from adh6.entity import Member, Device
 from adh6.constants import LOG_DEFAULT_LIMIT
+from adh6.entity import Device, Member
 
 
 class LogsRepository(abc.ABC):

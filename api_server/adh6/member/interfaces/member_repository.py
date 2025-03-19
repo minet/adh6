@@ -3,8 +3,9 @@
 import abc
 import ipaddress
 from typing import List, Optional, Tuple, Union
-from adh6.entity import Member, AbstractMember, MemberFilter
+
 from adh6.default.crud_repository import CRUDRepository
+from adh6.entity import AbstractMember, Member, MemberFilter
 
 
 class MemberRepository(CRUDRepository[Member, AbstractMember]):

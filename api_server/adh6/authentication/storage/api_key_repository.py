@@ -1,7 +1,8 @@
-from typing import List, Tuple, Union
 import typing as t
 import uuid
-from sqlalchemy import select, delete
+from typing import List, Tuple, Union
+
+from sqlalchemy import delete, select
 
 from adh6.entity import ApiKey
 from adh6.storage import db

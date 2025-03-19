@@ -6,12 +6,12 @@ Implements everything related to actions on the SQL database.
 from typing import List, Optional, Tuple, Union
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity.product import Product
 from adh6.decorator import log_call
+from adh6.entity.product import Product
 from adh6.storage import db
 
-from .models import Product as SQLProduct
 from ..interfaces import ProductRepository
+from .models import Product as SQLProduct
 
 
 class ProductSQLRepository(ProductRepository):

@@ -1,5 +1,6 @@
 # coding=utf-8
 from typing import Any, List, Optional, Type
+
 from connexion import NoContent
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET

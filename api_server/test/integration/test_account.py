@@ -1,11 +1,11 @@
 import datetime
 import json
+
 import pytest
+from adh6.member.storage.models import Adherent
+from adh6.treasury.storage.models import Account, AccountType
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
-
-from adh6.treasury.storage.models import AccountType, Account
-from adh6.member.storage.models import Adherent
 
 base_url = f"{host_url}/account/"
 
@@ -50,8 +50,8 @@ def sample_account2(sample_account_type2: AccountType):
 
 @pytest.fixture
 def client(sample_member, sample_room1, sample_account1, sample_account2):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

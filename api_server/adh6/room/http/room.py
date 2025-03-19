@@ -2,12 +2,13 @@
 import typing as t
 
 from connexion import NoContent
+
 from adh6.authentication import Roles
+from adh6.context import get_roles, get_user
 from adh6.decorator import log_call, with_context
-from adh6.entity import Room, AbstractRoom
 from adh6.default import DefaultHandler
+from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import UnauthorizedError
-from adh6.context import get_user, get_roles
 
 from ..room_manager import RoomManager
 

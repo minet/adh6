@@ -1,20 +1,19 @@
 import json
 
 import pytest
+from adh6.network.storage.models import Port, Switch
+from adh6.storage import db
 from pytest_lazyfixture import lazy_fixture
 
-from adh6.storage import db
-from adh6.network.storage.models import Switch, Port
-from test.integration.resource import base_url as host_url, TEST_HEADERS
-
+from test.integration.resource import TEST_HEADERS, base_url as host_url
 
 base_url = f"{host_url}/port/"
 
 
 @pytest.fixture
 def client(sample_port1, sample_port2, sample_room1, sample_member, sample_switch1, sample_switch2):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

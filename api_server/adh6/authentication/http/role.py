@@ -1,6 +1,7 @@
 from typing import Any, Dict, Union
 
 from connexion import NoContent
+
 from adh6.decorator import log_call, with_context
 
 from ..role_manager import RoleManager

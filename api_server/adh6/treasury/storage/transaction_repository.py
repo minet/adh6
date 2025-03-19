@@ -4,20 +4,17 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-
 from typing import List, Tuple, Union
 
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.decorator import log_call
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
-from adh6.decorator import log_call
 from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
-from .models import Transaction as SQLTransaction, Account, PaymentMethod
 from ..interfaces import TransactionRepository
-
+from .models import Account, PaymentMethod, Transaction as SQLTransaction
 
 auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 

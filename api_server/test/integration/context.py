@@ -1,6 +1,7 @@
 # coding=utf-8
-import adh6.server as server
 import os
+
+import adh6.server as server
 
 os.environ["ENVIRONMENT"] = "testing"
 # os.environ["TOKENINFO_FUNC"] = "test.auth.token_info"

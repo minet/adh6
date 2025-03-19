@@ -1,4 +1,5 @@
 import typing as t
+
 from adh6.exceptions import MemberNotFoundError
 
 from .interfaces import MailinglistRepository, MemberRepository

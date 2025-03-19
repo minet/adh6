@@ -1,22 +1,22 @@
 from datetime import datetime, timedelta
+from hashlib import sha512
 from uuid import uuid4
-from adh6.authentication import AuthenticationMethod
-from adh6.device.storage.device_repository import DeviceType
+
 import pytest
+from adh6.authentication import AuthenticationMethod, Roles
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.authentication import Roles
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
-from test import SAMPLE_CLIENT_ID, TESTING_CLIENT, SAMPLE_CLIENT, TESTING_CLIENT_ID
-from adh6.treasury.storage.models import AccountType, Account, PaymentMethod
-from adh6.member.storage.models import Adherent, Membership
+from adh6.device.storage.device_repository import DeviceType
 from adh6.device.storage.models import Device
+from adh6.member.storage.models import Adherent, Membership
+from adh6.network.storage.models import Port, Switch
 from adh6.room.storage.models import Chambre, RoomMemberLink
 from adh6.subnet.storage.models import Vlan
-from adh6.device.storage.models import Device
-from adh6.network.storage.models import Switch, Port
-from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
+from adh6.treasury.storage.models import Account, AccountType, PaymentMethod
+
+from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT, TESTING_CLIENT_ID
 from test.integration.context import tomorrow
-from hashlib import sha512
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_API_KEY_USER
 
 m = sha512()
 

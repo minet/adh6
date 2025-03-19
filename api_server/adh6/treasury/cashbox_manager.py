@@ -1,8 +1,8 @@
 # coding=utf-8
 """Use cases (business rule layer) of everything related to the cashbox."""
 
-from typing import Tuple
 import logging
+from typing import Tuple
 
 from .interfaces import CashboxRepository
 

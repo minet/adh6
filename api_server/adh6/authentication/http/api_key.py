@@ -1,6 +1,7 @@
 from typing import Any, Dict, Union
 
 from connexion import NoContent
+
 from adh6.decorator import with_context
 
 from ..api_keys_manager import ApiKeyManager

@@ -1,5 +1,6 @@
-from .interfaces.ping_repository import PingRepository
 import logging
+
+from .interfaces.ping_repository import PingRepository
 
 
 class HealthManager:

@@ -3,17 +3,17 @@
 Implements everything related to actions on the SQL database.
 """
 
-from datetime import date, datetime, timedelta
 import ipaddress
+from datetime import date, datetime, timedelta
 from typing import List, Optional, Tuple
 
-from adh6.entity import AbstractMember, Member, MemberFilter
 from adh6.decorator import log_call
+from adh6.entity import AbstractMember, Member, MemberFilter
 from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
-from .models import Adherent, Membership
 from ..interfaces.member_repository import MemberRepository
+from .models import Adherent, Membership
 
 
 class MemberSQLRepository(MemberRepository):

@@ -1,6 +1,6 @@
+from adh6.context import get_user
 from adh6.decorator import log_call, with_context
 from adh6.exceptions import UnauthorizedError
-from adh6.context import get_user
 
 from ..member_manager import MemberManager
 

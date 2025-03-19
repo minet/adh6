@@ -1,8 +1,8 @@
 import os
-import requests
-
 from enum import Enum
 from typing import Any, Dict, Optional
+
+import requests
 from connexion.exceptions import OAuthResponseProblem, Unauthorized
 
 
@@ -32,9 +32,7 @@ class Method(Enum):
     WRITE = 1
 
 
-from adh6.authentication.storage import ApiKeyRepository
-from adh6.authentication.storage import RoleRepository
-
+from adh6.authentication.storage import ApiKeyRepository, RoleRepository
 
 role_repository = RoleRepository()
 api_key_repository = ApiKeyRepository()

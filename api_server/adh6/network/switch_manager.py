@@ -1,7 +1,8 @@
 # coding=utf-8
 
-from adh6.exceptions import SwitchNotFoundError
 from adh6.default.crud_manager import CRUDManager
+from adh6.exceptions import SwitchNotFoundError
+
 from .interfaces.switch_repository import SwitchRepository
 
 

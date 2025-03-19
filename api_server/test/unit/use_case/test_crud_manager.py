@@ -1,21 +1,20 @@
 from unittest.mock import MagicMock
 
-from pytest import raises
 import pytest
-from pytest_cases import unpack_fixture
-from pytest_lazyfixture import lazy_fixture
-
-from adh6.entity import AbstractAccount, AbstractSwitch, AbstractPort, AbstractPaymentMethod
-from adh6.exceptions import IntMustBePositive, NotFoundError
 from adh6.default.crud_repository import CRUDRepository
-from adh6.treasury.account_manager import AccountManager
-from adh6.treasury.payment_method_manager import PaymentMethodManager
-from adh6.treasury.interfaces.account_repository import AccountRepository
-from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
-from adh6.network.port_manager import PortManager
-from adh6.network.switch_manager import SwitchManager
+from adh6.entity import AbstractAccount, AbstractPaymentMethod, AbstractPort, AbstractSwitch
+from adh6.exceptions import IntMustBePositive, NotFoundError
 from adh6.network.interfaces.port_repository import PortRepository
 from adh6.network.interfaces.switch_repository import SwitchRepository
+from adh6.network.port_manager import PortManager
+from adh6.network.switch_manager import SwitchManager
+from adh6.treasury.account_manager import AccountManager
+from adh6.treasury.interfaces.account_repository import AccountRepository
+from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
+from adh6.treasury.payment_method_manager import PaymentMethodManager
+from pytest import raises
+from pytest_cases import unpack_fixture
+from pytest_lazyfixture import lazy_fixture
 
 
 @pytest.fixture(

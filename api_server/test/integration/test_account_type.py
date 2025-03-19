@@ -1,9 +1,9 @@
 import json
+
 import pytest
+from adh6.treasury.storage.models import AccountType
 
 from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url
-
-from adh6.treasury.storage.models import AccountType
 
 
 @pytest.fixture
@@ -18,8 +18,8 @@ def sample_account_type2():
 
 @pytest.fixture
 def client(sample_account_type1, sample_account_type2, sample_member):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

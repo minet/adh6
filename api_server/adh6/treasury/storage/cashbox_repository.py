@@ -11,8 +11,8 @@ from adh6.decorator import log_call
 from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications
 
-from .models import Caisse as SQLCashbox
 from ..interfaces import CashboxRepository
+from .models import Caisse as SQLCashbox
 
 
 class CashboxSQLRepository(CashboxRepository):

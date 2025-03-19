@@ -1,8 +1,9 @@
 # coding=utf-8
 import abc
 from typing import List, Tuple, Union
-from adh6.entity import Device, AbstractDevice, DeviceFilter, DeviceBody
+
 from adh6.default.crud_repository import CRUDRepository
+from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 
 
 class DeviceRepository(CRUDRepository[Device, AbstractDevice]):

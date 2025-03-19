@@ -1,8 +1,9 @@
 import json
+
 import pytest
 from adh6.treasury.storage.models import Product
-from test.integration.resource import TEST_HEADERS, base_url as host_url
 
+from test.integration.resource import TEST_HEADERS, base_url as host_url
 
 base_url = f"{host_url}/product/"
 
@@ -14,8 +15,8 @@ def sample_product():
 
 @pytest.fixture
 def client(sample_product):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

@@ -1,15 +1,14 @@
+from adh6.exceptions import NetworkManagerReadError
 from pysnmp.hlapi import (
-    SnmpEngine,
     CommunityData,
-    UdpTransportTarget,
     ContextData,
-    ObjectType,
     ObjectIdentity,
+    ObjectType,
+    SnmpEngine,
+    UdpTransportTarget,
     getCmd,
     setCmd,
 )
-
-from adh6.exceptions import NetworkManagerReadError
 
 
 def get_SNMP_value(community, ip, MIB, obj, oid):

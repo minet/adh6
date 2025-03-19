@@ -1,4 +1,5 @@
 import typing as t
+
 from connexion import request
 
 

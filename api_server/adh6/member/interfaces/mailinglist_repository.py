@@ -1,5 +1,5 @@
-from typing import List
 import abc
+from typing import List
 
 
 class MailinglistRepository(abc.ABC):

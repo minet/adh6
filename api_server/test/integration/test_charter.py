@@ -1,13 +1,14 @@
 import json
 import uuid
-import pytest
-from sqlalchemy import select
-from adh6.constants import MembershipStatus
-from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+import pytest
+from adh6.constants import MembershipStatus
 from adh6.member.storage.models import Adherent, Membership
 from adh6.storage import db
+from sqlalchemy import select
+
+from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
 base_url = f"{host_url}/charter/"
 
@@ -38,8 +39,8 @@ def sample_membership_pending_rules():
 
 @pytest.fixture
 def client(sample_member, sample_membership_pending_rules):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

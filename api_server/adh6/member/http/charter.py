@@ -1,8 +1,9 @@
 from connexion import NoContent
+
 from adh6.authentication import Roles
+from adh6.context import get_roles, get_user
 from adh6.decorator import with_context
 from adh6.exceptions import UnauthorizedError
-from adh6.context import get_roles, get_user
 
 from ..charter_manager import CharterManager
 

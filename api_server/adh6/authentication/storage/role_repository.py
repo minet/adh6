@@ -1,11 +1,12 @@
 from typing import List, Tuple, Union
-from sqlalchemy.orm import Session
 
-from sqlalchemy import select, insert, delete, update
-from sqlalchemy.sql import Select, Insert
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import Insert, Select
+
 from adh6.entity import RoleMapping
-from adh6.storage import db
 from adh6.member.storage.models import Adherent
+from adh6.storage import db
 
 from .. import AuthenticationMethod, Roles
 from ..interfaces import RoleRepository

@@ -1,9 +1,11 @@
-from adh6.decorator import log_call
 import logging
 import smtplib
-from flask import current_app
-from email.message import EmailMessage
 from email.headerregistry import Address
+from email.message import EmailMessage
+
+from flask import current_app
+
+from adh6.decorator import log_call
 
 from ..interfaces import NotificationRepository
 

@@ -1,10 +1,11 @@
 # coding: utf-8
-from sqlalchemy.orm import Mapped, mapped_column
 import datetime as dt
 
-from adh6.storage import Base
-from sqlalchemy import Column, String, DateTime, Integer
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
+
+from adh6.storage import Base
 
 
 class Switch(Base):

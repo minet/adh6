@@ -1,23 +1,24 @@
 from .account_repository import AccountSQLRepository as AccountRepository
 from .account_type_repository import AccountTypeSQLRepository as AccountTypeRepository
-from .payment_method_repository import PaymentMethodSQLRepository as PaymentMethodRepository
-from .transaction_repository import TransactionSQLRepository as TransactionRepository
 from .cashbox_repository import CashboxSQLRepository as CashboxRepository
+from .payment_method_repository import PaymentMethodSQLRepository as PaymentMethodRepository
 from .product_repository import ProductSQLRepository as ProductRepository
+from .transaction_repository import TransactionSQLRepository as TransactionRepository
 
 __all__ = [
     "AccountRepository",
     "AccountTypeRepository",
-    "PaymentMethodRepository",
-    "TransactionRepository",
     "CashboxRepository",
+    "PaymentMethodRepository",
     "ProductRepository",
+    "TransactionRepository",
 ]
 
 
 def init_storage():
     from adh6.storage import db
-    from .models import PaymentMethod, AccountType, Account
+
+    from .models import Account, AccountType, PaymentMethod
 
     session = db.session
     payment_methods = ["Liquide", "Chèque", "Carte bancaire", "Virement", "Stripe", "Aucun"]

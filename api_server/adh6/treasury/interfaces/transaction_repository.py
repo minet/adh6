@@ -2,8 +2,8 @@
 
 import abc
 
-from adh6.entity import Transaction, AbstractTransaction
 from adh6.default.crud_repository import CRUDRepository
+from adh6.entity import AbstractTransaction, Transaction
 
 
 class TransactionRepository(CRUDRepository[Transaction, AbstractTransaction]):

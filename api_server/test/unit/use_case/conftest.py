@@ -1,10 +1,9 @@
+from adh6.authentication import Roles
 from adh6.constants import MembershipStatus
-
-from pytest import fixture
-
 from adh6.entity import (
-    AccountType,
+    AbstractMembership,
     Account,
+    AccountType,
     Device,
     Member,
     PaymentMethod,
@@ -13,11 +12,11 @@ from adh6.entity import (
     Room,
     Switch,
     Transaction,
-    AbstractMembership,
     Vlan,
 )
-from adh6.authentication import Roles
 from adh6.entity.subscription_body import SubscriptionBody
+from pytest import fixture
+
 from test import TESTING_CLIENT
 
 

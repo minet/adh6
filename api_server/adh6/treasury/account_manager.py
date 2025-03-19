@@ -1,7 +1,7 @@
 # coding=utf-8
+from adh6.default.crud_manager import CRUDManager
 from adh6.entity import AbstractAccount
 from adh6.exceptions import AccountNotFoundError
-from adh6.default.crud_manager import CRUDManager
 
 from .interfaces import AccountRepository
 

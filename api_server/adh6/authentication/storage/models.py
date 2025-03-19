@@ -1,5 +1,6 @@
 from typing import Any
-from sqlalchemy import String, Enum, Integer
+
+from sqlalchemy import Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from adh6.authentication import AuthenticationMethod, Roles

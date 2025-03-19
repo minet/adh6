@@ -5,7 +5,6 @@ from test.integration.resource import (
     base_url as host_url,
 )
 
-
 base_url = f"{host_url}/health"
 
 

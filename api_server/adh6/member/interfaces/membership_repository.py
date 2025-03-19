@@ -7,7 +7,7 @@ import abc
 from typing import List, Optional, Tuple
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
-from adh6.entity import Membership, AbstractMembership, SubscriptionBody
+from adh6.entity import AbstractMembership, Membership, SubscriptionBody
 
 
 # TODO: This class should be derive from CRUDRepository

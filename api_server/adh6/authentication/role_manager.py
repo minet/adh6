@@ -1,4 +1,5 @@
 from typing import List, Tuple, Union
+
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call

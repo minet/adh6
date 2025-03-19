@@ -1,22 +1,22 @@
 import json
 
 import pytest
-from pytest_lazyfixture import lazy_fixture
 from adh6.device.storage.device_repository import DeviceType
-
-from adh6.storage import db
-from adh6.member.storage.models import Adherent
 from adh6.device.storage.models import Device
+from adh6.member.storage.models import Adherent
+from adh6.storage import db
+from pytest_lazyfixture import lazy_fixture
+
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
 from test.integration.conftest import sample_member_admin
+
 from .resource import (
-    TEST_HEADERS_SAMPLE,
-    base_url as host_url,
     INVALID_MAC,
     TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
     assert_modification_was_created,
+    base_url as host_url,
 )
-
 
 base_url = f"{host_url}/device/"
 
@@ -93,8 +93,8 @@ def client(
     sample_vlan69,
     sample_room_member_link,
 ):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

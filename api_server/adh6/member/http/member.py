@@ -1,16 +1,16 @@
 # coding=utf-8
-from typing import List, Optional, Tuple, Any, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from connexion import NoContent
+
 from adh6.authentication import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-
-from adh6.entity import AbstractMember, Member, SubscriptionBody, Comment, MemberFilter, MemberBody
+from adh6.context import get_roles, get_user
 from adh6.decorator import log_call, with_context
 from adh6.default import DefaultHandler
+from adh6.entity import AbstractMember, Comment, Member, MemberBody, MemberFilter, SubscriptionBody
 from adh6.exceptions import NotFoundError, UnauthorizedError
 from adh6.misc import handle_error
-from adh6.context import get_roles, get_user
 
 from ..charter_manager import CharterManager
 from ..member_manager import MemberManager

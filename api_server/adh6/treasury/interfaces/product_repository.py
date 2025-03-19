@@ -1,6 +1,7 @@
 # coding=utf-8
 import abc
 from typing import List, Optional, Tuple
+
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractProduct
 

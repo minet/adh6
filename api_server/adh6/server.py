@@ -1,29 +1,27 @@
+import abc
 import os
-from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
-from adh6.member.notification_manager import NotificationManager
+
 import connexion
 import pinject
-import abc
-
 from connexion import FlaskApp
 from flask_migrate import Migrate
-from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
 
-from adh6.resolver import ADHResolver
-from adh6.treasury.http import *
-from adh6.member.http import *
-from adh6.device.http.device import DeviceHandler
-from adh6.metrics.http.health import HealthHandler
-from adh6.network.http.port import PortHandler
-from adh6.subnet.http.vlan import VLANHandler
-from adh6.room.http.room import RoomHandler
-from adh6.network.http.switch import SwitchHandler
 from adh6.authentication.http.api_key import ApiKeyHandler
 from adh6.authentication.http.role import RoleHandler
-
-from adh6.storage import cache, db
-
 from adh6.default.http_handler import DefaultHandler
+from adh6.device.http.device import DeviceHandler
+from adh6.member.http import *
+from adh6.member.interfaces.notification_template_repository import NotificationTemplateRepository
+from adh6.member.notification_manager import NotificationManager
+from adh6.member.storage.notification_template_repository import NotificationTemplateSQLRepository
+from adh6.metrics.http.health import HealthHandler
+from adh6.network.http.port import PortHandler
+from adh6.network.http.switch import SwitchHandler
+from adh6.resolver import ADHResolver
+from adh6.room.http.room import RoomHandler
+from adh6.storage import cache, db
+from adh6.subnet.http.vlan import VLANHandler
+from adh6.treasury.http import *
 
 handlers = [
     AccountHandler,
@@ -46,21 +44,21 @@ handlers = [
     CharterHandler,
 ]
 
-from adh6.treasury import AccountManager, AccountTypeManager, CashboxManager, ProductManager, PaymentMethodManager
-from adh6.treasury.transaction_manager import TransactionManager
-from adh6.member.member_manager import MemberManager
-from adh6.member.mailinglist_manager import MailinglistManager
-from adh6.member.charter_manager import CharterManager
-from adh6.member.subscription_manager import SubscriptionManager
-from adh6.device import DeviceManager, DeviceIpManager, DeviceLogsManager
-from adh6.default import CRUDManager, CRUDRepository
-from adh6.metrics.health_manager import HealthManager
-from adh6.network.port_manager import PortManager
-from adh6.room.room_manager import RoomManager
-from adh6.network.switch_manager import SwitchManager
-from adh6.subnet.vlan_manager import VlanManager
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.role_manager import RoleManager
+from adh6.default import CRUDManager, CRUDRepository
+from adh6.device import DeviceIpManager, DeviceLogsManager, DeviceManager
+from adh6.member.charter_manager import CharterManager
+from adh6.member.mailinglist_manager import MailinglistManager
+from adh6.member.member_manager import MemberManager
+from adh6.member.subscription_manager import SubscriptionManager
+from adh6.metrics.health_manager import HealthManager
+from adh6.network.port_manager import PortManager
+from adh6.network.switch_manager import SwitchManager
+from adh6.room.room_manager import RoomManager
+from adh6.subnet.vlan_manager import VlanManager
+from adh6.treasury import AccountManager, AccountTypeManager, CashboxManager, PaymentMethodManager, ProductManager
+from adh6.treasury.transaction_manager import TransactionManager
 
 managers = [
     DeviceManager,
@@ -86,29 +84,28 @@ managers = [
     SubscriptionManager,
 ]
 
+from adh6.authentication.storage import ApiKeyRepository, RoleRepository
+from adh6.device.storage import DeviceRepository, IPAllocator, LogsRepository
+from adh6.member.smtp import NotificationRepository
+from adh6.member.storage import (
+    CharterRepository,
+    MailinglistReposiroty,
+    MemberRepository,
+    MembershipRepository,
+)
+from adh6.metrics.storage import PingRepository
+from adh6.network.snmp import SwitchNetworkManager
+from adh6.network.storage import PortRepository, SwitchRepository
+from adh6.room.storage import RoomRepository
+from adh6.subnet.storage import VLANRepository
 from adh6.treasury.storage import (
-    TransactionRepository,
     AccountRepository,
-    PaymentMethodRepository,
     AccountTypeRepository,
     CashboxRepository,
+    PaymentMethodRepository,
     ProductRepository,
+    TransactionRepository,
 )
-from adh6.member.storage import (
-    MembershipRepository,
-    MemberRepository,
-    MailinglistReposiroty,
-    CharterRepository,
-)
-from adh6.member.smtp import NotificationRepository
-from adh6.device.storage import DeviceRepository, IPAllocator, LogsRepository
-from adh6.authentication.storage import RoleRepository, ApiKeyRepository
-from adh6.metrics.storage import PingRepository
-from adh6.network.storage import PortRepository, SwitchRepository
-from adh6.subnet.storage import VLANRepository
-from adh6.room.storage import RoomRepository
-from adh6.network.snmp import SwitchNetworkManager
-
 
 config = {
     "production": "adh6.config.configuration.ProductionConfig",

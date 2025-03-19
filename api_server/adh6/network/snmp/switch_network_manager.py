@@ -4,12 +4,13 @@ Implements everything related to SNMP-related actions
 """
 
 from typing import Tuple
-from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
-from .util.snmp_helper import get_SNMP_value, set_SNMP_value
 
 from adh6.authentication import Roles
 from adh6.decorator import log_call
-from ..interfaces import PortRepository, SwitchRepository, SwitchNetworkManager
+from adh6.exceptions import NetworkManagerReadError, SwitchNotFoundError, UnauthorizedError
+
+from ..interfaces import PortRepository, SwitchNetworkManager, SwitchRepository
+from .util.snmp_helper import get_SNMP_value, set_SNMP_value
 
 
 class SwitchSNMPNetworkManager(SwitchNetworkManager):

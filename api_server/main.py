@@ -1,7 +1,7 @@
 from adh6.server import init
-
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
 # from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 # from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 # from opentelemetry.sdk.trace import TracerProvider

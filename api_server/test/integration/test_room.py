@@ -1,23 +1,23 @@
-from ipaddress import IPv4Address, IPv4Network
 import json
+from ipaddress import IPv4Address, IPv4Network
+
 import pytest
-from sqlalchemy import select
 from adh6.device.storage.device_repository import DeviceType
-
-from adh6.storage import db
-from adh6.member.storage.models import Adherent
 from adh6.device.storage.models import Device
+from adh6.member.storage.models import Adherent
 from adh6.room.storage.models import Chambre
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+from adh6.storage import db
+from sqlalchemy import select
 
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
 
 base_url = f"{host_url}/room/"
 
 
 @pytest.fixture
 def client(sample_room1, sample_room2, sample_vlan, sample_vlan69, sample_member, wired_device, wireless_device):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

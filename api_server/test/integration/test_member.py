@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
+
 import pytest
-
-from adh6.storage import db
 from adh6.member.storage.models import Adherent
-from test.integration.resource import (
-    TEST_HEADERS_SAMPLE,
-    base_url as host_url,
-    TEST_HEADERS,
-    assert_modification_was_created,
-)
+from adh6.storage import db
 
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    assert_modification_was_created,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/member/"
 

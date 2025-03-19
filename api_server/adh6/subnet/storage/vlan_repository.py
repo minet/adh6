@@ -3,13 +3,13 @@
 Implements everything related to actions on the SQL database.
 """
 
+from adh6.decorator import log_call
 from adh6.entity import AbstractVlan
 from adh6.exceptions import VLANNotFoundError
-from adh6.decorator import log_call
 from adh6.storage import db
 
-from .models import Vlan as VlanSQL
 from ..interfaces import VlanRepository
+from .models import Vlan as VlanSQL
 
 
 class VLANSQLRepository(VlanRepository):

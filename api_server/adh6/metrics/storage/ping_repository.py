@@ -1,6 +1,7 @@
 from sqlalchemy.exc import SQLAlchemyError
-from adh6.storage import db
 from sqlalchemy.sql import text
+
+from adh6.storage import db
 
 from ..interfaces import PingRepository
 

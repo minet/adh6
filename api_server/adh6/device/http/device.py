@@ -1,12 +1,14 @@
 # coding=utf-8
 import typing as t
+
 from connexion.datastructures import NoContent
+
 from adh6.authentication import Roles
-from adh6.context import get_roles, get_user
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
+from adh6.context import get_roles, get_user
 from adh6.decorator import log_call, with_context
 from adh6.default.http_handler import DefaultHandler
+from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.exceptions import NotFoundError, UnauthorizedError
 
 from ..device_manager import DeviceManager

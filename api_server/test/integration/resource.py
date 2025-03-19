@@ -1,9 +1,9 @@
-from logging import LogRecord
 import uuid
+from logging import LogRecord
 
 from adh6.storage.sql.models import Modification
 
-from test import TESTING_CLIENT_TOKEN, SAMPLE_CLIENT_TOKEN
+from test import SAMPLE_CLIENT_TOKEN, TESTING_CLIENT_TOKEN
 
 base_url = "api"
 api_key_admin = str(uuid.uuid4())

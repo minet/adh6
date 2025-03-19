@@ -1,17 +1,17 @@
 # coding: utf-8
+import datetime as dt
 from enum import unique
 from typing import Any
-from sqlalchemy import Column, String, Boolean, Date, DateTime, Integer, Text
-from sqlalchemy.sql import func, text
+
+from sqlalchemy import Boolean, Column, Date, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-import datetime as dt
+from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
 
-from adh6.constants import MembershipStatus, MembershipDuration
-
+from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.storage import Base
-from adh6.storage.sql.trackable import RubyHashTrackable
 from adh6.storage.sql.rubydiff import rubydiff
+from adh6.storage.sql.trackable import RubyHashTrackable
 
 
 class Adherent(Base, RubyHashTrackable):

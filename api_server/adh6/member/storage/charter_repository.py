@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import List, Tuple, Union
 
 from sqlalchemy import select, update
+
 from adh6.storage import db
 
-from .models import Adherent
 from ..interfaces.charter_repository import CharterRepository
+from .models import Adherent
 
 
 class CharterSQLRepository(CharterRepository):

@@ -10,8 +10,8 @@ from typing import List, Tuple, Union
 from sqlalchemy import select
 from sqlalchemy.sql.selectable import Select
 
-from adh6.entity import AbstractDevice, Device, DeviceFilter, DeviceBody
 from adh6.decorator import log_call
+from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.member.storage.models import Adherent
 from adh6.storage import db
 from adh6.storage.sql.track_modifications import track_modifications

@@ -1,18 +1,17 @@
 # coding=utf-8 import datetime import datetime import datetime
 from unittest.mock import MagicMock
 
-from pytest import fixture, raises, mark
-
+from adh6.device.device_ip_manager import DeviceIpManager
+from adh6.device.device_manager import DeviceManager
+from adh6.device.interfaces import DeviceRepository
 from adh6.entity import AbstractDevice
 from adh6.entity.device_body import DeviceBody
 from adh6.entity.member import Member
 from adh6.entity.room import Room
 from adh6.exceptions import InvalidMACAddress, MemberNotFoundError
-from adh6.device.device_manager import DeviceManager
-from adh6.device.device_ip_manager import DeviceIpManager
-from adh6.device.interfaces import DeviceRepository
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.room.interfaces.room_repository import RoomRepository
+from pytest import fixture, mark, raises
 
 
 @fixture

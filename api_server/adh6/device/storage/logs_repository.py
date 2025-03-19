@@ -4,12 +4,12 @@ Logs repository.
 """
 
 from typing import List
+
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
 from adh6.constants import LOG_DEFAULT_LIMIT
 from adh6.entity import Device, Member
-
 from adh6.misc import get_mac_variations
 
 from ..interfaces.logs_repository import LogsRepository

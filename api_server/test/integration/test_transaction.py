@@ -2,11 +2,10 @@ import datetime
 import json
 
 import pytest
-
 from adh6.storage import db
-from adh6.treasury.storage.models import Transaction, Account, AccountType
-from test.integration.resource import TEST_HEADERS, INVALID_TRANSACTION_VALUE, base_url as host_url
+from adh6.treasury.storage.models import Account, AccountType, Transaction
 
+from test.integration.resource import INVALID_TRANSACTION_VALUE, TEST_HEADERS, base_url as host_url
 
 base_url = f"{host_url}/transaction/"
 
@@ -83,8 +82,8 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
 
 @pytest.fixture
 def client(sample_transaction, sample_transaction_pending):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

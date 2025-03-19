@@ -1,12 +1,13 @@
 # coding: utf-8
-from sqlalchemy import String, Boolean, DateTime, Integer
-from sqlalchemy.sql import func
+import datetime as dt
+
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
 from adh6.storage import Base
-from adh6.storage.sql.trackable import RubyHashTrackable
 from adh6.storage.sql.rubydiff import rubydiff
-import datetime as dt
+from adh6.storage.sql.trackable import RubyHashTrackable
 
 
 class Device(Base, RubyHashTrackable):

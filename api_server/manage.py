@@ -1,25 +1,24 @@
-import click
-from flask import Flask
+import ipaddress
 import uuid
 from datetime import date, datetime
 from typing import List
-from sqlalchemy.orm import Session
-from adh6.authentication import AuthenticationMethod
-from adh6.server import init
-from faker import Faker
 
-import ipaddress
-from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.authentication import Roles
+import click
+from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
+from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.device.storage.models import Device
+from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
+from adh6.network.storage.models import Port, Switch
+from adh6.room.storage.models import Chambre
+from adh6.server import init
 from adh6.storage import db
 from adh6.storage.sql.models import Adhesion, Modification, Routeur
-from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
-from adh6.treasury.storage.models import AccountType, PaymentMethod, Transaction, Caisse, Account, Product
-from adh6.device.storage.models import Device
-from adh6.network.storage.models import Switch, Port
 from adh6.subnet.storage.models import Vlan
-from adh6.room.storage.models import Chambre
+from adh6.treasury.storage.models import Account, AccountType, Caisse, PaymentMethod, Product, Transaction
+from faker import Faker
+from flask import Flask
+from sqlalchemy.orm import Session
 
 application = init()
 assert application.app is not None, "No flask application"

@@ -4,9 +4,9 @@ from typing import Union
 
 from sqlalchemy import select
 
-from adh6.storage import db
-from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
 from adh6.decorator import log_call
+from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
+from adh6.storage import db
 
 from ..interfaces import IpAllocator
 from .models import Device

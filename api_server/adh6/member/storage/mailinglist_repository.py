@@ -1,10 +1,11 @@
 from typing import Sequence
 
 from sqlalchemy import select, update
+
 from adh6.storage import db
 
-from .models import Adherent
 from ..interfaces.mailinglist_repository import MailinglistRepository
+from .models import Adherent
 
 
 class MailinglistSQLReposiroty(MailinglistRepository):

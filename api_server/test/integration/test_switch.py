@@ -1,10 +1,10 @@
 import json
+
 import pytest
-
-from adh6.storage import db
 from adh6.network.storage.models import Switch
-from test.integration.resource import TEST_HEADERS, INVALID_IP, base_url as host_url
+from adh6.storage import db
 
+from test.integration.resource import INVALID_IP, TEST_HEADERS, base_url as host_url
 
 base_url = f"{host_url}/switch/"
 
@@ -21,8 +21,8 @@ def sample_switch():
 
 @pytest.fixture
 def client(sample_switch1):
+    from .conftest import close_db, prep_db
     from .context import app
-    from .conftest import prep_db, close_db
 
     if app.app is None:
         return

@@ -4,20 +4,19 @@ Implements everything related to actions on the SQL database.
 """
 
 from datetime import datetime
-
 from typing import List, Optional, Tuple, Union
 
-from sqlalchemy import func, case, or_
+from sqlalchemy import case, func, or_
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.decorator import log_call
 from adh6.entity import AbstractAccount, Account
 from adh6.exceptions import AccountNotFoundError, MemberNotFoundError
-from adh6.decorator import log_call
-from adh6.storage import db
 from adh6.member.storage.models import Adherent
+from adh6.storage import db
 
-from .models import Account as SQLAccount, Transaction, AccountType
 from ..interfaces import AccountRepository
+from .models import Account as SQLAccount, AccountType, Transaction
 
 
 class AccountSQLRepository(AccountRepository):
