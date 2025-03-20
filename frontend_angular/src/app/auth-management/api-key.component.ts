@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
-import { ApiKey, ApiKeysGetRequest, AuthenticationService, Role } from '../api';
+import { ApiKey, ApiKeysPostRequest, AuthenticationService, Role } from '../api';
 
 @Component({
     imports: [CommonModule, FormsModule],
@@ -71,15 +71,15 @@ export class ApiKeyComponent implements OnInit {
     let roles = [];
     for (let i in this.roles) {
       if (i === "0") {
-        roles.push(Role.Adminwrite, Role.Adminread)
+        roles.push(Role.AdminWrite, Role.AdminRead)
       } else if (i === "1") {
-        roles.push(Role.Networkwrite, Role.Networkread)
+        roles.push(Role.NetworkWrite, Role.NetworkRead)
       } else if (i === "2") {
-        roles.push(Role.Treasurerwrite, Role.Treasurerread)
+        roles.push(Role.TreasurerWrite, Role.TreasurerRead)
       }
     }
 
-    this.authenticationService.apiKeysPost(<ApiKeysGetRequest>{
+    this.authenticationService.apiKeysPost(<ApiKeysPostRequest>{
       login: this.login,
       roles: roles
     }).subscribe((res) => Swal.fire({ 'title': 'Clé d\'API', text: res }).then(() => this.refreshApi()));

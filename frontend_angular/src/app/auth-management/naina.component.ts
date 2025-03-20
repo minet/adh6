@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { AuthenticationService, RoleMapping, Role, RoleGetRequest } from '../api';
+import { AuthenticationService, RoleMapping, Role, RolePostRequest } from '../api';
 
 @Component({
     imports: [CommonModule, FormsModule],
@@ -54,13 +54,13 @@ export class NainaComponent implements OnInit {
   }
 
   public newNainA(): void {
-    this.authenticationService.rolePost(<RoleGetRequest>{
+    this.authenticationService.rolePost(<RolePostRequest>{
       identifier: this.login,
       roles: [
-        Role.Adminread,
-        Role.Adminwrite,
-        Role.Networkread,
-        Role.Networkwrite
+        Role.AdminRead,
+        Role.AdminWrite,
+        Role.NetworkRead,
+        Role.NetworkWrite
       ],
       auth: 'user',
     }).subscribe(() => this.refreshNainA());

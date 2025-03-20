@@ -18,8 +18,8 @@ clean: clean-frontend clean-backend clean-docker-run clean-docker-run-dev
 
 .PHONY: clean-backend
 clean-backend:
-	find $(BACKEND_PATH) -name __pycache__ -type d -exec rm -r {} \;
-	find $(BACKEND_PATH)/adh6/entity/ -depth 1 -name "*.py" -type f -exec rm {} \;
+	find $(BACKEND_PATH) -depth -name __pycache__ -type d -exec rm -r {} \;
+	find $(BACKEND_PATH)/adh6/entity/ -maxdepth 1 -name "*.py" -type f -exec rm {} \;
 	[ -f $(BACKEND_PATH)/adh6/typing_utils.py ] && rm $(BACKEND_PATH)/adh6/typing_utils.py || echo "File not found"
 	[ -f $(BACKEND_PATH)/adh6/util.py ] && rm $(BACKEND_PATH)/adh6/util.py || echo "File not found"
 	[ -d $(BACKEND_PATH)/.pytest_cache ] && rm -r $(BACKEND_PATH)/.pytest_cache || echo "No cache for pytest"
@@ -78,7 +78,7 @@ $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/s
 
 $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 	rm -rf "$(FRONTEND_PATH)/src/app/api"
-	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4 generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:v7.12.0 generate -i /local/openapi/spec.yaml -g typescript-angular -o "/local/frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
 	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i'' -e 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
 	find $(FRONTEND_PATH)/src/app/api/api -type f -name "*.service.ts" -exec sed -i'' -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 
