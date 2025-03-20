@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Member, MiscService } from '../api';
-import { map, Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import { MemberDeviceModule } from '../member-device/member-device.module';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { animate, animateChild, group, query, style, transition, trigger } from '@angular/animations';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { map, Observable } from 'rxjs';
+import { Member, MiscService } from '../api';
+import { MemberDeviceModule } from '../member-device/member-device.module';
 
 
 export const slider = trigger('routeAnimations', [
@@ -42,7 +42,7 @@ function slideTo(direction: string) {
     template: `
   <div class="columns column is-centered">
     <figure>
-      <img alt="adh6 logo" src="../assets/adh6.min.svg">
+      <img alt="adh6 logo" src="assets/adh6_min.svg">
     </figure>
   </div>
   <ng-container *ngIf="member$ | async as member">

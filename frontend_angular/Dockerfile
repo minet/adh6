@@ -1,31 +1,43 @@
-###############################################################################
-# 1st stage, build the app
-###############################################################################
-FROM node:22-alpine as build
+# syntax=docker/dockerfile-upstream:master-labs
+
+FROM node:22-alpine AS prebuild
 WORKDIR /adh6/frontend_angular
 
 # Install packages
-COPY package.json .
-# RUN yarn install --frozen-lockfile
-RUN apk add --no-cache --virtual .gyp \
-    python \
-    make \
-    g++ \
-    && yarn install --frozen-lockfile \
-    && apk del .gyp
-# Copy source code
-COPY . .
-ENV NODE_OPTIONS=--openssl-legacy-provider
+ENV YARN_CACHE_FOLDER=/root/.yarn
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add python3 make g++ openssl
 
+COPY --parents src/assets ./
+RUN yarn global add svgo \
+    && cd ./src/assets \
+    && svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg
+
+RUN --mount=type=cache,target=/root/.yarn \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    yarn install --frozen-lockfile
+
+
+# TODO: remake for prod also
+FROM prebuild AS prodbuild
+COPY src src
 RUN yarn build --configuration development
 RUN yarn purgecss -css dist/adh6/fr/*.css --content dist/adh6/fr/index.html dist/adh6/fr/*.js -o dist/adh6/fr
 
-###############################################################################
-# 2nd stage, host the app with nginx
-###############################################################################
-FROM nginx:alpine@sha256:455c39afebd4d98ef26dd70284aa86e6810b0485af5f4f222b19b89758cabf1e
-EXPOSE 80
+
+FROM nginx:alpine@sha256:455c39afebd4d98ef26dd70284aa86e6810b0485af5f4f222b19b89758cabf1e AS prod
+
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /adh6/frontend_angular/dist/adh6/fr /usr/share/nginx/html/fr
-COPY --from=build /adh6/frontend_angular/dist/adh6/en /usr/share/nginx/html/en
-COPY --from=build /adh6/frontend_angular/src/assets /usr/share/nginx/html/assets
+COPY --from=prodbuild /adh6/frontend_angular/dist/adh6/fr /usr/share/nginx/html/fr
+COPY --from=prodbuild /adh6/frontend_angular/dist/adh6/en /usr/share/nginx/html/en
+COPY --from=prodbuild /adh6/frontend_angular/src/assets /usr/share/nginx/html/assets
+
+
+FROM node:22-alpine AS dev
+WORKDIR /adh6/frontend_angular
+
+COPY --parents --exclude=src/assets src package.json angular.json tsconfig.json ./
+COPY --from=prebuild --parents /adh6/frontend_angular/node_modules /adh6/frontend_angular/src/assets /
+
+CMD yarn start:en --watch --host 0.0.0.0 --disable-host-check
