@@ -1,4 +1,3 @@
-version: '3.2'
 services:
   # frontend_angular is a web server that provides the JS to the clients.
   frontend_angular:
@@ -9,13 +8,13 @@ services:
       target: dev
     expose:
       - "80" # app does not start as root here
-    volumes:
-      # Make a bind mount so you can modify files in the container
-      - type: bind
-        source: "./frontend_angular/src"
-        target: "/adh6/frontend_angular/src/"
-        read_only: true
-  # api_server is the API that actually does action on the database.
+    # volumes:
+    #   # Make a bind mount so you can modify files in the container
+    #   - type: bind
+    #     source: "./frontend_angular/src"
+    #     target: "/adh6/frontend_angular/src/"
+    #     read_only: true
+    # api_server is the API that actually does action on the database.
   api_server:
     container_name: adh6_backend
     build: api_server
@@ -62,7 +61,7 @@ services:
       - "443:443"
       - "80:80"
     volumes:
-      - ./reverse_proxy:/etc/nginx/templates
+      - ./reverse_proxy:/etc/nginx/templates:ro
     environment:
       ADH6_URL: "adh6-local.minet.net"
       API_HOST: "api_server"

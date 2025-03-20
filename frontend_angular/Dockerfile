@@ -6,16 +6,18 @@ WORKDIR /adh6/frontend_angular
 # Install packages
 ENV YARN_CACHE_FOLDER=/root/.yarn
 RUN --mount=type=cache,target=/var/cache/apk \
-    --mount=type=cache,target=/root/.yarn \
+    apk add python3 make g++ openssl
+
+COPY --parents src/assets ./
+RUN yarn global add svgo \
+    && cd ./src/assets \
+    && svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg
+
+RUN --mount=type=cache,target=/root/.yarn \
     --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=yarn.lock,target=yarn.lock \
-    apk add python3 make g++ openssl \
-    && yarn install --frozen-lockfile
+    yarn install --frozen-lockfile
 
-
-FROM prebuild AS devbuild
-RUN --mount=type=cache,target=/var/cache/apk \
-    apk add openssl
 
 # TODO: remake for prod also
 FROM prebuild AS prodbuild
@@ -35,8 +37,7 @@ COPY --from=prodbuild /adh6/frontend_angular/src/assets /usr/share/nginx/html/as
 FROM node:22-alpine AS dev
 WORKDIR /adh6/frontend_angular
 
-COPY --from=devbuild --parents /adh6/frontend_angular/node_modules /
-COPY --parents src package.json angular.json tsconfig.json ./
+COPY --parents --exclude=src/assets src package.json angular.json tsconfig.json ./
+COPY --from=prebuild --parents /adh6/frontend_angular/node_modules /adh6/frontend_angular/src/assets /
 
-# CMD ls
 CMD yarn start:en --watch --host 0.0.0.0 --disable-host-check
