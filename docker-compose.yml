@@ -1,4 +1,3 @@
-version: '3.2'
 services:
   # frontend_angular is a web server that provides the JS to the clients.
   frontend_angular:
@@ -72,7 +71,7 @@ services:
   database:
     read_only: true
     container_name: adh6_database
-    image: mariadb:latest
+    image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: "root"
       MYSQL_DATABASE: ${DATABASE_DB_NAME}
@@ -98,3 +97,8 @@ services:
       COLLECTOR_ZIPKIN_HOST_PORT: :9411
     ports:
       - 16686:16686
+
+
+networks:
+  default:
+    driver: bridge

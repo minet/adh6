@@ -6,11 +6,11 @@ uWSGI
 
 # SQL 
 SQLAlchemy
-mysqlclient
+mysqlclient>=2.2.7
 
 # Misc
 python-dateutil
-PyYAML
+PyYAML>=6.0.1
 jsonschema<4.0
 
 # ADH <-> Switches communication
