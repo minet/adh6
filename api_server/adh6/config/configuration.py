@@ -19,8 +19,22 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     TESTING = True
 
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = True  # TODO: check if used or needs to be migrated
     SQLALCHEMY_RECORD_QUERIES = True
+
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # SQLALCHEMY_ENGINE_OPTIONS = {
+    #     'isolation_level': 'SERIALIZABLE',
+    #     'echo': False,
+    #     'pool_pre_ping': True
+    # }
+    # DATABASE = {
+    #     'drivername': 'sqlite',
+    #     'database': ':memory:',
+    # }
+    SQLALCHEMY_ENGINES: ClassVar = {
+        "default": "sqlite:///:memory:"
+    }
 
 
 class DeployedConfig(BaseConfig):
