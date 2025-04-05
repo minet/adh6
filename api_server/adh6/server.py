@@ -5,7 +5,7 @@ import connexion
 import pinject
 from connexion import FlaskApp
 
-# from flask_migrate import Migrate
+from flask_migrate import Migrate
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.http.api_key import ApiKeyHandler
 from adh6.authentication.http.role import RoleHandler
@@ -242,7 +242,7 @@ def init() -> FlaskApp:
     cache.init_app(app.app, config={"CACHE_TYPE": "SimpleCache"})
 
     # Create and run database migrations
-    # Migrate(app.app, db)  # TODO: search for an alternative for flask-sqlalchemy-lite
+    Migrate(app.app, db)   # pyright: ignore [reportArgumentType] # TODO: search for an alternative for flask-sqlalchemy-lite
 
     # from flask_migrate import upgrade
     # from adh6.treasury import init as treasury_init
