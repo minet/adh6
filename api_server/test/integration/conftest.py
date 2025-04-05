@@ -23,9 +23,12 @@ m = sha512()
 
 def prep_db(*args):
     from adh6.storage.sql.models import db as _db
+    from adh6.storage.sql.models import Base
 
-    _db.create_all()  # type: ignore  # TODO: doesn't work since flask-sqlalchemy-lite
-    session = _db.session()  # type: ignore  # TODO: doesn't work since flask-sqlalchemy-lite
+    Base.metadata.create_all(_db.engine)
+    # session = _db.sessionmaker()
+    session = _db.session
+
     session.add(sample_member_admin())
     session.add_all(
         [
@@ -45,9 +48,10 @@ def prep_db(*args):
 
 def close_db():
     from adh6.storage.sql.models import db as _db
+    from adh6.storage.sql.models import Base
 
     _db.session.close()
-    _db.drop_all()  # type: ignore  # TODO: doesn't work since flask-sqlalchemy-lite
+    Base.metadata.drop_all(_db.engine)
 
 
 @pytest.fixture

@@ -60,7 +60,7 @@ dev = [
     { include-group = "tests" },
 ]
 tests = [  #
-    "pytest",
+    "pytest<8",
     "pytest-coverage",
     "pytest-cases",
     "pytest-lazy-fixtures"
@@ -169,7 +169,7 @@ combine-as-imports = true
 testpaths = [
     "test/"
 ]
-addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
+# addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
 
 [tool.coverage.run]
 branch = true

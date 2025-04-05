@@ -10,7 +10,8 @@ from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.storage import Base
 from adh6.storage.sql.rubydiff import rubydiff
 from adh6.storage.sql.trackable import RubyHashTrackable
-
+def abc(test: int):
+    print(test)
 
 class Adherent(Base, RubyHashTrackable):
     __tablename__ = "adherents"
@@ -21,7 +22,7 @@ class Adherent(Base, RubyHashTrackable):
     mail: Mapped[str] = mapped_column(String(255))
     login: Mapped[str] = mapped_column(String(255))
     password: Mapped[str] = mapped_column(String(255))
-    chambre_id: Mapped[int] = mapped_column(Integer, index=True)
+    chambre_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
@@ -29,13 +30,13 @@ class Adherent(Base, RubyHashTrackable):
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-    date_de_depart: Mapped[dt.date] = mapped_column(Date)
-    commentaires: Mapped[str] = mapped_column(String(255))
+    date_de_depart: Mapped[dt.date | None] = mapped_column(Date)
+    commentaires: Mapped[str | None] = mapped_column(String(255))
     mode_association: Mapped[dt.datetime] = mapped_column(DateTime, server_default=text("'2011-04-30 17:50:17'"))
-    access_token: Mapped[str] = mapped_column(String(255))
+    access_token: Mapped[str | None] = mapped_column(String(255))
     subnet: Mapped[str] = mapped_column(String(255))
     ip: Mapped[str] = mapped_column(String(255))
-    ldap_login: Mapped[str] = mapped_column(String(255))
+    ldap_login: Mapped[str | None] = mapped_column(String(255))
     is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     datesignedminet: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
     datesignedhosting: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
