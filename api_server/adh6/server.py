@@ -1,9 +1,12 @@
 import abc
 import os
 
+import a2wsgi
 import connexion
+import flask
 import pinject
 from connexion import FlaskApp
+from pathlib import Path
 
 from flask_migrate import Migrate
 from adh6.authentication.api_keys_manager import ApiKeyManager
@@ -65,7 +68,8 @@ from adh6.treasury.storage import (
     TransactionRepository,
 )
 from adh6.treasury.transaction_manager import TransactionManager
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 handlers = [
     AccountHandler,
     AccountTypeHandler,
@@ -185,8 +189,10 @@ def init() -> FlaskApp:
 
     # Initialize the flask application using the connexion library
     # TODO: we could drop Flask and use only connexion since version 3
-    app = connexion.FlaskApp(__name__, specification_dir="../openapi")
-
+    app = connexion.App(__name__, specification_dir=Path(__file__).parent.parent / "openapi")
+    # app = connexion.ConnexionMiddleware(a2wsgi.WSGIMiddleware(app), specification_dir=Path(__file__).parent.parent / "openapi")
+    # app = connexion.FlaskApp(__name__, specification_dir=Path(__file__).parent.parent / "openapi")
+    print(Path(__file__).parent.parent / "openapi")
     # Raise an exception if there was an error setting up the flask application
     if app.app is None:
         raise Exception("Error when setting the flask application")  # noqa: TRY002  # TODO?
@@ -231,6 +237,13 @@ def init() -> FlaskApp:
         pythonic_params=True,
         auth_all_paths=True,
     )
+
+    # app.middleware.app, app.middleware.middleware_stack = app.middleware._build_middleware_stack()
+
+    print("ababababa")
+    for rule in app.app.url_map.iter_rules():
+        print(f"Registered route: {rule}")
+
 
     # Import and setup the application logging
     from .logging import setup_login
