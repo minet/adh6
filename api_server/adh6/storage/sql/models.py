@@ -28,13 +28,13 @@ class Inscription(Base):
     __tablename__ = "inscriptions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    nom: Mapped[int] = mapped_column(String(255))
-    prenom: Mapped[str] = mapped_column(String(255))
-    email: Mapped[str] = mapped_column(String(255))
-    login: Mapped[str] = mapped_column(String(255))
-    password: Mapped[str] = mapped_column(String(255))
-    chambre_id: Mapped[int] = mapped_column(Integer, index=True)
-    duree_cotisation: Mapped[int] = mapped_column(Integer)
+    nom: Mapped[int | None] = mapped_column(String(255))
+    prenom: Mapped[str | None] = mapped_column(String(255))
+    email: Mapped[str | None] = mapped_column(String(255))
+    login: Mapped[str | None] = mapped_column(String(255))
+    password: Mapped[str | None] = mapped_column(String(255))
+    chambre_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    duree_cotisation: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )
@@ -47,15 +47,15 @@ class Modification(Base):
     __tablename__ = "modifications"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    adherent_id: Mapped[int] = mapped_column(Integer, index=True)
-    action: Mapped[str] = mapped_column(Text)
+    adherent_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    action: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-    utilisateur_id: Mapped[int] = mapped_column(Integer, index=True)
+    utilisateur_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
 
 class Routeur(Base, RubyHashTrackable):
@@ -119,9 +119,9 @@ class MailTemplates(Base):
     __tablename__ = "mail_templates"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    description: Mapped[str] = mapped_column(String(255))
-    sujet: Mapped[str] = mapped_column(String(255))
-    template: Mapped[str] = mapped_column(Text)
+    description: Mapped[str | None] = mapped_column(String(255))
+    sujet: Mapped[str | None] = mapped_column(String(255))
+    template: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )

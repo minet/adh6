@@ -17,11 +17,11 @@ class Adherent(Base, RubyHashTrackable):
     __tablename__ = "adherents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    nom: Mapped[str] = mapped_column(String(255))
-    prenom: Mapped[str] = mapped_column(String(255))
-    mail: Mapped[str] = mapped_column(String(255))
-    login: Mapped[str] = mapped_column(String(255))
-    password: Mapped[str] = mapped_column(String(255))
+    nom: Mapped[str | None] = mapped_column(String(255))
+    prenom: Mapped[str | None] = mapped_column(String(255))
+    mail: Mapped[str | None] = mapped_column(String(255))
+    login: Mapped[str | None] = mapped_column(String(255))
+    password: Mapped[str | None] = mapped_column(String(255))
     chambre_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
     created_at: Mapped[dt.datetime] = mapped_column(
@@ -32,16 +32,16 @@ class Adherent(Base, RubyHashTrackable):
     )
     date_de_depart: Mapped[dt.date | None] = mapped_column(Date)
     commentaires: Mapped[str | None] = mapped_column(String(255))
-    mode_association: Mapped[dt.datetime] = mapped_column(DateTime, server_default=text("'2011-04-30 17:50:17'"))
-    access_token: Mapped[str | None] = mapped_column(String(255))
-    subnet: Mapped[str] = mapped_column(String(255))
-    ip: Mapped[str] = mapped_column(String(255))
-    ldap_login: Mapped[str | None] = mapped_column(String(255))
+    mode_association: Mapped[dt.datetime | None] = mapped_column(DateTime, server_default=text("'2011-04-30 17:50:17'"))
+    access_token: Mapped[str | None | None] = mapped_column(String(255))
+    subnet: Mapped[str | None] = mapped_column(String(255))
+    ip: Mapped[str | None] = mapped_column(String(255))
+    ldap_login: Mapped[str | None | None] = mapped_column(String(255))
     is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    datesignedminet: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
-    datesignedhosting: Mapped[dt.datetime] = mapped_column(DateTime, nullable=True)
+    datesignedminet: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
+    datesignedhosting: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     mail_membership: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="1")
-    mailinglist: Mapped[bool] = mapped_column(Boolean, nullable=True, default=True)
+    mailinglist: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=True)
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()
@@ -66,15 +66,15 @@ class Membership(Base):
     __tablename__ = "membership"
 
     uuid: Mapped[str] = mapped_column(String(36), primary_key=True)
-    account_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    account_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     duration: Mapped[Any] = mapped_column(
         Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False
     )  # TODO: typing
     has_room: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     first_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    payment_method_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
-    products: Mapped[str] = mapped_column(String(255), nullable=True)
+    payment_method_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
+    products: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[Any] = mapped_column(
         Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False
     )  # TODO: typing
@@ -91,4 +91,4 @@ class NotificationTemplate(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    template: Mapped[str] = mapped_column(Text, nullable=True)  # why Text ? Vs String ?
+    template: Mapped[str | None] = mapped_column(Text, nullable=True)  # why Text ? Vs String ?

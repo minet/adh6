@@ -57,7 +57,7 @@ class Account(Base, RubyHashTrackable):
     actif: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default=text("1"))
     compte_courant: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False, server_default=text("0"))
     pinned: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False, server_default=text("0"))
-    adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    adherent_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
@@ -108,16 +108,16 @@ class Caisse(Base, RubyHashTrackable):
     __tablename__ = "caisse"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    fond: Mapped[float] = mapped_column(Numeric(10, 2))
-    coffre: Mapped[float] = mapped_column(Numeric(10, 2))
-    date: Mapped[dt.datetime] = mapped_column(DateTime)
+    fond: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    coffre: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    date: Mapped[dt.datetime | None] = mapped_column(DateTime)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-    linked_transaction: Mapped[int] = mapped_column(Integer, index=True, nullable=True)
+    linked_transaction: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """
