@@ -55,7 +55,7 @@ class Modification(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-    utilisateur_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    utilisateur_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
 
 class Routeur(Base, RubyHashTrackable):
