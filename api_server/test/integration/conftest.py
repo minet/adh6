@@ -75,9 +75,10 @@ def client(
 ):
     from .context import app
 
-    if app.app is None:
-        return
-    with app.app.test_client() as c:
+    # if app.app is None:
+    #     return
+    print("AHAHAH")
+    with app.test_client() as c:
         prep_db(
             sample_member,
             sample_member2,
@@ -164,6 +165,8 @@ def sample_account_frais_asso(account_type: AccountType):
         compte_courant=True,
         pinned=True,
     )
+
+
 
 
 @pytest.fixture

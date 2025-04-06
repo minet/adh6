@@ -21,7 +21,7 @@ def client(sample_room1, sample_room2, sample_vlan, sample_vlan69, sample_member
 
     if app.app is None:
         return
-    with app.app.test_client() as c:
+    with app.test_client() as c:
         prep_db(sample_room1, sample_room2, sample_vlan69, sample_vlan, sample_member, wired_device, wireless_device)
         yield c
         close_db()

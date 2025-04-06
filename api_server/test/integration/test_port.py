@@ -17,7 +17,7 @@ def client(sample_port1, sample_port2, sample_room1, sample_member, sample_switc
 
     if app.app is None:
         return
-    with app.app.test_client() as c:
+    with app.test_client() as c:
         prep_db(sample_port1, sample_port2, sample_room1, sample_member, sample_switch1, sample_switch2)
         yield c
         close_db()

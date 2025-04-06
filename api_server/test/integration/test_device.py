@@ -98,7 +98,7 @@ def client(
 
     if app.app is None:
         return
-    with app.app.test_client() as c:
+    with app.test_client() as c:
         prep_db(
             custom_device,
             wired_device,

@@ -55,7 +55,7 @@ def client(sample_member, sample_room1, sample_account1, sample_account2):
 
     if app.app is None:
         return
-    with app.app.test_client() as c:
+    with app.test_client() as c:
         prep_db(sample_room1, sample_member, sample_account1, sample_account2)
         yield c
         close_db()
