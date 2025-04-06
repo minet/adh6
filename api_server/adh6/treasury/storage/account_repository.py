@@ -24,15 +24,12 @@ class AccountSQLRepository(AccountRepository):
     ) -> tuple[list[AbstractAccount], int]:
         query = db.session.query(
             SQLAccount,
-            func.sum(
+                func.sum(
                 case(
-                    value=Transaction.src,
-                    whens={  # type: ignore  # TODO: typing
-                        SQLAccount.id: -Transaction.value
-                    },
-                    else_=Transaction.value,
+                    (Transaction.src == SQLAccount.id, -Transaction.value),
+                    else_=Transaction.value
                 )
-            ).label("balance"),
+            ).label("balance")
         ).group_by(SQLAccount.id)
         query = query.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
 
@@ -69,7 +66,7 @@ class AccountSQLRepository(AccountRepository):
                 SQLAccount,
                 func.sum(
                     case(
-                        [(Transaction.src == SQLAccount.id, -Transaction.value)],  # type: ignore  # TODO: typing / deprecated
+                        (Transaction.src == SQLAccount.id, -Transaction.value),  # type: ignore  # TODO: typing / deprecated
                         else_=Transaction.value,
                     )
                 ).label("balance"),  # type: ignore  # TODO: typing / deprecated
