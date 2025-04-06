@@ -11,9 +11,9 @@ class Switch(Base):
     __tablename__ = "switches"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    description: Mapped[str] = mapped_column(String(255))
-    ip: Mapped[str] = mapped_column(String(15))
-    communaute: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str | None] = mapped_column(String(255))
+    ip: Mapped[str | None] = mapped_column(String(15))
+    communaute: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )

@@ -1,6 +1,6 @@
 #!/bin/sh
 set -a
-source ../.env.local
+. ../.env.local
 set +a
 
 export FLASK_APP=manage:manager

@@ -62,8 +62,8 @@ class Routeur(Base, RubyHashTrackable):
     __tablename__ = "routeurs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    mac: Mapped[str] = mapped_column(String(255))
-    ip: Mapped[str] = mapped_column(String(255))
+    mac: Mapped[str | None] = mapped_column(String(255))
+    ip: Mapped[str | None] = mapped_column(String(255))
     adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
@@ -101,18 +101,18 @@ class Utilisateur(Base):
     __tablename__ = "utilisateurs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    nom: Mapped[str] = mapped_column(String(255))
-    access: Mapped[str] = mapped_column(Integer)
-    email: Mapped[str] = mapped_column(String(255))
-    login: Mapped[str] = mapped_column(String(255))
-    password_hash: Mapped[str] = mapped_column(String(255))
+    nom: Mapped[str | None] = mapped_column(String(255))
+    access: Mapped[str | None] = mapped_column(Integer)
+    email: Mapped[str | None] = mapped_column(String(255))
+    login: Mapped[str | None] = mapped_column(String(255))
+    password_hash: Mapped[str | None] = mapped_column(String(255))
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-    access_token: Mapped[str] = mapped_column(String(255))
+    access_token: Mapped[str | None] = mapped_column(String(255))
 
 
 class MailTemplates(Base):

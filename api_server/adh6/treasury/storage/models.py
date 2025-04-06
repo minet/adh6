@@ -88,8 +88,8 @@ class Transaction(Base, RubyHashTrackable):
     type: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     author_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     pending_validation: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-    membership_uuid: Mapped[str] = mapped_column(String(36), nullable=True)
-    is_archive: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_archive: Mapped[bool | None] = mapped_column(Boolean, default=False, nullable=True)
+    membership_uuid: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """

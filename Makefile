@@ -89,9 +89,9 @@ $(FRONTEND_PATH)/src/app/api: $(OPENAPI_SPEC_PATH)
 ### Generate database fixture, only for test purpose
 .PHONY: generate-database-fixtures
 generate-database-fixtures: $(BACKEND_ENV_PATH)
-	cd $(BACKEND_PATH) && source $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh db upgrade
-	cd $(BACKEND_PATH) && source $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh seed
-	cd $(BACKEND_PATH) && source $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)
+	cd $(BACKEND_PATH) && . $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh db upgrade
+	cd $(BACKEND_PATH) && . $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh seed
+	cd $(BACKEND_PATH) && . $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)
 
 # TODO: run & run-dev are swapped...
 .PHONY: run

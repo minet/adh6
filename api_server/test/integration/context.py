@@ -9,4 +9,4 @@ os.environ["ENVIRONMENT"] = "testing"
 app = server.init()
 
 
-tomorrow = datetime.now().date() + timedelta(1)
+tomorrow = datetime.now().date() + timedelta(days=1)
