@@ -31,7 +31,7 @@ def test_cashbox_get(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response["coffre"] == 0
     assert response["fond"] == 0
 

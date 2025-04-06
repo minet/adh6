@@ -33,7 +33,7 @@ def test_role_search(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 7
 
 
@@ -43,7 +43,7 @@ def test_role_search_no_result(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 0
 
 
@@ -77,7 +77,7 @@ def test_role_search_filter_no_result_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 0
 
 
@@ -86,8 +86,8 @@ def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
     r = client.get(
@@ -95,7 +95,7 @@ def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -104,8 +104,8 @@ def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
     r = client.get(
@@ -113,7 +113,7 @@ def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -122,8 +122,8 @@ def test_role_post(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
     r = client.get(
@@ -131,7 +131,7 @@ def test_role_post(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -140,8 +140,8 @@ def test_role_post_multiple_roles(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
     r = client.get(
@@ -149,7 +149,7 @@ def test_role_post_multiple_roles(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -158,8 +158,8 @@ def test_role_post_unknown_user(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -169,8 +169,8 @@ def test_role_post_unknown_role(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 400
 
@@ -180,8 +180,8 @@ def test_role_post_unauthorized_user(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS_SAMPLE,
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+
     )
     assert r.status_code == 403
 
@@ -191,8 +191,7 @@ def test_role_post_unauthorized_api_key_admin(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS_API_KEY_ADMIN,
+headers={"Content-Type": "application/json", **TEST_HEADERS_API_KEY_ADMIN},
     )
     assert r.status_code == 401
 

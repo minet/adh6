@@ -121,7 +121,7 @@ def test_charter_list_members(client, sample_member, charter, length):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == length
 
 
@@ -197,7 +197,7 @@ def test_charter_get_already_signed(client, sample_member, charter):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response != ""
 
 

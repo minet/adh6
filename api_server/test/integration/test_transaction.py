@@ -115,7 +115,7 @@ def test_switch_post_invalid_value(client, test_value):
         "payment_method": "liquide",
     }
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_transaction1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_transaction1), headers={"Content-Type": "application/json", **TEST_HEADERS}
     )
     assert r.status_code == 400
 
@@ -135,7 +135,7 @@ def test_transaction_post_valid(client, sample_member_admin):
 
     # Insert data to the database
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_transaction1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_transaction1), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
     assert_transaction_in_db(sample_transaction1)
@@ -155,7 +155,7 @@ def test_transaction_get_all_limit(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert len(t) == 0
 
 
@@ -165,7 +165,7 @@ def test_transaction_get_all(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert t
     assert len(t) == 2
 
@@ -190,7 +190,7 @@ def test_transaction_search_with_only(client, sample_only: str):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 2
     assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
@@ -253,7 +253,7 @@ def test_transaction_get_existant_transaction(client, sample_transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode("utf-8"))
+    assert json.loads(r.content.decode("utf-8"))
 
 
 def test_transaction_get_non_existant_transaction(client):
@@ -271,7 +271,7 @@ def test_transaction_filter_by_term_desc(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert result
     assert len(result) == 2
 
@@ -283,7 +283,7 @@ def test_transaction_filter_by_term_nonexistant(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert not result
 
 
@@ -293,7 +293,7 @@ def test_transaction_filter_by_id(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -303,7 +303,7 @@ def test_transaction_filter_by_payment_method(client, sample_transaction: Transa
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -313,7 +313,7 @@ def test_transaction_filter_by_pending_validation(client, sample_transaction: Tr
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -323,7 +323,7 @@ def test_transaction_filter_by_src(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -333,5 +333,5 @@ def test_transaction_filter_by_dst(client, sample_transaction: Transaction):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2

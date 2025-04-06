@@ -41,7 +41,7 @@ def test_room_filter_all_rooms(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode())
+    response = json.loads(r.content.decode())
     assert len(response) == 2
 
 
@@ -61,7 +61,7 @@ def test_room_search_with_only(client, sample_only: str):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 2
     assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
@@ -89,7 +89,7 @@ def test_room_filter_all_rooms_limit(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode())
+    response = json.loads(r.content.decode())
     assert len(response) == 1
 
 
@@ -99,7 +99,7 @@ def test_room_filter_by_term(client, sample_room1):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode())
+    response = json.loads(r.content.decode())
     assert len(response) == 1
 
 
@@ -109,7 +109,7 @@ def test_room_get_valid_room(client, sample_room1):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode())
+    response = json.loads(r.content.decode())
     assert len(response) == 4
 
 
@@ -126,8 +126,8 @@ def test_room_post_new_room_invalid_vlan(client):
     r = client.post(
         base_url,
         data=json.dumps(room),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -141,8 +141,8 @@ def test_room_post_new_room(client, sample_vlan):
     r = client.post(
         base_url,
         data=json.dumps(room),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
     assert_room_in_db(room)
@@ -153,8 +153,8 @@ def test_room_put_update_room(client, sample_room1, sample_vlan):
     r = client.put(
         f"{base_url}{sample_room1.id}",
         data=json.dumps(room),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     assert_room_in_db(room)
@@ -185,8 +185,8 @@ def test_room_add_member_unknown_room(client, sample_member):
     r = client.post(
         f"{base_url}{4242}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -195,8 +195,8 @@ def test_room_add_member_unknown_member(client, sample_room1):
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": 4242}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -205,8 +205,8 @@ def test_room_add_member(client, sample_room1, sample_member):
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
 
@@ -223,8 +223,8 @@ def test_room_member_in_room(client, sample_room1, sample_member):
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     r = client.get(
@@ -232,7 +232,7 @@ def test_room_member_in_room(client, sample_room1, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response == sample_room1.id
 
 
@@ -242,8 +242,8 @@ def test_room_add_member_change_vlan_check_wired(
     r = client.post(
         f"{base_url}{sample_room2.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     assert IPv4Address(
@@ -254,8 +254,8 @@ def test_room_add_member_change_vlan_check_wired(
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     assert IPv4Address(
@@ -268,8 +268,8 @@ def test_room_add_member_change_vlan_check_wired(
 def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert db.session.execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
     assert (
@@ -281,8 +281,8 @@ def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample
     r = client.post(
         f"{base_url}{sample_room2.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     assert IPv4Address(
@@ -296,8 +296,8 @@ def test_room_member_in_room_user_authorized(client, sample_room1, sample_member
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     r = client.get(
@@ -305,15 +305,15 @@ def test_room_member_in_room_user_authorized(client, sample_room1, sample_member
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response == sample_room1.id
 
 
 def test_room_delete_member_unknown_room(client, sample_member):
     r = client.delete(
         f"{base_url}{4242}/member/?memberId={sample_member.id}",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -321,8 +321,8 @@ def test_room_delete_member_unknown_room(client, sample_member):
 def test_room_delete_member_unknown_member(client, sample_room1):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId=4242",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -330,8 +330,8 @@ def test_room_delete_member_unknown_member(client, sample_room1):
 def test_room_delete_member(client, sample_room1, sample_member):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
 
@@ -339,9 +339,9 @@ def test_room_delete_member(client, sample_room1, sample_member):
 def test_room_delete_member_unauthorized(client, sample_room1, sample_member):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
-        data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS_SAMPLE,
+        params=json.dumps({"id": sample_member.id}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+
     )
     assert r.status_code == 403
 
@@ -350,8 +350,8 @@ def test_room_list_member(client, sample_room1, sample_member):
     r = client.post(
         f"{base_url}{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     r = client.get(
@@ -359,7 +359,7 @@ def test_room_list_member(client, sample_room1, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response == [sample_member.id]
 
 

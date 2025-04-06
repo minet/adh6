@@ -39,7 +39,7 @@ def test_port_get_filter_all(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    switches = json.loads(r.data.decode())
+    switches = json.loads(r.content.decode())
     assert switches
     assert len(switches) == 2
 
@@ -60,7 +60,7 @@ def test_port_search_with_only(client, sample_only: str):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 2
     assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
@@ -80,7 +80,7 @@ def test_port_get_filter_all_with_limit(client, limit: int):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    ports = json.loads(r.data.decode())
+    ports = json.loads(r.content.decode())
     assert ports
     assert len(ports) == (min(limit, 2))
 
@@ -106,7 +106,7 @@ def sample_port1_room_id(sample_port1: Port):
 def test_port_get_filter_by_filter(client, filter_name, filter_value, quantity: int):
     r = client.get(f"{base_url}?filter[{filter_name}]={filter_value}", headers=TEST_HEADERS)
     assert r.status_code == 200
-    ports = json.loads(r.data.decode())
+    ports = json.loads(r.content.decode())
     assert len(ports) == quantity
 
 
@@ -117,7 +117,7 @@ def test_port_get_filter_by_term(client, term: str):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    ports = json.loads(r.data.decode())
+    ports = json.loads(r.content.decode())
     assert ports
     assert len(ports) == 1
 
@@ -128,8 +128,8 @@ def test_port_post_create_port_invalid_switch(client, sample_room1):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -140,8 +140,8 @@ def test_port_post_create_port_invalid_room(client, sample_switch1):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -152,8 +152,8 @@ def test_port_post_create_port(client, sample_switch1, sample_room1):
     r = client.post(
         base_url,
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 201
 
@@ -164,7 +164,7 @@ def test_port_get_existant_port(client, sample_port1):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    switch = json.loads(r.data.decode())
+    switch = json.loads(r.content.decode())
     assert switch
 
 
@@ -205,8 +205,8 @@ def test_port_put_update_port(
     r = client.put(
         f"{base_url}{port_id}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == status_code
     if r.status_code == 204:

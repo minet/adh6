@@ -46,7 +46,7 @@ def assert_switch_in_db(body):
 def test_switch_post_invalid_ip(client, test_ip):
     sample_switch1 = {"description": "Test Switch", "ip": test_ip, "community": "myGreatCommunity"}
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_switch1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -56,7 +56,7 @@ def test_switch_post_valid(client):
 
     # Insert data to the database
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_switch1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
     assert_switch_in_db(sample_switch1)
@@ -77,7 +77,7 @@ def test_switch_search_with_only(client, sample_only: str):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
     assert len({*sample_only.split(","), "id"}) == len(set(response[0].keys()))
 
@@ -105,7 +105,7 @@ def test_switch_get_all_limit(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert len(t) == 0
 
 
@@ -115,7 +115,7 @@ def test_switch_get_all(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert t
     assert len(t) == 1
 
@@ -126,7 +126,7 @@ def test_switch_get_existant_switch(client, sample_switch1):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode("utf-8"))
+    assert json.loads(r.content.decode("utf-8"))
 
 
 def test_switch_get_non_existant_switch(client):
@@ -144,7 +144,7 @@ def test_switch_filter_by_term_ip(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert result
     assert len(result) == 1
 
@@ -156,7 +156,7 @@ def test_switch_filter_by_term_desc(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert result
     assert len(result) == 1
 
@@ -168,7 +168,7 @@ def test_switch_filter_by_term_nonexistant(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert not result
 
 
@@ -179,7 +179,7 @@ def test_member_filter_by_switch_id(client, sample_switch1: Switch):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -190,7 +190,7 @@ def test_member_filter_by_unknown_switch_id(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 0
 
 
@@ -201,7 +201,7 @@ def test_member_filter_by_switch_ip(client, sample_switch1: Switch):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -212,7 +212,7 @@ def test_member_filter_by_unknown_switch_ip(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 0
 
 
@@ -223,7 +223,7 @@ def test_member_filter_by_switch_description(client, sample_switch1: Switch):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -234,7 +234,7 @@ def test_member_filter_by_unknown_switch_description(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 0
 
 
@@ -243,7 +243,7 @@ def test_switch_update_switch_invalid_ip(client, test_ip):
     sample_switch1 = {"description": "Modified switch", "ip": test_ip, "community": "communityModified"}
 
     r = client.put(
-        f"{base_url}{1}", data=json.dumps(sample_switch1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}{1}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -258,8 +258,8 @@ def test_switch_update_existant_switch(client, sample_switch1: Switch):
     r = client.put(
         f"{base_url}{sample_switch1.id}",
         data=json.dumps(sample_switch1_changed),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 204
     assert_switch_in_db(sample_switch1_changed)
@@ -269,7 +269,7 @@ def test_switch_update_non_existant_switch(client):
     sample_switch1 = {"description": "Modified switch", "ip": "192.168.103.132", "community": "communityModified"}
 
     r = client.put(
-        f"{base_url}{100000}", data=json.dumps(sample_switch1), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}{100000}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 404
 

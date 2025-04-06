@@ -76,7 +76,7 @@ def test_account_filter_all_with_limit(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -86,7 +86,7 @@ def test_account_filter_by_terms(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -96,7 +96,7 @@ def test_account_filter_by_terms_one_result(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -106,7 +106,7 @@ def test_account_filter_by_id(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -116,7 +116,7 @@ def test_account_filter_by_name(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -126,7 +126,7 @@ def test_account_filter_by_compte_courant(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -136,7 +136,7 @@ def test_account_filter_by_actif(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 2
 
 
@@ -146,7 +146,7 @@ def test_account_filter_by_pinned(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -156,7 +156,7 @@ def test_account_filter_by_account_type(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -166,7 +166,7 @@ def test_account_filter_by_member(client, sample_account1: Account):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 

@@ -34,7 +34,7 @@ def test_member_filter_all(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 4  # 4 because of the admin user
 
 
@@ -53,7 +53,7 @@ def test_member_filter_all_with_limit(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -64,7 +64,7 @@ def test_member_filter_by_ip(client, sample_member: Adherent):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -75,7 +75,7 @@ def test_member_filter_by_departure_date_since_now(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 3
 
 
@@ -86,7 +86,7 @@ def test_member_filter_by_departure_date_since_previous_week(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 4
 
 
@@ -97,7 +97,7 @@ def test_member_filter_by_departure_date_until_now(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -108,7 +108,7 @@ def test_member_filter_by_departure_date_until_next_week(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 4
 
 
@@ -119,7 +119,7 @@ def test_member_filter_terms_first_name(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -130,7 +130,7 @@ def test_member_filter_terms_last_name(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -141,7 +141,7 @@ def test_member_filter_terms_email(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -152,7 +152,7 @@ def test_member_filter_terms_login(client, sample_member: Adherent):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -163,7 +163,7 @@ def test_member_filter_terms_comment(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -174,7 +174,7 @@ def test_member_filter_terms_nonexistant(client):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 0
 
 
@@ -185,7 +185,7 @@ def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len(response) == 1
 
 
@@ -213,7 +213,7 @@ def test_member_get_with_only(client, sample_member, sample_only: str):
     )
     assert r.status_code == 200
 
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert len({*sample_only.split(","), "id"}) == len(set(response.keys()))
 
 
@@ -232,7 +232,7 @@ def test_member_get_existant(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode("utf-8"))
+    assert json.loads(r.content.decode("utf-8"))
 
 
 def test_member_get_nonexistant(client):
@@ -285,13 +285,13 @@ def test_member_delete_unauthorized(client):
 
 def test_member_post_member_create_invalid_email(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "INVALID_EMAIL", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
+    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
     assert res.status_code == 400
 
 
 def test_member_post_member_create(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
+    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
     assert res.status_code == 201
     assert_member_in_db(body)
 
@@ -300,16 +300,16 @@ def test_member_post_member_create(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    response = json.loads(r.data.decode("utf-8"))
+    response = json.loads(r.content.decode("utf-8"))
     assert response == 249
 
 
 def test_member_post_member_same_login(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
+    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
     assert res.status_code == 201
 
-    res = client.post(f"{base_url}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS)
+    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
     assert res.status_code == 400
 
 
@@ -318,8 +318,8 @@ def test_member_post_unauthorized(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS_SAMPLE,
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+
     )
     assert r.status_code == 403
 
@@ -338,7 +338,7 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         key: value,
     }
     res = client.patch(
-        f"{base_url}{sample_member.id}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}{sample_member.id}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert res.status_code == 204
     assert_modification_was_created(db.session)
@@ -367,7 +367,7 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
         key: value,
     }
     res = client.patch(
-        f"{base_url}{sample_member2.id}", data=json.dumps(body), content_type="application/json", headers=TEST_HEADERS
+        f"{base_url}{sample_member2.id}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert res.status_code == 400
 
@@ -376,8 +376,8 @@ def test_member_patch_unknown(client):
     r = client.patch(
         f"{base_url}{4242}",
         data=json.dumps({}),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert r.status_code == 404
 
@@ -397,18 +397,18 @@ def test_member_get_logs(client, sample_member):
     }
     result = client.get(
         f"{base_url}{sample_member.id}/logs/",
-        data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        params=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 200
-    assert json.loads(result.data.decode("utf-8")) == ["1 test_log"]
+    assert json.loads(result.content.decode("utf-8")) == ["1 test_log"]
 
 
 def test_member_get_logs_unauthorized(client):
     r = client.get(
         f"{base_url}{4242}/logs/",
-        data=json.dumps({}),
+        params=json.dumps({}),
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -418,8 +418,7 @@ def test_member_get_logs_unauthorized(client):
 def test_member_get_statuses(client, sample_member, headers):
     result = client.get(
         f"{base_url}{sample_member.id}/statuses/",
-        content_type="application/json",
-        headers=headers,
+        headers={"Content-Type": "application/json", **headers},
     )
     assert result.status_code == 200
 
@@ -439,8 +438,8 @@ def test_member_comment_put(client, sample_member):
     result = client.put(
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 204
 
@@ -461,28 +460,28 @@ def test_member_comment_get(client, sample_member):
     result = client.put(
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 204
 
     result = client.get(
         f"{base_url}{sample_member.id}/comment/",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 200
-    assert result.json["comment"] == "test_comment"
+    assert result.json()["comment"] == "test_comment"
 
 
 def test_member_comment_get_empty(client, sample_member):
     result = client.get(
         f"{base_url}{sample_member.id}/comment/",
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 200
-    assert result.json["comment"] == ""
+    assert result.json()["comment"] == ""
 
 
 def test_member_comment_get_unauthorized(client):
@@ -500,7 +499,7 @@ def test_member_comment_too_long(client, sample_member):
     result = client.put(
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+
     )
     assert result.status_code == 400

@@ -40,7 +40,7 @@ def test_product_get_all_limit(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert len(t) == 0
 
 
@@ -50,7 +50,7 @@ def test_product_get_all(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    t = json.loads(r.data.decode("utf-8"))
+    t = json.loads(r.content.decode("utf-8"))
     assert t
     assert len(t) == 1
 
@@ -61,7 +61,7 @@ def test_product_get_existant_product(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert json.loads(r.data.decode("utf-8"))
+    assert json.loads(r.content.decode("utf-8"))
 
 
 def test_product_get_non_existant_product(client):
@@ -78,7 +78,7 @@ def test_product_filter_by_term_name(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert result
     assert len(result) == 1
 
@@ -89,5 +89,5 @@ def test_product_filter_by_unknown_term_name(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 0

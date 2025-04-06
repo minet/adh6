@@ -32,7 +32,7 @@ def test_api_key_search(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -42,7 +42,7 @@ def test_api_key_search_login(client):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 1
 
 
@@ -75,11 +75,10 @@ def test_api_key_post_role(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 200
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
     assert len(result) == 36
 
 
@@ -88,8 +87,7 @@ def test_api_key_post_no_role(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -99,8 +97,7 @@ def test_api_key_post_unknown_user(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 404
 
@@ -110,8 +107,7 @@ def test_api_key_post_unknown_role(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -121,8 +117,7 @@ def test_api_key_post_unauthorized_user(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS_SAMPLE,
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
     )
     assert r.status_code == 403
 
@@ -132,8 +127,7 @@ def test_api_key_post_unauthorized_admin(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS_API_KEY_ADMIN,
+        headers={"Content-Type": "application/json", **TEST_HEADERS_API_KEY_ADMIN},
     )
     assert r.status_code == 401
 
@@ -143,15 +137,14 @@ def test_api_key_delete(client):
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
-        content_type="application/json",
-        headers=TEST_HEADERS,
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
 
     r = client.get(
         f"{base_url}?login={SAMPLE_CLIENT}",
         headers=TEST_HEADERS,
     )
-    result = json.loads(r.data.decode("utf-8"))
+    result = json.loads(r.content.decode("utf-8"))
 
     r = client.delete(
         f"{base_url}{result[0]['id']}",
