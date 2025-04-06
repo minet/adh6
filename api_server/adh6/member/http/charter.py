@@ -29,4 +29,5 @@ class CharterHandler:
     def member_get(self, charter_id: int, id_: int):
         if get_user() != id_ and Roles.ADMIN_READ.value not in get_roles():
             raise UnauthorizedError("Unauthorize to access this resource")
-        return self.charter_manager.get(charter_id, id_), 200
+        m = self.charter_manager.get(charter_id, id_)
+        return m or "", 200  # TODO: change the spec to allow null ?
