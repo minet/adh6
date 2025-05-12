@@ -1,4 +1,5 @@
 **/.vscode
+**/.DS_Store
 
 # API SERVER
 **/__pycache__
