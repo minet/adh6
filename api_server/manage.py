@@ -11,16 +11,22 @@ from adh6.member.storage.models import Adherent, Membership, NotificationTemplat
 from adh6.network.storage.models import Port, Switch
 from adh6.room.storage.models import Chambre
 from adh6.server import init
-from adh6.storage import db
+from adh6.storage import Base, db
 from adh6.subnet.storage.models import Vlan
 from adh6.treasury.storage.models import Account, AccountType, Caisse, PaymentMethod, Product  # , Transaction
 from faker import Faker
 from flask import Flask
+from flask_alembic import Alembic
 from sqlalchemy.orm import Session
 
 # from adh6.storage.sql.models import Adhesion, Modification, Routeur
 
+
 application = init()
+
+alembic = Alembic(application.app, metadatas=Base.metadata)  # add alembic CLI options
+# nb: alembic is only available in the CLI, because it only supports synchronous sqlalchemy, and when using uvicorn the app is async
+
 if application.app is None:
     raise RuntimeError("Error when setting the flask application")
 manager: Flask = application.app

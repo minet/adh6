@@ -50,7 +50,8 @@ RUN apk add --no-cache --update \
 USER adh6
 
 WORKDIR /adh6/api_server
-COPY --parents ./openapi ./adh6 ./main.py ./
+COPY --parents ./migrations ./openapi ./adh6 ./main.py ./manage.py ./start.sh ./
 
 # Launch the app 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornH11Worker", "-b", ":8080", "main:application"]
+# CMD ["gunicorn", "-k", "uvicorn.workers.UvicornH11Worker", "-b", ":8080", "main:application"]
+CMD ["./start.sh"]

@@ -1,7 +1,4 @@
 #!/bin/sh
-set -a
-. ../.env.local
-set +a
+# used to exec "flask" commands INSIDE the container
 
-export FLASK_APP=manage:manager
-flask "$@"
+docker compose exec api_server sh -c 'FLASK_APP=manage:manager flask "$@"' _ "$@"

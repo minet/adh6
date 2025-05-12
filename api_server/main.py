@@ -9,7 +9,6 @@ from adh6.server import init
 # from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 # tracer = trace.get_tracer(__name__)
-
 application = init()
 # FlaskInstrumentor().instrument_app(application.app)
 

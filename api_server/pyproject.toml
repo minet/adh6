@@ -12,27 +12,28 @@ version = "6.0"  # https://packaging.python.org/en/latest/specifications/version
 requires-python = "~=3.11.0"
 dependencies = [
     # https://packaging.python.org/en/latest/specifications/dependency-specifiers/
-    "connexion[flask, swagger-ui]",  # faire le lien entre la spec OpenAPI et les handlers Flask
-    "SQLAlchemy",  # ORM pour communiquer avec la base de donnée
+    "connexion[flask, swagger-ui]", # faire le lien entre la spec OpenAPI et les handlers Flask
+    "SQLAlchemy", # ORM pour communiquer avec la base de donnée
     "flask-sqlalchemy-lite",
-    "mysqlclient",  # TODO: vérifier qu'il s'agisse bien du driver
-    "python-dateutil",  # Un ensemble d'utilitaires pour gérer une base de donnée
-    "pysnmp<5.0.0",  # communiquer avec les switches
-    "elasticsearch",  # ELK communication  # TODO: meilleurs explications
-    "pinject",  # TODO: deprecated
-    "requests",   # TODO: remplacer par httpx
-    "Flask-Migrate",  # alembic bindings for flask  # TODO: cette lib dépend de flask-sqlalchemy mais on utilise flask-sqlalchemy-lite parce que voilà.
+    "mysqlclient", # TODO: vérifier qu'il s'agisse bien du driver
+    "python-dateutil", # Un ensemble d'utilitaires pour gérer une base de donnée
+    "pysnmp<5.0.0", # communiquer avec les switches
+    "elasticsearch", # ELK communication  # TODO: meilleurs explications
+    "pinject", # TODO: deprecated
+    "requests", # TODO: remplacer par httpx
+    "Flask-Migrate", # alembic bindings for flask  # TODO: cette lib dépend de flask-sqlalchemy mais on utilise flask-sqlalchemy-lite parce que voilà.
     "Flask-Caching",
-    "authlib",  # TODO: vérifier qu'il s'agisse du support du CAS
-    "cryptography",  # TODO: vérifier de quoi il s'agit
-    "jinja2",  # TODO: devrait être inclus avec flask
-    "bcrypt",  # TODO: vérifier de quoi il s'agit
-    "Faker",  # TODO: vérifier de quoi il s'agit / si c'est du test-time only
+    "authlib", # TODO: vérifier qu'il s'agisse du support du CAS
+    "cryptography", # TODO: vérifier de quoi il s'agit
+    "jinja2", # TODO: devrait être inclus avec flask
+    "bcrypt", # TODO: vérifier de quoi il s'agit
+    "Faker", # TODO: vérifier de quoi il s'agit / si c'est du test-time only
     "opentelemetry-instrumentation-flask",
     "opentelemetry-instrumentation-requests",
     "opentelemetry-api",
     "opentelemetry-sdk",
     "opentelemetry-exporter-jaeger",
+    "flask-alembic>=3.1.1",
 ]
 
 # Docs:

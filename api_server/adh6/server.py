@@ -239,8 +239,7 @@ def init() -> FlaskApp:
     # Initialize the database and cache
     db.init_app(app.app)
     cache.init_app(app.app, config={"CACHE_TYPE": "SimpleCache"})
-    alembic = Alembic(metadatas=Base.metadata)
-    alembic.init_app(app.app)
+
     # from adh6.treasury import init as treasury_init
     # treasury_init()
 
