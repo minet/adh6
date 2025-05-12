@@ -1,28 +1,17 @@
 services:
-  # frontend_angular is a web server that provides the JS to the clients.
   frontend_angular:
     container_name: adh6_frontend
     build:
       context: frontend_angular
       dockerfile: Dockerfile
       target: dev
-    expose:
-      - "80" # app does not start as root here
-    # volumes:
-    #   # Make a bind mount so you can modify files in the container
-    #   - type: bind
-    #     source: "./frontend_angular/src"
-    #     target: "/adh6/frontend_angular/src/"
-    #     read_only: true
-    # api_server is the API that actually does action on the database.
+
   api_server:
     container_name: adh6_backend
     build: api_server
     depends_on:
       database:
         condition: service_healthy
-    expose:
-      - "8080"
     environment:
       ENVIRONMENT: "development"
       OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
@@ -31,23 +20,6 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
-
-  # api_server_member:
-  #   container_name: adh6_backend_member
-  #   build: api_server
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #   expose:
-  #     - "8080"
-  #   environment:
-  #     ENVIRONMENT: "development"
-  #     OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
-  #     DATABASE_HOST: ${DATABASE_HOST}
-  #     DATABASE_PORT: ${DATABASE_PORT}
-  #     DATABASE_USERNAME: ${DATABASE_USERNAME}
-  #     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-  #     DATABASE_DB_NAME: ${DATABASE_DB_NAME}
 
   reverse_proxy:
     container_name: adh6_reverse_proxy
