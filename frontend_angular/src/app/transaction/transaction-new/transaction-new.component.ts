@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { map, takeWhile } from 'rxjs/operators';
 
@@ -52,13 +52,13 @@ export class TransactionNewComponent implements OnInit {
     private notificationService: NotificationService,
     private route: ActivatedRoute
   ) {
-    this.transactionDetails = this.fb.group({
-      name: ['', Validators.required],
-      value: [0, Validators.required],
-      srcAccount: [0, Validators.required],
-      dstAccount: [0, Validators.required],
-      paymentMethod: [0, Validators.required],
-      caisse: [Transaction.CashboxEnum.Direct, Validators.required],
+    this.transactionDetails = this.fb.group<TransactionForm>({
+      name: this.fb.control('', Validators.required),
+      value: this.fb.control(0, Validators.required),
+      srcAccount: this.fb.control(0, Validators.required),
+      dstAccount: this.fb.control(0, Validators.required),
+      paymentMethod: this.fb.control(0, Validators.required),
+      caisse: this.fb.control(Transaction.CashboxEnum.Direct, Validators.required)
     });
   }
 
