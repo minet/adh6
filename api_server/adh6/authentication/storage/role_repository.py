@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Select
@@ -12,9 +14,9 @@ from .models import AuthenticationRoleMapping
 
 
 class RoleSQLRepository(RoleRepository):
-    def get(self, id: int) -> RoleMapping | None:
+    def get(self, id: int) -> Any:  # todo
         smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
-        return db.session.execute(smt).scalar_one_or_none()  # type: ignore TODO: typing
+        return db.session.execute(smt).scalar_one_or_none()
 
     def find(
         self,
