@@ -4,7 +4,7 @@ from datetime import date, datetime
 
 import click
 from adh6.authentication import AuthenticationMethod, Roles
-from adh6.authentication.storage.models import AuthenticationRoleMapping
+from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.device.storage.models import Device
 from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
@@ -21,12 +21,13 @@ from sqlalchemy.orm import Session
 
 application = init()
 if application.app is None:
-    raise Exception("Error when setting the flask application")  # noqa: TRY002  # TODO?
+    raise RuntimeError("Error when setting the flask application")
 manager: Flask = application.app
 
 
 @manager.cli.command("check_subnet")
 def check_subnet():
+    # TODO: documenter cette fonction, ce qu'elle fait, et si elle est encore utile
     public_range = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
     excluded_addresses = [
         "157.159.192.0",
@@ -77,6 +78,7 @@ limit_departure_date = date(2019, 1, 1)
 
 @manager.cli.command("remove_member")
 def remove_members():
+    # TODO: documenter cette fonction, ce qu'elle fait, et si elle est encore utile
     session: Session = db.session
     adherents: list[Adherent] = session.query(Adherent).filter(Adherent.date_de_depart <= limit_departure_date).all()
 
@@ -156,24 +158,40 @@ def check_transactions_member_to_remove():
     session.commit()
 
 
-# TODO: code simplement faux, comprendre son utilité et le refaire si besoin
-# @manager.cli.command("api_key")
-# @click.argument("login")
-# def api_key(login: str = "dev-api-key"):
-#     """Add seed data to the database."""
-#     session = db.session
+@manager.cli.command("api_key")
+@click.argument("login")
+def api_key(login: str = "dev-api-key"):
+    """Add seed data to the database."""
+    from hashlib import sha3_512
 
-#     print("Generate api key")
-#     api_key = (str(uuid.uuid4()), login, Roles.ADMIN_READ.value)
-#     session.add(
-#         ApiKey(
-#             uuid=api_key[0],
-#             name=api_key[1],
-#             role=api_key[2]
-#         )
-#     )
-#     session.commit()
-#     print(f"generated key: {api_key[0]}")
+    session = db.get_session()
+
+    print("Generate api key")
+    api_key = (str(uuid.uuid4()), login)
+
+    session.add(
+        key := ApiKey(
+            value=sha3_512(api_key[0].encode("utf-8")).hexdigest(),
+            user_login=api_key[1],
+        ),
+    )
+    session.flush()
+    session.add_all(
+        [
+            AuthenticationRoleMapping(
+                identifier=str(key.id),
+                authentication=AuthenticationMethod.API_KEY,
+                role=Roles.ADMIN_READ,
+            ),
+            AuthenticationRoleMapping(
+                identifier=str(key.id),
+                authentication=AuthenticationMethod.API_KEY,
+                role=Roles.ADMIN_WRITE,
+            ),
+        ]
+    )
+    session.commit()
+    print(f"generated key: {api_key[0]}")
 
 
 @manager.cli.command("seed")
@@ -232,7 +250,7 @@ def seed():
 
     print("Seeding Rooms")
     session.bulk_save_objects(
-        [Chambre(id=i, numero=i, description="Chambre " + str(i), vlan_id=1) for i in range(1, 30)]
+        [Chambre(id=i, numero=1000 + i, description="Chambre " + str(i), vlan_id=1) for i in range(1, 30)]
     )
 
     print("Seeding Switchs")
