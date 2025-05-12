@@ -149,12 +149,12 @@ def test_charter_head_members(client, sample_member, charter, length):
     )
     assert r.status_code == 201
 
-    # r = client.head(  # TODO: Fix this test
-    #     f"{base_url}{charter}/member/",
-    #     headers=TEST_HEADERS,
-    # )
-    # assert r.status_code == 200
-    # assert int(r.headers["X-Total-Count"]) == length
+    r = client.get(
+        f"{base_url}{charter}/member/",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    assert int(r.headers["X-Total-Count"]) == length
 
 
 def test_charter_head_members_bad_charter(client):
