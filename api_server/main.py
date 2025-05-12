@@ -1,19 +1,20 @@
 from adh6.server import init
-from opentelemetry import trace
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
+# from opentelemetry import trace
+# from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 # from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 # from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 # from opentelemetry.sdk.trace import TracerProvider
 # from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-tracer = trace.get_tracer(__name__)
+# tracer = trace.get_tracer(__name__)
 
 application = init()
-FlaskInstrumentor().instrument_app(application.app)
+# FlaskInstrumentor().instrument_app(application.app)
 
 
-# TODO: comprendre à quoi ça servait, et voir si c'était important
+# # TODO: comprendre à quoi ça servait, et voir si c'était important
 # def post_fork(server, worker):
 #     server.log.info("Worker spawned (pid: %s)", worker.pid)
 #     server.log.info("test")
@@ -36,11 +37,3 @@ FlaskInstrumentor().instrument_app(application.app)
 #     # OTLP Exporter documentation for other options.
 #     span_processor = BatchSpanProcessor(jaeger_exporter)
 #     trace.get_tracer_provider().add_span_processor(span_processor)
-
-# TODO: maybe add a way to run server un debug mode / watch mode.
-# When run with `python main.py`, when people want to run it locally.
-# if __name__ == '__main__':
-#     application = init()
-#     # set the WSGI application callable to allow using uWSGI:
-#     # uwsgi --http :8080 -w app
-#     application.run(port=8080)
