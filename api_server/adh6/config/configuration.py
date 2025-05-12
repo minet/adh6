@@ -14,6 +14,10 @@ class BaseConfig:
     SESSION_TYPE = "memcached"
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
+    ALEMBIC: ClassVar = {
+        "script_location": "../migrations",  # TODO: for some reason, the "root" path is "adh6" and not "api_server"
+    }
+
 
 class TestingConfig(BaseConfig):
     DEBUG = True
@@ -22,7 +26,7 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_ECHO = True  # TODO: check if used or needs to be migrated
     SQLALCHEMY_RECORD_QUERIES = True
 
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     # SQLALCHEMY_ENGINE_OPTIONS = {
     #     'isolation_level': 'SERIALIZABLE',
     #     'echo': False,
@@ -32,9 +36,7 @@ class TestingConfig(BaseConfig):
     #     'drivername': 'sqlite',
     #     'database': ':memory:',
     # }
-    SQLALCHEMY_ENGINES: ClassVar = {
-        "default": "sqlite:///:memory:"
-    }
+    SQLALCHEMY_ENGINES: ClassVar = {"default": "sqlite:///:memory:"}
 
 
 class DeployedConfig(BaseConfig):

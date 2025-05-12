@@ -5,7 +5,7 @@ from pathlib import Path
 import connexion
 import pinject
 from connexion import FlaskApp
-from flask_migrate import Migrate
+from flask_alembic import Alembic
 
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.http.api_key import ApiKeyHandler
@@ -44,7 +44,7 @@ from adh6.resolver import ADHResolver
 from adh6.room.http.room import RoomHandler
 from adh6.room.room_manager import RoomManager
 from adh6.room.storage import RoomRepository
-from adh6.storage import cache, db
+from adh6.storage import Base, cache, db
 from adh6.subnet.http.vlan import VLANHandler
 from adh6.subnet.storage import VLANRepository
 from adh6.subnet.vlan_manager import VlanManager
@@ -239,13 +239,9 @@ def init() -> FlaskApp:
     # Initialize the database and cache
     db.init_app(app.app)
     cache.init_app(app.app, config={"CACHE_TYPE": "SimpleCache"})
-
-    # Create and run database migrations
-    Migrate(app.app, db)  # pyright: ignore [reportArgumentType] # TODO: search for an alternative for flask-sqlalchemy-lite
-
-    # from flask_migrate import upgrade
+    alembic = Alembic(metadatas=Base.metadata)
+    alembic.init_app(app.app)
     # from adh6.treasury import init as treasury_init
-    # upgrade()
     # treasury_init()
 
     return app
