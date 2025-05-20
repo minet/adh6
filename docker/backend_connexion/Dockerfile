@@ -3,7 +3,7 @@
 # Pre-tasks
 FROM python:3.11-alpine AS prebuild
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-WORKDIR /adh6
+WORKDIR /app
 
 # Get OUIs.txt
 RUN apk add --no-cache --update wget \
@@ -13,14 +13,14 @@ RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
 USER adh6
 
 # Dump MIBs
-COPY mibs.zip .
+COPY api_server/mibs.zip .
 RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 
 # Pre-tasks: generate code from spec
 FROM openapitools/openapi-generator-cli:v7.12.0 AS openapi-generate
-WORKDIR /adh6
-COPY ./openapi/swagger.yaml ./
-RUN /usr/local/bin/docker-entrypoint.sh generate -i ./swagger.yaml -g python-flask -o ./raw_output --additional-properties packageName=adh6 --additional-properties=modelPackage=entity \
+WORKDIR /app
+COPY openapi/spec.yaml ./
+RUN /usr/local/bin/docker-entrypoint.sh generate -i ./spec.yaml -g python-flask -o ./raw_output --additional-properties packageName=adh6 --additional-properties=modelPackage=entity \
     && mkdir  ./output \
     && cp -r ./raw_output/adh6/entity/ ./output/entity/ \
     && cp ./raw_output/adh6/typing_utils.py ./output/ \
@@ -34,36 +34,37 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_LINK_MODE=copy
 ENV UV_COMPILE_BYTECODE=1
 
-WORKDIR /adh6
+WORKDIR /app
 RUN --mount=type=cache,target=/var/cache/apk \
     --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=api_server/uv.lock,target=uv.lock \
+    --mount=type=bind,source=api_server/pyproject.toml,target=pyproject.toml \
     : \
     && apk add --no-cache --update git mariadb-dev build-base libffi-dev \
     && uv sync --no-dev --locked --extra gunicorn
 
 
 # Production
-FROM python:3.11-alpine
-WORKDIR /adh6
-RUN adduser -s /bin/bash adh6 -h /home/adh6 -D
+FROM python:3.11-alpine AS dev
 
-COPY --from=prebuild /adh6/OUIs.txt ./api_server/
+WORKDIR /app
+RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
+
+COPY --from=prebuild /app/OUIs.txt ./api_server/
 COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/ 
-COPY --from=build /adh6/.venv/ /adh6/.venv/
-COPY --from=openapi-generate /adh6/output/ ./api_server/adh6
+COPY --from=build /app/.venv/ /app/.venv/
+COPY --from=openapi-generate /app/output/ ./api_server/adh6
 
-ENV PATH="/adh6/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 RUN apk add --no-cache --update \ 
     git \
     mariadb-connector-c
 
 USER adh6
 
-WORKDIR /adh6/api_server
-COPY --parents ./migrations ./openapi ./adh6 ./main.py ./manage.py ./start.sh ./
+COPY --parents api_server/main.py api_server/manage.py api_server/start.sh api_server/migrations/ api_server/adh6/ ./
+COPY --parents openapi/spec.yaml ./api_server
 
+WORKDIR /app/api_server
 # Launch the app 
-# CMD ["gunicorn", "-k", "uvicorn.workers.UvicornH11Worker", "-b", ":8080", "main:application"]
 CMD ["./start.sh"]

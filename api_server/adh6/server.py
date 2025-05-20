@@ -200,7 +200,7 @@ def init() -> FlaskApp:
 
     # Add the API routes using the ADHResolver class
     app.add_api(
-        "swagger.yaml",
+        "spec.yaml",
         resolver=ADHResolver(
             {
                 "health": obj_graph.provide(

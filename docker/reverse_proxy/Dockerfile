@@ -13,3 +13,4 @@ ENV API_MEMBER_HOST=adh6_backend_member
 COPY --from=certs /tmp/adh6.crt /etc/ssl/certs/
 COPY --from=certs /tmp/adh6.key /etc/ssl/private/
 
+COPY reverse_proxy/default.conf.template /etc/nginx/templates/ 

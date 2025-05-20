@@ -1,14 +1,19 @@
+name: adh6
+
 services:
   frontend_angular:
     container_name: adh6_frontend
     build:
-      context: frontend_angular
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/frontend_angular/Dockerfile
       target: dev
 
   api_server:
     container_name: adh6_backend
-    build: api_server
+    build:
+      context: .
+      dockerfile: docker/backend_connexion/Dockerfile
+      target: dev
     depends_on:
       database:
         condition: service_healthy
@@ -23,7 +28,9 @@ services:
 
   reverse_proxy:
     container_name: adh6_reverse_proxy
-    build: reverse_proxy
+    build:
+      context: .
+      dockerfile: docker/reverse_proxy/Dockerfile
     init: true
     links:
       - frontend_angular
@@ -31,8 +38,6 @@ services:
     ports:
       - "443:443"
       - "80:80"
-    volumes:
-      - ./reverse_proxy:/etc/nginx/templates:ro
     environment:
       ADH6_URL: "adh6-local.minet.net"
       API_HOST: "api_server"
@@ -64,9 +69,9 @@ services:
       interval: 3s
       timeout: 1s
       retries: 10
-  jaeger:
-    image: jaegertracing/all-in-one:1.22
-    environment:
-      COLLECTOR_ZIPKIN_HOST_PORT: :9411
-    ports:
-      - 16686:16686
+  # jaeger:
+  #   image: jaegertracing/all-in-one:1.22
+  #   environment:
+  #     COLLECTOR_ZIPKIN_HOST_PORT: :9411
+  #   ports:
+  #     - 16686:16686
