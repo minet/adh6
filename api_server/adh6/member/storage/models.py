@@ -10,8 +10,11 @@ from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.storage import Base
 from adh6.storage.sql.rubydiff import rubydiff
 from adh6.storage.sql.trackable import RubyHashTrackable
+
+
 def abc(test: int):
     print(test)
+
 
 class Adherent(Base, RubyHashTrackable):
     __tablename__ = "adherents"
@@ -33,10 +36,10 @@ class Adherent(Base, RubyHashTrackable):
     date_de_depart: Mapped[dt.date | None] = mapped_column(Date)
     commentaires: Mapped[str | None] = mapped_column(String(255))
     mode_association: Mapped[dt.datetime | None] = mapped_column(DateTime, server_default=text("'2011-04-30 17:50:17'"))
-    access_token: Mapped[str | None | None] = mapped_column(String(255))
+    access_token: Mapped[str | None] = mapped_column(String(255))
     subnet: Mapped[str | None] = mapped_column(String(255))
     ip: Mapped[str | None] = mapped_column(String(255))
-    ldap_login: Mapped[str | None | None] = mapped_column(String(255))
+    ldap_login: Mapped[str | None] = mapped_column(String(255))
     is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     datesignedminet: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     datesignedhosting: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)

@@ -40,4 +40,4 @@ class CashboxSQLRepository(CashboxRepository):
         query = query.order_by(SQLCashbox.id.desc())
         query = query.limit(1)
         r = query.all()[0]
-        return r.fond, r.coffre
+        return r.fond, r.coffre  # type: ignore  # TODO: fix typing

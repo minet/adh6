@@ -180,7 +180,7 @@ def test_member_filter_terms_nonexistant(client):
 
 def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     r = client.get(
-        f"{base_url}?terms={sample_member.login.upper()}",
+        f"{base_url}?terms={sample_member.login.upper()}",  # type: ignore  # TODO: fix typing
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -285,13 +285,21 @@ def test_member_delete_unauthorized(client):
 
 def test_member_post_member_create_invalid_email(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "INVALID_EMAIL", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+    res = client.post(
+        f"{base_url}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert res.status_code == 400
 
 
 def test_member_post_member_create(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+    res = client.post(
+        f"{base_url}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert res.status_code == 201
     assert_member_in_db(body)
 
@@ -306,10 +314,18 @@ def test_member_post_member_create(client):
 
 def test_member_post_member_same_login(client):
     body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
-    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+    res = client.post(
+        f"{base_url}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert res.status_code == 201
 
-    res = client.post(f"{base_url}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+    res = client.post(
+        f"{base_url}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert res.status_code == 400
 
 
@@ -319,7 +335,6 @@ def test_member_post_unauthorized(client):
         f"{base_url}",
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
-
     )
     assert r.status_code == 403
 
@@ -338,7 +353,9 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         key: value,
     }
     res = client.patch(
-        f"{base_url}{sample_member.id}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}{sample_member.id}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert res.status_code == 204
     assert_modification_was_created(db.session)
@@ -367,7 +384,9 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
         key: value,
     }
     res = client.patch(
-        f"{base_url}{sample_member2.id}", data=json.dumps(body), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}{sample_member2.id}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert res.status_code == 400
 
@@ -377,7 +396,6 @@ def test_member_patch_unknown(client):
         f"{base_url}{4242}",
         data=json.dumps({}),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 404
 
@@ -399,7 +417,6 @@ def test_member_get_logs(client, sample_member):
         f"{base_url}{sample_member.id}/logs/",
         params=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
     assert json.loads(result.content.decode("utf-8")) == ["1 test_log"]
@@ -439,7 +456,6 @@ def test_member_comment_put(client, sample_member):
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 204
 
@@ -461,14 +477,12 @@ def test_member_comment_get(client, sample_member):
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 204
 
     result = client.get(
         f"{base_url}{sample_member.id}/comment/",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
     assert result.json()["comment"] == "test_comment"
@@ -478,7 +492,6 @@ def test_member_comment_get_empty(client, sample_member):
     result = client.get(
         f"{base_url}{sample_member.id}/comment/",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
     assert result.json()["comment"] == ""
@@ -500,6 +513,5 @@ def test_member_comment_too_long(client, sample_member):
         f"{base_url}{sample_member.id}/comment/",
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 400

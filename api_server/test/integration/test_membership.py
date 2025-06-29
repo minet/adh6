@@ -42,7 +42,6 @@ def test_member_post_membership(client, sample_member):
         base_url(sample_member.id),
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
 
@@ -58,7 +57,6 @@ def test_member_post_add_membership_unknown_member(client):
         base_url(200),
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 404
 
@@ -74,7 +72,6 @@ def test_member_post_add_membership_unknown_account(client, sample_member):
         base_url(sample_member.id),
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 404
 
@@ -90,7 +87,6 @@ def test_member_post_add_membership_unknown_payment_method(client, sample_member
         base_url(sample_member.id),
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 404
 
@@ -102,7 +98,6 @@ def test_membership_validate_membership_no_room(
         f"{host_url}/room/{sample_room1.id}/member/",
         data=json.dumps({"id": sample_member.id}),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
 
     assert result.status_code == 204
@@ -111,14 +106,12 @@ def test_membership_validate_membership_no_room(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_pending_validation_payment_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
 
     result = client.post(
         f"{base_url(sample_member.id)}validate",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
 
     assert result.status_code == 204
@@ -131,14 +124,12 @@ def test_membership_validate_membership_not_finish(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_not_finished_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
 
     result = client.post(
         f"{base_url(sample_member.id)}validate",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
 
     assert result.status_code == 400
@@ -154,7 +145,6 @@ def test_membership_patch_membership(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_not_finished_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
 
@@ -162,7 +152,6 @@ def test_membership_patch_membership(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_pending_validation_payment_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
 
     assert result.status_code == 204
@@ -175,7 +164,6 @@ def test_membership_multiple_subscription(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_pending_validation_payment_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 200
 
@@ -183,6 +171,5 @@ def test_membership_multiple_subscription(
         base_url(sample_member.id),
         data=json.dumps(sample_membership_pending_validation_payment_dict),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert result.status_code == 400

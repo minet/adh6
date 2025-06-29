@@ -87,7 +87,8 @@ def test_mailinglist_update_member_membership(client, sample_member):
     r = client.put(
         f"{base_url}member/{sample_member.id}",
         data=json.dumps({"value": 251}),
-headers={"Content-Type": "application/json", **TEST_HEADERS}    )
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert r.status_code == 204
     r = client.get(
         f"{base_url}member/{sample_member.id}",
@@ -102,7 +103,7 @@ def test_mailinglist_update_member_membership_user_authorized(client, sample_mem
     r = client.put(
         f"{base_url}member/{sample_member.id}",
         data=json.dumps({"value": 251}),
-headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
     )
     assert r.status_code == 204
     r = client.get(
@@ -119,7 +120,6 @@ def test_mailinglist_update_member_membership_unknown_member(client):
         f"{base_url}member/{4242}",
         data=json.dumps({"value": 251}),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 404
 

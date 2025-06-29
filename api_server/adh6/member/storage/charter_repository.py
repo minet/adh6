@@ -16,7 +16,9 @@ class CharterSQLRepository(CharterRepository):
 
     def get_members(self, charter_id: int) -> tuple[list[int], int]:
         smt = select(Adherent.id)
-        smt = smt.where(Adherent.datesignedminet.isnot(None) if charter_id == 1 else Adherent.datesignedhosting.isnot(None))
+        smt = smt.where(
+            Adherent.datesignedminet.isnot(None) if charter_id == 1 else Adherent.datesignedhosting.isnot(None)
+        )
         r = db.session.execute(smt).scalars().all()
         return r, len(r)  # type: ignore  # TODO: fix typing
 

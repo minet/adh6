@@ -115,7 +115,9 @@ def test_switch_post_invalid_value(client, test_value):
         "payment_method": "liquide",
     }
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_transaction1), headers={"Content-Type": "application/json", **TEST_HEADERS}
+        f"{base_url}",
+        data=json.dumps(sample_transaction1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -135,7 +137,9 @@ def test_transaction_post_valid(client, sample_member_admin):
 
     # Insert data to the database
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_transaction1), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}",
+        data=json.dumps(sample_transaction1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
     assert_transaction_in_db(sample_transaction1)

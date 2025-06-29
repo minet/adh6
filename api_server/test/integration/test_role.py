@@ -87,7 +87,6 @@ def test_role_search_filter_with_identifier_authorized_api_key_admin(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 201
     r = client.get(
@@ -105,7 +104,6 @@ def test_role_search_filter_no_identifier_authorized_api_key_admin(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 201
     r = client.get(
@@ -123,7 +121,6 @@ def test_role_post(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 201
     r = client.get(
@@ -141,7 +138,6 @@ def test_role_post_multiple_roles(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 201
     r = client.get(
@@ -159,7 +155,6 @@ def test_role_post_unknown_user(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 404
 
@@ -170,7 +165,6 @@ def test_role_post_unknown_role(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 400
 
@@ -181,7 +175,6 @@ def test_role_post_unauthorized_user(client):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
-
     )
     assert r.status_code == 403
 
@@ -191,7 +184,7 @@ def test_role_post_unauthorized_api_key_admin(client):
     r = client.post(
         base_url,
         data=json.dumps(body),
-headers={"Content-Type": "application/json", **TEST_HEADERS_API_KEY_ADMIN},
+        headers={"Content-Type": "application/json", **TEST_HEADERS_API_KEY_ADMIN},
     )
     assert r.status_code == 401
 

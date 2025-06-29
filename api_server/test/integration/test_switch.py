@@ -46,7 +46,9 @@ def assert_switch_in_db(body):
 def test_switch_post_invalid_ip(client, test_ip):
     sample_switch1 = {"description": "Test Switch", "ip": test_ip, "community": "myGreatCommunity"}
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}",
+        data=json.dumps(sample_switch1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -56,7 +58,9 @@ def test_switch_post_valid(client):
 
     # Insert data to the database
     r = client.post(
-        f"{base_url}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}",
+        data=json.dumps(sample_switch1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
     assert_switch_in_db(sample_switch1)
@@ -243,7 +247,9 @@ def test_switch_update_switch_invalid_ip(client, test_ip):
     sample_switch1 = {"description": "Modified switch", "ip": test_ip, "community": "communityModified"}
 
     r = client.put(
-        f"{base_url}{1}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}{1}",
+        data=json.dumps(sample_switch1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 400
 
@@ -259,7 +265,6 @@ def test_switch_update_existant_switch(client, sample_switch1: Switch):
         f"{base_url}{sample_switch1.id}",
         data=json.dumps(sample_switch1_changed),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 204
     assert_switch_in_db(sample_switch1_changed)
@@ -269,7 +274,9 @@ def test_switch_update_non_existant_switch(client):
     sample_switch1 = {"description": "Modified switch", "ip": "192.168.103.132", "community": "communityModified"}
 
     r = client.put(
-        f"{base_url}{100000}", data=json.dumps(sample_switch1), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}{100000}",
+        data=json.dumps(sample_switch1),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 404
 

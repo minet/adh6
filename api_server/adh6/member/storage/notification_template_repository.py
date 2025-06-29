@@ -21,4 +21,4 @@ class NotificationTemplateSQLRepository(NotificationTemplateRepository):
 
 
 def _map_template_to_sql_entity(template: SQLNotificationTemplate) -> NotificationTemplate:
-    return NotificationTemplate(title=template.title, template=template.template)
+    return NotificationTemplate(title=template.title, template=template.template)  #  type: ignore  # TODO: understand what is a template and fix typing

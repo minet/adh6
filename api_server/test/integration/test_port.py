@@ -129,7 +129,6 @@ def test_port_post_create_port_invalid_switch(client, sample_room1):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 404
 
@@ -141,7 +140,6 @@ def test_port_post_create_port_invalid_room(client, sample_switch1):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 404
 
@@ -153,7 +151,6 @@ def test_port_post_create_port(client, sample_switch1, sample_room1):
         base_url,
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == 201
 
@@ -206,7 +203,6 @@ def test_port_put_update_port(
         f"{base_url}{port_id}",
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
-
     )
     assert r.status_code == status_code
     if r.status_code == 204:

@@ -22,8 +22,7 @@ m = sha512()
 
 
 def prep_db(*args):
-    from adh6.storage.sql.models import db as _db
-    from adh6.storage.sql.models import Base
+    from adh6.storage.sql.models import Base, db as _db
 
     Base.metadata.create_all(_db.engine)
     # session = _db.sessionmaker()
@@ -47,8 +46,7 @@ def prep_db(*args):
 
 
 def close_db():
-    from adh6.storage.sql.models import db as _db
-    from adh6.storage.sql.models import Base
+    from adh6.storage.sql.models import Base, db as _db
 
     _db.session.close()
     Base.metadata.drop_all(_db.engine)

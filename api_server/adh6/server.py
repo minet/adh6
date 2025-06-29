@@ -5,7 +5,6 @@ from pathlib import Path
 import connexion
 import pinject
 from connexion import FlaskApp
-from flask_alembic import Alembic
 
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.http.api_key import ApiKeyHandler
@@ -44,7 +43,7 @@ from adh6.resolver import ADHResolver
 from adh6.room.http.room import RoomHandler
 from adh6.room.room_manager import RoomManager
 from adh6.room.storage import RoomRepository
-from adh6.storage import Base, cache, db
+from adh6.storage import cache, db
 from adh6.subnet.http.vlan import VLANHandler
 from adh6.subnet.storage import VLANRepository
 from adh6.subnet.vlan_manager import VlanManager

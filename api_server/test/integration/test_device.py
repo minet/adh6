@@ -223,7 +223,8 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
     )
     assert r.status_code == 204
     r = client.post(
-        f"{base_url}", data=json.dumps(device_to_add), 
+        f"{base_url}",
+        data=json.dumps(device_to_add),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
@@ -282,16 +283,16 @@ def test_device_post_create_multiple_wireless(faker, client, sample_room1, sampl
             devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d),         headers={"Content-Type": "application/json", **TEST_HEADERS})
+        r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
         )
 
         res = r.json()
         subnet = sample_member.subnet if d["member"] == SAMPLE_CLIENT_ID else sample_member_admin().subnet
-        subnet_header = ".".join(subnet.split(".")[:3])
+        subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         start_number_v6 = [2, 5]
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
@@ -332,8 +333,11 @@ def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_r
             devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d),         headers={"Content-Type": "application/json", **TEST_HEADERS},
-)
+        r = client.post(
+            f"{base_url}",
+            data=json.dumps(d),
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
+        )
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
@@ -374,11 +378,11 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d),         headers={"Content-Type": "application/json", **TEST_HEADERS})
+        r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
         )
         res = r.json()
         assert res["ipv4Address"] == f"192.168.42.{2 + (i % max_devices)}"
@@ -389,7 +393,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         "member": TESTING_CLIENT_ID,
         "connectionType": "wired",
     }
-    r = client.post(f"{base_url}", data=json.dumps(d),        headers={"Content-Type": "application/json", **TEST_HEADERS})
+    r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
     assert r.status_code == 400
 
 
@@ -416,15 +420,19 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
         devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+        r = client.post(
+            f"{base_url}",
+            data=json.dumps(d),
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
+        )
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
         )
         res = r.json()
         subnet = sample_member_admin().subnet
-        subnet_header = ".".join(subnet.split(".")[:3])
+        subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
         assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % device_number), 'x')}"
@@ -434,7 +442,11 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
         "member": TESTING_CLIENT_ID,
         "connectionType": "wireless",
     }
-    r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS},)
+    r = client.post(
+        f"{base_url}",
+        data=json.dumps(d),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert r.status_code == 400
 
 
@@ -448,9 +460,8 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
 def test_device_post_create_invalid(client, key, value, wired_device_dict, status_code):
     wired_device_dict[key] = value
     r = client.post(
-        f"{base_url}",
-        data=json.dumps(wired_device_dict),
-headers={"Content-Type": "application/json", **TEST_HEADERS})
+        f"{base_url}", data=json.dumps(wired_device_dict), headers={"Content-Type": "application/json", **TEST_HEADERS}
+    )
     assert r.status_code == status_code
 
 
@@ -459,7 +470,7 @@ def test_device_post_create_unauthorized(client, wired_device_dict):
     r = client.post(
         f"{base_url}",
         data=json.dumps(wired_device_dict),
-headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
     )
     assert r.status_code == 403
 
@@ -654,7 +665,9 @@ def test_device_get_owner_unauthorized(client, wired_device: Device):
 def test_device_get_vendor(client, wired_device_dict):
     wired_device_dict["mac"] = "00-00-0C-01-23-45"
     r = client.post(
-        f"{base_url}", data=json.dumps(wired_device_dict), headers={"Content-Type": "application/json", **TEST_HEADERS},
+        f"{base_url}",
+        data=json.dumps(wired_device_dict),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
     result = r.json()
