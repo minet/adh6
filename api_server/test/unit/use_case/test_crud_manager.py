@@ -117,8 +117,8 @@ class TestUpdateOrCreate:
             mock_manager.update_or_create(mock_object, id=mock_id)
 
         mock_repo.get_by_id.assert_called_once_with(mock_id)
-        mock_repo.update.assert_not_called()
-        mock_repo.create.assert_not_called()
+        mock_repo.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
+        mock_repo.create.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
 
 class TestPartiallyUpdate:

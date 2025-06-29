@@ -47,7 +47,7 @@ class TestNewMembership:
         subscription_manager.create(sample_member.id, sample_subscription_empty)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()
+        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
     def test_pending_payment_initial(
         self,
@@ -64,7 +64,7 @@ class TestNewMembership:
         subscription_manager.create(sample_member.id, SubscriptionBody())
 
         # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()
+        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
     def test_pending_payment(
         self,
@@ -82,7 +82,7 @@ class TestNewMembership:
         subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
 
         # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()
+        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
     def test_payment_validation(
         self,
@@ -106,7 +106,7 @@ class TestNewMembership:
         subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()
+        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
     def test_unknown_member(
         self,
@@ -161,7 +161,7 @@ class TestNewMembership:
         with pytest.raises(PaymentMethodNotFoundError):
             subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
 
-    def test_unknown_price_asign_to_duration(
+    def test_unknown_price_assign_to_duration(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
@@ -197,7 +197,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_empty)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
@@ -220,7 +220,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
@@ -249,7 +249,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
@@ -274,7 +274,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
 
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
@@ -301,7 +301,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
         mock_account_repository.get_by_id.assert_called_once()
@@ -327,7 +327,7 @@ class TestPatchMembership:
         subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
 
         # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
         mock_account_repository.get_by_id.assert_called_once()
@@ -344,7 +344,7 @@ class TestPatchMembership:
         with pytest.raises(MemberNotFoundError):
             subscription_manager.update(sample_member.id, SubscriptionBody())
             mock_member_repository.get_by_id.assert_called_once()
-            mock_subscription_repository.update.assert_not_called()
+            mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
     def test_unknown_membership(
         self,
@@ -358,7 +358,7 @@ class TestPatchMembership:
 
         with pytest.raises(MembershipNotFoundError):
             subscription_manager.update(sample_member.id, SubscriptionBody())
-            mock_subscription_repository.update.assert_not_called()
+            mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
     def test_unknown_account(
         self,
@@ -383,7 +383,7 @@ class TestPatchMembership:
         mock_member_repository.get_by_id.assert_called_once()
         mock_account_repository.get_by_id.assert_called_once()
         mock_charter_repository.get.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()
+        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
     def test_unknown_payment_method(
         self,
@@ -414,9 +414,9 @@ class TestPatchMembership:
         mock_account_repository.get_by_id.assert_called_once()
         mock_charter_repository.get.assert_called_once()
         mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()
+        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
-    def test_unknown_price_asign_to_duration(
+    def test_unknown_price_assign_to_duration(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
@@ -437,7 +437,7 @@ class TestPatchMembership:
         mock_subscription_repository.search.assert_called_once()
         mock_member_repository.get_by_id.assert_called_once()
         mock_charter_repository.get.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()
+        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
 
 
 class TestValidateMembership:
