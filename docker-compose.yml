@@ -10,6 +10,7 @@ services:
 
   api_server:
     container_name: adh6_backend
+    init: true
     build:
       context: .
       dockerfile: docker/backend_connexion/Dockerfile
