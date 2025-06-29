@@ -34,6 +34,7 @@ dependencies = [
     "opentelemetry-sdk",
     "opentelemetry-exporter-jaeger",
     "flask-alembic>=3.1.1",
+    "pyright>=1.1.402",
 ]
 
 # Docs:
@@ -69,7 +70,8 @@ tox = ["tox", "tox-uv"]
 [tool.pyright]
 typeCheckingMode = "basic"  # TODO: passer en strict
 include = ["adh6", "test"]
-exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
+# exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
+ignore = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]  #, "migrations/*.py"]
 
 # https://tox.wiki/en/latest/
 [tool.tox]
