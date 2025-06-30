@@ -21,37 +21,44 @@ from .models import Chambre, RoomMemberLink
 
 class RoomSQLRepository(RoomRepository):
     def get_from_member(self, member_id: int) -> Room | None:
-        smt = (
+        stmt = (
             select(Chambre)
             .join(RoomMemberLink, Chambre.id == RoomMemberLink.room_id)
             .where(RoomMemberLink.member_id == member_id)
         )
 
-        result = db.session.execute(smt).scalar_one_or_none()
+        with db.sessionmaker() as session:
+            result = session.execute(stmt).scalar_one_or_none()
 
         return _map_room_sql_to_entity(result) if result else None
 
     def get_members(self, room_id: int) -> Sequence[int]:
-        smt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
-        return db.session.execute(smt).scalars().all()
+        stmt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
+
+        with db.sessionmaker() as session:
+            return session.execute(stmt).scalars().all()
 
     def remove_member(self, member_id: int) -> None:
-        smt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
-        db.session.execute(smt)
+        stmt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
+        with db.sessionmaker.begin() as session:
+            session.execute(stmt)
 
         # lines needed for compatibility
-        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
-        smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
-        db.session.execute(smt)
+        with db.sessionmaker.begin() as session:
+            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+            stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
+            session.execute(stmt)
 
     def add_member(self, room_id: int, member_id: int) -> None:
-        smt = insert(RoomMemberLink).values(member_id=member_id, room_id=room_id)
-        db.session.execute(smt)
+        stmt = insert(RoomMemberLink).values(member_id=member_id, room_id=room_id)
+        with db.sessionmaker.begin() as session:
+            session.execute(stmt)
 
         # Those lines are needed for compatibility
-        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
-        smt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=room_id)
-        db.session.execute(smt)
+        with db.sessionmaker.begin() as session:
+            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+            stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=room_id)
+            session.execute(stmt)
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractRoom:
@@ -65,69 +72,72 @@ class RoomSQLRepository(RoomRepository):
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractRoom | None = None
     ) -> tuple[list[AbstractRoom], int]:
-        query = db.session.query(Chambre)
+        with db.sessionmaker() as session:
+            query = session.query(Chambre)
 
-        if terms:
-            query = query.filter(Chambre.description.contains(terms))
+            if terms:
+                query = query.filter(Chambre.description.contains(terms))
 
-        if filter_:
-            if filter_.id is not None:
-                query = query.filter(Chambre.id == filter_.id)
-            if filter_.description:
-                query = query.filter(Chambre.description.contains(filter_.description))
-            if filter_.room_number is not None:
-                query = query.filter(Chambre.numero == filter_.room_number)
+            if filter_:
+                if filter_.id is not None:
+                    query = query.filter(Chambre.id == filter_.id)
+                if filter_.description:
+                    query = query.filter(Chambre.description.contains(filter_.description))
+                if filter_.room_number is not None:
+                    query = query.filter(Chambre.numero == filter_.room_number)
 
-        count = query.count()
-        query = query.order_by(Chambre.numero.asc())
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
+            count = query.count()
+            query = query.order_by(Chambre.numero.asc())
+            query = query.offset(offset)
+            query = query.limit(limit)
+            r = query.all()
 
         return list(map(_map_room_sql_to_abstract_entity, r)), count
 
     @log_call
     def create(self, abstract_room: Room) -> Room:
-        now = datetime.now()
+        with db.sessionmaker.begin() as session:
+            now = datetime.now()
 
-        vlan = None
-        if abstract_room.vlan is not None:
-            vlan = db.session.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
-            if not vlan:
-                raise VLANNotFoundError(str(abstract_room.vlan))
+            vlan = None
+            if abstract_room.vlan is not None:
+                vlan = session.query(Vlan).filter(Vlan.numero == abstract_room.vlan).one_or_none()
+                if not vlan:
+                    raise VLANNotFoundError(str(abstract_room.vlan))
 
-        room = Chambre(
-            numero=abstract_room.room_number,
-            description=abstract_room.description,
-            created_at=now,
-            updated_at=now,
-            vlan_id=vlan.id if vlan else None,
-        )
+            room = Chambre(
+                numero=abstract_room.room_number,
+                description=abstract_room.description,
+                created_at=now,
+                updated_at=now,
+                vlan_id=vlan.id if vlan else None,
+            )
 
-        db.session.add(room)
-        db.session.flush()
+            session.add(room)
 
         return _map_room_sql_to_entity(room)
 
     @log_call
     def update(self, abstract_room: AbstractRoom, override=False) -> object:
-        query = db.session.query(Chambre)
-        query = query.filter(Chambre.id == abstract_room.id)
-        query = query.join(Vlan, Vlan.id == Chambre.vlan_id)
+        with db.sessionmaker.begin() as session:
+            query = session.query(Chambre)
+            query = query.filter(Chambre.id == abstract_room.id)
+            query = query.join(Vlan, Vlan.id == Chambre.vlan_id)
 
-        room = query.one_or_none()
-        if room is None:
-            raise RoomNotFoundError(str(abstract_room.id))
-        new_chambre = _merge_sql_with_entity(abstract_room, room, override)
+            room = query.one_or_none()
+            if room is None:
+                raise RoomNotFoundError(str(abstract_room.id))
+            new_chambre = _merge_sql_with_entity(abstract_room, room, override)
 
         return _map_room_sql_to_entity(new_chambre)
 
     @log_call
     def delete(self, id) -> None:
-        room = db.session.query(Chambre).filter(Chambre.id == id).one_or_none()
-        if room is None:
-            raise RoomNotFoundError(id)
-        db.session.delete(room)
+        with db.sessionmaker() as session:
+            room = session.query(Chambre).filter(Chambre.id == id).one_or_none()
+            if room is None:
+                raise RoomNotFoundError(id)
+            session.delete(room)
 
 
 def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
@@ -138,7 +148,8 @@ def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=F
     if entity.room_number is not None or override:
         chambre.numero = entity.room_number
     if entity.vlan is not None:
-        vlan = db.session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
+        with db.sessionmaker() as session:
+            vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
         chambre.vlan_id = vlan.id
@@ -154,5 +165,6 @@ def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
 
 
 def _map_room_sql_to_entity(r: Chambre) -> Room:
-    vlan = db.session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
+    with db.sessionmaker() as session:
+        vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return Room(id=r.id, room_number=r.numero, description=r.description, vlan=vlan[0].numero if vlan else None)

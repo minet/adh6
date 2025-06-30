@@ -89,7 +89,7 @@ class PortSQLRepository(PortRepository):
         )
 
         with db.sessionmaker.begin() as session:
-            db.session.add(port)
+            session.add(port)
 
         return _map_port_sql_to_entity(port)
 
