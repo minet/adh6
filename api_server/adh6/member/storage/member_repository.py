@@ -2,6 +2,7 @@
 Implements everything related to actions on the SQL database.
 """
 
+import calendar
 import ipaddress
 from datetime import date, datetime, timedelta
 
@@ -19,45 +20,48 @@ class MemberSQLRepository(MemberRepository):
     def search_by(
         self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
     ) -> tuple[list[Member], int]:
-        query = db.session.query(Adherent)
-        if filter_:
-            if filter_.ip:
-                query = query.filter(Adherent.ip == filter_.ip)
-            if filter_.since:
-                query = query.filter(Adherent.date_de_depart >= filter_.since)
-            if filter_.until:
-                query = query.filter(Adherent.date_de_depart <= filter_.until)
-            if filter_.membership:
-                query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(
-                    Membership.status == filter_.membership
+        with db.sessionmaker() as session:
+            query = session.query(Adherent)
+            if filter_:
+                if filter_.ip:
+                    query = query.filter(Adherent.ip == filter_.ip)
+                if filter_.since:
+                    query = query.filter(Adherent.date_de_depart >= filter_.since)
+                if filter_.until:
+                    query = query.filter(Adherent.date_de_depart <= filter_.until)
+                if filter_.membership:
+                    query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(
+                        Membership.status == filter_.membership
+                    )
+
+            if terms:
+                query = query.filter(
+                    (Adherent.nom.contains(terms))
+                    | (Adherent.prenom.contains(terms))
+                    | (Adherent.mail.contains(terms))
+                    | (Adherent.login.contains(terms))
+                    | (Adherent.commentaires.contains(terms))
+                    | (Adherent.ip.contains(terms))
+                    | (Adherent.subnet.contains(terms))
                 )
 
-        if terms:
-            query = query.filter(
-                (Adherent.nom.contains(terms))
-                | (Adherent.prenom.contains(terms))
-                | (Adherent.mail.contains(terms))
-                | (Adherent.login.contains(terms))
-                | (Adherent.commentaires.contains(terms))
-                | (Adherent.ip.contains(terms))
-                | (Adherent.subnet.contains(terms))
-            )
-
-        count = query.count()
-        query = query.order_by(Adherent.login.asc())
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
+            count = query.count()
+            query = query.order_by(Adherent.login.asc())
+            query = query.offset(offset)
+            query = query.limit(limit)
+            r = query.all()
 
         return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractMember | None:
-        adh = db.session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
+        with db.sessionmaker() as session:
+            adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
         return _map_member_sql_to_abstract_entity(adh) if adh else None
 
     def get_by_login(self, login: str) -> Member | None:
-        adh = db.session.query(Adherent).filter(Adherent.login == login).one_or_none()
+        with db.sessionmaker() as session:
+            adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
         return _map_member_sql_to_entity(adh) if adh else None
 
     @log_call
@@ -73,67 +77,70 @@ class MemberSQLRepository(MemberRepository):
             commentaires=object_to_create.comment,
             date_de_depart=object_to_create.departure_date,
         )
-        db.session.add(member)
-        db.session.flush()
+        with db.sessionmaker.begin() as session:
+            session.add(member)
 
         return _map_member_sql_to_entity(member)
 
     def update(self, abstract_member: AbstractMember, override=False) -> object:
-        query = db.session.query(Adherent).filter(Adherent.id == abstract_member.id)
+        with db.sessionmaker.begin() as session:
+            query = session.query(Adherent).filter(Adherent.id == abstract_member.id)
 
-        adherent = query.one()
+            adherent = query.one()
 
-        with track_modifications(db.session, adherent):
-            new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
-        db.session.flush()
+            with track_modifications(session, adherent):
+                new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
 
         return _map_member_sql_to_entity(new_adherent)
 
     @log_call
     def delete(self, member_id) -> None:
-        member = db.session.query(Adherent).filter(Adherent.id == member_id).one()
-        with track_modifications(db.session, member):
-            db.session.delete(member)
+        with db.sessionmaker.begin() as session:
+            member = session.query(Adherent).filter(Adherent.id == member_id).one()
+            with track_modifications(session, member):
+                session.delete(member)
 
     @log_call
     def update_password(self, member_id, hashed_password):
-        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
-        with track_modifications(db.session, adherent):
-            adherent.password = hashed_password
+        with db.sessionmaker.begin() as session:
+            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+            with track_modifications(session, adherent):
+                adherent.password = hashed_password
 
     @log_call
     def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
-        query = db.session.query(Adherent).filter(Adherent.id == member_id)
-        adherent: Adherent = query.one()
+        with db.sessionmaker.begin() as session:
+            query = session.query(Adherent).filter(Adherent.id == member_id)
+            adherent: Adherent = query.one()
 
-        if adherent.date_de_depart is None or adherent.date_de_depart < now:
-            adherent.date_de_depart = now
+            if adherent.date_de_depart is None or adherent.date_de_depart < now:
+                adherent.date_de_depart = now
 
-        import calendar
-
-        days_to_add = 0
-        for i in range(duration_in_mounth):
-            if adherent.date_de_depart.month + i <= 12:
-                days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month + i)[1]
-            else:
-                days_to_add += calendar.monthrange(
-                    adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12
-                )[1]
-        adherent.date_de_depart += timedelta(days=days_to_add)
-
-        db.session.flush()
+            days_to_add = 0
+            for i in range(duration_in_mounth):
+                if adherent.date_de_depart.month + i <= 12:
+                    days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month + i)[
+                        1
+                    ]
+                else:
+                    days_to_add += calendar.monthrange(
+                        adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12
+                    )[1]
+            adherent.date_de_depart += timedelta(days=days_to_add)
 
     def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
-        q = db.session.query(Adherent.ip).filter(Adherent.ip.is_not(None))
-        r = q.all()
+        with db.sessionmaker() as session:
+            q = session.query(Adherent.ip).filter(Adherent.ip.is_not(None))
+            r = q.all()
         return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
     @log_call
     def update_comment(self, member_id: int, comment: str) -> None:
-        adherent = db.session.query(Adherent).filter(Adherent.id == member_id).one()
-        with track_modifications(db.session, adherent):
-            adherent.commentaires = comment
+        with db.sessionmaker.begin() as session:
+            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
+            with track_modifications(session, adherent):
+                adherent.commentaires = comment
 
 
 def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
