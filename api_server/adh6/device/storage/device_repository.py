@@ -53,7 +53,7 @@ class DeviceSQLRepository(DeviceRepository):
 
         with db.sessionmaker() as session:
             count = len(session.execute(stmt).all())
-            r = session.scalars(stmt.offset(offset).limit(limit))
+            r = session.scalars(stmt.offset(offset).limit(limit)).all()
 
         return list(map(_map_device_sql_to_entity, r)), count
 

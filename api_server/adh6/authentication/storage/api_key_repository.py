@@ -31,14 +31,14 @@ class ApiKeySQLRepository(ApiKeyRepository):
             session.execute(smt)
 
     def find(self, login: str | None = None, token_hash: str | None = None) -> list[ApiKey]:
-        smt = select(SQLApiKey)
+        stmt = select(SQLApiKey)
         if login is not None:
-            smt = smt.where(SQLApiKey.user_login == login)
+            stmt = stmt.where(SQLApiKey.user_login == login)
         if token_hash is not None:
-            smt = smt.where(SQLApiKey.value == token_hash)
+            stmt = stmt.where(SQLApiKey.value == token_hash)
 
         with db.sessionmaker() as session:
-            result = session.execute(smt)
+            result = session.execute(stmt).all()
         return [self._map_to_api_key(i[0]) for i in result]
 
     def _map_to_api_key(self, api_key: SQLApiKey) -> ApiKey:

@@ -16,7 +16,8 @@ class RoleSQLRepository(RoleRepository):
     def get(self, id: int) -> Any:  # todo
         smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         with db.sessionmaker() as session:
-            return session.execute(smt).scalar_one_or_none()
+            result = session.execute(smt).scalar_one_or_none()
+        return result
 
     def find(
         self,
@@ -66,9 +67,10 @@ class RoleSQLRepository(RoleRepository):
 
     def user_id_from_username(self, login: str) -> int:
         with db.sessionmaker() as session:
-            return session.execute(
+            result = session.execute(
                 select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))
             ).scalar_one()
+        return result
 
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(
