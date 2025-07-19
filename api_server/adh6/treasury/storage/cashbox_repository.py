@@ -31,13 +31,14 @@ class CashboxSQLRepository(CashboxRepository):
             linked_transaction=transaction.id if transaction is not None else None,
         )
 
-        with track_modifications(db.session, cashbox_update):
-            db.session.add(cashbox_update)
+        with db.sessionmaker.begin() as session, track_modifications(session, cashbox_update):
+            session.add(cashbox_update)
 
     @log_call
     def get(self) -> tuple[float, float]:
-        query = db.session.query(SQLCashbox)
-        query = query.order_by(SQLCashbox.id.desc())
-        query = query.limit(1)
-        r = query.all()[0]
+        with db.sessionmaker() as session:
+            query = session.query(SQLCashbox)
+            query = query.order_by(SQLCashbox.id.desc())
+            query = query.limit(1)
+            r = query.all()[0]
         return r.fond, r.coffre  # type: ignore  # TODO: fix typing

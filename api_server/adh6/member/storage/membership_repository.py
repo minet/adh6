@@ -17,27 +17,28 @@ class MembershipSQLRepository(MembershipRepository):
     def search(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
     ) -> tuple[list[Membership], int]:
-        query = db.session.query(MembershipSQL)
-        if filter_:
-            if filter_.uuid is not None:
-                query = query.filter(MembershipSQL.uuid == filter_.uuid)
-            if filter_.status is not None:
-                query = query.filter(MembershipSQL.status == filter_.status)
-            if filter_.first_time is not None:
-                query = query.filter(MembershipSQL.first_time == filter_.first_time)
-            if filter_.duration is not None:
-                query = query.filter(MembershipSQL.duration == filter_.duration)
-            if filter_.payment_method is not None:
-                query = query.filter(MembershipSQL.payment_method_id == filter_.payment_method)
-            if filter_.account is not None:
-                query = query.filter(MembershipSQL.account_id == filter_.account)
-            if filter_.member is not None:
-                query = query.filter(MembershipSQL.adherent_id == filter_.member)
+        with db.sessionmaker() as session:
+            query = session.query(MembershipSQL)
+            if filter_:
+                if filter_.uuid is not None:
+                    query = query.filter(MembershipSQL.uuid == filter_.uuid)
+                if filter_.status is not None:
+                    query = query.filter(MembershipSQL.status == filter_.status)
+                if filter_.first_time is not None:
+                    query = query.filter(MembershipSQL.first_time == filter_.first_time)
+                if filter_.duration is not None:
+                    query = query.filter(MembershipSQL.duration == filter_.duration)
+                if filter_.payment_method is not None:
+                    query = query.filter(MembershipSQL.payment_method_id == filter_.payment_method)
+                if filter_.account is not None:
+                    query = query.filter(MembershipSQL.account_id == filter_.account)
+                if filter_.member is not None:
+                    query = query.filter(MembershipSQL.adherent_id == filter_.member)
 
-        query = query.order_by(MembershipSQL.uuid)
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
+            query = query.order_by(MembershipSQL.uuid)
+            query = query.offset(offset)
+            query = query.limit(limit)
+            r = query.all()
 
         return list(map(_map_membership_sql_to_entity, r)), query.count()
 
@@ -48,47 +49,47 @@ class MembershipSQLRepository(MembershipRepository):
         :raise MemberNotFound
         """
         now = datetime.now()
-        to_add = MembershipSQL(
-            uuid=str(uuid.uuid4()),
-            duration=body.duration,
-            account_id=body.account,
-            payment_method_id=body.payment_method,
-            adherent_id=body.member,
-            status=state,
-            create_at=now,
-            update_at=now,
-            first_time=db.session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
-            has_room=body.has_room if body.has_room is not None else True,
-        )
-        db.session.add(to_add)
-        db.session.flush()
+        with db.sessionmaker.begin() as session:
+            to_add = MembershipSQL(
+                uuid=str(uuid.uuid4()),
+                duration=body.duration,
+                account_id=body.account,
+                payment_method_id=body.payment_method,
+                adherent_id=body.member,
+                status=state,
+                create_at=now,
+                update_at=now,
+                first_time=session.query(MembershipSQL).filter(MembershipSQL.adherent_id == body.member).count() == 0,
+                has_room=body.has_room if body.has_room is not None else True,
+            )
+            session.add(to_add)
         return _map_membership_sql_to_entity(to_add)
 
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
-        query: Query = db.session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
-        membership: MembershipSQL = query.one()
+        with db.sessionmaker.begin() as session:
+            query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+            membership: MembershipSQL = query.one()
 
-        if body.duration:
-            membership.duration = body.duration
-        if body.account:
-            membership.account_id = body.account
-        if body.payment_method:
-            membership.payment_method_id = body.payment_method
-        if body.has_room is not None:
-            membership.has_room = body.has_room
+            if body.duration:
+                membership.duration = body.duration
+            if body.account:
+                membership.account_id = body.account
+            if body.payment_method:
+                membership.payment_method_id = body.payment_method
+            if body.has_room is not None:
+                membership.has_room = body.has_room
 
-        membership.status = state
-        membership.update_at = now
+            membership.status = state
+            membership.update_at = now
 
-        db.session.flush()
         return _map_membership_sql_to_entity(membership)
 
     def validate(self, uuid: str) -> None:
-        query: Query = db.session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
-        membership: MembershipSQL = query.one()
-        membership.status = MembershipStatus.COMPLETE
-        db.session.flush()
+        with db.sessionmaker() as session:
+            query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
+            membership: MembershipSQL = query.one()
+            membership.status = MembershipStatus.COMPLETE
 
 
 def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:

@@ -35,6 +35,7 @@ def with_context(f):
             status_code = result[1]
             if status_code and (200 <= status_code <= 299 or status_code == 302):
                 if db.session.dirty or db.session.new or db.session.deleted:
+                    print("Code should not be called")
                     db.session.commit()  # this is bad imo  # TODO: big change
             else:
                 raise Exception  # noqa: TRY002, TRY301 # TODO: own exception

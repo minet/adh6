@@ -17,6 +17,7 @@ dependencies = [
     "flask-sqlalchemy-lite",
     "mysqlclient", # TODO: vérifier qu'il s'agisse bien du driver
     "python-dateutil", # Un ensemble d'utilitaires pour gérer une base de donnée
+    "pyasn1<0.6.0",
     "pysnmp<5.0.0", # communiquer avec les switches
     "elasticsearch", # ELK communication  # TODO: meilleurs explications
     "pinject", # TODO: deprecated
@@ -34,7 +35,6 @@ dependencies = [
     "opentelemetry-sdk",
     "opentelemetry-exporter-jaeger",
     "flask-alembic>=3.1.1",
-    "pyright>=1.1.402",
 ]
 
 # Docs:

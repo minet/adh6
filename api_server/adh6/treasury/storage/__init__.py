@@ -20,20 +20,19 @@ def init_storage():
 
     from .models import Account, AccountType, PaymentMethod
 
-    session = db.session
-    payment_methods = ["Liquide", "Chèque", "Carte bancaire", "Virement", "Stripe", "Aucun"]
-    for e in payment_methods:
-        if session.query(PaymentMethod).filter(PaymentMethod.name == e).one_or_none() is None:
-            session.add(PaymentMethod(name=e))
+    with db.sessionmaker.begin() as session:
+        payment_methods = ["Liquide", "Chèque", "Carte bancaire", "Virement", "Stripe", "Aucun"]
+        for e in payment_methods:
+            if session.query(PaymentMethod).filter(PaymentMethod.name == e).one_or_none() is None:
+                session.add(PaymentMethod(name=e))
 
-    account_types = ["Special", "Adherent", "Club interne", "Club externe", "Association externe"]
-    for e in account_types:
-        if session.query(AccountType).filter(AccountType.name == e).one_or_none() is None:
-            session.add(AccountType(name=e))
+        account_types = ["Special", "Adherent", "Club interne", "Club externe", "Association externe"]
+        for e in account_types:
+            if session.query(AccountType).filter(AccountType.name == e).one_or_none() is None:
+                session.add(AccountType(name=e))
 
-    special = session.query(AccountType).filter(AccountType.name == account_types[0]).one()
-    accounts = ["MiNET frais techniques", "MiNET frais asso"]
-    for e in accounts:
-        if session.query(Account).filter(Account.name == e).one_or_none() is None:
-            session.add(Account(type=special.id, name=e, actif=True, compte_courant=True, pinned=True))
-    session.commit()
+        special = session.query(AccountType).filter(AccountType.name == account_types[0]).one()
+        accounts = ["MiNET frais techniques", "MiNET frais asso"]
+        for e in accounts:
+            if session.query(Account).filter(Account.name == e).one_or_none() is None:
+                session.add(Account(type=special.id, name=e, actif=True, compte_courant=True, pinned=True))

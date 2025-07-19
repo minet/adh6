@@ -19,7 +19,8 @@ class VLANSQLRepository(VlanRepository):
 
         :raise VlanNotFound
         """
-        vlan = db.session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
+        with db.sessionmaker() as session:
+            vlan = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
         if not vlan:
             raise VLANNotFoundError(vlan_number)
         return _map_vlan_sql_to_abstract_entity(vlan)

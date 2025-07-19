@@ -22,89 +22,92 @@ class AccountSQLRepository(AccountRepository):
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractAccount | None = None
     ) -> tuple[list[AbstractAccount], int]:
-        query = db.session.query(
-            SQLAccount,
-            func.sum(case((Transaction.src == SQLAccount.id, -Transaction.value), else_=Transaction.value)).label(
-                "balance"
-            ),
-        ).group_by(SQLAccount.id)
-        query = query.outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
+        with db.sessionmaker() as session:
+            query = session.query(
+                SQLAccount,
+                func.sum(case((Transaction.src == SQLAccount.id, -Transaction.value), else_=Transaction.value)).label(
+                    "balance"
+                ),
+            ).group_by(SQLAccount.id)
+            query = query.outerjoin(
+                Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id)
+            )
 
-        if terms:
-            query = query.filter(SQLAccount.name.contains(terms))
-        if filter_:
-            if filter_.id is not None:
-                query = query.filter(SQLAccount.id == filter_.id)
-            if filter_.name:
-                query = query.filter(SQLAccount.name.contains(filter_.name))
-            if filter_.compte_courant is not None:
-                query = query.filter(SQLAccount.compte_courant == filter_.compte_courant)
-            if filter_.actif is not None:
-                query = query.filter(SQLAccount.actif == filter_.actif)
-            if filter_.pinned is not None:
-                query = query.filter(SQLAccount.pinned == filter_.pinned)
-            if filter_.account_type is not None:
-                query = query.filter(SQLAccount.type == filter_.account_type)
-            if filter_.member is not None:
-                query = query.filter(SQLAccount.adherent_id == filter_.member)
+            if terms:
+                query = query.filter(SQLAccount.name.contains(terms))
+            if filter_:
+                if filter_.id is not None:
+                    query = query.filter(SQLAccount.id == filter_.id)
+                if filter_.name:
+                    query = query.filter(SQLAccount.name.contains(filter_.name))
+                if filter_.compte_courant is not None:
+                    query = query.filter(SQLAccount.compte_courant == filter_.compte_courant)
+                if filter_.actif is not None:
+                    query = query.filter(SQLAccount.actif == filter_.actif)
+                if filter_.pinned is not None:
+                    query = query.filter(SQLAccount.pinned == filter_.pinned)
+                if filter_.account_type is not None:
+                    query = query.filter(SQLAccount.type == filter_.account_type)
+                if filter_.member is not None:
+                    query = query.filter(SQLAccount.adherent_id == filter_.member)
 
-        count = query.count()
-        query = query.order_by(SQLAccount.creation_date.asc())
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
+            count = query.count()
+            query = query.order_by(SQLAccount.creation_date.asc())
+            query = query.offset(offset)
+            query = query.limit(limit)
+            r = query.all()
 
         return [_map_account_sql_to_abstract_entity(item, True) for item in r], count  # type: ignore  # TODO: typing
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractAccount | None:
-        obj = (
-            db.session.query(
-                SQLAccount,
-                func.sum(
-                    case(
-                        (Transaction.src == SQLAccount.id, -Transaction.value),  # type: ignore  # TODO: typing / deprecated
-                        else_=Transaction.value,
-                    )
-                ).label("balance"),  # type: ignore  # TODO: typing / deprecated
-            )
-            .outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
-            .filter(SQLAccount.id == object_id)
-            .one()
-        )  # type: ignore  # TODO: typing
+        with db.sessionmaker() as session:
+            obj = (
+                session.query(
+                    SQLAccount,
+                    func.sum(
+                        case(
+                            (Transaction.src == SQLAccount.id, -Transaction.value),  # type: ignore  # TODO: typing / deprecated
+                            else_=Transaction.value,
+                        )
+                    ).label("balance"),  # type: ignore  # TODO: typing / deprecated
+                )
+                .outerjoin(Transaction, or_(Transaction.src == SQLAccount.id, Transaction.dst == SQLAccount.id))
+                .filter(SQLAccount.id == object_id)
+                .one()
+            )  # type: ignore  # TODO: typing
         return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None  # type: ignore  # TODO: typing
 
     @log_call
     def create(self, abstract_account: Account) -> object:
         now = datetime.now()
+        with db.sessionmaker.begin() as session:
+            account_type_query = session.query(AccountType)
+            if abstract_account.account_type is not None:
+                account_type_query = account_type_query.filter(AccountType.id == abstract_account.account_type)
+            else:
+                account_type_query = account_type_query.filter(AccountType.name == "Adherent")
 
-        account_type_query = db.session.query(AccountType)
-        if abstract_account.account_type is not None:
-            account_type_query = account_type_query.filter(AccountType.id == abstract_account.account_type)
-        else:
-            account_type_query = account_type_query.filter(AccountType.name == "Adherent")
+            account_type = account_type_query.one_or_none()
+            if account_type is None:
+                raise AccountNotFoundError(abstract_account.account_type)
 
-        account_type = account_type_query.one_or_none()
-        if account_type is None:
-            raise AccountNotFoundError(abstract_account.account_type)
+            adherent = None
+            if abstract_account.member is not None:
+                adherent = session.query(Adherent).filter(Adherent.id == abstract_account.member).one_or_none()
+                if not adherent:
+                    raise MemberNotFoundError(abstract_account.member)
 
-        adherent = None
-        if abstract_account.member is not None:
-            adherent = db.session.query(Adherent).filter(Adherent.id == abstract_account.member).one_or_none()
-            if not adherent:
-                raise MemberNotFoundError(abstract_account.member)
-
-        account = SQLAccount(
-            name=abstract_account.name,
-            actif=abstract_account.actif,
-            type=account_type.id,
-            creation_date=now,
-            compte_courant=abstract_account.compte_courant,
-            pinned=abstract_account.pinned,
-            adherent_id=adherent.id if adherent else None,
-        )
-        db.session.add(account)
-        db.session.flush()
+            account = SQLAccount(
+                name=abstract_account.name,
+                actif=abstract_account.actif,
+                type=account_type.id,
+                creation_date=now,
+                compte_courant=abstract_account.compte_courant,
+                pinned=abstract_account.pinned,
+                adherent_id=adherent.id if adherent else None,
+            )
+            session.add(account)
         return _map_account_sql_to_entity(account)
 
     @log_call

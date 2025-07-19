@@ -15,7 +15,8 @@ from .models import PaymentMethod as SQLPaymentMethod
 class PaymentMethodSQLRepository(PaymentMethodRepository):
     @log_call
     def get_by_id(self, object_id: int) -> PaymentMethod:
-        obj = db.session.query(SQLPaymentMethod).filter(SQLPaymentMethod.id == object_id).one_or_none()
+        with db.sessionmaker() as session:
+            obj = session.query(SQLPaymentMethod).filter(SQLPaymentMethod.id == object_id).one_or_none()
         if obj is None:
             raise PaymentMethodNotFoundError(object_id)
         return _map_payment_method_sql_to_entity(obj)
@@ -28,21 +29,22 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         terms: str | None = None,
         filter_: PaymentMethod | None = None,
     ) -> tuple[list[PaymentMethod], int]:
-        query = db.session.query(SQLPaymentMethod)
+        with db.sessionmaker() as session:
+            query = session.query(SQLPaymentMethod)
 
-        if filter_:
-            if filter_.id:
-                query = query.filter(SQLPaymentMethod.id == filter_.id)
-            if filter_.name:
-                query = query.filter(SQLPaymentMethod.name.contains(filter_.name))
-        if terms:
-            query = query.filter(SQLPaymentMethod.name.contains(terms))
+            if filter_:
+                if filter_.id:
+                    query = query.filter(SQLPaymentMethod.id == filter_.id)
+                if filter_.name:
+                    query = query.filter(SQLPaymentMethod.name.contains(filter_.name))
+            if terms:
+                query = query.filter(SQLPaymentMethod.name.contains(terms))
 
-        count = query.count()
-        query = query.order_by(SQLPaymentMethod.id.asc())
-        query = query.offset(offset)
-        query = query.limit(limit)
-        r = query.all()
+            count = query.count()
+            query = query.order_by(SQLPaymentMethod.id.asc())
+            query = query.offset(offset)
+            query = query.limit(limit)
+            r = query.all()
 
         return list(map(_map_payment_method_sql_to_entity, r)), count
 
