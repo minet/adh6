@@ -26,6 +26,15 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME}
+    develop:
+      watch:
+        - path: api_server/adh6
+          target: /app/api_server/adh6
+          action: sync
+          ignore:
+            - api_server/adh6/typing_utils.py
+            - api_server/adh6/utils.py
+            - api_server/adh6/entity
 
   reverse_proxy:
     container_name: adh6_reverse_proxy

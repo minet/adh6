@@ -57,6 +57,7 @@ COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/
 COPY --from=build /app/.venv/ /app/.venv/
 COPY --from=openapi-generate /app/output/ ./api_server/adh6
 
+ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
 RUN apk add --no-cache --update \ 
     git \
@@ -64,9 +65,9 @@ RUN apk add --no-cache --update \
 
 USER adh6
 
-COPY --parents api_server/main.py api_server/manage.py api_server/start.sh api_server/migrations/ api_server/adh6/ ./
+COPY --parents api_server/main.py api_server/manage.py api_server/start-dev.sh api_server/migrations/ api_server/adh6/ ./
 COPY --parents openapi/spec.yaml ./api_server
 
 WORKDIR /app/api_server
 # Launch the app 
-CMD ["./start.sh"]
+CMD ["./start-dev.sh"]
