@@ -31,127 +31,64 @@ Allez sur gitlab.minet.net sur [la page du projet](https://gitlab.minet.net/adh6
 
 1. Installez *docker* et *docker-compose*. C'est le système qui va permettre de créer des environnements de dev' sur votre machine en local.
 
-Pour **Ubuntu/Debian**:
-```sh
-apt install docker docker-compose
+2. Modifiez vos DNS locaux pour ajouter `adh6-local.minet.net` vers votre local host. En général, ajoutez
+
+```
+127.0.0.1 adh6-local.minet.net
 ```
 
-Pour **Arch Linux**:
-```sh
-pacman -S docker docker-compose
-```
+Dans votre `/etc/hosts`.
 
-Pour **Gentoo**:
-Les gars, vous avez installé gentoo, vous avez vraiment besoin des instructions pour installer docker?! Bon OK:
-```sh
-emerge --ask --verbose app-emulation/docker app-emulation/docker-compose
-```
+3. Lancez ADH6 en local avec `docker compose up`
 
-*Vous aurez sûrement besoin de lancer le service docker. Avec systemd et devrez vous rajouter au groupe *docker* pour éviter de lancer docker-compose en root. (Vous aurez sûrement à vous re-logger après):*
-
-```sh
-systemctl start docker
-usermod -aG docker votre_nom_d'utilisateur
-```
-
-2. Lancez l'application (le premier démarrage va prendre du temps, docker va construire toutes les images, installer plein de dépendances dans les environnements virtuels).
-
-```sh
-make
-```
-
-Le premier lancement peut prendre beaucoup de temps (genre au moins 15 mins). Il va installer et set-up tous les environnements dockers.  
-Ne vous inquiétez pas, lancer les dockers sera bien plus rapide les prochaines fois que vous re-lancerez.
-
-Avant de pouvoir lancer l'application dans le navigateur, il faut rajouter une route statique qui redirige vers localhost afin de pouvoir profiter de l'authentification et donc avoir un déploiement en local similaire à de la prod.
-
-Après avoir rajouter la route statique, il faut charger les données essentielles au bon fonctionnement d'adh6 dans la base de données locale. Pour cela, il suffit de :
-```sh
-make generate-database-fixtures LOGIN=<votre LDAP>
-```
-
-Vous pouvez tester l'application dans votre navigateur à l'adresse https://adh6-local.minet.net
-Vous pouvez vous identifier avec vos identifiants LDAPs
-
+Vous devriez pouvoir accéder à https://adh6-local.minet.net/
 
 **NOTE**: Le certificat est auto-signé. Les navigateurs web récents permettent d'activer une option pour toujours faire confiance aux certificats pour localhost.
 
 Chromium: https://stackoverflow.com/questions/7580508/getting-chrome-to-accept-self-signed-localhost-certificate
 
 
+Avant de continuer, il faut mettre à jour la base de donnée.
+Pour cela, allez dans `api_server/` et faites `./manage.sh seed`.
+Cela va appliquer les migrations et mettre des éléments en base.
+
+Pour pouvoir vous connecter, on utilisera directement le CAS de Minet. Il faut vous assurer que `adh6-local.minet.net` est autorisé.
+
+La base de donnée étant vide, il faudra également vous créer. Vous pouvez utiliser la commande `./manage.sh fake <user>` pour créer un utilisateur admin à votre nom.
+
+Il faut que ce nom soit le même que celui avec qui vous vous connectez.
+
 
 Normalement, une fois que le projet est lancé, vous aurez les logs de tous les dockers dans la console.
-Si vous éditez le code du Frontend (angular) dans votre dossier, les modifications seront automatiquement réfléchies (vous allez voir des logs comme quoi il recompile automatiquement). 
-Pour le code de l'API, modifiez votre code et faites `docker-compose restart api_server`.
 
-Si vous modifiez autre chose, vous pouvez aussi tout relancer.
+### Place au dev
 
-PS: Parfois, lorsque que vous ajoutez un fichier, il faudra éteindre adh6 puis faire `make`.
+Vous avez installé les dépendances etc.. dans vos conteneurs, mais pour développer dignement, vous les aurez aussi besoin en local.
+
+Ce projet utilise `uv`. Il vous faudra d'abord l'installer. Ensuite, faites simplement `uv sync`, et vous installerez toutes les dépendances de dev que vous aurez besoin. Votre environnement virtuel est créé sous `.venv/`.
+
+Pour développer et voir vos changements "en direct", vous pouvez utiliser docker compose watch. Dans la console où vous avez effectué `docker compose up`, appuyez sur la touche `w`.  
+Maintenant, les changements que vous apportez sont synchronisés avec les conteneurs, et en dev, angular et uvicorn vont s'actualiser pour prendre en compte ces changements.
 
 
-### Faire des modifs en live sur la BDD
-
-Pour des raisons de test, vous voulez accéder à la BDD pour ajouter/supprimer des entrées, c'est très simple :
-```sh
-docker exec -it core_database bash
-mysql -u adh6 -p # le mdp est par défaut "adh6_pass"
-USE adh6;
-```
-> Enjoy !!
-
-### Développer
-#### Backend
-1) installer les dépendences (à la main)
-```sh
-cd api_server/
-
-# Installez pip et python3.
-# Pip est le package manager de python.
-apt install python3 python3-pip 
-
-# Installation du paquet virtualenv, pour faire des environnements de développement.
-# Cela va vous éviter à avoir à installer les dépendances de ADH6 pour tout votre ordi, et 
-# cantonner toutes les installations de dépendances à ce dossier. (On pollue pas l'ordi et en plus
-# on a peu de chance d'avoir des conflits avec d'autres trucs déjà installés)
-pip3 install virtualenv
-
-# Initialisation d'un nouvel environnement virtuel vierge. (à ne faire qu'une fois)
-python3 -m venv venv
-
-# Ci-dessous est la commande que vous ferez à chaque fois que vous voudrez 'entrer' dans cet environnement.
-# (en gros quand vous faites cette commande vous avez accès aux dépendances ajoutées dans ce dossier plutôt
-# qu'à celles de votre PC.)
-source venv/bin/activate
-
-# Et on installe toutes les dépendances de ADH dans l'environnement virtuel.
-pip install -r requirements.txt
-```
 
 2) Comment ajouter une dépendance Python
-Ajoutez votre dépendance dans requirements.in (**pas .TXT**).
 
-Puis lancez:
-```sh
-pip-compile # Genere un fichier requirements.txt
-pip-sync # Telecharge les deps et supprime les anciennes.
-```
+`uv add deps`
 
-3) Pour ensuite quitter cet environnement vous avez juste à taper `deactivate`
+4) Lancer les tests ?
+Lancez `uv run pytest` dans la console, ou utilisez votre IDE... ce dernier est configuré pour faire en même temps le coverage du code.
 
-4) ancer les tests ?
-Lancez `pytest -vvv` dans la console, ou utilisez votre IDE... ce dernier est configuré pour faire en même ttemps le coverage du code
+Vous pouvez aussi lancer `uv run tox` pour faire à la fois les tests, vérifier le formatage et les types.
 
 #### Frontend
+
 1) installer les dépendences
 ```sh
-cd frontend_angular
-
-# Avec docker
-docker run --rm -w /app -u $(id -u):$(id -g) -v $(CURDIR)/$(FRONTEND_PATH):/app node:18-alpine yarn install --frozen-lockfile
-
 # Sans docker
 yarn install --frozen-lockfile
 ```
+
 2) ajouter une dépendences : cela dépend du package, il faut voir la librairie directement. Cependant yarn est le gestionnaire de packets d'angular dans ce projet.
 
 # [API](openapi/spec.yaml)
