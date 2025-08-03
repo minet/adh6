@@ -7,6 +7,17 @@ services:
       context: .
       dockerfile: docker/frontend_angular/Dockerfile
       target: dev
+    develop:
+      watch:
+        - action: sync
+          path: frontend_angular/src
+          target: /app/src
+        - action: sync
+          path: frontend_angular/public
+          target: /app/public
+        - action: rebuild
+          path: frontend_angular/angular.json
+          target: /app/angular.json
 
   api_server:
     container_name: adh6_backend
