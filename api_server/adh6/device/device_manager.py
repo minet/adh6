@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from adh6.constants import DEFAULT_LIMIT
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
@@ -39,7 +41,11 @@ class DeviceManager(CRUDManager):
         self.load_mac_oui_dict()
 
     def load_mac_oui_dict(self):
-        with open("OUIs.txt", encoding="utf-8") as f:
+        file = Path("OUIs.txt")
+        if not file.exists():
+            print("OUIs.txt not found, skipping loading MAC OUI dictionary.")
+            return
+        with open(file, encoding="utf-8") as f:
             line = f.readline()
             while line != "":
                 oui, company = line.split("\t")

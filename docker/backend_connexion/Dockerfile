@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile-upstream:master-labs
 
+FROM python:3.11-alpine AS base
+
 # Pre-tasks
-FROM python:3.11-alpine AS prebuild
+FROM base AS prebuild
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
 
@@ -29,7 +31,7 @@ RUN /usr/local/bin/docker-entrypoint.sh generate -i ./spec.yaml -g python-flask 
 
 
 # Build
-FROM python:3.11-alpine AS build
+FROM base AS build
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_LINK_MODE=copy
 ENV UV_COMPILE_BYTECODE=1
@@ -45,7 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
 
 
 # Production
-FROM python:3.11-alpine AS dev
+FROM base AS dev
 
 WORKDIR /app
 RUN adduser -s /bin/sh adh6 -h /home/adh6 -D

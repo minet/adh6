@@ -80,11 +80,12 @@ envlist = ["py311"]
 [tool.tox.env_run_base]
 runner = "uv-venv-lock-runner"
 description = "run all checks on the code"
-extras = ["dev"]
+dependency_groups = ["dev"]
 commands = [ #fmt
     ["ruff", "format", "--check"],
     ["ruff", "check"],
     ["pyright"],
+    ["pytests"],
 ]
 
 

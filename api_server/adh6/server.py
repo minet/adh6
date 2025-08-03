@@ -184,7 +184,11 @@ def init() -> FlaskApp:
     os.environ["APIKEYINFO_FUNC"] = os.environ.get("APIKEYINFO_FUNC", "adh6.authentication.apikey_auth")
 
     # Initialize the flask application using the connexion library
-    app = connexion.App(__name__, specification_dir=Path(__file__).parent.parent / "openapi")
+    specifictation_dir = Path(__file__).parent.parent  # In docker, spec is in the python directory
+    if not (specifictation_dir / "openapi").exists():  # In local, spec is in the root project directory
+        specifictation_dir = specifictation_dir.parent
+
+    app = connexion.App(__name__, specification_dir=specifictation_dir / "openapi")
     # Raise an exception if there was an error setting up the flask application
     if app.app is None:
         raise Exception("Error when setting the flask application")  # noqa: TRY002  # TODO?
