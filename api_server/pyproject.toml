@@ -85,7 +85,7 @@ commands = [ #fmt
     ["ruff", "format", "--check"],
     ["ruff", "check"],
     ["pyright"],
-    ["pytests"],
+    ["pytest"],
 ]
 
 
