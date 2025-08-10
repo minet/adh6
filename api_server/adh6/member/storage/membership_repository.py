@@ -38,9 +38,9 @@ class MembershipSQLRepository(MembershipRepository):
             query = query.order_by(MembershipSQL.uuid)
             query = query.offset(offset)
             query = query.limit(limit)
-            r = query.all()
+            r, count = query.all(), query.count()
 
-        return list(map(_map_membership_sql_to_entity, r)), query.count()
+        return list(map(_map_membership_sql_to_entity, r)), count
 
     def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
@@ -86,7 +86,7 @@ class MembershipSQLRepository(MembershipRepository):
         return _map_membership_sql_to_entity(membership)
 
     def validate(self, uuid: str) -> None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query: Query = session.query(MembershipSQL).filter(MembershipSQL.uuid == uuid)
             membership: MembershipSQL = query.one()
             membership.status = MembershipStatus.COMPLETE
