@@ -11,6 +11,7 @@ import {
   withInterceptorsFromDi,
 } from "@angular/common/http";
 import {NotifInterceptor} from "./http-interceptor/notif-interceptor";
+import {AuthTokenInterceptor} from "./http-interceptor/auth-token-interceptor";
 import {environment} from "../environments/environment";
 import {ReactiveFormsModule} from "@angular/forms";
 import {Ability, AbilityClass, PureAbility} from "@casl/ability";
@@ -59,6 +60,7 @@ function load(): Configuration {
       useClass: NotifInterceptor,
       multi: true,
     },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthTokenInterceptor, multi: true },
     {
       provide: AppAbility,
       useValue: new AppAbility(),

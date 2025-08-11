@@ -1,0 +1,10 @@
+name: adh6
+
+services:
+  api_server:
+    ports:
+      - "5678:5678"
+    command: [ "/bin/sh", "-c", "FLASK_APP=manage:manager flask db upgrade head && python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn --port 8080 --host 0.0.0.0 main:application --reload" ]
+    environment:
+      # Add debugpy to the Python path if needed
+      PYTHONPATH: "/app/api_server:/app/.venv/lib/python3.11/site-packages"

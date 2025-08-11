@@ -1,3 +1,5 @@
+import { LogLevel } from "angular-auth-oidc-client";
+
 // The file contents for the current environment will overwrite these during build.
 // The build system defaults to the dev environment which uses `environment.ts`, but if you do
 // `ng build --env=prod` then `environment.prod.ts` will be used instead.
@@ -5,6 +7,10 @@
 
 export const environment = {
   production: false,
-  API_BASE_PATH: "https://" + window.location.host.toString() + "/api",
-  SSO_URL: "https://cas.minet.net/oidc",
+  API_BASE_PATH: "https://" + window.location.host.toString() + '/api',
+  SSO_URL: "https://keycloak.minet.net/realms/MiNET",
+  SSO_CLIENT_ID: "adh6-keycloak",
+  SSO_SCOPE: "openid",
+  SSO_RESPONSE_TYPE: "id_token token",
+  LOG_LEVEL: LogLevel.Debug,
 };

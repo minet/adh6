@@ -90,9 +90,12 @@ class MemberManager(CRUDManager):
     def get_profile(self) -> tuple[AbstractMember, list[str]]:
         from adh6.context import get_roles, get_user
 
-        m = self.member_repository.get_by_id(get_user())
+        user_id = get_user()
+        if not user_id:
+            raise MemberNotFoundError("<no user id found in context>")
+        m = self.member_repository.get_by_id(user_id)
         if not m:
-            raise MemberNotFoundError(id)
+            raise MemberNotFoundError(user_id)
         return m, get_roles()  # type: ignore  # TODO: typing is baaaaad
 
     @log_call
@@ -159,9 +162,7 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = self.member_repository.update(
-            AbstractMember(
-                id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name
-            )
+            AbstractMember(id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name)
         )
 
     @log_call

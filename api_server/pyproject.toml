@@ -36,6 +36,8 @@ dependencies = [
     "opentelemetry-exporter-jaeger",
     "flask-alembic>=3.1.1",
     "pycryptodome", #Used to replace hashlib as it no longer supports MD4. Can be removed when we switch off MD4.
+    "python-keycloak",
+    "debugpy",
 ]
 
 # Docs:

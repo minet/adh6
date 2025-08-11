@@ -35,7 +35,9 @@ export class NotifInterceptor implements HttpInterceptor {
           err = response.error;
         }
         if (err.code === 401) {
-          window.location.href = "/portail";
+          if (window.location.href !== "/portail") {
+            window.location.href = "/portail";
+          }
         }
         if (err.code !== 404) {
           this.notificationService.errorNotification(
@@ -46,7 +48,7 @@ export class NotifInterceptor implements HttpInterceptor {
           );
         }
         return throwError(response);
-      }),
+      })
     );
   }
 }

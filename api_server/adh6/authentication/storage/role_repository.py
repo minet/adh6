@@ -69,7 +69,7 @@ class RoleSQLRepository(RoleRepository):
         with db.sessionmaker() as session:
             result = session.execute(
                 select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))
-            ).scalar_one()
+            ).scalar_one_or_none()
         return result
 
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:

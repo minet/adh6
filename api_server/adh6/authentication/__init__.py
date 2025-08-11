@@ -67,7 +67,7 @@ def token_info(access_token) -> dict[str, Any] | None:
 
     uid = role_repository.user_id_from_username(login=infos[user_id])
     if not uid:
-        raise Unauthorized("invalid token")
+        raise Unauthorized("user not found")
 
     roles = [
         i.role

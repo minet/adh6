@@ -11,7 +11,8 @@ export class NavbarComponent {
   constructor(public oidcSecurityService: OidcSecurityService) {}
 
   logout() {
-    this.oidcSecurityService.logoffLocal();
-    location.href = "/portail";
+    this.oidcSecurityService
+      .logoff()
+      .subscribe((result) => console.log(result));
   }
 }
