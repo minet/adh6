@@ -1,19 +1,18 @@
-import { Router } from '@angular/router';
-import { Component } from '@angular/core';
-import { Observable } from 'rxjs';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { AbstractSwitch, Switch, SwitchService } from '../../api';
-import { takeWhile } from 'rxjs/operators';
-import { NotificationService } from '../../notification.service';
+import {Router} from "@angular/router";
+import {Component} from "@angular/core";
+import {Observable} from "rxjs";
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {AbstractSwitch, Switch, SwitchService} from "../../api";
+import {takeWhile} from "rxjs/operators";
+import {NotificationService} from "../../notification.service";
 
 @Component({
-    selector: 'app-switch-new',
-    templateUrl: './switch-new.component.html',
-    styleUrls: ['./switch-new.component.css'],
-    standalone: false
+  selector: "app-switch-new",
+  templateUrl: "./switch-new.component.html",
+  styleUrls: ["./switch-new.component.css"],
+  standalone: false,
 })
 export class SwitchNewComponent {
-
   switches$: Observable<Array<AbstractSwitch>>;
   switchForm: UntypedFormGroup;
   disabled = false;
@@ -26,9 +25,16 @@ export class SwitchNewComponent {
     private notificationService: NotificationService,
   ) {
     this.switchForm = this.fb.group({
-      ip: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(15)]],
-      description: ['', Validators.required],
-      community: ['', Validators.required],
+      ip: [
+        "",
+        [
+          Validators.required,
+          Validators.minLength(11),
+          Validators.maxLength(15),
+        ],
+      ],
+      description: ["", Validators.required],
+      community: ["", Validators.required],
     });
     this.switches$ = this.switchService.switchGet();
   }
@@ -41,10 +47,11 @@ export class SwitchNewComponent {
       community: v.community,
     };
 
-    this.switchService.switchPost(varSwitch)
+    this.switchService
+      .switchPost(varSwitch)
       .pipe(takeWhile(() => this.alive))
       .subscribe(() => {
-        this.router.navigate(['/switch/search']);
+        this.router.navigate(["/switch/search"]);
         this.notificationService.successNotification();
       });
   }

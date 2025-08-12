@@ -1,10 +1,17 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SearchPage } from '../search-page';
-import { map, Observable, shareReplay } from 'rxjs';
-import { PaymentMethod, Transaction, TransactionService, AbstractTransaction, AccountService, MemberService } from '../api';
-import { AppConstantsService } from '../app-constants.service';
-import { CommonModule } from '@angular/common';
-import { PaginationComponent } from '../pagination/pagination.component';
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {SearchPage} from "../search-page";
+import {map, Observable, shareReplay} from "rxjs";
+import {
+  PaymentMethod,
+  Transaction,
+  TransactionService,
+  AbstractTransaction,
+  AccountService,
+  MemberService,
+} from "../api";
+import {AppConstantsService} from "../app-constants.service";
+import {CommonModule} from "@angular/common";
+import {PaginationComponent} from "../pagination/pagination.component";
 
 class Action {
   name: string = "";
@@ -14,19 +21,22 @@ class Action {
 }
 
 @Component({
-    imports: [
-        CommonModule,
-        PaginationComponent
-    ],
-    selector: 'app-transaction-list',
-    templateUrl: './transaction-list.component.html'
+  imports: [CommonModule, PaginationComponent],
+  selector: "app-transaction-list",
+  templateUrl: "./transaction-list.component.html",
 })
-export class TransactionListComponent extends SearchPage<AbstractTransaction> implements OnInit {
+export class TransactionListComponent
+  extends SearchPage<AbstractTransaction>
+  implements OnInit
+{
   @Input() asAccount: number = 0;
-  @Input() refresh: EventEmitter<{ action: string }> = new EventEmitter();
+  @Input() refresh: EventEmitter<{action: string}> = new EventEmitter();
   @Input() actions: Array<Action> = [];
 
-  @Output() whenOnAction: EventEmitter<{ name: string, transaction: Transaction }> = new EventEmitter();
+  @Output() whenOnAction: EventEmitter<{
+    name: string;
+    transaction: Transaction;
+  }> = new EventEmitter();
 
   public result$: Observable<Array<Transaction>> = new Observable();
   public paymentMethods: Array<PaymentMethod> = [];
@@ -35,7 +45,6 @@ export class TransactionListComponent extends SearchPage<AbstractTransaction> im
   cachedAccountName: Map<Number, Observable<string>> = new Map();
   cachedPaymentMethodName: Map<Number, Observable<string>> = new Map();
   cachedMemberUsername: Map<Number, Observable<string>> = new Map();
-
 
   getUsername(id: number) {
     return this.cachedMemberUsername.get(id);
@@ -60,46 +69,71 @@ export class TransactionListComponent extends SearchPage<AbstractTransaction> im
       if (this.asAccount) {
         abstractTransaction = {
           src: this.asAccount,
-          dst: this.asAccount
+          dst: this.asAccount,
         };
       }
-      if (this.filterType != null && this.filterType !== '') {
+      if (this.filterType != null && this.filterType !== "") {
         abstractTransaction.paymentMethod = Number(this.filterType);
       }
-      return this.transactionService.transactionGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, abstractTransaction, undefined, "response")
+      return this.transactionService
+        .transactionGet(
+          this.itemsPerPage,
+          (page - 1) * this.itemsPerPage,
+          terms,
+          abstractTransaction,
+          undefined,
+          "response",
+        )
         .pipe(
-          map(response => {
+          map((response) => {
             if (!response.body) {
-              return response
+              return response;
             }
             for (let i of response.body) {
               if (i.src && !this.cachedAccountName.has(i.src)) {
-                this.cachedAccountName.set(i.src, this.accountService.accountIdGet(i.src).pipe(
-                  shareReplay(1),
-                  map(result => result.name || "")
-                ));
+                this.cachedAccountName.set(
+                  i.src,
+                  this.accountService.accountIdGet(i.src).pipe(
+                    shareReplay(1),
+                    map((result) => result.name || ""),
+                  ),
+                );
               }
               if (i.dst && !this.cachedAccountName.has(i.dst)) {
-                this.cachedAccountName.set(i.dst, this.accountService.accountIdGet(i.dst).pipe(
-                  shareReplay(1),
-                  map(result => result.name || "")
-                ));
+                this.cachedAccountName.set(
+                  i.dst,
+                  this.accountService.accountIdGet(i.dst).pipe(
+                    shareReplay(1),
+                    map((result) => result.name || ""),
+                  ),
+                );
               }
-              if (i.paymentMethod && !this.cachedPaymentMethodName.has(i.paymentMethod)) {
-                this.cachedPaymentMethodName.set(i.paymentMethod, this.transactionService.paymentMethodIdGet(i.paymentMethod).pipe(
-                  shareReplay(1),
-                  map(result => result.name || "")
-                ));
+              if (
+                i.paymentMethod &&
+                !this.cachedPaymentMethodName.has(i.paymentMethod)
+              ) {
+                this.cachedPaymentMethodName.set(
+                  i.paymentMethod,
+                  this.transactionService
+                    .paymentMethodIdGet(i.paymentMethod)
+                    .pipe(
+                      shareReplay(1),
+                      map((result) => result.name || ""),
+                    ),
+                );
               }
               if (i.author && !this.cachedMemberUsername.has(i.author)) {
-                this.cachedMemberUsername.set(i.author, this.memberService.memberIdGet(i.author, ["username"]).pipe(
-                  shareReplay(1),
-                  map(result => result.username || "")
-                ));
+                this.cachedMemberUsername.set(
+                  i.author,
+                  this.memberService.memberIdGet(i.author, ["username"]).pipe(
+                    shareReplay(1),
+                    map((result) => result.username || ""),
+                  ),
+                );
               }
             }
             return response;
-          })
+          }),
         );
     });
   }
@@ -112,14 +146,12 @@ export class TransactionListComponent extends SearchPage<AbstractTransaction> im
   ngOnInit() {
     super.ngOnInit();
     this.getSearchResult();
-    this.appConstantsService.getPaymentMethods().subscribe(
-      data => {
-        this.paymentMethods = data;
-      }
-    );
+    this.appConstantsService.getPaymentMethods().subscribe((data) => {
+      this.paymentMethods = data;
+    });
     if (this.refresh) {
       this.refresh.subscribe((e: any) => {
-        if (e.action === 'refresh') {
+        if (e.action === "refresh") {
           this.getSearchResult();
         }
       });

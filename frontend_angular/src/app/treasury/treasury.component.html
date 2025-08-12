@@ -3,25 +3,33 @@
 <div class="card-deck mb-3">
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title text-center" *ngIf="balance$ | async as balance">{{ balance }} €</h5>
+      <h5 class="card-title text-center" *ngIf="balance$ | async as balance">
+        {{ balance }} €
+      </h5>
       <p class="card-text text-center">Montant sur le compte courant</p>
     </div>
   </div>
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">{{ cashbox.fond }} €</h5>
+      <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">
+        {{ cashbox.fond }} €
+      </h5>
       <p class="card-text text-center">Montant dans la caisse</p>
     </div>
   </div>
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">{{ cashbox.coffre }} €</h5>
+      <h5 class="card-title text-center" *ngIf="cashbox$ | async as cashbox">
+        {{ cashbox.coffre }} €
+      </h5>
       <p class="card-text text-center">Montant dans le coffre</p>
     </div>
   </div>
 </div>
 
-<button class="btn btn-primary mb-3" (click)="toggleFundManagement()">Gestion de la caisse</button>
+<button class="btn btn-primary mb-3" (click)="toggleFundManagement()">
+  Gestion de la caisse
+</button>
 
 <div class="list-group" *ngIf="showFundManagement">
   <div class="list-group-item">
@@ -36,7 +44,11 @@
         </div>
         <div class="col-md-8 form-group">
           <label>Montant</label>
-          <input class="w-100 form-control" formControlName="toCashRegister" type="number" id="toCashRegister"
+          <input
+            class="w-100 form-control"
+            formControlName="toCashRegister"
+            type="number"
+            id="toCashRegister"
             placeholder="€" />
         </div>
       </div>
@@ -52,7 +64,11 @@
         </div>
         <div class="col-md-8 form-group">
           <label>Montant</label>
-          <input class="w-100 form-control" formControlName="toCashRegister" type="number" id="toChest"
+          <input
+            class="w-100 form-control"
+            formControlName="toCashRegister"
+            type="number"
+            id="toChest"
             placeholder="€" />
         </div>
       </div>
@@ -60,19 +76,25 @@
 
       <div class="form-group">
         <label for="labelOp">Libellé</label>
-        <input class="w-100 form-control" formControlName="labelOp" type="text" id="labelOp"
+        <input
+          class="w-100 form-control"
+          formControlName="labelOp"
+          type="text"
+          id="labelOp"
           placeholder="Description de l'opération" />
       </div>
 
       <div class="form-group">
-        <button type="AC" [disabled]="fundManagementForm.status === 'INVALID'" class="w-100 btn btn-primary">
+        <button
+          type="AC"
+          [disabled]="fundManagementForm.status === 'INVALID'"
+          class="w-100 btn btn-primary">
           Transférer
         </button>
       </div>
     </form>
   </div>
 </div>
-
 
 <hr />
 

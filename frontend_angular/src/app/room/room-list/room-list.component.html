@@ -1,9 +1,14 @@
 <div class="columns">
   <div class="column">
-    <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="input is-fullwidth"
-      placeholder="Rechercher..." type="text" />
+    <input
+      #searchBox
+      id="search-box"
+      (keyup)="search(searchBox.value)"
+      class="input is-fullwidth"
+      placeholder="Rechercher..."
+      type="text" />
   </div>
-  <br>
+  <br />
   <div class="column is-narrow">
     <a [routerLink]="['/room/add']">
       <button class="button is-primary">Nouvelle chambre</button>
@@ -13,20 +18,22 @@
 <table class="table is-hoverable is-striped is-fullwidth is-clickable">
   <thead>
     <tr>
-      <th style="width: 33%;">Numéro</th>
-      <th style="width: 33%;">Description</th>
-      <th style="width: 33%;">VLAN</th>
+      <th style="width: 33%">Numéro</th>
+      <th style="width: 33%">Description</th>
+      <th style="width: 33%">VLAN</th>
     </tr>
   </thead>
   <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr *ngFor="let room of result" [routerLink]="['/room/view',room.id]">
+    <tr *ngFor="let room of result" [routerLink]="['/room/view', room.id]">
       <td>{{ room.roomNumber }}</td>
       <td>{{ room.description }}</td>
       <td>{{ room.vlan }}</td>
     </tr>
   </tbody>
 </table>
-<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<app-pagination
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
   <tr>
     <td colspan="42">

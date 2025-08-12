@@ -3,7 +3,10 @@
     <header class="card-header">
       <p class="card-header-title">
         <strong *ngIf="device$ | async as device; else loading">
-          {{device.mac | uppercase}} <span *ngIf="vendor$ | async as vendor">({{ vendor | uppercase}})</span>
+          {{ device.mac | uppercase }}
+          <span *ngIf="vendor$ | async as vendor"
+            >({{ vendor | uppercase }})</span
+          >
         </strong>
         <span style="position: absolute; right: 30px">
           {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
@@ -37,15 +40,23 @@
                 <strong>IPv6</strong>
               </td>
               <td>
-                {{ device.ipv6Address === null || device.connectionType === 'wireless' ? "-" : device.ipv6Address }}
+                {{
+                  device.ipv6Address === null ||
+                  device.connectionType === "wireless"
+                    ? "-"
+                    : device.ipv6Address
+                }}
               </td>
             </tr>
-            <tr *ngIf="('manage' | able: 'admin') && device.connectionType === 'wired'">
+            <tr
+              *ngIf="
+                ('manage' | able: 'admin') && device.connectionType === 'wired'
+              ">
               <td>
                 <strong>MAB</strong>
               </td>
               <td>
-                {{mab$ | async}}
+                {{ mab$ | async }}
                 <a (click)="updateMAB()">(changer)</a>
               </td>
             </tr>
@@ -53,7 +64,9 @@
         </table>
       </div>
       <footer class="card-footer has-background-danger">
-        <a class="card-footer-item button is-danger" (click)="deviceDelete()">Delete</a>
+        <a class="card-footer-item button is-danger" (click)="deviceDelete()"
+          >Delete</a
+        >
       </footer>
     </ng-container>
   </ng-container>

@@ -1,19 +1,24 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MemberService } from '../../../../api';
-import { Router, RouterModule } from '@angular/router';
-import { CommonModule, Location } from '@angular/common';
-import { MemberDetailService } from '../../member-detail.service';
-import { map, Observable } from 'rxjs';
+import {Component} from "@angular/core";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from "@angular/forms";
+import {MemberService} from "../../../../api";
+import {Router, RouterModule} from "@angular/router";
+import {CommonModule, Location} from "@angular/common";
+import {MemberDetailService} from "../../member-detail.service";
+import {map, Observable} from "rxjs";
 
 interface CommentForm {
   comment: FormControl<string>;
 }
 
 @Component({
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
-    selector: 'app-member-comment-edit',
-    templateUrl: './member-comment-edit.component.html'
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  selector: "app-member-comment-edit",
+  templateUrl: "./member-comment-edit.component.html",
 })
 export class MemberCommentEditComponent {
   public memberComment: FormGroup<CommentForm>;
@@ -26,20 +31,28 @@ export class MemberCommentEditComponent {
     private router: Router,
   ) {
     this.memberComment = this.fb.group({
-      comment: ['']
+      comment: [""],
     });
-    this.memberId$ = this.memberDetailService.member$
-      .pipe(map(member => {
-        this.memberService.memberIdCommentGet(member.id).subscribe(comment => this.memberComment.controls.comment.setValue(comment.comment));
+    this.memberId$ = this.memberDetailService.member$.pipe(
+      map((member) => {
+        this.memberService
+          .memberIdCommentGet(member.id)
+          .subscribe((comment) =>
+            this.memberComment.controls.comment.setValue(comment.comment),
+          );
         return member.id;
-      }))
+      }),
+    );
   }
 
   update(id: number): void {
     if (this.memberComment.controls.comment.dirty) {
-      this.memberService.memberIdCommentPut(id, {comment: this.memberComment.value.comment})
-        .subscribe(() => this.memberDetailService.updateMemberInfos.emit("Comment updated"));
+      this.memberService
+        .memberIdCommentPut(id, {comment: this.memberComment.value.comment})
+        .subscribe(() =>
+          this.memberDetailService.updateMemberInfos.emit("Comment updated"),
+        );
     }
-    this.router.navigate(['/member/view', id, 'profile'])
+    this.router.navigate(["/member/view", id, "profile"]);
   }
 }

@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
-import { map, share, switchMap } from 'rxjs/operators';
-import { AbstractAccount, AccountService, AccountType } from '../../api';
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnInit} from "@angular/core";
+import {combineLatest, Observable} from "rxjs";
+import {map, share, switchMap} from "rxjs/operators";
+import {AbstractAccount, AccountService, AccountType} from "../../api";
+import {ActivatedRoute} from "@angular/router";
 
-import { AppConstantsService } from '../../app-constants.service';
-import { CommonModule, Location } from '@angular/common';
-import { TransactionListComponent } from '../../transaction-list/transaction-list.component';
+import {AppConstantsService} from "../../app-constants.service";
+import {CommonModule, Location} from "@angular/common";
+import {TransactionListComponent} from "../../transaction-list/transaction-list.component";
 
 @Component({
-    imports: [CommonModule, TransactionListComponent],
-    selector: 'app-account-view',
-    templateUrl: './account-view.component.html'
+  imports: [CommonModule, TransactionListComponent],
+  selector: "app-account-view",
+  templateUrl: "./account-view.component.html",
 })
 export class AccountViewComponent implements OnInit {
   account$: Observable<AbstractAccount>;
@@ -22,27 +22,20 @@ export class AccountViewComponent implements OnInit {
     private accountService: AccountService,
     private route: ActivatedRoute,
     private location: Location,
-    public appConstantsService: AppConstantsService
-  ) { }
+    public appConstantsService: AppConstantsService,
+  ) {}
   ngOnInit() {
     // id of the account
-    this.id$ = this.route.params.pipe(
-      map(params => params['account_id'])
-    );
+    this.id$ = this.route.params.pipe(map((params) => params["account_id"]));
 
-    this.appConstantsService.getAccountTypes().subscribe(
-      data => {
-        this.accountTypes = data;
-      }
-    );
+    this.appConstantsService.getAccountTypes().subscribe((data) => {
+      this.accountTypes = data;
+    });
     // stream, which will emit the account id every time the page needs to be refreshed
-    const refresh$ = combineLatest([this.id$])
-      .pipe(
-        map(([x]) => x),
-      );
+    const refresh$ = combineLatest([this.id$]).pipe(map(([x]) => x));
     this.account$ = refresh$.pipe(
-      switchMap(id => this.accountService.accountIdGet(id)),
-      share()
+      switchMap((id) => this.accountService.accountIdGet(id)),
+      share(),
     );
   }
 

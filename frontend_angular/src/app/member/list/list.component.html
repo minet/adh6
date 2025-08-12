@@ -2,13 +2,24 @@
   <div class="field-body">
     <div class="field is-grouped">
       <p class="control is-expanded">
-        <input #searchBox id="search-box" (keyup)="search(searchBox.value)" class="input is-fullwidth"
-          placeholder="Rechercher..." type="text" />
+        <input
+          #searchBox
+          id="search-box"
+          (keyup)="search(searchBox.value)"
+          class="input is-fullwidth"
+          placeholder="Rechercher..."
+          type="text" />
       </p>
       <p class="control">
-        <select class="input" (change)="updateSubscriptionFilter($event.target.value)">
+        <select
+          class="input"
+          (change)="updateSubscriptionFilter($event.target.value)">
           <option value="">-- Toutes inscriptions --</option>
-          <option *ngFor="let v of subscriptionValues | keyvalue" value="{{v.value}}">{{v.key}}</option>
+          <option
+            *ngFor="let v of subscriptionValues | keyvalue"
+            value="{{ v.value }}">
+            {{ v.key }}
+          </option>
         </select>
       </p>
       <p class="control">
@@ -22,16 +33,18 @@
 <table class="table is-hoverable is-fullwidth is-clickable">
   <thead>
     <tr>
-      <th style="width: 33%;">Nom</th>
-      <th style="width: 33%;">Login</th>
-      <th style="width: 33%;">Chambre</th>
+      <th style="width: 33%">Nom</th>
+      <th style="width: 33%">Login</th>
+      <th style="width: 33%">Chambre</th>
     </tr>
   </thead>
   <tbody *ngIf="result$ | async as result; else loadingTable">
     <ng-container *ngFor="let i of result">
       <ng-container *ngIf="getMember(i) | async as member">
         <tr [routerLink]="['../view', member.id, 'profile']">
-          <td>{{ member.lastName | uppercase }} <span class="capitalize">{{ member.firstName | lowercase }}</span>
+          <td>
+            {{ member.lastName | uppercase }}
+            <span class="capitalize">{{ member.firstName | lowercase }}</span>
           </td>
           <td>{{ member.username }}</td>
           <td class="roomNumberRow">
@@ -44,7 +57,9 @@
     </ng-container>
   </tbody>
 </table>
-<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<app-pagination
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
   <tr>
     <td colspan="42">

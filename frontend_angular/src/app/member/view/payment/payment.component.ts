@@ -1,16 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Member, MembershipService, TransactionService } from '../../../api';
-import { BuyProductComponent } from './product/buy-product.component';
-import { CotisationComponent } from './cotisation/cotisation.component';
-import { AblePipe } from '@casl/angular';
-import { MemberDetailService } from '../member-detail.service';
+import {CommonModule} from "@angular/common";
+import {Component} from "@angular/core";
+import {Member, MembershipService, TransactionService} from "../../../api";
+import {BuyProductComponent} from "./product/buy-product.component";
+import {CotisationComponent} from "./cotisation/cotisation.component";
+import {AblePipe} from "@casl/angular";
+import {MemberDetailService} from "../member-detail.service";
 
 @Component({
-    standalone: true,
-    imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
-    selector: 'app-payment',
-    templateUrl: './payment.component.html'
+  standalone: true,
+  imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
+  selector: "app-payment",
+  templateUrl: "./payment.component.html",
 })
 export class PaymentComponent {
   public member$ = this.memberDetailService.member$;
@@ -22,12 +22,15 @@ export class PaymentComponent {
   constructor(
     private transactionService: TransactionService,
     private membershipService: MembershipService,
-    private memberDetailService: MemberDetailService
-  ) { }
+    private memberDetailService: MemberDetailService,
+  ) {}
 
   public validatePayment(member: Member): void {
-    this.membershipService.subscriptionValidate(member.id, this.isFree)
-      .subscribe(() => this.memberDetailService.updateMemberInfos.emit("Inscription finie"));
+    this.membershipService
+      .subscriptionValidate(member.id, this.isFree)
+      .subscribe(() =>
+        this.memberDetailService.updateMemberInfos.emit("Inscription finie"),
+      );
   }
 
   public subscriptionUpdated() {

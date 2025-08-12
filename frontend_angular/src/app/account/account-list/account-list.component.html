@@ -2,13 +2,22 @@
   <div class="field-body">
     <div class="field is-grouped">
       <p class="control is-expanded">
-        <input #searchBox id="search-box" (keyup)="search(searchBox.value)" placeholder="Rechercher..." class="input"
+        <input
+          #searchBox
+          id="search-box"
+          (keyup)="search(searchBox.value)"
+          placeholder="Rechercher..."
+          class="input"
           type="text" />
       </p>
       <p class="control">
         <select class="input" (change)="updateTypeFilter($event.target.value)">
           <option value="">-- Tout type --</option>
-          <option *ngFor="let accountType of accountTypes" value="{{accountType.id}}">{{accountType.name}}</option>
+          <option
+            *ngFor="let accountType of accountTypes"
+            value="{{ accountType.id }}">
+            {{ accountType.name }}
+          </option>
         </select>
       </p>
       <p class="control">
@@ -29,18 +38,28 @@
     </tr>
   </thead>
   <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr *ngFor="let accountResult of result" [routerLink]="['/account/view', accountResult.id]">
+    <tr
+      *ngFor="let accountResult of result"
+      [routerLink]="['/account/view', accountResult.id]">
       <td class="align-middle">{{ accountResult.name }}</td>
-      <td class="align-middle">{{ accountResult.actif === true ? 'Oui' : 'Non' }}</td>
-      <td class="align-middle">{{ getAccountTypeName(accountResult.accountType) | async }}</td>
-      <td class="align-middle">{{ accountResult.balance | number:'':'fr' }} €</td>
+      <td class="align-middle">
+        {{ accountResult.actif === true ? "Oui" : "Non" }}
+      </td>
+      <td class="align-middle">
+        {{ getAccountTypeName(accountResult.accountType) | async }}
+      </td>
+      <td class="align-middle">
+        {{ accountResult.balance | number: "" : "fr" }} €
+      </td>
       <ng-template #noBalance>
         <td class="align-middle">-</td>
       </ng-template>
     </tr>
   </tbody>
 </table>
-<app-pagination [maxItems]="maxItems" (pageChange)="handlePageChange($event)"></app-pagination>
+<app-pagination
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)"></app-pagination>
 <ng-template #loadingTable>
   <tr>
     <td colspan="42">

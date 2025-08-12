@@ -1,15 +1,22 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { map, Observable, shareReplay, switchMap } from 'rxjs';
-import { MemberService, AbstractMember, RoomMembersService, MemberFilter, Member, RoomService } from '../../api';
-import { PaginationComponent } from '../../pagination/pagination.component';
-import { SearchPage } from '../../search-page';
+import {CommonModule} from "@angular/common";
+import {Component} from "@angular/core";
+import {RouterModule} from "@angular/router";
+import {map, Observable, shareReplay, switchMap} from "rxjs";
+import {
+  MemberService,
+  AbstractMember,
+  RoomMembersService,
+  MemberFilter,
+  Member,
+  RoomService,
+} from "../../api";
+import {PaginationComponent} from "../../pagination/pagination.component";
+import {SearchPage} from "../../search-page";
 
 @Component({
-    imports: [CommonModule, RouterModule, PaginationComponent],
-    selector: 'app-list',
-    templateUrl: './list.component.html'
+  imports: [CommonModule, RouterModule, PaginationComponent],
+  selector: "app-list",
+  templateUrl: "./list.component.html",
 })
 export class ListComponent extends SearchPage<number> {
   public cachedMembers: Map<Number, Observable<AbstractMember>> = new Map();
@@ -20,32 +27,47 @@ export class ListComponent extends SearchPage<number> {
   constructor(
     private memberService: MemberService,
     private roomMemberService: RoomMembersService,
-    private roomService: RoomService
+    private roomService: RoomService,
   ) {
-    super((terms, page) => this.memberService.memberGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, this.subscriptionFilter !== "" ? <MemberFilter>{ membership: this.subscriptionFilter } : undefined, "response")
-      .pipe(
-        map(response => {
-          for (let i of response.body) {
-            this.cachedMembers.set(+i, this.memberService.memberIdGet(+i)
-              .pipe(
-                shareReplay(1)
-              )
-            );
-            this.cachedRoomNumbers.set(+i, this.roomMemberService.roomMemberIdGet(+i)
-              .pipe(
-                shareReplay(1),
-                switchMap((response) => this.roomService.roomIdGet(response, ["roomNumber"]).pipe(map((r) => r.roomNumber)))
-              )
-            );
-          }
-          return response
-        }),
-      ));
+    super((terms, page) =>
+      this.memberService
+        .memberGet(
+          this.itemsPerPage,
+          (page - 1) * this.itemsPerPage,
+          terms,
+          this.subscriptionFilter !== ""
+            ? <MemberFilter>{membership: this.subscriptionFilter}
+            : undefined,
+          "response",
+        )
+        .pipe(
+          map((response) => {
+            for (let i of response.body) {
+              this.cachedMembers.set(
+                +i,
+                this.memberService.memberIdGet(+i).pipe(shareReplay(1)),
+              );
+              this.cachedRoomNumbers.set(
+                +i,
+                this.roomMemberService.roomMemberIdGet(+i).pipe(
+                  shareReplay(1),
+                  switchMap((response) =>
+                    this.roomService
+                      .roomIdGet(response, ["roomNumber"])
+                      .pipe(map((r) => r.roomNumber)),
+                  ),
+                ),
+              );
+            }
+            return response;
+          }),
+        ),
+    );
   }
 
   updateSubscriptionFilter(subscriptionType: string) {
-    this.subscriptionFilter = subscriptionType
-    this.resetSearch()
+    this.subscriptionFilter = subscriptionType;
+    this.resetSearch();
     this.getSearchResult();
   }
 
@@ -54,10 +76,10 @@ export class ListComponent extends SearchPage<number> {
   }
 
   public getMember(id: number) {
-    return this.cachedMembers.get(id)
+    return this.cachedMembers.get(id);
   }
 
   public getRoomNumber(id: number) {
-    return this.cachedRoomNumbers.get(id)
+    return this.cachedRoomNumbers.get(id);
   }
 }

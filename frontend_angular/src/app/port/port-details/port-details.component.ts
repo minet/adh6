@@ -1,16 +1,27 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { finalize, map, Observable, of, shareReplay } from 'rxjs';
-import { PortService, Room, RoomService, SwitchService, AbstractPort } from '../../api';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { NotificationService } from '../../notification.service';
-import { CommonModule } from '@angular/common';
+import {Component, OnDestroy, OnInit} from "@angular/core";
+import {finalize, map, Observable, of, shareReplay} from "rxjs";
+import {
+  PortService,
+  Room,
+  RoomService,
+  SwitchService,
+  AbstractPort,
+} from "../../api";
+import {ActivatedRoute, Router} from "@angular/router";
+import {
+  ReactiveFormsModule,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from "@angular/forms";
+import Swal from "sweetalert2";
+import {NotificationService} from "../../notification.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
-    imports: [CommonModule, ReactiveFormsModule],
-    selector: 'app-port-details',
-    templateUrl: './port-details.component.html'
+  imports: [CommonModule, ReactiveFormsModule],
+  selector: "app-port-details",
+  templateUrl: "./port-details.component.html",
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
   vlanForm: UntypedFormGroup;
@@ -46,15 +57,18 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {
     this.createForm();
   }
 
   createForm(): void {
     this.vlanForm = this.fb.group({
-      vlanNumber: [1, [Validators.required, Validators.min(1), Validators.max(4096)]]
-    })
+      vlanNumber: [
+        1,
+        [Validators.required, Validators.min(1), Validators.max(4096)],
+      ],
+    });
   }
 
   get newVlanNumber(): number {
@@ -62,60 +76,73 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   getUse(state: string): string {
-    return (state == "authorized") ? 'Le port est actuellement utilisé' : 'Le port n\'est pas actuellement utilisé';
+    return state == "authorized"
+      ? "Le port est actuellement utilisé"
+      : "Le port n'est pas actuellement utilisé";
   }
   getStatus(state: boolean): string {
-    return (state) ? 'OUVERT' : 'FERMÉ';
+    return state ? "OUVERT" : "FERMÉ";
   }
   getState(state: boolean): string {
-    return (state) ? 'ACTIVÉ' : 'DÉSACTIVÉ';
+    return state ? "ACTIVÉ" : "DÉSACTIVÉ";
   }
   getAction(state: boolean): string {
-    return (state) ? 'ACTIVER' : 'DÉSACTIVER';
+    return state ? "ACTIVER" : "DÉSACTIVER";
   }
 
   public toggleStatus(): void {
-    this.status$ = this.portService.portIdStatePut(this.portID)
-      .pipe(finalize(() => {
+    this.status$ = this.portService.portIdStatePut(this.portID).pipe(
+      finalize(() => {
         this.notificationService.successNotification("État du port modifié");
-      }));
+      }),
+    );
   }
 
   public toggleMAB(): void {
-    this.mab$ = this.portService.portIdMabPut(this.portID)
-      .pipe(finalize(() => {
+    this.mab$ = this.portService.portIdMabPut(this.portID).pipe(
+      finalize(() => {
         this.notificationService.successNotification("MAB modifié");
-      }));
+      }),
+    );
   }
 
   public toggleAuth(currentValue: boolean): void {
     if (currentValue) {
       Swal.fire({
-        title: 'Entrer le VLAN',
-        icon: 'question',
-        input: 'number',
-        inputLabel: 'VLAN 1',
-        inputPlaceholder: 'Entrer le VLAN',
-        showCancelButton: true
+        title: "Entrer le VLAN",
+        icon: "question",
+        input: "number",
+        inputLabel: "VLAN 1",
+        inputPlaceholder: "Entrer le VLAN",
+        showCancelButton: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          this.auth$ = this.portService.portIdAuthPut(this.portID)
-            .pipe(finalize(() => {
-              this.notificationService.successNotification("Authentification modifiée");
-            }));
-          this.portService.portIdVlanPut(this.portID, result.value)
+          this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
+            finalize(() => {
+              this.notificationService.successNotification(
+                "Authentification modifiée",
+              );
+            }),
+          );
+          this.portService
+            .portIdVlanPut(this.portID, result.value)
             .subscribe(() => {
-              this.notificationService.successNotification("VLAN modifié: " + result.value);
+              this.notificationService.successNotification(
+                "VLAN modifié: " + result.value,
+              );
             });
           this.vlan$ = of(result.value);
           return;
         }
       });
     } else {
-      this.auth$ = this.portService.portIdAuthPut(this.portID)
-        .pipe(finalize(() => {
-          this.notificationService.successNotification("Authentification modifiée");
-        }));
+      this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
+        finalize(() => {
+          this.notificationService.successNotification(
+            "Authentification modifiée",
+          );
+        }),
+      );
       this.vlan$ = this.portService.vlanGet(this.portID);
     }
   }
@@ -125,27 +152,38 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.notificationService.errorNotification(
         404,
         "No room found",
-        'This port is not assigned to a room'
+        "This port is not assigned to a room",
       );
     } else {
-      this.router.navigate(['/room/view', roomNumber.roomNumber]);
+      this.router.navigate(["/room/view", roomNumber.roomNumber]);
     }
   }
 
   ngOnInit() {
-    this.sub = this.route.params.subscribe(params => {
-      this.switchID = +params['switch_id'];
-      this.portID = +params['port_id'];
-      this.port$ = this.portService.portIdGet(this.portID)
-        .pipe(map(p => {
+    this.sub = this.route.params.subscribe((params) => {
+      this.switchID = +params["switch_id"];
+      this.portID = +params["port_id"];
+      this.port$ = this.portService.portIdGet(this.portID).pipe(
+        map((p) => {
           if (p.room) {
-            this.room_number$ = this.roomService.roomIdGet(p.room, ["roomNumber"]).pipe(shareReplay(1), map(r => r.roomNumber));
+            this.room_number$ = this.roomService
+              .roomIdGet(p.room, ["roomNumber"])
+              .pipe(
+                shareReplay(1),
+                map((r) => r.roomNumber),
+              );
           }
           if (p.switchObj) {
-            this.switch_description$ = this.switchService.switchIdGet(p.switchObj, ["description"]).pipe(shareReplay(1), map(s => s.description));
+            this.switch_description$ = this.switchService
+              .switchIdGet(p.switchObj, ["description"])
+              .pipe(
+                shareReplay(1),
+                map((s) => s.description),
+              );
           }
           return p;
-        }));
+        }),
+      );
     });
 
     this.refreshInfo();

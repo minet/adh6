@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { first, map, Observable, shareReplay } from 'rxjs';
-import Swal from 'sweetalert2';
-import { AbstractDevice, DeviceService } from '../../../api';
+import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {first, map, Observable, shareReplay} from "rxjs";
+import Swal from "sweetalert2";
+import {AbstractDevice, DeviceService} from "../../../api";
 
 @Component({
-    selector: 'app-element',
-    templateUrl: './element.component.html',
-    standalone: false
+  selector: "app-element",
+  templateUrl: "./element.component.html",
+  standalone: false,
 })
 export class ElementComponent implements OnInit {
   @Input() deviceId: number;
@@ -17,21 +17,24 @@ export class ElementComponent implements OnInit {
   public mab$: Observable<boolean>;
   public isCollapse: boolean = true;
 
-  constructor(
-    private deviceService: DeviceService,
-  ) { }
+  constructor(private deviceService: DeviceService) {}
 
   ngOnInit(): void {
     if (this.deviceId == undefined) {
       throw new Error("device undefined");
     }
     this.refreshMAB();
-    this.device$ = this.deviceService.deviceIdGet(this.deviceId).pipe(shareReplay(1));
-    this.vendor$ = this.deviceService.deviceIdVendorGet(this.deviceId).pipe(shareReplay(1));
+    this.device$ = this.deviceService
+      .deviceIdGet(this.deviceId)
+      .pipe(shareReplay(1));
+    this.vendor$ = this.deviceService
+      .deviceIdVendorGet(this.deviceId)
+      .pipe(shareReplay(1));
   }
 
   public deviceDelete() {
-    this.deviceService.deviceIdDelete(this.deviceId)
+    this.deviceService
+      .deviceIdDelete(this.deviceId)
       .pipe(
         first(),
         map(() => {
@@ -60,10 +63,9 @@ export class ElementComponent implements OnInit {
       showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deviceService.deviceIdMabPost(this.deviceId)
-          .subscribe((_) => {
-            this.refreshMAB();
-          });
+        this.deviceService.deviceIdMabPost(this.deviceId).subscribe((_) => {
+          this.refreshMAB();
+        });
       }
     });
   }
