@@ -5,29 +5,23 @@
     <input
       class="w-100 form-control"
       formControlName="description"
-      type="text"
-    />
+      type="text" />
   </div>
 
   <div class="form-group">
     <label>Addresse IP</label>
-    <input class="w-100 form-control" formControlName="ip" type="text"/>
+    <input class="w-100 form-control" formControlName="ip" type="text" />
   </div>
   <div class="form-group">
     <label>Community string</label>
-    <input
-      class="w-100 form-control"
-      formControlName="community"
-      type="text"
-    />
+    <input class="w-100 form-control" formControlName="community" type="text" />
   </div>
 
   <div class="form-group">
     <button
       type="submit"
       [disabled]="disabled || switchForm.status === 'INVALID'"
-      class="w-100 btn btn-primary"
-    >
+      class="w-100 btn btn-primary">
       Créer
     </button>
   </div>

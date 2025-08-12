@@ -14,7 +14,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local"
+    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local",
+    "prettier": "prettier . --write",
+    "prettier:check": "prettier . --check"
   },
   "private": true,
   "dependencies": {
@@ -57,6 +59,7 @@
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^9.22.0",
     "eslint-plugin-security": "^3.0.1",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.2"
   },

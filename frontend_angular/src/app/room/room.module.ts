@@ -1,13 +1,12 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RoomListComponent } from './room-list/room-list.component';
-import { RoomDetailsComponent } from './room-details/room-details.component';
-import { RoomEditComponent } from './room-edit/room-edit.component';
-import { RoomNewComponent } from './room-new/room-new.component';
-import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule } from '@angular/forms';
-import { PaginationComponent } from '../pagination/pagination.component';
-
+import {NgModule} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {RoomListComponent} from "./room-list/room-list.component";
+import {RoomDetailsComponent} from "./room-details/room-details.component";
+import {RoomEditComponent} from "./room-edit/room-edit.component";
+import {RoomNewComponent} from "./room-new/room-new.component";
+import {RouterModule} from "@angular/router";
+import {ReactiveFormsModule} from "@angular/forms";
+import {PaginationComponent} from "../pagination/pagination.component";
 
 @NgModule({
   declarations: [
@@ -20,13 +19,13 @@ import { PaginationComponent } from '../pagination/pagination.component';
     ReactiveFormsModule,
     CommonModule,
     RouterModule.forChild([
-      { path: '', redirectTo: 'search', pathMatch: 'full' },
-      { path: 'search', component: RoomListComponent },
-      { path: 'add', component: RoomNewComponent },
-      { path: 'view/:room_id', component: RoomDetailsComponent },
-      { path: 'edit/:room_id', component: RoomEditComponent },
+      {path: "", redirectTo: "search", pathMatch: "full"},
+      {path: "search", component: RoomListComponent},
+      {path: "add", component: RoomNewComponent},
+      {path: "view/:room_id", component: RoomDetailsComponent},
+      {path: "edit/:room_id", component: RoomEditComponent},
     ]),
-    PaginationComponent
-  ]
+    PaginationComponent,
+  ],
 })
-export class RoomModule { }
+export class RoomModule {}

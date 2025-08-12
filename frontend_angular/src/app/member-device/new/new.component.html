@@ -11,19 +11,30 @@
         </span>
       </p>
       <p class="control">
-        <input class="input" formControlName="mac" type="text" placeholder="11-22-33-AA-BB-CC">
+        <input
+          class="input"
+          formControlName="mac"
+          type="text"
+          placeholder="11-22-33-AA-BB-CC" />
       </p>
       <p class="control">
-        <button [disabled]="deviceForm.status === 'INVALID'" class="button is-primary" type="submit"
-          i18n="device new add|Add a new device">Ajouter l'appareil
+        <button
+          [disabled]="deviceForm.status === 'INVALID'"
+          class="button is-primary"
+          type="submit"
+          i18n="device new add|Add a new device">
+          Ajouter l'appareil
         </button>
       </p>
     </div>
     <div class="columns">
       <div class="column has-text-right">
         <p class="text-secondary text-right">
-          <a href="//www.minet.net/{{locale}}/tutoriels" i18n="device new where mac">Où trouver mon adresse MAC
-            ?</a>
+          <a
+            href="//www.minet.net/{{ locale }}/tutoriels"
+            i18n="device new where mac"
+            >Où trouver mon adresse MAC ?</a
+          >
         </p>
       </div>
     </div>

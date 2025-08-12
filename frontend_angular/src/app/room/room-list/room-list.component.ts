@@ -1,17 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { AbstractRoom, RoomService } from '../../api';
+import {Component, OnInit} from "@angular/core";
+import {AbstractRoom, RoomService} from "../../api";
 
-import { SearchPage } from '../../search-page';
+import {SearchPage} from "../../search-page";
 
 @Component({
-    selector: 'app-rooms',
-    templateUrl: './room-list.component.html',
-    standalone: false
+  selector: "app-rooms",
+  templateUrl: "./room-list.component.html",
+  standalone: false,
 })
-
-export class RoomListComponent extends SearchPage<AbstractRoom> implements OnInit {
+export class RoomListComponent
+  extends SearchPage<AbstractRoom>
+  implements OnInit
+{
   constructor(public roomService: RoomService) {
-    super((terms, page) => this.roomService.roomGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, undefined, undefined, "response"));
+    super((terms, page) =>
+      this.roomService.roomGet(
+        this.itemsPerPage,
+        (page - 1) * this.itemsPerPage,
+        terms,
+        undefined,
+        undefined,
+        "response",
+      ),
+    );
   }
 
   ngOnInit() {

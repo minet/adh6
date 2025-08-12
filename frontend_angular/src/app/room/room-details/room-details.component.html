@@ -19,8 +19,12 @@
       <h4 class="title is-4 has-text-centered">Ports</h4>
       <ul>
         <ng-container *ngFor="let portRes of ports$ | async">
-          <p><strong>{{ portRes.portNumber }}</strong></p>
-          <a class="button is-primary is-fullwidth is-small" [routerLink]="['/port',portRes.switchObj,portRes.id]">
+          <p>
+            <strong>{{ portRes.portNumber }}</strong>
+          </p>
+          <a
+            class="button is-primary is-fullwidth is-small"
+            [routerLink]="['/port', portRes.switchObj, portRes.id]">
             Configurer
           </a>
         </ng-container>
@@ -46,7 +50,10 @@
                       </a>
                     </div>
                     <div class="control">
-                      <button class="button is-primary" (click)="onDemenager(memberId)" [disabled]="enabled">
+                      <button
+                        class="button is-primary"
+                        (click)="onDemenager(memberId)"
+                        [disabled]="enabled">
                         Déménager
                       </button>
                     </div>
@@ -62,27 +69,38 @@
               </div>
               <div *ngIf="isDemenager">
                 <div *ngIf="ref === memberId">
-                  <hr>
-                  <form [formGroup]="roomForm" (ngSubmit)="onSubmitMoveRoom(memberId)" novalidate>
+                  <hr />
+                  <form
+                    [formGroup]="roomForm"
+                    (ngSubmit)="onSubmitMoveRoom(memberId)"
+                    novalidate>
                     <div class="field has-addons has-addons-fullwidth">
                       <div class="control">
-                        <input class="input is-fullwidth" type="number" formControlName="roomNumberNew"
+                        <input
+                          class="input is-fullwidth"
+                          type="number"
+                          formControlName="roomNumberNew"
                           placeholder="Nouveau numéro de chambre" />
                       </div>
                       <div class="control">
-                        <button type="submit" class="button is-primary" [disabled]="roomForm.status === 'INVALID'">
+                        <button
+                          type="submit"
+                          class="button is-primary"
+                          [disabled]="roomForm.status === 'INVALID'">
                           Valider
                         </button>
                       </div>
                     </div>
                   </form>
                 </div>
-                <hr>
+                <hr />
               </div>
             </ng-container>
           </ng-container>
           <ng-container *ngIf="memberIds.length === 0">
-            <h6 class="title is-6 has-text-centered">Aucun adhérent dans la chambre</h6>
+            <h6 class="title is-6 has-text-centered">
+              Aucun adhérent dans la chambre
+            </h6>
           </ng-container>
         </ng-container>
       </div>

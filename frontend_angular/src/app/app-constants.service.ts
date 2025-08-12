@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
-import { AccountService, AccountType, PaymentMethod, TransactionService } from './api';
-import { Observable, of } from 'rxjs';
-import { map, share } from 'rxjs/operators';
+import {Injectable} from "@angular/core";
+import {
+  AccountService,
+  AccountType,
+  PaymentMethod,
+  TransactionService,
+} from "./api";
+import {Observable, of} from "rxjs";
+import {map, share} from "rxjs/operators";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class AppConstantsService {
-
   private accountTypes: Array<AccountType>;
   private accountTypesObservable: Observable<any>;
 
@@ -17,7 +21,7 @@ export class AppConstantsService {
   constructor(
     private accountService: AccountService,
     private transactionService: TransactionService,
-  ) { }
+  ) {}
 
   getPaymentMethods() {
     if (this.paymentMethods) {
@@ -28,15 +32,17 @@ export class AppConstantsService {
       // return the `Observable` for the ongoing request
       return this.paymentMethodsObservable;
     } else {
-      this.paymentMethodsObservable = this.transactionService.paymentMethodGet().pipe(
-        map(data => {
-          // when the cached data is available we don't need the `Observable` reference anymore
-          this.paymentMethodsObservable = null;
-          this.paymentMethods = data;
-          return this.paymentMethods;
-        }),
-        share()
-      );
+      this.paymentMethodsObservable = this.transactionService
+        .paymentMethodGet()
+        .pipe(
+          map((data) => {
+            // when the cached data is available we don't need the `Observable` reference anymore
+            this.paymentMethodsObservable = null;
+            this.paymentMethods = data;
+            return this.paymentMethods;
+          }),
+          share(),
+        );
       return this.paymentMethodsObservable;
     }
   }
@@ -51,13 +57,13 @@ export class AppConstantsService {
       return this.accountTypesObservable;
     } else {
       this.accountTypesObservable = this.accountService.accountTypeGet().pipe(
-        map(data => {
+        map((data) => {
           // when the cached data is available we don't need the `Observable` reference anymore
           this.accountTypesObservable = null;
           this.accountTypes = data;
           return this.accountTypes;
         }),
-        share()
+        share(),
       );
       return this.accountTypesObservable;
     }

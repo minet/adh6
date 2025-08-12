@@ -1,18 +1,22 @@
 <ng-container *ngIf="member$ | async as member">
   <ng-container *ngIf="paymentMethods$ | async as paymentMethods">
     <ng-container *ngIf="member.membership === 'PENDING_PAYMENT_VALIDATION'">
-      <div class="field" *ngIf="('free' | able: 'Membership')">
+      <div class="field" *ngIf="'free' | able: 'Membership'">
         <div class="control">
           <div class="form-check">
             <label class="checkbox">
-              <input [(ngModel)]="isFree" type="checkbox">
+              <input [(ngModel)]="isFree" type="checkbox" />
               Cocher pour faire une cotisation gratuite
             </label>
           </div>
         </div>
       </div>
       <div class="field">
-        <button class="button is-success is-fullwidth" (click)="validatePayment(member)">Valider paiement</button>
+        <button
+          class="button is-success is-fullwidth"
+          (click)="validatePayment(member)">
+          Valider paiement
+        </button>
       </div>
     </ng-container>
     <a (click)="membershipCollapse = !membershipCollapse">
@@ -24,7 +28,10 @@
       </h3>
     </a>
     <hr />
-    <app-cotisation *ngIf="membershipCollapse" [member]="member" [paymentMethods]="paymentMethods"
+    <app-cotisation
+      *ngIf="membershipCollapse"
+      [member]="member"
+      [paymentMethods]="paymentMethods"
       (updateSubscription)="subscriptionUpdated()"></app-cotisation>
     <br />
     <a (click)="productCollapse = !productCollapse">
@@ -36,6 +43,9 @@
       </h3>
     </a>
     <hr />
-    <app-buy-product *ngIf="productCollapse" [member]="member" [paymentMethods]="paymentMethods"></app-buy-product>
+    <app-buy-product
+      *ngIf="productCollapse"
+      [member]="member"
+      [paymentMethods]="paymentMethods"></app-buy-product>
   </ng-container>
 </ng-container>

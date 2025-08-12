@@ -1,11 +1,19 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { PagingConf } from '../paging.config';
+import {CommonModule} from "@angular/common";
+import {
+  Component,
+  Input,
+  OnInit,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+} from "@angular/core";
+import {PagingConf} from "../paging.config";
 
 @Component({
-    imports: [CommonModule],
-    selector: 'app-pagination',
-    templateUrl: './pagination.component.html'
+  imports: [CommonModule],
+  selector: "app-pagination",
+  templateUrl: "./pagination.component.html",
 })
 export class PaginationComponent implements OnInit, OnChanges {
   @Input() maxItems: number | undefined;
@@ -18,16 +26,27 @@ export class PaginationComponent implements OnInit, OnChanges {
   numberOfPages = 0;
   pagesBefore: Array<number> = [];
   pagesAfter: Array<number> = [];
-  constructor() { }
+  constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     const maxItems = changes["maxItems"];
     if (maxItems.currentValue != maxItems.previousValue) {
       this.numberOfPages = Math.ceil(maxItems.currentValue / this.itemsPerPage);
-      for (let i = 2; i <= ((this.numberOfPages > this.deltaPage) ? this.deltaPage : this.numberOfPages); i++) {
+      for (
+        let i = 2;
+        i <=
+        (this.numberOfPages > this.deltaPage
+          ? this.deltaPage
+          : this.numberOfPages);
+        i++
+      ) {
         this.pagesBefore.push(i);
       }
-      for (let i = this.numberOfPages - this.deltaPage + 1; i <= this.numberOfPages - 1; i++) {
+      for (
+        let i = this.numberOfPages - this.deltaPage + 1;
+        i <= this.numberOfPages - 1;
+        i++
+      ) {
         this.pagesAfter.push(i);
       }
     }
@@ -41,7 +60,7 @@ export class PaginationComponent implements OnInit, OnChanges {
 
   addPage(inc: number): void {
     if (!inc) {
-      return
+      return;
     }
     if (inc < -this.numberOfPages || inc > this.numberOfPages) {
       return;

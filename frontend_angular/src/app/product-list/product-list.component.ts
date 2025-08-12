@@ -1,16 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { Product, TreasuryService } from '../api';
-import { SearchPage } from '../search-page';
+import {Component, OnInit} from "@angular/core";
+import {Product, TreasuryService} from "../api";
+import {SearchPage} from "../search-page";
 
 @Component({
-    selector: 'app-product-list',
-    templateUrl: './product-list.component.html',
-    styleUrls: ['./product-list.component.css'],
-    standalone: false
+  selector: "app-product-list",
+  templateUrl: "./product-list.component.html",
+  styleUrls: ["./product-list.component.css"],
+  standalone: false,
 })
-export class ProductListComponent extends SearchPage<Product> implements OnInit {
+export class ProductListComponent
+  extends SearchPage<Product>
+  implements OnInit
+{
   constructor(public treasuryService: TreasuryService) {
-    super((terms, page) => this.treasuryService.productGet(this.itemsPerPage, (page - 1) * this.itemsPerPage, terms, 'response'));
+    super((terms, page) =>
+      this.treasuryService.productGet(
+        this.itemsPerPage,
+        (page - 1) * this.itemsPerPage,
+        terms,
+        "response",
+      ),
+    );
   }
 
   ngOnInit() {
