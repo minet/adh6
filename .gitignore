@@ -45,6 +45,7 @@ frontend_angular/.classpath
 frontend_angular/.c9/
 frontend_angular/*.launch
 frontend_angular/.settings/
+frontend_angular/.angular/
 frontend_angular/*.sublime-workspace
 
 # IDE - VSCode

@@ -564,7 +564,7 @@
       </trans-unit>
       <trans-unit id="d8e3c6bba353c0b0c7f33ac5970b8189da8621bb" datatype="html">
         <source>Les mots de passe ne correspondent pas.</source>
-        <target>Passwords are not the same</target>
+        <target>Passwords do not match</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
           <context context-type="linenumber">29,34</context>
@@ -573,7 +573,7 @@
       </trans-unit>
       <trans-unit id="validate" datatype="html">
         <source> Valider </source>
-        <target> Validate </target>
+        <target> Confirm </target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member-password-edit/member-password-edit.component.html</context>
           <context context-type="linenumber">35,38</context>
