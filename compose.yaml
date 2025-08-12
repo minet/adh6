@@ -11,13 +11,11 @@ services:
       watch:
         - action: sync
           path: frontend_angular/src
-          target: /app/src
-        - action: sync
-          path: frontend_angular/public
-          target: /app/public
+          target: /app/frontend_angular/src
         - action: rebuild
           path: frontend_angular/angular.json
-          target: /app/angular.json
+        - action: rebuild
+          path: openapi/spec.yaml
 
   api_server:
     container_name: adh6_backend
