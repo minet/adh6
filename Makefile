@@ -63,12 +63,9 @@ clean-docker-run-dev:
 
 ##### Generate the needed element for the application to execute
 .PHONY: generate
-generate: $(BACKEND_PATH)/adh6/entity/*.py $(BACKEND_PATH)/openapi/swagger.yaml $(FRONTEND_PATH)/src/app/api
+generate: $(BACKEND_PATH)/adh6/entity/*.py $(OPENAPI_SPEC_PATH) $(FRONTEND_PATH)/src/app/api
 
-$(BACKEND_PATH)/openapi/swagger.yaml: $(OPENAPI_SPEC_PATH)
-	cp $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml	
-
-$(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH) $(BACKEND_PATH)/openapi/swagger.yaml
+$(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH)
 	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:v7.12.0 generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
 	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/

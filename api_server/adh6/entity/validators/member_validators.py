@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import re
 from sqlalchemy import false
 
 from adh6.entity import Member
@@ -15,6 +15,22 @@ def is_member_active(member: Member):
     else:
         member_departure = member.departure_date
     return member_departure > datetime.now().date() and RoomRepository().get_from_member(member.id) is not None
+
+def is_password_valid(password: str) -> bool:
+    """ These checks or run on the frontend to give instant feedback to the user and on the backend as a HTTP request could be sent with an invalid password."""
+    if len(password) < 8:
+        return False
+    if not re.search(r"[A-Z]", password):
+        return False
+    if not re.search(r"[a-z]", password):
+        return False
+    if not re.search(r"\d", password):
+        return False
+    if not re.search(r"[\"'#!@$%^&(){}[\]:;<>,.*?/~_+\-=\|]", password):
+        return False
+    if len(password) > 64:
+        return False
+    return True
 
 
 def has_member_subnet(member: Member):

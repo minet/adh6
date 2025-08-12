@@ -8,7 +8,7 @@ Liste des contributeurs:
 * Hamza Benfkira
 
 ## Notes
-Je vous invite **vivement** à aller lire [la page sur le wiki](https://wiki.minet.net/wiki/services/adh6) avant de vous plonger dans l'exploration de ce repo.
+Je vous invite **vivement** à aller lire [la page sur le wiki](https://wiki.minet.net/fr/services/adh6) avant de vous plonger dans l'exploration de ce repo.
 
 Si vous voyez une modification à apporter (correction de faute, éclaircissement d'un point, ajout d'instructions supplémentaire, mise à jour d'anciennes information, etc.) **n'hésitez pas à faire un commit et à vous ajouter dans la liste des contributeurs**. Toute aide est la bienvenue !
 
@@ -25,7 +25,7 @@ La **fiabilité** de notre outil est aussi un concept important à nos yeux. C'e
 
 ## Comment contribuer ?
 
-Allez sur gitlab.minet.net sur [la page du projet](https://gitlab.minet.net/adh6/core/). Si vous n'avez pas les accès, n'hésitez pas à les demander à vaktas (vous pouvez le contacter uniquement sur matrix). Une fois que vous y êtes, allez voir dans les issues, trouvez une qui vous plaît et assignez la vous! N'hésitez pas à demander des précisions sur les issues (au même mec bizare), il se fera un plaisir de tout vous expliquer et de vous rediriger vers les formation associées!
+Allez sur gitlabint.priv.minet.net sur [la page du projet](https://gitlabint.priv.minet.net/services/adh6/adh6/). Si vous n'avez pas les accès, n'hésitez pas à les demander au bureau. Une fois que vous y êtes, allez voir dans les issues, trouvez une qui vous plaît et assignez la vous! N'hésitez pas à demander des précisions sur les issues, on se fera un plaisir de tout vous expliquer et de vous rediriger vers les formation associées!
 
 ## OK, maintenant comment je lance en local?
 
@@ -65,7 +65,7 @@ Normalement, une fois que le projet est lancé, vous aurez les logs de tous les 
 
 Vous avez installé les dépendances etc.. dans vos conteneurs, mais pour développer dignement, vous les aurez aussi besoin en local.
 
-Ce projet utilise `uv`. Il vous faudra d'abord l'installer. Ensuite, faites simplement `uv sync`, et vous installerez toutes les dépendances de dev que vous aurez besoin. Votre environnement virtuel est créé sous `.venv/`.
+Ce projet utilise `uv`. Il vous faudra d'abord l'installer. Ensuite, faites simplement `uv sync`, et vous installerez toutes les dépendances de dev que vous aurez besoin. Pour installer mysqlclient, suiver le guide d'installation de [mysqlclient](https://github.com/PyMySQL/mysqlclient). Votre environnement virtuel est créé sous `.venv/`. 
 
 Pour développer et voir vos changements "en direct", vous pouvez utiliser docker compose watch. Dans la console où vous avez effectué `docker compose up`, appuyez sur la touche `w`.  
 Maintenant, les changements que vous apportez sont synchronisés avec les conteneurs, et en dev, angular et uvicorn vont s'actualiser pour prendre en compte ces changements.
@@ -366,7 +366,8 @@ Si une de ces fonctionnalité est *down* on peut encore inscrire les gens et leu
 Certaines personnes devront repasser plus tard pour qu'on leur règle leur problème mais ça doit être une minorité.
 
 En gros pendant la perm' tout le monde va râler, mais on peut encore fonctionner en mode dégradé.
-* Lire les logs de q* Supprimer un appareil (`DeviceManager.delete`): Pour virer une MAC d'un profil adhérentuelqu'un (`MemberManager.get_logs`): Pour aider à débugger les problèmes des adhérents.
+* Lire les logs de quelqu'un (`MemberManager.get_logs`): Pour aider à débugger les problèmes des adhérents.
+* Supprimer un appareil (`DeviceManager.delete`): Pour virer une MAC d'un profil adhérent
 * Changer le mot de passe d'un membre (`MemberManager.change_password`): Pour changer le mot de passe d'un membre.
 * Mettre à jour le profil d'un membre (`MemberManager.update_partially`): Pour changer les infos d'un membre ou le faire déménager de chambre.
 * Chercher les membres (`MemberManager.search`): Pour ne pas à avoir à taper exactement le *username* des adhérents et pouvoir chercher leur profil avec leur nom.

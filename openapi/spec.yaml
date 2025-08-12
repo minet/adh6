@@ -698,9 +698,10 @@ paths:
                   example: 'de6a3b882c1cff12af8616e1f6bf5b6c'
                   type: string
                   format: md4
-                  description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication...
+                  description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication... WARNING. Hashing the password client-side essentially nullifies the purpose of hashing the password.
+                  deprecated: true
               type: object
-        description: The new value for the password, either in plaintext or pre-hashed client-side
+        description: The new value for the password in plaintext
         required: true
       responses:
         '204':
