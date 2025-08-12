@@ -46,10 +46,11 @@ COPY --from=prodbuild /app/frontend_angular/src/assets /usr/share/nginx/html/ass
 
 FROM node:22-alpine AS dev
 WORKDIR /app
-COPY --parents --exclude=frontend_angular/src/assets frontend_angular/src frontend_angular/package.json frontend_angular/angular.json frontend_angular/tsconfig.json ./
+COPY --parents --exclude=frontend_angular/src/assets frontend_angular/src frontend_angular/package.json frontend_angular/angular.json frontend_angular/tsconfig.json frontend_angular/yarn.lock ./
 
 WORKDIR /app/frontend_angular
-COPY --from=prebuild --parents /app/frontend_angular/node_modules /app/frontend_angular/src/assets /
-COPY --from=openapi-generate /app/output /app/frontend_angular/src/app/api
+COPY --from=prebuild /app/frontend_angular/node_modules ./node_modules
+COPY --from=prebuild /app/frontend_angular/src/assets ./src/assets
+COPY --from=openapi-generate /app/output ./src/app/api
 
 CMD yarn start:en --watch --host 0.0.0.0 --disable-host-check
