@@ -74,10 +74,13 @@ class CharterAlreadySigned(ValidationError):
 class CharterNotSigned(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" charter not signed yet')
-        
+
+
 class InvalidPassword(ValidationError):
     def __init__(self):
-        super().__init__(f"Password is not valid. It must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")
+        super().__init__(
+            "Password is not valid. It must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+        )
 
 
 # NOT FOUND ERROR.

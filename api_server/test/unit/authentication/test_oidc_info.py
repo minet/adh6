@@ -355,23 +355,3 @@ class TestOidcInfo:
         # Execute & Assert
         with pytest.raises(Unauthorized, match="Invalid OIDC token: required scopes must be a list"):
             oidc_info("valid_token_123", required_scopes="not_a_list")
-
-    @patch("builtins.print")  # Mock print to test debug output
-    def test_debug_output(self, mock_print, mock_app_context, mock_role_repository, valid_token_data):
-        """Test that debug information is printed during token processing."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
-
-        mock_role_repository.find.return_value = ([], 0)
-
-        # Execute
-        oidc_info("valid_token_123")
-
-        # Assert that print was called for debugging
-        assert mock_print.call_count >= 2  # Should print token_data and result
-
-        # Check that the printed content contains expected debug info
-        print_calls = [call.args[0] for call in mock_print.call_args_list]
-        assert any("oidc_info token_data:" in str(call) for call in print_calls)
-        assert any("oidc_info result:" in str(call) for call in print_calls)

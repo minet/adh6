@@ -2,10 +2,11 @@ import logging
 import re
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
-from Crypto.Hash import MD4
-#import hashlib # Keep these 2 libs. See comment in change_password method below
-#from binascii import hexlify
 
+from Crypto.Hash import MD4
+
+# import hashlib # Keep these 2 libs. See comment in change_password method below
+# from binascii import hexlify
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
@@ -23,12 +24,12 @@ from adh6.entity import (
 from adh6.entity.validators.member_validators import is_member_active, is_password_valid
 from adh6.exceptions import (
     AccountTypeNotFoundError,
+    InvalidPassword,
     LogFetchError,
     MemberAlreadyExist,
     MemberNotFoundError,
     NoSubnetAvailable,
     UpdateImpossible,
-    InvalidPassword,
 )
 from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
 
@@ -264,26 +265,23 @@ class MemberManager(CRUDManager):
 
     @log_call
     def change_password(self, member_id, password: str, hashed_password):
-        
-       
         # Check that the user exists in the system.
         member = self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-        
+
         if not is_password_valid(password):
-            raise InvalidPassword()
+            raise InvalidPassword
 
-        
+        pw = (
+            hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
+        )  # TODO: check for better hashing for security purpose
 
-        pw = hashed_password or MD4.new(password.encode('utf-16le')).hexdigest()  # noqa: S324  # TODO: check for better hashing for security purpose
-        
         """
         MD4 is not supported by hashlib so we use pycryptodome instead. This code is keep for reference for when we switch to a more secure hashing algorithm for wifi. We will prefer to use hashlib as it is more standard and widely used and is already used in the rest of the codebase.
 
         pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # noqa: S324  # TODO: check for better hashing for security purpose 
         """
-
 
         self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
 

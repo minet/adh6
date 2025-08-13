@@ -83,7 +83,9 @@ class TransactionSQLRepository(TransactionRepository):
         if abstract_transaction.payment_method is not None:
             with db.sessionmaker.begin() as session:
                 method = (
-                    session.query(PaymentMethod).filter(PaymentMethod.id == abstract_transaction.payment_method).one_or_none()
+                    session.query(PaymentMethod)
+                    .filter(PaymentMethod.id == abstract_transaction.payment_method)
+                    .one_or_none()
                 )
                 if not method:
                     raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
@@ -98,7 +100,9 @@ class TransactionSQLRepository(TransactionRepository):
             attachments="",
             type=method_id,
             author_id=abstract_transaction.author,
-            pending_validation=abstract_transaction.pending_validation if abstract_transaction.pending_validation else False,
+            pending_validation=abstract_transaction.pending_validation
+            if abstract_transaction.pending_validation
+            else False,
         )
         with db.sessionmaker.begin() as session, track_modifications(session, transaction):
             session.add(transaction)
