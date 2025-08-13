@@ -17,7 +17,7 @@ class MembershipSQLRepository(MembershipRepository):
     def search(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
     ) -> tuple[list[Membership], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(MembershipSQL)
             if filter_:
                 if filter_.uuid is not None:
@@ -35,12 +35,13 @@ class MembershipSQLRepository(MembershipRepository):
                 if filter_.member is not None:
                     query = query.filter(MembershipSQL.adherent_id == filter_.member)
 
+            count = query.count()
             query = query.order_by(MembershipSQL.uuid)
             query = query.offset(offset)
             query = query.limit(limit)
             r, count = query.all(), query.count()
 
-        return list(map(_map_membership_sql_to_entity, r)), count
+            return list(map(_map_membership_sql_to_entity, r)), count
 
     def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
@@ -63,7 +64,10 @@ class MembershipSQLRepository(MembershipRepository):
                 has_room=body.has_room if body.has_room is not None else True,
             )
             session.add(to_add)
-        return _map_membership_sql_to_entity(to_add)
+            session.flush()  # Ensure the membership gets an ID
+            # Map to entity while still in session context
+            result = _map_membership_sql_to_entity(to_add)
+        return result
 
     def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
@@ -82,8 +86,10 @@ class MembershipSQLRepository(MembershipRepository):
 
             membership.status = state
             membership.update_at = now
+            session.flush()
+            mapped_membership = _map_membership_sql_to_entity(membership)
 
-        return _map_membership_sql_to_entity(membership)
+        return mapped_membership
 
     def validate(self, uuid: str) -> None:
         with db.sessionmaker.begin() as session:

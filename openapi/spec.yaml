@@ -3653,10 +3653,23 @@ components:
         - network:write:hosting
   securitySchemes:
     OpenIdConnect:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      x-bearerInfoFunc: adh6.authentication.oidc.oidc_info
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://keycloak.minet.net/auth/realms/MiNET/protocol/openid-connect/auth
+          tokenUrl: https://keycloak.minet.net/auth/realms/MiNET/protocol/openid-connect/token
+          scopes:
+            user: Basic user access
+            admin:read: Read access to admin resources
+            admin:write: Write access to admin resources
+            admin:prod: Production admin access
+            treasurer:read: Read access to treasury resources
+            treasurer:write: Write access to treasury resources
+            network:read: Read access to network resources
+            network:write: Write access to network resources
+            network:write:prod: Production network write access
+            network:write:dev: Development network write access
+            network:write:hosting: Hosting network write access
     ApiKeyAdminAuth:
       type: apiKey
       in: header

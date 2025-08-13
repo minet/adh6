@@ -18,17 +18,17 @@ from .models import Port as SQLPort, Switch as SQLSwitch
 class PortSQLRepository(PortRepository):
     @log_call
     def get_by_id(self, object_id: int) -> AbstractPort:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLPort).filter(SQLPort.id == object_id).one_or_none()
-        if obj is None:
-            raise PortNotFoundError(object_id)
-        return _map_port_sql_to_abstract_entity(obj)
+            if obj is None:
+                raise PortNotFoundError(object_id)
+            return _map_port_sql_to_abstract_entity(obj)
 
     @log_call
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractPort | None = None
     ) -> tuple[list[AbstractPort], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(SQLPort)
             query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
             query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
@@ -60,53 +60,52 @@ class PortSQLRepository(PortRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return [_map_port_sql_to_abstract_entity(item) for item in r], count
+            return [_map_port_sql_to_abstract_entity(item) for item in r], count
 
     @log_call
     def create(self, abstract_port: Port) -> Port:
         now = datetime.now()
         room = None
-        if abstract_port.room is not None:
-            with db.sessionmaker() as session:
-                room = session.query(SQLChambre).filter(SQLChambre.id == abstract_port.room).one_or_none()
-            if not room:
-                raise RoomNotFoundError(abstract_port.room)
-
         switch = None
-        if abstract_port.switch_obj is not None:
-            with db.sessionmaker() as session:
-                switch = session.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch_obj).one_or_none()
-            if not switch:
-                raise SwitchNotFoundError(abstract_port.switch_obj)
-
-        port = SQLPort(
-            numero=abstract_port.port_number,
-            oid=abstract_port.oid,
-            switch_id=switch.id if switch else None,
-            chambre_id=room.id if room else None,
-            created_at=now,
-            updated_at=now,
-        )
 
         with db.sessionmaker.begin() as session:
-            session.add(port)
+            if abstract_port.room is not None:
+                room = session.query(SQLChambre).filter(SQLChambre.id == abstract_port.room).one_or_none()
+                if not room:
+                    raise RoomNotFoundError(abstract_port.room)
 
-        return _map_port_sql_to_entity(port)
+            if abstract_port.switch_obj is not None:
+                switch = session.query(SQLSwitch).filter(SQLSwitch.id == abstract_port.switch_obj).one_or_none()
+                if not switch:
+                    raise SwitchNotFoundError(abstract_port.switch_obj)
+
+            port = SQLPort(
+                numero=abstract_port.port_number,
+                oid=abstract_port.oid,
+                switch_id=switch.id if switch else None,
+                chambre_id=room.id if room else None,
+                created_at=now,
+                updated_at=now,
+            )
+
+            session.add(port)
+            session.flush()  # Ensure the port gets an ID
+            # Map to entity while still in session context
+            result = _map_port_sql_to_entity(port)
+
+        return result
 
     @log_call
     def update(self, object_to_update: AbstractPort, override=False) -> object:
         with db.sessionmaker.begin() as session:
-            query = session.query(SQLPort)
-            query = query.filter(SQLPort.id == object_to_update.id)
-            query = query.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
-            query = query.join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
-
-            port = query.one_or_none()
+            port = session.query(SQLPort).filter(SQLPort.id == object_to_update.id).one_or_none()
             if port is None:
                 raise PortNotFoundError(str(object_to_update.id))
-            new_port = _merge_sql_with_entity(object_to_update, port, override)
+            new_port = _merge_sql_with_entity(object_to_update, port, session, override)
+            session.flush()
+            mapped_port = _map_port_sql_to_entity(new_port)
 
-        return _map_port_sql_to_entity(new_port)
+        return mapped_port
 
     @log_call
     def delete(self, object_id) -> None:
@@ -118,15 +117,14 @@ class PortSQLRepository(PortRepository):
             session.delete(port)
 
     def get_rcom(self, id) -> int | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             port = session.query(SQLPort.rcom).filter(SQLPort.id == id).one_or_none()
-        if port is None:
-            raise PortNotFoundError(id)
+            if port is None:
+                raise PortNotFoundError(id)
+            return port[0]
 
-        return port[0]
 
-
-def _merge_sql_with_entity(entity: AbstractPort, sql_object: SQLPort, override=False) -> SQLPort:
+def _merge_sql_with_entity(entity: AbstractPort, sql_object: SQLPort, session, override=False) -> SQLPort:
     now = datetime.now()
     port = sql_object
     if entity.oid is not None or override:
@@ -134,14 +132,12 @@ def _merge_sql_with_entity(entity: AbstractPort, sql_object: SQLPort, override=F
     if entity.port_number is not None or override:
         port.numero = entity.port_number
     if entity.room is not None:
-        with db.sessionmaker() as session:
-            room = session.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
+        room = session.query(SQLChambre).filter(SQLChambre.id == entity.room).one_or_none()
         if not room:
             raise RoomNotFoundError(entity.room)
         port.chambre_id = room.id
     if entity.switch_obj is not None:
-        with db.sessionmaker() as session:
-            switch = session.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
+        switch = session.query(SQLSwitch).filter(SQLSwitch.id == entity.switch_obj).one_or_none()
         if not switch:
             raise SwitchNotFoundError(entity.switch_obj)
         port.switch_id = switch.id

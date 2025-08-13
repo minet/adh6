@@ -162,7 +162,9 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = self.member_repository.update(
-            AbstractMember(id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name)
+            AbstractMember(
+                id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name
+            )
         )
 
     @log_call

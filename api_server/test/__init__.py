@@ -4,3 +4,6 @@ TESTING_CLIENT = "TestingClient"
 TESTING_CLIENT_ID = 28
 SAMPLE_CLIENT = "SampleMember"
 SAMPLE_CLIENT_ID = 31
+
+OIDC_TESTING_USERNAME = "adh6_testing"
+OIDC_TESTING_PASSWORD = "adh6_testing_password"

@@ -17,14 +17,14 @@ base_url = f"{host_url}/member/"
 
 def assert_member_in_db(body):
     # Actually check that the object was inserted
-    s = db.session
-    q = s.query(Adherent)
-    q = q.filter(Adherent.login == body["username"])
-    r = q.one()
-    assert r.nom == body["lastName"]
-    assert r.prenom == body["firstName"]
-    assert r.mail == body["mail"]
-    assert r.login == body["username"]
+    with db.sessionmaker.begin() as s:
+        q = s.query(Adherent)
+        q = q.filter(Adherent.login == body["username"])
+        r = q.one()
+        assert r.nom == body["lastName"]
+        assert r.prenom == body["firstName"]
+        assert r.mail == body["mail"]
+        assert r.login == body["username"]
 
 
 def test_member_filter_all(client):

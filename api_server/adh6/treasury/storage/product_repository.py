@@ -18,14 +18,14 @@ class ProductSQLRepository(ProductRepository):
 
     @log_call
     def get_by_id(self, object_id: int) -> Product | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLProduct).filter(SQLProduct.id == object_id).one_or_none()
-        return _map_product_sql_to_entity(obj) if obj else obj
+            return _map_product_sql_to_entity(obj) if obj else obj
 
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[Product], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(SQLProduct)
             if terms:
                 query = query.filter(SQLProduct.name.contains(terms))
@@ -35,7 +35,7 @@ class ProductSQLRepository(ProductRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return [_map_product_sql_to_entity(i) for i in r], count
+            return [_map_product_sql_to_entity(i) for i in r], count
 
 
 def _map_product_sql_to_entity(p: SQLProduct) -> Product:

@@ -2,8 +2,6 @@
 Our own connexion resolver.
 """
 
-import re
-
 from connexion import Resolver
 
 

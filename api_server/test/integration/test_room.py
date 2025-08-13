@@ -28,11 +28,11 @@ def client(sample_room1, sample_room2, sample_vlan, sample_vlan69, sample_member
 
 
 def assert_room_in_db(body):
-    s = db.session
-    q = s.query(Chambre)
-    q = q.filter(body["roomNumber"] == Chambre.numero)
-    c = q.one()
-    assert body["description"] == c.description
+    with db.sessionmaker.begin() as s:
+        q = s.query(Chambre)
+        q = q.filter(body["roomNumber"] == Chambre.numero)
+        c = q.one()
+        assert body["description"] == c.description
 
 
 def test_room_filter_all_rooms(client):
@@ -122,7 +122,7 @@ def test_room_get_invalid_room(client):
 
 
 def test_room_post_new_room_invalid_vlan(client):
-    room = {"roomNumber": 5111, "vlan": 45, "description": "Chambre 5111"}
+    room = {"roomNumber": 4285, "vlan": 45, "description": "Chambre 4285"}
     r = client.post(
         base_url,
         data=json.dumps(room),
@@ -133,9 +133,9 @@ def test_room_post_new_room_invalid_vlan(client):
 
 def test_room_post_new_room(client, sample_vlan):
     room = {
-        "roomNumber": 5111,
+        "roomNumber": 4285,
         "vlan": sample_vlan.numero,
-        "description": "Chambre 5111",
+        "description": "Chambre 4285",
     }
     r = client.post(
         base_url,
@@ -147,7 +147,7 @@ def test_room_post_new_room(client, sample_vlan):
 
 
 def test_room_put_update_room(client, sample_room1, sample_vlan):
-    room = {"vlan": sample_vlan.numero, "roomNumber": 5111, "description": "Chambre 5111"}
+    room = {"vlan": sample_vlan.numero, "roomNumber": 4285, "description": "Chambre 4285"}
     r = client.put(
         f"{base_url}{sample_room1.id}",
         data=json.dumps(room),
@@ -261,13 +261,16 @@ def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
-    assert db.session.execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
-    assert (
-        db.session.execute(
-            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
-        ).scalar()
-        == "En attente"
-    )
+    with db.sessionmaker.begin() as s:
+        assert s.execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
+        assert (
+            s.execute(
+                select(Device.ip).where(
+                    (Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value)
+                )
+            ).scalar()
+            == "En attente"
+        )
     r = client.post(
         f"{base_url}{sample_room2.id}/member/",
         data=json.dumps({"id": sample_member.id}),

@@ -1,8 +1,15 @@
 from typing import Any
 
-from jwcrypto.jwt import JWTExpired, JWTInvalidClaimFormat, JWTInvalidClaimValue, JWTMissingClaim, JWTMissingKey, JWTNotYetValid
 from connexion.exceptions import Unauthorized
 from flask import current_app
+from jwcrypto.jwt import (
+    JWTExpired,
+    JWTInvalidClaimFormat,
+    JWTInvalidClaimValue,
+    JWTMissingClaim,
+    JWTMissingKey,
+    JWTNotYetValid,
+)
 
 from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.storage import RoleRepository
@@ -18,7 +25,7 @@ def oidc_info(token, required_scopes=None) -> dict[str, Any] | None:
     try:
         token_data = keycloak.decode_token(token)
     except JWTInvalid as e:
-        raise Unauthorized(f"Invalid OIDC token ({type(e).__name__.replace('JWT', '')}) : {e})") from e
+        raise Unauthorized(f"Invalid OIDC token ({type(e).__name__.replace('JWT', '')}) : {e}") from e
     print(f"oidc_info token_data: {token_data}")
 
     if not token_data:
@@ -28,10 +35,12 @@ def oidc_info(token, required_scopes=None) -> dict[str, Any] | None:
 
     uid = token_data.get("adh6_id")
     if not uid:
-        uid = role_repository.user_id_from_username(login=token_data.get("preferred_username"))
+        username = token_data.get("preferred_username")
+        if username:
+            uid = role_repository.user_id_from_username(login=username)
 
     # Groups returned by keycloak start with /
-    groups = list(map(lambda group: group.lstrip("/"), token_data.get("groups", [])))
+    groups = [group.lstrip("/") for group in token_data.get("groups", []) if group is not None]
 
     # Find roles based on groups (OIDC method) and username (USER method)
     roles = []
@@ -47,14 +56,11 @@ def oidc_info(token, required_scopes=None) -> dict[str, Any] | None:
         )
 
     if token_data.get("preferred_username"):
-        roles.extend(
-            [
-                i.role
-                for i in role_repository.find(
-                    method=AuthenticationMethod.USER, identifiers=[token_data.get("preferred_username")]
-                )[0]
-            ]
-        )
+        username = token_data.get("preferred_username")
+        if username:
+            roles.extend(
+                [i.role for i in role_repository.find(method=AuthenticationMethod.USER, identifiers=[username])[0]]
+            )
 
     scope = [Roles.USER.value, *roles]
 
