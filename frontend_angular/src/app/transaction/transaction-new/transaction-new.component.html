@@ -1,71 +1,73 @@
-<div
-  class="modal"
-  [ngClass]="{'is-active': transactionModal}"
-  *ngIf="transactionModal">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <div class="modal-card-head">
-      <p class="modal-card-title">Récapitulatif d'une transaction</p>
-      <button
-        class="delete"
-        aria-label="close"
-        (click)="toogleModal()"></button>
-    </div>
-    <div class="modal-card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          <tbody>
-            <tr>
-              <th scope="row">Depuis</th>
-              <td>{{ transactionDetails.value.srcAccount }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Montant</th>
-              <td>
-                {{ transactionDetails.value.value | number: "" : "fr" }} €
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Via</th>
-              <td>
-                {{
-                  getPaymentMethodNameById(
-                    transactionDetails.value.paymentMethod
-                  )
-                }}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Vers</th>
-              <td>{{ transactionDetails.value.dstAccount }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Description</th>
-              <td>{{ transactionDetails.value.name }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div
-          class="alert alert-warning"
-          role="alert"
-          *ngIf="transactionDetails.value.caisse !== 'direct'">
-          Vous avez déclaré
-          {{ transactionDetails.value.caisse === "to" ? "ajouter" : "prendre" }}
-          de l'argent dans la caisse via
-          {{
-            getPaymentMethodNameById(transactionDetails.value.paymentMethod)
-          }}, assurez-vous de bien le faire effectivement !
-        </div>
+@if (transactionModal) {
+  <div class="modal" [ngClass]="{'is-active': transactionModal}">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <div class="modal-card-head">
+        <p class="modal-card-title">Récapitulatif d'une transaction</p>
         <button
-          type="button"
-          class="button is-primary"
-          (click)="onSubmit(); toogleModal()">
-          Valider
-        </button>
+          class="delete"
+          aria-label="close"
+          (click)="toogleModal()"></button>
+      </div>
+      <div class="modal-card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <tbody>
+              <tr>
+                <th scope="row">Depuis</th>
+                <td>{{ transactionDetails.value.srcAccount }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Montant</th>
+                <td>
+                  {{ transactionDetails.value.value | number: "" : "fr" }} €
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Via</th>
+                <td>
+                  {{
+                    getPaymentMethodNameById(
+                      transactionDetails.value.paymentMethod
+                    )
+                  }}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Vers</th>
+                <td>{{ transactionDetails.value.dstAccount }}</td>
+              </tr>
+              <tr>
+                <th scope="row">Description</th>
+                <td>{{ transactionDetails.value.name }}</td>
+              </tr>
+            </tbody>
+          </table>
+          @if (transactionDetails.value.caisse !== "direct") {
+            <div class="alert alert-warning" role="alert">
+              Vous avez déclaré
+              {{
+                transactionDetails.value.caisse === "to" ? "ajouter" : "prendre"
+              }}
+              de l'argent dans la caisse via
+              {{
+                getPaymentMethodNameById(
+                  transactionDetails.value.paymentMethod
+                )
+              }}, assurez-vous de bien le faire effectivement !
+            </div>
+          }
+          <button
+            type="button"
+            class="button is-primary"
+            (click)="onSubmit(); toogleModal()">
+            Valider
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
 <h2 class="title is-2">Nouvelle transaction</h2>
 <hr />
@@ -127,31 +129,37 @@
                 <div class="select">
                   <select formControlName="paymentMethod" id="paidBy">
                     <option value="0">-- Payer par --</option>
-                    <option *ngFor="let pm of paymentMethods" [value]="pm.id">
-                      {{ pm.name }}
-                    </option>
+                    @for (pm of paymentMethods; track pm) {
+                      <option [value]="pm.id">
+                        {{ pm.name }}
+                      </option>
+                    }
                   </select>
                 </div>
               </div>
             </div>
             <div class="field has-addons">
-              <p class="control" *ngFor="let btn of cashboxButtons">
-                <button
-                  class="button"
-                  (click)="transactionDetails.patchValue({caisse: btn.act})"
-                  [ngClass]="{
-                    'is-primary': transactionDetails.value.caisse === btn.act,
-                  }">
-                  <span>{{ btn.text }} Caisse</span>
-                </button>
-              </p>
+              @for (btn of cashboxButtons; track btn) {
+                <p class="control">
+                  <button
+                    class="button"
+                    (click)="transactionDetails.patchValue({caisse: btn.act})"
+                    [ngClass]="{
+                      'is-primary': transactionDetails.value.caisse === btn.act,
+                    }">
+                    <span>{{ btn.text }} Caisse</span>
+                  </button>
+                </p>
+              }
             </div>
-            <div class="notification is-warning" *ngIf="reverting">
-              <small
-                >Attention à bien inverser l'opération dans la caisse en cas
-                d'annulation d'une transaction liquide passée !</small
-              >
-            </div>
+            @if (reverting) {
+              <div class="notification is-warning">
+                <small
+                  >Attention à bien inverser l'opération dans la caisse en cas
+                  d'annulation d'une transaction liquide passée !</small
+                >
+              </div>
+            }
             <div class="field has-addons">
               <p class="control">
                 <span class="input">€</span>

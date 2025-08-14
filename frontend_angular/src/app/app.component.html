@@ -1,10 +1,10 @@
 <app-navbar></app-navbar>
 <div class="columns is-fullheight">
-  <div
-    class="column is-2 is-sidebar-menu is-hidden-mobile"
-    *ngIf="'manage' | able: 'admin'">
-    <app-vertical-navbar></app-vertical-navbar>
-  </div>
+  @if ("manage" | able: "admin") {
+    <div class="column is-2 is-sidebar-menu is-hidden-mobile">
+      <app-vertical-navbar></app-vertical-navbar>
+    </div>
+  }
   <div class="column">
     <div class="hero is-fullheight">
       <div class="section">

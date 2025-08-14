@@ -30,11 +30,11 @@ import {CommonModule} from "@angular/common";
       <div class="field">
         <label for="type">Type de compte :</label>
         <select class="input" id="type" formControlName="type">
-          <option
-            *ngFor="let accountType of accountTypes$ | async"
-            value="{{ accountType.id }}">
-            {{ accountType.name }}
-          </option>
+          @for (accountType of accountTypes$ | async; track accountType) {
+            <option value="{{ accountType.id }}">
+              {{ accountType.name }}
+            </option>
+          }
         </select>
       </div>
       <div class="field">

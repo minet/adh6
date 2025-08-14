@@ -4,16 +4,16 @@
     est nécessaire.
   </p>
 </div>
-<div
-  class="notification is-danger is-light"
-  *ngIf="member.membership === 'PENDING_RULES'">
-  <p>
-    La charte n'est pas signée:
-    <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer"
-      >aller sur charte</a
-    >
-  </p>
-</div>
+@if (member.membership === "PENDING_RULES") {
+  <div class="notification is-danger is-light">
+    <p>
+      La charte n'est pas signée:
+      <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer"
+        >aller sur charte</a
+      >
+    </p>
+  </div>
+}
 <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
   <div class="field">
     <label class="label">Durée de cotisation</label>
@@ -23,14 +23,16 @@
         formControlName="durationIndex"
         type="text">
         <option value="-1">Pas de cotisation</option>
-        <option
-          *ngFor="let v of subscriptionDuration; let i = index"
-          value="{{ i }}">
-          {{ v === 12 ? "1 an" : v + " mois" }}
-          {{ v === 12 && subscriptionPrices[i] === 9 ? "- sans chambre" : "" }}
-          ({{ subscriptionPrices[i] }}€) -
-          {{ formatDate(v) }}
-        </option>
+        @for (v of subscriptionDuration; track v; let i = $index) {
+          <option value="{{ i }}">
+            {{ v === 12 ? "1 an" : v + " mois" }}
+            {{
+              v === 12 && subscriptionPrices[i] === 9 ? "- sans chambre" : ""
+            }}
+            ({{ subscriptionPrices[i] }}€) -
+            {{ formatDate(v) }}
+          </option>
+        }
       </select>
     </div>
   </div>
@@ -39,9 +41,11 @@
     <div class="control">
       <select class="input is-fullwidth" formControlName="paidWith" type="text">
         <option value="-1">-- Moyen de paiement --</option>
-        <option *ngFor="let pm of paymentMethods" value="{{ pm.id }}">
-          {{ pm.name }}
-        </option>
+        @for (pm of paymentMethods; track pm) {
+          <option value="{{ pm.id }}">
+            {{ pm.name }}
+          </option>
+        }
       </select>
     </div>
   </div>

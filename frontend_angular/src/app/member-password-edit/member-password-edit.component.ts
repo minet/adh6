@@ -10,7 +10,7 @@ import {
 import {ActivatedRoute, Router} from "@angular/router";
 import {finalize, map} from "rxjs/operators";
 import {MemberService} from "../api";
-import {CommonModule, Location} from "@angular/common";
+import {Location} from "@angular/common";
 import {NotificationService} from "../notification.service";
 
 function passwordConfirming(c: AbstractControl): ValidationErrors | null {
@@ -29,7 +29,7 @@ function passwordConfirming(c: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   selector: "app-member-password-edit",
   templateUrl: "./member-password-edit.component.html",
 })

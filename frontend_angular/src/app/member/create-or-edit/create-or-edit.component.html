@@ -1,5 +1,9 @@
-<h2 *ngIf="!create" class="title is-2">Édition d'un membre</h2>
-<h2 *ngIf="create" class="title is-2">Création d'un membre</h2>
+@if (!create) {
+  <h2 class="title is-2">Édition d'un membre</h2>
+}
+@if (create) {
+  <h2 class="title is-2">Création d'un membre</h2>
+}
 <form [formGroup]="memberEdit" (ngSubmit)="editMember()" novalidate>
   <div class="field">
     <label class="label">Prénom / First name :</label>
@@ -20,18 +24,20 @@
       autocapitalize="off"
       spellcheck="false"
       formControlName="username" />
-    <p *ngIf="memberEdit.controls.username.invalid" class="help is-danger">
-      <span
-        class="invalid"
-        *ngIf="memberEdit.controls.username.errors.minlength">
-        Le nom d'utilisateur doit contenirau moins 7 caractères
-      </span>
-      <span
-        class="invalid"
-        *ngIf="memberEdit.controls.username.errors.maxlength">
-        Le nom d'utilisateur doit contenir moins de 8 caractères.
-      </span>
-    </p>
+    @if (memberEdit.controls.username.invalid) {
+      <p class="help is-danger">
+        @if (memberEdit.controls.username.errors.minlength) {
+          <span class="invalid">
+            Le nom d'utilisateur doit contenirau moins 7 caractères
+          </span>
+        }
+        @if (memberEdit.controls.username.errors.maxlength) {
+          <span class="invalid">
+            Le nom d'utilisateur doit contenir moins de 8 caractères.
+          </span>
+        }
+      </p>
+    }
   </div>
   <div class="field">
     <label class="label">Mail :</label>
@@ -48,10 +54,17 @@
     type="submit"
     [disabled]="memberEdit.invalid"
     class="button is-primary is-fullwidth">
-    <span *ngIf="!create">Éditer</span><span *ngIf="create">Créer</span>
+    @if (!create) {
+      <span>Éditer</span>
+    }
+    @if (create) {
+      <span>Créer</span>
+    }
   </button>
 </form>
 <br />
-<a (click)="delete()" *ngIf="!create">
-  <button class="button is-danger is-fullwidth">Supprimer</button>
-</a>
+@if (!create) {
+  <a (click)="delete()">
+    <button class="button is-danger is-fullwidth">Supprimer</button>
+  </a>
+}

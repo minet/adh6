@@ -1,4 +1,4 @@
-<ng-container *ngIf="member$ | async as member">
+@if (member$ | async; as member) {
   <app-member-device [member]="member"></app-member-device>
   <br />
   <nav class="level">
@@ -19,7 +19,7 @@
       </div>
     </div>
   </nav>
-  <ng-container *ngIf="showLogs; else logHide">
+  @if (showLogs) {
     <nav class="level">
       <div class="level-right">
         <div class="level-item has-text-centered">
@@ -48,15 +48,16 @@
         font-size: small;
       ">
       <ul class="list-unstyled is-fullwidth">
-        <li *ngFor="let log of log$ | async">
-          <span [innerHtml]="extractMsgFromLog(log)"></span>
-        </li>
+        @for (log of log$ | async; track log) {
+          <li>
+            <span [innerHtml]="extractMsgFromLog(log)"></span>
+          </li>
+        }
       </ul>
     </div>
-  </ng-container>
-  <ng-template #logHide>
+  } @else {
     <div class="notification has-text-centered is-info is-light">
       <h6 class="title is-6">Logs masqués</h6>
     </div>
-  </ng-template>
-</ng-container>
+  }
+}

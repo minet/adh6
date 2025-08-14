@@ -53,4 +53,4 @@ COPY --from=prebuild /app/frontend_angular/node_modules ./node_modules
 COPY --from=prebuild /app/frontend_angular/src/assets ./src/assets
 COPY --from=openapi-generate /app/output ./src/app/api
 
-CMD yarn start:en --watch --host 0.0.0.0 --disable-host-check
+CMD yarn start:en --watch --host 0.0.0.0 --allowed-hosts true

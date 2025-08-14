@@ -34,7 +34,7 @@ import {ApiKey, ApiKeysPostRequest, AuthenticationService, Role} from "../api";
         </div>
       </div>
     </div>
-    <ng-container *ngIf="result$ | async as result; else loadingTable">
+    @if (result$ | async; as result) {
       <table class="table is-fullwidth">
         <thead>
           <tr>
@@ -43,22 +43,23 @@ import {ApiKey, ApiKeysPostRequest, AuthenticationService, Role} from "../api";
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let key of result">
-            <td>{{ key.login }}</td>
-            <td>
-              <button class="button is-danger" (click)="delete(key.id)">
-                Supprimer
-              </button>
-            </td>
-          </tr>
+          @for (key of result; track key) {
+            <tr>
+              <td>{{ key.login }}</td>
+              <td>
+                <button class="button is-danger" (click)="delete(key.id)">
+                  Supprimer
+                </button>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
-    </ng-container>
-    <ng-template #loadingTable>
+    } @else {
       <div class="notification is-info is-light has-text-centered">
         <h4 class="title is-4">Chargement ...</h4>
       </div>
-    </ng-template>
+    }
   `,
 })
 export class ApiKeyComponent implements OnInit {

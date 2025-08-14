@@ -139,13 +139,13 @@ cd frontend_angular
 Pour formater le code, exécutez :
 
 ```sh
-npm run prettier
+yarn prettier
 ```
 
 Pour vérifier si le code est correctement formaté, exécutez :
 
 ```sh
-npm run prettier:check
+yarn prettier:check
 ```
 
 # [Backend](api_server)

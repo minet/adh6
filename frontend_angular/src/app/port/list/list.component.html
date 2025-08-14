@@ -14,40 +14,45 @@
       <th style="width: 33%">Chambre</th>
     </tr>
   </thead>
-  <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr
-      *ngFor="let port of result"
-      [routerLink]="['/port', port.switchObj, port.id]"
-      routerLinkActive="router-link-active">
-      <td class="center">
-        {{
-          (cachedSwitchDescription.get(port.switchObj) | async) ||
-            "Chargement..."
-        }}
-      </td>
-      <td class="center">{{ port.portNumber }}</td>
-      <td class="center">
-        <ng-container *ngIf="port.room !== undefined">
-          <a [routerLink]="['/room/view', port.room.id]">
+  @if (result$ | async; as result) {
+    <tbody>
+      @for (port of result; track port) {
+        <tr
+          [routerLink]="['/port', port.switchObj, port.id]"
+          routerLinkActive="router-link-active">
+          <td class="center">
             {{
-              (cachedRoomDescription.get(port.room) | async) || "Chargement..."
+              (cachedSwitchDescription.get(port.switchObj) | async) ||
+                "Chargement..."
             }}
-          </a>
-        </ng-container>
-        <a *ngIf="port.room === null">Aucune chambre</a>
+          </td>
+          <td class="center">{{ port.portNumber }}</td>
+          <td class="center">
+            @if (port.room !== undefined) {
+              <a [routerLink]="['/room/view', port.room.id]">
+                {{
+                  (cachedRoomDescription.get(port.room) | async) ||
+                    "Chargement..."
+                }}
+              </a>
+            }
+            @if (port.room === null) {
+              <a>Aucune chambre</a>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  } @else {
+    <tr>
+      <td colspan="42">
+        <div class="notification is-info is-light has-text-centered">
+          <h4 class="title is-4">Chargement ...</h4>
+        </div>
       </td>
     </tr>
-  </tbody>
+  }
 </table>
 <app-pagination
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>
-<ng-template #loadingTable>
-  <tr>
-    <td colspan="42">
-      <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
-      </div>
-    </td>
-  </tr>
-</ng-template>

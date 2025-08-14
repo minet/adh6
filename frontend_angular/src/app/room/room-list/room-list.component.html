@@ -23,23 +23,26 @@
       <th style="width: 33%">VLAN</th>
     </tr>
   </thead>
-  <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr *ngFor="let room of result" [routerLink]="['/room/view', room.id]">
-      <td>{{ room.roomNumber }}</td>
-      <td>{{ room.description }}</td>
-      <td>{{ room.vlan }}</td>
+  @if (result$ | async; as result) {
+    <tbody>
+      @for (room of result; track room) {
+        <tr [routerLink]="['/room/view', room.id]">
+          <td>{{ room.roomNumber }}</td>
+          <td>{{ room.description }}</td>
+          <td>{{ room.vlan }}</td>
+        </tr>
+      }
+    </tbody>
+  } @else {
+    <tr>
+      <td colspan="42">
+        <div class="notification is-info is-light has-text-centered">
+          <h4 class="title is-4">Chargement ...</h4>
+        </div>
+      </td>
     </tr>
-  </tbody>
+  }
 </table>
 <app-pagination
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>
-<ng-template #loadingTable>
-  <tr>
-    <td colspan="42">
-      <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
-      </div>
-    </td>
-  </tr>
-</ng-template>

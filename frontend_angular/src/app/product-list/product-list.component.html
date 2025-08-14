@@ -7,26 +7,27 @@
   type="text" />
 <br />
 
-<table
-  class="table is-hoverable is-striped is-fullwidth"
-  *ngIf="result$ | async as result; else loadingTable">
-  <thead>
-    <tr>
-      <th>Nom</th>
-      <th>Prix d'achat</th>
-      <th>Prix de vente</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let productResult of result">
-      <td class="align-middle">{{ productResult.name }}</td>
-      <td class="align-middle">{{ productResult.buying_price * 0.01 }}</td>
-      <td class="align-middle">{{ productResult.selling_price * 0.01 }}</td>
-    </tr>
-  </tbody>
-</table>
-<ng-template #loadingTable>
+@if (result$ | async; as result) {
+  <table class="table is-hoverable is-striped is-fullwidth">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prix d'achat</th>
+        <th>Prix de vente</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (productResult of result; track productResult) {
+        <tr>
+          <td class="align-middle">{{ productResult.name }}</td>
+          <td class="align-middle">{{ productResult.buying_price * 0.01 }}</td>
+          <td class="align-middle">{{ productResult.selling_price * 0.01 }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+} @else {
   <div class="notification is-info is-light has-text-centered">
     <h4 class="title is-4">Chargement ...</h4>
   </div>
-</ng-template>
+}

@@ -29,7 +29,7 @@ import {
         </div>
       </div>
     </div>
-    <ng-container *ngIf="result$ | async as result; else loadingTable">
+    @if (result$ | async; as result) {
       <table class="table is-fullwidth">
         <thead>
           <tr>
@@ -38,18 +38,19 @@ import {
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let mapping of result">
-            <td>{{ mapping.identifier }}</td>
-            <td>{{ mapping.role }}</td>
-          </tr>
+          @for (mapping of result; track mapping) {
+            <tr>
+              <td>{{ mapping.identifier }}</td>
+              <td>{{ mapping.role }}</td>
+            </tr>
+          }
         </tbody>
       </table>
-    </ng-container>
-    <ng-template #loadingTable>
+    } @else {
       <div class="notification is-info is-light has-text-centered">
         <h4 class="title is-4">Chargement ...</h4>
       </div>
-    </ng-template>
+    }
   `,
 })
 export class NainaComponent implements OnInit {

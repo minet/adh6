@@ -1,4 +1,4 @@
-<ng-container *ngIf="account$ | async as account">
+@if (account$ | async; as account) {
   <div class="columns">
     <div class="column is-one-third">
       <button class="button is-primary is-fullwidth" (click)="goBack()">
@@ -99,4 +99,4 @@
       <app-transaction-list [asAccount]="account.id"></app-transaction-list>
     </div>
   </div>
-</ng-container>
+}

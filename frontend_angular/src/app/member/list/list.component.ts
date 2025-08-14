@@ -24,6 +24,11 @@ export class ListComponent extends SearchPage<number> {
   public subscriptionFilter: string = "";
   public subscriptionValues = Member.MembershipEnum;
 
+  // GDPR privacy check - only show sensitive data when results are filtered down
+  public get shouldShowSensitiveData(): boolean {
+    return this.maxItems <= this.itemsPerPage;
+  }
+
   constructor(
     private memberService: MemberService,
     private roomMemberService: RoomMembersService,

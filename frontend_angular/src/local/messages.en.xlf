@@ -729,6 +729,42 @@
         </context-group>
         <note priority="1" from="description">portail create account physical</note>
       </trans-unit>
+      <trans-unit id="member.list.gdpr.title" datatype="html">
+        <source>Protection des données personnelles</source>
+        <target>Personal Data Protection</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+        <note priority="1" from="description">GDPR personal data protection title</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.description" datatype="html">
+        <source>Pour respecter le RGPD, les noms et numéros de chambre ne sont visibles que lorsque la recherche est affinée à moins d'une page complète de résultats.</source>
+        <target>To comply with GDPR, names and room numbers are only visible when the search is refined to less than one full page of results.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <note priority="1" from="description">GDPR personal data protection description</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.results-count" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{maxItems}}"/> résultats trouvés</source>
+        <target><x id="INTERPOLATION" equiv-text="{{maxItems}}"/> results found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <note priority="1" from="description">GDPR results count message</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.refine-search" datatype="html">
+        <source>Veuillez affiner votre recherche.</source>
+        <target>Please refine your search.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <note priority="1" from="description">GDPR refine search message</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>
