@@ -27,16 +27,16 @@ paths:
         **TODO**: Improve the amount of information returned
       operationId: health
       responses:
-        '200':
+        "200":
           description: ADH6 is alive!
-        '503':
+        "503":
           description: Database is down.
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - misc
+        - misc
   /profile:
     get:
       summary: Introspection endpoint
@@ -44,20 +44,20 @@ paths:
         This endpoint returns information about the currently logged-in user.
       operationId: profile
       responses:
-        '200':
+        "200":
           description: The current logged-in user
           content:
             application/json:
               schema:
                 properties:
                   member:
-                    $ref: '#/components/schemas/Member'
+                    $ref: "#/components/schemas/Member"
                   roles:
                     type: array
                     items:
                       type: string
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
           $ref: '#/components/responses/Unexpected'      
       security: 
@@ -70,25 +70,25 @@ paths:
   /account:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractAccount'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyAccount'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/AbstractAccount"
+          style: deepObject
+          explode: true
+        - $ref: "#/components/parameters/onlyAccount"
       responses:
-        '200':
+        "200":
           description: The list of accounts
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractAccount'
+                  $ref: "#/components/schemas/AbstractAccount"
                 type: array
           headers:
             X-Total-Count:
@@ -96,94 +96,94 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter accounts
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - account
+        - account
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractAccount'
+              $ref: "#/components/schemas/AbstractAccount"
         description: The account to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: "#/components/schemas/Account"
           description: The created account
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create an account
       security: 
         - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth: []
       tags:
-      - account
+        - account
   /account/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       parameters:
-      - $ref: '#/components/parameters/onlyAccount'
+        - $ref: "#/components/parameters/onlyAccount"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractAccount'
+                $ref: "#/components/schemas/AbstractAccount"
           description: The fetched account
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve an account
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - account
+        - account
     put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractAccount'
+              $ref: "#/components/schemas/AbstractAccount"
         description: The new values for this account
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Udate an account
       security: 
         - OpenIdConnect:
@@ -194,16 +194,16 @@ paths:
   /account_type:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AccountType'
+                  $ref: "#/components/schemas/AccountType"
                 type: array
           description: Success
           headers:
@@ -212,7 +212,7 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
+        "400":
           description: Invalid input
       summary: Filter account types
       security: 
@@ -220,26 +220,26 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - account
+        - account
   /account_type/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountType'
+                $ref: "#/components/schemas/AccountType"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve an account type
       security: 
         - OpenIdConnect:
@@ -250,17 +250,17 @@ paths:
   /device:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - description: filters of a device
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/DeviceFilter'
-        style: deepObject
-        explode: true
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - description: filters of a device
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/DeviceFilter"
+          style: deepObject
+          explode: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -274,12 +274,12 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Return the list of the device ids
       security: 
         - OpenIdConnect:
@@ -288,29 +288,29 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - device
+        - device
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeviceBody'
+              $ref: "#/components/schemas/DeviceBody"
         description: The device to create
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
                 type: integer
                 example: 0
           description: The id of the created device
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a device
       security: 
         - OpenIdConnect:
@@ -319,23 +319,23 @@ paths:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - device
+        - device
   /device/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
-      - $ref: '#/components/parameters/onlyDevice'
+      - $ref: "#/components/parameters/idPath"
+      - $ref: "#/components/parameters/onlyDevice"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a device
       security: 
         - OpenIdConnect:
@@ -344,23 +344,23 @@ paths:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - device
+        - device
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractDevice'
+                $ref: "#/components/schemas/AbstractDevice"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a device
       security: 
         - OpenIdConnect:
@@ -372,24 +372,24 @@ paths:
       - device
   /device/{id}/vendor:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 example: Cisco Systems, Inc
                 type: string
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the vendor of a device based on its MAC
       security: 
         - OpenIdConnect:
@@ -401,24 +401,24 @@ paths:
       - device
   /device/{id}/mab:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 example: true
                 type: boolean
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retreive the MAB of the device
       security: 
         - OpenIdConnect:
@@ -427,24 +427,24 @@ paths:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
-      - device
+        - device
     post:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 example: true
                 type: boolean
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the MAB of the device
       security: 
         - OpenIdConnect:
@@ -454,10 +454,10 @@ paths:
       - device
   /device/{id}/member:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -465,12 +465,12 @@ paths:
                 example: 0
                 nullable: true
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Get user of the device
       security: 
         - OpenIdConnect:
@@ -481,18 +481,18 @@ paths:
   /member:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/MemberFilter'
-        style: deepObject
-        explode: true
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/MemberFilter"
+          style: deepObject
+          explode: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -505,29 +505,29 @@ paths:
               description: Total count of filtered entities
               schema:
                 type: integer
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter members
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - member
+        - member
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MemberBody'
+              $ref: "#/components/schemas/MemberBody"
         description: The member to create
         required: true
       responses:
-        '201':
+        "201":
           content:
             application/json:
               schema:
@@ -535,85 +535,85 @@ paths:
                 type: integer
                 example: 1
           description: The created account
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a member
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - member
+        - member
   /member/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a member
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - member
+        - member
     get:
       parameters:
-        - $ref: '#/components/parameters/onlyMember'
+        - $ref: "#/components/parameters/onlyMember"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractMember'
+                $ref: "#/components/schemas/AbstractMember"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a member
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - member
+        - member
     patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MemberBody'
+              $ref: "#/components/schemas/MemberBody"
         description: The new values for this member
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Partially update a member
       security: 
         - OpenIdConnect:
@@ -623,29 +623,71 @@ paths:
       - member
   /member/{id}/logs:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       parameters:
-      - description: Whether to fetch DHCP logs
-        in: query
-        name: dhcp
-        required: false
-        schema:
+        - description: Whether to fetch DHCP logs
+          in: query
+          name: dhcp
+          required: false
+          schema:
             type: boolean
+        - description: Maximum number of logs to retrieve
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - description: Number of logs to skip (for pagination)
+          in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                items:
-                  example: 2018-07-14T04:44:51.537Z Password OK
-                  type: string
-                type: array
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                          example: "2018-07-14T04:44:51.537Z"
+                        message:
+                          type: string
+                          example: "Password OK"
+                      required:
+                        - timestamp
+                        - message
+                  total:
+                    type: integer
+                    description: Total number of logs available
+                    example: 150
+                  hasMore:
+                    type: boolean
+                    description: Whether there are more logs available
+                    example: true
+                required:
+                  - logs
+                  - total
+                  - hasMore
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the most recent logs of a member
@@ -656,23 +698,23 @@ paths:
       - member
   /member/{id}/statuses:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/MemberStatus'
+                  $ref: "#/components/schemas/MemberStatus"
                 type: array
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieves some common status updates concerning a member
       security: 
         - OpenIdConnect:
@@ -684,7 +726,7 @@ paths:
       - member
   /member/{id}/password:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     put:
       requestBody:
         content:
@@ -692,12 +734,12 @@ paths:
             schema:
               properties:
                 password:
-                  example: '&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;'
+                  example: "&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;"
                   type: string
                   format: password
                   description: The plaintext password to use
                 hashedPassword:
-                  example: 'de6a3b882c1cff12af8616e1f6bf5b6c'
+                  example: "de6a3b882c1cff12af8616e1f6bf5b6c"
                   type: string
                   format: md4
                   description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication... WARNING. Hashing the password client-side essentially nullifies the purpose of hashing the password.
@@ -706,16 +748,16 @@ paths:
         description: The new value for the password in plaintext
         required: true
       responses:
-        '204':
+        "204":
           description: Modified
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the password of a member
       security: 
         - OpenIdConnect:
@@ -723,12 +765,12 @@ paths:
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
-      - member
+        - member
   /member/{id}/charter/{charter_id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
       - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
         in: path
         name: charter_id
@@ -742,19 +784,19 @@ paths:
       deprecated: true
       operationId: charter_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
                 format: date-time
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieves if the hosting charter has been signed
       security: 
         - OpenIdConnect:
@@ -763,19 +805,19 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - member
+        - member
     put:
       deprecated: true
       operationId: charter_put
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update if the hosting/MiNET charter has been signed
       security: 
         - OpenIdConnect:
@@ -787,116 +829,116 @@ paths:
       - member
   /member/{id}/comment:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Comment'
+              $ref: "#/components/schemas/Comment"
       responses:
-        '204':
+        "204":
           description: Modified
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the comment of a member
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
-      - member
+        - member
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: "#/components/schemas/Comment"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieves the comment of the user
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
       - member
   /member/{id}/subscription:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubscriptionBody'
+              $ref: "#/components/schemas/SubscriptionBody"
         description: The membership to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Membership'
+                $ref: "#/components/schemas/Membership"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Add a membership record for a member
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - membership
+        - membership
     patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubscriptionBody'
+              $ref: "#/components/schemas/SubscriptionBody"
         description: The membership to create
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Add a membership record for a member
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - membership
+        - membership
   /member/{id}/subscription/validate:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
       - description: Should the membership be free
         in: query
         name: free
@@ -906,16 +948,16 @@ paths:
     post:
       operationId: subscription_validate
       responses:
-        '204':
+        "204":
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Validate a pending transaction
       security: 
         - OpenIdConnect:
@@ -936,7 +978,7 @@ paths:
             - 2
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -951,22 +993,22 @@ paths:
                 type: integer
                 example: 25
           description: number of member that have signed the charter
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: List of the members that have signed the charter
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - charter
+        - charter
   /charter/{charter_id}/member/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
       - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
         in: path
         name: charter_id
@@ -978,14 +1020,14 @@ paths:
             - 2
     post:
       responses:
-        '201':
+        "201":
           description: Signed
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Sign the specific charter
       security: 
         - OpenIdConnect:
@@ -994,22 +1036,22 @@ paths:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - charter
+        - charter
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
                 format: date-time
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retreive the signature date of the specific charter
       security: 
         - OpenIdConnect:
@@ -1018,13 +1060,13 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - charter
+        - charter
   /mailinglist/member/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -1033,12 +1075,12 @@ paths:
                 minimum: 0
                 maximum: 255
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retreive mailinglist memberships of the specific member
       security: 
         - OpenIdConnect:
@@ -1047,7 +1089,7 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - mailinglist
+        - mailinglist
     put:
       requestBody:
         content:
@@ -1065,14 +1107,14 @@ paths:
                   maximum: 255
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the mailing list membership of the member
       security:
         - OpenIdConnect:
@@ -1094,7 +1136,7 @@ paths:
           maximum: 255
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -1104,12 +1146,12 @@ paths:
                   description: Id of a member
                   type: integer
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retreive the members of a specific mailinglist memberships
       security: 
         - OpenIdConnect:
@@ -1120,16 +1162,16 @@ paths:
   /payment_method:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/PaymentMethod'
+                  $ref: "#/components/schemas/PaymentMethod"
                 type: array
           description: Success
           headers:
@@ -1138,7 +1180,7 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
+        "400":
           description: Invalid input
       summary: Filter payment methods
       security: 
@@ -1146,26 +1188,26 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - transaction
+        - transaction
   /payment_method/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaymentMethod'
+                $ref: "#/components/schemas/PaymentMethod"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a payment method
       security: 
         - OpenIdConnect:
@@ -1176,24 +1218,24 @@ paths:
   /port:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractPort'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyPort'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/AbstractPort"
+          style: deepObject
+          explode: true
+        - $ref: "#/components/parameters/onlyPort"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractPort'
+                  $ref: "#/components/schemas/AbstractPort"
                 type: array
           description: Success
           headers:
@@ -1202,112 +1244,112 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter ports
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - port
+        - port
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractPort'
+              $ref: "#/components/schemas/AbstractPort"
         description: The port to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Port'
+                $ref: "#/components/schemas/Port"
           description: The created port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a port
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - port
+        - port
   /port/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a port
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - port
+        - port
     get:
       parameters:
-      - $ref: '#/components/parameters/onlyPort'
+        - $ref: "#/components/parameters/onlyPort"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractPort'
+                $ref: "#/components/schemas/AbstractPort"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a port
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - port
+        - port
     put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractPort'
+              $ref: "#/components/schemas/AbstractPort"
         description: The new values for this port
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
+        "400":
           description: Invalid input
-        '404':
+        "404":
           description: Not found
       summary: Update a port
       security: 
@@ -1318,47 +1360,47 @@ paths:
       - port
   /port/{id}/mab:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: mab_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether MAB is enabled on this port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve whether MAB is enabled on this port
       security: 
         - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
-      - port
+        - port
     put:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the state of MAB on a port
       security: 
         - OpenIdConnect:
@@ -1368,24 +1410,24 @@ paths:
       - port
   /port/{id}/alias:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: alias_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
           description: Check the alias of the port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the alias on a port
       security: 
         - OpenIdConnect:
@@ -1395,24 +1437,24 @@ paths:
       - port
   /port/{id}/use:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: use_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
           description: Check if the port is currently used
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the current use of a port
       security: 
         - OpenIdConnect:
@@ -1422,24 +1464,24 @@ paths:
       - port
   /port/{id}/speed:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: speed_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
           description: Check the speed of the port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the speed on a port
       security: 
         - OpenIdConnect:
@@ -1449,47 +1491,47 @@ paths:
       - port
   /port/{id}/auth:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: auth_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether authentication is enabled on this port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve whether authentication is enabled on this port
       security: 
         - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
-      - port
+        - port
     put:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the state of authentication on a port
       security: 
         - OpenIdConnect:
@@ -1499,47 +1541,47 @@ paths:
       - port
   /port/{id}/state:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: state_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Whether the port is active
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the state of a port
       security: 
         - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
-      - port
+        - port
     put:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: boolean
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the state of a port
       security: 
         - OpenIdConnect:
@@ -1549,32 +1591,32 @@ paths:
       - port
   /port/{id}/vlan:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: vlan_get
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 example: 48
                 type: integer
           description: The VLAN assigned to this port
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the VLAN assigned to a port
       security: 
         - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
-      - port
+        - port
     put:
       requestBody:
         content:
@@ -1586,16 +1628,16 @@ paths:
         description: The VLAN to assign. Set to `null` to simply restore to the default VLAN
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update the VLAN assigned to a port
       security: 
         - OpenIdConnect:
@@ -1613,16 +1655,16 @@ paths:
   /product:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Product'
+                  $ref: "#/components/schemas/Product"
                 type: array
           description: Success
           headers:
@@ -1631,7 +1673,7 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
+        "400":
           description: Invalid input
       summary: Filter products
       security: 
@@ -1639,33 +1681,33 @@ paths:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - treasury
+        - treasury
   /product/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: "#/components/schemas/Product"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a product
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - treasury
+        - treasury
   /product/buy:
     parameters:
       - description: Member that buy th products
@@ -1691,16 +1733,16 @@ paths:
           type: integer
     post:
       responses:
-        '204':
+        "204":
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Generate a new transaction for a product
       security: 
         - OpenIdConnect:
@@ -1711,24 +1753,24 @@ paths:
   /room:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractRoom'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyRoom'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/AbstractRoom"
+          style: deepObject
+          explode: true
+        - $ref: "#/components/parameters/onlyRoom"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractRoom'
+                  $ref: "#/components/schemas/AbstractRoom"
                 type: array
           description: Success
           headers:
@@ -1737,115 +1779,115 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter rooms
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - room
+        - room
     post:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractRoom'
+              $ref: "#/components/schemas/AbstractRoom"
         description: The room to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Room'
+                $ref: "#/components/schemas/Room"
           description: The created room
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a room
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - room
+        - room
   /room/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a room
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - room
+        - room
     get:
       parameters:
-      - $ref: '#/components/parameters/onlyRoom'
+        - $ref: "#/components/parameters/onlyRoom"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractRoom'
+                $ref: "#/components/schemas/AbstractRoom"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a room
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - room
+        - room
     put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractRoom'
+              $ref: "#/components/schemas/AbstractRoom"
         description: The new values for this room
         required: true
       responses:
-        '201':
+        "201":
           description: Created
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update a room
       security: 
         - OpenIdConnect:
@@ -1855,10 +1897,10 @@ paths:
       - room
   /room/{id}/member:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -1868,19 +1910,19 @@ paths:
                   example: 0
                 type: array
           description: OK
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: List the members in a room
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
-      - room members
+        - room members
     post:
       requestBody:
         content:
@@ -1896,39 +1938,39 @@ paths:
                   example: 1
         required: true
       responses:
-        '204':
+        "204":
           description: The member has been added
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Add a member in a room
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
-      - room members
+        - room members
     delete:
       parameters:
-      - description: Id of the member to remove
-        in: query
-        name: memberId
-        schema:
-          type: integer
-          format: int32
-        required: true
+        - description: Id of the member to remove
+          in: query
+          name: memberId
+          schema:
+            type: integer
+            format: int32
+          required: true
       responses:
-        '204':
+        "204":
           description: The member has been removed
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Remove a member from a room
       security: 
         - OpenIdConnect:
@@ -1938,7 +1980,7 @@ paths:
       - room members
   /room/{id}/member/add:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     patch:
       deprecated: true
       requestBody:
@@ -1956,25 +1998,25 @@ paths:
         description: The member to add
         required: true
       responses:
-        '204':
+        "204":
           description: The member has been added
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Add a member in a room
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
       - room members
   /room/{id}/member/del:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     patch:
       deprecated: true
       requestBody:
@@ -1991,28 +2033,28 @@ paths:
                   example: 1
         required: true
       responses:
-        '204':
+        "204":
           description: The member has been removed
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Remove a member from a room
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
-      - room members
+        - room members
   /room/member/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -2021,12 +2063,12 @@ paths:
                 example: 0
                 nullable: true
           description: OK
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: List the members in a room
       security: 
         - OpenIdConnect:
@@ -2034,30 +2076,30 @@ paths:
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
       - room members
   /switch:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractSwitch'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlySwitch'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/AbstractSwitch"
+          style: deepObject
+          explode: true
+        - $ref: "#/components/parameters/onlySwitch"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractSwitch'
+                  $ref: "#/components/schemas/AbstractSwitch"
                 type: array
           description: Success
           headers:
@@ -2066,179 +2108,179 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter switches
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
-      - switch
+        - switch
     post:
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Switch'
+              $ref: "#/components/schemas/Switch"
         description: The switch to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Switch'
+                $ref: "#/components/schemas/Switch"
           description: The created switch
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a switch
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
-      - switch
+        - switch
   /switch/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a switch
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
-      - switch
+        - switch
     get:
       parameters:
-      - $ref: '#/components/parameters/onlySwitch'
+        - $ref: "#/components/parameters/onlySwitch"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractSwitch'
+                $ref: "#/components/schemas/AbstractSwitch"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a switch
       security: 
         - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
-      - switch
+        - switch
     put:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractSwitch'
+              $ref: "#/components/schemas/AbstractSwitch"
         description: The new values for this switch
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Update a switch
       security: 
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
       - switch
   /vlan:
     get:
       operationId: get_from_number
       parameters:
-      - in: query
-        name: vlan_number
-        schema:
-          type: integer
-        required: true
-        description: Number of the Vlan
-      - $ref: '#/components/parameters/onlyVlan'
+        - in: query
+          name: vlan_number
+          schema:
+            type: integer
+          required: true
+          description: Number of the Vlan
+        - $ref: "#/components/parameters/onlyVlan"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractVlan'
+                $ref: "#/components/schemas/AbstractVlan"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter vlans
       security: 
         - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth:
-          - network:read
+            - network:read
       tags:
       - vlan
   /transaction:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - $ref: '#/components/parameters/searchTerm'
-      - description: Filters by various properties
-        in: query
-        name: filter
-        schema:
-          $ref: '#/components/schemas/AbstractTransaction'
-        style: deepObject
-        explode: true
-      - $ref: '#/components/parameters/onlyTransaction'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Filters by various properties
+          in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/AbstractTransaction"
+          style: deepObject
+          explode: true
+        - $ref: "#/components/parameters/onlyTransaction"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/AbstractTransaction'
+                  $ref: "#/components/schemas/AbstractTransaction"
                 type: array
           description: Success
           headers:
@@ -2247,57 +2289,57 @@ paths:
               schema:
                 type: integer
                 example: 0
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter transactions
       security: 
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
-          - treasurer:read
+            - treasurer:read
       tags:
-      - transaction
+        - transaction
     post:
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Transaction'
+              $ref: "#/components/schemas/Transaction"
         description: The transaction to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Transaction'
+                $ref: "#/components/schemas/Transaction"
           description: The created transaction
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a transaction
       security: 
         - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
-          - treasurer:write
+            - treasurer:write
       tags:
       - transaction
   /transaction/{id}/upload:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     post:
       requestBody:
         content:
@@ -2306,129 +2348,129 @@ paths:
               type: string
               format: binary
       responses:
-        '204':
+        "204":
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Upload an attachment to a transaction
       security: 
         - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
-          - treasurer:write
+            - treasurer:write
       tags:
-      - transaction
+        - transaction
   /transaction/{id}/validate:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       operationId: validate
       responses:
-        '204':
+        "204":
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Validate a pending transaction
       security: 
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
-          - treasurer:read
+            - treasurer:read
       tags:
-      - transaction
+        - transaction
   /transaction/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     get:
       parameters:
-      - $ref: '#/components/parameters/onlyTransaction'
+        - $ref: "#/components/parameters/onlyTransaction"
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AbstractTransaction'
+                $ref: "#/components/schemas/AbstractTransaction"
           description: Success
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve a transaction
       security: 
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
-          - treasurer:read
+            - treasurer:read
       tags:
-      - transaction
+        - transaction
     patch:
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AbstractTransaction'
+              $ref: "#/components/schemas/AbstractTransaction"
         description: The new values for this transaction
         required: true
       responses:
-        '204':
+        "204":
           description: Updated
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Partially update a transaction
       security: 
         - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
-          - treasurer:write
+            - treasurer:write
       tags:
-      - transaction
+        - transaction
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
       security: 
         - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
-          - treasurer:write
+            - treasurer:write
       tags:
-      - transaction
+        - transaction
   /treasury/cashbox:
     get:
       operationId: get_cashbox
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -2444,23 +2486,23 @@ paths:
                 type: object
                 title: cashbox
           description: Success
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the state of the cashbox
       security: 
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
-          - treasurer:read
+            - treasurer:read
       tags:
-      - treasury
+        - treasury
   /treasury/bank:
     get:
       operationId: get_bank
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
@@ -2472,43 +2514,43 @@ paths:
                 type: object
                 title: bank
           description: Success
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Retrieve the expected state of MiNET's bank accounts
       security: 
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
-          - treasurer:read
+            - treasurer:read
       tags:
       - treasury
   /role:
     get:
       parameters:
-      - description: Filter with the authentication type
-        in: query
-        name: auth
-        schema:
-          type: string
-          enum:
-            - oidc
-            - user
-            - api_key
-        required: true
-      - description: filter with the identifier associated
-        in: query
-        name: id
-        schema:
-          type: string
+        - description: Filter with the authentication type
+          in: query
+          name: auth
+          schema:
+            type: string
+            enum:
+              - oidc
+              - user
+              - api_key
+          required: true
+        - description: filter with the identifier associated
+          in: query
+          name: id
+          schema:
+            type: string
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/RoleMapping'
+                  $ref: "#/components/schemas/RoleMapping"
                 type: array
           description: Success
           headers:
@@ -2517,21 +2559,21 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Filter roles
       security: 
         - OpenIdConnect:
           - admin:read
           - admin:prod
         - ApiKeyAdminAuth:
-          - admin:read
+            - admin:read
       tags:
-      - authentication
+        - authentication
     post:
       requestBody:
         content:
@@ -2542,7 +2584,7 @@ paths:
                 roles:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Role'
+                    $ref: "#/components/schemas/Role"
                 identifier:
                   description: Login of the user that need the role
                   type: string
@@ -2555,63 +2597,63 @@ paths:
         description: The role to create
         required: true
       responses:
-        '201':
+        "201":
           description: OK
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create a temporary role for a user
       security: 
         - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
-      - authentication
+        - authentication
   /role/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete a Role
       security: 
         - OpenIdConnect:
           - admin:write
           - admin:prod
         - ApiKeyAdminAuth:
-          - admin:write
+            - admin:write
       tags:
       - authentication
   /api_keys:
     get:
       parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/skip'
-      - description: The login of the user
-        in: query
-        name: login
-        required: false
-        schema:
-          type: string
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - description: The login of the user
+          in: query
+          name: login
+          required: false
+          schema:
+            type: string
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/ApiKey'
+                  $ref: "#/components/schemas/ApiKey"
                 type: array
           description: Success
           headers:
@@ -2620,19 +2662,19 @@ paths:
               schema:
                 type: integer
                 example: 25
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: List api keys
       security: 
         - OpenIdConnect:
           - admin:read
           - admin:prod
       tags:
-      - authentication
+        - authentication
     post:
       requestBody:
         content:
@@ -2648,52 +2690,52 @@ paths:
                 roles:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Role'
+                    $ref: "#/components/schemas/Role"
         description: The room to create
         required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
                 type: string
                 format: uuid
           description: The value of the Api Key
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Create an ApiKey
       security: 
         - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
-      - authentication
+        - authentication
   /api_keys/{id}:
     parameters:
-      - $ref: '#/components/parameters/idPath'
+      - $ref: "#/components/parameters/idPath"
     delete:
       responses:
-        '204':
+        "204":
           description: Deleted
-        '400':
-          $ref: '#/components/responses/Invalid'
-        '403':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          $ref: '#/components/responses/Unexpected'
+          $ref: "#/components/responses/Unexpected"
       summary: Delete an Api Key
       security: 
         - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
-      - authentication
+        - authentication
 components:
   parameters:
     limit:
@@ -2882,25 +2924,25 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     Unauthorized:
       description: The user has insufficient permissions
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     Invalid:
       description: The request received invalid parameters
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     Unexpected:
       description: The request encountered an unexpected error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
   schemas:
     MemberStatus:
       type: object
@@ -3026,12 +3068,12 @@ components:
           nullable: true
     Membership:
       allOf:
-        - $ref: '#/components/schemas/AbstractMembership'
+        - $ref: "#/components/schemas/AbstractMembership"
         - required:
-          - uuid
-          - hasRoom
-          - member
-          - status
+            - uuid
+            - hasRoom
+            - member
+            - status
       type: object
     AbstractAccount:
       type: object
@@ -3086,7 +3128,7 @@ components:
           example: 321.1
     Account:
       allOf:
-        - $ref: '#/components/schemas/AbstractAccount'
+        - $ref: "#/components/schemas/AbstractAccount"
         - required:
             - accountType
             - name
@@ -3143,7 +3185,7 @@ components:
           type: array
           items:
             type: string
-          example: [ "3b2f552df763bc9444f9f31a4fd831a3e3ace994" ]
+          example: ["3b2f552df763bc9444f9f31a4fd831a3e3ace994"]
         author:
           readOnly: true
           description: The member who executed this transaction
@@ -3164,7 +3206,7 @@ components:
             - direct
     Transaction:
       allOf:
-        - $ref: '#/components/schemas/AbstractTransaction'
+        - $ref: "#/components/schemas/AbstractTransaction"
         - required:
             - name
             - src
@@ -3198,7 +3240,7 @@ components:
           type: string
     PaymentMethod:
       allOf:
-        - $ref: '#/components/schemas/AbstractPaymentMethod'
+        - $ref: "#/components/schemas/AbstractPaymentMethod"
         - required:
             - name
       type: object
@@ -3226,7 +3268,7 @@ components:
           type: string
     Product:
       allOf:
-        - $ref: '#/components/schemas/AbstractProduct'
+        - $ref: "#/components/schemas/AbstractProduct"
         - required:
             - name
             - sellingPrice
@@ -3237,8 +3279,8 @@ components:
         connectionType:
           description: The connection type of this device
           enum:
-          - wired
-          - wireless
+            - wired
+            - wireless
           type: string
         member:
           description: The id of the owner of this device
@@ -3257,8 +3299,8 @@ components:
         connectionType:
           description: The connection type of this device
           enum:
-          - wired
-          - wireless
+            - wired
+            - wireless
           type: string
         ipv4Address:
           description: The ipv4 address assigned to this device
@@ -3284,7 +3326,7 @@ components:
           example: 0
     Device:
       allOf:
-        - $ref: '#/components/schemas/AbstractDevice'
+        - $ref: "#/components/schemas/AbstractDevice"
         - required:
             - connectionType
             - mac
@@ -3299,8 +3341,8 @@ components:
         connectionType:
           description: The connection type of this device
           enum:
-          - wired
-          - wireless
+            - wired
+            - wireless
           type: string
         mac:
           description: The MAC address of this device
@@ -3318,7 +3360,7 @@ components:
         - comment
       properties:
         comment:
-          example: 'Je suis un commentaire'
+          example: "Je suis un commentaire"
           nullable: false
           type: string
           maxLength: 255
@@ -3457,7 +3499,7 @@ components:
             whether or not this is the member's first membership request etc.
     Member:
       allOf:
-        - $ref: '#/components/schemas/AbstractMember'
+        - $ref: "#/components/schemas/AbstractMember"
         - required:
             - id
             - username
@@ -3488,7 +3530,7 @@ components:
           example: 4
     Room:
       allOf:
-        - $ref: '#/components/schemas/AbstractRoom'
+        - $ref: "#/components/schemas/AbstractRoom"
         - required:
             - description
             - roomNumber
@@ -3509,7 +3551,7 @@ components:
           type: string
         oid:
           description: The oid of this port for SNMP access
-          example: '10104'
+          example: "10104"
           type: string
         room:
           description: The room this port is in
@@ -3522,7 +3564,7 @@ components:
           example: 4
     Port:
       allOf:
-        - $ref: '#/components/schemas/AbstractPort'
+        - $ref: "#/components/schemas/AbstractPort"
         - required:
             - portNumber
             - oid
@@ -3555,7 +3597,7 @@ components:
           format: ipv4
     Switch:
       allOf:
-        - $ref: '#/components/schemas/AbstractSwitch'
+        - $ref: "#/components/schemas/AbstractSwitch"
         - required:
             - description
             - ip
@@ -3586,11 +3628,11 @@ components:
           nullable: true
     Vlan:
       allOf:
-        - $ref: '#/components/schemas/AbstractVlan'
+        - $ref: "#/components/schemas/AbstractVlan"
         - required:
-          - number
-          - ipv4Network
-          - ipv6Network
+            - number
+            - ipv4Network
+            - ipv6Network
       type: object
     Error:
       type: object
@@ -3625,7 +3667,7 @@ components:
         id:
           type: integer
         role:
-          $ref: '#/components/schemas/Role'
+          $ref: "#/components/schemas/Role"
         authentication:
           type: string
           enum:
@@ -3686,31 +3728,31 @@ components:
       name: X-API-KEY
       x-apikeyInfoFunc: adh6.authentication.apikey_treasury_auth
 tags:
-- description: Operations on members
-  name: member
-- description: Manage membership records
-  name: membership
-- description: Operations on the charters
-  name: charter
-- description: Operations on the mailinglists
-  name: mailinglist
-- description: Operations on devices
-  name: device
-- description: Operations on rooms
-  name: room
-- description: Operation on the members in a room
-  name: room members
-- description: Operations on VLANs
-  name: vlan
-- description: Operations on switches
-  name: switch
-- description: Operations on ports
-  name: port
-- description: Operations on accounts
-  name: account
-- description: Operations on transactions
-  name: transaction
-- description: Operations on the treasury
-  name: treasury
-- description: Miscellaneous endpoints
-  name: misc
+  - description: Operations on members
+    name: member
+  - description: Manage membership records
+    name: membership
+  - description: Operations on the charters
+    name: charter
+  - description: Operations on the mailinglists
+    name: mailinglist
+  - description: Operations on devices
+    name: device
+  - description: Operations on rooms
+    name: room
+  - description: Operation on the members in a room
+    name: room members
+  - description: Operations on VLANs
+    name: vlan
+  - description: Operations on switches
+    name: switch
+  - description: Operations on ports
+    name: port
+  - description: Operations on accounts
+    name: account
+  - description: Operations on transactions
+    name: transaction
+  - description: Operations on the treasury
+    name: treasury
+  - description: Miscellaneous endpoints
+    name: misc

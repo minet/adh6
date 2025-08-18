@@ -29,20 +29,74 @@ class ElasticsearchLogsRepository(LogsRepository):
             self.config["ELK_HOSTS"], http_auth=(self.config["ELK_USER"], self.config["ELK_SECRET"])
         )
 
-    def get(self, member: Member, devices: list[Device] = [], limit: int = LOG_DEFAULT_LIMIT, dhcp: bool = False):
+    def get(
+        self,
+        member: Member,
+        devices: list[Device] = [],
+        limit: int = LOG_DEFAULT_LIMIT,
+        offset: int = 0,
+        dhcp: bool = False,
+    ):
         """
         Get the logs related to the username and to the devices.
-        :param ctx:  context
-        :param username:  username
-        :param devices:  MAC addresses of the devices
+        :param member: Member object
+        :param devices: MAC addresses of the devices
         :param limit: limit result
+        :param offset: offset for pagination
         :param dhcp: allow to query DHCP logs or not
-        :return: logs
+        :return: tuple of (logs, total_count)
         """
         if "ELK_HOSTS" not in self.config:
-            return [[1, "test_log"]]
+            # Mock data for development
+            # Generate a large number of mock logs to test pagination
+            mock_logs = [
+                [dateutil.parser.parse(f"2024-01-{(i % 31) + 1:02d}T10:{(i % 60):02d}:00Z"), f"test_log_{i}"]
+                for i in range(1, 1001)
+            ]
+            paginated_logs = mock_logs[offset : offset + limit]
+            return paginated_logs, len(mock_logs)
 
-        # Prepare the elasticsearch query...
+        # First, get the total count
+        count_query = {
+            "query": {
+                "bool": {
+                    "filter": {"match": {"program": "radiusd"}},
+                    "should": [
+                        {"match": {"radius_user": member.username}},
+                    ],
+                    "minimum_should_match": 1,
+                },
+            },
+        }
+
+        if dhcp:
+            count_query = {
+                "query": {
+                    "constant_score": {
+                        "filter": {
+                            "bool": {
+                                "should": [],
+                                "minimum_should_match": 1,
+                            },
+                        },
+                    },
+                },
+            }
+
+        # Add the macs to the count query
+        for d in devices:
+            addr = d.mac
+            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
+
+            if not dhcp:
+                count_query["query"]["bool"]["should"] += list(variations)
+            else:
+                count_query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
+
+        # Get total count
+        total_count = self.es.count(index="", body=count_query)["count"]
+
+        # Prepare the elasticsearch query for actual logs...
         if not dhcp:
             query = {
                 "sort": {
@@ -60,7 +114,7 @@ class ElasticsearchLogsRepository(LogsRepository):
                 },
                 "_source": ["@timestamp", "message", "src_mac"],  # discard any other field than timestamp & message
                 "size": limit,
-                "from": 0,
+                "from": offset,
             }
         else:
             query = {
@@ -80,7 +134,7 @@ class ElasticsearchLogsRepository(LogsRepository):
                 "_source": ["@timestamp", "message", "program", "src_mac"],
                 # discard any other field than timestamp & message
                 "size": limit,
-                "from": 0,
+                "from": offset,
             }
 
         # Add the macs to the "should"
@@ -106,4 +160,5 @@ class ElasticsearchLogsRepository(LogsRepository):
                 # r["_source"]["message"] = r["_source"]["message"]
                 pass
 
-        return [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]
+        logs = [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]
+        return logs, total_count

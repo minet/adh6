@@ -91,9 +91,9 @@ class MemberHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def logs_search(self, id_, dhcp=False):
+    def logs_search(self, id_, dhcp=False, limit=10, offset=0):
         """Get logs from a member."""
-        return self.member_manager.get_logs(id_, dhcp=dhcp), 200
+        return self.member_manager.get_logs(id_, limit=limit, offset=offset, dhcp=dhcp), 200
 
     @with_context
     @log_call
