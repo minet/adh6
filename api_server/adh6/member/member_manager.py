@@ -3,6 +3,8 @@ import re
 from datetime import datetime
 from ipaddress import IPv4Address, IPv4Network
 from Crypto.Hash import MD4
+from datetime import timedelta
+
 # import hashlib # Keep these 2 libs. See comment in change_password method below
 # from binascii import hexlify
 
@@ -120,7 +122,7 @@ class MemberManager(CRUDManager):
                 first_name=body.first_name,
                 last_name=body.last_name,
                 email=body.mail,
-                departure_date=datetime.now(),
+                departure_date=datetime.now() - timedelta(days=1),
                 ip="",
                 subnet="",
                 comment="",

@@ -12,11 +12,10 @@ import {AutoTroubleshootComponent} from "./auto-troubleshoot/auto-troubleshoot.c
   declarations: [
     ElementComponent,
     MemberDeviceListComponent,
-    NewComponent,
     AutoTroubleshootComponent,
     MemberDeviceComponent,
   ],
-  imports: [CommonModule, ReactiveFormsModule, AblePipe],
+  imports: [CommonModule, ReactiveFormsModule, AblePipe, NewComponent],
   exports: [MemberDeviceComponent],
 })
 export class MemberDeviceModule {}

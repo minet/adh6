@@ -7,16 +7,19 @@
         Aucun appareil enregistré
       </p>
     } @else {
-      <ng-template [ngTemplateOutlet]="theDevices"></ng-template>
-    }
-    @for (deviceId of result; track deviceId; let i = $index) {
-      <div>
-        <app-element
-          [elementName]="i"
-          [deviceId]="deviceId"
-          style="padding: 0% 0%"
-          (removed)="updateSearch()"></app-element>
+      <!-- Container with rounded corners for the entire device list -->
+      <div class="device-list-container">
+        @for (deviceId of result; track deviceId; let i = $index) {
+          <div class="device-item" [class.is-first]="i === 0" [class.is-last]="i === result.length - 1">
+            <app-element
+              [elementName]="i"
+              [deviceId]="deviceId"
+              style="padding: 0% 0%"
+              (removed)="updateSearch()"></app-element>
+          </div>
+        }
       </div>
+      <ng-template [ngTemplateOutlet]="theDevices"></ng-template>
     }
   </div>
 } @else {

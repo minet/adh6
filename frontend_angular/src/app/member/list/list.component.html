@@ -1,32 +1,52 @@
-<div class="field is-horizontal">
-  <div class="field-body">
-    <div class="field is-grouped">
-      <p class="control is-expanded">
-        <input
-          #searchBox
-          id="search-box"
-          (keyup)="search(searchBox.value)"
-          class="input is-fullwidth"
-          placeholder="Rechercher..."
-          type="text" />
-      </p>
-      <p class="control">
-        <select
-          class="input"
-          (change)="updateSubscriptionFilter($event.target.value)">
-          <option value="">-- Toutes inscriptions --</option>
-          @for (v of subscriptionValues | keyvalue; track v) {
-            <option value="{{ v.value }}">
-              {{ v.key }}
-            </option>
-          }
-        </select>
-      </p>
-      <p class="control">
-        <a [routerLink]="['../add']">
-          <button class="button is-primary">Nouvelle inscription</button>
-        </a>
-      </p>
+<div class="field">
+  <!-- Responsive search layout: horizontal on desktop, vertical on mobile -->
+  <div class="columns is-variable is-3">
+    <!-- Search input -->
+    <div class="column">
+      <div class="field">
+        <label class="label is-hidden-mobile">Recherche</label>
+        <div class="control">
+          <input
+            #searchBox
+            id="search-box"
+            (keyup)="search(searchBox.value)"
+            class="input is-fullwidth"
+            placeholder="Rechercher..."
+            type="text" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscription filter -->
+    <div class="column is-narrow-desktop is-full-mobile">
+      <div class="field">
+        <label class="label is-hidden-mobile">Inscription</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select
+              (change)="updateSubscriptionFilter($event.target.value)">
+              <option value="">-- Toutes inscriptions --</option>
+              @for (v of subscriptionValues | keyvalue; track v) {
+                <option value="{{ v.value }}">
+                  {{ v.key }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add new member button -->
+    <div class="column is-narrow-desktop is-full-mobile">
+      <div class="field">
+        <label class="label is-hidden-mobile">&nbsp;</label>
+        <div class="control">
+          <a [routerLink]="['../add']">
+            <button class="button is-primary is-fullwidth-mobile">Nouvelle inscription</button>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
