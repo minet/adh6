@@ -1,7 +1,13 @@
 import {Component, OnInit} from "@angular/core";
+import {AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {
   AbstractMember,
   AbstractPort,
@@ -15,9 +21,9 @@ import {map, shareReplay} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [RouterModule, AsyncPipe, ReactiveFormsModule],
   selector: "app-room-details",
   templateUrl: "./room-details.component.html",
-  standalone: false,
 })
 export class RoomDetailsComponent implements OnInit {
   public room$: Observable<AbstractRoom>;
@@ -27,6 +33,7 @@ export class RoomDetailsComponent implements OnInit {
   public roomForm: UntypedFormGroup;
   public EmmenagerForm: UntypedFormGroup;
   public isDemenager = false;
+  public enabled = false;
   public ref: number;
   public cachedMemberUsernames: Map<Number, Observable<AbstractMember>> =
     new Map();

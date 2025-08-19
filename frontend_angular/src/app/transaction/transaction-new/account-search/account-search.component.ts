@@ -1,4 +1,5 @@
 import {Component, OnInit, Output, EventEmitter, Input} from "@angular/core";
+import {AsyncPipe, CommonModule} from "@angular/common";
 import {map, of} from "rxjs";
 import {AccountService, AbstractAccount} from "../../../api";
 import {SearchPage} from "../../../search-page";
@@ -6,9 +7,10 @@ import {SearchPage} from "../../../search-page";
 export {ClickOutsideDirective} from "../../clickOutside.directive";
 
 @Component({
+  imports: [AsyncPipe, CommonModule],
   selector: "app-account-search",
   templateUrl: "./account-search.component.html",
-  standalone: false,
+  standalone: true,
 })
 export class AccountSearchComponent
   extends SearchPage<AbstractAccount>

@@ -39,7 +39,8 @@
             ],
             "inlineStyleLanguage": "scss",
             "scripts": [],
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "allowedCommonJsDependencies": ["sweetalert2"]
           },
           "configurations": {
             "development": {
@@ -68,7 +69,8 @@
               ]
             },
             "production": {
-              "localize": ["fr", "en"],
+              "localize": ["fr"],
+              "i18nMissingTranslation": "ignore",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

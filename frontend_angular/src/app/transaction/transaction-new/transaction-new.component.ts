@@ -1,9 +1,19 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {RouterModule} from "@angular/router";
+import {CommonModule, DecimalPipe} from "@angular/common";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 
 import {map, takeWhile} from "rxjs/operators";
 
 import {PaymentMethod, Transaction, TransactionService} from "../../api";
+import {AccountSearchComponent} from "./account-search/account-search.component";
+import {TransactionListComponent} from "../../transaction-list/transaction-list.component";
 
 import {ActivatedRoute} from "@angular/router";
 import {AppConstantsService} from "../../app-constants.service";
@@ -21,9 +31,17 @@ interface TransactionForm {
 }
 
 @Component({
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    CommonModule,
+    DecimalPipe,
+    AccountSearchComponent,
+    TransactionListComponent,
+  ],
   selector: "app-transaction-new",
   templateUrl: "./transaction-new.component.html",
-  standalone: false,
+  standalone: true,
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;

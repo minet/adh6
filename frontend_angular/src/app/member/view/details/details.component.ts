@@ -34,7 +34,7 @@ interface RoomForm {
 })
 export class DetailsComponent {
   public moveIn: boolean = false;
-  private roomForm: FormGroup<RoomForm> = new FormGroup({
+  public roomForm: FormGroup<RoomForm> = new FormGroup({
     roomNumber: new FormControl(null, Validators.required),
   });
   public room$: Observable<AbstractRoom>;

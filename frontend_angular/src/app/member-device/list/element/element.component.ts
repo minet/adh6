@@ -2,11 +2,13 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {first, map, Observable, shareReplay} from "rxjs";
 import Swal from "sweetalert2";
 import {AbstractDevice, DeviceService} from "../../../api";
+import {CommonModule, AsyncPipe} from "@angular/common";
+import {AblePipe} from "@casl/angular";
 
 @Component({
+  imports: [CommonModule, AsyncPipe, AblePipe],
   selector: "app-element",
   templateUrl: "./element.component.html",
-  standalone: false,
 })
 export class ElementComponent implements OnInit {
   @Input() deviceId: number;

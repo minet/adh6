@@ -1,14 +1,15 @@
 import {Component, Input, ViewChild} from "@angular/core";
-import {AbstractDevice, Member} from "../api";
+import {AbstractDevice, AbstractMember, Member} from "../api";
 import {MemberDeviceListComponent} from "./list/list.component";
+import {NewComponent} from "./new/new.component";
 
 @Component({
+  imports: [MemberDeviceListComponent, NewComponent],
   selector: "app-member-device",
   templateUrl: "./member-device.component.html",
-  standalone: false,
 })
 export class MemberDeviceComponent {
-  @Input() member: Member;
+  @Input() member: AbstractMember;
 
   @ViewChild(MemberDeviceListComponent) wiredList: MemberDeviceListComponent;
   @ViewChild(MemberDeviceListComponent) wirelessList: MemberDeviceListComponent;

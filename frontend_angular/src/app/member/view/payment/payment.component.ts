@@ -1,6 +1,12 @@
 import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Component} from "@angular/core";
-import {Member, MembershipService, TransactionService} from "../../../api";
+import {
+  AbstractMember,
+  Member,
+  MembershipService,
+  TransactionService,
+} from "../../../api";
 import {BuyProductComponent} from "./product/buy-product.component";
 import {CotisationComponent} from "./cotisation/cotisation.component";
 import {AblePipe} from "@casl/angular";
@@ -8,7 +14,13 @@ import {MemberDetailService} from "../member-detail.service";
 
 @Component({
   standalone: true,
-  imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
+  imports: [
+    CommonModule,
+    BuyProductComponent,
+    CotisationComponent,
+    AblePipe,
+    FormsModule,
+  ],
   selector: "app-payment",
   templateUrl: "./payment.component.html",
 })
@@ -25,9 +37,9 @@ export class PaymentComponent {
     private memberDetailService: MemberDetailService,
   ) {}
 
-  public validatePayment(member: Member): void {
+  public validatePayment(member: AbstractMember): void {
     this.membershipService
-      .subscriptionValidate(member.id, this.isFree)
+      .subscriptionValidate(member.id!, this.isFree)
       .subscribe(() =>
         this.memberDetailService.updateMemberInfos.emit("Inscription finie"),
       );

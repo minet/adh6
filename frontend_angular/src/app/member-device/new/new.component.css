@@ -1,6 +1,6 @@
 /* Mobile-optimized MAC address input styling */
 .mac-address-input {
-  font-family: 'Courier New', 'Lucida Console', monospace !important;
+  font-family: "Courier New", "Lucida Console", monospace !important;
   font-size: 1rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -14,22 +14,22 @@
     min-height: 3rem;
     text-align: center;
   }
-  
+
   /* Ensure full width on mobile */
   .field .control {
     width: 100%;
   }
-  
+
   .button.is-fullwidth-mobile {
     width: 100%;
     justify-content: center;
   }
-  
+
   /* Better spacing on mobile */
   .box {
     margin: 0.5rem;
   }
-  
+
   .column.is-full-mobile {
     margin-bottom: 1rem;
   }
@@ -40,7 +40,7 @@
   .mac-address-input {
     min-width: 200px;
   }
-  
+
   .field .columns {
     align-items: end;
   }

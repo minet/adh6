@@ -143,6 +143,11 @@ export class TransactionListComponent
     this.getSearchResult();
   }
 
+  onTypeFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.updateTypeFilter(target.value);
+  }
+
   ngOnInit() {
     super.ngOnInit();
     this.getSearchResult();

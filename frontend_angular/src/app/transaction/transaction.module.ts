@@ -8,14 +8,13 @@ import {AccountSearchComponent} from "./transaction-new/account-search/account-s
 import {TransactionListComponent} from "../transaction-list/transaction-list.component";
 
 @NgModule({
-  declarations: [
-    TransactionNewComponent,
-    ClickOutsideDirective,
-    AccountSearchComponent,
-  ],
+  declarations: [],
   imports: [
     ReactiveFormsModule,
     CommonModule,
+    TransactionNewComponent,
+    ClickOutsideDirective,
+    AccountSearchComponent,
     RouterModule.forChild([
       {path: "", redirectTo: "add", pathMatch: "full"},
       {path: "add", component: TransactionNewComponent},

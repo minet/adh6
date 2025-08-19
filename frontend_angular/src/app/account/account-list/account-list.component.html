@@ -11,7 +11,7 @@
           type="text" />
       </p>
       <p class="control">
-        <select class="input" (change)="updateTypeFilter($event.target.value)">
+        <select class="input" (change)="onTypeFilterChange($event)">
           <option value="">-- Tout type --</option>
           @for (accountType of accountTypes; track accountType) {
             <option value="{{ accountType.id }}">

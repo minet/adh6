@@ -9,13 +9,17 @@ import {MemberDeviceComponent} from "./member-device.component";
 import {AutoTroubleshootComponent} from "./auto-troubleshoot/auto-troubleshoot.component";
 
 @NgModule({
-  declarations: [
+  declarations: [],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    AblePipe,
+    NewComponent,
     ElementComponent,
     MemberDeviceListComponent,
     AutoTroubleshootComponent,
     MemberDeviceComponent,
   ],
-  imports: [CommonModule, ReactiveFormsModule, AblePipe, NewComponent],
   exports: [MemberDeviceComponent],
 })
 export class MemberDeviceModule {}

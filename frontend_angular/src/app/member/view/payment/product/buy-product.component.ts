@@ -8,7 +8,13 @@ import {
   Validators,
 } from "@angular/forms";
 import {map, Observable} from "rxjs";
-import {Member, PaymentMethod, Product, TreasuryService} from "../../../../api";
+import {
+  AbstractMember,
+  Member,
+  PaymentMethod,
+  Product,
+  TreasuryService,
+} from "../../../../api";
 import {Toast} from "../../../../notification.service";
 
 interface ProductForm {
@@ -29,7 +35,7 @@ interface ProductForm {
   templateUrl: "./buy-product.component.html",
 })
 export class BuyProductComponent {
-  @Input() member: Member;
+  @Input() member: AbstractMember;
   @Input() paymentMethods: PaymentMethod[];
 
   public productForm: FormGroup<ProductForm> = new FormGroup({
@@ -69,6 +75,10 @@ export class BuyProductComponent {
     let v = 0;
     this.checkedProducts.forEach((p) => (v += p.amount));
     return v;
+  }
+
+  updateAmount(): void {
+    // Method called when checkboxes change - the amount getter will recalculate automatically
   }
 
   public submit(): void {

@@ -73,6 +73,11 @@ export class AccountListComponent
     this.getSearchResult();
   }
 
+  onTypeFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.updateTypeFilter(target.value);
+  }
+
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params["member"] !== undefined) {

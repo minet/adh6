@@ -7,7 +7,7 @@ import {
   SwitchService,
   AbstractPort,
 } from "../../api";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {
   ReactiveFormsModule,
   UntypedFormBuilder,
@@ -19,7 +19,7 @@ import {NotificationService} from "../../notification.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   selector: "app-port-details",
   templateUrl: "./port-details.component.html",
 })

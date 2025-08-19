@@ -6,7 +6,6 @@ import {SwitchService} from "../../api";
   selector: "app-switch-edit",
   templateUrl: "./switch-edit.component.html",
   styleUrls: ["./switch-edit.component.css"],
-  standalone: false,
 })
 export class SwitchEditComponent {
   switchForm: UntypedFormGroup;

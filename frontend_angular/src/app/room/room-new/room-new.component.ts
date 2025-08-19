@@ -1,5 +1,10 @@
 import {Component, OnDestroy} from "@angular/core";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {Router} from "@angular/router";
 
 import {Room, RoomService} from "../../api";
@@ -7,10 +12,11 @@ import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [ReactiveFormsModule],
   selector: "app-room-new",
   templateUrl: "./room-new.component.html",
   styleUrls: ["./room-new.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class RoomNewComponent implements OnDestroy {
   disabled = false;

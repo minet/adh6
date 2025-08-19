@@ -1,16 +1,22 @@
 import {Router} from "@angular/router";
 import {Component} from "@angular/core";
 import {Observable} from "rxjs";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {AbstractSwitch, Switch, SwitchService} from "../../api";
 import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [ReactiveFormsModule],
   selector: "app-switch-new",
   templateUrl: "./switch-new.component.html",
   styleUrls: ["./switch-new.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class SwitchNewComponent {
   switches$: Observable<Array<AbstractSwitch>>;

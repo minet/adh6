@@ -11,6 +11,10 @@ import {Router, RouterOutlet} from "@angular/router";
 import {Ability, AbilityBuilder} from "@casl/ability";
 import {OidcSecurityService} from "angular-auth-oidc-client";
 import {Configuration, MiscService} from "./api";
+import {NavbarComponent} from "./navbar/navbar.component";
+import {VerticalNavbarComponent} from "./vertical-navbar/vertical-navbar.component";
+import {FooterComponent} from "./footer/footer.component";
+import {AblePipe} from "@casl/angular";
 
 export const fadeAnimation = trigger("fadeAnimation", [
   transition("* => *", [
@@ -47,10 +51,17 @@ export const fadeAnimation = trigger("fadeAnimation", [
 ]);
 
 @Component({
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    NavbarComponent,
+    VerticalNavbarComponent,
+    FooterComponent,
+    AblePipe,
+  ],
   selector: "app-root",
   templateUrl: "./app.component.html",
   animations: [fadeAnimation],
-  standalone: false,
 })
 export class AppComponent {
   constructor(

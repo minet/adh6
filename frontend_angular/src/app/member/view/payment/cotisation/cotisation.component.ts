@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter} from "@angular/core";
 import {
   AbstractAccount,
+  AbstractMember,
   AccountService,
   AbstractMembership,
   MembershipService,
@@ -27,7 +28,7 @@ interface SubscriptionForm {
   templateUrl: "./cotisation.component.html",
 })
 export class CotisationComponent {
-  @Input() member: Member;
+  @Input() member: AbstractMember;
   @Input() paymentMethods: PaymentMethod[];
   @Output() updateSubscription = new EventEmitter<boolean>();
 

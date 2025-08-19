@@ -9,7 +9,7 @@
       type="text" />
   </div>
   <div class="column is-narrow">
-    <select class="input" (change)="updateTypeFilter($event.target.value)">
+    <select class="input" (change)="onTypeFilterChange($event)">
       <option value="">-- Tout type --</option>
       @for (pm of paymentMethods; track pm) {
         <option value="{{ pm.id }}">

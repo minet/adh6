@@ -15,9 +15,7 @@
         <div
           class="card-header"
           [ngClass]="
-            {true: 'has-background-success', false: 'has-background-danger'}[
-              account.balance > 0
-            ]
+            account.balance > 0 ? 'has-background-success' : 'has-background-danger'
           ">
           <h3 class="card-header-title title is-3 has-text-light is-centered">
             {{ account.balance | number: "" : "fr" }} €
@@ -51,20 +49,7 @@
                   disabled />
               </div>
             </div>
-            <div class="columns">
-              <div class="column">
-                <label class="label">Épinglé</label>
-              </div>
-              <div class="column">
-                <input
-                  type="checkbox"
-                  name="actif"
-                  checked="checked"
-                  [(ngModel)]="account.epingle"
-                  disabled />
-              </div>
-            </div>
-            <div class="columns is-vcentered">
+           <div class="columns is-vcentered">
               <div class="column">
                 <label class="label">Type</label>
               </div>

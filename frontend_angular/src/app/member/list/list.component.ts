@@ -76,6 +76,11 @@ export class ListComponent extends SearchPage<number> {
     this.getSearchResult();
   }
 
+  onSubscriptionFilterChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.updateSubscriptionFilter(target.value);
+  }
+
   handlePageChange(page: number) {
     this.changePage(page);
   }

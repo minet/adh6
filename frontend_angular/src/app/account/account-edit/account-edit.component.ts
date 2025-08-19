@@ -25,7 +25,7 @@ import {CommonModule} from "@angular/common";
           class="input is-fullwidth"
           type="text"
           formControlName="name"
-          disabled />
+          [disabled]="true" />
       </div>
       <div class="field">
         <label for="type">Type de compte :</label>

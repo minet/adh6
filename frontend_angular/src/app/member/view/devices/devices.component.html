@@ -1,7 +1,7 @@
 @if (member$ | async; as member) {
   <app-member-device [member]="member"></app-member-device>
   <br />
-  
+
   <!-- Logs Header -->
   <nav class="level">
     <div class="level-left">
@@ -11,8 +11,8 @@
     </div>
     <div class="level-right">
       <div class="level-item">
-        <button 
-          class="button" 
+        <button
+          class="button"
           [class.is-primary]="!showLogs"
           [class.is-danger]="showLogs"
           (click)="toggleLogs()">
@@ -25,34 +25,36 @@
       </div>
     </div>
   </nav>
-  
+
   @if (showLogs) {
     <!-- Logs Controls -->
     <nav class="level">
       <div class="level-left">
         <div class="level-item">
           <label class="checkbox">
-            <input 
-              type="checkbox" 
-              [(ngModel)]="getDhcp" 
-              (change)="toggleDhcp()">
+            <input
+              type="checkbox"
+              [(ngModel)]="getDhcp"
+              (change)="toggleDhcp()" />
             <span i18n="@@member.logs.include-dhcp">Inclure les logs DHCP</span>
           </label>
         </div>
         <div class="level-item">
           <label class="checkbox">
-            <input 
-              type="checkbox" 
-              [(ngModel)]="autoRefresh" 
-              (change)="toggleAutoRefresh()">
-            <span i18n="@@member.logs.auto-refresh">Actualisation automatique</span>
+            <input
+              type="checkbox"
+              [(ngModel)]="autoRefresh"
+              (change)="toggleAutoRefresh()" />
+            <span i18n="@@member.logs.auto-refresh"
+              >Actualisation automatique</span
+            >
           </label>
         </div>
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button 
-            class="button is-info is-small" 
+          <button
+            class="button is-info is-small"
             (click)="refreshLogs()"
             [class.is-loading]="logsLoading$ | async">
             <span class="icon">
@@ -75,19 +77,23 @@
     <!-- Terminal-style Logs Container -->
     <div class="terminal-container">
       <div class="terminal-header">
-        <span class="terminal-title" i18n="@@member.logs.terminal-title">Logs de {{ member.username }}</span>
+        <span class="terminal-title" i18n="@@member.logs.terminal-title"
+          >Logs de {{ member.username }}</span
+        >
         <div class="terminal-controls">
           <span class="terminal-control terminal-minimize"></span>
           <span class="terminal-control terminal-maximize"></span>
           <span class="terminal-control terminal-close"></span>
         </div>
       </div>
-      
+
       <div class="terminal-body">
         @if (logsLoading$ | async) {
           <div class="terminal-loading">
             <div class="loading-animation">
-              <span class="loading-text" i18n="@@member.logs.loading">Chargement des logs...</span>
+              <span class="loading-text" i18n="@@member.logs.loading"
+                >Chargement des logs...</span
+              >
               <span class="loading-dots">
                 <span>.</span><span>.</span><span>.</span>
               </span>
@@ -99,33 +105,45 @@
               <div class="terminal-content">
                 @for (log of logs; track log.rawLog) {
                   <div class="log-entry">
-                    <span class="log-timestamp">{{ formatTimestamp(log.timestamp) }}</span>
-                    <span class="log-message" [innerHTML]="log.formattedMessage"></span>
+                    <span class="log-timestamp">{{
+                      formatTimestamp(log.timestamp)
+                    }}</span>
+                    <span
+                      class="log-message"
+                      [innerHTML]="log.formattedMessage"></span>
                   </div>
                 }
-                
+
                 <!-- Load More Button -->
                 @if (hasMoreLogs$ | async) {
                   <div class="log-load-more">
-                    <button 
+                    <button
                       class="button is-small is-ghost"
                       [class.is-loading]="loadingMore$ | async"
                       (click)="loadMoreLogs()">
-                      <span i18n="@@member.logs.load-more">Charger plus de logs...</span>
+                      <span i18n="@@member.logs.load-more"
+                        >Charger plus de logs...</span
+                      >
                     </button>
                   </div>
                 }
-                
+
                 @if (loadingMore$ | async) {
                   <div class="log-entry log-loading">
                     <span class="log-timestamp">--:--:--</span>
-                    <span class="log-message loading-more" i18n="@@member.logs.loading-more">Chargement de logs supplémentaires...</span>
+                    <span
+                      class="log-message loading-more"
+                      i18n="@@member.logs.loading-more"
+                      >Chargement de logs supplémentaires...</span
+                    >
                   </div>
                 }
               </div>
             } @else {
               <div class="terminal-empty">
-                <span i18n="@@member.logs.no-logs">Aucun log trouvé pour cet utilisateur.</span>
+                <span i18n="@@member.logs.no-logs"
+                  >Aucun log trouvé pour cet utilisateur.</span
+                >
               </div>
             }
           }
@@ -135,7 +153,9 @@
   } @else {
     <div class="notification has-text-centered is-info is-light">
       <h6 class="title is-6" i18n="@@member.logs.hidden">Logs masqués</h6>
-      <p i18n="@@member.logs.hidden-description">Cliquez sur "Afficher les logs" pour voir l'historique des connexions.</p>
+      <p i18n="@@member.logs.hidden-description">
+        Cliquez sur "Afficher les logs" pour voir l'historique des connexions.
+      </p>
     </div>
   }
 }

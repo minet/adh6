@@ -2,12 +2,14 @@ import {Component, Input} from "@angular/core";
 import {map, Observable, shareReplay} from "rxjs";
 import {AbstractDevice, DeviceFilter, DeviceService} from "../../api";
 import {SearchPage} from "../../search-page";
+import {CommonModule, AsyncPipe} from "@angular/common";
+import {ElementComponent} from "./element/element.component";
 
 @Component({
+  imports: [CommonModule, AsyncPipe, ElementComponent],
   selector: "app-member-device-list",
   templateUrl: "./list.component.html",
   styleUrls: ["./list.component.css"],
-  standalone: false,
 })
 export class MemberDeviceListComponent extends SearchPage<number> {
   @Input() abstractDeviceFilter: AbstractDevice = {};

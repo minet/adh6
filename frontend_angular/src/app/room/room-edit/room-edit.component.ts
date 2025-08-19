@@ -1,5 +1,11 @@
 import {Component, OnInit} from "@angular/core";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {AsyncPipe} from "@angular/common";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 
 import {AbstractRoom, Room, RoomService, VlanService} from "../../api";
@@ -8,10 +14,11 @@ import {Observable} from "rxjs";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [AsyncPipe, ReactiveFormsModule],
   selector: "app-room-edit",
   templateUrl: "./room-edit.component.html",
   styleUrls: ["./room-edit.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class RoomEditComponent implements OnInit {
   public disabled = false;
