@@ -7,11 +7,6 @@ from datetime import timedelta
 
 # import hashlib # Keep these 2 libs. See comment in change_password method below
 # from binascii import hexlify
-
-from Crypto.Hash import MD4
-
-# import hashlib # Keep these 2 libs. See comment in change_password method below
-# from binascii import hexlify
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
@@ -168,9 +163,7 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = self.member_repository.update(
-            AbstractMember(
-                id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name
-            )
+            AbstractMember(id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name)
         )
 
     @log_call
@@ -195,8 +188,7 @@ class MemberManager(CRUDManager):
 
             # Format logs with separate timestamp and message
             formatted_logs = [
-                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])}
-                for x in logs
+                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])} for x in logs
             ]
 
             has_more = (offset + limit) < total_count
