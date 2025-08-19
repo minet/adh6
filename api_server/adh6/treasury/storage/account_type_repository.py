@@ -17,7 +17,7 @@ class AccountTypeSQLRepository(AccountTypeRepository):
     def search_by(
         self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[AccountType], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(SQLAccountType)
 
             if terms:
@@ -29,15 +29,15 @@ class AccountTypeSQLRepository(AccountTypeRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return list(map(_map_account_type_sql_to_entity, r)), count
+            return list(map(_map_account_type_sql_to_entity, r)), count
 
     @log_call
     def get_by_id(self, object_id: int) -> AccountType:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLAccountType).filter(SQLAccountType.id == object_id).one_or_none()
-        if obj is None:
-            raise AccountTypeNotFoundError(object_id)
-        return _map_account_type_sql_to_entity(obj)
+            if obj is None:
+                raise AccountTypeNotFoundError(object_id)
+            return _map_account_type_sql_to_entity(obj)
 
 
 def _map_account_type_sql_to_entity(a) -> AccountType:

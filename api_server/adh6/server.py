@@ -9,6 +9,7 @@ from connexion import FlaskApp
 from adh6.authentication.api_keys_manager import ApiKeyManager
 from adh6.authentication.http.api_key import ApiKeyHandler
 from adh6.authentication.http.role import RoleHandler
+from adh6.authentication.oidc import init_keycloak
 from adh6.authentication.role_manager import RoleManager
 from adh6.authentication.storage import ApiKeyRepository, RoleRepository
 from adh6.default import CRUDManager, CRUDRepository
@@ -180,7 +181,7 @@ def init() -> FlaskApp:
         )
 
     # Set environment variables that will be used for authentication and authorization
-    os.environ["TOKENINFO_FUNC"] = os.environ.get("TOKENINFO_FUNC", "adh6.authentication.token_info")
+    os.environ["TOKENINFO_FUNC"] = os.environ.get("TOKENINFO_FUNC", "adh6.authentication.oidc.oidc_info")
     os.environ["APIKEYINFO_FUNC"] = os.environ.get("APIKEYINFO_FUNC", "adh6.authentication.apikey_auth")
 
     # Initialize the flask application using the connexion library
@@ -201,14 +202,15 @@ def init() -> FlaskApp:
     # Get the pinject object graph
     obj_graph = get_obj_graph()
 
+    init_keycloak(app)  # Initialize Keycloak OpenID client
+
     # Add the API routes using the ADHResolver class
     app.add_api(
         "spec.yaml",
         resolver=ADHResolver(
             {
-                "health": obj_graph.provide(
-                    HealthHandler
-                ),  # The key is the name of the route and the value is the class that will handle the route
+                # The key is the name of the route and the value is the class that will handle the route
+                "health": obj_graph.provide(HealthHandler),
                 "profile": obj_graph.provide(ProfileHandler),
                 "transaction": obj_graph.provide(TransactionHandler),
                 "member": obj_graph.provide(MemberHandler),

@@ -15,11 +15,11 @@ from .models import PaymentMethod as SQLPaymentMethod
 class PaymentMethodSQLRepository(PaymentMethodRepository):
     @log_call
     def get_by_id(self, object_id: int) -> PaymentMethod:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLPaymentMethod).filter(SQLPaymentMethod.id == object_id).one_or_none()
-        if obj is None:
-            raise PaymentMethodNotFoundError(object_id)
-        return _map_payment_method_sql_to_entity(obj)
+            if obj is None:
+                raise PaymentMethodNotFoundError(object_id)
+            return _map_payment_method_sql_to_entity(obj)
 
     @log_call
     def search_by(
@@ -29,7 +29,7 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
         terms: str | None = None,
         filter_: PaymentMethod | None = None,
     ) -> tuple[list[PaymentMethod], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(SQLPaymentMethod)
 
             if filter_:
@@ -46,7 +46,7 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return list(map(_map_payment_method_sql_to_entity, r)), count
+            return list(map(_map_payment_method_sql_to_entity, r)), count
 
     def create(self, object_to_create: PaymentMethod) -> PaymentMethod:
         raise NotImplementedError  # pragma: no cover

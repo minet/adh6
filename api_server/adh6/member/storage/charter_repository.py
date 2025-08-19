@@ -13,7 +13,7 @@ class CharterSQLRepository(CharterRepository):
         smt = select(Adherent.datesignedminet) if charter_id == 1 else select(Adherent.datesignedhosting)
         smt = smt.where(Adherent.id == member_id)
 
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             return session.execute(smt).scalar_one()
 
     def get_members(self, charter_id: int) -> tuple[list[int], int]:
@@ -21,9 +21,9 @@ class CharterSQLRepository(CharterRepository):
         smt = smt.where(
             Adherent.datesignedminet.isnot(None) if charter_id == 1 else Adherent.datesignedhosting.isnot(None)
         )
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             r = session.execute(smt).scalars().all()
-        return r, len(r)  # type: ignore  # TODO: fix typing
+            return r, len(r)  # type: ignore  # TODO: fix typing
 
     def update(self, charter_id: int, member_id: int) -> None:
         smt = update(Adherent).where(Adherent.id == member_id)

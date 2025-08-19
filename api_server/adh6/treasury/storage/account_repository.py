@@ -22,7 +22,7 @@ class AccountSQLRepository(AccountRepository):
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractAccount | None = None
     ) -> tuple[list[AbstractAccount], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(
                 SQLAccount,
                 func.sum(case((Transaction.src == SQLAccount.id, -Transaction.value), else_=Transaction.value)).label(
@@ -57,11 +57,11 @@ class AccountSQLRepository(AccountRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return [_map_account_sql_to_abstract_entity(item, True) for item in r], count  # type: ignore  # TODO: typing
+            return [_map_account_sql_to_abstract_entity(item, True) for item in r], count  # type: ignore  # TODO: typing
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractAccount | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = (
                 session.query(
                     SQLAccount,
@@ -76,7 +76,7 @@ class AccountSQLRepository(AccountRepository):
                 .filter(SQLAccount.id == object_id)
                 .one()
             )  # type: ignore  # TODO: typing
-        return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None  # type: ignore  # TODO: typing
+            return _map_account_sql_to_abstract_entity(obj, True) if obj[0] else None  # type: ignore  # TODO: typing
 
     @log_call
     def create(self, abstract_account: Account) -> object:
@@ -108,7 +108,9 @@ class AccountSQLRepository(AccountRepository):
                 adherent_id=adherent.id if adherent else None,
             )
             session.add(account)
-        return _map_account_sql_to_entity(account)
+            session.flush()
+            mapped_account = _map_account_sql_to_entity(account)
+        return mapped_account
 
     @log_call
     def update(self, object_to_update: AbstractAccount, override=False) -> object:

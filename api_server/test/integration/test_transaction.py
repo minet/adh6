@@ -94,14 +94,14 @@ def client(sample_transaction, sample_transaction_pending):
 
 
 def assert_transaction_in_db(body):
-    s = db.session
-    q = s.query(Transaction)
-    q = q.filter(Transaction.name == body["name"])
-    sw = q.one()
-    assert sw.name == body["name"]
-    assert sw.src == body["src"]
-    assert sw.dst == body["dst"]
-    assert sw.value == body["value"]
+    with db.sessionmaker.begin() as s:
+        q = s.query(Transaction)
+        q = q.filter(Transaction.name == body["name"])
+        sw = q.one()
+        assert sw.name == body["name"]
+        assert sw.src == body["src"]
+        assert sw.dst == body["dst"]
+        assert sw.value == body["value"]
 
 
 @pytest.mark.parametrize("test_value", INVALID_TRANSACTION_VALUE)
@@ -214,11 +214,11 @@ def test_transaction_validate_pending(client, sample_transaction_pending):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 204
-    s = db.session
-    q = s.query(Transaction)
-    q = q.filter(Transaction.name == sample_transaction_pending.name)
-    sw = q.one()
-    assert sw.pending_validation is False, "Transaction was not actually validated"
+    with db.sessionmaker.begin() as s:
+        q = s.query(Transaction)
+        q = q.filter(Transaction.name == sample_transaction_pending.name)
+        sw = q.one()
+        assert sw.pending_validation is False, "Transaction was not actually validated"
 
 
 def test_device_validate_nonpending(client, sample_transaction):

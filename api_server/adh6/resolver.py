@@ -2,8 +2,6 @@
 Our own connexion resolver.
 """
 
-import re
-
 from connexion import Resolver
 
 
@@ -22,22 +20,21 @@ class ADHResolver(Resolver):
         instance of a class.
         """
 
-        # Path prefix is the first element of the URL. For instance for "/device/{MAC}/vlan/{VLAN}/" it would be
-        # "device".
-        if re.match(r"^/(.*?)/", operation.path):
-            path_prefix = re.search(r"^/(.*?)/", operation.path).group(1)  # type: ignore # TODO
-        else:
-            path_prefix = re.search(r"^/(.+)", operation.path).group(1)  # type: ignore # TODO
-        # If an operation ID is specified, we override the behavior by this function and use the operationID as
-        # function name.
+        # Remove leading and trailing slashes for consistent parsing
+        path = operation.path.strip("/")
+
+        # Split the path into parts
+        path_parts = path.split("/") if path else []
+
+        # Path prefix is the first element, or empty string if path is empty
+        path_prefix = path_parts[0] if path_parts else ""
+
+        # If an operation ID is specified, use it directly
         if operation.operation_id is not None:
             return f"{path_prefix}|{operation.operation_id}"
 
-        # This part extracts the rest of the URL as in a list (for instance ['{MAC}', 'vlan', '{VLAN}'])
-        path_suffix = re.search(r"^/.*?/(.*)$", operation.path).group(1)  # type: ignore # TODO
-        path_suffix = path_suffix.split("/")
-        path_suffix = filter(bool, path_suffix)  # Remove empty strings.
-        path_suffix = list(path_suffix)
+        # The rest of the path after the prefix
+        path_suffix = path_parts[1:] if len(path_parts) > 1 else []
 
         # The method name will be prefixed to the function name.
         method_name = operation.method

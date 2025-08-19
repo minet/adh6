@@ -64,6 +64,7 @@ clean-docker-run-dev:
 ##### Generate the needed element for the application to execute
 .PHONY: generate
 generate: $(BACKEND_PATH)/adh6/entity/*.py $(OPENAPI_SPEC_PATH) $(FRONTEND_PATH)/src/app/api
+	
 
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH)
 	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:v7.12.0 generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
@@ -90,14 +91,17 @@ generate-database-fixtures: $(BACKEND_ENV_PATH)
 	cd $(BACKEND_PATH) && . $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh seed
 	cd $(BACKEND_PATH) && . $(BACKEND_ENV_NAME)/bin/activate && ENVIRONMENT=development ./manage.sh fake $(LOGIN)
 
-# TODO: run & run-dev are swapped...
 .PHONY: run
 run:
-	docker compose up --build --force-recreate
+	docker compose -f docker-compose-deploy.yaml up --build --force-recreate
+
+.PHONY: run-debug
+run-debug:
+	docker compose -f compose.yaml -f compose.debug-api.yaml up --build --force-recreate
 
 .PHONY: run-dev
 run-dev:
-	docker compose -f docker-compose-deploy.yml up --build --force-recreate
+	docker compose up --build --force-recreate
 
 # TODO: all the checks will be refactored (tox + uv)
 # .PHONY: check

@@ -26,14 +26,14 @@ class DeviceType(Enum):
 class DeviceSQLRepository(DeviceRepository):
     @log_call
     def get_by_id(self, object_id: int) -> Device | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
-        return _map_device_sql_to_entity(obj) if obj else None
+            return _map_device_sql_to_entity(obj) if obj else None
 
     def get_by_mac(self, mac: str) -> Device | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
-        return _map_device_sql_to_entity(obj) if obj else None
+            return _map_device_sql_to_entity(obj) if obj else None
 
     @log_call
     def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
@@ -51,11 +51,11 @@ class DeviceSQLRepository(DeviceRepository):
         if device_filter.connection_type:
             stmt = stmt.where(SQLDevice.type == DeviceType[device_filter.connection_type].value)
 
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             count = len(session.execute(stmt).all())
             r = session.scalars(stmt.offset(offset).limit(limit)).all()
 
-        return list(map(_map_device_sql_to_entity, r)), count
+            return list(map(_map_device_sql_to_entity, r)), count
 
     @log_call
     def create(self, obj: DeviceBody) -> Device:
@@ -72,8 +72,11 @@ class DeviceSQLRepository(DeviceRepository):
         )
         with db.sessionmaker.begin() as session, track_modifications(session, device):
             session.add(device)
+            session.flush()  # Ensure the device gets an ID
+            # Map to entity while still in session context
+            result = _map_device_sql_to_entity(device)
 
-        return _map_device_sql_to_entity(device)
+        return result
 
     @log_call
     def update(self, abstract_device: AbstractDevice, override=False) -> Device:
@@ -84,8 +87,10 @@ class DeviceSQLRepository(DeviceRepository):
             device = query.one()
             with track_modifications(session, device):
                 new_device = _merge_sql_with_entity(abstract_device, device, override)
+                session.flush()
+                mapped_device = _map_device_sql_to_entity(new_device)
 
-        return _map_device_sql_to_entity(new_device)
+        return mapped_device
 
     @log_call
     def delete(self, id) -> None:
@@ -95,18 +100,18 @@ class DeviceSQLRepository(DeviceRepository):
                 session.delete(device)
 
     def get_mab(self, id: int) -> bool:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             device = session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
-        return device.mab
+            return device.mab
 
     def put_mab(self, id: int, mab: bool) -> bool:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             device = session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
-        device.mab = mab
-        return mab
+            device.mab = mab
+            return mab
 
     def owner(self, id: int) -> int | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
             return session.execute(smt).scalar_one_or_none()
 

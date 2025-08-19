@@ -12,9 +12,11 @@ info:
     email: equipe@minet.net
     url: https://minet.net
 servers:
-  - url: https://adh6.minet.net/api/
+  - url: https://adh6.minet.net/api
     description: ADH6 production server
-  - url: https://adh6-dev.minet.net/api/
+  - url: https://adh6-dev.minet.net/api
+    description: ADH6 staging server
+  - url: https://adh6-local.minet.net/api
     description: ADH6 staging server
 paths:
   /health:
@@ -30,7 +32,7 @@ paths:
         '503':
           description: Database is down.
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -59,13 +61,13 @@ paths:
         default:
           $ref: '#/components/responses/Unexpected'      
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
       tags:
       - misc
-  /account/:
+  /account:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -102,7 +104,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter accounts
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -130,7 +132,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create an account
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth: []
       tags:
@@ -158,7 +160,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -184,12 +186,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Udate an account
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth: []
       tags:
       - account
-  /account_type/:
+  /account_type:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -214,7 +216,7 @@ paths:
           description: Invalid input
       summary: Filter account types
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -240,12 +242,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve an account type
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - account
-  /device/:
+  /device:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -280,9 +282,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Return the list of the device ids
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -311,9 +313,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -336,9 +338,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -361,14 +363,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - device
-  /device/{id}/vendor/:
+  /device/{id}/vendor:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -390,14 +392,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the vendor of a device based on its MAC
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - device
-  /device/{id}/mab/:
+  /device/{id}/mab:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -419,9 +421,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retreive the MAB of the device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
@@ -445,12 +447,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the MAB of the device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - device
-  /device/{id}/member/:
+  /device/{id}/member:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -471,12 +473,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Get user of the device
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - device
-  /member/:
+  /member:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -511,7 +513,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter members
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -541,7 +543,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -563,7 +565,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -588,7 +590,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -614,12 +616,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - member
-  /member/{id}/logs/:
+  /member/{id}/logs:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -648,11 +650,11 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the most recent logs of a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
       tags:
       - member
-  /member/{id}/statuses/:
+  /member/{id}/statuses:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -673,14 +675,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves some common status updates concerning a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - member
-  /member/{id}/password/:
+  /member/{id}/password:
     parameters:
       - $ref: '#/components/parameters/idPath'
     put:
@@ -716,9 +718,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the password of a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
@@ -755,9 +757,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves if the hosting charter has been signed
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -776,14 +778,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update if the hosting/MiNET charter has been signed
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - member
-  /member/{id}/comment/:
+  /member/{id}/comment:
     parameters:
       - $ref: '#/components/parameters/idPath'
     put:
@@ -805,7 +807,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the comment of a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
@@ -827,13 +829,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieves the comment of the user
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
           - admin:read
       tags:
       - member
-  /member/{id}/subscription/:
+  /member/{id}/subscription:
     parameters:
       - $ref: '#/components/parameters/idPath'
     post:
@@ -861,7 +863,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Add a membership record for a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -887,7 +889,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Add a membership record for a member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -916,12 +918,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - membership
-  /charter/{charter_id}/member/:
+  /charter/{charter_id}/member:
     parameters:
       - description: "The unique identifier of the charter: 1 for MiNET and 2 for Hosting"
         in: path
@@ -957,7 +959,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: List of the members that have signed the charter
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -986,9 +988,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Sign the specific charter
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1010,9 +1012,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retreive the signature date of the specific charter
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1039,9 +1041,9 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retreive mailinglist memberships of the specific member
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1073,14 +1075,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the mailing list membership of the member
       security:
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - mailinglist
-  /mailinglist/:
+  /mailinglist:
     parameters:
       - description: "The value of the mailing list membership"
         in: query
@@ -1110,12 +1112,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retreive the members of a specific mailinglist memberships
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - mailinglist
-  /payment_method/:
+  /payment_method:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -1140,7 +1142,7 @@ paths:
           description: Invalid input
       summary: Filter payment methods
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1166,12 +1168,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a payment method
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
       - transaction
-  /port/:
+  /port:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -1210,7 +1212,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter ports
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1240,7 +1242,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1262,7 +1264,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1287,7 +1289,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1309,12 +1311,12 @@ paths:
           description: Not found
       summary: Update a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - port
-  /port/{id}/mab/:
+  /port/{id}/mab:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1336,7 +1338,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether MAB is enabled on this port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
@@ -1359,12 +1361,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of MAB on a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/alias/:
+  /port/{id}/alias:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1386,12 +1388,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the alias on a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/use/:
+  /port/{id}/use:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1413,12 +1415,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the current use of a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/speed/:
+  /port/{id}/speed:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1440,12 +1442,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the speed on a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/auth/:
+  /port/{id}/auth:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1467,7 +1469,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve whether authentication is enabled on this port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
@@ -1490,12 +1492,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of authentication on a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/state/:
+  /port/{id}/state:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1517,7 +1519,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
@@ -1540,12 +1542,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the state of a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /port/{id}/vlan/:
+  /port/{id}/vlan:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1568,7 +1570,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the VLAN assigned to a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth: []
       tags:
@@ -1596,19 +1598,19 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update the VLAN assigned to a port
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
           - network:write:prod
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
           - network:write:dev
-        - OAuth2:
+        - OpenIdConnect:
           - network:write
           - network:write:hosting
         - ApiKeyNetworkAuth: []
       tags:
       - port
-  /product/:
+  /product:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -1633,7 +1635,7 @@ paths:
           description: Invalid input
       summary: Filter products
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1659,7 +1661,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a product
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1701,12 +1703,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Generate a new transaction for a product
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - treasury
-  /room/:
+  /room:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -1743,7 +1745,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter rooms
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1771,7 +1773,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1793,7 +1795,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1818,7 +1820,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1846,12 +1848,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - room
-  /room/{id}/member/:
+  /room/{id}/member:
     parameters:
       - $ref: '#/components/parameters/idPath'
     get:
@@ -1874,7 +1876,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: List the members in a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth: []
       tags:
@@ -1904,7 +1906,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Add a member in a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
@@ -1929,12 +1931,12 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Remove a member from a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - room members
-  /room/{id}/member/add/:
+  /room/{id}/member/add:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
@@ -1964,13 +1966,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Add a member in a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
       tags:
       - room members
-  /room/{id}/member/del/:
+  /room/{id}/member/del:
     parameters:
       - $ref: '#/components/parameters/idPath'
     patch:
@@ -1999,7 +2001,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Remove a member from a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
@@ -2027,15 +2029,15 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: List the members in a room
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - user
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
           - admin:read
       tags:
       - room members
-  /switch/:
+  /switch:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -2072,7 +2074,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter switches
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
           - admin:read
@@ -2102,7 +2104,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a switch
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
@@ -2125,7 +2127,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a switch
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
           - admin:read
@@ -2151,7 +2153,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a switch
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
         - ApiKeyAdminAuth:
           - admin:read
@@ -2178,13 +2180,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Update a switch
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
           - admin:write
       tags:
       - switch
-  /vlan/:
+  /vlan:
     get:
       operationId: get_from_number
       parameters:
@@ -2210,13 +2212,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter vlans
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - network:read
         - ApiKeyNetworkAuth:
           - network:read
       tags:
       - vlan
-  /transaction/:
+  /transaction:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -2255,7 +2257,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter transactions
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
           - treasurer:read
@@ -2287,13 +2289,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
           - treasurer:write
       tags:
       - transaction
-  /transaction/{id}/upload/:
+  /transaction/{id}/upload:
     parameters:
       - $ref: '#/components/parameters/idPath'
     post:
@@ -2316,7 +2318,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Upload an attachment to a transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
           - treasurer:write
@@ -2340,7 +2342,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Validate a pending transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
           - treasurer:read
@@ -2369,7 +2371,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve a transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
           - treasurer:read
@@ -2396,7 +2398,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Partially update a transaction
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
           - treasurer:write
@@ -2416,7 +2418,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a transaction (MUST only be possible when pendingValidation is true)
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:write
         - ApiKeyTreasuryAuth:
           - treasurer:write
@@ -2448,7 +2450,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the state of the cashbox
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
           - treasurer:read
@@ -2476,13 +2478,13 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Retrieve the expected state of MiNET's bank accounts
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
           - treasurer:read
       tags:
       - treasury
-  /role/:
+  /role:
     get:
       parameters:
       - description: Filter with the authentication type
@@ -2523,7 +2525,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Filter roles
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
           - admin:prod
         - ApiKeyAdminAuth:
@@ -2563,7 +2565,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create a temporary role for a user
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
@@ -2585,14 +2587,14 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete a Role
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
           - admin:prod
         - ApiKeyAdminAuth:
           - admin:write
       tags:
       - authentication
-  /api_keys/:
+  /api_keys:
     get:
       parameters:
       - $ref: '#/components/parameters/limit'
@@ -2626,7 +2628,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: List api keys
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:read
           - admin:prod
       tags:
@@ -2665,7 +2667,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Create an ApiKey
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
@@ -2687,7 +2689,7 @@ paths:
           $ref: '#/components/responses/Unexpected'
       summary: Delete an Api Key
       security: 
-        - OAuth2:
+        - OpenIdConnect:
           - admin:write
           - admin:prod
       tags:
@@ -3650,13 +3652,24 @@ components:
         - network:write:dev
         - network:write:hosting
   securitySchemes:
-    OAuth2:
+    OpenIdConnect:
       type: oauth2
       flows:
-        implicit:
-          authorizationUrl: https://cas.minet.net/oidc/authorize
+        authorizationCode:
+          authorizationUrl: https://keycloak.minet.net/auth/realms/MiNET/protocol/openid-connect/auth
+          tokenUrl: https://keycloak.minet.net/auth/realms/MiNET/protocol/openid-connect/token
           scopes:
-            profile: The user's basic information, including groups they are a part of
+            user: Basic user access
+            admin:read: Read access to admin resources
+            admin:write: Write access to admin resources
+            admin:prod: Production admin access
+            treasurer:read: Read access to treasury resources
+            treasurer:write: Write access to treasury resources
+            network:read: Read access to network resources
+            network:write: Write access to network resources
+            network:write:prod: Production network write access
+            network:write:dev: Development network write access
+            network:write:hosting: Hosting network write access
     ApiKeyAdminAuth:
       type: apiKey
       in: header

@@ -71,3 +71,14 @@ COPY --parents openapi/spec.yaml ./api_server
 WORKDIR /app/api_server
 # Launch the app 
 CMD ["./start-dev.sh"]
+
+# Debug stage
+FROM dev AS debug
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+ENV DEBUG=1
+ENV LOG_LEVEL=DEBUG
+USER root
+RUN uv pip install debugpy
+USER adh6
+RUN FLASK_APP=manage:manager flask db upgrade head
+CMD ["python", "-Xfrozen_modules=off", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "-m", "uvicorn", "--port", "8080", "--host", "0.0.0.0", "main:application", "--reload"]

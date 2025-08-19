@@ -36,9 +36,9 @@ class CashboxSQLRepository(CashboxRepository):
 
     @log_call
     def get(self) -> tuple[float, float]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(SQLCashbox)
             query = query.order_by(SQLCashbox.id.desc())
             query = query.limit(1)
             r = query.all()[0]
-        return r.fond, r.coffre  # type: ignore  # TODO: fix typing
+            return r.fond, r.coffre  # type: ignore  # TODO: fix typing

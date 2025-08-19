@@ -7,6 +7,7 @@ from adh6.entity import RoleMapping
 from adh6.member.storage.models import Adherent
 from adh6.storage import db
 
+from ...exceptions import MemberNotFoundError
 from ..enums import AuthenticationMethod, Roles
 from ..interfaces import RoleRepository
 from .models import AuthenticationRoleMapping
@@ -15,9 +16,9 @@ from .models import AuthenticationRoleMapping
 class RoleSQLRepository(RoleRepository):
     def get(self, id: int) -> Any:  # todo
         smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             result = session.execute(smt).scalar_one_or_none()
-        return result
+            return result
 
     def find(
         self,
@@ -32,9 +33,9 @@ class RoleSQLRepository(RoleRepository):
             smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             all_roles = session.execute(smt).all()
-        return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
+            return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
     def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
         smt = insert(AuthenticationRoleMapping).values(
@@ -66,11 +67,13 @@ class RoleSQLRepository(RoleRepository):
         # force reset nainA column in Adherent for compatibility
 
     def user_id_from_username(self, login: str) -> int:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             result = session.execute(
                 select(Adherent.id).where((Adherent.login == login) | (Adherent.ldap_login == login))
-            ).scalar_one()
-        return result
+            ).scalar_one_or_none()
+            if result is None:
+                raise MemberNotFoundError(login)
+            return result
 
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(

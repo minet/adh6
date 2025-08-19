@@ -1,5 +1,5 @@
 import {NgModule} from "@angular/core";
-import {AuthModule, LogLevel} from "angular-auth-oidc-client";
+import {AuthModule} from "angular-auth-oidc-client";
 import {environment} from "../environments/environment";
 
 @NgModule({
@@ -10,12 +10,12 @@ import {environment} from "../environments/environment";
         authority: environment.SSO_URL,
         redirectUrl: window.location.href,
         postLogoutRedirectUri: window.location.origin,
-        clientId: "adh6",
-        scope: "openid profile groups",
-        responseType: "id_token token",
+        clientId: environment.SSO_CLIENT_ID,
+        scope: environment.SSO_SCOPE,
+        responseType: environment.SSO_RESPONSE_TYPE,
         useRefreshToken: true,
         renewTimeBeforeTokenExpiresInSeconds: 30,
-        logLevel: LogLevel.Debug,
+        logLevel: environment.LOG_LEVEL,
       },
     }),
   ],

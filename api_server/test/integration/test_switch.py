@@ -33,13 +33,13 @@ def client(sample_switch1):
 
 
 def assert_switch_in_db(body):
-    s = db.session
-    q = s.query(Switch)
-    q = q.filter(Switch.ip == body["ip"])
-    sw = q.one()
-    assert sw.ip == body["ip"]
-    assert sw.communaute == body["community"]
-    assert sw.description == body["description"]
+    with db.sessionmaker.begin() as s:
+        q = s.query(Switch)
+        q = q.filter(Switch.ip == body["ip"])
+        sw = q.one()
+        assert sw.ip == body["ip"]
+        assert sw.communaute == body["community"]
+        assert sw.description == body["description"]
 
 
 @pytest.mark.parametrize("test_ip", INVALID_IP)

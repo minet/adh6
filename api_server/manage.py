@@ -327,7 +327,8 @@ MiNET Team.
 
 @manager.cli.command("fake")
 @click.argument("login")
-def fake(login):
+@click.argument("ldap_login", default=None)
+def fake(login, ldap_login=None):
     """Add dummy data to the database."""
     fake = Faker()
     session: Session = db.session
@@ -340,7 +341,7 @@ def fake(login):
         prenom=fake.first_name_nonbinary(),
         mail=fake.email(),
         login=login,
-        ldap_login=login,
+        ldap_login=ldap_login,
         password="",
         chambre_id=1,
         commentaires=fake.text(max_nb_chars=255),

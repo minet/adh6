@@ -44,28 +44,6 @@ function slideTo(direction: string) {
 }
 
 @Component({
-<<<<<<< frontend_angular/src/app/dashboard/dashboard.component.ts
-    imports: [CommonModule, RouterModule, MemberDeviceModule],
-    animations: [slider],
-    selector: 'app-dashboard',
-    styles: ['img { height: 130px; }'],
-    template: `
-  <div class="columns column is-centered">
-    <figure>
-      <img alt="adh6 logo" src="assets/adh6.min.svg">
-    </figure>
-  </div>
-  <ng-container *ngIf="member$ | async as member">
-    <div class="tabs is-centered is-large">
-      <ul>
-        <li routerLinkActive="is-active">
-          <a i18n="own devices" [routerLink]="['device']">Mes appareils</a>
-        </li>
-        <li routerLinkActive="is-active">
-          <a i18n="own account" [routerLink]="['profile']">Mon compte</a>
-        </li>
-      </ul>
-=======
   imports: [CommonModule, RouterModule, MemberDeviceModule],
   animations: [slider],
   selector: "app-dashboard",
@@ -75,7 +53,6 @@ function slideTo(direction: string) {
       <figure>
         <img alt="adh6 logo" src="assets/adh6.min.svg" />
       </figure>
->>>>>>> frontend_angular/src/app/dashboard/dashboard.component.ts
     </div>
     <ng-container *ngIf="member$ | async as member">
       <div class="tabs is-centered is-large">

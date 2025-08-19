@@ -20,7 +20,7 @@ class MemberSQLRepository(MemberRepository):
     def search_by(
         self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
     ) -> tuple[list[Member], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(Adherent)
             if filter_:
                 if filter_.ip:
@@ -51,18 +51,18 @@ class MemberSQLRepository(MemberRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return list(map(_map_member_sql_to_entity, r)), count
+            return list(map(_map_member_sql_to_entity, r)), count
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractMember | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
-        return _map_member_sql_to_abstract_entity(adh) if adh else None
+            return _map_member_sql_to_abstract_entity(adh) if adh else None
 
     def get_by_login(self, login: str) -> Member | None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
-        return _map_member_sql_to_entity(adh) if adh else None
+            return _map_member_sql_to_entity(adh) if adh else None
 
     @log_call
     def create(self, object_to_create: Member) -> object:
@@ -79,10 +79,14 @@ class MemberSQLRepository(MemberRepository):
         )
         with db.sessionmaker.begin() as session:
             session.add(member)
+            session.flush()  # Ensure the member gets an ID
+            # Map to entity while still in session context
+            result = _map_member_sql_to_entity(member)
 
-        return _map_member_sql_to_entity(member)
+        return result
 
     def update(self, abstract_member: AbstractMember, override=False) -> object:
+        # Use the fresh session pattern for proper commit
         with db.sessionmaker.begin() as session:
             query = session.query(Adherent).filter(Adherent.id == abstract_member.id)
 
@@ -90,8 +94,10 @@ class MemberSQLRepository(MemberRepository):
 
             with track_modifications(session, adherent):
                 new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
+                session.flush()
+                mapped_member = _map_member_sql_to_entity(new_adherent)
 
-        return _map_member_sql_to_entity(new_adherent)
+            return mapped_member
 
     @log_call
     def delete(self, member_id) -> None:
@@ -130,10 +136,10 @@ class MemberSQLRepository(MemberRepository):
             adherent.date_de_depart += timedelta(days=days_to_add)
 
     def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             q = session.query(Adherent.ip).filter(Adherent.ip.is_not(None))
             r = q.all()
-        return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
+            return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
 
     @log_call
     def update_comment(self, member_id: int, comment: str) -> None:

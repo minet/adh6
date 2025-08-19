@@ -24,13 +24,13 @@ def client(sample_port1, sample_port2, sample_room1, sample_member, sample_switc
 
 
 def assert_port_in_db(body):
-    s = db.session
-    q = s.query(Port)
-    q = q.filter(Port.numero == body["portNumber"])
-    p = q.one()
-    assert body["portNumber"] == p.numero
-    assert body["room"] == p.chambre_id
-    assert body["switchObj"] == p.switch_id
+    with db.sessionmaker.begin() as s:
+        q = s.query(Port)
+        q = q.filter(Port.numero == body["portNumber"])
+        p = q.one()
+        assert body["portNumber"] == p.numero
+        assert body["room"] == p.chambre_id
+        assert body["switchObj"] == p.switch_id
 
 
 def test_port_get_filter_all(client):

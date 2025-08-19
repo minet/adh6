@@ -27,15 +27,14 @@ class RoomSQLRepository(RoomRepository):
             .where(RoomMemberLink.member_id == member_id)
         )
 
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             result = session.execute(stmt).scalar_one_or_none()
-
-        return _map_room_sql_to_entity(result) if result else None
+            return _map_room_sql_to_entity(result, session) if result else None
 
     def get_members(self, room_id: int) -> Sequence[int]:
         stmt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
 
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             return session.execute(stmt).scalars().all()
 
     def remove_member(self, member_id: int) -> None:
@@ -62,17 +61,17 @@ class RoomSQLRepository(RoomRepository):
 
     @log_call
     def get_by_id(self, object_id: int) -> AbstractRoom:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             obj = session.query(Chambre).filter(Chambre.id == object_id).one_or_none()
-        if obj is None:
-            raise RoomNotFoundError(object_id)
-        return _map_room_sql_to_abstract_entity(obj)
+            if obj is None:
+                raise RoomNotFoundError(object_id)
+            return _map_room_sql_to_abstract_entity(obj, session)
 
     @log_call
     def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractRoom | None = None
     ) -> tuple[list[AbstractRoom], int]:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             query = session.query(Chambre)
 
             if terms:
@@ -92,7 +91,7 @@ class RoomSQLRepository(RoomRepository):
             query = query.limit(limit)
             r = query.all()
 
-        return list(map(_map_room_sql_to_abstract_entity, r)), count
+            return [_map_room_sql_to_abstract_entity(room, session) for room in r], count
 
     @log_call
     def create(self, abstract_room: Room) -> Room:
@@ -114,33 +113,34 @@ class RoomSQLRepository(RoomRepository):
             )
 
             session.add(room)
+            session.flush()  # Ensure the room gets an ID
+            # Map to entity while still in session context
+            result = _map_room_sql_to_entity(room, session)
 
-        return _map_room_sql_to_entity(room)
+        return result
 
     @log_call
     def update(self, abstract_room: AbstractRoom, override=False) -> object:
         with db.sessionmaker.begin() as session:
-            query = session.query(Chambre)
-            query = query.filter(Chambre.id == abstract_room.id)
-            query = query.join(Vlan, Vlan.id == Chambre.vlan_id)
-
-            room = query.one_or_none()
+            room = session.query(Chambre).filter(Chambre.id == abstract_room.id).one_or_none()
             if room is None:
                 raise RoomNotFoundError(str(abstract_room.id))
-            new_chambre = _merge_sql_with_entity(abstract_room, room, override)
+            new_chambre = _merge_sql_with_entity(abstract_room, room, session, override)
+            session.flush()
+            mapped_room = _map_room_sql_to_entity(new_chambre, session)
 
-        return _map_room_sql_to_entity(new_chambre)
+        return mapped_room
 
     @log_call
     def delete(self, id) -> None:
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             room = session.query(Chambre).filter(Chambre.id == id).one_or_none()
             if room is None:
                 raise RoomNotFoundError(id)
             session.delete(room)
 
 
-def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=False) -> Chambre:
+def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, session, override=False) -> Chambre:
     now = datetime.now()
     chambre = sql_object
     if entity.description is not None or override:
@@ -148,8 +148,7 @@ def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=F
     if entity.room_number is not None or override:
         chambre.numero = entity.room_number
     if entity.vlan is not None:
-        with db.sessionmaker() as session:
-            vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
+        vlan = session.query(Vlan).filter(Vlan.numero == entity.vlan).one_or_none()
         if not vlan:
             raise VLANNotFoundError(str(entity.vlan))
         chambre.vlan_id = vlan.id
@@ -158,13 +157,19 @@ def _merge_sql_with_entity(entity: AbstractRoom, sql_object: Chambre, override=F
     return chambre
 
 
-def _map_room_sql_to_abstract_entity(r: Chambre) -> AbstractRoom:
-    with db.sessionmaker() as session:
+def _map_room_sql_to_abstract_entity(r: Chambre, session=None) -> AbstractRoom:
+    if session is not None:
         vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
+    else:
+        with db.sessionmaker.begin() as session:
+            vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return AbstractRoom(id=r.id, room_number=r.numero, description=r.description, vlan=vlan[0].numero if vlan else None)
 
 
-def _map_room_sql_to_entity(r: Chambre) -> Room:
-    with db.sessionmaker() as session:
+def _map_room_sql_to_entity(r: Chambre, session=None) -> Room:
+    if session is not None:
         vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
+    else:
+        with db.sessionmaker.begin() as session:
+            vlan = session.execute(select(Vlan).where(Vlan.id == r.vlan_id)).first()
     return Room(id=r.id, room_number=r.numero, description=r.description, vlan=vlan[0].numero if vlan else None)

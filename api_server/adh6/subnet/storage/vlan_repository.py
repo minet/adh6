@@ -19,11 +19,11 @@ class VLANSQLRepository(VlanRepository):
 
         :raise VlanNotFound
         """
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             vlan = session.query(VlanSQL).filter(VlanSQL.numero == vlan_number).one_or_none()
-        if not vlan:
-            raise VLANNotFoundError(vlan_number)
-        return _map_vlan_sql_to_abstract_entity(vlan)
+            if not vlan:
+                raise VLANNotFoundError(vlan_number)
+            return _map_vlan_sql_to_abstract_entity(vlan)
 
 
 def _map_vlan_sql_to_abstract_entity(r: VlanSQL) -> AbstractVlan:

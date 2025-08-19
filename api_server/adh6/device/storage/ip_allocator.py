@@ -33,12 +33,12 @@ class IPSQLAllocator(IpAllocator):
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        with db.sessionmaker() as session:
+        with db.sessionmaker.begin() as session:
             ips = session.execute(smt).scalars().all()
 
-        for i, h in enumerate(network.hosts()):
-            if i == 0:
-                continue
-            if str(h) not in ips:
-                return str(h)
-        raise NoMoreIPAvailableException(ip_range)
+            for i, h in enumerate(network.hosts()):
+                if i == 0:
+                    continue
+                if str(h) not in ips:
+                    return str(h)
+            raise NoMoreIPAvailableException(ip_range)

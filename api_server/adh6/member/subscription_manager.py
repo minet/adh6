@@ -228,6 +228,8 @@ class SubscriptionManager:
         if len(tech_account) != 1:
             raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
         src_account = self.account_repository.get_by_id(membership.account)
+        if src_account is None:
+            raise AccountNotFoundError(membership.account)
         price = self.duration_price[membership.duration]  # Expressed in EUR.
         title = f"Internet - {self.duration_string.get(membership.duration)}"
         if price == 50 and not membership.has_room:
