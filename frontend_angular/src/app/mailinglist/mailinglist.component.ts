@@ -14,13 +14,13 @@ export class MailinglistComponent implements OnInit {
   @Output() udpatedMailinglistValue: EventEmitter<number> =
     new EventEmitter<number>();
 
-  public mailMiNET: boolean = false;
-  public mailHosting: boolean = false;
-  public mailRouteur: boolean = false;
+  public mailMiNET = false;
+  public mailHosting = false;
+  public mailRouteur = false;
 
   constructor(
-    private mailinglistService: MailinglistService,
-    private notificationService: NotificationService,
+    private readonly mailinglistService: MailinglistService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {

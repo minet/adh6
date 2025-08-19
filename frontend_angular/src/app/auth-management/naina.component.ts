@@ -57,7 +57,7 @@ export class NainaComponent implements OnInit {
   public result$: Observable<RoleMapping[]>;
   public login = "";
 
-  constructor(private authenticationService: AuthenticationService) {}
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   ngOnInit(): void {
     this.refreshNainA();

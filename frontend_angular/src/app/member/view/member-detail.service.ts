@@ -6,7 +6,7 @@ import {AbstractMember} from "../../api";
   providedIn: "root",
 })
 export class MemberDetailService {
-  private memberSource = new BehaviorSubject<AbstractMember>(null);
+  private readonly memberSource = new BehaviorSubject<AbstractMember>(null);
 
   public updateMemberInfos = new EventEmitter<string>();
   public member$ = this.memberSource.asObservable().pipe(shareReplay(1));

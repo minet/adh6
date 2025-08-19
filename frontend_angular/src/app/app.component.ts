@@ -1,11 +1,4 @@
-import {
-  animate,
-  query,
-  state,
-  style,
-  transition,
-  trigger,
-} from "@angular/animations";
+import {animate, query, style, transition, trigger} from "@angular/animations";
 import {Component} from "@angular/core";
 import {Router, RouterOutlet} from "@angular/router";
 import {Ability, AbilityBuilder} from "@casl/ability";
@@ -66,51 +59,60 @@ export const fadeAnimation = trigger("fadeAnimation", [
 export class AppComponent {
   constructor(
     public oidcSecurityService: OidcSecurityService,
-    private ability: Ability,
-    private miscService: MiscService,
-    private configurationAPI: Configuration,
-    private router: Router,
+    private readonly ability: Ability,
+    private readonly miscService: MiscService,
+    private readonly configurationAPI: Configuration,
+    private readonly router: Router,
   ) {
-    this.oidcSecurityService
-      .checkAuth()
-      .subscribe(({isAuthenticated, accessToken}) => {
+    this.oidcSecurityService.checkAuth().subscribe({
+      next: ({isAuthenticated, accessToken}) => {
         if (isAuthenticated) {
           this.configurationAPI.credentials["OAuth2"] = accessToken;
-          this.miscService.profile().subscribe((r) => {
-            const {can, rules} = new AbilityBuilder(Ability);
-            if (
-              r.roles.indexOf("admin:read") !== -1 &&
-              r.roles.indexOf("admin:write") !== -1
-            ) {
-              can("manage", "admin");
-            }
-            if (
-              r.roles.indexOf("admin:prod") !== -1 &&
-              r.roles.indexOf("admin:write") !== -1
-            ) {
-              can("manage", "prod");
-            }
-            if (r.roles.indexOf("treasurer:write") !== -1) {
-              can("free", "Membership");
-            }
-            if (
-              r.roles.indexOf("treasurer:read") !== -1 &&
-              r.roles.indexOf("treasurer:write") !== -1
-            ) {
-              can("manage", "treasury");
-            }
-            can("read", "Member", {id: r.member.id});
-            this.ability.update(rules);
+          this.miscService.profile().subscribe({
+            next: (r) => {
+              const {can, rules} = new AbilityBuilder(Ability);
+              if (
+                r.roles?.indexOf("admin:read") !== -1 &&
+                r.roles?.indexOf("admin:write") !== -1
+              ) {
+                can("manage", "admin");
+              }
+              if (
+                r.roles?.indexOf("admin:prod") !== -1 &&
+                r.roles?.indexOf("admin:write") !== -1
+              ) {
+                can("manage", "prod");
+              }
+              if (r.roles?.indexOf("treasurer:write") !== -1) {
+                can("free", "Membership");
+              }
+              if (
+                r.roles?.indexOf("treasurer:read") !== -1 &&
+                r.roles?.indexOf("treasurer:write") !== -1
+              ) {
+                can("manage", "treasury");
+              }
+              if (r.member?.id != null) {
+                can("read", "Member", {id: r.member.id});
+              }
+              this.ability.update(rules);
+            },
+            error: (error) => {
+              console.error("Error fetching user profile:", error);
+            },
           });
         } else {
-          this.router.navigate(["/portail"]);
+          void this.router.navigate(["/portail"]);
         }
-      });
+      },
+      error: (error) => {
+        console.error("Error checking authentication:", error);
+        void this.router.navigate(["/portail"]);
+      },
+    });
   }
 
-  prepareRoute(outlet: RouterOutlet) {
-    return (
-      outlet && outlet.activatedRouteData && outlet.activatedRouteData.animation
-    );
+  prepareRoute(outlet: RouterOutlet): string | undefined {
+    return outlet?.activatedRouteData?.animation as string | undefined;
   }
 }

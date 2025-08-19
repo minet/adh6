@@ -14,10 +14,10 @@ import {CommonModule} from "@angular/common";
 import {PaginationComponent} from "../pagination/pagination.component";
 
 class Action {
-  name: string = "";
-  buttonIcon: string = "";
-  class: string = "";
-  condition: any;
+  name = "";
+  buttonIcon = "";
+  class = "";
+  condition: (transaction: Transaction) => boolean = () => true;
 }
 
 @Component({
@@ -29,22 +29,25 @@ export class TransactionListComponent
   extends SearchPage<AbstractTransaction>
   implements OnInit
 {
-  @Input() asAccount: number = 0;
+  @Input() asAccount = 0;
   @Input() refresh: EventEmitter<{action: string}> = new EventEmitter();
-  @Input() actions: Array<Action> = [];
+  @Input() actions: Action[] = [];
 
   @Output() whenOnAction: EventEmitter<{
     name: string;
     transaction: Transaction;
-  }> = new EventEmitter();
+  }> = new EventEmitter<{
+    name: string;
+    transaction: Transaction;
+  }>();
 
-  public result$: Observable<Array<Transaction>> = new Observable();
-  public paymentMethods: Array<PaymentMethod> = [];
-  public filterType: string = "";
+  public override result$: Observable<Transaction[]> = new Observable();
+  public paymentMethods: PaymentMethod[] = [];
+  public filterType = "";
 
-  cachedAccountName: Map<Number, Observable<string>> = new Map();
-  cachedPaymentMethodName: Map<Number, Observable<string>> = new Map();
-  cachedMemberUsername: Map<Number, Observable<string>> = new Map();
+  cachedAccountName: Map<number, Observable<string>> = new Map();
+  cachedPaymentMethodName: Map<number, Observable<string>> = new Map();
+  cachedMemberUsername: Map<number, Observable<string>> = new Map();
 
   getUsername(id: number) {
     return this.cachedMemberUsername.get(id);
@@ -59,10 +62,10 @@ export class TransactionListComponent
   }
 
   constructor(
-    private transactionService: TransactionService,
+    private readonly transactionService: TransactionService,
     public appConstantsService: AppConstantsService,
-    private accountService: AccountService,
-    private memberService: MemberService,
+    private readonly accountService: AccountService,
+    private readonly memberService: MemberService,
   ) {
     super((terms, page) => {
       let abstractTransaction: AbstractTransaction = {};
@@ -89,7 +92,7 @@ export class TransactionListComponent
             if (!response.body) {
               return response;
             }
-            for (let i of response.body) {
+            for (const i of response.body) {
               if (i.src && !this.cachedAccountName.has(i.src)) {
                 this.cachedAccountName.set(
                   i.src,
@@ -148,14 +151,14 @@ export class TransactionListComponent
     this.updateTypeFilter(target.value);
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
     this.getSearchResult();
     this.appConstantsService.getPaymentMethods().subscribe((data) => {
       this.paymentMethods = data;
     });
     if (this.refresh) {
-      this.refresh.subscribe((e: any) => {
+      this.refresh.subscribe((e: {action: string}) => {
         if (e.action === "refresh") {
           this.getSearchResult();
         }

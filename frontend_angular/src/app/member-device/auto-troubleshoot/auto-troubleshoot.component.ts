@@ -63,7 +63,7 @@ export class AutoTroubleshootComponent implements OnInit {
 
   @Input() member: Member;
 
-  constructor(private memberService: MemberService) {}
+  constructor(private readonly memberService: MemberService) {}
 
   ngOnInit(): void {
     this.statuses$ = this.memberService.memberIdStatusesGet(

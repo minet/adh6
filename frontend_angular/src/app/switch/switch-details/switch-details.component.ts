@@ -15,11 +15,11 @@ import {PortListComponent} from "../../port/list/list.component";
 })
 export class SwitchDetailsComponent implements OnInit {
   switch$: Observable<AbstractSwitch>;
-  switchId: number = 0;
+  switchId = 0;
 
   constructor(
-    private switchService: SwitchService,
-    private route: ActivatedRoute,
+    private readonly switchService: SwitchService,
+    private readonly route: ActivatedRoute,
   ) {}
 
   ngOnInit() {

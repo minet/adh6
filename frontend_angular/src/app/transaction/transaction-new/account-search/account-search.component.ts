@@ -17,14 +17,14 @@ export class AccountSearchComponent
   implements OnInit
 {
   public display = false;
-  public selectedAccount: AbstractAccount;
+  public selectedAccount!: AbstractAccount;
   private _inputAccountId: number | undefined;
 
   @Input() set inputAccountId(value: number | undefined) {
     this._inputAccountId = value;
     if (value) {
       this.accountService
-        .accountIdGet(this._inputAccountId)
+        .accountIdGet(value)
         .subscribe((account) => (this.selectedAccount = account));
     }
   }
@@ -34,9 +34,9 @@ export class AccountSearchComponent
 
   @Output() selectedAccountId = new EventEmitter<number>();
 
-  constructor(private accountService: AccountService) {
+  constructor(private readonly accountService: AccountService) {
     super(
-      (terms: string, _) =>
+      (terms: string) =>
         this.accountService
           .accountGet(5, 0, terms, undefined, undefined, "response")
           .pipe(
@@ -49,18 +49,18 @@ export class AccountSearchComponent
     );
   }
 
-  ngOnInit(): void {
+  override ngOnInit(): void {
     super.ngOnInit();
-    this.result$ = of(undefined);
+    this.result$ = of([]);
   }
 
-  search(terms: string): void {
+  override search(terms: string): void {
     super.search(terms);
     this.getSearchResult();
   }
 
   setSelectedAccount(account: AbstractAccount): void {
-    this.result$ = undefined;
+    this.result$ = of([]);
     this.selectedAccount = account;
     this.display = false;
     this.selectedAccountId.emit(this.selectedAccount.id);

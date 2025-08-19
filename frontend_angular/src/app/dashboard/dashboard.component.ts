@@ -10,7 +10,7 @@ import {
 import {CommonModule} from "@angular/common";
 import {Component, OnInit} from "@angular/core";
 import {Router, RouterModule, RouterOutlet} from "@angular/router";
-import {map, Observable} from "rxjs";
+import {map, Observable, filter} from "rxjs";
 import {Member, MiscService} from "../api";
 import {MemberDeviceModule} from "../member-device/member-device.module";
 
@@ -80,25 +80,24 @@ export class DashboardComponent implements OnInit {
   public currentTab = "device";
 
   constructor(
-    private miscService: MiscService,
-    private router: Router,
+    private readonly miscService: MiscService,
+    private readonly router: Router,
   ) {
-    this.member$ = this.miscService.profile().pipe(map((r) => r.member));
+    this.member$ = this.miscService.profile().pipe(
+      map((r) => r.member),
+      filter((member): member is Member => member != null),
+    );
   }
 
   ngOnInit(): void {
-    this.router.navigate(["dashboard", "device"]);
+    void this.router.navigate(["dashboard", "device"]);
   }
 
-  public onOutletLoaded(component, member: Member) {
+  public onOutletLoaded(component: {member?: Member}, member: Member) {
     component.member = member;
   }
 
-  prepareRoute(outlet: RouterOutlet) {
-    return (
-      outlet &&
-      outlet.activatedRouteData &&
-      outlet.activatedRouteData["animation"]
-    );
+  prepareRoute(outlet: RouterOutlet): string | undefined {
+    return outlet?.activatedRouteData?.["animation"] as string | undefined;
   }
 }

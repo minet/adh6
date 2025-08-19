@@ -1,5 +1,5 @@
 import {Component, Input, ViewChild} from "@angular/core";
-import {AbstractDevice, AbstractMember, Member} from "../api";
+import {AbstractDevice, AbstractMember} from "../api";
 import {MemberDeviceListComponent} from "./list/list.component";
 import {NewComponent} from "./new/new.component";
 

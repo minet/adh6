@@ -19,15 +19,15 @@ import {AccountListComponent} from "../account/account-list/account-list.compone
   templateUrl: "./treasury.component.html",
 })
 export class TreasuryComponent implements OnInit {
-  cashbox$: Observable<any> = new Observable();
-  balance$: Observable<any> = new Observable();
+  cashbox$: Observable<unknown> = new Observable();
+  balance$: Observable<unknown> = new Observable();
 
   showFundManagement = false;
   fundManagementForm: UntypedFormGroup;
   create = false;
 
   constructor(
-    private fb: UntypedFormBuilder,
+    private readonly fb: UntypedFormBuilder,
     public treasuryService: TreasuryService,
   ) {
     this.fundManagementForm = this.fb.group({

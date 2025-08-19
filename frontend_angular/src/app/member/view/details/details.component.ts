@@ -19,7 +19,7 @@ import {NotificationService} from "../../../notification.service";
 import {MemberDetailService} from "../member-detail.service";
 
 interface RoomForm {
-  roomNumber: FormControl<number>;
+  roomNumber: FormControl<number | null>;
 }
 
 @Component({
@@ -33,15 +33,15 @@ interface RoomForm {
   templateUrl: "./details.component.html",
 })
 export class DetailsComponent {
-  public moveIn: boolean = false;
+  public moveIn = false;
   public roomForm: FormGroup<RoomForm> = new FormGroup({
-    roomNumber: new FormControl(null, Validators.required),
+    roomNumber: new FormControl<number | null>(null, Validators.required),
   });
-  public room$: Observable<AbstractRoom>;
+  public room$!: Observable<AbstractRoom>;
 
   constructor(
     public memberDetailService: MemberDetailService,
-    private notificationService: NotificationService,
+    private readonly notificationService: NotificationService,
     public roomService: RoomService,
     public roomMemberService: RoomMembersService,
   ) {
@@ -50,11 +50,14 @@ export class DetailsComponent {
 
   public refreshRoom(): void {
     this.room$ = this.memberDetailService.member$.pipe(
-      switchMap((member) =>
-        this.roomMemberService
-          .roomMemberIdGet(member.id)
-          .pipe(switchMap((roomId) => this.roomService.roomIdGet(roomId))),
-      ),
+      switchMap((member) => {
+        if (member.id != null) {
+          return this.roomMemberService
+            .roomMemberIdGet(member.id)
+            .pipe(switchMap((roomId) => this.roomService.roomIdGet(roomId)));
+        }
+        throw new Error("Member ID is required");
+      }),
     );
   }
 
@@ -63,9 +66,19 @@ export class DetailsComponent {
   }
 
   submitRoom(member: AbstractMember): void {
+    const roomNumber = this.roomForm.value.roomNumber;
+    if (roomNumber == null) {
+      this.notificationService.errorNotification(
+        400,
+        "Invalid Room Number",
+        "Please enter a valid room number",
+      );
+      return;
+    }
+
     this.roomService
       .roomGet(1, 0, undefined, <AbstractRoom>{
-        roomNumber: this.roomForm.value.roomNumber,
+        roomNumber: roomNumber,
       })
       .subscribe((rooms) => {
         if (rooms.length === 0) {
@@ -76,15 +89,18 @@ export class DetailsComponent {
           );
           return;
         }
-        this.roomMemberService
-          .roomIdMemberPost(rooms[0].id, {id: member.id})
-          .subscribe(() => {
-            this.refreshRoom();
-            this.collapseMoveIn();
-            this.memberDetailService.updateMemberInfos.emit(
-              "Chambre mise à jour",
-            );
-          });
+
+        if (rooms[0].id != null && member.id != null) {
+          this.roomMemberService
+            .roomIdMemberPost(rooms[0].id, {id: member.id})
+            .subscribe(() => {
+              this.refreshRoom();
+              this.collapseMoveIn();
+              this.memberDetailService.updateMemberInfos.emit(
+                "Chambre mise à jour",
+              );
+            });
+        }
       });
   }
 }

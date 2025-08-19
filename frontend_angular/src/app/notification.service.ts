@@ -34,7 +34,7 @@ export class NotificationService {
       case 500:
         notifTitle = "Internal server Error";
 
-        Toast.fire({
+        void Toast.fire({
           title: notifTitle + " - " + title,
           text: message,
           icon: "error",
@@ -44,7 +44,7 @@ export class NotificationService {
   }
 
   successNotification(title?: string, message?: string, timer?: number): void {
-    Toast.fire({
+    void Toast.fire({
       title: title,
       text: message,
       icon: "success",

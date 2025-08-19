@@ -25,7 +25,7 @@ export type AppAbility = Ability<[Actions, undefined]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
 
 function load(): Configuration {
-  let params = {
+  const params = {
     basePath: environment.API_BASE_PATH,
   };
   return new Configuration(params);

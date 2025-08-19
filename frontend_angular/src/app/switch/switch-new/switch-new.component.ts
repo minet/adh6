@@ -19,16 +19,16 @@ import {NotificationService} from "../../notification.service";
   standalone: true,
 })
 export class SwitchNewComponent {
-  switches$: Observable<Array<AbstractSwitch>>;
+  switches$: Observable<AbstractSwitch[]>;
   switchForm: UntypedFormGroup;
   disabled = false;
-  private alive = true;
+  private readonly alive = true;
 
   constructor(
-    private fb: UntypedFormBuilder,
+    private readonly fb: UntypedFormBuilder,
     public switchService: SwitchService,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.switchForm = this.fb.group({
       ip: [
@@ -57,7 +57,7 @@ export class SwitchNewComponent {
       .switchPost(varSwitch)
       .pipe(takeWhile(() => this.alive))
       .subscribe(() => {
-        this.router.navigate(["/switch/search"]);
+        void this.router.navigate(["/switch/search"]);
         this.notificationService.successNotification();
       });
   }

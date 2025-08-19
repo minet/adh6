@@ -18,16 +18,16 @@ import {AbstractAccount} from "../api/model/abstractAccount";
   templateUrl: "./device-list.component.html",
 })
 export class DeviceListComponent extends SearchPage<number> implements OnInit {
-  public memberUsernames: Map<Number, Observable<string>> = new Map<
-    Number,
+  public memberUsernames: Map<number, Observable<string>> = new Map<
+    number,
     Observable<string>
   >();
-  public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
+  public cachedDevices: Map<number, Observable<AbstractDevice>> = new Map();
   @Input() abstractAccountFilter: AbstractAccount = {};
   constructor(
-    private deviceService: DeviceService,
-    private memberService: MemberService,
-    private route: ActivatedRoute,
+    private readonly deviceService: DeviceService,
+    private readonly memberService: MemberService,
+    private readonly route: ActivatedRoute,
   ) {
     super((terms, page) =>
       this.deviceService
@@ -39,7 +39,7 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
         )
         .pipe(
           map((response) => {
-            for (let i of response.body) {
+            for (const i of response.body) {
               this.cachedDevices.set(
                 +i,
                 this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),

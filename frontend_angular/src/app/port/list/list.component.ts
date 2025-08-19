@@ -16,20 +16,20 @@ export class PortListComponent
   implements OnInit
 {
   @Input() switchId: number | undefined;
-  cachedSwitchDescription: Map<Number, Observable<string>> = new Map<
-    Number,
+  cachedSwitchDescription: Map<number, Observable<string>> = new Map<
+    number,
     Observable<string>
   >();
-  cachedRoomDescription: Map<Number, Observable<string>> = new Map<
-    Number,
+  cachedRoomDescription: Map<number, Observable<string>> = new Map<
+    number,
     Observable<string>
   >();
 
   private filter: AbstractPort = {};
   constructor(
-    private portService: PortService,
-    private roomService: RoomService,
-    private switchService: SwitchService,
+    private readonly portService: PortService,
+    private readonly roomService: RoomService,
+    private readonly switchService: SwitchService,
   ) {
     super((terms, page) =>
       this.portService
@@ -43,7 +43,7 @@ export class PortListComponent
         )
         .pipe(
           map((response) => {
-            for (let p of response.body) {
+            for (const p of response.body) {
               if (p.room && !this.cachedRoomDescription.has(p.room)) {
                 this.cachedRoomDescription.set(
                   p.room,

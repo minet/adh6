@@ -20,14 +20,14 @@ import {NotificationService} from "../../notification.service";
 })
 export class RoomNewComponent implements OnDestroy {
   disabled = false;
-  roomForm: UntypedFormGroup;
+  roomForm!: UntypedFormGroup;
   private alive = true;
 
   constructor(
     public roomService: RoomService,
-    private fb: UntypedFormBuilder,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -56,7 +56,7 @@ export class RoomNewComponent implements OnDestroy {
       .roomPost(room)
       .pipe(takeWhile(() => this.alive))
       .subscribe((_) => {
-        this.router.navigate(["/room/view", v.roomNumber]);
+        void this.router.navigate(["/room/view", v.roomNumber]);
         this.notificationService.successNotification();
       });
     this.disabled = false;

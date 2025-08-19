@@ -19,9 +19,9 @@ import {SearchPage} from "../../search-page";
   templateUrl: "./list.component.html",
 })
 export class ListComponent extends SearchPage<number> {
-  public cachedMembers: Map<Number, Observable<AbstractMember>> = new Map();
-  public cachedRoomNumbers: Map<Number, Observable<number>> = new Map();
-  public subscriptionFilter: string = "";
+  public cachedMembers: Map<number, Observable<AbstractMember>> = new Map();
+  public cachedRoomNumbers: Map<number, Observable<number>> = new Map();
+  public subscriptionFilter = "";
   public subscriptionValues = Member.MembershipEnum;
 
   // GDPR privacy check - only show sensitive data when results are filtered down
@@ -30,9 +30,9 @@ export class ListComponent extends SearchPage<number> {
   }
 
   constructor(
-    private memberService: MemberService,
-    private roomMemberService: RoomMembersService,
-    private roomService: RoomService,
+    private readonly memberService: MemberService,
+    private readonly roomMemberService: RoomMembersService,
+    private readonly roomService: RoomService,
   ) {
     super((terms, page) =>
       this.memberService
@@ -47,7 +47,7 @@ export class ListComponent extends SearchPage<number> {
         )
         .pipe(
           map((response) => {
-            for (let i of response.body) {
+            for (const i of response.body) {
               this.cachedMembers.set(
                 +i,
                 this.memberService.memberIdGet(+i).pipe(shareReplay(1)),

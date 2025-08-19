@@ -3,7 +3,6 @@ import {FormsModule} from "@angular/forms";
 import {Component} from "@angular/core";
 import {
   AbstractMember,
-  Member,
   MembershipService,
   TransactionService,
 } from "../../../api";
@@ -26,15 +25,15 @@ import {MemberDetailService} from "../member-detail.service";
 })
 export class PaymentComponent {
   public member$ = this.memberDetailService.member$;
-  public productCollapse: boolean = false;
-  public membershipCollapse: boolean = false;
+  public productCollapse = false;
+  public membershipCollapse = false;
   public paymentMethods$ = this.transactionService.paymentMethodGet();
   public isFree = false;
 
   constructor(
-    private transactionService: TransactionService,
-    private membershipService: MembershipService,
-    private memberDetailService: MemberDetailService,
+    private readonly transactionService: TransactionService,
+    private readonly membershipService: MembershipService,
+    private readonly memberDetailService: MemberDetailService,
   ) {}
 
   public validatePayment(member: AbstractMember): void {

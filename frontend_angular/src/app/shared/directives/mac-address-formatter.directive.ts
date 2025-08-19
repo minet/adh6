@@ -7,8 +7,8 @@ import {NgControl} from "@angular/forms";
 })
 export class MacAddressFormatterDirective implements OnInit {
   constructor(
-    private el: ElementRef,
-    private control: NgControl,
+    private readonly el: ElementRef,
+    private readonly control: NgControl,
   ) {}
 
   ngOnInit(): void {
@@ -19,8 +19,8 @@ export class MacAddressFormatterDirective implements OnInit {
   }
 
   @HostListener("input", ["$event"])
-  onInput(event: any): void {
-    const input = event.target;
+  onInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
     const value = input.value;
 
     // Format the MAC address

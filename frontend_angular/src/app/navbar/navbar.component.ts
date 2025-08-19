@@ -11,7 +11,7 @@ import {AblePipe} from "@casl/angular";
   templateUrl: "./navbar.component.html",
 })
 export class NavbarComponent {
-  public isMenuActive: boolean = false;
+  public isMenuActive = false;
   constructor(public oidcSecurityService: OidcSecurityService) {}
 
   logout() {

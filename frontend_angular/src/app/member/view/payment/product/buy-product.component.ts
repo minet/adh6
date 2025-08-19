@@ -10,7 +10,6 @@ import {
 import {map, Observable} from "rxjs";
 import {
   AbstractMember,
-  Member,
   PaymentMethod,
   Product,
   TreasuryService,
@@ -35,19 +34,26 @@ interface ProductForm {
   templateUrl: "./buy-product.component.html",
 })
 export class BuyProductComponent {
-  @Input() member: AbstractMember;
-  @Input() paymentMethods: PaymentMethod[];
+  @Input() member!: AbstractMember;
+  @Input() paymentMethods!: PaymentMethod[];
 
   public productForm: FormGroup<ProductForm> = new FormGroup({
     paidWith: new FormControl(0, {
       nonNullable: true,
       validators: [Validators.required, Validators.min(1)],
     }),
-    products: new FormArray([]),
+    products: new FormArray<
+      FormGroup<{
+        id: FormControl<number>;
+        name: FormControl<string>;
+        checked: FormControl<boolean>;
+        amount: FormControl<number>;
+      }>
+    >([]),
   });
   public products$: Observable<Product[]>;
 
-  constructor(private treasuryService: TreasuryService) {
+  constructor(private readonly treasuryService: TreasuryService) {
     this.products$ = this.treasuryService
       .productGet(100, 0, undefined, "body")
       .pipe(
@@ -55,10 +61,12 @@ export class BuyProductComponent {
           products.forEach((product) => {
             this.productForm.controls.products.push(
               new FormGroup({
-                id: new FormControl(product.id),
-                checked: new FormControl<boolean>(false),
-                name: new FormControl(product.name),
-                amount: new FormControl(product.sellingPrice),
+                id: new FormControl(product.id!, {nonNullable: true}),
+                checked: new FormControl<boolean>(false, {nonNullable: true}),
+                name: new FormControl(product.name, {nonNullable: true}),
+                amount: new FormControl(product.sellingPrice, {
+                  nonNullable: true,
+                }),
               }),
             );
           });
@@ -68,12 +76,17 @@ export class BuyProductComponent {
   }
 
   private get checkedProducts() {
-    return this.productForm.value.products.filter((p) => p.checked === true);
+    const products = this.productForm.value.products;
+    return products ? products.filter((p) => p.checked === true) : [];
   }
 
   public get amount(): number {
     let v = 0;
-    this.checkedProducts.forEach((p) => (v += p.amount));
+    this.checkedProducts.forEach((p) => {
+      if (p.amount != null) {
+        v += p.amount;
+      }
+    });
     return v;
   }
 
@@ -82,15 +95,37 @@ export class BuyProductComponent {
   }
 
   public submit(): void {
-    if (this.checkedProducts.length === 0) return;
+    if (this.checkedProducts.length === 0) {
+      return;
+    }
+
+    if (this.member.id == null) {
+      void Toast.fire({
+        title: "Erreur",
+        text: "Membre non valide",
+        icon: "error",
+      });
+      return;
+    }
+
+    const productIds = this.checkedProducts
+      .map((p) => p.id)
+      .filter((id): id is number => id != null);
+
+    const paymentMethod = this.productForm.value.paidWith;
+    if (paymentMethod == null) {
+      void Toast.fire({
+        title: "Erreur",
+        text: "Méthode de paiement requise",
+        icon: "error",
+      });
+      return;
+    }
+
     this.treasuryService
-      .productBuyPost(
-        this.member.id,
-        this.checkedProducts.map((p) => p.id),
-        this.productForm.value.paidWith,
-      )
+      .productBuyPost(this.member.id, productIds, paymentMethod)
       .subscribe(() => {
-        Toast.fire({
+        void Toast.fire({
           title: "Produit(s) acheté(s)",
           icon: "success",
         });

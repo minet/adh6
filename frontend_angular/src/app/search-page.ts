@@ -1,6 +1,6 @@
 import {HttpResponse} from "@angular/common/http";
 import {Directive, OnInit} from "@angular/core";
-import {BehaviorSubject, combineLatest, Observable} from "rxjs";
+import {BehaviorSubject, combineLatest, Observable, of} from "rxjs";
 import {
   debounceTime,
   distinctUntilChanged,
@@ -12,23 +12,23 @@ import {PagingConf} from "./paging.config";
 
 @Directive()
 export class SearchPage<T> implements OnInit {
-  private searchTerm$ = new BehaviorSubject<string>("");
-  private pageNumber$ = new BehaviorSubject<number>(1);
-  private httpGetter: (
+  private readonly searchTerm$ = new BehaviorSubject<string>("");
+  private readonly pageNumber$ = new BehaviorSubject<number>(1);
+  private readonly httpGetter: (
     term: string,
     page: number,
-  ) => Observable<HttpResponse<Array<T>>>;
-  private shouldInitSearch: boolean;
-  private cachedResult: Map<Number, Observable<Array<T>>> = new Map<
-    Number,
-    Observable<Array<T>>
+  ) => Observable<HttpResponse<T[]>>;
+  private readonly shouldInitSearch: boolean;
+  private readonly cachedResult: Map<number, Observable<T[]>> = new Map<
+    number,
+    Observable<T[]>
   >();
-  public maxItems: number = 1;
+  public maxItems = 1;
   public itemsPerPage: number = +PagingConf.item_count;
-  public result$: Observable<Array<T>> = new Observable();
+  public result$: Observable<T[]> = new Observable();
 
   constructor(
-    f: (term: string, page: number) => Observable<HttpResponse<Array<T>>>,
+    f: (term: string, page: number) => Observable<HttpResponse<T[]>>,
     shouldInitSearch?: boolean,
   ) {
     this.httpGetter = f;
@@ -62,7 +62,7 @@ export class SearchPage<T> implements OnInit {
               map((response) => {
                 let maxItems = 0;
                 if (response.headers && response.headers.has("x-total-count")) {
-                  maxItems = +response.headers.get("x-total-count");
+                  maxItems = +(response.headers.get("x-total-count") || "0");
                 }
                 if (this.maxItems != maxItems) {
                   this.maxItems = maxItems;
@@ -72,7 +72,7 @@ export class SearchPage<T> implements OnInit {
             ),
           );
         }
-        return this.cachedResult.get(data[1]);
+        return this.cachedResult.get(data[1]) || of([]);
       }),
     );
   }

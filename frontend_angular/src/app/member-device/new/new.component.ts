@@ -20,16 +20,17 @@ import {MacAddressFormatterDirective} from "../../shared/directives/mac-address-
   imports: [CommonModule, ReactiveFormsModule, MacAddressFormatterDirective],
 })
 export class NewComponent {
-  deviceForm: UntypedFormGroup;
-  private alive = true;
+  deviceForm!: UntypedFormGroup;
+  private readonly alive = true;
 
-  @Input() member_id: number;
-  @Output() added: EventEmitter<AbstractDevice> = new EventEmitter();
+  @Input() member_id!: number;
+  @Output() added: EventEmitter<AbstractDevice> =
+    new EventEmitter<AbstractDevice>();
 
   constructor(
-    private fb: UntypedFormBuilder,
-    private deviceService: DeviceService,
-    private notificationService: NotificationService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly deviceService: DeviceService,
+    private readonly notificationService: NotificationService,
     @Inject(LOCALE_ID) public locale: string,
   ) {
     this.createForm();
@@ -38,8 +39,8 @@ export class NewComponent {
   onSubmit() {
     const v = this.deviceForm.value;
     const device: DeviceBody = {
-      mac: v.mac,
-      connectionType: v.connectionType,
+      mac: v.mac as string,
+      connectionType: v.connectionType as DeviceBody.ConnectionTypeEnum,
       member: this.member_id,
     };
 

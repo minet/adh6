@@ -14,19 +14,24 @@ import {Toast} from "../../notification.service";
 })
 export class ViewComponent implements OnInit {
   public currentTab = "profile";
-  public member$: Observable<AbstractMember>;
+  public member$!: Observable<AbstractMember>;
 
   constructor(
     public memberService: MemberService,
-    private route: ActivatedRoute,
-    private memberDetailService: MemberDetailService,
+    private readonly route: ActivatedRoute,
+    private readonly memberDetailService: MemberDetailService,
   ) {}
 
   ngOnInit() {
     this.refreshInfo();
-    this.memberDetailService.updateMemberInfos.subscribe((msg) => {
-      this.refreshInfo();
-      Toast.fire("Adhérent mis à jour", msg);
+    this.memberDetailService.updateMemberInfos.subscribe({
+      next: (msg: string) => {
+        this.refreshInfo();
+        void Toast.fire("Adhérent mis à jour", msg);
+      },
+      error: (error: any) => {
+        console.error("Error updating member info:", error);
+      },
     });
   }
 

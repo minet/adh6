@@ -155,11 +155,11 @@ import {RouterModule} from "@angular/router";
 })
 export class SwitchLocalComponent implements OnInit {
   switch$: Observable<AbstractSwitch>;
-  ports$: Observable<Array<AbstractPort>>;
+  ports$: Observable<AbstractPort[]>;
 
   constructor(
-    private switchService: SwitchService,
-    private portService: PortService,
+    private readonly switchService: SwitchService,
+    private readonly portService: PortService,
   ) {}
 
   ngOnInit() {

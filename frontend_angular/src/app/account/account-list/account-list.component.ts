@@ -18,17 +18,17 @@ export class AccountListComponent
   extends SearchPage<AbstractAccount>
   implements OnInit
 {
-  accountTypes: Array<AccountType>;
+  accountTypes: AccountType[];
   @Input() abstractAccountFilter: AbstractAccount = {};
-  cachedAccountType: Map<Number, Observable<string>> = new Map<
-    Number,
+  cachedAccountType: Map<number, Observable<string>> = new Map<
+    number,
     Observable<string>
   >();
 
   constructor(
-    private accountService: AccountService,
-    private route: ActivatedRoute,
-    private appConstantsService: AppConstantsService,
+    private readonly accountService: AccountService,
+    private readonly route: ActivatedRoute,
+    private readonly appConstantsService: AppConstantsService,
   ) {
     super((terms, page) =>
       this.accountService
@@ -42,7 +42,7 @@ export class AccountListComponent
         )
         .pipe(
           map((response) => {
-            for (let i of response.body) {
+            for (const i of response.body) {
               if (i.accountType && !this.cachedAccountType.has(i.accountType)) {
                 this.cachedAccountType.set(
                   i.accountType,

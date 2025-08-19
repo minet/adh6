@@ -66,4 +66,4 @@ import "zone.js"; // Included with Angular CLI.
 /**
  * This fixes the "Uncaught ReferenceError: global is not defined" error caused at the time by iconv-lite
  */
-(window as any).global = window;
+(window as unknown as {global: Window}).global = window;
