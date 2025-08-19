@@ -1,4 +1,4 @@
-<ng-container *ngIf="member$ | async">
+@if (member$ | async) {
   <div class="tabs is-centered is-large">
     <ul>
       <li routerLinkActive="is-active">
@@ -13,4 +13,4 @@
     </ul>
   </div>
   <router-outlet></router-outlet>
-</ng-container>
+}

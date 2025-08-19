@@ -10,6 +10,6 @@ class DeviceLogsManager:
         self.device_repository = device_repository
 
     @log_call
-    def get(self, member: Member, dhcp: bool = False):
+    def get(self, member: Member, limit: int = 10, offset: int = 0, dhcp: bool = False):
         devices, _ = self.device_repository.search_by(limit=20, offset=0, device_filter=DeviceFilter(member=member.id))
-        return self.logs_repository.get(member=member, devices=devices, dhcp=dhcp)
+        return self.logs_repository.get(member=member, devices=devices, limit=limit, offset=offset, dhcp=dhcp)

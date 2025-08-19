@@ -1,20 +1,29 @@
-<div *ngIf="result$ | async as result; else loading">
-  <p
-    *ngIf="result.length === 0; else theDevices"
-    class="title"
-    i18n="device list none|Tells the user they have no registered devices">
-    Aucun appareil enregistré
-  </p>
-  <div *ngFor="let deviceId of result; let i = index">
-    <app-element
-      [elementName]="i"
-      [deviceId]="deviceId"
-      style="padding: 0% 0%"
-      (removed)="updateSearch()"></app-element>
+@if (result$ | async; as result) {
+  <div>
+    @if (result.length === 0) {
+      <p
+        class="title"
+        i18n="device list none|Tells the user they have no registered devices">
+        Aucun appareil enregistré
+      </p>
+    } @else {
+      <!-- Container with rounded corners for the entire device list -->
+      <div class="device-list-container">
+        @for (deviceId of result; track deviceId; let i = $index) {
+          <div class="device-item" [class.is-first]="i === 0" [class.is-last]="i === result.length - 1">
+            <app-element
+              [elementName]="i"
+              [deviceId]="deviceId"
+              style="padding: 0% 0%"
+              (removed)="updateSearch()"></app-element>
+          </div>
+        }
+      </div>
+      <ng-template [ngTemplateOutlet]="theDevices"></ng-template>
+    }
   </div>
-</div>
-<ng-template #loading>
+} @else {
   <div class="notification is-info is-light has-text-centered">
     <h4 class="title is-4"><span i18n="@@loading">Chargement</span> ...</h4>
   </div>
-</ng-template>
+}

@@ -13,11 +13,11 @@
       <p class="control">
         <select class="input" (change)="updateTypeFilter($event.target.value)">
           <option value="">-- Tout type --</option>
-          <option
-            *ngFor="let accountType of accountTypes"
-            value="{{ accountType.id }}">
-            {{ accountType.name }}
-          </option>
+          @for (accountType of accountTypes; track accountType) {
+            <option value="{{ accountType.id }}">
+              {{ accountType.name }}
+            </option>
+          }
         </select>
       </p>
       <p class="control">
@@ -37,35 +37,36 @@
       <th>Solde</th>
     </tr>
   </thead>
-  <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr
-      *ngFor="let accountResult of result"
-      [routerLink]="['/account/view', accountResult.id]">
-      <td class="align-middle">{{ accountResult.name }}</td>
-      <td class="align-middle">
-        {{ accountResult.actif === true ? "Oui" : "Non" }}
+  @if (result$ | async; as result) {
+    <tbody>
+      @for (accountResult of result; track accountResult) {
+        <tr [routerLink]="['/account/view', accountResult.id]">
+          <td class="align-middle">{{ accountResult.name }}</td>
+          <td class="align-middle">
+            {{ accountResult.actif === true ? "Oui" : "Non" }}
+          </td>
+          <td class="align-middle">
+            {{ getAccountTypeName(accountResult.accountType) | async }}
+          </td>
+          <td class="align-middle">
+            {{ accountResult.balance | number: "" : "fr" }} €
+          </td>
+          <ng-template #noBalance>
+            <td class="align-middle">-</td>
+          </ng-template>
+        </tr>
+      }
+    </tbody>
+  } @else {
+    <tr>
+      <td colspan="42">
+        <div class="notification is-info is-light has-text-centered">
+          <h4 class="title is-4">Chargement ...</h4>
+        </div>
       </td>
-      <td class="align-middle">
-        {{ getAccountTypeName(accountResult.accountType) | async }}
-      </td>
-      <td class="align-middle">
-        {{ accountResult.balance | number: "" : "fr" }} €
-      </td>
-      <ng-template #noBalance>
-        <td class="align-middle">-</td>
-      </ng-template>
     </tr>
-  </tbody>
+  }
 </table>
 <app-pagination
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>
-<ng-template #loadingTable>
-  <tr>
-    <td colspan="42">
-      <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
-      </div>
-    </td>
-  </tr>
-</ng-template>

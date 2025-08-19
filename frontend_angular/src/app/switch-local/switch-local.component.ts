@@ -22,81 +22,133 @@ import {RouterModule} from "@angular/router";
     <div class="has-text-center">
       <div>
         <p><strong>Adresse IP:</strong> {{ (switch$ | async)?.ip }}</p>
-        <div *ngIf="ports$ | async as ports">
-          <map name="plan-local">
-            <ng-container *ngFor="let portResult of ports">
-              <area
-                *ngIf="
+        @if (ports$ | async; as ports) {
+          <div>
+            <map name="plan-local">
+              @for (portResult of ports; track portResult) {
+                @if (
                   portResult.id >= 16 &&
                   portResult.id <= 24 &&
                   portResult.id % 2 === 0
-                "
-                coords="{{ 45 + (70 * (portResult.id - 16)) / 2 }},186,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port {{ portResult.id }}" />
-              <area
-                *ngIf="
+                ) {
+                  <area
+                    coords="{{ 45 + (70 * (portResult.id - 16)) / 2 }},186,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port {{ portResult.id }}" />
+                }
+                @if (
                   portResult.id >= 15 &&
                   portResult.id <= 23 &&
                   portResult.id % 2 === 1
-                "
-                coords="{{ 31 + (70 * (portResult.id - 15)) / 2 }},215,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port {{ portResult.id }}" />
-              <area
-                *ngIf="portResult.id === 3"
-                coords="293,411,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 3" />
-              <area
-                *ngIf="portResult.id === 4"
-                coords="255,445,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 4" />
-              <area
-                *ngIf="portResult.id === 5"
-                coords="245,486,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 5" />
-              <area
-                *ngIf="portResult.id === 6"
-                coords="243,526,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 6" />
-              <area
-                *ngIf="portResult.id === 7"
-                coords="243,565,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 7" />
-              <area
-                *ngIf="portResult.id === 8"
-                coords="246,607,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 8" />
-              <area
-                *ngIf="portResult.id === 9"
-                coords="254,647,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 9" />
-              <area
-                *ngIf="portResult.id === 10"
-                coords="290,670,15"
-                [routerLink]="['/port', portResult.switchObj, portResult.id]"
-                shape="circle"
-                title="Port 10" />
-            </ng-container>
-          </map>
-          <img src="assets/plan-local.png" usemap="#plan-local" />
-        </div>
+                ) {
+                  <area
+                    coords="{{ 31 + (70 * (portResult.id - 15)) / 2 }},215,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port {{ portResult.id }}" />
+                }
+                @if (portResult.id === 3) {
+                  <area
+                    coords="293,411,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 3" />
+                }
+                @if (portResult.id === 4) {
+                  <area
+                    coords="255,445,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 4" />
+                }
+                @if (portResult.id === 5) {
+                  <area
+                    coords="245,486,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 5" />
+                }
+                @if (portResult.id === 6) {
+                  <area
+                    coords="243,526,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 6" />
+                }
+                @if (portResult.id === 7) {
+                  <area
+                    coords="243,565,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 7" />
+                }
+                @if (portResult.id === 8) {
+                  <area
+                    coords="246,607,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 8" />
+                }
+                @if (portResult.id === 9) {
+                  <area
+                    coords="254,647,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 9" />
+                }
+                @if (portResult.id === 10) {
+                  <area
+                    coords="290,670,15"
+                    [routerLink]="[
+                      '/port',
+                      portResult.switchObj,
+                      portResult.id,
+                    ]"
+                    shape="circle"
+                    title="Port 10" />
+                }
+              }
+            </map>
+            <img src="assets/plan-local.png" usemap="#plan-local" />
+          </div>
+        }
       </div>
     </div>
   `,

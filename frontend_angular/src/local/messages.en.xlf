@@ -729,6 +729,168 @@
         </context-group>
         <note priority="1" from="description">portail create account physical</note>
       </trans-unit>
+      <trans-unit id="member.list.gdpr.title" datatype="html">
+        <source>Protection des données personnelles</source>
+        <target>Personal Data Protection</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">8</context>
+        </context-group>
+        <note priority="1" from="description">GDPR personal data protection title</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.description" datatype="html">
+        <source>Pour respecter le RGPD, les noms et numéros de chambre ne sont visibles que lorsque la recherche est affinée à moins d'une page complète de résultats.</source>
+        <target>To comply with GDPR, names and room numbers are only visible when the search is refined to less than one full page of results.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">9</context>
+        </context-group>
+        <note priority="1" from="description">GDPR personal data protection description</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.results-count" datatype="html">
+        <source><x id="INTERPOLATION" equiv-text="{{maxItems}}"/> résultats trouvés</source>
+        <target><x id="INTERPOLATION" equiv-text="{{maxItems}}"/> results found</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <note priority="1" from="description">GDPR results count message</note>
+      </trans-unit>
+      <trans-unit id="member.list.gdpr.refine-search" datatype="html">
+        <source>Veuillez affiner votre recherche.</source>
+        <target>Please refine your search.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/list/list.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <note priority="1" from="description">GDPR refine search message</note>
+      </trans-unit>
+      <trans-unit id="member.logs.title" datatype="html">
+        <source>Journal</source>
+        <target>Logs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+        <note priority="1" from="description">Member logs title</note>
+      </trans-unit>
+      <trans-unit id="member.logs.hide" datatype="html">
+        <source>Masquer les logs</source>
+        <target>Hide logs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">17</context>
+        </context-group>
+        <note priority="1" from="description">Hide logs button</note>
+      </trans-unit>
+      <trans-unit id="member.logs.show" datatype="html">
+        <source>Afficher les logs</source>
+        <target>Show logs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+        <note priority="1" from="description">Show logs button</note>
+      </trans-unit>
+      <trans-unit id="member.logs.include-dhcp" datatype="html">
+        <source>Inclure les logs DHCP</source>
+        <target>Include DHCP logs</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">33</context>
+        </context-group>
+        <note priority="1" from="description">Include DHCP logs checkbox</note>
+      </trans-unit>
+      <trans-unit id="member.logs.auto-refresh" datatype="html">
+        <source>Actualisation automatique</source>
+        <target>Auto-refresh</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">42</context>
+        </context-group>
+        <note priority="1" from="description">Auto-refresh checkbox</note>
+      </trans-unit>
+      <trans-unit id="member.logs.refresh" datatype="html">
+        <source>Actualiser</source>
+        <target>Refresh</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <note priority="1" from="description">Refresh logs button</note>
+      </trans-unit>
+      <trans-unit id="member.logs.error" datatype="html">
+        <source>Erreur:</source>
+        <target>Error:</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+        <note priority="1" from="description">Error message prefix</note>
+      </trans-unit>
+      <trans-unit id="member.logs.terminal-title" datatype="html">
+        <source>Logs de <x id="INTERPOLATION" equiv-text="{{member.username}}"/></source>
+        <target>Logs for <x id="INTERPOLATION" equiv-text="{{member.username}}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+        <note priority="1" from="description">Terminal title with username</note>
+      </trans-unit>
+      <trans-unit id="member.logs.loading" datatype="html">
+        <source>Chargement des logs...</source>
+        <target>Loading logs...</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">82</context>
+        </context-group>
+        <note priority="1" from="description">Loading logs message</note>
+      </trans-unit>
+      <trans-unit id="member.logs.load-more" datatype="html">
+        <source>Charger plus de logs...</source>
+        <target>Load more logs...</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">100</context>
+        </context-group>
+        <note priority="1" from="description">Load more logs button</note>
+      </trans-unit>
+      <trans-unit id="member.logs.loading-more" datatype="html">
+        <source>Chargement de logs supplémentaires...</source>
+        <target>Loading additional logs...</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">108</context>
+        </context-group>
+        <note priority="1" from="description">Loading more logs message</note>
+      </trans-unit>
+      <trans-unit id="member.logs.no-logs" datatype="html">
+        <source>Aucun log trouvé pour cet utilisateur.</source>
+        <target>No logs found for this user.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">113</context>
+        </context-group>
+        <note priority="1" from="description">No logs found message</note>
+      </trans-unit>
+      <trans-unit id="member.logs.hidden" datatype="html">
+        <source>Logs masqués</source>
+        <target>Logs hidden</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">121</context>
+        </context-group>
+        <note priority="1" from="description">Logs hidden title</note>
+      </trans-unit>
+      <trans-unit id="member.logs.hidden-description" datatype="html">
+        <source>Cliquez sur "Afficher les logs" pour voir l'historique des connexions.</source>
+        <target>Click "Show logs" to view connection history.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/view/devices/devices.component.html</context>
+          <context context-type="linenumber">122</context>
+        </context-group>
+        <note priority="1" from="description">Logs hidden description</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -419,7 +419,23 @@ def test_member_get_logs(client, sample_member):
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert result.status_code == 200
-    assert json.loads(result.content.decode("utf-8")) == ["1 test_log"]
+    response_data = json.loads(result.content.decode("utf-8"))
+
+    # Check the structure of the new paginated response
+    assert "logs" in response_data
+    assert "total" in response_data
+    assert "hasMore" in response_data
+    assert isinstance(response_data["logs"], list)
+    assert isinstance(response_data["total"], int)
+    assert isinstance(response_data["hasMore"], bool)
+
+    # Should have some logs in the mock data
+    assert len(response_data["logs"]) > 0
+
+    # Each log should have timestamp and message
+    for log in response_data["logs"]:
+        assert "timestamp" in log
+        assert "message" in log
 
 
 def test_member_get_logs_unauthorized(client):

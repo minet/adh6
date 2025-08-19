@@ -1,4 +1,4 @@
-<ng-container *ngIf="memberDetailService.member$ | async as member">
+@if (memberDetailService.member$ | async; as member) {
   <h3 class="title is-3 has-text-centered">
     <span>{{ member.firstName | lowercase | titlecase }}</span>
     {{ member.lastName | uppercase }}
@@ -15,16 +15,11 @@
       </tr>
       <tr>
         <td>Wifi</td>
-        <td
-          *ngIf="
-            member.subnet !== undefined && member.ip !== undefined;
-            else noIpBlock
-          ">
-          {{ member.subnet }} - {{ member.ip }}
-        </td>
-        <ng-template #noIpBlock>
+        @if (member.subnet !== undefined && member.ip !== undefined) {
+          <td>{{ member.subnet }} - {{ member.ip }}</td>
+        } @else {
           <td>-</td>
-        </ng-template>
+        }
       </tr>
       <tr>
         <td>Mail</td>
@@ -35,12 +30,11 @@
       <tr>
         <td>Chambre</td>
         <td>
-          <ng-container *ngIf="room$ | async as room; else elseNoRoom">
+          @if (room$ | async; as room) {
             <a [routerLink]="['/room/view/', room.id]">
               {{ room.roomNumber }}
             </a>
-          </ng-container>
-          <ng-template #elseNoRoom>
+          } @else {
             <button
               class="button is-warning"
               (click)="collapseMoveIn()"
@@ -51,34 +45,38 @@
               ">
               Emmenager
             </button>
-          </ng-template>
+          }
         </td>
       </tr>
     </tbody>
   </table>
-  <div *ngIf="moveIn">
-    <form (ngSubmit)="submitRoom(member)" [formGroup]="roomForm">
-      <input
-        class="input is-fullwidth"
-        formControlName="roomNumber"
-        type="number"
-        placeholder="Numéro de chambre..." />
-      <button
-        class="button is-success is-fullwidth"
-        type="submit"
-        [disabled]="roomForm.invalid">
-        Valider
-      </button>
-    </form>
-  </div>
-  <div *ngIf="member.comment">
-    <h3 class="title is-4">Commentaire</h3>
-    <hr />
-    <div class="notification is-primary is-light">
-      <p>{{ member.comment }}</p>
-      <p></p>
+  @if (moveIn) {
+    <div>
+      <form (ngSubmit)="submitRoom(member)" [formGroup]="roomForm">
+        <input
+          class="input is-fullwidth"
+          formControlName="roomNumber"
+          type="number"
+          placeholder="Numéro de chambre..." />
+        <button
+          class="button is-success is-fullwidth"
+          type="submit"
+          [disabled]="roomForm.invalid">
+          Valider
+        </button>
+      </form>
     </div>
-  </div>
+  }
+  @if (member.comment) {
+    <div>
+      <h3 class="title is-4">Commentaire</h3>
+      <hr />
+      <div class="notification is-primary is-light">
+        <p>{{ member.comment }}</p>
+        <p></p>
+      </div>
+    </div>
+  }
   <h3 class="title is-4">Edition</h3>
   <hr />
   <div class="columns">
@@ -109,5 +107,5 @@
   <app-mailinglist
     [mailinglistValue]="member.mailinglist"
     [memberId]="member.id"></app-mailinglist>
-</ng-container>
+}
 <router-outlet></router-outlet>

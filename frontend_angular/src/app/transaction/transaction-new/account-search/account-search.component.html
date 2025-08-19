@@ -16,26 +16,24 @@
       </p>
     </div>
   </div>
-  <div
-    class="dropdown-menu"
-    id="dropdown-menu"
-    role="menu"
-    *ngIf="result$ | async as result">
-    <div class="dropdown-content">
-      <a
-        (click)="setSelectedAccount(account)"
-        class="dropdown-item"
-        *ngFor="let account of result">
-        {{ account.name }}
-      </a>
+  @if (result$ | async; as result) {
+    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+      <div class="dropdown-content">
+        @for (account of result; track account) {
+          <a (click)="setSelectedAccount(account)" class="dropdown-item">
+            {{ account.name }}
+          </a>
+        }
+      </div>
     </div>
-  </div>
+  }
 </div>
 <hr />
-<div *ngIf="selectedAccount; else noAccount">
-  <p><b>Actif :</b> {{ selectedAccount.actif }}</p>
-  <p><b>Solde :</b> {{ selectedAccount.balance }}</p>
-</div>
-<ng-template #noAccount>
+@if (selectedAccount) {
+  <div>
+    <p><b>Actif :</b> {{ selectedAccount.actif }}</p>
+    <p><b>Solde :</b> {{ selectedAccount.balance }}</p>
+  </div>
+} @else {
   <p>Aucun compte séléctioné</p>
-</ng-template>
+}

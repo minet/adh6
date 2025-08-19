@@ -9,16 +9,16 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
   selector: "app-account",
   template: `
     <div class="box has-text-centered">
-      <h4
-        *ngIf="isDepartureDateFuture; else invalidDate"
-        i18n="
-          dashboard active subscription|Describes until when a subscription is
-          active
-        ">
-        Votre abonnement est actif jusqu'au
-        <strong>{{ member.departureDate | date }}</strong>
-      </h4>
-      <ng-template #invalidDate>
+      @if (isDepartureDateFuture) {
+        <h4
+          i18n="
+            dashboard active subscription|Describes until when a subscription is
+            active
+          ">
+          Votre abonnement est actif jusqu'au
+          <strong>{{ member.departureDate | date }}</strong>
+        </h4>
+      } @else {
         <h4
           class="text-danger"
           i18n="
@@ -28,7 +28,7 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
           Votre abonnement a expiré le
           <strong>{{ member.departureDate | date }}</strong>
         </h4>
-      </ng-template>
+      }
       <hr />
       <div class="buttons has-addons is-centered">
         <a
@@ -57,7 +57,7 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
       <p>
         <span i18n="@@email">mail</span> : <code>{{ member.email }}</code>
       </p>
-      <ng-container *ngIf="member.ip !== null && member.subnet !== null">
+      @if (member.ip !== null && member.subnet !== null) {
         <hr />
         <p>
           <span i18n="wifi public ipv4|Shows a user their public IPv4"
@@ -72,7 +72,7 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
           >
           <code>{{ member.subnet }}</code>
         </p>
-      </ng-container>
+      }
     </div>
   `,
 })

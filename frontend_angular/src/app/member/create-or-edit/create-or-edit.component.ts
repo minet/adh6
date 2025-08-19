@@ -17,7 +17,6 @@ import {
 import {mergeMap} from "rxjs/operators";
 import {EMPTY, of} from "rxjs";
 import {Toast} from "../../notification.service";
-import {CommonModule} from "@angular/common";
 
 interface MemberEditForm {
   firstName: FormControl<string>;
@@ -28,7 +27,7 @@ interface MemberEditForm {
 }
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [ReactiveFormsModule, FormsModule],
   selector: "app-create-edit",
   templateUrl: "./create-or-edit.component.html",
 })

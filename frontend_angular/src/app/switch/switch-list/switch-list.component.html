@@ -21,26 +21,27 @@
       <th style="width: 50%">Adresse IP</th>
     </tr>
   </thead>
-  <tbody *ngIf="result$ | async as result; else loadingTable">
-    <tr
-      *ngFor="let switchResult of result"
-      [routerLink]="['/switch', switchResult.id, 'view']">
-      <td>
-        {{ switchResult.description }}
+  @if (result$ | async; as result) {
+    <tbody>
+      @for (switchResult of result; track switchResult) {
+        <tr [routerLink]="['/switch', switchResult.id, 'view']">
+          <td>
+            {{ switchResult.description }}
+          </td>
+          <td>{{ switchResult.ip }}</td>
+        </tr>
+      }
+    </tbody>
+  } @else {
+    <tr>
+      <td colspan="42">
+        <div class="notification is-info is-light has-text-centered">
+          <h4 class="title is-4">Chargement ...</h4>
+        </div>
       </td>
-      <td>{{ switchResult.ip }}</td>
     </tr>
-  </tbody>
+  }
 </table>
 <app-pagination
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>
-<ng-template #loadingTable>
-  <tr>
-    <td colspan="42">
-      <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
-      </div>
-    </td>
-  </tr>
-</ng-template>

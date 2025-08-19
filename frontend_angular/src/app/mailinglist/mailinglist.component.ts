@@ -1,11 +1,10 @@
-import {CommonModule} from "@angular/common";
 import {Component, Input, OnInit, Output, EventEmitter} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {MailinglistService} from "../api";
 import {NotificationService} from "../notification.service";
 
 @Component({
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   selector: "app-mailinglist",
   templateUrl: "./mailinglist.component.html",
 })

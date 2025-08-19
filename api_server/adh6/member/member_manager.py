@@ -1,6 +1,6 @@
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
 
 from Crypto.Hash import MD4
@@ -117,7 +117,7 @@ class MemberManager(CRUDManager):
                 first_name=body.first_name,
                 last_name=body.last_name,
                 email=body.mail,
-                departure_date=datetime.now(),
+                departure_date=datetime.now() - timedelta(days=1),
                 ip="",
                 subnet="",
                 comment="",
@@ -169,27 +169,34 @@ class MemberManager(CRUDManager):
         )
 
     @log_call
-    def get_logs(self, member_id, dhcp=False) -> list[str]:
+    def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
 
-        :raise MemberNotFound
+        :param ctx: context
+        :param member_id: id of the member
+        :param limit: maximum number of logs to return
+        :param offset: number of logs to skip (for pagination)
+        :param dhcp: True if we should query dhcp logs
+
+        :return: dict with logs, total count, and hasMore flag
         """
-        # Check that the user exists in the system.
         member = self.member_repository.get_by_id(member_id)
-        if not member:
+        if member is None:
             raise MemberNotFoundError(member_id)
+        else:
+            logs, total_count = self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
 
-        # Do the actual log fetching.
-        try:
-            logs = self.device_logs_manager.get(member=member, dhcp=dhcp)
+            # Format logs with separate timestamp and message
+            formatted_logs = [
+                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])}
+                for x in logs
+            ]
 
-            return [f"{x[0]} {x[1]}" for x in logs]
+            has_more = (offset + limit) < total_count
 
-        except LogFetchError:
-            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
-            return []  # We fail open here.
+            return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
 
     @log_call
     def get_statuses(self, member_id) -> list[MemberStatus]:
@@ -200,7 +207,7 @@ class MemberManager(CRUDManager):
 
         # Do the actual log fetching.
         try:
-            logs = self.device_logs_manager.get(member=member, dhcp=False)
+            logs, _total_count = self.device_logs_manager.get(member=member, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
 
@@ -215,7 +222,8 @@ class MemberManager(CRUDManager):
                 if "Login OK" in log[1]:
                     match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
                     if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
                             last_ok_login_mac[mac] = log[0]
                 if (
@@ -225,7 +233,8 @@ class MemberManager(CRUDManager):
                 ):
                     match = re.search(r".*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", prev_log[1])
                     if match:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         if login != member.username:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
                         else:
@@ -233,7 +242,9 @@ class MemberManager(CRUDManager):
                 if "rlm_python" in log[1]:
                     match = re.search(r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1])
                     if match is not None:
-                        login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
+                        reason: str = match.group(3)
                         if "MAC not found and not association period" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
@@ -247,7 +258,8 @@ class MemberManager(CRUDManager):
                     # @TODO a write unexpected_message is ???
                     match = re.search(r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", log[1])
                     if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
                 prev_log = log
 
@@ -273,15 +285,12 @@ class MemberManager(CRUDManager):
         if not is_password_valid(password):
             raise InvalidPassword
 
-        pw = (
-            hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
-        )  # TODO: check for better hashing for security purpose
+        # MD4 is not supported by hashlib so we use pycryptodome instead. This code is keep for reference for when we switch to a more secure hashing algorithm for wifi. We will prefer to use hashlib as it is more standard and widely used and is already used in the rest of the codebase.
+        #
+        # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # TODO: check for better hashing for security purpose
 
-        """
-        MD4 is not supported by hashlib so we use pycryptodome instead. This code is keep for reference for when we switch to a more secure hashing algorithm for wifi. We will prefer to use hashlib as it is more standard and widely used and is already used in the rest of the codebase.
-
-        pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # noqa: S324  # TODO: check for better hashing for security purpose 
-        """
+        # TODO: check for better hashing for security purpose
+        pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
 
         self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
 

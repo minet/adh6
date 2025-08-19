@@ -1,0 +1,31 @@
+/* Device list container with rounded corners */
+.device-list-container {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0.5em 1em -0.125em rgba(10, 10, 10, 0.1), 0 0px 0 1px rgba(10, 10, 10, 0.02);
+}
+
+/* Remove spacing between device items */
+.device-item {
+  margin: 0;
+}
+
+/* Override card border radius for device items */
+.device-item :ng-deep .card {
+  border-radius: 0 !important;
+  margin-bottom: 0;
+}
+
+/* Add border between device items except the last one */
+.device-item:not(.is-last) :ng-deep .card {
+  border-bottom: 1px solid #dbdbdb;
+}
+
+/* Ensure first and last items don't have unnecessary borders */
+.device-item.is-first :ng-deep .card {
+  border-top: none;
+}
+
+.device-item.is-last :ng-deep .card {
+  border-bottom: none;
+}

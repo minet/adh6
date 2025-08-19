@@ -6,7 +6,7 @@ describe("AppConstantsService", () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it("should be created", () => {
-    const service: AppConstantsService = TestBed.get(AppConstantsService);
+    const service: AppConstantsService = TestBed.inject(AppConstantsService);
     expect(service).toBeTruthy();
   });
 });

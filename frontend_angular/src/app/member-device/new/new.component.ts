@@ -1,14 +1,23 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {AbstractDevice, DeviceBody, DeviceService} from "../../api";
 import {takeWhile} from "rxjs/operators";
 import {LOCALE_ID, Inject} from "@angular/core";
 import {NotificationService} from "../../notification.service";
+import {CommonModule} from "@angular/common";
+import {MacAddressFormatterDirective} from "../../shared/directives/mac-address-formatter.directive";
 
 @Component({
   selector: "app-device-new",
   templateUrl: "./new.component.html",
-  standalone: false,
+  styleUrls: ["./new.component.css"],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, MacAddressFormatterDirective],
 })
 export class NewComponent {
   deviceForm: UntypedFormGroup;
@@ -51,7 +60,7 @@ export class NewComponent {
         "",
         [
           Validators.required,
-          Validators.pattern("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"),
+          Validators.pattern("^([0-9A-Fa-f]{2}[-:]){5}([0-9A-Fa-f]{2})$"),
         ],
       ],
       connectionType: [

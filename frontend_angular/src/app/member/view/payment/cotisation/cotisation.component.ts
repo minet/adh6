@@ -15,7 +15,6 @@ import {
   Validators,
 } from "@angular/forms";
 import {Toast} from "../../../../notification.service";
-import {CommonModule} from "@angular/common";
 
 interface SubscriptionForm {
   paidWith: FormControl<number>;
@@ -23,7 +22,7 @@ interface SubscriptionForm {
 }
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   selector: "app-cotisation",
   templateUrl: "./cotisation.component.html",
 })
