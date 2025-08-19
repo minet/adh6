@@ -48,7 +48,7 @@ export class NotifInterceptor implements HttpInterceptor {
           );
         }
         return throwError(response);
-      })
+      }),
     );
   }
 }

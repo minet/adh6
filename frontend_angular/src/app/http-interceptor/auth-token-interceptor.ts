@@ -1,13 +1,13 @@
-import { Injectable } from "@angular/core";
+import {Injectable} from "@angular/core";
 import {
   HttpEvent,
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
 } from "@angular/common/http";
-import { Observable, from } from "rxjs";
-import { OidcSecurityService } from "angular-auth-oidc-client";
-import { switchMap } from "rxjs/operators";
+import {Observable, from} from "rxjs";
+import {OidcSecurityService} from "angular-auth-oidc-client";
+import {switchMap} from "rxjs/operators";
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
@@ -15,7 +15,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
 
   intercept(
     req: HttpRequest<any>,
-    next: HttpHandler
+    next: HttpHandler,
   ): Observable<HttpEvent<any>> {
     return from(this.oidcSecurityService.getAccessToken()).pipe(
       switchMap((token) => {
@@ -28,7 +28,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
           return next.handle(cloned);
         }
         return next.handle(req);
-      })
+      }),
     );
   }
 }

@@ -60,7 +60,7 @@ function load(): Configuration {
       useClass: NotifInterceptor,
       multi: true,
     },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthTokenInterceptor, multi: true },
+    {provide: HTTP_INTERCEPTORS, useClass: AuthTokenInterceptor, multi: true},
     {
       provide: AppAbility,
       useValue: new AppAbility(),
