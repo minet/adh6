@@ -250,21 +250,21 @@ class TestGetLogs:
     def test_fetch_failed(
         self,
         mock_membership_repository: MembershipRepository,
-        mock_logs_repository: MagicMock,
+        mock_device_logs_manager: MagicMock,
         mock_member_repository: MagicMock,
         sample_member: Member,
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        mock_membership_repository.search = MagicMock(return_value=([], 0))
-        mock_logs_repository.get_logs = MagicMock(side_effect=LogFetchError)
+        mock_member_repository.get_by_id = MagicMock(return_value=sample_member)
+        mock_device_logs_manager.get = MagicMock(side_effect=LogFetchError)
 
         # When...
-        result = member_manager.get_logs(sample_member.username)
+        with raises(LogFetchError):
+            member_manager.get_logs(sample_member.id)
 
-        # Expect use case to 'fail open', do not throw any error, assume there is no log.
-        assert result == []
+        # Expect device_logs_manager.get to be called
+        mock_device_logs_manager.get.assert_called_once()
 
     def test_not_found(self, mock_member_repository: MemberRepository, sample_member, member_manager: MemberManager):
         # Given...

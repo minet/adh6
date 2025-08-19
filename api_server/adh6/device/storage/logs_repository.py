@@ -86,12 +86,16 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the count query
         for d in devices:
             addr = d.mac
-            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
+            variations = [{"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)]
 
             if not dhcp:
-                count_query["query"]["bool"]["should"] += list(variations)
+                should_list = count_query["query"]["bool"]["should"]
+                if isinstance(should_list, list):
+                    should_list.extend(variations)
             else:
-                count_query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
+                should_list = count_query["query"]["constant_score"]["filter"]["bool"]["should"]
+                if isinstance(should_list, list):
+                    should_list.extend(variations)
 
         # Get total count
         total_count = self.es.count(index="", body=count_query)["count"]

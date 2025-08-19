@@ -1,9 +1,9 @@
 import logging
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
+
 from Crypto.Hash import MD4
-from datetime import timedelta
 
 # import hashlib # Keep these 2 libs. See comment in change_password method below
 # from binascii import hexlify
@@ -163,7 +163,9 @@ class MemberManager(CRUDManager):
             raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = self.member_repository.update(
-            AbstractMember(id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name)
+            AbstractMember(
+                id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name
+            )
         )
 
     @log_call
@@ -188,7 +190,8 @@ class MemberManager(CRUDManager):
 
             # Format logs with separate timestamp and message
             formatted_logs = [
-                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])} for x in logs
+                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])}
+                for x in logs
             ]
 
             has_more = (offset + limit) < total_count
@@ -204,7 +207,7 @@ class MemberManager(CRUDManager):
 
         # Do the actual log fetching.
         try:
-            logs = self.device_logs_manager.get(member=member, dhcp=False)
+            logs, _total_count = self.device_logs_manager.get(member=member, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
 
@@ -219,7 +222,8 @@ class MemberManager(CRUDManager):
                 if "Login OK" in log[1]:
                     match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
                     if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
                             last_ok_login_mac[mac] = log[0]
                 if (
@@ -229,7 +233,8 @@ class MemberManager(CRUDManager):
                 ):
                     match = re.search(r".*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", prev_log[1])
                     if match:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         if login != member.username:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
                         else:
@@ -237,7 +242,9 @@ class MemberManager(CRUDManager):
                 if "rlm_python" in log[1]:
                     match = re.search(r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1])
                     if match is not None:
-                        login, mac, reason = match.group(1), match.group(2).upper(), match.group(3)
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
+                        reason: str = match.group(3)
                         if "MAC not found and not association period" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
@@ -251,7 +258,8 @@ class MemberManager(CRUDManager):
                     # @TODO a write unexpected_message is ???
                     match = re.search(r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", log[1])
                     if match is not None:
-                        login, mac = match.group(1), match.group(2).upper()
+                        login: str = match.group(1)
+                        mac: str = match.group(2).upper()
                         add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
                 prev_log = log
 
@@ -279,7 +287,7 @@ class MemberManager(CRUDManager):
 
         # MD4 is not supported by hashlib so we use pycryptodome instead. This code is keep for reference for when we switch to a more secure hashing algorithm for wifi. We will prefer to use hashlib as it is more standard and widely used and is already used in the rest of the codebase.
         #
-        # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # noqa: S324  # TODO: check for better hashing for security purpose
+        # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # TODO: check for better hashing for security purpose
 
         # TODO: check for better hashing for security purpose
         pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
