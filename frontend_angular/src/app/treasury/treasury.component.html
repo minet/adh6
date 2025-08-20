@@ -12,7 +12,7 @@
   <div class="card">
     <div class="card-body">
       @if (cashbox$ | async; as cashbox) {
-        <h5 class="card-title text-center">{{ cashbox.fond }} €</h5>
+        <h5 class="card-title text-center">{{ cashbox.fond || 0 }} €</h5>
       }
       <p class="card-text text-center">Montant dans la caisse</p>
     </div>
@@ -20,7 +20,7 @@
   <div class="card">
     <div class="card-body">
       @if (cashbox$ | async; as cashbox) {
-        <h5 class="card-title text-center">{{ cashbox.coffre }} €</h5>
+        <h5 class="card-title text-center">{{ cashbox.coffre || 0 }} €</h5>
       }
       <p class="card-text text-center">Montant dans le coffre</p>
     </div>

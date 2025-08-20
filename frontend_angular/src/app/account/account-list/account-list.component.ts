@@ -18,7 +18,7 @@ export class AccountListComponent
   extends SearchPage<AbstractAccount>
   implements OnInit
 {
-  accountTypes: AccountType[];
+  accountTypes: AccountType[] = [];
   @Input() abstractAccountFilter: AbstractAccount = {};
   cachedAccountType: Map<number, Observable<string>> = new Map<
     number,
@@ -42,15 +42,20 @@ export class AccountListComponent
         )
         .pipe(
           map((response) => {
-            for (const i of response.body) {
-              if (i.accountType && !this.cachedAccountType.has(i.accountType)) {
-                this.cachedAccountType.set(
-                  i.accountType,
-                  this.accountService.accountTypeIdGet(i.accountType).pipe(
-                    shareReplay(1),
-                    map((result) => result.name),
-                  ),
-                );
+            if (response.body) {
+              for (const i of response.body) {
+                if (
+                  i.accountType &&
+                  !this.cachedAccountType.has(i.accountType)
+                ) {
+                  this.cachedAccountType.set(
+                    i.accountType,
+                    this.accountService.accountTypeIdGet(i.accountType).pipe(
+                      shareReplay(1),
+                      map((result) => result.name || ""),
+                    ),
+                  );
+                }
               }
             }
             return response;
@@ -59,7 +64,8 @@ export class AccountListComponent
     );
   }
 
-  getAccountTypeName(id: number) {
+  getAccountTypeName(id: number | undefined) {
+    if (id === undefined) return undefined;
     return this.cachedAccountType.get(id);
   }
 
@@ -78,7 +84,7 @@ export class AccountListComponent
     this.updateTypeFilter(target.value);
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params["member"] !== undefined) {
         this.abstractAccountFilter.member = +params["member"];

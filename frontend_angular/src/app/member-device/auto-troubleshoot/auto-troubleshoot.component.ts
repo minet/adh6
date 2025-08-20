@@ -59,9 +59,9 @@ import {CommonModule, AsyncPipe, DatePipe} from "@angular/common";
   `,
 })
 export class AutoTroubleshootComponent implements OnInit {
-  statuses$: Observable<MemberStatus[]>;
+  statuses$!: Observable<MemberStatus[]>;
 
-  @Input() member: Member;
+  @Input() member!: Member;
 
   constructor(private readonly memberService: MemberService) {}
 

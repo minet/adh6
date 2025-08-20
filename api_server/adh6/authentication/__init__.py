@@ -1,9 +1,7 @@
 import os
 from enum import Enum
-from typing import Any
 
-import requests
-from connexion.exceptions import OAuthResponseProblem, Unauthorized
+from connexion.exceptions import Unauthorized
 
 from adh6.authentication.storage import ApiKeyRepository, RoleRepository
 
@@ -53,53 +51,53 @@ def apikey_auth(token: str, required_scopes):
 
 user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"
 
-
-def token_info(access_token) -> dict[str, Any] | None:
-    infos = get_sso_groups(access_token)
-
-    groups = ["adh6_user"]
-    if user_id == "id":
-        if "attributes" in infos and "memberOf" in infos["attributes"]:
-            groups += [e.split(",")[0].split("=")[1] for e in infos["attributes"]["memberOf"]]
-    else:
-        if "groups" in infos:
-            groups += infos["groups"]
-
-    uid = role_repository.user_id_from_username(login=infos[user_id])
-    if not uid:
-        raise Unauthorized("user not found")
-
-    roles = [
-        i.role
-        for i in role_repository.find(
-            method=AuthenticationMethod.OIDC,
-            identifiers=groups,
-        )[0]
-        + role_repository.find(method=AuthenticationMethod.USER, identifiers=[infos[user_id]])[0]
-    ]
-
-    # import logging
-
-    if Roles.ADMIN_READ.value in roles or Roles.ADMIN_WRITE.value in roles:
-        # from flask import request
-        # logging.info(infos[user_id] + ": " + request.method + " " + request.path)
-        # TODO: fix
-        pass
-
-    return {"uid": uid, "scope": [Roles.USER.value, *roles]}
-
-
-def get_sso_groups(token):
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        r = requests.get(
-            url=os.environ.get("OAUTH2_BASE_PATH", "http://localhost"),
-            headers=headers,
-            timeout=10,
-        )
-    except requests.exceptions.ReadTimeout:
-        raise OAuthResponseProblem("Could not authenticate")
-
-    if r.status_code != 200 or user_id not in r.json():
-        raise OAuthResponseProblem("Could not authenticate")
-    return r.json()
+# TODO: Remove this as we don't need it anymore
+# def token_info(access_token) -> dict[str, Any] | None:
+#    infos = get_sso_groups(access_token)
+#
+#    groups = ["adh6_user"]
+#    if user_id == "id":
+#        if "attributes" in infos and "memberOf" in infos["attributes"]:
+#            groups += [e.split(",")[0].split("=")[1] for e in infos["attributes"]["memberOf"]]
+#    else:
+#        if "groups" in infos:
+#            groups += infos["groups"]
+#
+#    uid = role_repository.user_id_from_username(login=infos[user_id])
+#    if not uid:
+#        raise Unauthorized("user not found")
+#
+#    roles = [
+#        i.role
+#        for i in role_repository.find(
+#            method=AuthenticationMethod.OIDC,
+#            identifiers=groups,
+#        )[0]
+#        + role_repository.find(method=AuthenticationMethod.USER, identifiers=[infos[user_id]])[0]
+#    ]
+#
+#    # import logging
+#
+#    if Roles.ADMIN_READ.value in roles or Roles.ADMIN_WRITE.value in roles:
+#        # from flask import request
+#        # logging.info(infos[user_id] + ": " + request.method + " " + request.path)
+#        # TODO: fix
+#        pass
+#
+#    return {"uid": uid, "scope": [Roles.USER.value, *roles]}
+#
+#
+# def get_sso_groups(token):
+#    try:
+#        headers = {"Authorization": f"Bearer {token}"}
+#        r = requests.get(
+#            url=os.environ.get("OAUTH2_BASE_PATH", "http://localhost"),
+#            headers=headers,
+#            timeout=10,
+#        )
+#    except requests.exceptions.ReadTimeout:
+#        raise OAuthResponseProblem("Could not authenticate")
+#
+#    if r.status_code != 200 or user_id not in r.json():
+#        raise OAuthResponseProblem("Could not authenticate")
+#    return r.json()

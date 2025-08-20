@@ -15,7 +15,7 @@
         <div
           class="card-header"
           [ngClass]="
-            account.balance > 0 ? 'has-background-success' : 'has-background-danger'
+            (account?.balance ?? 0) > 0 ? 'has-background-success' : 'has-background-danger'
           ">
           <h3 class="card-header-title title is-3 has-text-light is-centered">
             {{ account.balance | number: "" : "fr" }} €
@@ -81,7 +81,7 @@
       </div>
     </div>
     <div class="column">
-      <app-transaction-list [asAccount]="account.id"></app-transaction-list>
+      <app-transaction-list [asAccount]="account?.id"></app-transaction-list>
     </div>
   </div>
 }

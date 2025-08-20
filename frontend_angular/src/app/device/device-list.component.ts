@@ -1,6 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {Component, Input, OnInit} from "@angular/core";
-import {map, Observable, shareReplay, switchMap} from "rxjs";
+import {map, Observable, of, shareReplay, switchMap} from "rxjs";
 import {
   AbstractDevice,
   DeviceFilter,
@@ -39,13 +39,15 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
         )
         .pipe(
           map((response) => {
-            for (const i of response.body) {
-              this.cachedDevices.set(
-                +i,
-                this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-              );
-              if (i && !this.memberUsernames.has(i)) {
-                this.memberUsernames.set(i, this.memberUsername$(i));
+            if (response.body) {
+              for (const i of response.body) {
+                this.cachedDevices.set(
+                  +i,
+                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
+                );
+                if (i && !this.memberUsernames.has(i)) {
+                  this.memberUsernames.set(i, this.memberUsername$(i));
+                }
               }
             }
             return response;
@@ -54,7 +56,7 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params["member"] !== undefined) {
         this.abstractAccountFilter.member = +params["member"];
@@ -72,14 +74,21 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
   }
 
   public memberUsername$(id: number): Observable<string> {
-    return this.cachedDevices.get(id).pipe(
+    const device$ = this.cachedDevices.get(id);
+    if (!device$) {
+      return of("");
+    }
+    return device$.pipe(
       switchMap((response) => {
+        if (!response.member) {
+          return of("");
+        }
         return this.memberService
           .memberIdGet(response.member, ["username"])
           .pipe(
             shareReplay(1),
             map((result) => {
-              return result.username;
+              return result.username || "";
             }),
           );
       }),

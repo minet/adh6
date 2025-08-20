@@ -35,7 +35,7 @@ export class MemberCommentEditComponent {
     });
     this.memberId$ = this.memberDetailService.member$.pipe(
       map((member) => {
-        if (member.id != null) {
+        if (member?.id != null) {
           this.memberService.memberIdCommentGet(member.id).subscribe({
             next: (comment) =>
               this.memberComment.controls.comment.setValue(

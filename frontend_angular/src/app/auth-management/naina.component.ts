@@ -54,7 +54,7 @@ import {
   `,
 })
 export class NainaComponent implements OnInit {
-  public result$: Observable<RoleMapping[]>;
+  public result$: Observable<RoleMapping[]> = new Observable<RoleMapping[]>();
   public login = "";
 
   constructor(private readonly authenticationService: AuthenticationService) {}

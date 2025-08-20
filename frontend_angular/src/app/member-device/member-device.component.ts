@@ -9,10 +9,11 @@ import {NewComponent} from "./new/new.component";
   templateUrl: "./member-device.component.html",
 })
 export class MemberDeviceComponent {
-  @Input() member: AbstractMember;
+  @Input() member!: AbstractMember;
 
-  @ViewChild(MemberDeviceListComponent) wiredList: MemberDeviceListComponent;
-  @ViewChild(MemberDeviceListComponent) wirelessList: MemberDeviceListComponent;
+  @ViewChild(MemberDeviceListComponent) wiredList!: MemberDeviceListComponent;
+  @ViewChild(MemberDeviceListComponent)
+  wirelessList!: MemberDeviceListComponent;
 
   get wiredDeviceFilter(): AbstractDevice {
     return {

@@ -29,7 +29,7 @@ export class RoomListComponent
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
   }
 

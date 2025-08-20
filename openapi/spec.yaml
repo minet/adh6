@@ -3458,7 +3458,7 @@ components:
           type: string
         mailinglist:
           deprecated: true
-          description: The number of the room this member lives in
+          description: The mailing lists the member is subscribed to (bit field)
           type: integer
           example: 4
         ip:

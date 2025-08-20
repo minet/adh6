@@ -20,8 +20,9 @@ import {AuthConfigModule} from "./auth.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 type Actions = "manage" | "free";
+type Subjects = string;
 
-export type AppAbility = Ability<[Actions, undefined]>;
+export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
 
 function load(): Configuration {

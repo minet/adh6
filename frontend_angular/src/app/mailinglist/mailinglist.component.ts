@@ -9,8 +9,8 @@ import {NotificationService} from "../notification.service";
   templateUrl: "./mailinglist.component.html",
 })
 export class MailinglistComponent implements OnInit {
-  @Input() mailinglistValue: number;
-  @Input() memberId: number;
+  @Input() mailinglistValue: number | undefined;
+  @Input() memberId: number | undefined;
   @Output() udpatedMailinglistValue: EventEmitter<number> =
     new EventEmitter<number>();
 
@@ -24,13 +24,17 @@ export class MailinglistComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const decomp = (this.mailinglistValue >>> 0).toString(2);
-    this.mailMiNET = decomp.charAt(7) === "1";
-    this.mailHosting = decomp.charAt(6) === "1";
-    this.mailRouteur = decomp.charAt(5) === "1";
+    if (this.mailinglistValue !== undefined) {
+      const decomp = (this.mailinglistValue >>> 0).toString(2);
+      this.mailMiNET = decomp.charAt(7) === "1";
+      this.mailHosting = decomp.charAt(6) === "1";
+      this.mailRouteur = decomp.charAt(5) === "1";
+    }
   }
 
   public updateMailinglist() {
+    if (this.memberId === undefined) return;
+
     const newValue =
       248 + 4 * +this.mailRouteur + 2 * +this.mailHosting + 1 * +this.mailMiNET;
     console.log(newValue);

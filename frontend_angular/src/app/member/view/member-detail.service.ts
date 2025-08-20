@@ -6,12 +6,14 @@ import {AbstractMember} from "../../api";
   providedIn: "root",
 })
 export class MemberDetailService {
-  private readonly memberSource = new BehaviorSubject<AbstractMember>(null);
+  private readonly memberSource = new BehaviorSubject<AbstractMember | null>(
+    null,
+  );
 
   public updateMemberInfos = new EventEmitter<string>();
   public member$ = this.memberSource.asObservable().pipe(shareReplay(1));
 
-  public refreshMember(member: AbstractMember) {
+  public refreshMember(member: AbstractMember | null) {
     this.memberSource.next(member);
   }
 }

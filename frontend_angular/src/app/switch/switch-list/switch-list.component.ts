@@ -30,7 +30,7 @@ export class SwitchListComponent
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
   }
 

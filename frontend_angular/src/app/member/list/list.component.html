@@ -88,6 +88,7 @@
       } @else {
         @for (i of result; track i) {
           @if (getMember(i) | async; as member) {
+            @if (member) {
             <tr [routerLink]="['../view', member.id, 'profile']">
               <td>
                 {{ member.lastName | uppercase }}
@@ -102,6 +103,7 @@
                 </p>
               </td>
             </tr>
+            }
           }
         }
       }

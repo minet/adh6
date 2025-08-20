@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 from adh6.authentication import Roles
 from adh6.constants import MembershipStatus
 from adh6.entity import (
@@ -58,7 +60,7 @@ def ctx_only_admin(sample_member: Member, monkeypatch):
 
 
 @fixture
-def sample_admin(faker):
+def sample_admin(faker) -> Generator[Member, None, None]:
     yield Member(
         id=faker.random_digit_not_null(),
         username=TESTING_CLIENT,
@@ -70,7 +72,7 @@ def sample_admin(faker):
 
 
 @fixture
-def sample_member(faker):
+def sample_member(faker) -> Member:
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
@@ -83,7 +85,7 @@ def sample_member(faker):
 
 
 @fixture
-def sample_vlan(faker):
+def sample_vlan(faker) -> Vlan:
     return Vlan(
         id=faker.random_digit_not_null(),
         number=faker.random_digit_not_null(),
@@ -93,36 +95,40 @@ def sample_vlan(faker):
 
 
 @fixture
-def sample_subscription_empty(sample_member):
+def sample_subscription_empty(sample_member) -> SubscriptionBody:
     return SubscriptionBody(
         member=sample_member,
     )
 
 
 @fixture
-def sample_subscription_duration_no_account(sample_member):
+def sample_subscription_duration_no_account(sample_member) -> SubscriptionBody:
     return SubscriptionBody(member=sample_member, duration=1)
 
 
 @fixture
-def sample_subscription_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
+def sample_subscription_duration_account_payment_method(
+    sample_member, sample_account1, sample_payment_method
+) -> SubscriptionBody:
     return SubscriptionBody(
         member=sample_member, duration=1, account=sample_account1.id, payment_method=sample_payment_method.id
     )
 
 
 @fixture
-def sample_membership_empty(sample_member):
+def sample_membership_empty(sample_member) -> AbstractMembership:
     return AbstractMembership(uuid="", member=sample_member, status=MembershipStatus.INITIAL.value)
 
 
 @fixture
-def sample_membership_duration_no_account(sample_member):
+def sample_membership_duration_no_account(sample_member) -> AbstractMembership:
     return AbstractMembership(uuid="", member=sample_member, status=MembershipStatus.INITIAL.value, duration=1)
 
 
 @fixture
-def sample_membership_duration_account_payment_method(sample_member, sample_account1, sample_payment_method):
+def sample_membership_duration_account_payment_method(
+    sample_member, sample_account1, sample_payment_method
+) -> AbstractMembership:
     return AbstractMembership(
         uuid="",
         member=sample_member,
@@ -134,7 +140,7 @@ def sample_membership_duration_account_payment_method(sample_member, sample_acco
 
 
 @fixture
-def sample_member_no_room(faker):
+def sample_member_no_room(faker) -> Member:
     return Member(
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
@@ -147,7 +153,7 @@ def sample_member_no_room(faker):
 
 
 @fixture
-def sample_device(faker, sample_member):
+def sample_device(faker, sample_member) -> Device:
     return Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address().replace(":", "-"),
@@ -159,7 +165,7 @@ def sample_device(faker, sample_member):
 
 
 @fixture
-def sample_room(faker):
+def sample_room(faker) -> Room:
     return Room(
         id=faker.random_digit_not_null(),
         room_number=faker.numerify(text="####"),
@@ -169,7 +175,7 @@ def sample_room(faker):
 
 
 @fixture
-def sample_port(faker, sample_room, sample_switch):
+def sample_port(faker, sample_room, sample_switch) -> Port:
     return Port(
         id=faker.random_digit_not_null(),
         port_number=faker.numerify(text="#/#/##"),
@@ -180,7 +186,7 @@ def sample_port(faker, sample_room, sample_switch):
 
 
 @fixture
-def sample_switch(faker):
+def sample_switch(faker) -> Switch:
     return Switch(
         id=faker.random_digit_not_null(),
         ip=faker.ipv4_private(),
@@ -190,12 +196,12 @@ def sample_switch(faker):
 
 
 @fixture
-def sample_payment_method(faker):
+def sample_payment_method(faker) -> PaymentMethod:
     return PaymentMethod(id=faker.random_digit_not_null(), name=faker.word())
 
 
 @fixture
-def sample_account_type(faker):
+def sample_account_type(faker) -> AccountType:
     return AccountType(id=faker.random_digit_not_null(), name=faker.word())
 
 
@@ -247,7 +253,7 @@ def sample_account1(faker, sample_member, sample_account_type):
 
 
 @fixture
-def sample_account2(faker, sample_member, sample_account_type):
+def sample_account2(faker, sample_member, sample_account_type) -> Account:
     return Account(
         id=faker.random_digit_not_null() + 1024,
         name=faker.word(),
@@ -263,7 +269,7 @@ def sample_account2(faker, sample_member, sample_account_type):
 
 
 @fixture
-def sample_product(faker):
+def sample_product(faker) -> Product:
     return Product(
         id=faker.random_digit_not_null(),
         name=faker.word(),

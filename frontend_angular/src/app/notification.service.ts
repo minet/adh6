@@ -25,12 +25,16 @@ export class NotificationService {
     switch (errorCode) {
       case 400:
         notifTitle = "Bad Request";
+        break;
       case 401:
         notifTitle = "Unauthenticated";
+        break;
       case 403:
         notifTitle = "Unauthorize";
+        break;
       case 404:
         notifTitle = "Not Found";
+        break;
       case 500:
         notifTitle = "Internal server Error";
 

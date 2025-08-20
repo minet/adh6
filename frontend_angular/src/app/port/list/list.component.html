@@ -22,7 +22,7 @@
           routerLinkActive="router-link-active">
           <td class="center">
             {{
-              (cachedSwitchDescription.get(port.switchObj) | async) ||
+              (port.switchObj ? (cachedSwitchDescription.get(port.switchObj) | async) : null) ||
                 "Chargement..."
             }}
           </td>
@@ -31,7 +31,7 @@
             @if (port.room !== undefined) {
               <a [routerLink]="['/room/view', port.room]">
                 {{
-                  (cachedRoomDescription.get(port.room) | async) ||
+                  (port.room ? (cachedRoomDescription.get(port.room) | async) : null) ||
                     "Chargement..."
                 }}
               </a>

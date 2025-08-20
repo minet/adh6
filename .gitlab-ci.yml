@@ -1,10 +1,7 @@
-cache:
-  paths:
-    - ~/.cache/pip 
-    - frontend_angular/node_modules
-
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  UV_CACHE_DIR: .cache/uv
+  UV_LINK_MODE: copy
+  UV_SYSTEM_PYTHON: 1
   BACKEND_DIR: $CI_PROJECT_DIR/api_server
   FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
   OPENAPI_CLI: /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
@@ -12,15 +9,29 @@ variables:
 # We declare a job that gitlab ignores and put a YAML anchor
 # See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
 .setup_test_jobs: &before_python_jobs
-  image: python:3.11-slim
+  image: ghcr.io/astral-sh/uv:python3.11-alpine
+  cache:
+    key: uv
+    paths:
+      - .cache/uv
+      - /var/cache/apk
   before_script:
-    - apt update
-    - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
-    - pip install -r api_server/requirements.txt
+    - cd api_server/
+    - apk update
+    - apk add git mariadb-dev build-base libffi-dev sqlite
+    - uv sync --frozen
 
 .setup_angular_jobs: &before_angular_jobs
   image: node:22-alpine
+  cache:
+    key: yarn
+    paths:
+      - .yarn-cache
+      - /var/cache/apk
   before_script:
+    - apk update
+    - apk add python3 make g++ openssl
+    - yarn config set cache-folder .yarn-cache
     - cd frontend_angular/
     - yarn --network-timeout 100000 install --frozen-lockfile
 
@@ -32,7 +43,6 @@ stages:
   - build
   - deploy
 
-
 ################################################
 ########## Execute when merge request ##########
 ################################################
@@ -41,9 +51,9 @@ semgrep:
   image: returntocorp/semgrep
   script: semgrep ci --exclude api_server/adh6/member/member_manager.py --exclude reverse_proxy/adh6.template.conf --exclude frontend_angular/yarn.lock --exclude api_server/manage.py
   rules:
-  - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_MERGE_REQUEST_IID
   variables:
-    SEMGREP_RULES: >- 
+    SEMGREP_RULES: >-
       p/security-audit
       p/secrets
       p/dockerfile
@@ -60,49 +70,58 @@ semgrep:
       p/gitlab-bandit
       p/gitlab-eslint
 
-
 ################################
 ########## Generation ##########
 ################################
 generation:backend_entity:
   stage: generation
-  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
+  image: openapitools/openapi-generator-cli:v7.12.0
   script:
-    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity --additional-properties=usePydanticModels=true --additional-properties=pydanticModelsStrongTyping=true
     - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
     - cp tmpsrc/adh6/typing_utils.py api_server/adh6/
     - cp tmpsrc/adh6/util.py api_server/adh6/
-    - sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
+    - sed -i'' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model.py
   artifacts:
     paths:
-    - api_server/adh6
-    - api_server/openapi
+      - api_server/adh6/entity/
+      - api_server/adh6/typing_utils.py
+      - api_server/adh6/util.py
     expire_in: 1 day
 
 generation:frontend_module:
   stage: generation
-  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
+  image: openapitools/openapi-generator-cli:v7.12.0
   script:
+    - rm -rf "frontend_angular/src/app/api"
     - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g typescript-angular -o "frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
     - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
     - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
   artifacts:
     paths:
-    - frontend_angular/src/app/api
+      - frontend_angular/src/app/api
     expire_in: 1 day
 
 generation:frontend_assets:
   stage: generation
-  image: node:18-alpine
+  image: node:22-alpine
+  cache:
+    key: yarn-assets
+    paths:
+      - .yarn-cache
+      - /var/cache/apk
+  before_script:
+    - apk update
+    - apk add python3 make g++ openssl
+    - yarn config set cache-folder .yarn-cache
   script:
     - yarn global add svgo
     - cd frontend_angular/src/assets
     - svgo minet.svg adh6-logo.svg minet-dark.svg -o minet.min.svg adh6.min.svg minet-dark.min.svg
   artifacts:
     paths:
-    - frontend_angular/src/assets
+      - frontend_angular/src/assets
     expire_in: 1 day
-
 
 ##################################################
 ########## Linting frontend and backend ##########
@@ -112,24 +131,50 @@ lint:frontend:
   needs:
     - generation:frontend_module
     - generation:frontend_assets
-  <<: *before_angular_jobs 
+  <<: *before_angular_jobs
   script:
     - yarn lint
 
 lint:backend:
-  image: python:3.9-slim
   stage: lint
   needs:
     - generation:backend_entity
+  <<: *before_python_jobs
   script:
-    - pip install black isort
-    - black . --extend-exclude migrations,venv
-    - isort . --skip venv --skip migrations
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - api_server/
+    - uv run ruff format --check
+    - uv run ruff check
 
+# https://gitlab.com/liant-sasu/pyright2gitlab-ci/-/tree/main
+type_check:backend:
+  stage: lint
+  image: registry.gitlab.com/liant-sasu/pyright2gitlab-ci:node-current-alpine-latest
+  needs:
+    - generation:backend_entity
+  cache:
+    key: python-venv
+    paths:
+      - api_server/.venv/
+  before_script:
+    - cd api_server/
+    - apk update
+    - apk add git mariadb-dev build-base libffi-dev sqlite
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install uv
+    - uv sync --frozen
+  script:
+    - source .venv/bin/activate
+    - pyright --outputjson . > report_raw.json
+  after_script:
+    - cd api_server/
+    - source .venv/bin/activate || true
+    - pyright-to-gitlab-ci --src report_raw.json --output codequality-pyright.json --base_path .
+  artifacts:
+    reports:
+      codequality: api_server/codequality-pyright.json
+    expire_in: 1 week
+    when: always
+  allow_failure: true
 
 ####################################
 ########## Backends Tests ##########
@@ -137,18 +182,15 @@ lint:backend:
 test:backend:
   stage: test
   needs:
-    - lint:backend
+    - generation:backend_entity
   <<: *before_python_jobs # We reference our previous anchor
   script:
-  - cd api_server/
-  - apt update -q
-  - apt install -qy sqlite3
-  - pytest -vvv --cov-fail-under=70 --cov-report=term --junitxml=report.xml
+    - uv run pytest -vvv --cov-fail-under=70 --cov-report=term --junitxml=report.xml
   artifacts:
     paths:
       - api_server/htmlcov/
     reports:
-      junit: report.xml
+      junit: api_server/report.xml
 
 # test:python_check_for_vuln_deps:
 #   stage: test
@@ -158,7 +200,6 @@ test:backend:
 #     - pip install safety
 #     - safety check -r requirements.txt
 #     - safety check
-
 
 ###########################
 ########## Build ##########
@@ -175,9 +216,8 @@ build:frontend:
     - yarn build
   artifacts:
     paths:
-    - frontend_angular/dist/
+      - frontend_angular/dist/
     expire_in: 1 day
-
 
 ###########################################
 ########## Deploy in stagged ##############
@@ -231,7 +271,6 @@ stagged:backend:
   tags:
     - adh6-stagged
 
-
 ###########################################
 ########## Deploy in development ##########
 ###########################################
@@ -245,13 +284,12 @@ development:
   script:
     - docker-compose -f docker-compose-deploy.yml build
     - docker-compose -f docker-compose-deploy.yml down
-    - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
+    - docker-compose -f docker-compose-deploy.yml up --force-recreate -d
   environment:
     name: development
     url: https://adh6-dev.minet.net/
   tags:
     - dev
-
 
 ##########################################
 ########## Deploy in production ##########

@@ -43,13 +43,14 @@ export class PortListComponent
         )
         .pipe(
           map((response) => {
+            if (!response.body) return response;
             for (const p of response.body) {
               if (p.room && !this.cachedRoomDescription.has(p.room)) {
                 this.cachedRoomDescription.set(
                   p.room,
                   this.roomService.roomIdGet(p.room).pipe(
                     shareReplay(1),
-                    map((room) => room.description),
+                    map((room) => room?.description || ""),
                   ),
                 );
               }
@@ -61,7 +62,7 @@ export class PortListComponent
                   p.switchObj,
                   this.switchService.switchIdGet(p.switchObj).pipe(
                     shareReplay(1),
-                    map((s) => s.description),
+                    map((s) => s?.description || ""),
                   ),
                 );
               }
@@ -72,11 +73,9 @@ export class PortListComponent
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
-    this.filter = this.switchId
-      ? <AbstractPort>{switchObj: this.switchId}
-      : undefined;
+    this.filter = this.switchId ? <AbstractPort>{switchObj: this.switchId} : {};
   }
 
   handlePageChange(page: number) {

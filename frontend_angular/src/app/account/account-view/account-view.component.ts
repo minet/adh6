@@ -15,9 +15,9 @@ import {TransactionListComponent} from "../../transaction-list/transaction-list.
   templateUrl: "./account-view.component.html",
 })
 export class AccountViewComponent implements OnInit {
-  account$: Observable<AbstractAccount>;
-  private id$: Observable<number>;
-  accountTypes: AccountType[];
+  account$!: Observable<AbstractAccount>;
+  private id$!: Observable<number>;
+  accountTypes: AccountType[] = [];
 
   constructor(
     private readonly accountService: AccountService,

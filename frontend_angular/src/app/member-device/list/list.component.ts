@@ -30,11 +30,13 @@ export class MemberDeviceListComponent extends SearchPage<number> {
         )
         .pipe(
           map((response) => {
-            for (const i of response.body) {
-              this.cachedDevices.set(
-                +i,
-                this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-              );
+            if (response.body) {
+              for (const i of response.body) {
+                this.cachedDevices.set(
+                  +i,
+                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
+                );
+              }
             }
             return response;
           }),

@@ -26,12 +26,12 @@
       formControlName="username" />
     @if (memberEdit.controls.username.invalid) {
       <p class="help is-danger">
-        @if (memberEdit.controls.username.errors.minlength) {
+        @if (memberEdit.controls.username.errors?.minlength) {
           <span class="invalid">
             Le nom d'utilisateur doit contenirau moins 7 caractères
           </span>
         }
-        @if (memberEdit.controls.username.errors.maxlength) {
+        @if (memberEdit.controls.username.errors?.maxlength) {
           <span class="invalid">
             Le nom d'utilisateur doit contenir moins de 8 caractères.
           </span>

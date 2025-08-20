@@ -3,6 +3,7 @@ from hashlib import sha512
 from uuid import uuid4
 
 import pytest
+import requests
 from adh6.authentication import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
@@ -121,8 +122,6 @@ class MockRequestsResponse:
 
 @pytest.fixture(autouse=True)
 def mock_oidc_authentication(monkeypatch):
-    from adh6.authentication import requests
-
     """Mock the response for our cas"""
 
     def mock_get(*args, **kwargs):

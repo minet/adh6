@@ -51,7 +51,7 @@ export class DetailsComponent {
   public refreshRoom(): void {
     this.room$ = this.memberDetailService.member$.pipe(
       switchMap((member) => {
-        if (member.id != null) {
+        if (member?.id != null) {
           return this.roomMemberService
             .roomMemberIdGet(member.id)
             .pipe(switchMap((roomId) => this.roomService.roomIdGet(roomId)));

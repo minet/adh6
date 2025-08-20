@@ -29,7 +29,7 @@ export class TransactionListComponent
   extends SearchPage<AbstractTransaction>
   implements OnInit
 {
-  @Input() asAccount = 0;
+  @Input() asAccount: number | undefined = 0;
   @Input() refresh: EventEmitter<{action: string}> = new EventEmitter();
   @Input() actions: Action[] = [];
 

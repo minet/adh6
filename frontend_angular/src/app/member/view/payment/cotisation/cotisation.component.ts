@@ -17,8 +17,8 @@ import {
 import {Toast} from "../../../../notification.service";
 
 interface SubscriptionForm {
-  paidWith: FormControl<number>;
-  durationIndex: FormControl<number>;
+  paidWith: FormControl<number | null>;
+  durationIndex: FormControl<number | null>;
 }
 
 @Component({
@@ -56,8 +56,11 @@ export class CotisationComponent {
   ) {}
 
   public get amount(): number {
-    return this.subscriptionForm.value.durationIndex !== -1
-      ? this.subscriptionPrices.at(this.subscriptionForm.value.durationIndex)
+    const durationIndex = this.subscriptionForm.value.durationIndex;
+    return durationIndex !== null &&
+      durationIndex !== undefined &&
+      durationIndex !== -1
+      ? this.subscriptionPrices.at(durationIndex) || 0
       : 0;
   }
 
@@ -66,6 +69,7 @@ export class CotisationComponent {
 
     // Validate form values
     if (
+      !this.member?.id ||
       v.durationIndex == null ||
       v.paidWith == null ||
       v.durationIndex < 0 ||
@@ -91,12 +95,12 @@ export class CotisationComponent {
             duration: this.subscriptionDuration.at(v.durationIndex!)!,
             account: response[0].id,
             paymentMethod: v.paidWith!,
-            member: this.member.id!,
+            member: this.member!.id!,
             hasRoom: v.durationIndex !== this.subscriptionPrices.length - 1,
           };
           if (this.isSubscriptionFinished) {
             this.membershipService
-              .memberIdSubscriptionPost(this.member.id!, subscription, "body")
+              .memberIdSubscriptionPost(this.member!.id!, subscription, "body")
               .subscribe({
                 next: (m) => {
                   if (m.status === AbstractMembership.StatusEnum.PendingRules) {
@@ -120,7 +124,7 @@ export class CotisationComponent {
               });
           } else {
             this.membershipService
-              .memberIdSubscriptionPatch(this.member.id!, subscription)
+              .memberIdSubscriptionPatch(this.member!.id!, subscription)
               .subscribe({
                 next: () => {
                   void Toast.fire("Inscription mise à jour");
@@ -143,7 +147,7 @@ export class CotisationComponent {
   }
 
   formatDate(monthsToAdd: number): string {
-    const departureDate = this.member.departureDate;
+    const departureDate = this.member?.departureDate;
     const date =
       departureDate && new Date().getTime() < new Date(departureDate).getTime()
         ? new Date(departureDate)
@@ -154,9 +158,9 @@ export class CotisationComponent {
 
   get isSubscriptionFinished(): boolean {
     return (
-      this.member.membership === AbstractMembership.StatusEnum.Complete ||
-      this.member.membership === AbstractMembership.StatusEnum.Cancelled ||
-      this.member.membership === AbstractMembership.StatusEnum.Aborted
+      this.member?.membership === AbstractMembership.StatusEnum.Complete ||
+      this.member?.membership === AbstractMembership.StatusEnum.Cancelled ||
+      this.member?.membership === AbstractMembership.StatusEnum.Aborted
     );
   }
 }

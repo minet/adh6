@@ -1,7 +1,7 @@
 import {CommonModule} from "@angular/common";
 import {Component} from "@angular/core";
 import {RouterModule} from "@angular/router";
-import {map, Observable, shareReplay, switchMap} from "rxjs";
+import {map, Observable, of, shareReplay, switchMap} from "rxjs";
 import {
   MemberService,
   AbstractMember,
@@ -20,7 +20,7 @@ import {SearchPage} from "../../search-page";
 })
 export class ListComponent extends SearchPage<number> {
   public cachedMembers: Map<number, Observable<AbstractMember>> = new Map();
-  public cachedRoomNumbers: Map<number, Observable<number>> = new Map();
+  public cachedRoomNumbers: Map<number, Observable<string>> = new Map();
   public subscriptionFilter = "";
   public subscriptionValues = Member.MembershipEnum;
 
@@ -47,22 +47,27 @@ export class ListComponent extends SearchPage<number> {
         )
         .pipe(
           map((response) => {
-            for (const i of response.body) {
-              this.cachedMembers.set(
-                +i,
-                this.memberService.memberIdGet(+i).pipe(shareReplay(1)),
-              );
-              this.cachedRoomNumbers.set(
-                +i,
-                this.roomMemberService.roomMemberIdGet(+i).pipe(
-                  shareReplay(1),
-                  switchMap((response) =>
-                    this.roomService
-                      .roomIdGet(response, ["roomNumber"])
-                      .pipe(map((r) => r.roomNumber)),
+            if (response.body) {
+              for (const i of response.body) {
+                this.cachedMembers.set(
+                  +i,
+                  this.memberService.memberIdGet(+i).pipe(shareReplay(1)),
+                );
+                this.cachedRoomNumbers.set(
+                  +i,
+                  this.roomMemberService.roomMemberIdGet(+i).pipe(
+                    shareReplay(1),
+                    switchMap((response) => {
+                      if (response === undefined || response === null) {
+                        return of("No room");
+                      }
+                      return this.roomService
+                        .roomIdGet(Number(response), ["roomNumber"])
+                        .pipe(map((r) => String(r.roomNumber) || "No room"));
+                    }),
                   ),
-                ),
-              );
+                );
+              }
             }
             return response;
           }),
@@ -85,11 +90,12 @@ export class ListComponent extends SearchPage<number> {
     this.changePage(page);
   }
 
-  public getMember(id: number) {
-    return this.cachedMembers.get(id);
+  public getMember(id: number): Observable<AbstractMember | null> {
+    return this.cachedMembers.get(id) || of(null);
   }
 
-  public getRoomNumber(id: number) {
-    return this.cachedRoomNumbers.get(id);
+  public getRoomNumber(id: number | undefined): Observable<string> {
+    if (id === undefined) return of("Aucune");
+    return this.cachedRoomNumbers.get(id) || of("Aucune");
   }
 }

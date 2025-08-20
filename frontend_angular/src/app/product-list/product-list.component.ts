@@ -25,7 +25,7 @@ export class ProductListComponent
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
   }
 

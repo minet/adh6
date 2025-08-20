@@ -52,25 +52,29 @@ export class TransactionNewComponent implements OnInit {
       name: "replay",
       class: "is-primary",
       buttonIcon: "refresh-arrow",
-      condition: (transaction: Transaction) => !transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        !(transaction.pendingValidation ?? false),
     },
     {
       name: "revert",
       class: "is-danger",
       buttonIcon: "repeat-arrow",
-      condition: (transaction: Transaction) => !transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        !(transaction.pendingValidation ?? false),
     },
     {
       name: "validate",
       class: "is-success",
       buttonIcon: "check",
-      condition: (transaction: Transaction) => transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        transaction.pendingValidation ?? false,
     },
     {
       name: "delete",
       class: "is-danger",
       buttonIcon: "trash-bin",
-      condition: (transaction: Transaction) => transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        transaction.pendingValidation ?? false,
     },
   ];
   public paymentMethods: PaymentMethod[] = [];

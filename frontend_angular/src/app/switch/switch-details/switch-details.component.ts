@@ -14,7 +14,7 @@ import {PortListComponent} from "../../port/list/list.component";
   styleUrls: ["./switch-details.component.css"],
 })
 export class SwitchDetailsComponent implements OnInit {
-  switch$: Observable<AbstractSwitch>;
+  switch$!: Observable<AbstractSwitch>;
   switchId = 0;
 
   constructor(
