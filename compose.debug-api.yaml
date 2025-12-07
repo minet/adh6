@@ -1,5 +1,5 @@
 services:
-  api_server:
+  backend:
     build:
       target: debug # Override du target pour utiliser le stage debug
     ports:

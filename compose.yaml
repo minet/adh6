@@ -1,28 +1,28 @@
 name: adh6
 
 services:
-  frontend_angular:
+  frontend:
     container_name: adh6_frontend
     build:
       context: .
-      dockerfile: docker/frontend_angular/Dockerfile
+      dockerfile: frontend/Dockerfile
       target: dev
     develop:
       watch:
         - action: sync
-          path: frontend_angular/src
-          target: /app/frontend_angular/src
+          path: frontend/src
+          target: /app/frontend/src
         - action: rebuild
-          path: frontend_angular/angular.json
+          path: frontend/angular.json
         - action: rebuild
           path: openapi/spec.yaml
 
-  api_server:
+  backend:
     container_name: adh6_backend
     init: true
     build:
       context: .
-      dockerfile: docker/backend_connexion/Dockerfile
+      dockerfile: backend/Dockerfile
       target: dev
     depends_on:
       database:
@@ -41,31 +41,31 @@ services:
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-adh6-keycloak-secret}
     develop:
       watch:
-        - path: api_server/adh6
-          target: /app/api_server/adh6
+        - path: backend/adh6
+          target: /app/backend/adh6
           action: sync
           ignore:
-            - api_server/adh6/typing_utils.py
-            - api_server/adh6/utils.py
-            - api_server/adh6/entity
+            - backend/adh6/typing_utils.py
+            - backend/adh6/utils.py
+            - backend/adh6/entity
 
   reverse_proxy:
     container_name: adh6_reverse_proxy
     build:
       context: .
-      dockerfile: docker/reverse_proxy/Dockerfile
+      dockerfile: reverse_proxy/Dockerfile
     init: true
     links:
-      - frontend_angular
-      - api_server
+      - frontend
+      - backend
     ports:
       - "443:443"
       - "80:80"
     environment:
       ADH6_URL: "adh6-local.minet.net"
-      API_HOST: "api_server"
+      API_HOST: "backend"
       API_PORT: "8080"
-      FRONTEND_HOST: "frontend_angular"
+      FRONTEND_HOST: "frontend"
       FRONTEND_PORT: "80"
     command: [ 'nginx-debug', '-g', 'daemon off;' ]
 
