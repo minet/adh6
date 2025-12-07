@@ -25,34 +25,48 @@ export class MemberCommentEditComponent {
   public memberId$: Observable<number>;
 
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public memberService: MemberService,
-    private memberDetailService: MemberDetailService,
-    private router: Router,
+    private readonly memberDetailService: MemberDetailService,
+    private readonly router: Router,
   ) {
     this.memberComment = this.fb.group({
-      comment: [""],
+      comment: this.fb.control("", {nonNullable: true}),
     });
     this.memberId$ = this.memberDetailService.member$.pipe(
       map((member) => {
-        this.memberService
-          .memberIdCommentGet(member.id)
-          .subscribe((comment) =>
-            this.memberComment.controls.comment.setValue(comment.comment),
-          );
-        return member.id;
+        if (member?.id != null) {
+          this.memberService.memberIdCommentGet(member.id).subscribe({
+            next: (comment) =>
+              this.memberComment.controls.comment.setValue(
+                comment.comment || "",
+              ),
+            error: (error) =>
+              console.error("Error fetching member comment:", error),
+          });
+          return member.id;
+        }
+        return 0; // fallback value
       }),
     );
   }
 
   update(id: number): void {
     if (this.memberComment.controls.comment.dirty) {
-      this.memberService
-        .memberIdCommentPut(id, {comment: this.memberComment.value.comment})
-        .subscribe(() =>
-          this.memberDetailService.updateMemberInfos.emit("Comment updated"),
-        );
+      const commentValue = this.memberComment.value.comment;
+      if (commentValue != null) {
+        this.memberService
+          .memberIdCommentPut(id, {comment: commentValue})
+          .subscribe({
+            next: () =>
+              this.memberDetailService.updateMemberInfos.emit(
+                "Comment updated",
+              ),
+            error: (error) =>
+              console.error("Error updating member comment:", error),
+          });
+      }
     }
-    this.router.navigate(["/member/view", id, "profile"]);
+    void this.router.navigate(["/member/view", id, "profile"]);
   }
 }

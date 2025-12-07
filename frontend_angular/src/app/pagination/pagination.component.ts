@@ -18,14 +18,14 @@ import {PagingConf} from "../paging.config";
 export class PaginationComponent implements OnInit, OnChanges {
   @Input() maxItems: number | undefined;
   @Input() itemsPerPage: number = PagingConf.item_count;
-  @Input() page: number = 1;
+  @Input() page = 1;
 
   @Output() pageChange = new EventEmitter<number>();
 
   deltaPage = 3;
   numberOfPages = 0;
-  pagesBefore: Array<number> = [];
-  pagesAfter: Array<number> = [];
+  pagesBefore: number[] = [];
+  pagesAfter: number[] = [];
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {

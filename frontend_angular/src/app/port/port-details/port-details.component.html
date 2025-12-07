@@ -35,7 +35,7 @@
                 <button
                   class="button is-fullwidth"
                   [ngClass]="
-                    {true: 'is-success', false: 'is-danger'}[!context.value]
+                    !context.value ? 'is-success' : 'is-danger'
                   "
                   (click)="toggleStatus()">
                   {{ getAction(!context.value) }}
@@ -59,7 +59,7 @@
                 <button
                   class="button is-fullwidth"
                   [ngClass]="
-                    {true: 'is-success', false: 'is-danger'}[!context.value]
+                    !context.value ? 'is-success' : 'is-danger'
                   "
                   (click)="toggleAuth(context.value)">
                   {{ getAction(!context.value) }}
@@ -81,7 +81,7 @@
                 <button
                   class="button is-fullwidth"
                   [ngClass]="
-                    {true: 'is-success', false: 'is-danger'}[!context.value]
+                    !context.value ? 'is-success' : 'is-danger'
                   "
                   (click)="toggleMAB()">
                   {{ getAction(!context.value) }}

@@ -1,9 +1,7 @@
 import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
-import {AppComponent} from "./app.component";
 import {AppRoutingModule} from "./app-routing.module";
 import {ApiModule, Configuration} from "./api";
-import {NavbarComponent} from "./navbar/navbar.component";
 import {CommonModule} from "@angular/common";
 import {
   HTTP_INTERCEPTORS,
@@ -18,31 +16,24 @@ import {Ability, AbilityClass, PureAbility} from "@casl/ability";
 import {AblePipe} from "@casl/angular";
 import "@angular/common/locales/global/fr";
 import "@angular/common/locales/global/en";
-import {FooterComponent} from "./footer/footer.component";
-import {VerticalNavbarComponent} from "./vertical-navbar/vertical-navbar.component";
 import {AuthConfigModule} from "./auth.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 type Actions = "manage" | "free";
+type Subjects = string;
 
-export type AppAbility = Ability<[Actions, undefined]>;
+export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;
 
 function load(): Configuration {
-  let params = {
+  const params = {
     basePath: environment.API_BASE_PATH,
   };
   return new Configuration(params);
 }
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NavbarComponent,
-    FooterComponent,
-    VerticalNavbarComponent,
-  ],
-  bootstrap: [AppComponent],
+  declarations: [],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -54,7 +45,6 @@ function load(): Configuration {
     AuthConfigModule,
   ],
   providers: [
-    AppComponent,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: NotifInterceptor,

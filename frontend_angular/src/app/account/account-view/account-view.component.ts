@@ -2,31 +2,32 @@ import {Component, OnInit} from "@angular/core";
 import {combineLatest, Observable} from "rxjs";
 import {map, share, switchMap} from "rxjs/operators";
 import {AbstractAccount, AccountService, AccountType} from "../../api";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, RouterModule} from "@angular/router";
 
 import {AppConstantsService} from "../../app-constants.service";
 import {CommonModule, Location} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {TransactionListComponent} from "../../transaction-list/transaction-list.component";
 
 @Component({
-  imports: [CommonModule, TransactionListComponent],
+  imports: [CommonModule, TransactionListComponent, FormsModule, RouterModule],
   selector: "app-account-view",
   templateUrl: "./account-view.component.html",
 })
 export class AccountViewComponent implements OnInit {
-  account$: Observable<AbstractAccount>;
-  private id$: Observable<number>;
-  accountTypes: Array<AccountType>;
+  account$!: Observable<AbstractAccount>;
+  private id$!: Observable<number>;
+  accountTypes: AccountType[] = [];
 
   constructor(
-    private accountService: AccountService,
-    private route: ActivatedRoute,
-    private location: Location,
+    private readonly accountService: AccountService,
+    private readonly route: ActivatedRoute,
+    private readonly location: Location,
     public appConstantsService: AppConstantsService,
   ) {}
   ngOnInit() {
     // id of the account
-    this.id$ = this.route.params.pipe(map((params) => params["account_id"]));
+    this.id$ = this.route.params.pipe(map((params) => +params["account_id"]));
 
     this.appConstantsService.getAccountTypes().subscribe((data) => {
       this.accountTypes = data;

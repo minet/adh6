@@ -28,7 +28,7 @@
                 <td>
                   {{
                     getPaymentMethodNameById(
-                      transactionDetails.value.paymentMethod
+                      transactionDetails.value.paymentMethod || 0
                     )
                   }}
                 </td>
@@ -52,7 +52,7 @@
               de l'argent dans la caisse via
               {{
                 getPaymentMethodNameById(
-                  transactionDetails.value.paymentMethod
+                  transactionDetails.value.paymentMethod || 0
                 )
               }}, assurez-vous de bien le faire effectivement !
             </div>
@@ -103,8 +103,8 @@
             type="button"
             (click)="
               exchangeAccounts(
-                transactionDetails.value.srcAccount,
-                transactionDetails.value.dstAccount
+                transactionDetails.value.srcAccount || 0,
+                transactionDetails.value.dstAccount || 0
               )
             ">
             <img

@@ -77,13 +77,14 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
   `,
 })
 export class AccountComponent implements OnInit {
-  @Input() member: Member;
+  @Input() member!: Member;
   public isDepartureDateFuture = false;
 
   constructor() {}
 
   ngOnInit(): void {
-    this.isDepartureDateFuture =
-      new Date() < new Date(this.member.departureDate);
+    this.isDepartureDateFuture = this.member.departureDate
+      ? new Date() < new Date(this.member.departureDate)
+      : false;
   }
 }

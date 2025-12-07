@@ -1,5 +1,11 @@
 import {Component, OnInit} from "@angular/core";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {AsyncPipe} from "@angular/common";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 
 import {AbstractRoom, Room, RoomService, VlanService} from "../../api";
@@ -8,23 +14,24 @@ import {Observable} from "rxjs";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [AsyncPipe, ReactiveFormsModule],
   selector: "app-room-edit",
   templateUrl: "./room-edit.component.html",
   styleUrls: ["./room-edit.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class RoomEditComponent implements OnInit {
   public disabled = false;
-  public roomEdit: UntypedFormGroup;
-  public room$: Observable<AbstractRoom>;
+  public roomEdit!: UntypedFormGroup;
+  public room$!: Observable<AbstractRoom>;
 
   constructor(
-    private roomService: RoomService,
-    private vlanService: VlanService,
-    private fb: UntypedFormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly roomService: RoomService,
+    private readonly vlanService: VlanService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -53,11 +60,11 @@ export class RoomEditComponent implements OnInit {
       .subscribe((vlan) => {
         const room: Room = {
           roomNumber: v.roomNumber,
-          vlan: vlan.id,
+          vlan: vlan.id!,
           description: v.description,
         };
         this.roomService.roomIdPut(v.id, room).subscribe(() => {
-          this.router.navigate(["/room/view", v.roomNumber]);
+          void this.router.navigate(["/room/view", v.roomNumber]);
           this.notificationService.successNotification();
         });
       });
@@ -65,9 +72,13 @@ export class RoomEditComponent implements OnInit {
 
   ngOnInit() {
     this.room$ = this.route.paramMap.pipe(
-      switchMap((params: ParamMap) =>
-        this.roomService.roomIdGet(+params.get("room_id")),
-      ),
+      switchMap((params: ParamMap) => {
+        const roomId = params.get("room_id");
+        if (roomId) {
+          return this.roomService.roomIdGet(+roomId);
+        }
+        throw new Error("Room ID parameter is required");
+      }),
       tap((room) =>
         this.roomEdit.patchValue({
           id: room.id,

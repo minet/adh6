@@ -4,9 +4,10 @@ import {ProductListComponent} from "./product-list.component";
 import {RouterModule} from "@angular/router";
 
 @NgModule({
-  declarations: [ProductListComponent],
+  declarations: [],
   imports: [
     CommonModule,
+    ProductListComponent,
     RouterModule.forChild([
       {path: "", redirectTo: "search", pathMatch: "full"},
       {path: "search", component: ProductListComponent},

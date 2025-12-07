@@ -1,6 +1,11 @@
 import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Component} from "@angular/core";
-import {Member, MembershipService, TransactionService} from "../../../api";
+import {
+  AbstractMember,
+  MembershipService,
+  TransactionService,
+} from "../../../api";
 import {BuyProductComponent} from "./product/buy-product.component";
 import {CotisationComponent} from "./cotisation/cotisation.component";
 import {AblePipe} from "@casl/angular";
@@ -8,26 +13,32 @@ import {MemberDetailService} from "../member-detail.service";
 
 @Component({
   standalone: true,
-  imports: [CommonModule, BuyProductComponent, CotisationComponent, AblePipe],
+  imports: [
+    CommonModule,
+    BuyProductComponent,
+    CotisationComponent,
+    AblePipe,
+    FormsModule,
+  ],
   selector: "app-payment",
   templateUrl: "./payment.component.html",
 })
 export class PaymentComponent {
   public member$ = this.memberDetailService.member$;
-  public productCollapse: boolean = false;
-  public membershipCollapse: boolean = false;
+  public productCollapse = false;
+  public membershipCollapse = false;
   public paymentMethods$ = this.transactionService.paymentMethodGet();
   public isFree = false;
 
   constructor(
-    private transactionService: TransactionService,
-    private membershipService: MembershipService,
-    private memberDetailService: MemberDetailService,
+    private readonly transactionService: TransactionService,
+    private readonly membershipService: MembershipService,
+    private readonly memberDetailService: MemberDetailService,
   ) {}
 
-  public validatePayment(member: Member): void {
+  public validatePayment(member: AbstractMember): void {
     this.membershipService
-      .subscriptionValidate(member.id, this.isFree)
+      .subscriptionValidate(member.id!, this.isFree)
       .subscribe(() =>
         this.memberDetailService.updateMemberInfos.emit("Inscription finie"),
       );

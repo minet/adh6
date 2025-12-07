@@ -1,4 +1,5 @@
-import {async, ComponentFixture, TestBed} from "@angular/core/testing";
+/// <reference types="jasmine" />
+import {ComponentFixture, TestBed} from "@angular/core/testing";
 
 import {AccountListComponent} from "./account-list.component";
 
@@ -6,11 +7,11 @@ describe("AccountListComponent", () => {
   let component: AccountListComponent;
   let fixture: ComponentFixture<AccountListComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [AccountListComponent],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AccountListComponent);

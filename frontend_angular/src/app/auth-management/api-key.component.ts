@@ -64,26 +64,28 @@ import {ApiKey, ApiKeysPostRequest, AuthenticationService, Role} from "../api";
 })
 export class ApiKeyComponent implements OnInit {
   public roleKeys = Object.values(Role);
-  public result$: Observable<ApiKey[]>;
-  public login: string = "";
+  public result$!: Observable<ApiKey[]>;
+  public login = "";
   public roles: string[] = [];
 
-  constructor(private authenticationService: AuthenticationService) {}
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   ngOnInit(): void {
     this.refreshApi();
   }
 
   public submit(): void {
-    if (this.roles.length === 0 || this.login === "") return;
+    if (this.roles.length === 0 || this.login === "") {
+      return;
+    }
 
-    let roles = [];
-    for (let i in this.roles) {
-      if (i === "0") {
+    const roles = [];
+    for (let idx = 0; idx < this.roles.length; idx++) {
+      if (idx === 0) {
         roles.push(Role.AdminWrite, Role.AdminRead);
-      } else if (i === "1") {
+      } else if (idx === 1) {
         roles.push(Role.NetworkWrite, Role.NetworkRead);
-      } else if (i === "2") {
+      } else if (idx === 2) {
         roles.push(Role.TreasurerWrite, Role.TreasurerRead);
       }
     }
@@ -94,9 +96,9 @@ export class ApiKeyComponent implements OnInit {
         roles: roles,
       })
       .subscribe((res) =>
-        Swal.fire({title: "Clé d'API", text: res}).then(() =>
-          this.refreshApi(),
-        ),
+        Swal.fire({title: "Clé d'API", text: res}).then(() => {
+          this.refreshApi();
+        }),
       );
   }
 

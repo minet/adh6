@@ -1,5 +1,10 @@
 import {Component, OnDestroy} from "@angular/core";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {Router} from "@angular/router";
 
 import {Room, RoomService} from "../../api";
@@ -7,21 +12,22 @@ import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [ReactiveFormsModule],
   selector: "app-room-new",
   templateUrl: "./room-new.component.html",
   styleUrls: ["./room-new.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class RoomNewComponent implements OnDestroy {
   disabled = false;
-  roomForm: UntypedFormGroup;
+  roomForm!: UntypedFormGroup;
   private alive = true;
 
   constructor(
     public roomService: RoomService,
-    private fb: UntypedFormBuilder,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -50,7 +56,7 @@ export class RoomNewComponent implements OnDestroy {
       .roomPost(room)
       .pipe(takeWhile(() => this.alive))
       .subscribe((_) => {
-        this.router.navigate(["/room/view", v.roomNumber]);
+        void this.router.navigate(["/room/view", v.roomNumber]);
         this.notificationService.successNotification();
       });
     this.disabled = false;

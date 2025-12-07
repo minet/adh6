@@ -1,8 +1,10 @@
 import {Component, Input, OnInit} from "@angular/core";
 import {Observable} from "rxjs";
 import {Member, MemberService, MemberStatus} from "../../api";
+import {CommonModule, AsyncPipe, DatePipe} from "@angular/common";
 
 @Component({
+  imports: [CommonModule, AsyncPipe, DatePipe],
   selector: "app-auto-troubleshoot",
   template: `
     @if (statuses$ | async; as statuses) {
@@ -55,14 +57,13 @@ import {Member, MemberService, MemberStatus} from "../../api";
       }
     }
   `,
-  standalone: false,
 })
 export class AutoTroubleshootComponent implements OnInit {
-  statuses$: Observable<MemberStatus[]>;
+  statuses$!: Observable<MemberStatus[]>;
 
-  @Input() member: Member;
+  @Input() member!: Member;
 
-  constructor(private memberService: MemberService) {}
+  constructor(private readonly memberService: MemberService) {}
 
   ngOnInit(): void {
     this.statuses$ = this.memberService.memberIdStatusesGet(

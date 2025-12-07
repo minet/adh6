@@ -11,12 +11,12 @@ import {switchMap} from "rxjs/operators";
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
-  constructor(private oidcSecurityService: OidcSecurityService) {}
+  constructor(private readonly oidcSecurityService: OidcSecurityService) {}
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler,
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     return from(this.oidcSecurityService.getAccessToken()).pipe(
       switchMap((token) => {
         if (token) {

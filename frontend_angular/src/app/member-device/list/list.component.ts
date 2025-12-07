@@ -2,17 +2,19 @@ import {Component, Input} from "@angular/core";
 import {map, Observable, shareReplay} from "rxjs";
 import {AbstractDevice, DeviceFilter, DeviceService} from "../../api";
 import {SearchPage} from "../../search-page";
+import {CommonModule, AsyncPipe} from "@angular/common";
+import {ElementComponent} from "./element/element.component";
 
 @Component({
+  imports: [CommonModule, AsyncPipe, ElementComponent],
   selector: "app-member-device-list",
   templateUrl: "./list.component.html",
   styleUrls: ["./list.component.css"],
-  standalone: false,
 })
 export class MemberDeviceListComponent extends SearchPage<number> {
   @Input() abstractDeviceFilter: AbstractDevice = {};
 
-  public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
+  public cachedDevices: Map<number, Observable<AbstractDevice>> = new Map();
   constructor(public deviceService: DeviceService) {
     super((terms, page) =>
       this.deviceService
@@ -28,11 +30,13 @@ export class MemberDeviceListComponent extends SearchPage<number> {
         )
         .pipe(
           map((response) => {
-            for (let i of response.body) {
-              this.cachedDevices.set(
-                +i,
-                this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-              );
+            if (response.body) {
+              for (const i of response.body) {
+                this.cachedDevices.set(
+                  +i,
+                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
+                );
+              }
             }
             return response;
           }),

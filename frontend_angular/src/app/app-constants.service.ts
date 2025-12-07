@@ -12,15 +12,15 @@ import {map, share} from "rxjs/operators";
   providedIn: "root",
 })
 export class AppConstantsService {
-  private accountTypes: Array<AccountType>;
-  private accountTypesObservable: Observable<any>;
+  private accountTypes?: AccountType[];
+  private accountTypesObservable?: Observable<AccountType[]> | null;
 
-  private paymentMethods: Array<PaymentMethod>;
-  private paymentMethodsObservable: Observable<any>;
+  private paymentMethods?: PaymentMethod[];
+  private paymentMethodsObservable?: Observable<PaymentMethod[]> | null;
 
   constructor(
-    private accountService: AccountService,
-    private transactionService: TransactionService,
+    private readonly accountService: AccountService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   getPaymentMethods() {

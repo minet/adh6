@@ -1,7 +1,13 @@
 import {Component, OnInit} from "@angular/core";
+import {AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {
   AbstractMember,
   AbstractPort,
@@ -15,31 +21,32 @@ import {map, shareReplay} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [RouterModule, AsyncPipe, ReactiveFormsModule],
   selector: "app-room-details",
   templateUrl: "./room-details.component.html",
-  standalone: false,
 })
 export class RoomDetailsComponent implements OnInit {
-  public room$: Observable<AbstractRoom>;
-  public ports$: Observable<Array<AbstractPort>>;
-  public memberIds$: Observable<Array<number>>;
-  private room_id: number;
-  public roomForm: UntypedFormGroup;
-  public EmmenagerForm: UntypedFormGroup;
+  public room$!: Observable<AbstractRoom>;
+  public ports$!: Observable<AbstractPort[]>;
+  public memberIds$!: Observable<number[]>;
+  private room_id!: number;
+  public roomForm!: UntypedFormGroup;
+  public EmmenagerForm!: UntypedFormGroup;
   public isDemenager = false;
-  public ref: number;
-  public cachedMemberUsernames: Map<Number, Observable<AbstractMember>> =
+  public enabled = false;
+  public ref!: number;
+  public cachedMemberUsernames: Map<number, Observable<AbstractMember>> =
     new Map();
 
   constructor(
-    private notificationService: NotificationService,
-    private router: Router,
+    private readonly notificationService: NotificationService,
+    private readonly router: Router,
     public roomMemberService: RoomMembersService,
     public roomService: RoomService,
     public portService: PortService,
     public memberService: MemberService,
-    private fb: UntypedFormBuilder,
-    private route: ActivatedRoute,
+    private readonly fb: UntypedFormBuilder,
+    private readonly route: ActivatedRoute,
   ) {
     this.createForm();
   }
@@ -76,7 +83,7 @@ export class RoomDetailsComponent implements OnInit {
           .roomIdMemberGet(this.room_id)
           .pipe(
             map((response) => {
-              for (let i of response) {
+              for (const i of response) {
                 this.cachedMemberUsernames.set(
                   +i,
                   this.memberService.memberIdGet(+i).pipe(shareReplay(1)),
@@ -100,12 +107,12 @@ export class RoomDetailsComponent implements OnInit {
         const member = member_list[0];
         this.roomMemberService
           .roomIdMemberPost(this.room_id, {id: member})
-          .subscribe((_) => {
+          .subscribe(() => {
             this.refreshInfo();
             this.notificationService.successNotification();
           });
       },
-      (_) => {
+      () => {
         this.notificationService.errorNotification(
           404,
           undefined,
@@ -130,21 +137,29 @@ export class RoomDetailsComponent implements OnInit {
           return;
         }
         const room = rooms[0];
-        this.roomMemberService
-          .roomIdMemberPost(room.id, {id: memberId})
-          .subscribe((_) => {
-            this.refreshInfo();
-            this.onDemenager(memberId);
-            this.router.navigate(["room", "view", v.roomNumberNew]);
-            this.notificationService.successNotification();
-          });
+        if (room.id != null) {
+          this.roomMemberService
+            .roomIdMemberPost(room.id, {id: memberId})
+            .subscribe(() => {
+              this.refreshInfo();
+              this.onDemenager(memberId);
+              void this.router.navigate(["room", "view", v.roomNumberNew]);
+              this.notificationService.successNotification();
+            });
+        } else {
+          this.notificationService.errorNotification(
+            400,
+            undefined,
+            "Invalid room ID",
+          );
+        }
       });
   }
 
   onRemoveFromRoom(memberId: number) {
     this.roomMemberService
       .roomIdMemberDelete(this.room_id, memberId)
-      .subscribe((_) => {
+      .subscribe(() => {
         this.refreshInfo();
         this.notificationService.successNotification();
       });

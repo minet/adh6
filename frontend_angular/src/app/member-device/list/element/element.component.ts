@@ -2,22 +2,24 @@ import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
 import {first, map, Observable, shareReplay} from "rxjs";
 import Swal from "sweetalert2";
 import {AbstractDevice, DeviceService} from "../../../api";
+import {CommonModule, AsyncPipe} from "@angular/common";
+import {AblePipe} from "@casl/angular";
 
 @Component({
+  imports: [CommonModule, AsyncPipe, AblePipe],
   selector: "app-element",
   templateUrl: "./element.component.html",
-  standalone: false,
 })
 export class ElementComponent implements OnInit {
-  @Input() deviceId: number;
-  @Output() removed: EventEmitter<number> = new EventEmitter();
+  @Input() deviceId!: number;
+  @Output() removed: EventEmitter<number> = new EventEmitter<number>();
 
-  public device$: Observable<AbstractDevice>;
-  public vendor$: Observable<string>;
-  public mab$: Observable<boolean>;
-  public isCollapse: boolean = true;
+  public device$!: Observable<AbstractDevice>;
+  public vendor$!: Observable<string>;
+  public mab$!: Observable<boolean>;
+  public isCollapse = true;
 
-  constructor(private deviceService: DeviceService) {}
+  constructor(private readonly deviceService: DeviceService) {}
 
   ngOnInit(): void {
     if (this.deviceId == undefined) {
@@ -56,14 +58,14 @@ export class ElementComponent implements OnInit {
   }
 
   public updateMAB(): void {
-    Swal.fire({
+    void Swal.fire({
       title: "Changer le MAB",
       text: "Voulez-vous changer le MAB pour l'appareil ?",
       icon: "warning",
       showCancelButton: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deviceService.deviceIdMabPost(this.deviceId).subscribe((_) => {
+        this.deviceService.deviceIdMabPost(this.deviceId).subscribe(() => {
           this.refreshMAB();
         });
       }

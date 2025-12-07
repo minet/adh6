@@ -23,7 +23,7 @@ interface MemberEditForm {
   lastName: FormControl<string>;
   username: FormControl<string>;
   email: FormControl<string>;
-  roomNumber: FormControl<number>;
+  roomNumber: FormControl<number | null>;
 }
 
 @Component({
@@ -34,63 +34,84 @@ interface MemberEditForm {
 export class CreateOrEditComponent implements OnInit {
   create = false;
   public memberEdit: FormGroup<MemberEditForm>;
-  private member_id: number;
+  private member_id!: number;
 
   constructor(
     public memberService: MemberService,
     public roomService: RoomService,
     public roomMemberService: RoomMembersService,
-    private route: ActivatedRoute,
-    private router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) {
     this.memberEdit = new FormGroup<MemberEditForm>({
-      firstName: new FormControl("", [Validators.required]),
-      lastName: new FormControl("", Validators.required),
-      username: new FormControl("", [
-        Validators.required,
-        Validators.minLength(7),
-        Validators.maxLength(255),
-      ]),
-      email: new FormControl("", [Validators.required, Validators.email]),
-      roomNumber: new FormControl(null),
+      firstName: new FormControl("", {
+        nonNullable: true,
+        validators: [Validators.required.bind(Validators)],
+      }),
+      lastName: new FormControl("", {
+        nonNullable: true,
+        validators: [Validators.required.bind(Validators)],
+      }),
+      username: new FormControl("", {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(7),
+          Validators.maxLength(255),
+        ],
+      }),
+      email: new FormControl("", {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      roomNumber: new FormControl<number | null>(null),
     });
   }
 
   editMember() {
     const v = this.memberEdit.value;
     const body: MemberBody = {
-      mail: v.email,
-      firstName: v.firstName,
-      lastName: v.lastName,
-      username: v.username,
+      mail: v.email!,
+      firstName: v.firstName!,
+      lastName: v.lastName!,
+      username: v.username!,
     };
-    this.roomService
-      .roomGet(1, 0, undefined, {roomNumber: v.roomNumber})
-      .subscribe((rooms) => {
-        if (!this.create) {
-          this.memberService
-            .memberIdPatch(this.member_id, body)
-            .subscribe(() => {
-              this.roomMemberService
-                .roomIdMemberPost(rooms[0].id, {id: this.member_id})
-                .subscribe(() =>
-                  this.router.navigate(["member/view", this.member_id]),
-                );
-            });
-        } else {
-          this.memberService.memberPost(body).subscribe((id) => {
+
+    const roomFilter =
+      v.roomNumber != null ? {roomNumber: v.roomNumber} : undefined;
+
+    this.roomService.roomGet(1, 0, undefined, roomFilter).subscribe((rooms) => {
+      if (!this.create) {
+        this.memberService.memberIdPatch(this.member_id, body).subscribe(() => {
+          if (rooms.length > 0 && rooms[0].id != null) {
+            this.roomMemberService
+              .roomIdMemberPost(rooms[0].id, {id: this.member_id})
+              .subscribe(
+                () =>
+                  void this.router.navigate(["member/view", this.member_id]),
+              );
+          } else {
+            void this.router.navigate(["member/view", this.member_id]);
+          }
+        });
+      } else {
+        this.memberService.memberPost(body).subscribe((id) => {
+          if (rooms.length > 0 && rooms[0].id != null && id != null) {
             this.roomMemberService
               .roomIdMemberPost(rooms[0].id, {id: id})
-              .subscribe(() => this.router.navigate(["/password", id, 1]));
-          });
-        }
-      });
+              .subscribe(() => void this.router.navigate(["/password", id, 1]));
+          } else {
+            void this.router.navigate(["/password", id, 1]);
+          }
+        });
+      }
+    });
   }
 
-  delete() {
+  delete(): void {
     this.memberService.memberIdDelete(this.member_id).subscribe((_) => {
-      this.router.navigate(["member/search"]);
-      Toast.fire("User suprimé", "", "success");
+      void this.router.navigate(["member/search"]);
+      void Toast.fire("User suprimé", "", "success");
     });
   }
 
@@ -99,18 +120,27 @@ export class CreateOrEditComponent implements OnInit {
       .pipe(
         mergeMap((params: ParamMap) => {
           if (params.has("member_id")) {
-            return of(params.get("member_id"));
-          } else {
-            // If username is not provided, we assume this is a create request
-            this.create = true;
-            return EMPTY;
+            const memberId = params.get("member_id");
+            if (memberId) {
+              return of(memberId);
+            }
           }
+          // If username is not provided, we assume this is a create request
+          this.create = true;
+          return EMPTY;
         }),
-        mergeMap((member_id) => this.memberService.memberIdGet(+member_id)),
+        mergeMap((member_id) => {
+          if (member_id) {
+            return this.memberService.memberIdGet(+member_id);
+          }
+          return EMPTY;
+        }),
       )
       .subscribe((member) => {
-        this.member_id = member.id;
-        this.memberEdit.patchValue(member);
+        if (member.id != null) {
+          this.member_id = member.id;
+          this.memberEdit.patchValue(member);
+        }
       });
   }
 }

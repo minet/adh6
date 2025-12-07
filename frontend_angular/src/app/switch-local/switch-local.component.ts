@@ -27,6 +27,7 @@ import {RouterModule} from "@angular/router";
             <map name="plan-local">
               @for (portResult of ports; track portResult) {
                 @if (
+                  portResult.id &&
                   portResult.id >= 16 &&
                   portResult.id <= 24 &&
                   portResult.id % 2 === 0
@@ -42,6 +43,7 @@ import {RouterModule} from "@angular/router";
                     title="Port {{ portResult.id }}" />
                 }
                 @if (
+                  portResult.id &&
                   portResult.id >= 15 &&
                   portResult.id <= 23 &&
                   portResult.id % 2 === 1
@@ -154,12 +156,12 @@ import {RouterModule} from "@angular/router";
   `,
 })
 export class SwitchLocalComponent implements OnInit {
-  switch$: Observable<AbstractSwitch>;
-  ports$: Observable<Array<AbstractPort>>;
+  switch$!: Observable<AbstractSwitch>;
+  ports$!: Observable<AbstractPort[]>;
 
   constructor(
-    private switchService: SwitchService,
-    private portService: PortService,
+    private readonly switchService: SwitchService,
+    private readonly portService: PortService,
   ) {}
 
   ngOnInit() {

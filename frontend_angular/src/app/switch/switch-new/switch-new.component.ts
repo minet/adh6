@@ -1,28 +1,34 @@
 import {Router} from "@angular/router";
 import {Component} from "@angular/core";
 import {Observable} from "rxjs";
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import {AbstractSwitch, Switch, SwitchService} from "../../api";
 import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
+  imports: [ReactiveFormsModule],
   selector: "app-switch-new",
   templateUrl: "./switch-new.component.html",
   styleUrls: ["./switch-new.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class SwitchNewComponent {
-  switches$: Observable<Array<AbstractSwitch>>;
+  switches$: Observable<AbstractSwitch[]>;
   switchForm: UntypedFormGroup;
   disabled = false;
-  private alive = true;
+  private readonly alive = true;
 
   constructor(
-    private fb: UntypedFormBuilder,
+    private readonly fb: UntypedFormBuilder,
     public switchService: SwitchService,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.switchForm = this.fb.group({
       ip: [
@@ -51,7 +57,7 @@ export class SwitchNewComponent {
       .switchPost(varSwitch)
       .pipe(takeWhile(() => this.alive))
       .subscribe(() => {
-        this.router.navigate(["/switch/search"]);
+        void this.router.navigate(["/switch/search"]);
         this.notificationService.successNotification();
       });
   }

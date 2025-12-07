@@ -4,10 +4,11 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  AbstractControl,
 } from "@angular/forms";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 
-import {AbstractAccount, Account, AccountService, AccountType} from "../../api";
+import {AbstractAccount, AccountService, AccountType} from "../../api";
 import {Observable} from "rxjs";
 import {switchMap, takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
@@ -25,7 +26,7 @@ import {CommonModule} from "@angular/common";
           class="input is-fullwidth"
           type="text"
           formControlName="name"
-          disabled />
+          [disabled]="true" />
       </div>
       <div class="field">
         <label for="type">Type de compte :</label>
@@ -58,68 +59,94 @@ import {CommonModule} from "@angular/common";
 })
 export class AccountEditComponent implements OnInit, OnDestroy {
   disabled = false;
-  editAccountForm: UntypedFormGroup;
-  accountTypes$: Observable<Array<AccountType>>;
+  editAccountForm!: UntypedFormGroup;
+  accountTypes$!: Observable<AccountType[]>;
 
   private alive = true;
-  private account: Account;
+  private account!: AbstractAccount;
 
   constructor(
-    private accountService: AccountService,
-    private route: ActivatedRoute,
-    private fb: UntypedFormBuilder,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly accountService: AccountService,
+    private readonly route: ActivatedRoute,
+    private readonly fb: UntypedFormBuilder,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.createForm();
   }
 
-  createForm() {
+  createForm(): void {
     this.disabled = false;
     this.editAccountForm = this.fb.group({
-      name: ["", [Validators.required]],
-      type: ["", [Validators.required]],
-      actif: ["", [Validators.required]],
+      name: ["", [(control: AbstractControl) => Validators.required(control)]],
+      type: ["", [(control: AbstractControl) => Validators.required(control)]],
+      actif: ["", [(control: AbstractControl) => Validators.required(control)]],
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.disabled = true;
-    const v = this.editAccountForm.value;
+    const v = this.editAccountForm.value as {
+      name: string;
+      actif: boolean;
+      type: string;
+    };
 
     const accountPatch: AbstractAccount = {
       name: v.name,
       actif: v.actif,
-      accountType: parseInt(v.type),
+      accountType: parseInt(v.type, 10),
     };
 
     this.accountService
-      .accountIdPut(this.account.id, accountPatch, "response")
+      .accountIdPut(this.account.id!, accountPatch, "response")
       .pipe(takeWhile(() => this.alive))
-      .subscribe(() => {
-        this.router.navigate(["/account/view", this.account.id]);
-        this.notificationService.successNotification();
+      .subscribe({
+        next: () => {
+          void this.router.navigate(["/account/view", this.account.id]);
+          this.notificationService.successNotification();
+        },
+        error: (error) => {
+          console.error("Error updating account:", error);
+          this.notificationService.errorNotification(
+            500,
+            "Error",
+            "Failed to update account",
+          );
+          this.disabled = false;
+        },
       });
-    this.disabled = false;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.accountTypes$ = this.accountService.accountTypeGet();
 
     this.route.paramMap
       .pipe(
-        switchMap((params: ParamMap) =>
-          this.accountService.accountIdGet(+params.get("account_id")),
-        ),
+        switchMap((params: ParamMap) => {
+          const accountId = params.get("account_id");
+          if (!accountId) throw new Error("Account ID not found");
+          return this.accountService.accountIdGet(+accountId);
+        }),
         takeWhile(() => this.alive),
       )
-      .subscribe((data: Account) => {
-        this.account = data;
-        this.editAccountForm.patchValue(data);
+      .subscribe({
+        next: (data: AbstractAccount) => {
+          this.account = data;
+          this.editAccountForm.patchValue(data);
+        },
+        error: (error) => {
+          console.error("Error fetching account:", error);
+          this.notificationService.errorNotification(
+            500,
+            "Error",
+            "Failed to fetch account",
+          );
+        },
       });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.alive = false;
   }
 }

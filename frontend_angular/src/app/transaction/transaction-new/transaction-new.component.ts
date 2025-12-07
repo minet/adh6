@@ -1,9 +1,19 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {RouterModule} from "@angular/router";
+import {CommonModule, DecimalPipe} from "@angular/common";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from "@angular/forms";
 
 import {map, takeWhile} from "rxjs/operators";
 
 import {PaymentMethod, Transaction, TransactionService} from "../../api";
+import {AccountSearchComponent} from "./account-search/account-search.component";
+import {TransactionListComponent} from "../../transaction-list/transaction-list.component";
 
 import {ActivatedRoute} from "@angular/router";
 import {AppConstantsService} from "../../app-constants.service";
@@ -21,9 +31,17 @@ interface TransactionForm {
 }
 
 @Component({
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    CommonModule,
+    DecimalPipe,
+    AccountSearchComponent,
+    TransactionListComponent,
+  ],
   selector: "app-transaction-new",
   templateUrl: "./transaction-new.component.html",
-  standalone: false,
+  standalone: true,
 })
 export class TransactionNewComponent implements OnInit {
   public transactionModal = false;
@@ -34,30 +52,34 @@ export class TransactionNewComponent implements OnInit {
       name: "replay",
       class: "is-primary",
       buttonIcon: "refresh-arrow",
-      condition: (transaction: Transaction) => !transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        !(transaction.pendingValidation ?? false),
     },
     {
       name: "revert",
       class: "is-danger",
       buttonIcon: "repeat-arrow",
-      condition: (transaction: Transaction) => !transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        !(transaction.pendingValidation ?? false),
     },
     {
       name: "validate",
       class: "is-success",
       buttonIcon: "check",
-      condition: (transaction: Transaction) => transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        transaction.pendingValidation ?? false,
     },
     {
       name: "delete",
       class: "is-danger",
       buttonIcon: "trash-bin",
-      condition: (transaction: Transaction) => transaction.pendingValidation,
+      condition: (transaction: Transaction) =>
+        transaction.pendingValidation ?? false,
     },
   ];
-  public paymentMethods: Array<PaymentMethod> = [];
+  public paymentMethods: PaymentMethod[] = [];
   refreshTransactions: EventEmitter<{action: string}> = new EventEmitter();
-  private alive = true;
+  private readonly alive = true;
 
   public cashboxButtons: Array<{act: Transaction.CashboxEnum; text: string}> = [
     {act: Transaction.CashboxEnum.Direct, text: "Sans"},
@@ -66,22 +88,37 @@ export class TransactionNewComponent implements OnInit {
   ];
 
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public transactionService: TransactionService,
     public appConstantService: AppConstantsService,
-    private notificationService: NotificationService,
-    private route: ActivatedRoute,
+    private readonly notificationService: NotificationService,
+    private readonly route: ActivatedRoute,
   ) {
     this.transactionDetails = this.fb.group<TransactionForm>({
-      name: this.fb.control("", Validators.required),
-      value: this.fb.control(0, Validators.required),
-      srcAccount: this.fb.control(0, Validators.required),
-      dstAccount: this.fb.control(0, Validators.required),
-      paymentMethod: this.fb.control(0, Validators.required),
-      caisse: this.fb.control(
-        Transaction.CashboxEnum.Direct,
-        Validators.required,
-      ),
+      name: this.fb.control("", {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      value: this.fb.control(0, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      srcAccount: this.fb.control(0, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      dstAccount: this.fb.control(0, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      paymentMethod: this.fb.control(0, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      caisse: this.fb.control(Transaction.CashboxEnum.Direct, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
     });
   }
 
@@ -166,6 +203,23 @@ export class TransactionNewComponent implements OnInit {
 
   onSubmit() {
     const v = this.transactionDetails.value;
+
+    if (
+      !v.name ||
+      v.dstAccount == null ||
+      v.srcAccount == null ||
+      v.paymentMethod == null ||
+      v.value == null ||
+      v.caisse == null
+    ) {
+      this.notificationService.errorNotification(
+        400,
+        "Form Error",
+        "Please fill all required fields",
+      );
+      return;
+    }
+
     this.transactionService
       .transactionPost({
         attachments: [],

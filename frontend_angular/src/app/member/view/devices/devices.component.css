@@ -3,7 +3,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   margin: 1rem 0;
 }
 
@@ -34,9 +34,15 @@
   cursor: pointer;
 }
 
-.terminal-minimize { background: #ffbd2e; }
-.terminal-maximize { background: #28ca42; }
-.terminal-close { background: #ff5f56; }
+.terminal-minimize {
+  background: #ffbd2e;
+}
+.terminal-maximize {
+  background: #28ca42;
+}
+.terminal-close {
+  background: #ff5f56;
+}
 
 .terminal-body {
   background: #1e1e1e;
@@ -72,16 +78,26 @@
   animation: blink 1.4s infinite both;
 }
 
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes blink {
-  0%, 80%, 100% { opacity: 0; }
-  40% { opacity: 1; }
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
 }
 
 .terminal-content {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .log-entry {
@@ -126,7 +142,7 @@
   background: transparent;
   border: 1px solid #404040;
   color: #888888;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .log-load-more .button:hover {
@@ -135,10 +151,22 @@
 }
 
 /* Log message styling */
-:global(.log-success) { color: #00ff00; font-weight: bold; }
-:global(.log-error) { color: #ff5555; font-weight: bold; }
-:global(.log-info) { color: #55ddff; font-weight: bold; }
-:global(.log-dhcp) { color: #ffaa00; font-weight: bold; }
+:global(.log-success) {
+  color: #00ff00;
+  font-weight: bold;
+}
+:global(.log-error) {
+  color: #ff5555;
+  font-weight: bold;
+}
+:global(.log-info) {
+  color: #55ddff;
+  font-weight: bold;
+}
+:global(.log-dhcp) {
+  color: #ffaa00;
+  font-weight: bold;
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -146,7 +174,7 @@
     font-size: 0.75rem;
     padding: 0.5rem;
   }
-  
+
   .log-timestamp {
     min-width: 120px;
     font-size: 0.7rem;

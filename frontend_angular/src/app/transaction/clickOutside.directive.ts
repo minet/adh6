@@ -8,10 +8,9 @@ import {
 
 @Directive({
   selector: "[appClickOutside]",
-  standalone: false,
 })
 export class ClickOutsideDirective {
-  constructor(private _elementRef: ElementRef) {}
+  constructor(private readonly _elementRef: ElementRef) {}
 
   @Output()
   public clickOutside = new EventEmitter<MouseEvent>();

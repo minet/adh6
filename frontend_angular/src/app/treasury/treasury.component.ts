@@ -13,21 +13,26 @@ import {Observable} from "rxjs";
 import {CommonModule} from "@angular/common";
 import {AccountListComponent} from "../account/account-list/account-list.component";
 
+interface Cashbox {
+  fond?: number;
+  coffre?: number;
+}
+
 @Component({
   imports: [CommonModule, ReactiveFormsModule, AccountListComponent],
   selector: "app-treasury",
   templateUrl: "./treasury.component.html",
 })
 export class TreasuryComponent implements OnInit {
-  cashbox$: Observable<any> = new Observable();
-  balance$: Observable<any> = new Observable();
+  cashbox$: Observable<Cashbox> = new Observable();
+  balance$: Observable<unknown> = new Observable();
 
   showFundManagement = false;
   fundManagementForm: UntypedFormGroup;
   create = false;
 
   constructor(
-    private fb: UntypedFormBuilder,
+    private readonly fb: UntypedFormBuilder,
     public treasuryService: TreasuryService,
   ) {
     this.fundManagementForm = this.fb.group({

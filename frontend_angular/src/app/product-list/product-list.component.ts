@@ -1,12 +1,14 @@
 import {Component, OnInit} from "@angular/core";
+import {AsyncPipe} from "@angular/common";
 import {Product, TreasuryService} from "../api";
 import {SearchPage} from "../search-page";
 
 @Component({
+  imports: [AsyncPipe],
   selector: "app-product-list",
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.css"],
-  standalone: false,
+  standalone: true,
 })
 export class ProductListComponent
   extends SearchPage<Product>
@@ -23,7 +25,7 @@ export class ProductListComponent
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     super.ngOnInit();
   }
 

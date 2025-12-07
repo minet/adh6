@@ -53,14 +53,14 @@ interface PortForm {
 export class PortNewComponent implements OnInit {
   portForm: FormGroup<PortForm>;
   switch_id: number;
-  private alive = true;
+  private readonly alive = true;
 
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public portService: PortService,
-    private router: Router,
-    private notificationService: NotificationService,
-    private route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
+    private readonly route: ActivatedRoute,
   ) {
     this.createForm();
   }
@@ -84,7 +84,12 @@ export class PortNewComponent implements OnInit {
       .portPost(port)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res: Port) => {
-        this.router.navigate(["/switch/", this.switch_id, "/port/", res.id]);
+        void this.router.navigate([
+          "/switch/",
+          this.switch_id,
+          "/port/",
+          res.id,
+        ]);
         this.notificationService.successNotification();
       });
   }

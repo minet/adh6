@@ -4,6 +4,7 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  AbstractControl,
 } from "@angular/forms";
 import {AccountService, AccountType} from "../../api";
 import {takeWhile} from "rxjs/operators";
@@ -48,53 +49,71 @@ import {CommonModule} from "@angular/common";
 })
 export class AccountCreateComponent implements OnInit, OnDestroy {
   disabled = false;
-  accountForm: UntypedFormGroup;
-  accountTypes$: Observable<Array<AccountType>>;
+  accountForm!: UntypedFormGroup;
+  accountTypes$!: Observable<AccountType[]>;
 
   private alive = true;
 
   constructor(
-    private fb: UntypedFormBuilder,
-    private notificationService: NotificationService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly notificationService: NotificationService,
     public accountService: AccountService,
-    private router: Router,
+    private readonly router: Router,
   ) {
     this.createForm();
   }
 
-  createForm() {
+  createForm(): void {
     this.accountForm = this.fb.group({
-      accountName: ["", [Validators.required]],
-      accountType: [1, [Validators.required]],
+      accountName: [
+        "",
+        [(control: AbstractControl) => Validators.required(control)],
+      ],
+      accountType: [
+        1,
+        [(control: AbstractControl) => Validators.required(control)],
+      ],
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.disabled = true;
-    const v = this.accountForm.value;
+    const v = this.accountForm.value as {
+      accountName: string;
+      accountType: number;
+    };
 
     const account = {
       actif: true,
       name: v.accountName,
-      accountType: parseInt(v.accountType),
+      accountType: v.accountType,
     };
 
     this.accountService
       .accountPost(account)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
-        this.router.navigate(["/treasury"]);
-        this.notificationService.successNotification();
+      .subscribe({
+        next: () => {
+          void this.router.navigate(["/treasury"]);
+          this.notificationService.successNotification();
+        },
+        error: (error) => {
+          console.error("Error creating account:", error);
+          this.notificationService.errorNotification(
+            500,
+            "Error",
+            "Failed to create account",
+          );
+          this.disabled = false;
+        },
       });
-
-    this.disabled = false;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.accountTypes$ = this.accountService.accountTypeGet();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.alive = false;
   }
 }

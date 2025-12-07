@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from "@angular/core";
-import {finalize, map, Observable, of, shareReplay} from "rxjs";
+import {finalize, map, Observable, of, shareReplay, Subscription} from "rxjs";
 import {
   PortService,
   Room,
@@ -7,7 +7,7 @@ import {
   SwitchService,
   AbstractPort,
 } from "../../api";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {
   ReactiveFormsModule,
   UntypedFormBuilder,
@@ -19,45 +19,45 @@ import {NotificationService} from "../../notification.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   selector: "app-port-details",
   templateUrl: "./port-details.component.html",
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
-  vlanForm: UntypedFormGroup;
-  port$: Observable<AbstractPort>;
-  portID: number;
-  switchID: number;
+  vlanForm!: UntypedFormGroup;
+  port$!: Observable<AbstractPort>;
+  portID!: number;
+  switchID!: number;
 
   changeVlanVisible = false;
-  selectedVlan: number = 1;
+  selectedVlan = 1;
 
-  portSpeed: string;
+  portSpeed!: string;
 
-  private sub: any;
+  private sub?: Subscription;
 
-  public auth: boolean;
-  public use: string;
-  public alias: string;
-  public vlan: number;
+  public auth!: boolean;
+  public use!: string;
+  public alias!: string;
+  public vlan!: number;
 
-  public room_number$: Observable<number>;
-  public switch_description$: Observable<string>;
-  public mab$: Observable<boolean>;
-  public auth$: Observable<boolean>;
-  public use$: Observable<string>;
-  public status$: Observable<boolean>;
-  public alias$: Observable<string>;
-  public vlan$: Observable<number>;
+  public room_number$!: Observable<number>;
+  public switch_description$!: Observable<string>;
+  public mab$!: Observable<boolean>;
+  public auth$!: Observable<boolean>;
+  public use$!: Observable<string>;
+  public status$!: Observable<boolean>;
+  public alias$!: Observable<string>;
+  public vlan$!: Observable<number>;
 
   constructor(
-    private portService: PortService,
-    private roomService: RoomService,
-    private switchService: SwitchService,
-    private fb: UntypedFormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private notificationService: NotificationService,
+    private readonly portService: PortService,
+    private readonly roomService: RoomService,
+    private readonly switchService: SwitchService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.createForm();
   }
@@ -108,7 +108,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   public toggleAuth(currentValue: boolean): void {
     if (currentValue) {
-      Swal.fire({
+      void Swal.fire({
         title: "Entrer le VLAN",
         icon: "question",
         input: "number",
@@ -155,7 +155,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
         "This port is not assigned to a room",
       );
     } else {
-      this.router.navigate(["/room/view", roomNumber.roomNumber]);
+      void this.router.navigate(["/room/view", roomNumber.roomNumber]);
     }
   }
 
@@ -170,7 +170,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
               .roomIdGet(p.room, ["roomNumber"])
               .pipe(
                 shareReplay(1),
-                map((r) => r.roomNumber),
+                map((r) => r.roomNumber ?? 0),
               );
           }
           if (p.switchObj) {
@@ -178,7 +178,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
               .switchIdGet(p.switchObj, ["description"])
               .pipe(
                 shareReplay(1),
-                map((s) => s.description),
+                map((s) => s.description ?? ""),
               );
           }
           return p;
@@ -190,7 +190,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    this.sub?.unsubscribe();
   }
 
   refreshInfo(): void {

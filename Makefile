@@ -67,7 +67,7 @@ generate: $(BACKEND_PATH)/adh6/entity/*.py $(OPENAPI_SPEC_PATH) $(FRONTEND_PATH)
 	
 
 $(BACKEND_PATH)/adh6/entity/*.py: $(OPENAPI_SPEC_PATH)
-	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:v7.12.0 generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+	docker run --rm  -u $(CURRENT_UID):$(CURRENT_GID) -v ${PWD}:/local openapitools/openapi-generator-cli:v7.12.0 generate -i /local/openapi/spec.yaml -g python-flask -o /local/tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity --additional-properties=usePydanticModels=true --additional-properties=pydanticModelsStrongTyping=true
 	cp -r tmpsrc/adh6/entity/* $(BACKEND_PATH)/adh6/entity/
 	cp tmpsrc/adh6/typing_utils.py $(BACKEND_PATH)/adh6/
 	cp tmpsrc/adh6/util.py $(BACKEND_PATH)/adh6/

@@ -10,15 +10,14 @@ import {PaginationComponent} from "../pagination/pagination.component";
 import {PortListComponent} from "../port/list/list.component";
 
 @NgModule({
-  declarations: [
+  declarations: [],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
     SwitchListComponent,
     SwitchDetailsComponent,
     SwitchEditComponent,
     SwitchNewComponent,
-  ],
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
     RouterModule.forChild([
       {path: "", redirectTo: "search", pathMatch: "full"},
       {path: "search", component: SwitchListComponent},

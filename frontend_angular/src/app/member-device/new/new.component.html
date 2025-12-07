@@ -6,12 +6,20 @@
         <!-- Device type selection -->
         <div class="column is-narrow-desktop is-full-mobile">
           <div class="field">
-            <label class="label is-hidden-mobile" i18n="@@device.type.label">Type d'appareil</label>
-            <label class="label is-hidden-desktop is-hidden-tablet" i18n="@@device.type.label">Type d'appareil</label>
+            <label class="label is-hidden-mobile" i18n="@@device.type.label"
+              >Type d'appareil</label
+            >
+            <label
+              class="label is-hidden-desktop is-hidden-tablet"
+              i18n="@@device.type.label"
+              >Type d'appareil</label
+            >
             <div class="control">
               <div class="select is-fullwidth">
                 <select formControlName="connectionType">
-                  <option value="" i18n="@@device_type">-- Type d'appareil --</option>
+                  <option value="" i18n="@@device_type">
+                    -- Type d'appareil --
+                  </option>
                   <option value="wired" i18n="@@wired">Filaire</option>
                   <option value="wireless" i18n="@@wireless">Wifi</option>
                 </select>
@@ -23,8 +31,14 @@
         <!-- MAC address input -->
         <div class="column">
           <div class="field">
-            <label class="label is-hidden-mobile" i18n="@@device.mac.label">Adresse MAC</label>
-            <label class="label is-hidden-desktop is-hidden-tablet" i18n="@@device.mac.label">Adresse MAC</label>
+            <label class="label is-hidden-mobile" i18n="@@device.mac.label"
+              >Adresse MAC</label
+            >
+            <label
+              class="label is-hidden-desktop is-hidden-tablet"
+              i18n="@@device.mac.label"
+              >Adresse MAC</label
+            >
             <div class="control">
               <input
                 class="input mac-address-input"
@@ -38,8 +52,16 @@
                 spellcheck="false"
                 maxlength="17" />
               <!-- Validation feedback -->
-              <div class="help is-danger" *ngIf="deviceForm.get('mac')?.invalid && deviceForm.get('mac')?.touched">
-                <span i18n="@@device.mac.invalid">Veuillez saisir une adresse MAC valide (ex: AA-BB-CC-DD-EE-FF)</span>
+              <div
+                class="help is-danger"
+                *ngIf="
+                  deviceForm.get('mac')?.invalid &&
+                  deviceForm.get('mac')?.touched
+                ">
+                <span i18n="@@device.mac.invalid"
+                  >Veuillez saisir une adresse MAC valide (ex:
+                  AA-BB-CC-DD-EE-FF)</span
+                >
               </div>
             </div>
           </div>
@@ -65,7 +87,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Help section -->
     <div class="field">
       <div class="has-text-right-tablet has-text-centered-mobile">

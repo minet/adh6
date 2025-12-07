@@ -46,9 +46,9 @@ interface LogsResponse {
   styleUrls: ["./devices.component.css"],
 })
 export class DevicesComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
-  private loadMoreTrigger$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
+  private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
+  private readonly loadMoreTrigger$ = new Subject<void>();
 
   public getDhcp = false;
   public showLogs = false;
@@ -67,11 +67,11 @@ export class DevicesComponent implements OnInit, OnDestroy {
 
   // Auto-refresh
   public autoRefresh = true;
-  private autoRefreshInterval = 10 * 1000; // 10 seconds
+  private readonly autoRefreshInterval = 10 * 1000; // 10 seconds
 
   constructor(
-    private memberService: MemberService,
-    private memberDetailService: MemberDetailService,
+    private readonly memberService: MemberService,
+    private readonly memberDetailService: MemberDetailService,
   ) {}
 
   ngOnInit(): void {
@@ -90,7 +90,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
       this.refreshTrigger$,
     ]).pipe(
       switchMap(([member]) => {
-        if (!this.showLogs || !member) {
+        if (!this.showLogs || !member || !member.id) {
           return EMPTY;
         }
 
@@ -104,15 +104,15 @@ export class DevicesComponent implements OnInit, OnDestroy {
             this.getDhcp,
             this.pageSize,
             this.currentOffset,
-            "response",
+            "body",
           )
           .pipe(
             map((response) => {
-              const data = response.body as MemberIdLogsGet200Response;
+              const data = response;
               return {
-                logs: this.parseLogsResponse(data.logs || []),
-                hasMore: data.hasMore || false,
-                total: data.total || 0,
+                logs: this.parseLogsResponse(data?.logs || []),
+                hasMore: data?.hasMore || false,
+                total: data?.total || 0,
               } as LogsResponse;
             }),
             catchError((error) => {
@@ -128,7 +128,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
     const loadMoreStream$ = this.loadMoreTrigger$.pipe(
       switchMap(() => this.member$),
       switchMap((member) => {
-        if (!member || !this.hasMoreLogs$.value) {
+        if (!member || !member.id || !this.hasMoreLogs$.value) {
           return EMPTY;
         }
 
@@ -141,15 +141,15 @@ export class DevicesComponent implements OnInit, OnDestroy {
             this.getDhcp,
             this.pageSize,
             this.currentOffset,
-            "response",
+            "body",
           )
           .pipe(
             map((response) => {
-              const data = response.body as MemberIdLogsGet200Response;
+              const data = response;
               return {
-                logs: this.parseLogsResponse(data.logs || []),
-                hasMore: data.hasMore || false,
-                total: data.total || 0,
+                logs: this.parseLogsResponse(data?.logs || []),
+                hasMore: data?.hasMore || false,
+                total: data?.total || 0,
                 isLoadMore: true,
               } as LogsResponse;
             }),
@@ -166,7 +166,9 @@ export class DevicesComponent implements OnInit, OnDestroy {
     const combinedLogsStream$ = logsStream$.pipe(
       startWith(null),
       scan((acc: LogEntry[], curr: LogsResponse | null) => {
-        if (!curr) return [];
+        if (!curr) {
+          return [];
+        }
         if (curr.isLoadMore) {
           return [...acc, ...curr.logs];
         } else {

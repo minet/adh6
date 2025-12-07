@@ -9,15 +9,14 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {PaginationComponent} from "../pagination/pagination.component";
 
 @NgModule({
-  declarations: [
+  declarations: [],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
     RoomListComponent,
     RoomDetailsComponent,
     RoomEditComponent,
     RoomNewComponent,
-  ],
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
     RouterModule.forChild([
       {path: "", redirectTo: "search", pathMatch: "full"},
       {path: "search", component: RoomListComponent},

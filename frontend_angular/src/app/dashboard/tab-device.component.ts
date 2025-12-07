@@ -8,6 +8,6 @@ import {MemberDeviceModule} from "../member-device/member-device.module";
   template: ` <app-member-device [member]="member"></app-member-device> `,
 })
 export class DeviceComponent {
-  @Input() member: Member;
+  @Input() member!: Member;
   constructor() {}
 }

@@ -25,16 +25,20 @@ export class NotificationService {
     switch (errorCode) {
       case 400:
         notifTitle = "Bad Request";
+        break;
       case 401:
         notifTitle = "Unauthenticated";
+        break;
       case 403:
         notifTitle = "Unauthorize";
+        break;
       case 404:
         notifTitle = "Not Found";
+        break;
       case 500:
         notifTitle = "Internal server Error";
 
-        Toast.fire({
+        void Toast.fire({
           title: notifTitle + " - " + title,
           text: message,
           icon: "error",
@@ -44,7 +48,7 @@ export class NotificationService {
   }
 
   successNotification(title?: string, message?: string, timer?: number): void {
-    Toast.fire({
+    void Toast.fire({
       title: title,
       text: message,
       icon: "success",

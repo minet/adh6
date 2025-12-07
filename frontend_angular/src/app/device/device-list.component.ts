@@ -1,6 +1,6 @@
 import {CommonModule} from "@angular/common";
 import {Component, Input, OnInit} from "@angular/core";
-import {map, Observable, shareReplay, switchMap} from "rxjs";
+import {map, Observable, of, shareReplay, switchMap} from "rxjs";
 import {
   AbstractDevice,
   DeviceFilter,
@@ -18,16 +18,16 @@ import {AbstractAccount} from "../api/model/abstractAccount";
   templateUrl: "./device-list.component.html",
 })
 export class DeviceListComponent extends SearchPage<number> implements OnInit {
-  public memberUsernames: Map<Number, Observable<string>> = new Map<
-    Number,
+  public memberUsernames: Map<number, Observable<string>> = new Map<
+    number,
     Observable<string>
   >();
-  public cachedDevices: Map<Number, Observable<AbstractDevice>> = new Map();
+  public cachedDevices: Map<number, Observable<AbstractDevice>> = new Map();
   @Input() abstractAccountFilter: AbstractAccount = {};
   constructor(
-    private deviceService: DeviceService,
-    private memberService: MemberService,
-    private route: ActivatedRoute,
+    private readonly deviceService: DeviceService,
+    private readonly memberService: MemberService,
+    private readonly route: ActivatedRoute,
   ) {
     super((terms, page) =>
       this.deviceService
@@ -39,13 +39,15 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
         )
         .pipe(
           map((response) => {
-            for (let i of response.body) {
-              this.cachedDevices.set(
-                +i,
-                this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-              );
-              if (i && !this.memberUsernames.has(i)) {
-                this.memberUsernames.set(i, this.memberUsername$(i));
+            if (response.body) {
+              for (const i of response.body) {
+                this.cachedDevices.set(
+                  +i,
+                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
+                );
+                if (i && !this.memberUsernames.has(i)) {
+                  this.memberUsernames.set(i, this.memberUsername$(i));
+                }
               }
             }
             return response;
@@ -54,7 +56,7 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
     );
   }
 
-  ngOnInit() {
+  override ngOnInit() {
     this.route.queryParams.subscribe((params) => {
       if (params["member"] !== undefined) {
         this.abstractAccountFilter.member = +params["member"];
@@ -72,14 +74,21 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
   }
 
   public memberUsername$(id: number): Observable<string> {
-    return this.cachedDevices.get(id).pipe(
+    const device$ = this.cachedDevices.get(id);
+    if (!device$) {
+      return of("");
+    }
+    return device$.pipe(
       switchMap((response) => {
+        if (!response.member) {
+          return of("");
+        }
         return this.memberService
           .memberIdGet(response.member, ["username"])
           .pipe(
             shareReplay(1),
             map((result) => {
-              return result.username;
+              return result.username || "";
             }),
           );
       }),
