@@ -21,7 +21,7 @@ echo "[BACKEND] Temporary directory created in $backend_tmp"
 
 echo "[BACKEND] Generating code in $backend_tmp"
 # Comme openapi-generator-cli a besoin de java pour fonctionner, et qu'on ne veut pas forcément installer java sur notre système juste pour ADH6 (fuck Java), on utilise Docker !
-docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:v7.12.0 generate -i /spec.yaml -g python-flask -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity > /dev/null
+docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g python-flask -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity > /dev/null
 
 echo "[BACKEND] Removing current entities in $BACKEND_DIR/adh6/entity..."
 rm -r $BACKEND_DIR/adh6/entity
@@ -60,7 +60,7 @@ frontend_tmp=$(mktemp -d -t adh6_backend)
 echo "[FRONTEND] Temporary directory created in $frontend_tmp"
 
 echo "[FRONTEND] Generating code in $frontend_tmp"
-docker run --rm  -v $frontend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:v7.11.0 generate -i /spec.yaml -g typescript-angular -o "/local" --additional-properties=queryParamObjectFormat=key > /dev/null
+docker run --rm  -v $frontend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g typescript-angular -o "/local" --additional-properties=queryParamObjectFormat=key > /dev/null
 
 echo "[FRONTEND] Removing current api in $FRONTEND_DIR/src/app/api..."
 rm -r $FRONTEND_DIR/src/app/api
