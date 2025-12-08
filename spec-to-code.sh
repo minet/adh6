@@ -24,33 +24,34 @@ echo "[BACKEND] Generating code in $backend_tmp"
 docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:v7.12.0 generate -i /spec.yaml -g python-flask -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity > /dev/null
 
 echo "[BACKEND] Removing current entities in $BACKEND_DIR/adh6/entity..."
-rm $BACKEND_DIR/adh6/entity/*.py
+rm -r $BACKEND_DIR/adh6/entity
 
 # On ajoute un message et on spécifie d'ignorer les erreurs de type sur tous les fichiers python, car les fichiers générés ne sont malheureusement pas strictement typés
-echo "[BACKEND] Patching python files..."
-for file in $backend_tmp/**/*.py; do
-    tmpfile=$(mktemp)
+echo "[BACKEND] Copying python files..."
+for file in $backend_tmp/adh6/entity/**/*.py $backend_tmp/adh6/typing_utils.py $backend_tmp/adh6/util.py; do
+    # on enlève le répertoire temporaire du nom
+    dest="$BACKEND_DIR/${file#$backend_tmp/}"
+
+    # on créer le dossier parent si besoin
+    mkdir -p "$(dirname "$dest")"
     {
         echo "# File generated using spec-to-code.sh, DO NOT EDIT MANUALLY."
         echo "# type: ignore"
         echo
         cat "$file"
-    } > "$tmpfile"
-    mv "$tmpfile" "$file"
+    } > "$dest"
 done
 
 # On fix base_model.py à cause d'une issue non fixée... https://github.com/OpenAPITools/openapi-generator/issues/9332
 echo "[BACKEND] Fixing base_model.py file..."
-sed -i'' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' $backend_tmp/adh6/entity/base_model.py
+sed -i '' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' $BACKEND_DIR/adh6/entity/base_model.py
 
-echo "[BACKEND] Copying generated files in code..."
-cp $backend_tmp/adh6/entity/*.py $BACKEND_DIR/adh6/entity
-cp $backend_tmp/adh6/typing_utils.py $BACKEND_DIR/adh6/
-cp $backend_tmp/adh6/util.py $BACKEND_DIR/adh6/
-
+echo "[BACKEND] Add notice file..."
+echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new file here." > $BACKEND_DIR/adh6/entity/README
 
 echo "[BACKEND] Removing $backend_tmp"
 rm -r $backend_tmp
+
 
 
 # FRONTEND
@@ -78,6 +79,14 @@ for file in $frontend_tmp/**/*.ts; do
         cat "$file"
     } > "$dest"
 done
+
+# Je ne sais pas pourquoi, mais flemme d'investiguer, je fais comme c'était déjà fait
+echo "[FRONTEND] Patching *.service.ts files..."
+find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i '' -e 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
+find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i '' -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
+
+echo "[FRONTEND] Add notice file..."
+echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new file here." > $FRONTEND_DIR/src/app/api/README
 
 echo "[FRONTEND] Removing $frontend_tmp"
 rm -r $frontend_tmp
