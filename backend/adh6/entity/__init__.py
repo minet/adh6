@@ -1,0 +1,50 @@
+# File generated using spec-to-code.sh, DO NOT EDIT MANUALLY.
+# type: ignore
+
+# flake8: noqa
+# import models into model package
+from adh6.entity.abstract_account import AbstractAccount
+from adh6.entity.abstract_device import AbstractDevice
+from adh6.entity.abstract_member import AbstractMember
+from adh6.entity.abstract_membership import AbstractMembership
+from adh6.entity.abstract_payment_method import AbstractPaymentMethod
+from adh6.entity.abstract_port import AbstractPort
+from adh6.entity.abstract_product import AbstractProduct
+from adh6.entity.abstract_room import AbstractRoom
+from adh6.entity.abstract_switch import AbstractSwitch
+from adh6.entity.abstract_transaction import AbstractTransaction
+from adh6.entity.abstract_vlan import AbstractVlan
+from adh6.entity.account import Account
+from adh6.entity.account_type import AccountType
+from adh6.entity.api_key import ApiKey
+from adh6.entity.api_keys_post_request import ApiKeysPostRequest
+from adh6.entity.bank import Bank
+from adh6.entity.cashbox import Cashbox
+from adh6.entity.comment import Comment
+from adh6.entity.device import Device
+from adh6.entity.device_body import DeviceBody
+from adh6.entity.device_filter import DeviceFilter
+from adh6.entity.error import Error
+from adh6.entity.mailinglist_member_id_put_request import MailinglistMemberIdPutRequest
+from adh6.entity.member import Member
+from adh6.entity.member_body import MemberBody
+from adh6.entity.member_filter import MemberFilter
+from adh6.entity.member_id_logs_get200_response import MemberIdLogsGet200Response
+from adh6.entity.member_id_logs_get200_response_logs_inner import MemberIdLogsGet200ResponseLogsInner
+from adh6.entity.member_id_password_put_request import MemberIdPasswordPutRequest
+from adh6.entity.member_status import MemberStatus
+from adh6.entity.membership import Membership
+from adh6.entity.payment_method import PaymentMethod
+from adh6.entity.port import Port
+from adh6.entity.product import Product
+from adh6.entity.profile200_response import Profile200Response
+from adh6.entity.role import Role
+from adh6.entity.role_mapping import RoleMapping
+from adh6.entity.role_post_request import RolePostRequest
+from adh6.entity.room import Room
+from adh6.entity.room_id_member_add_patch_request import RoomIdMemberAddPatchRequest
+from adh6.entity.room_id_member_post_request import RoomIdMemberPostRequest
+from adh6.entity.subscription_body import SubscriptionBody
+from adh6.entity.switch import Switch
+from adh6.entity.transaction import Transaction
+from adh6.entity.vlan import Vlan

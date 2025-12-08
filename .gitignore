@@ -1,33 +1,23 @@
 .env
 .gitlab-ci-local/
 
+# IDE
 **/.vscode
+**.idea
+
+# MacOS
 **/.DS_Store
 
-# API SERVER
+# Python
 **/__pycache__
 **.pyc
-**.idea
-**/.cache/
+
+# Backend
 **/.coverage
 **/.pytest_cache/
-**/.swagger-codegen/
-backend/bin/
-backend/include/
-backend/lib/
-**/htmlcov/*
-backend/pip-selfcheck.json
-backend/certs/
-backend/venv
+**/htmlcov
 **/.pytest_cache
-backend/mypy-report
-**/pylint-report
-**/pylint.json
-**/flake8-report.txt
-**/.mypy_cache
-backend/adh6/util.py
-backend/adh6/typing_utils.py
-
+backend/OUIs.txt
 
 # FRONTEND (ANGULAR)
 # See http:/help.github.com/ignore-files/ for more about ignoring files.
@@ -39,51 +29,3 @@ frontend/out-tsc
 
 # dependencies
 frontend/node_modules
-
-# IDEs and editors
-frontend/.project
-frontend/.classpath
-frontend/.c9/
-frontend/*.launch
-frontend/.settings/
-frontend/.angular/
-frontend/*.sublime-workspace
-
-# IDE - VSCode
-frontend/.vscode/*
-frontend/!.vscode/settings.json
-frontend/!.vscode/tasks.json
-frontend/!.vscode/launch.json
-frontend/!.vscode/extensions.json
-
-# misc
-frontend/.sass-cache
-frontend/connect.lock
-frontend/coverage
-frontend/libpeerconnection.log
-frontend/npm-debug.log
-frontend/testem.log
-frontend/typings
-
-# e2e
-frontend/e2e/*.js
-frontend/e2e/*.map
-
-# System Files
-frontend/.DS_Store
-frontend/Thumbs.db
-
-# certificats
-frontend/certs/
-
-# other
-frontend/src/app/api/.keep
-secrets/**
-.env
-.env.local
-frontend/src/assets/*.min.svg
-
-# generated code by the openapi specification
-frontend/src/app/api
-backend/adh6/entity/*.py
-backend/OUIs.txt
