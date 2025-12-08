@@ -21,7 +21,6 @@ from adh6.entity import (
     MemberStatus,
     SubscriptionBody,
 )
-from adh6.entity.validators.member_validators import is_member_active, is_password_valid
 from adh6.exceptions import (
     AccountTypeNotFoundError,
     InvalidPassword,
@@ -32,6 +31,7 @@ from adh6.exceptions import (
     UpdateImpossible,
 )
 from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
+from adh6.utils.validators.member_validators import is_member_active, is_password_valid
 
 from .interfaces import MailinglistRepository, MemberRepository
 from .subscription_manager import SubscriptionManager
