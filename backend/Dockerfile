@@ -18,17 +18,6 @@ USER adh6
 COPY backend/mibs.zip .
 RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
 
-# Pre-tasks: generate code from spec
-FROM openapitools/openapi-generator-cli:v7.12.0 AS openapi-generate
-WORKDIR /app
-COPY openapi/spec.yaml ./
-RUN /usr/local/bin/docker-entrypoint.sh generate -i ./spec.yaml -g python-flask -o ./raw_output --additional-properties packageName=adh6 --additional-properties=modelPackage=entity \
-    && mkdir  ./output \
-    && cp -r ./raw_output/adh6/entity/ ./output/entity/ \
-    && cp ./raw_output/adh6/typing_utils.py ./output/ \
-    && cp ./raw_output/adh6/util.py ./output/ \
-    && sed -i'' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' ./output/entity/base_model.py
-
 
 # Build
 FROM base AS build
@@ -55,7 +44,6 @@ RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
 COPY --from=prebuild /app/OUIs.txt ./backend/
 COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/ 
 COPY --from=build /app/.venv/ /app/.venv/
-COPY --from=openapi-generate /app/output/ ./backend/adh6
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"

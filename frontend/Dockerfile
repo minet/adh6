@@ -1,14 +1,5 @@
 # syntax=docker/dockerfile-upstream:master-labs
 
-# Pre-tasks: generate code from spec
-FROM openapitools/openapi-generator-cli:v7.11.0 AS openapi-generate
-WORKDIR /app
-COPY openapi/spec.yaml ./
-RUN /usr/local/bin/docker-entrypoint.sh generate -i ./spec.yaml -g typescript-angular -o "./output" --additional-properties=queryParamObjectFormat=key \
-    && find ./output/api -type f -name "*.service.ts" -exec sed -i'' -e 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \; \
-    && find ./output/api -type f -name "*.service.ts" -exec sed -i'' -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
-
-
 FROM node:22-alpine AS prebuild
 WORKDIR /app/frontend
 
@@ -65,6 +56,5 @@ COPY --parents --exclude=frontend/src/assets frontend/src frontend/package.json 
 WORKDIR /app/frontend
 COPY --from=prebuild /app/frontend/node_modules ./node_modules
 COPY --from=prebuild /app/frontend/src/assets ./src/assets
-COPY --from=openapi-generate /app/output ./src/app/api
 
 CMD yarn start:en --watch --host 0.0.0.0 --allowed-hosts true
