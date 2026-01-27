@@ -11,9 +11,9 @@ stages:
   - build
 
 variables:
-  YARN_NODE_LINKER: "node-modules"
-  UV_LINK_MODE: "copy"
-  UV_CACHE_DIR: ".uv-cache"
+  # YARN_NODE_LINKER: "node-modules"
+  # UV_LINK_MODE: "copy"
+  # UV_CACHE_DIR: ".uv-cache"
   # Used for DIND
   DOCKER_TLS_CERTDIR: "/certs"
 
