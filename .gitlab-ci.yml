@@ -1,1 +1,189 @@
-# TODO
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - prepare
+  - lint
+  - build
+
+variables:
+  YARN_NODE_LINKER: "node-modules"
+  UV_LINK_MODE: "copy"
+  UV_CACHE_DIR: ".uv-cache"
+  # Used for DIND
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# meta_build_backend_lint_image:
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   stage: prepare
+#   script:
+#     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+#     - cd .meta/dockerfiles/backendlint
+#     - docker build -t $CI_REGISTRY_IMAGE/cicd-backendlint:latest .
+#     - docker push $CI_REGISTRY_IMAGE/cicd-backendlint:latest
+#   rules:
+#     - changes:
+#         - .meta/dockerfiles/backendlint/Dockerfile
+#       allow_failure: true
+#     - when: never
+
+# frontend_lint:
+#   stage: lint
+#   image: node:22-slim
+#   cache:
+#     paths:
+#       - frontend/.yarn
+#       - frontend/node_modules
+#     policy: pull-push
+#   before_script:
+#     - cd frontend
+#     - corepack enable
+#     - yarn install
+#   script:
+#     - yarn run check-format > code_quality.txt
+#     - yarn run check-lint >> code_quality.txt
+#   artifacts:
+#     paths:
+#       - frontend/code_quality.txt
+#     expire_in: 2 days
+#     when: always
+
+# backend_lint:
+#   stage: lint
+#   image:
+#     name: $CI_REGISTRY_IMAGE/cicd-backendlint:latest
+#     pull_policy: always
+#   before_script:
+#     - cd backend
+#     - uv sync --dev
+#   script:
+#     - uv run tox > code_quality.txt
+#     - uv cache prune --ci
+#   cache:
+#     - key:
+#         files:
+#           - uv.lock
+#       paths:
+#         - backend/$UV_CACHE_DIR
+#   artifacts:
+#     paths:
+#       - backend/code_quality.txt
+#     expire_in: 2 days
+#     when: always
+
+backend_build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/backend:$TAG || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/backend:$TAG --tag $CI_REGISTRY_IMAGE/backend:$TAG --target production .
+    - docker push $CI_REGISTRY_IMAGE/backend:$TAG
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - when: never
+
+frontend_build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/frontend:$TAG || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/frontend:$TAG --tag $CI_REGISTRY_IMAGE/frontend:$TAG --file frontend/Dockerfile --target prod .
+    - docker push $CI_REGISTRY_IMAGE/frontend:$TAG
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - when: never
+
+frontend_build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/reverse_proxy:$TAG || true
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --tag $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --file reverse_proxy/Dockerfile --target prod .
+    - docker push $CI_REGISTRY_IMAGE/reverse_proxy:$TAG
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - when: never
+
+# deploy_dev:
+#   stage: deploy_dev
+#   variables:
+#     GIT_STRATEGY: none
+#   script:
+#     - cd /home/
+#   tags:
+#     - dev
+# angular_build:
+#   stage: build
+#   image: node
+#   before_script:
+#     - cd frontend
+#     - NG_CLI_ANALYTICS=ci
+#     - export NODE_OPTIONS=--openssl-legacy-provider
+#     - npm i -g @angular/cli
+#     - yarn install
+#   script:
+#     - ng build --configuration production
+#   artifacts:
+#     paths:
+#       - frontend/dist
+#     expire_in: 2 days
+
+# deploy_backend:
+#   stage: deploy
+#   before_script:
+#     - sudo /bin/systemctl stop paymentback
+#     - sudo -u payment rm -rf /home/payment/backend
+#     - sudo -u payment mkdir -p /home/payment/backend
+#     - cd backend/payment
+#     - sudo -u payment cp -r . /home/payment/backend
+#     - sudo cp /home/payment/oidc-secrets.json /home/payment/backend/oidc-secrets.json
+#     - cd /home/payment/backend
+#     - sudo -u payment mkdir venv
+#     - sudo -u payment python3.11 -m venv venv
+#   environment:
+#     name: production
+#     url: https://payment.minet.net/
+#   script:
+#     - sudo -u payment https_proxy="http://192.168.102.61:82" venv/bin/pip3 install wheel
+#     - sudo -u payment https_proxy="http://192.168.102.61:82" venv/bin/pip3 install -r requirements.txt
+#     - sudo /bin/systemctl start paymentback
+#   tags:
+#     - prod
+#   needs: ["python_code_test"]
+
+# deploy_frontend:
+#   stage: deploy
+#   script:
+#     - sudo rm -rf /var/www/payment
+#     - sudo cp -r frontend/dist/payment /var/www/payment
+#   environment:
+#     name: production
+#     url: https://payment.minet.net/
+#   tags:
+#     - prod
+#   needs: ["angular_build"]
+
