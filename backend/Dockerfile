@@ -35,7 +35,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
     && uv sync --no-dev --locked --extra gunicorn
 
 
-# Production
 FROM base AS dev
 
 WORKDIR /app
@@ -60,6 +59,32 @@ COPY --parents openapi/spec.yaml ./backend
 WORKDIR /app/backend
 # Launch the app 
 CMD ["./start-dev.sh"]
+
+# TODO: review this crapy Dockerfile
+FROM base AS prod
+
+WORKDIR /app
+RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
+
+COPY --from=prebuild /app/OUIs.txt ./backend/
+COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/ 
+COPY --from=build /app/.venv/ /app/.venv/
+
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH"
+ENV FLASK_APP=manage:manager
+RUN apk add --no-cache --update \ 
+    git \
+    mariadb-connector-c
+
+USER adh6
+
+COPY --parents backend/main.py backend/manage.py backend/start.sh backend/migrations/ backend/adh6/ ./
+COPY --parents openapi/spec.yaml ./backend
+
+WORKDIR /app/backend
+CMD ["./start.sh"]
+
 
 # Debug stage
 FROM dev AS debug

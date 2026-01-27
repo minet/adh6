@@ -87,7 +87,7 @@ backend_build:
     - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
   script:
     - docker pull $CI_REGISTRY_IMAGE/backend:$TAG || true
-    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/backend:$TAG --tag $CI_REGISTRY_IMAGE/backend:$TAG --target production .
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/backend:$TAG --tag $CI_REGISTRY_IMAGE/backend:$TAG --file backend/Dockerfile --target production .
     - docker push $CI_REGISTRY_IMAGE/backend:$TAG
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
@@ -121,7 +121,7 @@ frontend_build:
     - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
   script:
     - docker pull $CI_REGISTRY_IMAGE/reverse_proxy:$TAG || true
-    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --tag $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --file reverse_proxy/Dockerfile --target prod .
+    - docker build --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --tag $CI_REGISTRY_IMAGE/reverse_proxy:$TAG --file reverse_proxy/Dockerfile .
     - docker push $CI_REGISTRY_IMAGE/reverse_proxy:$TAG
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
