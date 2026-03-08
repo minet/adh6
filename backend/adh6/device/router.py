@@ -84,7 +84,7 @@ async def create_device(
     request: Request,
 ) -> int:
     """Create a new device."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value, owner_id=body.member)
     try:
         device = await manager.create(body)
     except (MemberNotFoundError, RoomNotFoundError) as e:
@@ -236,7 +236,11 @@ async def rename_device(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="name is required"
         )
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(
+        request,
+        Roles.NETWORK_WRITE.value,
+        owner_id=await manager.get_owner(device_id=id),
+    )
     try:
         await manager.rename(device_id=id, name=name)
     except NotFoundError as e:
@@ -250,7 +254,11 @@ async def generate_wifi_password(
     request: Request,
 ) -> str:
     """Generate a new random wifi password for a device."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(
+        request,
+        Roles.NETWORK_WRITE.value,
+        owner_id=await manager.get_owner(device_id=id),
+    )
     try:
         return await manager.generate_wifi_password(device_id=id)
     except NotFoundError as e:
@@ -264,7 +272,11 @@ async def clear_wifi_password(
     request: Request,
 ) -> None:
     """Clear the wifi password of a device."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(
+        request,
+        Roles.NETWORK_WRITE.value,
+        owner_id=await manager.get_owner(device_id=id),
+    )
     try:
         await manager.clear_wifi_password(device_id=id)
     except NotFoundError as e:
