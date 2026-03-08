@@ -28,7 +28,7 @@ class ElasticsearchLogsRepository(LogsRepository):
         if settings.elk_user and settings.elk_secret:
             es_kwargs["http_auth"] = (settings.elk_user, settings.elk_secret)
 
-        self.es = Elasticsearch(settings.elk_hosts, **es_kwargs)
+        self.es = Elasticsearch(settings.elk_hosts.split(","), **es_kwargs)
 
     async def get(
         self,
