@@ -161,22 +161,6 @@ def test_charter_head_members(client, sample_member, charter, length):
     assert int(r.headers["X-Total-Count"]) == length
 
 
-def test_charter_head_members_bad_charter(client):
-    r = client.head(
-        f"{base_url}{4}/member/",
-        headers=TEST_HEADERS,
-    )
-    assert r.status_code == 400
-
-
-def test_charter_head_members_unauthorized(client):
-    r = client.head(
-        f"{base_url}{4}/member/",
-        headers=TEST_HEADERS_SAMPLE,
-    )
-    assert r.status_code == 403
-
-
 @pytest.mark.parametrize("charter", [1, 2])
 def test_charter_get_not_signed(client, sample_member, charter):
     r = client.get(

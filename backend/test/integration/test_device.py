@@ -88,6 +88,7 @@ def client(
     wireless_device,
     sample_member,
     sample_member3,
+    sample_member_admin,
     sample_room2,
     sample_vlan,
     sample_room1,
@@ -104,6 +105,7 @@ def client(
             wireless_device,
             sample_member,
             sample_member3,
+            sample_member_admin,
             sample_vlan,
             sample_room1,
             sample_vlan69,
@@ -262,7 +264,7 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
 
 
 def test_device_post_create_multiple_wireless(
-    faker, client, sample_room1, sample_room2, sample_member
+    faker, client, sample_room1, sample_room2, sample_member, sample_member_admin
 ):
     """
     Can create a valid wired device? Create 20 devices for each users
@@ -311,7 +313,7 @@ def test_device_post_create_multiple_wireless(
         subnet = (
             sample_member.subnet
             if d["member"] == SAMPLE_CLIENT_ID
-            else sample_member_admin().subnet
+            else sample_member_admin.subnet
         )
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
@@ -429,7 +431,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
     assert r.status_code == 400
 
 
-def test_device_post_create_too_much_wireless(faker, client, sample_room1):
+def test_device_post_create_too_much_wireless(faker, client, sample_room1, sample_member_admin):
     """
     Create 13 wireless devices for one user
     """
@@ -463,7 +465,7 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
             headers={"Content-Type": "application/json", **TEST_HEADERS},
         )
         res = r.json()
-        subnet = sample_member_admin().subnet
+        subnet = sample_member_admin.subnet
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         assert (

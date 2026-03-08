@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.storage import RoleRepository
 from adh6.authentication.storage.models import ApiKey as ApiKeyModel
+from adh6.context import set_user
 from adh6.database import get_session
 
 JWTInvalid = (
@@ -168,6 +169,7 @@ async def _validate_token_with_keycloak(
         "scope": scope,
         "groups": groups,
         "username": token_data.get("preferred_username"),
+        "auth_method": "oidc",
     }
 
 
@@ -253,6 +255,7 @@ async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
         "scope": [Roles.USER.value, *roles],
         "groups": [],
         "username": api_key.user_login,
+        "auth_method": "api_key",
     }
 
 
@@ -275,6 +278,7 @@ async def auth_middleware(request: Request, call_next):
 
                     if token_info:
                         request.state.token_info = token_info
+                        set_user(token_info.get("uid"))
                     break
             except HTTPException as exc:
                 response_kwargs: dict[str, Any] = {

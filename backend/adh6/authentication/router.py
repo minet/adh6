@@ -12,7 +12,7 @@ from adh6.entity import ApiKey, ApiKeysPostRequest, RoleMapping
 from adh6.exceptions import NotFoundError
 from adh6.member.member_manager import MemberManager
 from adh6.member.storage import MemberRepository
-from adh6.security import require_role_or_ownership
+from adh6.security import get_token_info, require_role_or_ownership
 
 from .api_keys_manager import ApiKeyManager
 from .storage import ApiKeyRepository, RoleRepository
@@ -78,11 +78,13 @@ async def get_role_manager(
 async def search_api_keys(
     manager: Annotated[ApiKeyManager, Depends(get_api_key_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     login: Annotated[str | None, Query()] = None,
 ) -> list[ApiKey]:
     """Search API keys with pagination."""
+    if get_token_info(request).get("auth_method") == "api_key":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API keys cannot manage API keys")
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, login=login)
     return result
@@ -98,6 +100,8 @@ async def create_api_key(
 
     Return the value of the API key, not the id or login attached.
     """
+    if get_token_info(request).get("auth_method") == "api_key":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API keys cannot create API keys")
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     return await manager.create(login=body.login or "", roles=body.roles or [])
 
@@ -109,6 +113,8 @@ async def delete_api_key(
     request: Request,
 ) -> None:
     """Delete an API key."""
+    if get_token_info(request).get("auth_method") == "api_key":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API keys cannot delete API keys")
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
         await manager.delete(id=id)
@@ -141,12 +147,22 @@ async def create_role(
     request: Request,
 ) -> Response:
     """Create a new role."""
+    if get_token_info(request).get("auth_method") == "api_key":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="API keys cannot create roles",
+        )
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    await manager.create(
-        auth=body.get("auth", "user"),
-        identifier=body.get("identifier", ""),
-        roles=body.get("roles", []),
-    )
+    try:
+        await manager.create(
+            auth=body.get("auth", "user"),
+            identifier=body.get("identifier", ""),
+            roles=body.get("roles", []),
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except (ValueError, KeyError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return Response(status_code=status.HTTP_201_CREATED)
 
 

@@ -17,9 +17,29 @@ base_url = f"{host_url}/role/"
 @pytest.fixture
 def client(_test_client, sample_member):
     """Add test-specific fixtures to the transaction."""
-    from .conftest import add_test_fixtures, cleanup_test_data
+    from .conftest import (
+        add_test_fixtures,
+        api_key_fixtures,
+        cleanup_test_data,
+        oidc_admin_prod_role,
+        oidc_admin_read_role,
+        oidc_admin_write_role,
+        oidc_treasurer_read_role,
+        oidc_treasurer_write_role,
+        oidc_network_read_role,
+        oidc_network_write_role,
+    )
 
-    add_test_fixtures(sample_member)
+    oidc_roles = [
+        oidc_admin_prod_role(),
+        oidc_admin_read_role(),
+        oidc_admin_write_role(),
+        oidc_treasurer_read_role(),
+        oidc_treasurer_write_role(),
+        oidc_network_read_role(),
+        oidc_network_write_role(),
+    ]
+    add_test_fixtures([*api_key_fixtures(), *oidc_roles, sample_member])
 
     yield _test_client
 

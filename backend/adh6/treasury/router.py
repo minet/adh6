@@ -197,7 +197,7 @@ async def get_product_manager(
 async def search_accounts(
     manager: Annotated[AccountManager, Depends(get_account_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     filter_: Annotated[str | None, Query()] = None,
@@ -261,12 +261,13 @@ async def update_account(
 async def search_account_types(
     manager: Annotated[AccountTypeManager, Depends(get_account_type_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
+    terms: Annotated[str | None, Query()] = None,
 ) -> list[AccountType]:
     """Search account types."""
     require_role_or_ownership(request, Roles.ADMIN_READ.value)
-    result, _count = await manager.search(limit=limit, offset=offset)
+    result, _count = await manager.search(limit=limit, offset=offset, terms=terms)
     return result
 
 
@@ -293,7 +294,7 @@ async def get_account_type(
 async def search_payment_methods(
     manager: Annotated[PaymentMethodManager, Depends(get_payment_method_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
 ) -> list[PaymentMethod]:
@@ -326,7 +327,7 @@ async def get_payment_method(
 async def search_products(
     manager: Annotated[ProductManager, Depends(get_product_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
 ) -> list[Product]:
@@ -376,7 +377,7 @@ async def buy_product(
 async def search_transactions(
     manager: Annotated[TransactionManager, Depends(get_transaction_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     filter_: Annotated[str | None, Query()] = None,

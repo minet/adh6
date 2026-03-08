@@ -536,7 +536,7 @@ def test_member_comment_put(client, sample_member):
 def test_member_comment_put_unauthorized(client):
     r = client.put(
         f"{base_url}{4242}/comment/",
-        data=json.dumps({}),
+        json={"comment": "x"},
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

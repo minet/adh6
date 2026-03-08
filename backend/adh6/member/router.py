@@ -3,6 +3,7 @@
 from datetime import datetime
 from functools import lru_cache
 import logging
+import re
 from typing import Annotated, Any
 
 from fastapi import (
@@ -71,6 +72,13 @@ mailinglist_router = APIRouter(prefix="/mailinglist", tags=["mailinglist"])
 charter_router = APIRouter(prefix="/charter", tags=["charter"])
 
 
+def _is_valid_email(email: str | None) -> bool:
+    if not email:
+        return False
+    # Keep validation intentionally lightweight and aligned with legacy expectations.
+    return re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email) is not None
+
+
 def _member_to_response_dict(member: Member) -> dict[str, Any]:
     """Serialize generated OpenAPI entity with aliases expected by integration tests."""
     return member.dict(by_alias=True, exclude_none=True)
@@ -83,22 +91,32 @@ def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[st
 
     # Valid fields from Member entity (using camelCase aliases)
     valid_fields = {
-        "id", "username", "firstName", "lastName", "email", "comment",
-        "departureDate", "mailinglist", "ip", "subnet", "membership"
+        "id",
+        "username",
+        "firstName",
+        "lastName",
+        "email",
+        "comment",
+        "departureDate",
+        "mailinglist",
+        "ip",
+        "subnet",
+        "membership",
     }
-    
+
     wanted = {field.strip() for field in only.split(",") if field.strip()}
     wanted.add("id")
-    
+
     # Check if any field is invalid
     invalid_fields = wanted - valid_fields
     if invalid_fields:
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid field(s) in 'only' parameter: {', '.join(invalid_fields)}"
+            detail=f"Invalid field(s) in 'only' parameter: {', '.join(invalid_fields)}",
         )
-    
+
     return {k: v for k, v in payload.items() if k in wanted}
 
 
@@ -227,6 +245,11 @@ async def create_member(
 ) -> int:
     """Create a new member."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    if not _is_valid_email(body.mail):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email format",
+        )
     try:
         member = await manager.create(body)
     except MemberAlreadyExist as e:
@@ -239,7 +262,7 @@ async def search_members(
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     response: Response,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str, Query()] = "",
     filter_: Annotated[MemberFilter, MemberFilterWrapper()] = MemberFilter(),
@@ -361,7 +384,7 @@ async def get_member_logs(
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     dhcp: Annotated[bool, Query()] = False,
-    limit: Annotated[int, Query(ge=1)] = 10,
+    limit: Annotated[int, Query(ge=0)] = 10,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> MemberIdLogsGet200Response:
     """Get logs for a member."""
@@ -396,7 +419,7 @@ async def get_member_statuses(
     request: Request,
 ) -> list[MemberStatus]:
     """Get statuses for a member."""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "member")
     try:
         return await manager.get_statuses(id)
     except NotFoundError as e:
@@ -411,7 +434,7 @@ async def get_member_statuses(
 @router.patch("/{id}/subscription", status_code=status.HTTP_204_NO_CONTENT)
 async def update_subscription(
     id: int,
-    body: dict,
+    body: SubscriptionBody,
     manager: Annotated[SubscriptionManager, Depends(get_subscription_manager)],
     request: Request,
 ) -> None:
@@ -498,7 +521,7 @@ async def get_mailinglist_member_value(
     request: Request,
 ) -> int:
     """Retrieve mailing list membership value for one member."""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=id)
     return await manager.get_member_mailinglist(id)
 
 
@@ -510,7 +533,7 @@ async def update_mailinglist_member_value(
     request: Request,
 ) -> None:
     """Update mailing list membership value for one member."""
-    require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, owner_id=id)
     await manager.update_member_mailinglist(id, int(body.get("value", 0)))
 
 
@@ -519,13 +542,17 @@ async def update_mailinglist_member_value(
 # ============================================================================
 
 
-@charter_router.get("/{charter_id}/member", response_model=list[int])
+@charter_router.get(
+    "/{charter_id}/member", response_model=list[int]
+)
 async def list_charter_members(
     charter_id: int,
     manager: Annotated[CharterManager, Depends(get_charter_manager)],
+    request: Request,
     response: Response,
 ) -> list[int]:
     """List members who signed a charter."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.get_members(charter_id)
     response.headers["X-Total-Count"] = str(_count)
     return list(result)
@@ -536,8 +563,10 @@ async def get_member_charter_signature(
     charter_id: int,
     id: int,
     manager: Annotated[CharterManager, Depends(get_charter_manager)],
+    request: Request,
 ) -> str | None:
     """Get signature date for a charter and member."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "charter")
     signed_at = await manager.get(charter_id, id)
     if isinstance(signed_at, datetime):
         return signed_at.isoformat()
@@ -553,8 +582,10 @@ async def sign_member_charter(
     charter_id: int,
     id: int,
     manager: Annotated[CharterManager, Depends(get_charter_manager)],
+    request: Request,
 ) -> Response:
     """Sign a charter for a member."""
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, id, "charter")
     await manager.sign(charter_id, id)
     return Response(status_code=status.HTTP_201_CREATED)
 

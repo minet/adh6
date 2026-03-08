@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_manager import DeviceManager
@@ -29,8 +29,9 @@ def device_manager(
 
 
 class TestUpdateOrCreate:
-    def test_create_happy_path(
+    async def test_create_happy_path(
         self,
+        mock_device_ip_manager: DeviceIpManager,
         mock_device_repository: DeviceRepository,
         mock_member_repository: MemberRepository,
         mock_room_repository: RoomRepository,
@@ -40,45 +41,45 @@ class TestUpdateOrCreate:
         device_manager: DeviceManager,
     ):
         # That the owner exists:
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
 
         # That the device does not exist in the DB:
-        mock_device_repository.get_by_mac = MagicMock(return_value=(None))
+        mock_device_repository.get_by_mac = AsyncMock(return_value=(None))
         # That the device does not exist in the DB:
-        mock_device_repository.search_by = MagicMock(return_value=([], 0))
+        mock_device_repository.search_by = AsyncMock(return_value=([], 0))
         # That the owner has a room (needed to get the ip range to allocate the IP):
-        mock_room_repository.search_by = MagicMock(return_value=([sample_room], 1))
+        mock_room_repository.get_from_member = AsyncMock(return_value=sample_room)
         # That the owner has a room (needed to get the ip range to allocate the IP):
-        mock_device_repository.create = MagicMock(return_value=(sample_device))
+        mock_device_repository.create = AsyncMock(return_value=(sample_device))
+        mock_device_ip_manager.allocate_ip_with_vlan_number = AsyncMock(return_value=None)
 
         body = DeviceBody(
             mac=sample_device.mac, member=sample_device.member, connection_type=sample_device.connection_type
         )
         # When...
-        device = device_manager.create(body)
+        device = await device_manager.create(body)
 
         # Expect...
         assert device is not None
         # mock_device_repository.create.assert_called_once_with(sample_device)
 
-    def test_invalid_mac(self, mock_device_repository: MagicMock, device_manager: DeviceManager):
+    async def test_invalid_mac(self, mock_device_repository: MagicMock, device_manager: DeviceManager):
         # When...
         with raises(InvalidMACAddress):
-            device_manager.create(DeviceBody(mac="this is not a valid mac"))
+            await device_manager.create(DeviceBody(mac="this is not a valid mac", connection_type="wired", member=1))
 
         # Expect...
         mock_device_repository.create.assert_not_called()
 
-    @mark.skip(reason="Should we implement the relations logic in the managers ?")
-    def test_bad_member(
+    async def test_bad_member(
         self, mock_member_repository: MemberRepository, mock_device_repository: MagicMock, device_manager: DeviceManager
     ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None))
+        mock_member_repository.get_by_id = AsyncMock(return_value=(None))
 
         # When...
         with raises(MemberNotFoundError):
-            device_manager.create(DeviceBody(mac="00:00:00:00:00:00", member=4242))
+            await device_manager.create(DeviceBody(mac="00:00:00:00:00:00", connection_type="wired", member=4242))
 
         # Expect...
         mock_device_repository.create.assert_not_called()

@@ -79,7 +79,7 @@ class DeviceIpManager:
         if vlan:
             ipv6_network = vlan.ipv6_network
 
-        if not ipv4_network or not ipv6_network:
+        if not ipv4_network:
             raise ValueError("Cannot allocate IP without network")
 
         await self._allocate_ip(
@@ -93,7 +93,9 @@ class DeviceIpManager:
         self, device: Device, ipv4_network: str = "", ipv6_network: str = ""
     ) -> None:
         ipv4 = await self.ip_allocator.available_ip(ipv4_network)
-        ipv6 = await self.ip_allocator.available_ip(ipv6_network)
+        ipv6 = (
+            await self.ip_allocator.available_ip(ipv6_network) if ipv6_network else None
+        )
 
         await self.device_repository.update(  # type: ignore  # TODO: typing is baaaaad
             abstract_device=AbstractDevice(  # type: ignore  # TODO: typing is baaaaad
@@ -107,5 +109,5 @@ class DeviceIpManager:
             abstract_device=AbstractDevice(  # type: ignore  # TODO: typing is baaaaad
                 id=device.id, ipv4Address="En attente", ipv6Address="En attente"
             ),
-            override=True,
+            override=False,
         )

@@ -104,7 +104,7 @@ async def search_devices(
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
     filter_: Annotated[DeviceFilter, DeviceFilterWrapper()] = DeviceFilter(),
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
 ) -> list[int]:
     """Search devices with optional filter."""

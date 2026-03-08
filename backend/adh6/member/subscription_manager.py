@@ -324,6 +324,7 @@ class SubscriptionManager:
         if price == 50 and not membership.has_room:
             price = 9
             title = title + " (sans chambre)"
+        from adh6.context import get_user
         await self.transaction_manager.update_or_create(
             AbstractTransaction(
                 value=9 if not free else 0,
@@ -331,6 +332,7 @@ class SubscriptionManager:
                 dst=asso_account[0].id,
                 name=title + " (gratuit)" if free else title,
                 payment_method=payment_method.id,  # type: ignore  # TODO: typing
+                author=get_user(),
             )
         )
         if price > 9 and not free:
@@ -341,5 +343,6 @@ class SubscriptionManager:
                     dst=tech_account[0].id,
                     name=title,
                     payment_method=payment_method.id,  # type: ignore  # TODO: typing
+                    author=get_user(),
                 )
             )

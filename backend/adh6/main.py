@@ -28,6 +28,7 @@ from adh6.treasury.router import (
     transaction_router,
 )
 from adh6.exceptions import (
+    AlreadyExistsError,
     NotFoundError,
     UnauthorizedError,
     IntMustBePositive,
@@ -79,6 +80,16 @@ async def handle_validation_error(
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"detail": exc.errors()},
+    )
+
+
+async def handle_already_exists_error(
+    request: Request, exc: AlreadyExistsError
+) -> JSONResponse:
+    """Handle AlreadyExistsError exceptions."""
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"detail": str(exc)},
     )
 
 
@@ -135,6 +146,7 @@ app.middleware("http")(auth_middleware)
 
 app.add_exception_handler(RequestValidationError, handle_validation_error)
 app.add_exception_handler(ValidationError, handle_adh6_validation_error)
+app.add_exception_handler(AlreadyExistsError, handle_already_exists_error)
 app.add_exception_handler(NotFoundError, handle_not_found_error)
 app.add_exception_handler(UnauthorizedError, handle_unauthorized_error)
 app.add_exception_handler(IntMustBePositive, handle_int_must_be_positive_error)

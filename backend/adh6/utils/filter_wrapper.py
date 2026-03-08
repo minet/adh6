@@ -4,6 +4,7 @@ from typing import Any, Literal
 from fastapi import Depends, Request
 
 from adh6.entity.abstract_port import AbstractPort
+from adh6.entity.abstract_switch import AbstractSwitch
 from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.member_filter import MemberFilter
 
@@ -87,6 +88,21 @@ def _build_abstract_port_filter_dependency() -> Any:
     return dependency
 
 
+def _build_abstract_switch_filter_dependency() -> Any:
+    def dependency(request: Request) -> AbstractSwitch:
+        raw_filters = _extract_filter_entries(request)
+        payload = {
+            "id": _parse_optional_int(raw_filters.get("id")),
+            "description": (
+                raw_filters.get("description") if "description" in raw_filters else None
+            ),
+            "ip": raw_filters.get("ip") if "ip" in raw_filters else None,
+        }
+        return AbstractSwitch.from_dict(payload)
+
+    return dependency
+
+
 def DeviceFilterWrapper(
     *,
     use_cache: bool = True,
@@ -147,6 +163,26 @@ def AbstractPortFilterHandler(
     return AbstractPortFilterWrapper(use_cache=use_cache, scope=scope)
 
 
+def AbstractSwitchFilterWrapper(
+    *,
+    use_cache: bool = True,
+    scope: Literal["function", "request"] | None = None,
+) -> Any:
+    return Depends(
+        dependency=_build_abstract_switch_filter_dependency(),
+        use_cache=use_cache,
+        scope=scope,
+    )
+
+
+def AbstractSwitchFilterHandler(
+    *,
+    use_cache: bool = True,
+    scope: Literal["function", "request"] | None = None,
+) -> Any:
+    return AbstractSwitchFilterWrapper(use_cache=use_cache, scope=scope)
+
+
 def AbstractPortHandler(
     *,
     use_cache: bool = True,
@@ -159,8 +195,10 @@ __all__ = [
     "DeviceFilterWrapper",
     "MemberFilterWrapper",
     "AbstractPortFilterWrapper",
+    "AbstractSwitchFilterWrapper",
     "DeviceFilterHandler",
     "MemberFilterHandler",
     "AbstractPortFilterHandler",
     "AbstractPortHandler",
+    "AbstractSwitchFilterHandler",
 ]

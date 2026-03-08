@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.default.crud_repository import CRUDRepository
@@ -41,28 +41,28 @@ mock_repo, mock_manager, abstract_object, mock_object = unpack_fixture(
 
 
 class TestGetByID:
-    def test_happy_path(self, mock_repo, mock_object, mock_manager):
-        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
-        result = mock_manager.get_by_id(id=mock_object.id)
+    async def test_happy_path(self, mock_repo, mock_object, mock_manager):
+        mock_repo.get_by_id = AsyncMock(return_value=(mock_object))
+        result = await mock_manager.get_by_id(id=mock_object.id)
 
         assert mock_object == result
         mock_repo.get_by_id.assert_called_once_with(mock_object.id)
 
-    def test_object_not_found(self, mock_repo, mock_manager, mock_object):
-        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
+    async def test_object_not_found(self, mock_repo, mock_manager, mock_object):
+        mock_repo.get_by_id = AsyncMock(return_value=(None), side_effect=NotFoundError(""))
         with raises(NotFoundError):
-            mock_manager.get_by_id(id=mock_object.id)
+            await mock_manager.get_by_id(id=mock_object.id)
         mock_repo.get_by_id.assert_called_once_with(mock_object.id)
 
 
 class TestSearch:
-    def test_happy_path(self, mock_repo, mock_object, mock_manager, abstract_object):
+    async def test_happy_path(self, mock_repo, mock_object, mock_manager, abstract_object):
         # Given...
         terms = "blah blah blah"
-        mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
+        mock_repo.search_by = AsyncMock(return_value=([mock_object], 1))
 
         # When...
-        result, count = mock_manager.search(limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms)
+        result, count = await mock_manager.search(limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms)
 
         # Expect...
         assert [mock_object] == result
@@ -71,50 +71,50 @@ class TestSearch:
             limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms
         )
 
-    def test_invalid_offset(self, mock_manager):
+    async def test_invalid_offset(self, mock_manager):
         # When...
         with raises(IntMustBePositive):
-            mock_manager.search(limit=1, offset=-1, filter_=None, terms="blabla")
+            await mock_manager.search(limit=1, offset=-1, filter_=None, terms="blabla")
 
-    def test_invalid_limit(self, mock_manager):
+    async def test_invalid_limit(self, mock_manager):
         # When...
         with raises(IntMustBePositive):
-            mock_manager.search(limit=-1, offset=1, filter_=None, terms="blabla")
+            await mock_manager.search(limit=-1, offset=1, filter_=None, terms="blabla")
 
 
 class TestUpdateOrCreate:
-    def test_happy_path_create(self, mock_repo, mock_object, mock_manager):
+    async def test_happy_path_create(self, mock_repo, mock_object, mock_manager):
         # Given...
-        mock_repo.create = MagicMock(return_value=mock_object)
+        mock_repo.create = AsyncMock(return_value=mock_object)
 
         # When...
-        object, result = mock_manager.update_or_create(mock_object)
+        object, result = await mock_manager.update_or_create(mock_object)
 
         # Expect...
         assert mock_object == object
         assert result is True
         mock_repo.create.assert_called_once_with(mock_object)
 
-    def test_happy_path_update(self, mock_repo, mock_object, mock_manager):
+    async def test_happy_path_update(self, mock_repo, mock_object, mock_manager):
         # Given...
-        mock_repo.update = MagicMock(return_value=mock_object)
-        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
+        mock_repo.update = AsyncMock(return_value=mock_object)
+        mock_repo.get_by_id = AsyncMock(return_value=(mock_object))
         mock_id = mock_object.id
 
         # When...
-        object, result = mock_manager.update_or_create(mock_object, id=mock_id)
+        object, result = await mock_manager.update_or_create(mock_object, id=mock_id)
 
         # Expect...
         assert mock_object == object
         assert result is False
         mock_repo.update.assert_called_once_with(mock_object, override=True)
 
-    def test_happy_path_update_non_existing(self, mock_repo: CRUDRepository, mock_object, mock_manager):
-        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
+    async def test_happy_path_update_non_existing(self, mock_repo: CRUDRepository, mock_object, mock_manager):
+        mock_repo.get_by_id = AsyncMock(return_value=(None), side_effect=NotFoundError(""))
         mock_id = mock_object.id
 
         with raises(NotFoundError):
-            mock_manager.update_or_create(mock_object, id=mock_id)
+            await mock_manager.update_or_create(mock_object, id=mock_id)
 
         mock_repo.get_by_id.assert_called_once_with(mock_id)
         mock_repo.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
@@ -122,11 +122,11 @@ class TestUpdateOrCreate:
 
 
 class TestPartiallyUpdate:
-    def test_happy_path(self, mock_repo, mock_object, mock_manager):
-        mock_repo.update = MagicMock(return_value=mock_object)
-        mock_repo.search_by = MagicMock(return_value=([mock_object], 1))
+    async def test_happy_path(self, mock_repo, mock_object, mock_manager):
+        mock_repo.update = AsyncMock(return_value=mock_object)
+        mock_repo.search_by = AsyncMock(return_value=([mock_object], 1))
         mock_id = mock_object.id
-        object, result = mock_manager.partially_update(mock_object, id=mock_id)
+        object, result = await mock_manager.partially_update(mock_object, id=mock_id)
 
         assert mock_object == object
         assert result is False
@@ -134,14 +134,14 @@ class TestPartiallyUpdate:
 
 
 class TestDelete:
-    def test_happy_path(self, faker, mock_repo, mock_manager):
+    async def test_happy_path(self, faker, mock_repo, mock_manager):
         id = faker.random_int()
-        mock_repo.get_by_id = MagicMock(return_value=(mock_object))
-        mock_manager.delete(id=id)
+        mock_repo.get_by_id = AsyncMock(return_value=(mock_object))
+        await mock_manager.delete(id=id)
         mock_repo.delete.assert_called_once_with(id)
 
-    def test_object_not_found(self, faker, mock_repo, mock_manager):
-        mock_repo.get_by_id = MagicMock(return_value=(None), side_effect=NotFoundError(""))
+    async def test_object_not_found(self, faker, mock_repo, mock_manager):
+        mock_repo.get_by_id = AsyncMock(return_value=(None), side_effect=NotFoundError(""))
         id = faker.random_int()
         with raises(NotFoundError):
-            mock_manager.delete(id=id)
+            await mock_manager.delete(id=id)

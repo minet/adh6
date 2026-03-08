@@ -184,7 +184,7 @@ def sample_device(faker, sample_member) -> Device:
 def sample_room(faker) -> Room:
     return Room(
         id=faker.random_digit_not_null(),
-        roomNumber=faker.numerify(text="####"),
+        roomNumber=faker.random_int(min=1000, max=9999),
         description="Test room.",
         vlan=41,
     )
@@ -195,8 +195,8 @@ def sample_port(faker, sample_room, sample_switch) -> Port:
     return Port(
         id=faker.random_digit_not_null(),
         portNumber=faker.numerify(text="#/#/##"),
-        room=sample_room,
-        switchObj=sample_switch,
+        room=sample_room.id,
+        switchObj=sample_switch.id,
         oid="10101",
     )
 
@@ -231,7 +231,7 @@ def sample_transaction(
         dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
-        attachments="",
+        attachments=[],
         timestamp=faker.date_this_year(),
         paymentMethod=sample_payment_method.id,
         author=sample_admin.id,
@@ -248,7 +248,7 @@ def sample_transaction_pending(
         dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
-        attachments="",
+        attachments=[],
         timestamp=faker.date_this_year(),
         paymentMethod=sample_payment_method.id,
         author=sample_admin.id,

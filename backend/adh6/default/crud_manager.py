@@ -32,6 +32,18 @@ class CRUDManager:
         return e
 
     @log_call
+    async def create(self, obj):
+        return await self.repository.create(obj)
+
+    @log_call
+    async def update(self, id: int, obj, override=True):
+        e = await self.repository.get_by_id(id)
+        if not e:
+            raise self.not_found_exception(id)
+        obj.id = id
+        return await self.repository.update(obj, override=override)
+
+    @log_call
     async def update_or_create(self, obj, id: int | None = None):
         current_object = None
         if id is not None:

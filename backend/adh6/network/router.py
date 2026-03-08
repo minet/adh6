@@ -1,5 +1,6 @@
 """FastAPI router for network endpoints (ports and switches)."""
 
+import ipaddress
 import json
 from typing import Annotated, Any
 
@@ -13,7 +14,10 @@ from adh6.database import get_session
 from adh6.entity import AbstractPort, AbstractSwitch, Port, Switch
 from adh6.exceptions import NotFoundError
 from adh6.security import require_role_or_ownership
-from adh6.utils.filter_wrapper import AbstractPortFilterHandler
+from adh6.utils.filter_wrapper import (
+    AbstractPortFilterHandler,
+    AbstractSwitchFilterHandler,
+)
 
 from .port_manager import PortManager
 from .snmp import SwitchNetworkManager
@@ -22,6 +26,20 @@ from .storage import PortRepository, SwitchRepository
 
 port_router = APIRouter(prefix="/port", tags=["port"])
 switch_router = APIRouter(prefix="/switch", tags=["switch"])
+
+SWITCH_VALID_FIELDS = {"id", "ip", "description"}
+
+
+def _validate_ipv4(ip: str | None) -> None:
+    if ip is None:
+        return
+    try:
+        ipaddress.IPv4Address(ip)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid IPv4 address: {ip}",
+        )
 
 
 def _to_public_dict(obj: Any) -> dict[str, Any]:
@@ -77,7 +95,7 @@ async def search_ports(
     manager: Annotated[PortManager, Depends(get_port_manager)],
     request: Request,
     filter_: Annotated[AbstractPort, AbstractPortFilterHandler()] = AbstractPort(),
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     only: Annotated[str | None, Query()] = None,
@@ -283,21 +301,38 @@ async def get_port_speed(
 async def search_switches(
     manager: Annotated[SwitchManager, Depends(get_switch_manager)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    filter_: Annotated[
+        AbstractSwitch, AbstractSwitchFilterHandler()
+    ] = AbstractSwitch(),
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
-    filter_: Annotated[str | None, Query()] = None,
-) -> list[Switch]:
+    only: Annotated[str | None, Query()] = None,
+) -> list[Switch] | JSONResponse:
     """Search network switches."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
-    filter_obj = AbstractSwitch.from_dict(json.loads(filter_)) if filter_ else None
+    if only:
+        requested = {field.strip() for field in only.split(",") if field.strip()}
+        invalid = requested - SWITCH_VALID_FIELDS
+        if invalid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid only fields: {invalid}",
+            )
     result, _count = await manager.search(
-        limit=limit, offset=offset, terms=terms or "", filter_=filter_obj
+        limit=limit, offset=offset, terms=terms or "", filter_=filter_
     )
+    if only:
+        return JSONResponse(
+            content=[
+                _apply_only_projection(_to_public_dict(switch), only)
+                for switch in result
+            ]
+        )
     return result
 
 
-@switch_router.post("", response_model=Switch, status_code=status.HTTP_200_OK)
+@switch_router.post("", response_model=Switch, status_code=status.HTTP_201_CREATED)
 async def create_switch(
     body: AbstractSwitch,
     manager: Annotated[SwitchManager, Depends(get_switch_manager)],
@@ -305,6 +340,7 @@ async def create_switch(
 ) -> Switch:
     """Create a network switch."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    _validate_ipv4(body.ip)
     switch = await manager.create(body)
     return switch
 
@@ -332,6 +368,7 @@ async def update_switch(
 ) -> None:
     """Update a network switch."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    _validate_ipv4(body.ip)
     try:
         await manager.update(id, body)
     except NotFoundError as e:

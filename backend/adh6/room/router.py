@@ -49,7 +49,7 @@ async def get_member_repository(
 async def search_rooms(
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
-    limit: Annotated[int, Query(ge=1)] = DEFAULT_LIMIT,
+    limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     filter_: Annotated[str | None, Query()] = None,
@@ -186,14 +186,30 @@ async def delete_room(
 @router.delete("/{id}/member", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member_from_room(
     id: int,
-    member_id: Annotated[int, Query(alias="member_id")],
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
+    member_repository: Annotated[MemberRepository, Depends(get_member_repository)],
+    member_manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
+    member_id: Annotated[int | None, Query(alias="memberId")] = None,
 ) -> None:
     """Remove a member from a room."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    await repository.get_by_id(id)
+    if member_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="memberId is required"
+        )
+    try:
+        await repository.get_by_id(id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    member = await member_repository.get_by_id(member_id)
+    if member is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Member {member_id} not found",
+        )
     await repository.remove_member(member_id)
+    await member_manager.reset_member(member_id)
 
 
 @router.patch("/{id}/member/add", status_code=status.HTTP_204_NO_CONTENT)
@@ -244,7 +260,7 @@ async def get_member_room(
     request: Request,
 ) -> int:
     """Get room id for a member."""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "room")
     room = await repository.get_from_member(id)
     if not room:
         raise HTTPException(

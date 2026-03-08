@@ -70,7 +70,11 @@ class SwitchSQLRepository(SwitchRepository):
 
         switch = SQLSwitch(
             ip=abstract_switch.ip,
-            communaute=abstract_switch.community,
+            communaute=(
+                abstract_switch.community.get_secret_value()
+                if abstract_switch.community
+                else None
+            ),
             description=abstract_switch.description,
             created_at=now,
             updated_at=now,
@@ -111,7 +115,9 @@ def _merge_sql_with_entity(
     if entity.ip is not None or override:
         switch.ip = entity.ip
     if entity.community is not None or override:
-        switch.communaute = entity.community
+        switch.communaute = (
+            entity.community.get_secret_value() if entity.community else None
+        )
     if entity.description is not None:
         switch.description = entity.description
 

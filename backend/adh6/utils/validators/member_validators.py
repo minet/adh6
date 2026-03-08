@@ -2,19 +2,18 @@ import re
 from datetime import datetime
 
 from adh6.entity import Member
-from adh6.room.storage.room_repository import RoomSQLRepository as RoomRepository
 from sqlalchemy import false
 
 
 def is_member_active(member: Member):
     if member.departure_date is None:
-        return false
+        return False
 
     if isinstance(member.departure_date, datetime):
         member_departure = member.departure_date.date()
     else:
         member_departure = member.departure_date
-    return member_departure > datetime.now().date() and RoomRepository().get_from_member(member.id) is not None
+    return member_departure > datetime.now().date()
 
 
 def is_password_valid(password: str) -> bool:

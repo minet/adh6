@@ -167,6 +167,7 @@ skip-magic-trailing-comma = false
 combine-as-imports = true
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
 testpaths = [
   "test/",

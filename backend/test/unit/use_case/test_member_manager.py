@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
@@ -8,15 +8,28 @@ from adh6.device.interfaces import IpAllocator, LogsRepository
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.entity import AbstractMember, Member, Membership
 from adh6.entity.member_body import MemberBody
-from adh6.exceptions import AccountTypeNotFoundError, LogFetchError, MemberAlreadyExist, MemberNotFoundError
-from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository
+from adh6.exceptions import (
+    AccountTypeNotFoundError,
+    LogFetchError,
+    MemberAlreadyExist,
+    MemberNotFoundError,
+)
+from adh6.member.interfaces import (
+    MailinglistRepository,
+    MemberRepository,
+    MembershipRepository,
+)
 from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.member.member_manager import MemberManager
 from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
-from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository, PaymentMethodRepository
+from adh6.treasury.interfaces import (
+    AccountRepository,
+    AccountTypeRepository,
+    PaymentMethodRepository,
+)
 from adh6.treasury.transaction_manager import TransactionManager
 from pytest import fixture, raises
 
@@ -37,28 +50,35 @@ FAKE_LOGS = "1  "
 
 
 class TestProfile:
-    def test_happy_path(
-        self, mock_member_repository: MemberRepository, sample_member: Member, member_manager: MemberManager
+    async def test_happy_path(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member: Member,
+        member_manager: MemberManager,
     ):
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        m, _ = member_manager.get_profile()
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
+        m, _ = await member_manager.get_profile()
         assert sample_member == m
         mock_member_repository.get_by_id.assert_called_once()
 
-    def test_member_not_found(self, mock_member_repository: MemberRepository, member_manager: MemberManager):
+    async def test_member_not_found(
+        self, mock_member_repository: MemberRepository, member_manager: MemberManager
+    ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
+        mock_member_repository.get_by_id = AsyncMock(
+            return_value=(None), side_effect=MemberNotFoundError("")
+        )
 
         # When...
         with pytest.raises(MemberNotFoundError):
-            member_manager.get_profile()
+            await member_manager.get_profile()
 
         # Expect...
         mock_member_repository.get_by_id.assert_called_once()
 
 
 class TestGetByID:
-    def test_happy_path(
+    async def test_happy_path(
         self,
         mock_member_repository: MemberRepository,
         mock_membership_repository: MembershipRepository,
@@ -66,40 +86,52 @@ class TestGetByID:
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(sample_member))
-        mock_membership_repository.search = MagicMock(return_value=([], 0))
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
+        mock_membership_repository.search = AsyncMock(return_value=([], 0))
 
         # When...
-        result = member_manager.get_by_id(id=sample_member.id)
+        result = await member_manager.get_by_id(id=sample_member.id)
 
         # Expect...
         assert sample_member == result
         mock_member_repository.get_by_id.assert_called_once_with(sample_member.id)
 
-    def test_not_found(self, sample_member, mock_member_repository: MemberRepository, member_manager: MemberManager):
+    async def test_not_found(
+        self,
+        sample_member,
+        mock_member_repository: MemberRepository,
+        member_manager: MemberManager,
+    ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None), side_effect=MemberNotFoundError(""))
+        mock_member_repository.get_by_id = AsyncMock(
+            return_value=(None), side_effect=MemberNotFoundError("")
+        )
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.get_by_id(id=sample_member.id)
+            await member_manager.get_by_id(id=sample_member.id)
 
         # Expect...
         mock_member_repository.get_by_id.assert_called_once_with(sample_member.id)
 
 
 class TestSearch:
-    def test_happy_path(
-        self, mock_member_repository: MemberRepository, sample_member: Member, member_manager: MemberManager
+    async def test_happy_path(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member: Member,
+        member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
 
         # When...
         test_terms = "blah blah blah"
         test_offset = 42
         test_limit = 99
-        result, _ = member_manager.search(limit=test_limit, offset=test_offset, terms=test_terms)
+        result, _ = await member_manager.search(
+            limit=test_limit, offset=test_offset, terms=test_terms
+        )
 
         # Expect...
         assert [sample_member.id] == result
@@ -111,32 +143,39 @@ class TestSearch:
 
 
 class TestNewMember:
-    def test_member_already_exist(
-        self, mock_member_repository: MemberRepository, sample_member: AbstractMember, member_manager: MemberManager
+    async def test_member_already_exist(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member: AbstractMember,
+        member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_login = MagicMock(return_value=(sample_member))
+        mock_member_repository.get_by_login = AsyncMock(return_value=(sample_member))
 
         # When...
         with pytest.raises(MemberAlreadyExist):
-            member_manager.create(body=MemberBody(username=sample_member.username))
+            await member_manager.create(
+                body=MemberBody(username=sample_member.username)
+            )
 
         # Expect...
-        mock_member_repository.get_by_login.assert_called_once_with(sample_member.username)
+        mock_member_repository.get_by_login.assert_called_once_with(
+            sample_member.username
+        )
 
-    def test_no_account_type_adherent(
+    async def test_no_account_type_adherent(
         self,
         mock_member_repository: MemberRepository,
         mock_account_type_repository: AccountTypeRepository,
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_login = MagicMock(return_value=(None))
-        mock_account_type_repository.search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.get_by_login = AsyncMock(return_value=(None))
+        mock_account_type_repository.search_by = AsyncMock(return_value=([], 0))
 
         # When...
         with pytest.raises(AccountTypeNotFoundError):
-            member_manager.create(
+            await member_manager.create(
                 body=MemberBody(
                     username="testtest",
                 )
@@ -147,19 +186,22 @@ class TestNewMember:
 
 
 class TestCreateOrUpdate:
-    def test_create_happy_path(
-        self, mock_member_repository: MagicMock, sample_mutation_request: AbstractMember, member_manager: MemberManager
+    async def test_create_happy_path(
+        self,
+        mock_member_repository: MagicMock,
+        sample_mutation_request: AbstractMember,
+        member_manager: MemberManager,
     ):
         # Given that there is not user in the DB (user will be created).
-        mock_member_repository.search_by = MagicMock(return_value=([], 0))
+        mock_member_repository.search_by = AsyncMock(return_value=([], 0))
 
         # When...
-        member_manager.update_or_create(sample_mutation_request)
+        await member_manager.update_or_create(sample_mutation_request)
 
         # Expect...
         mock_member_repository.create.assert_called_once_with(sample_mutation_request)
 
-    def test_update_happy_path(
+    async def test_update_happy_path(
         self,
         mock_member_repository: MagicMock,
         sample_mutation_request: AbstractMember,
@@ -167,7 +209,7 @@ class TestCreateOrUpdate:
         member_manager: MemberManager,
     ):
         # Given that there is a user in the DB (user will be updated).
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
 
         # Given a request that updates some fields.
         req = sample_mutation_request
@@ -176,7 +218,7 @@ class TestCreateOrUpdate:
         req.last_name = "Dupuis"
 
         # When...
-        member_manager.update_or_create(req, id=sample_member.id)
+        await member_manager.update_or_create(req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(req, override=True)
@@ -184,48 +226,70 @@ class TestCreateOrUpdate:
 
 
 class TestUpdatePartially:
-    def test_happy_path(self, mock_member_repository: MagicMock, sample_member, member_manager: MemberManager):
+    async def test_happy_path(
+        self,
+        mock_member_repository: MagicMock,
+        sample_member,
+        member_manager: MemberManager,
+    ):
         updated_comment = "Updated comment."
         req = AbstractMember(comment=updated_comment)
 
         # When...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.partially_update(req, id=sample_member.id)
+        mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
+        await member_manager.partially_update(req, id=sample_member.id)
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(req, override=False)
 
-    def test_not_found(self, mock_member_repository: MagicMock, sample_member, member_manager: MemberManager):
-        mock_member_repository.search_by = MagicMock(return_value=([], 0))
-        mock_member_repository.update = MagicMock(side_effect=MemberNotFoundError)
+    async def test_not_found(
+        self,
+        mock_member_repository: MagicMock,
+        sample_member,
+        member_manager: MemberManager,
+    ):
+        mock_member_repository.search_by = AsyncMock(return_value=([], 0))
+        mock_member_repository.update = AsyncMock(side_effect=MemberNotFoundError)
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.partially_update(AbstractMember(id=sample_member.id), id=sample_member.id)
+            await member_manager.partially_update(
+                AbstractMember(id=sample_member.id), id=sample_member.id
+            )
 
 
 class TestDelete:
-    def test_happy_path(self, mock_member_repository: MagicMock, sample_member, member_manager: MemberManager):
+    async def test_happy_path(
+        self,
+        mock_member_repository: MagicMock,
+        sample_member,
+        member_manager: MemberManager,
+    ):
         # When...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        member_manager.delete(id=sample_member.id)
+        mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
+        await member_manager.delete(id=sample_member.id)
 
         # Expect...
         mock_member_repository.delete.assert_called_once_with(sample_member.id)
 
-    def test_not_found(self, mock_member_repository: MagicMock, sample_member, member_manager: MemberManager):
+    async def test_not_found(
+        self,
+        mock_member_repository: MagicMock,
+        sample_member,
+        member_manager: MemberManager,
+    ):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([], 0))
-        mock_member_repository.delete = MagicMock(side_effect=MemberNotFoundError)
+        mock_member_repository.search_by = AsyncMock(return_value=([], 0))
+        mock_member_repository.delete = AsyncMock(side_effect=MemberNotFoundError)
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.delete(id=sample_member.id)
+            await member_manager.delete(id=sample_member.id)
 
 
 class TestGetLogs:
     """
-    def test_happy_path(self,
+    async def test_happy_path(self,
                         mock_membership_repository: MembershipRepository,
                         mock_logs_repository: MagicMock,
                         mock_member_repository: MagicMock,
@@ -233,9 +297,9 @@ class TestGetLogs:
                         sample_member: Member,
                         member_manager: MemberManager):
         # Given...
-        mock_member_repository.search_by = MagicMock(return_value=([sample_member], 1))
-        mock_membership_repository.search = MagicMock(return_value=([], 0))
-        mock_logs_repository.get_logs = MagicMock(return_value=([FAKE_LOGS]))
+        mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
+        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_logs_repository.get_logs = AsyncMock(return_value=([FAKE_LOGS]))
 
         # When...
         result = member_manager.get_logs(sample_member.id)
@@ -247,7 +311,7 @@ class TestGetLogs:
                                                               username=sample_member.username, dhcp=False)
     """
 
-    def test_fetch_failed(
+    async def test_fetch_failed(
         self,
         mock_membership_repository: MembershipRepository,
         mock_device_logs_manager: MagicMock,
@@ -256,23 +320,28 @@ class TestGetLogs:
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=sample_member)
-        mock_device_logs_manager.get = MagicMock(side_effect=LogFetchError)
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_device_logs_manager.get = AsyncMock(side_effect=LogFetchError)
 
         # When...
         with raises(LogFetchError):
-            member_manager.get_logs(sample_member.id)
+            await member_manager.get_logs(sample_member.id)
 
         # Expect device_logs_manager.get to be called
         mock_device_logs_manager.get.assert_called_once()
 
-    def test_not_found(self, mock_member_repository: MemberRepository, sample_member, member_manager: MemberManager):
+    async def test_not_found(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member,
+        member_manager: MemberManager,
+    ):
         # Given...
-        mock_member_repository.get_by_id = MagicMock(return_value=(None))
+        mock_member_repository.get_by_id = AsyncMock(return_value=(None))
 
         # When...
         with raises(MemberNotFoundError):
-            member_manager.get_logs(sample_member.username)
+            await member_manager.get_logs(sample_member.username)
 
 
 @fixture
@@ -387,7 +456,7 @@ def mock_charter_repository():
 @fixture
 def mock_logs_repository():
     r = MagicMock(spec=LogsRepository)
-    r.get_logs = MagicMock(return_value=[FAKE_LOGS_OBJ])
+    r.get_logs = AsyncMock(return_value=[FAKE_LOGS_OBJ])
     return r
 
 
@@ -398,7 +467,9 @@ def mock_device_repository():
 
 @fixture
 def sample_subscription_pending_rules(sample_member):
-    return Membership(uuid="", member=sample_member, status=MembershipStatus.PENDING_RULES.value)
+    return Membership(
+        uuid="", member=sample_member, status=MembershipStatus.PENDING_RULES.value
+    )
 
 
 @fixture
@@ -418,7 +489,11 @@ def mock_room_repository():
 
 @fixture
 def sample_subscription_pending_payment_initial(sample_member):
-    return Membership(uuid="", member=sample_member, status=MembershipStatus.PENDING_PAYMENT_INITIAL.value)
+    return Membership(
+        uuid="",
+        member=sample_member,
+        status=MembershipStatus.PENDING_PAYMENT_INITIAL.value,
+    )
 
 
 @fixture
@@ -432,7 +507,9 @@ def sample_subscription_pending_payment(sample_member):
 
 
 @fixture
-def sample_subscription_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
+def sample_subscription_pending_payment_validation(
+    sample_member, sample_account1, sample_payment_method
+):
     return Membership(
         uuid="",
         member=sample_member,
@@ -472,7 +549,9 @@ def sample_membership_pending_payment(sample_member):
 
 
 @fixture
-def sample_membership_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
+def sample_membership_pending_payment_validation(
+    sample_member, sample_account1, sample_payment_method
+):
     return Membership(
         uuid="",
         member=sample_member,
