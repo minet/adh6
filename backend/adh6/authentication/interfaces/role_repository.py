@@ -10,15 +10,17 @@ if TYPE_CHECKING:
 
 class RoleRepository(abc.ABC):
     @abc.abstractmethod
-    def get(self, id: int) -> RoleMapping | None:
+    async def get(self, id: int) -> RoleMapping | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
+    async def create(
+        self, method: AuthenticationMethod, identifier: str, roles: list[Roles]
+    ) -> None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def find(
+    async def find(
         self,
         method: AuthenticationMethod | None = None,
         identifiers: list[str] | None = None,
@@ -27,5 +29,5 @@ class RoleRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def delete(self, id: int) -> None:
+    async def delete(self, id: int) -> None:
         pass  # pragma: no cover

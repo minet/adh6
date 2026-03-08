@@ -2,10 +2,11 @@
 Implements everything related to actions on the SQL database.
 """
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.decorator import log_call
 from adh6.entity.product import Product
-from adh6.storage import db
 
 from ..interfaces import ProductRepository
 from .models import Product as SQLProduct
@@ -16,26 +17,32 @@ class ProductSQLRepository(ProductRepository):
     Represent the interface to the SQL database.
     """
 
-    @log_call
-    def get_by_id(self, object_id: int) -> Product | None:
-        with db.sessionmaker.begin() as session:
-            obj = session.query(SQLProduct).filter(SQLProduct.id == object_id).one_or_none()
-            return _map_product_sql_to_entity(obj) if obj else obj
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    def search_by(
+    async def get_by_id(self, object_id: int) -> Product | None:
+        stmt = select(SQLProduct).where(SQLProduct.id == object_id)
+        obj = await self.session.scalar(stmt)
+        return _map_product_sql_to_entity(obj) if obj else obj
+
+    async def search_by(
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[Product], int]:
-        with db.sessionmaker.begin() as session:
-            query = session.query(SQLProduct)
-            if terms:
-                query = query.filter(SQLProduct.name.contains(terms))
-            count = query.count()
-            query = query.order_by(SQLProduct.id.asc())
-            query = query.offset(offset)
-            query = query.limit(limit)
-            r = query.all()
+        stmt = select(SQLProduct)
+        
+        if terms:
+            stmt = stmt.where(SQLProduct.name.contains(terms))
+        
+        # Count
+        count_result = await self.session.execute(stmt)
+        count = len(count_result.all())
+        
+        # Apply ordering and pagination
+        stmt = stmt.order_by(SQLProduct.id.asc()).offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        r = result.scalars().all()
 
-            return [_map_product_sql_to_entity(i) for i in r], count
+        return [_map_product_sql_to_entity(i) for i in r], count
 
 
 def _map_product_sql_to_entity(p: SQLProduct) -> Product:

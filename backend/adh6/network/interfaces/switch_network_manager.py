@@ -3,6 +3,7 @@ Switch network manager interface.
 """
 
 import abc
+from typing import Callable
 
 
 class SwitchNetworkManager(abc.ABC):
@@ -11,7 +12,7 @@ class SwitchNetworkManager(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get_port_status(self, port_id: int) -> bool:
+    async def get_port_status(self, port_id: int) -> bool:
         """
         Retrieve the status of a port.
 
@@ -20,7 +21,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_status(self, port_id: int) -> str:
+    async def update_port_status(self, port_id: int) -> str:
         """
         Update the status of a port.
 
@@ -29,7 +30,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_auth(self, port_id: int) -> bool:
+    async def get_port_auth(self, port_id: int) -> bool:
         """
         Retrieve the status of a port.
 
@@ -38,7 +39,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_auth(self, port_id: int) -> str:
+    async def update_port_auth(self, port_id: int) -> str:
         """
         Update the status of a port.
 
@@ -47,7 +48,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_vlan(self, port_id: int) -> int:
+    async def get_port_vlan(self, port_id: int) -> int:
         """
         Get the VLAN assigned to a port.
 
@@ -56,7 +57,9 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_vlan(self, port_id: int, vlan: int = 1) -> str:
+    async def update_port_vlan(
+        self, port_id: int, elevated: Callable, vlan: int = 1
+    ) -> str:
         """
         Update the VLAN assigned to a port.
 
@@ -65,7 +68,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_mab(self, port_id: int) -> bool:
+    async def get_port_mab(self, port_id: int) -> bool:
         """
         Retrieve whether MAB is active on a port.
 
@@ -74,7 +77,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def update_port_mab(self, port_id: int) -> str:
+    async def update_port_mab(self, port_id: int) -> str:
         """
         Update whether MAB should be active on a port.
 
@@ -83,7 +86,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_use(self, port_id: int) -> bool:
+    async def get_port_use(self, port_id: int) -> bool:
         """
         Get the usage of a port.
 
@@ -92,7 +95,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_alias(self, port_id: int) -> str:
+    async def get_port_alias(self, port_id: int) -> str:
         """
         Get the alias of a port.
 
@@ -101,7 +104,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    def get_port_speed(self, port_id: int) -> int:
+    async def get_port_speed(self, port_id: int) -> int:
         """
         Get the speed of a port.
 

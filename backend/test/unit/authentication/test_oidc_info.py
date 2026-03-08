@@ -1,357 +1,316 @@
-"""Tests for OIDC authentication information extraction."""
+"""Tests for OIDC token information extraction in FastAPI middleware."""
 
-from unittest.mock import MagicMock, patch
+from types import SimpleNamespace
+from typing import Any, cast
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from adh6.authentication.enums import AuthenticationMethod, Roles
-from adh6.authentication.oidc.oidc_info import oidc_info
-from adh6.entity import RoleMapping
-from connexion.exceptions import Unauthorized
-from flask import Flask
+from fastapi import HTTPException, status
 from jwcrypto.jwt import JWTExpired, JWTInvalidClaimFormat, JWTMissingClaim
 
+from adh6.authentication.enums import Roles
+from adh6.authentication.middleware import _validate_token_with_keycloak
 
-class TestOidcInfo:
-    """Test cases for the oidc_info function."""
 
-    @pytest.fixture
-    def mock_app_context(self):
-        """Create a mock Flask app context with Keycloak client."""
-        app = Flask(__name__)
-        with app.app_context():
-            # Mock Keycloak client
-            mock_keycloak = MagicMock()
-            app.config["KEYCLOAK_CLIENT"] = mock_keycloak
-            yield mock_keycloak
+@pytest.fixture
+def mock_session():
+    """Create a fake async DB session."""
+    return MagicMock()
 
-    @pytest.fixture
-    def mock_role_repository(self):
-        """Create a mock role repository."""
-        with patch("adh6.authentication.oidc.oidc_info.role_repository") as mock_repo:
-            yield mock_repo
 
-    @pytest.fixture
-    def valid_token_data(self):
-        """Sample valid token data."""
-        return {
-            "adh6_id": 123,
-            "preferred_username": "testuser",
-            "groups": ["/admin", "/network_admin", "/treso"],
-            "sub": "user-uuid-123",
-            "iat": 1234567890,
-            "exp": 9999999999,
-        }
+@pytest.fixture
+def anyio_backend():
+    """Run anyio tests only on asyncio, matching the app runtime."""
+    return "asyncio"
 
-    @pytest.fixture
-    def valid_token_data_no_adh6_id(self):
-        """Sample valid token data without adh6_id."""
-        return {
-            "preferred_username": "testuser",
-            "groups": ["/admin", "/network_admin"],
-            "sub": "user-uuid-123",
-            "iat": 1234567890,
-            "exp": 9999999999,
-        }
 
-    def test_valid_token_with_adh6_id(self, mock_app_context, mock_role_repository, valid_token_data):
-        """Test successful authentication with a valid token containing adh6_id."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
+@pytest.fixture
+def mock_keycloak_client():
+    """Mock keycloak client used by middleware."""
+    with patch("adh6.authentication.middleware._get_keycloak_client") as mocked:
+        client = MagicMock()
+        mocked.return_value = client
+        yield client
 
-        # Mock role repository responses
-        oidc_roles = [
-            RoleMapping(role=Roles.ADMIN_READ, authentication=AuthenticationMethod.OIDC.value, identifier="admin"),
-            RoleMapping(
-                role=Roles.NETWORK_READ, authentication=AuthenticationMethod.OIDC.value, identifier="network_admin"
-            ),
-        ]
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
 
-        mock_role_repository.find.side_effect = [
-            (oidc_roles, len(oidc_roles)),  # First call for OIDC groups
-            (user_roles, len(user_roles)),  # Second call for username
-        ]
+@pytest.fixture
+def mock_role_repository():
+    """Mock async role repository used during token processing."""
+    with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+        repo = AsyncMock()
+        repo_class.return_value = repo
+        yield repo
 
-        # Execute
-        result = oidc_info("valid_token_123")
 
-        # Assert
-        assert result is not None
-        assert result["uid"] == 123
-        assert result["username"] == "testuser"
-        assert result["groups"] == ["admin", "network_admin", "treso"]
-        assert Roles.USER.value in result["scope"]
-        assert Roles.ADMIN_READ in result["scope"]  # Role enum object, not .value
-        assert Roles.NETWORK_READ in result["scope"]
-        assert Roles.USER in result["scope"]  # Role enum object, not .value
+@pytest.fixture
+def valid_token_data():
+    """Sample valid token data with adh6_id."""
+    return {
+        "adh6_id": 123,
+        "preferred_username": "testuser",
+        "groups": ["/admin", "/network_admin", "/treso"],
+        "sub": "user-uuid-123",
+        "iat": 1234567890,
+        "exp": 9999999999,
+    }
 
-        # Verify calls
-        mock_keycloak.decode_token.assert_called_once_with("valid_token_123")
-        assert mock_role_repository.find.call_count == 2
 
-    def test_valid_token_without_adh6_id(self, mock_app_context, mock_role_repository, valid_token_data_no_adh6_id):
-        """Test successful authentication with a valid token without adh6_id, using username lookup."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data_no_adh6_id
+@pytest.fixture
+def valid_token_data_no_adh6_id():
+    """Sample valid token data without adh6_id."""
+    return {
+        "preferred_username": "testuser",
+        "groups": ["/admin", "/network_admin"],
+        "sub": "user-uuid-123",
+        "iat": 1234567890,
+        "exp": 9999999999,
+    }
 
-        # Mock user_id_from_username lookup
-        mock_role_repository.user_id_from_username.return_value = 456
 
-        # Mock role repository responses
-        oidc_roles = [
-            RoleMapping(role=Roles.ADMIN_WRITE, authentication=AuthenticationMethod.OIDC.value, identifier="admin"),
-        ]
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
+@pytest.mark.anyio
+async def test_valid_token_with_adh6_id(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+    valid_token_data,
+):
+    """A valid token returns expected uid, groups and scope."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = valid_token_data
 
-        mock_role_repository.find.side_effect = [
-            (oidc_roles, len(oidc_roles)),  # First call for OIDC groups
-            (user_roles, len(user_roles)),  # Second call for username
-        ]
+    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
+    user_roles = [SimpleNamespace(role=Roles.USER)]
+    mock_role_repository.find.side_effect = [
+        (oidc_roles, len(oidc_roles)),
+        (user_roles, len(user_roles)),
+    ]
 
-        # Execute
-        result = oidc_info("valid_token_456")
+    result = await _validate_token_with_keycloak("valid_token_123", mock_session)
 
-        # Assert
-        assert result is not None
-        assert result["uid"] == 456
-        assert result["username"] == "testuser"
-        assert result["groups"] == ["admin", "network_admin"]
-        assert Roles.USER.value in result["scope"]
-        assert Roles.ADMIN_WRITE in result["scope"]  # Role enum object, not .value
+    assert result is not None
+    assert result["uid"] == 123
+    assert result["username"] == "testuser"
+    assert result["groups"] == ["admin", "network_admin", "treso"]
+    assert Roles.USER.value in result["scope"]
+    assert Roles.ADMIN_READ in result["scope"]
+    assert Roles.USER in result["scope"]
 
-        # Verify username lookup was called
-        mock_role_repository.user_id_from_username.assert_called_once_with(login="testuser")
+    mock_keycloak_client.decode_token.assert_called_once_with("valid_token_123")
+    assert mock_role_repository.find.call_count == 2
 
-    def test_required_scopes_valid_fails_due_to_mixed_types(
-        self, mock_app_context, mock_role_repository, valid_token_data
-    ):
-        """Test that required scopes validation currently fails due to mixing enum objects and strings in scope.
 
-        This test documents a bug in the current implementation where scope contains mixed types
-        (Roles.USER.value as string + enum objects from roles), making validation inconsistent.
-        """
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
+@pytest.mark.anyio
+async def test_valid_token_without_adh6_id(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+    valid_token_data_no_adh6_id,
+):
+    """When adh6_id is missing, user_id is resolved from username."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = valid_token_data_no_adh6_id
 
-        # Mock role repository to return admin roles
-        admin_roles = [
-            RoleMapping(role=Roles.ADMIN_READ, authentication=AuthenticationMethod.OIDC.value, identifier="admin"),
-        ]
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
+    mock_role_repository.user_id_from_username.return_value = 456
+    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_WRITE)]
+    user_roles = [SimpleNamespace(role=Roles.USER)]
+    mock_role_repository.find.side_effect = [
+        (oidc_roles, len(oidc_roles)),
+        (user_roles, len(user_roles)),
+    ]
 
-        mock_role_repository.find.side_effect = [
-            (admin_roles, len(admin_roles)),
-            (user_roles, len(user_roles)),
-        ]
+    result = await _validate_token_with_keycloak("valid_token_456", mock_session)
 
-        # Execute - currently fails due to enum/string type mismatch in scope validation
-        # Note: This test expects the scope validation to work with enum objects vs string values
-        with pytest.raises(Unauthorized, match="missing required scopes"):
-            oidc_info("valid_token_123", required_scopes=[Roles.USER.value, Roles.ADMIN_READ.value])
+    assert result is not None
+    assert result["uid"] == 456
+    assert result["username"] == "testuser"
+    assert result["groups"] == ["admin", "network_admin"]
+    assert Roles.USER.value in result["scope"]
+    assert Roles.ADMIN_WRITE in result["scope"]
 
-    def test_required_scopes_work_with_enum_objects(self, mock_app_context, mock_role_repository, valid_token_data):
-        """Test that required scopes validation works when using enum objects (not documented behavior)."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
+    mock_role_repository.user_id_from_username.assert_awaited_once_with(
+        login="testuser"
+    )
 
-        # Mock role repository to return admin roles
-        admin_roles = [
-            RoleMapping(role=Roles.ADMIN_READ, authentication=AuthenticationMethod.OIDC.value, identifier="admin"),
-        ]
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
 
-        mock_role_repository.find.side_effect = [
-            (admin_roles, len(admin_roles)),
-            (user_roles, len(user_roles)),
-        ]
+@pytest.mark.anyio
+async def test_invalid_token_claim_format_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Malformed tokens should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.side_effect = JWTInvalidClaimFormat(
+        "Invalid token format"
+    )
 
-        # Execute - works when using enum objects for required_scopes (matching scope content)
-        result = oidc_info("valid_token_123", required_scopes=[Roles.USER.value, Roles.ADMIN_READ])
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak(cast(Any, 123), mock_session)
 
-        # Assert
-        assert result is not None
-        assert result["uid"] == 123
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "Invalid OIDC token" in exc_info.value.detail
+    assert "InvalidClaimFormat" in exc_info.value.detail
 
-    def test_required_scopes_invalid(self, mock_app_context, mock_role_repository, valid_token_data):
-        """Test that authentication fails when required scopes are missing."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
 
-        # Mock role repository to return only basic user role
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
+@pytest.mark.anyio
+async def test_expired_token_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Expired tokens should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.side_effect = JWTExpired("Token has expired")
 
-        mock_role_repository.find.side_effect = [
-            ([], 0),  # No OIDC roles
-            (user_roles, len(user_roles)),  # Only basic user role
-        ]
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak("expired_token_123", mock_session)
 
-        # Execute - should fail because user lacks admin role
-        with pytest.raises(Unauthorized, match="missing required scopes"):
-            oidc_info("valid_token_123", required_scopes=[Roles.USER.value, Roles.ADMIN_READ.value])
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "Invalid OIDC token" in exc_info.value.detail
+    assert "Expired" in exc_info.value.detail
 
-    def test_invalid_token_not_string(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails for non-string tokens."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.side_effect = JWTInvalidClaimFormat("Invalid token format")
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token.*InvalidClaimFormat"):
-            oidc_info(123)  # Pass non-string token
+@pytest.mark.anyio
+async def test_missing_claim_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Tokens missing claims should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.side_effect = JWTMissingClaim(
+        "Missing required claim"
+    )
 
-    def test_expired_token(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails for expired tokens."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.side_effect = JWTExpired("Token has expired")
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak("incomplete_token_123", mock_session)
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token.*Expired"):
-            oidc_info("expired_token_123")
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "Invalid OIDC token" in exc_info.value.detail
+    assert "MissingClaim" in exc_info.value.detail
 
-    def test_missing_claim_token(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails for tokens with missing claims."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.side_effect = JWTMissingClaim("Missing required claim")
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token.*MissingClaim"):
-            oidc_info("incomplete_token_123")
+@pytest.mark.anyio
+async def test_empty_token_data_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Empty token payload should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = None
 
-    def test_tampered_token_invalid_signature(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails for tokens with invalid signatures (tampered)."""
-        # Setup - simulate a tampered token that Keycloak rejects
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.side_effect = JWTInvalidClaimFormat("Invalid signature")
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak("empty_token", mock_session)
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token.*InvalidClaimFormat"):
-            oidc_info("tampered.token.with.invalid.signature")
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert exc_info.value.detail == "Invalid OIDC token: no data found"
 
-    def test_empty_token_data(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails when token decoding returns no data."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = None
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token: no data found"):
-            oidc_info("empty_token")
+@pytest.mark.anyio
+async def test_malformed_token_data_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Non-dict token payload should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = "not_a_dict"
 
-    def test_malformed_token_data(self, mock_app_context, mock_role_repository):
-        """Test that authentication fails when token data is not a dictionary."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = "not_a_dict"
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak("malformed_token", mock_session)
 
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token: the data is not properly formatted"):
-            oidc_info("malformed_token")
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert (
+        exc_info.value.detail
+        == "Invalid OIDC token: the data is not properly formatted"
+    )
 
-    def test_token_without_username_or_id(self, mock_app_context, mock_role_repository):
-        """Test token processing when neither adh6_id nor preferred_username is present."""
-        # Setup
-        mock_keycloak = mock_app_context
-        token_data = {
-            "groups": ["/admin"],
-            "sub": "user-uuid-123",
-        }
-        mock_keycloak.decode_token.return_value = token_data
 
-        # Mock role repository responses
-        oidc_roles = [
-            RoleMapping(role=Roles.ADMIN_READ, authentication=AuthenticationMethod.OIDC.value, identifier="admin"),
-        ]
+@pytest.mark.anyio
+async def test_token_without_username_or_id(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Token without uid/username still returns parsed groups and default scope."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = {
+        "groups": ["/admin"],
+        "sub": "user-uuid-123",
+    }
 
-        mock_role_repository.find.side_effect = [
-            (oidc_roles, len(oidc_roles)),  # OIDC groups
-            ([], 0),  # No username-based roles
-        ]
+    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
+    mock_role_repository.find.side_effect = [
+        (oidc_roles, len(oidc_roles)),
+    ]
 
-        # Execute
-        result = oidc_info("token_without_user_info")
+    result = await _validate_token_with_keycloak(
+        "token_without_user_info", mock_session
+    )
 
-        # Assert
-        assert result is not None
-        assert result["uid"] is None  # No user ID available
-        assert result["username"] is None
-        assert result["groups"] == ["admin"]
-        assert Roles.USER.value in result["scope"]
-        assert Roles.ADMIN_READ in result["scope"]  # Role enum object, not .value
+    assert result is not None
+    assert result["uid"] is None
+    assert result["username"] is None
+    assert result["groups"] == ["admin"]
+    assert Roles.USER.value in result["scope"]
+    assert Roles.ADMIN_READ in result["scope"]
 
-    def test_groups_stripping_leading_slash(self, mock_app_context, mock_role_repository):
-        """Test that leading slashes are properly stripped from group names."""
-        # Setup
-        mock_keycloak = mock_app_context
-        token_data = {
-            "adh6_id": 123,
-            "preferred_username": "testuser",
-            "groups": ["/admin", "//double_slash", "no_slash", None],  # Mix of formats including None
-        }
-        mock_keycloak.decode_token.return_value = token_data
 
-        mock_role_repository.find.return_value = ([], 0)
+@pytest.mark.anyio
+async def test_groups_stripping_leading_slash(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Leading slashes are stripped and None values are ignored."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = {
+        "adh6_id": 123,
+        "preferred_username": "testuser",
+        "groups": ["/admin", "//double_slash", "no_slash", None],
+    }
 
-        # Execute
-        result = oidc_info("token_with_various_groups")
-        if result is None:
-            pytest.fail("oidc_info returned None, expected a valid result")
+    mock_role_repository.find.return_value = ([], 0)
 
-        # Assert
-        assert result["groups"] == ["admin", "double_slash", "no_slash"]  # Leading slashes stripped, None filtered out
+    result = await _validate_token_with_keycloak(
+        "token_with_various_groups", mock_session
+    )
 
-    def test_no_groups_in_token(self, mock_app_context, mock_role_repository):
-        """Test token processing when no groups are present."""
-        # Setup
-        mock_keycloak = mock_app_context
-        token_data = {
-            "adh6_id": 123,
-            "preferred_username": "testuser",
-            # No groups field
-        }
-        mock_keycloak.decode_token.return_value = token_data
+    assert result is not None
+    assert result["groups"] == ["admin", "double_slash", "no_slash"]
 
-        user_roles = [
-            RoleMapping(role=Roles.USER, authentication=AuthenticationMethod.USER.value, identifier="testuser"),
-        ]
 
-        mock_role_repository.find.side_effect = [
-            ([], 0),  # No OIDC roles because no groups
-            (user_roles, len(user_roles)),  # Username-based roles
-        ]
+@pytest.mark.anyio
+async def test_no_groups_in_token(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Token without groups should keep an empty groups list."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = {
+        "adh6_id": 123,
+        "preferred_username": "testuser",
+    }
 
-        # Execute
-        result = oidc_info("token_without_groups")
+    user_roles = [SimpleNamespace(role=Roles.USER)]
+    mock_role_repository.find.side_effect = [
+        (user_roles, len(user_roles)),
+    ]
 
-        # Assert
-        assert result is not None
-        assert result["groups"] == []
-        assert Roles.USER.value in result["scope"]
+    result = await _validate_token_with_keycloak("token_without_groups", mock_session)
 
-    def test_invalid_required_scopes_type(self, mock_app_context, mock_role_repository, valid_token_data):
-        """Test that authentication fails when required_scopes is not a list."""
-        # Setup
-        mock_keycloak = mock_app_context
-        mock_keycloak.decode_token.return_value = valid_token_data
-
-        mock_role_repository.find.return_value = ([], 0)
-
-        # Execute & Assert
-        with pytest.raises(Unauthorized, match="Invalid OIDC token: required scopes must be a list"):
-            oidc_info("valid_token_123", required_scopes="not_a_list")
+    assert result is not None
+    assert result["groups"] == []
+    assert Roles.USER.value in result["scope"]

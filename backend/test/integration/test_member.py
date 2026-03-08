@@ -15,6 +15,41 @@ from test.integration.resource import (
 base_url = f"{host_url}/member/"
 
 
+@pytest.fixture
+def client(
+    _test_client,
+    sample_member,
+    sample_member2,
+    sample_member3,
+    sample_member_admin,
+    account_type,
+    sample_account,
+    sample_payment_method,
+    sample_complete_membership,
+    sample_pending_validation_membership,
+):
+    """Client fixture for member tests."""
+    from .conftest import add_test_fixtures, cleanup_test_data
+
+    add_test_fixtures(
+        [
+            account_type,
+            sample_member,
+            sample_member2,
+            sample_member3,
+            sample_member_admin,
+            sample_account,
+            sample_payment_method,
+            sample_complete_membership,
+            sample_pending_validation_membership,
+        ]
+    )
+
+    yield _test_client
+
+    cleanup_test_data()
+
+
 def assert_member_in_db(body):
     # Actually check that the object was inserted
     with db.sessionmaker.begin() as s:
@@ -120,7 +155,7 @@ def test_member_filter_terms_first_name(client):
     assert r.status_code == 200
 
     response = json.loads(r.content.decode("utf-8"))
-    assert len(response) == 1
+    assert len(response) == 2  # Both Jean-Louis and Jean
 
 
 def test_member_filter_terms_last_name(client):
@@ -251,9 +286,9 @@ def test_member_get_unauthorized(client):
     assert r.status_code == 403
 
 
-def test_member_get_another_user(client, sample_member):
+def test_member_get_another_user(client, sample_member2):
     r = client.get(
-        f"{base_url}{sample_member.id}",
+        f"{base_url}{sample_member2.id}",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -284,7 +319,12 @@ def test_member_delete_unauthorized(client):
 
 
 def test_member_post_member_create_invalid_email(client):
-    body = {"firstName": "John", "lastName": "Doe", "mail": "INVALID_EMAIL", "username": "doe_john"}
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "INVALID_EMAIL",
+        "username": "doe_john",
+    }
     res = client.post(
         f"{base_url}",
         data=json.dumps(body),
@@ -294,7 +334,12 @@ def test_member_post_member_create_invalid_email(client):
 
 
 def test_member_post_member_create(client):
-    body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "doe_john",
+    }
     res = client.post(
         f"{base_url}",
         data=json.dumps(body),
@@ -313,7 +358,12 @@ def test_member_post_member_create(client):
 
 
 def test_member_post_member_same_login(client):
-    body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "doe_john",
+    }
     res = client.post(
         f"{base_url}",
         data=json.dumps(body),
@@ -330,7 +380,12 @@ def test_member_post_member_same_login(client):
 
 
 def test_member_post_unauthorized(client):
-    body = {"firstName": "John", "lastName": "Doe", "mail": "john.doe@gmail.com", "username": "doe_john"}
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": "doe_john",
+    }
     r = client.post(
         f"{base_url}",
         data=json.dumps(body),
@@ -354,8 +409,8 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     }
     res = client.patch(
         f"{base_url}{sample_member.id}",
-        data=json.dumps(body),
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+        json=body,
+        headers=TEST_HEADERS,
     )
     assert res.status_code == 204
     assert_modification_was_created(db.session)
@@ -379,14 +434,16 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         ("username", "TESTTEST"),
     ],
 )
-def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
+def test_member_patch_membership_pending(
+    client, sample_member2: Adherent, key: str, value: str
+):
     body = {
         key: value,
     }
     res = client.patch(
         f"{base_url}{sample_member2.id}",
-        data=json.dumps(body),
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+        json=body,
+        headers=TEST_HEADERS,
     )
     assert res.status_code == 400
 
@@ -394,8 +451,8 @@ def test_member_patch_membership_pending(client, sample_member2: Adherent, key: 
 def test_member_patch_unknown(client):
     r = client.patch(
         f"{base_url}{4242}",
-        data=json.dumps({}),
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
+        json={},
+        headers=TEST_HEADERS,
     )
     assert r.status_code == 404
 
@@ -403,7 +460,7 @@ def test_member_patch_unknown(client):
 def test_member_patch_unauthorized(client):
     r = client.patch(
         f"{base_url}{4242}",
-        data=json.dumps({}),
+        json={},
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

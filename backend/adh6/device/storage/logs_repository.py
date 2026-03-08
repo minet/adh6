@@ -5,6 +5,7 @@ Logs repository.
 import dateutil.parser
 from elasticsearch import Elasticsearch
 
+from adh6.config.configuration import settings
 from adh6.constants import LOG_DEFAULT_LIMIT
 from adh6.entity import Device, Member
 from adh6.misc import get_mac_variations
@@ -18,18 +19,18 @@ class ElasticsearchLogsRepository(LogsRepository):
     """
 
     def __init__(self):
-        from flask import current_app
+        self.elk_enabled = settings.elk_enabled
 
-        self.config = current_app.config
-
-        if "ELK_HOSTS" not in self.config:
+        if not self.elk_enabled:
             return
 
-        self.es = Elasticsearch(
-            self.config["ELK_HOSTS"], http_auth=(self.config["ELK_USER"], self.config["ELK_SECRET"])
-        )
+        es_kwargs = {}
+        if settings.elk_user and settings.elk_secret:
+            es_kwargs["http_auth"] = (settings.elk_user, settings.elk_secret)
 
-    def get(
+        self.es = Elasticsearch(settings.elk_hosts, **es_kwargs)
+
+    async def get(
         self,
         member: Member,
         devices: list[Device] = [],
@@ -46,11 +47,16 @@ class ElasticsearchLogsRepository(LogsRepository):
         :param dhcp: allow to query DHCP logs or not
         :return: tuple of (logs, total_count)
         """
-        if "ELK_HOSTS" not in self.config:
+        if not self.elk_enabled:
             # Mock data for development
             # Generate a large number of mock logs to test pagination
             mock_logs = [
-                [dateutil.parser.parse(f"2024-01-{(i % 31) + 1:02d}T10:{(i % 60):02d}:00Z"), f"test_log_{i}"]
+                [
+                    dateutil.parser.parse(
+                        f"2024-01-{(i % 31) + 1:02d}T10:{(i % 60):02d}:00Z"
+                    ),
+                    f"test_log_{i}",
+                ]
                 for i in range(1, 1001)
             ]
             paginated_logs = mock_logs[offset : offset + limit]
@@ -86,14 +92,18 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the count query
         for d in devices:
             addr = d.mac
-            variations = [{"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)]
+            variations = [
+                {"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)
+            ]
 
             if not dhcp:
                 should_list = count_query["query"]["bool"]["should"]
                 if isinstance(should_list, list):
                     should_list.extend(variations)
             else:
-                should_list = count_query["query"]["constant_score"]["filter"]["bool"]["should"]
+                should_list = count_query["query"]["constant_score"]["filter"]["bool"][
+                    "should"
+                ]
                 if isinstance(should_list, list):
                     should_list.extend(variations)
 
@@ -110,13 +120,19 @@ class ElasticsearchLogsRepository(LogsRepository):
                     "bool": {
                         "filter": {"match": {"program": "radiusd"}},
                         "should": [  # "should" in a "bool" query basically act as a "OR"
-                            {"match": {"radius_user": member.username}},  # Match every log mentioning this member
+                            {
+                                "match": {"radius_user": member.username}
+                            },  # Match every log mentioning this member
                             # rules to match MACs addresses are added in the next chunk of code
                         ],
                         "minimum_should_match": 1,
                     },
                 },
-                "_source": ["@timestamp", "message", "src_mac"],  # discard any other field than timestamp & message
+                "_source": [
+                    "@timestamp",
+                    "message",
+                    "src_mac",
+                ],  # discard any other field than timestamp & message
                 "size": limit,
                 "from": offset,
             }
@@ -144,14 +160,18 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the "should"
         for d in devices:
             addr = d.mac
-            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
+            variations = (
+                {"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)
+            )
 
             if not dhcp:
                 # noinspection PyTypeChecker
                 query["query"]["bool"]["should"] += list(variations)
             else:
                 # noinspection PyTypeChecker
-                query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
+                query["query"]["constant_score"]["filter"]["bool"]["should"] += list(
+                    variations
+                )
 
         res = self.es.search(index="", body=query)["hits"]["hits"]
 
@@ -164,5 +184,8 @@ class ElasticsearchLogsRepository(LogsRepository):
                 # r["_source"]["message"] = r["_source"]["message"]
                 pass
 
-        logs = [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]
+        logs = [
+            [dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]]
+            for x in res
+        ]
         return logs, total_count

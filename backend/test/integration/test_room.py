@@ -9,22 +9,43 @@ from adh6.room.storage.models import Chambre
 from adh6.storage import db
 from sqlalchemy import select
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/room/"
 
 
 @pytest.fixture
-def client(sample_room1, sample_room2, sample_vlan, sample_vlan69, sample_member, wired_device, wireless_device):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(
+    _test_client,
+    sample_room1,
+    sample_room2,
+    sample_vlan,
+    sample_vlan69,
+    sample_member,
+    wired_device,
+    wireless_device,
+):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_room1, sample_room2, sample_vlan69, sample_vlan, sample_member, wired_device, wireless_device)
-        yield c
-        close_db()
+    add_test_fixtures(
+        [
+            sample_room1,
+            sample_room2,
+            sample_vlan69,
+            sample_vlan,
+            sample_member,
+            wired_device,
+            wireless_device,
+        ]
+    )
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def assert_room_in_db(body):
@@ -147,7 +168,11 @@ def test_room_post_new_room(client, sample_vlan):
 
 
 def test_room_put_update_room(client, sample_room1, sample_vlan):
-    room = {"vlan": sample_vlan.numero, "roomNumber": 4285, "description": "Chambre 4285"}
+    room = {
+        "vlan": sample_vlan.numero,
+        "roomNumber": 4285,
+        "description": "Chambre 4285",
+    }
     r = client.put(
         f"{base_url}{sample_room1.id}",
         data=json.dumps(room),
@@ -240,7 +265,10 @@ def test_room_add_member_change_vlan_check_wired(
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
+            select(Device.ip).where(
+                (Device.adherent_id == sample_member.id)
+                & (Device.type == DeviceType.wired.value)
+            )
         ).scalar()
     ) in IPv4Network(sample_vlan69.adresses)
     r = client.post(
@@ -251,22 +279,33 @@ def test_room_add_member_change_vlan_check_wired(
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
+            select(Device.ip).where(
+                (Device.adherent_id == sample_member.id)
+                & (Device.type == DeviceType.wired.value)
+            )
         ).scalar()
     ) in IPv4Network(sample_vlan.adresses)
 
 
-def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
+def test_room_add_member_when_no_room(
+    client, sample_room1, sample_room2, sample_member, sample_vlan69
+):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     with db.sessionmaker.begin() as s:
-        assert s.execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
+        assert (
+            s.execute(
+                select(Adherent.subnet).where(Adherent.id == sample_member.id)
+            ).scalar()
+            is None
+        )
         assert (
             s.execute(
                 select(Device.ip).where(
-                    (Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value)
+                    (Device.adherent_id == sample_member.id)
+                    & (Device.type == DeviceType.wired.value)
                 )
             ).scalar()
             == "En attente"
@@ -279,7 +318,10 @@ def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
+            select(Device.ip).where(
+                (Device.adherent_id == sample_member.id)
+                & (Device.type == DeviceType.wired.value)
+            )
         ).scalar()
     ) in IPv4Network(sample_vlan69.adresses)
 

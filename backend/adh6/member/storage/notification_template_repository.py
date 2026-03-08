@@ -1,25 +1,27 @@
 from sqlalchemy import select
-
-from adh6.storage import db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..interfaces.notification_template_repository import NotificationTemplate, NotificationTemplateRepository
 from .models import NotificationTemplate as SQLNotificationTemplate
 
 
 class NotificationTemplateSQLRepository(NotificationTemplateRepository):
-    def get(self, template_title: str) -> NotificationTemplate | None:
-        smt = select(SQLNotificationTemplate).where(SQLNotificationTemplate.title == template_title)
-        with db.sessionmaker.begin() as session:
-            sql_template = session.execute(smt).one()
-            return _map_template_to_sql_entity(sql_template[0]) if sql_template[0] else None
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    def put(self, template: NotificationTemplate) -> int:
+    async def get(self, template_title: str) -> NotificationTemplate | None:
+        smt = select(SQLNotificationTemplate).where(SQLNotificationTemplate.title == template_title)
+        result = await self.session.execute(smt)
+        sql_template = result.one()
+        return _map_template_to_sql_entity(sql_template[0]) if sql_template[0] else None
+
+    async def put(self, template: NotificationTemplate) -> int:
         # TODO: I think something is broken here. Did notification already worked ?
         # smt = insert(SQLNotificationTemplate).values(title=template.title, template=template.template)
-        with db.sessionmaker.begin() as session:
-            return session.execute(
-                select(SQLNotificationTemplate.id).where(SQLNotificationTemplate.title == template.title)
-            ).scalar_one()
+        result = await self.session.execute(
+            select(SQLNotificationTemplate.id).where(SQLNotificationTemplate.title == template.title)
+        )
+        return result.scalar_one()
 
 
 def _map_template_to_sql_entity(template: SQLNotificationTemplate) -> NotificationTemplate:

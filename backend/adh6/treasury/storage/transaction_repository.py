@@ -4,12 +4,12 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.decorator import log_call
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
-from adh6.storage import db
-from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces import TransactionRepository
 from .models import Account, PaymentMethod, Transaction as SQLTransaction
@@ -18,78 +18,92 @@ auto_validate_payment_method = ["Liquide", "Carte bancaire"]
 
 
 class TransactionSQLRepository(TransactionRepository):
-    @log_call
-    def get_by_id(self, object_id: int) -> Transaction | None:
-        with db.sessionmaker.begin() as session:
-            obj = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one_or_none()
-            return _map_transaction_sql_to_entity(obj) if obj else obj
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    @log_call
-    def search_by(
+    async def get_by_id(self, object_id: int) -> Transaction | None:
+        stmt = select(SQLTransaction).where(SQLTransaction.id == object_id)
+        obj = await self.session.scalar(stmt)
+        return _map_transaction_sql_to_entity(obj) if obj else obj
+
+    async def search_by(
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
         terms: str | None = None,
         filter_: AbstractTransaction | None = None,
     ) -> tuple[list[Transaction], int]:
-        with db.sessionmaker.begin() as session:
-            query = session.query(SQLTransaction)
+        stmt = select(SQLTransaction)
 
-            if filter_:
-                if filter_.id is not None:
-                    query = query.filter(SQLTransaction.id == filter_.id)
-                if filter_.payment_method is not None:
-                    query = query.filter(SQLTransaction.type == filter_.payment_method)
-                if filter_.pending_validation is not None:
-                    query = query.filter(SQLTransaction.pending_validation == filter_.pending_validation)
-                if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-                    query = query.filter((SQLTransaction.src == filter_.src) | (SQLTransaction.dst == filter_.dst))
-                elif filter_.src is not None:
-                    query = query.filter(SQLTransaction.src == filter_.src)
-                elif filter_.dst is not None:
-                    query = query.filter(SQLTransaction.dst == filter_.dst)
+        if filter_:
+            if filter_.id is not None:
+                stmt = stmt.where(SQLTransaction.id == filter_.id)
+            if filter_.payment_method is not None:
+                stmt = stmt.where(SQLTransaction.type == filter_.payment_method)
+            if filter_.pending_validation is not None:
+                stmt = stmt.where(
+                    SQLTransaction.pending_validation == filter_.pending_validation
+                )
+            if (
+                filter_.src is not None
+                and filter_.dst is not None
+                and filter_.src == filter_.dst
+            ):
+                stmt = stmt.where(
+                    (SQLTransaction.src == filter_.src)
+                    | (SQLTransaction.dst == filter_.dst)
+                )
+            elif filter_.src is not None:
+                stmt = stmt.where(SQLTransaction.src == filter_.src)
+            elif filter_.dst is not None:
+                stmt = stmt.where(SQLTransaction.dst == filter_.dst)
 
-            if terms:
-                query = query.filter(SQLTransaction.name.like(f"%{terms}%"))
+        if terms:
+            stmt = stmt.where(SQLTransaction.name.like(f"%{terms}%"))
 
-            count = query.count()
-            query = query.offset(offset)
-            query = query.limit(limit)
-            r = query.all()
+        # Count
+        count_result = await self.session.execute(stmt)
+        count = len(count_result.all())
 
-            return [_map_transaction_sql_to_entity(i) for i in r], count
+        # Apply ordering and pagination
+        stmt = stmt.offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        r = result.scalars().all()
 
-    @log_call
-    def create(self, abstract_transaction: AbstractTransaction) -> object:
+        return [_map_transaction_sql_to_entity(i) for i in r], count
+
+    async def create(self, abstract_transaction: AbstractTransaction) -> object:
         now = datetime.now()
 
         account_src_id = None
         if abstract_transaction.src is not None:
-            with db.sessionmaker.begin() as session:
-                account_src = session.query(Account).filter(Account.id == abstract_transaction.src).one_or_none()
-                if not account_src:
-                    raise AccountNotFoundError(abstract_transaction.src)
-                account_src_id = account_src.id
+            account_src_stmt = select(Account).where(
+                Account.id == abstract_transaction.src
+            )
+            account_src = await self.session.scalar(account_src_stmt)
+            if not account_src:
+                raise AccountNotFoundError(abstract_transaction.src)
+            account_src_id = account_src.id
 
         account_dst_id = None
         if abstract_transaction.dst is not None:
-            with db.sessionmaker.begin() as session:
-                account_dst = session.query(Account).filter(Account.id == abstract_transaction.dst).one_or_none()
-                if not account_dst:
-                    raise AccountNotFoundError(abstract_transaction.dst)
-                account_dst_id = account_dst.id
+            account_dst_stmt = select(Account).where(
+                Account.id == abstract_transaction.dst
+            )
+            account_dst = await self.session.scalar(account_dst_stmt)
+            if not account_dst:
+                raise AccountNotFoundError(abstract_transaction.dst)
+            account_dst_id = account_dst.id
 
         method_id = None
         if abstract_transaction.payment_method is not None:
-            with db.sessionmaker.begin() as session:
-                method = (
-                    session.query(PaymentMethod)
-                    .filter(PaymentMethod.id == abstract_transaction.payment_method)
-                    .one_or_none()
-                )
-                if not method:
-                    raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
-                method_id = method.id
+            method_stmt = select(PaymentMethod).where(
+                PaymentMethod.id == abstract_transaction.payment_method
+            )
+            method = await self.session.scalar(method_stmt)
+            if not method:
+                raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
+            method_id = method.id
 
         transaction = SQLTransaction(
             src=account_src_id,
@@ -100,37 +114,35 @@ class TransactionSQLRepository(TransactionRepository):
             attachments="",
             type=method_id,
             author_id=abstract_transaction.author,
-            pending_validation=abstract_transaction.pending_validation
-            if abstract_transaction.pending_validation
-            else False,
+            pending_validation=(
+                abstract_transaction.pending_validation
+                if abstract_transaction.pending_validation
+                else False
+            ),
         )
-        with db.sessionmaker.begin() as session, track_modifications(session, transaction):
-            session.add(transaction)
-            session.flush()
-            mapped_transaction = _map_transaction_sql_to_entity(transaction)
+
+        self.session.add(transaction)
+        await self.session.flush()
+        mapped_transaction = _map_transaction_sql_to_entity(transaction)
 
         return mapped_transaction
 
-    def update(self, abstract_transaction: AbstractTransaction, override=False) -> object:
+    def update(
+        self, abstract_transaction: AbstractTransaction, override=False
+    ) -> object:
         raise NotImplementedError
 
-    @log_call
-    def validate(self, id) -> None:
-        with db.sessionmaker.begin() as session:
-            query = session.query(SQLTransaction)
-            query = query.filter(SQLTransaction.id == id)
+    async def validate(self, id) -> None:
+        stmt = select(SQLTransaction).where(SQLTransaction.id == id)
+        transaction = await self.session.scalar(stmt)
 
-            transaction = query.one()
-            with track_modifications(session, transaction):
-                transaction.pending_validation = False
+        transaction.pending_validation = False
 
-    @log_call
-    def delete(self, object_id) -> None:
-        with db.sessionmaker.begin() as session:
-            transaction = session.query(SQLTransaction).filter(SQLTransaction.id == object_id).one()
+    async def delete(self, object_id) -> None:
+        stmt = select(SQLTransaction).where(SQLTransaction.id == object_id)
+        transaction = await self.session.scalar(stmt)
 
-            with track_modifications(session, transaction):
-                session.delete(transaction)
+        await self.session.delete(transaction)
 
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:

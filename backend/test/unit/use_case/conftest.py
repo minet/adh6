@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from os import name
 
 from adh6.authentication import Roles
 from adh6.constants import MembershipStatus
@@ -27,7 +28,9 @@ def mock_test_configuration(monkeypatch):
     from adh6.member.subscription_manager import SubscriptionManager
 
     monkeypatch.setattr(SubscriptionManager, "duration_price", {1: 9, 12: 50})
-    monkeypatch.setattr(SubscriptionManager, "duration_string", {1: "1 Mois", 12: "1 an"})
+    monkeypatch.setattr(
+        SubscriptionManager, "duration_string", {1: "1 Mois", 12: "1 an"}
+    )
 
 
 @fixture(autouse=True)
@@ -55,7 +58,10 @@ def ctx_only_admin(sample_member: Member, monkeypatch):
 
     monkeypatch.setattr(context, "get_user", lambda: sample_member.id, raising=False)
     monkeypatch.setattr(
-        context, "get_roles", lambda: [Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value], raising=False
+        context,
+        "get_roles",
+        lambda: [Roles.USER.value, Roles.ADMIN_WRITE.value, Roles.ADMIN_READ.value],
+        raising=False,
     )
 
 
@@ -65,9 +71,9 @@ def sample_admin(faker) -> Generator[Member, None, None]:
         id=faker.random_digit_not_null(),
         username=TESTING_CLIENT,
         email=faker.email(),
-        first_name=faker.first_name(),
-        last_name=faker.last_name(),
-        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        firstName=faker.first_name(),
+        lastName=faker.last_name(),
+        departureDate=faker.date_this_year(after_today=True).isoformat(),
     )
 
 
@@ -77,9 +83,9 @@ def sample_member(faker) -> Member:
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
         email=faker.email(),
-        first_name=faker.first_name(),
-        last_name=faker.last_name(),
-        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        firstName=faker.first_name(),
+        lastName=faker.last_name(),
+        departureDate=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
     )
 
@@ -89,21 +95,21 @@ def sample_vlan(faker) -> Vlan:
     return Vlan(
         id=faker.random_digit_not_null(),
         number=faker.random_digit_not_null(),
-        ipv4_network="157.159.41.0/24",
-        ipv6_network="fe80::/64",
+        ipv4Network="157.159.41.0/24",
+        ipv6Network="fe80::/64",
     )
 
 
 @fixture
 def sample_subscription_empty(sample_member) -> SubscriptionBody:
     return SubscriptionBody(
-        member=sample_member,
+        member=sample_member.id,
     )
 
 
 @fixture
 def sample_subscription_duration_no_account(sample_member) -> SubscriptionBody:
-    return SubscriptionBody(member=sample_member, duration=1)
+    return SubscriptionBody(member=sample_member.id, duration=1)
 
 
 @fixture
@@ -111,18 +117,28 @@ def sample_subscription_duration_account_payment_method(
     sample_member, sample_account1, sample_payment_method
 ) -> SubscriptionBody:
     return SubscriptionBody(
-        member=sample_member, duration=1, account=sample_account1.id, payment_method=sample_payment_method.id
+        member=sample_member.id,
+        duration=1,
+        account=sample_account1.id,
+        paymentMethod=sample_payment_method.id,
     )
 
 
 @fixture
 def sample_membership_empty(sample_member) -> AbstractMembership:
-    return AbstractMembership(uuid="", member=sample_member, status=MembershipStatus.INITIAL.value)
+    return AbstractMembership(
+        uuid="", member=sample_member.id, status=MembershipStatus.INITIAL.value
+    )
 
 
 @fixture
 def sample_membership_duration_no_account(sample_member) -> AbstractMembership:
-    return AbstractMembership(uuid="", member=sample_member, status=MembershipStatus.INITIAL.value, duration=1)
+    return AbstractMembership(
+        uuid="",
+        member=sample_member.id,
+        status=MembershipStatus.INITIAL.value,
+        duration=1,
+    )
 
 
 @fixture
@@ -131,11 +147,11 @@ def sample_membership_duration_account_payment_method(
 ) -> AbstractMembership:
     return AbstractMembership(
         uuid="",
-        member=sample_member,
+        member=sample_member.id,
         status=MembershipStatus.INITIAL.value,
         duration=1,
         account=sample_account1.id,
-        payment_method=sample_payment_method.id,
+        paymentMethod=sample_payment_method.id,
     )
 
 
@@ -145,9 +161,9 @@ def sample_member_no_room(faker) -> Member:
         id=faker.random_digit_not_null(),
         username=faker.user_name(),
         email=faker.email(),
-        first_name=faker.first_name(),
-        last_name=faker.last_name(),
-        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        firstName=faker.first_name(),
+        lastName=faker.last_name(),
+        departureDate=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
     )
 
@@ -157,10 +173,10 @@ def sample_device(faker, sample_member) -> Device:
     return Device(
         id=faker.random_digit_not_null(),
         mac=faker.mac_address().replace(":", "-"),
-        member=sample_member,
-        connection_type="wired",
-        ipv4_address=faker.ipv4(address_class="157.159.41.0/24"),
-        ipv6_address=faker.ipv6(),
+        member=sample_member.id,
+        connectionType="wired",
+        ipv4Address=faker.ipv4(address_class="157.159.41.0/24"),
+        ipv6Address=faker.ipv6(),
     )
 
 
@@ -168,7 +184,7 @@ def sample_device(faker, sample_member) -> Device:
 def sample_room(faker) -> Room:
     return Room(
         id=faker.random_digit_not_null(),
-        room_number=faker.numerify(text="####"),
+        roomNumber=faker.numerify(text="####"),
         description="Test room.",
         vlan=41,
     )
@@ -178,10 +194,10 @@ def sample_room(faker) -> Room:
 def sample_port(faker, sample_room, sample_switch) -> Port:
     return Port(
         id=faker.random_digit_not_null(),
-        port_number=faker.numerify(text="#/#/##"),
+        portNumber=faker.numerify(text="#/#/##"),
         room=sample_room,
-        switch_obj=sample_switch,
-        oid=10101,
+        switchObj=sample_switch,
+        oid="10101",
     )
 
 
@@ -206,7 +222,9 @@ def sample_account_type(faker) -> AccountType:
 
 
 @fixture
-def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(
+    faker, sample_admin, sample_account1, sample_account2, sample_payment_method
+):
     yield Transaction(
         id=faker.random_digit_not_null(),
         src=sample_account1.id,
@@ -215,13 +233,15 @@ def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sa
         value=faker.random_int(),
         attachments="",
         timestamp=faker.date_this_year(),
-        payment_method=sample_payment_method.id,
+        paymentMethod=sample_payment_method.id,
         author=sample_admin.id,
     )
 
 
 @fixture
-def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction_pending(
+    faker, sample_admin, sample_account1, sample_account2, sample_payment_method
+):
     yield Transaction(
         id=faker.random_digit_not_null(),
         src=sample_account1.id,
@@ -230,9 +250,9 @@ def sample_transaction_pending(faker, sample_admin, sample_account1, sample_acco
         value=faker.random_int(),
         attachments="",
         timestamp=faker.date_this_year(),
-        payment_method=sample_payment_method.id,
+        paymentMethod=sample_payment_method.id,
         author=sample_admin.id,
-        pending_validation=True,
+        pendingValidation=True,
     )
 
 
@@ -241,14 +261,14 @@ def sample_account1(faker, sample_member, sample_account_type):
     yield Account(
         id=faker.random_digit_not_null(),
         name=faker.word(),
-        actif=faker.random_choices(elements=(True, False)),
-        creation_date=faker.date_this_year(),
-        member=sample_member,
+        actif=faker.boolean(),
+        creationDate=faker.date_this_year(),
+        member=sample_member.id,
         balance=0,
-        compte_courant=faker.random_choices(elements=(True, False)),
-        pinned=faker.random_choices(elements=(True, False)),
-        account_type=sample_account_type,
-        pending_balance=faker.random_int(),
+        compteCourant=faker.boolean(),
+        pinned=faker.boolean(),
+        accountType=sample_account_type.id,
+        pendingBalance=faker.random_int(),
     )
 
 
@@ -257,14 +277,14 @@ def sample_account2(faker, sample_member, sample_account_type) -> Account:
     return Account(
         id=faker.random_digit_not_null() + 1024,
         name=faker.word(),
-        actif=faker.random_choices(elements=(True, False)),
-        creation_date=faker.date_this_year(),
-        member=sample_member,
+        actif=faker.boolean(),
+        creationDate=faker.date_this_year(),
+        member=sample_member.id,
         balance=0,
-        compte_courant=faker.random_choices(elements=(True, False)),
-        pinned=faker.random_choices(elements=(True, False)),
-        account_type=sample_account_type,
-        pending_balance=faker.random_int(),
+        compteCourant=faker.boolean(),
+        pinned=faker.boolean(),
+        accountType=sample_account_type.id,
+        pendingBalance=faker.random_int(),
     )
 
 
@@ -273,6 +293,6 @@ def sample_product(faker) -> Product:
     return Product(
         id=faker.random_digit_not_null(),
         name=faker.word(),
-        selling_price=faker.random_int(),
-        buying_price=faker.random_int(),
+        sellingPrice=faker.random_int(),
+        buyingPrice=faker.random_int(),
     )

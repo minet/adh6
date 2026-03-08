@@ -1,19 +1,16 @@
 import datetime as dt
 
-from flask_sqlalchemy_lite import SQLAlchemy
 from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
+from adh6.storage.db import db
 from adh6.storage.sql.rubydiff import rubydiff
 from adh6.storage.sql.trackable import RubyHashTrackable
 
 
 class Base(DeclarativeBase):
     pass
-
-
-db = SQLAlchemy()
 
 
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet

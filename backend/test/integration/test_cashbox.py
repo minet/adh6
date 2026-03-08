@@ -13,16 +13,14 @@ def sample_caisse():
 
 
 @pytest.fixture
-def client(sample_caisse, sample_member):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_caisse, sample_member):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_caisse, sample_member)
-        yield c
-        close_db()
+    add_test_fixtures([sample_caisse, sample_member])
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_cashbox_get(client):

@@ -81,6 +81,7 @@ def device_with_invalid_member(faker, sample_device: Device):
 
 @pytest.fixture
 def client(
+    _test_client,
     custom_device,
     wired_device,
     wired_device2,
@@ -93,13 +94,10 @@ def client(
     sample_vlan69,
     sample_room_member_link,
 ):
-    from .conftest import close_db, prep_db
-    from .context import app
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(
+    add_test_fixtures(
+        [
             custom_device,
             wired_device,
             wired_device2,
@@ -111,9 +109,12 @@ def client(
             sample_vlan69,
             sample_room2,
             sample_room_member_link,
-        )
-        yield c
-        close_db()
+        ]
+    )
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_device_filter_all_devices(client):
@@ -195,9 +196,11 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
 @pytest.mark.parametrize("device", [lf("wireless_device"), lf("wired_device")])
 def test_device_filter_by_connection_type(client, device: Device):
     r = client.get(
-        f"{base_url}?filter[connectionType]={'wireless'}"
-        if device.type == DeviceType.wireless.value
-        else f"{base_url}?filter[connectionType]={'wired'}",
+        (
+            f"{base_url}?filter[connectionType]={'wireless'}"
+            if device.type == DeviceType.wireless.value
+            else f"{base_url}?filter[connectionType]={'wired'}"
+        ),
         headers=TEST_HEADERS,
     )
     response = json.loads(r.content.decode("utf-8"))
@@ -213,7 +216,9 @@ def test_device_filter_unauthorized(client):
     assert r.status_code == 403
 
 
-@pytest.mark.parametrize("device_to_add", [lf("wireless_device_dict"), lf("wired_device_dict")])
+@pytest.mark.parametrize(
+    "device_to_add", [lf("wireless_device_dict"), lf("wired_device_dict")]
+)
 def test_device_post(client, sample_room1, device_to_add, sample_member: Adherent):
     """Can create a valid device"""
     r = client.patch(
@@ -234,7 +239,11 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
     q = s.query(Device)
     q = q.filter(
         Device.type
-        == (DeviceType.wireless.value if device_to_add["connectionType"] == "wireless" else DeviceType.wired.value)
+        == (
+            DeviceType.wireless.value
+            if device_to_add["connectionType"] == "wireless"
+            else DeviceType.wired.value
+        )
     )
     q = q.filter(Device.mac == device_to_add["mac"])
     assert q.one_or_none() is not None
@@ -252,7 +261,9 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
     assert res["ipv6Address"] == "fe80:42::2"
 
 
-def test_device_post_create_multiple_wireless(faker, client, sample_room1, sample_room2, sample_member):
+def test_device_post_create_multiple_wireless(
+    faker, client, sample_room1, sample_room2, sample_member
+):
     """
     Can create a valid wired device? Create 20 devices for each users
     """
@@ -270,7 +281,9 @@ def test_device_post_create_multiple_wireless(faker, client, sample_room1, sampl
     )
     assert r.status_code == 204
 
-    device_number = 12  # 13 should be the maximum but one of the member already have one
+    device_number = (
+        12  # 13 should be the maximum but one of the member already have one
+    )
 
     devices = []
     for m in [TESTING_CLIENT_ID, SAMPLE_CLIENT_ID]:
@@ -283,7 +296,11 @@ def test_device_post_create_multiple_wireless(faker, client, sample_room1, sampl
             devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
+        r = client.post(
+            f"{base_url}",
+            data=json.dumps(d),
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
+        )
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
@@ -291,11 +308,18 @@ def test_device_post_create_multiple_wireless(faker, client, sample_room1, sampl
         )
 
         res = r.json()
-        subnet = sample_member.subnet if d["member"] == SAMPLE_CLIENT_ID else sample_member_admin().subnet
+        subnet = (
+            sample_member.subnet
+            if d["member"] == SAMPLE_CLIENT_ID
+            else sample_member_admin().subnet
+        )
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         start_number_v6 = [2, 5]
-        assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
+        assert (
+            res["ipv4Address"]
+            == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
+        )
         assert (
             res["ipv6Address"]
             == f"fe80:{42 if d['member'] == TESTING_CLIENT_ID else 69}::{format(start_number_v6[i // device_number] + (i % device_number), 'x')}"
@@ -378,7 +402,11 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         devices.append(d)
 
     for i, d in enumerate(devices):
-        r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
+        r = client.post(
+            f"{base_url}",
+            data=json.dumps(d),
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
+        )
         assert r.status_code == 201
         r = client.get(
             f"{base_url}{int(r.text)}",
@@ -393,7 +421,11 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         "member": TESTING_CLIENT_ID,
         "connectionType": "wired",
     }
-    r = client.post(f"{base_url}", data=json.dumps(d), headers={"Content-Type": "application/json", **TEST_HEADERS})
+    r = client.post(
+        f"{base_url}",
+        data=json.dumps(d),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
     assert r.status_code == 400
 
 
@@ -434,7 +466,10 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
         subnet = sample_member_admin().subnet
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
-        assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
+        assert (
+            res["ipv4Address"]
+            == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
+        )
         assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % device_number), 'x')}"
 
     d = {
@@ -460,7 +495,9 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1):
 def test_device_post_create_invalid(client, key, value, wired_device_dict, status_code):
     wired_device_dict[key] = value
     r = client.post(
-        f"{base_url}", data=json.dumps(wired_device_dict), headers={"Content-Type": "application/json", **TEST_HEADERS}
+        f"{base_url}",
+        data=json.dumps(wired_device_dict),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == status_code
 
@@ -492,7 +529,9 @@ def test_device_get_valid(client, device, status_code):
     assert json.loads(r.content.decode("utf-8"))
 
 
-@pytest.mark.parametrize("only", ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"])
+@pytest.mark.parametrize(
+    "only", ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"]
+)
 def test_device_get_only_selected_param(client, wired_device, only):
     r = client.get(
         f"{base_url}{wired_device.id}?only={only}",

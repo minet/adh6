@@ -1,80 +1,49 @@
 import os
-import re
-from typing import ClassVar
+from typing import Annotated, Any
+
+from pydantic import Field, computed_field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class BaseConfig:
-    DEBUG = True
-    TESTING = True
+class Settings(BaseSettings):
+    debug: bool = False
+    testing: bool = False
+    secret_key: str | None = None
 
-    # SQLAlchemy configuration variables
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
-    SQLALCHEMY_ECHO = False
-    SQLALCHEMY_RECORD_QUERIES = False
-    SESSION_TYPE = "memcached"
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+    # Database settings
+    database_username: str | None = None
+    database_password: str | None = None
+    database_host: str | None = None
+    database_db_name: str = "adh6"
 
-    ALEMBIC: ClassVar = {
-        "script_location": "../migrations",  # TODO: for some reason, the "root" path is "adh6" and not "api_server"
-    }
+    sqlalchemy_echo: bool = False
+    sqlalchemy_pool_size: int = 5
+    sqlalchemy_max_overflow: int = 10
 
+    @computed_field
+    def database_url(self) -> str:
+        if self.testing:
+            # File-backed sqlite keeps a shared database across test sessions.
+            return "sqlite+aiosqlite:///./.adh6-test.db"
 
-class TestingConfig(BaseConfig):
-    DEBUG = True
-    TESTING = True
+        if not self.database_host:
+            # Default fallback if needed, or let it fail/be empty if that's preferred
+            return "mysql+aiomysql://user:pass@localhost/adh6"
 
-    SQLALCHEMY_ECHO = True  # TODO: check if used or needs to be migrated
-    SQLALCHEMY_RECORD_QUERIES = True
+        return f"mysql+aiomysql://{self.database_username}:{self.database_password}@{self.database_host}/{self.database_db_name}"
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    # SQLALCHEMY_ENGINE_OPTIONS = {
-    #     'isolation_level': 'SERIALIZABLE',
-    #     'echo': False,
-    #     'pool_pre_ping': True
-    # }
-    # DATABASE = {
-    #     'drivername': 'sqlite',
-    #     'database': ':memory:',
-    # }
-    SQLALCHEMY_ENGINES: ClassVar = {"default": "sqlite:///:memory:"}
+    # SMTP
+    smtp_server: str | None = None
 
+    # ELK
+    elk_enabled: bool = False
+    elk_hosts: str = "http://localhost:9200"
+    elk_user: str | None = None
+    elk_secret: str | None = None
 
-class DeployedConfig(BaseConfig):
-    DEBUG = False
-    TESTING = False
-
-    SQLALCHEMY_ENGINES: ClassVar = {
-        "default": "mysql+mysqldb://{}:{}@{}/{}".format(
-            os.environ.get("DATABASE_USERNAME"),
-            os.environ.get("DATABASE_PASSWORD"),
-            os.environ.get("DATABASE_HOST"),
-            os.environ.get("DATABASE_DB_NAME"),
-        )
-    }
-
-    SMTP_SERVER = os.environ.get("SMTP_SERVER", None)
-
-    if os.environ.get("ELK_ENABLED", False):
-        # IPs and ports for Elasticsearch nodes
-        ELK_HOSTS = [
-            {"scheme": s.group("scheme"), "host": s.group("host"), "port": int(s.group("port"))}
-            for s in [
-                re.search(
-                    pattern=r"(?P<scheme>https|http):\/\/(?P<host>(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}):(?P<port>\d+)",
-                    string=i,
-                )
-                for i in os.environ.get("ELK_HOSTS", "http://localhost:9200,https://locahost:9200").split(",")
-            ]
-            if s
-        ]
-        ELK_USER = os.environ.get("ELK_USER")
-        ELK_SECRET = os.environ.get("ELK_SECRET")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
+    )
 
 
-class DevelopmentConfig(DeployedConfig):
-    pass
-
-
-class ProductionConfig(DeployedConfig):
-    SQLALCHEMY_ECHO = False
-    SQLALCHEMY_RECORD_QUERIES = False
+settings = Settings()

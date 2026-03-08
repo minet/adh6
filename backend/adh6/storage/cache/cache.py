@@ -1,3 +1,30 @@
-from flask_caching import Cache
+"""Async-compatible cache module for FastAPI.
 
-cache = Cache()
+In the async FastAPI context, caching is handled at the FastAPI level using
+appropriate headers and potentially external cache solutions (Redis, Memcached).
+This module provides a stub for backward compatibility.
+"""
+
+
+class AsyncCache:
+    """Stub cache class for compatibility with existing code."""
+
+    def get(self, key: str):
+        """Get a value from cache (returns None in stub)."""
+        return None
+
+    def set(self, key: str, value, timeout=None):
+        """Set a value in cache (no-op in stub)."""
+        pass
+
+    def delete(self, key: str):
+        """Delete a value from cache (no-op in stub)."""
+        pass
+
+    def clear(self):
+        """Clear all cache (no-op in stub)."""
+        pass
+
+
+# Stub cache instance for compatibility
+cache = AsyncCache()

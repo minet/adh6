@@ -6,66 +6,73 @@ import calendar
 import ipaddress
 from datetime import date, datetime, timedelta
 
-from adh6.decorator import log_call
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from adh6.entity import AbstractMember, Member, MemberFilter
-from adh6.storage import db
-from adh6.storage.sql.track_modifications import track_modifications
 
 from ..interfaces.member_repository import MemberRepository
 from .models import Adherent, Membership
 
 
 class MemberSQLRepository(MemberRepository):
-    @log_call
-    def search_by(
-        self, limit: int, offset: int, terms: str | None = None, filter_: MemberFilter | None = None
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def search_by(
+        self,
+        limit: int,
+        offset: int,
+        terms: str | None = None,
+        filter_: MemberFilter | None = None,
     ) -> tuple[list[Member], int]:
-        with db.sessionmaker.begin() as session:
-            query = session.query(Adherent)
-            if filter_:
-                if filter_.ip:
-                    query = query.filter(Adherent.ip == filter_.ip)
-                if filter_.since:
-                    query = query.filter(Adherent.date_de_depart >= filter_.since)
-                if filter_.until:
-                    query = query.filter(Adherent.date_de_depart <= filter_.until)
-                if filter_.membership:
-                    query = query.join(Membership, Membership.adherent_id == Adherent.id).filter(
-                        Membership.status == filter_.membership
-                    )
+        stmt = select(Adherent)
 
-            if terms:
-                query = query.filter(
-                    (Adherent.nom.contains(terms))
-                    | (Adherent.prenom.contains(terms))
-                    | (Adherent.mail.contains(terms))
-                    | (Adherent.login.contains(terms))
-                    | (Adherent.commentaires.contains(terms))
-                    | (Adherent.ip.contains(terms))
-                    | (Adherent.subnet.contains(terms))
-                )
+        if filter_:
+            if filter_.ip:
+                stmt = stmt.where(Adherent.ip == filter_.ip)
+            if filter_.since:
+                stmt = stmt.where(Adherent.date_de_depart >= filter_.since)
+            if filter_.until:
+                stmt = stmt.where(Adherent.date_de_depart <= filter_.until)
+            if filter_.membership:
+                stmt = stmt.join(
+                    Membership, Membership.adherent_id == Adherent.id
+                ).where(Membership.status == filter_.membership)
 
-            count = query.count()
-            query = query.order_by(Adherent.login.asc())
-            query = query.offset(offset)
-            query = query.limit(limit)
-            r = query.all()
+        if terms:
+            stmt = stmt.where(
+                (Adherent.nom.contains(terms))
+                | (Adherent.prenom.contains(terms))
+                | (Adherent.mail.contains(terms))
+                | (Adherent.login.contains(terms))
+                | (Adherent.commentaires.contains(terms))
+                | (Adherent.ip.contains(terms))
+                | (Adherent.subnet.contains(terms))
+            )
 
-            return list(map(_map_member_sql_to_entity, r)), count
+        # Count
+        count_result = await self.session.execute(stmt)
+        count = len(count_result.all())
 
-    @log_call
-    def get_by_id(self, object_id: int) -> AbstractMember | None:
-        with db.sessionmaker.begin() as session:
-            adh = session.query(Adherent).filter(Adherent.id == object_id).one_or_none()
-            return _map_member_sql_to_abstract_entity(adh) if adh else None
+        # Apply ordering and pagination
+        stmt = stmt.order_by(Adherent.login.asc()).offset(offset).limit(limit)
+        result = await self.session.execute(stmt)
+        r = result.scalars().all()
 
-    def get_by_login(self, login: str) -> Member | None:
-        with db.sessionmaker.begin() as session:
-            adh = session.query(Adherent).filter(Adherent.login == login).one_or_none()
-            return _map_member_sql_to_entity(adh) if adh else None
+        return list(map(_map_member_sql_to_entity, r)), count
 
-    @log_call
-    def create(self, object_to_create: Member) -> object:
+    async def get_by_id(self, object_id: int) -> Member | None:
+        stmt = select(Adherent).where(Adherent.id == object_id)
+        adh = await self.session.scalar(stmt)
+        return _map_member_sql_to_entity(adh) if adh else None
+
+    async def get_by_login(self, login: str) -> Member | None:
+        stmt = select(Adherent).where(Adherent.login == login)
+        adh = await self.session.scalar(stmt)
+        return _map_member_sql_to_entity(adh) if adh else None
+
+    async def create(self, object_to_create: Member) -> object:
         now = datetime.now()
         member: Adherent = Adherent(
             nom=object_to_create.last_name,
@@ -77,79 +84,81 @@ class MemberSQLRepository(MemberRepository):
             commentaires=object_to_create.comment,
             date_de_depart=object_to_create.departure_date,
         )
-        with db.sessionmaker.begin() as session:
-            session.add(member)
-            session.flush()  # Ensure the member gets an ID
-            # Map to entity while still in session context
-            result = _map_member_sql_to_entity(member)
+
+        self.session.add(member)
+        await self.session.flush()  # Ensure the member gets an ID
+        # Map to entity while still in session context
+        result = _map_member_sql_to_entity(member)
 
         return result
 
-    def update(self, abstract_member: AbstractMember, override=False) -> object:
-        # Use the fresh session pattern for proper commit
-        with db.sessionmaker.begin() as session:
-            query = session.query(Adherent).filter(Adherent.id == abstract_member.id)
+    async def update(self, abstract_member: AbstractMember, override=False) -> object:
+        stmt = select(Adherent).where(Adherent.id == abstract_member.id)
+        adherent = await self.session.scalar(stmt)
 
-            adherent = query.one()
+        new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
+        await self.session.flush()
+        mapped_member = _map_member_sql_to_entity(new_adherent)
 
-            with track_modifications(session, adherent):
-                new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
-                session.flush()
-                mapped_member = _map_member_sql_to_entity(new_adherent)
+        return mapped_member
 
-            return mapped_member
+    async def delete(self, member_id) -> None:
+        stmt = select(Adherent).where(Adherent.id == member_id)
+        member = await self.session.scalar(stmt)
+        if not member:
+            raise ValueError(f"Member {member_id} not found")
+        await self.session.delete(member)
 
-    @log_call
-    def delete(self, member_id) -> None:
-        with db.sessionmaker.begin() as session:
-            member = session.query(Adherent).filter(Adherent.id == member_id).one()
-            with track_modifications(session, member):
-                session.delete(member)
+    async def update_password(self, member_id, hashed_password):
+        stmt = select(Adherent).where(Adherent.id == member_id)
+        adherent = await self.session.scalar(stmt)
 
-    @log_call
-    def update_password(self, member_id, hashed_password):
-        with db.sessionmaker.begin() as session:
-            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
-            with track_modifications(session, adherent):
-                adherent.password = hashed_password
+        if not adherent:
+            raise ValueError(f"Member {member_id} not found")
 
-    @log_call
-    def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
+        adherent.password = hashed_password
+
+    async def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
-        with db.sessionmaker.begin() as session:
-            query = session.query(Adherent).filter(Adherent.id == member_id)
-            adherent: Adherent = query.one()
 
-            if adherent.date_de_depart is None or adherent.date_de_depart < now:
-                adherent.date_de_depart = now
+        stmt = select(Adherent).where(Adherent.id == member_id)
+        adherent = await self.session.scalar(stmt)
 
-            days_to_add = 0
-            for i in range(duration_in_mounth):
-                if adherent.date_de_depart.month + i <= 12:
-                    days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month + i)[
-                        1
-                    ]
-                else:
-                    days_to_add += calendar.monthrange(
-                        adherent.date_de_depart.year + 1, adherent.date_de_depart.month + i - 12
-                    )[1]
-            adherent.date_de_depart += timedelta(days=days_to_add)
+        if not adherent:
+            raise ValueError(f"Member {member_id} not found")
+        if adherent.date_de_depart is None or adherent.date_de_depart < now:
+            adherent.date_de_depart = now
 
-    def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
-        with db.sessionmaker.begin() as session:
-            q = session.query(Adherent.ip).filter(Adherent.ip.is_not(None))
-            r = q.all()
-            return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
+        days_to_add = 0
+        for i in range(duration_in_mounth):
+            if adherent.date_de_depart.month + i <= 12:
+                days_to_add += calendar.monthrange(
+                    adherent.date_de_depart.year, adherent.date_de_depart.month + i
+                )[1]
+            else:
+                days_to_add += calendar.monthrange(
+                    adherent.date_de_depart.year + 1,
+                    adherent.date_de_depart.month + i - 12,
+                )[1]
+        adherent.date_de_depart += timedelta(days=days_to_add)
 
-    @log_call
-    def update_comment(self, member_id: int, comment: str) -> None:
-        with db.sessionmaker.begin() as session:
-            adherent = session.query(Adherent).filter(Adherent.id == member_id).one()
-            with track_modifications(session, adherent):
-                adherent.commentaires = comment
+    async def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
+        stmt = select(Adherent.ip).where(Adherent.ip.is_not(None))
+        result = await self.session.execute(stmt)
+        r = result.all()
+        return [ipaddress.IPv4Address(i[0]) for i in r if i[0] is not None]
+
+    async def update_comment(self, member_id: int, comment: str) -> None:
+        stmt = select(Adherent).where(Adherent.id == member_id)
+        adherent = await self.session.scalar(stmt)
+        if not adherent:
+            raise ValueError(f"Member {member_id} not found")
+        adherent.commentaires = comment
 
 
-def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
+def _merge_sql_with_entity(
+    entity: AbstractMember, sql_object: Adherent, override=False
+) -> Adherent:
     now = datetime.now()
     adherent = sql_object
     if entity.email is not None or override:
@@ -175,13 +184,17 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
+    midnight = datetime.time(0, 0, 0)
+    date_depart_datetime = (
+        datetime.combine(adh.date_de_depart, midnight) if adh.date_de_depart else None
+    )
     return AbstractMember(
         id=adh.id,
         username=adh.login,
         email=adh.mail,
-        first_name=adh.prenom,
-        last_name=adh.nom,
-        departure_date=adh.date_de_depart,
+        firstName=adh.prenom,
+        lastName=adh.nom,
+        departureDate=date_depart_datetime,
         comment=adh.commentaires,
         ip=adh.ip,
         subnet=adh.subnet,

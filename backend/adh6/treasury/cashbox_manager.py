@@ -13,7 +13,7 @@ class CashboxManager:
     def __init__(self, cashbox_repository: CashboxRepository):
         self.cashbox_repository = cashbox_repository
 
-    def get_cashbox(self) -> tuple[int, int]:
-        fond, coffre = self.cashbox_repository.get()
+    async def get_cashbox(self) -> tuple[int, int]:
+        fond, coffre = await self.cashbox_repository.get()
         logging.debug("cashbox_get")  # noqa: LOG015  # TODO: use a dedicated logger
         return fond, coffre

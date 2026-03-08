@@ -5,14 +5,13 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import select
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
-from adh6.decorator import log_call
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.member.storage.models import Adherent
-from adh6.storage import db
-from adh6.storage.sql.track_modifications import track_modifications
+from adh6.storage.sql.models import Modification
 
 from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
@@ -24,19 +23,22 @@ class DeviceType(Enum):
 
 
 class DeviceSQLRepository(DeviceRepository):
-    @log_call
-    def get_by_id(self, object_id: int) -> Device | None:
-        with db.sessionmaker.begin() as session:
-            obj = session.query(SQLDevice).filter(SQLDevice.id == object_id).one_or_none()
-            return _map_device_sql_to_entity(obj) if obj else None
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    def get_by_mac(self, mac: str) -> Device | None:
-        with db.sessionmaker.begin() as session:
-            obj = session.query(SQLDevice).filter(SQLDevice.mac == mac).one_or_none()
-            return _map_device_sql_to_entity(obj) if obj else None
+    async def get_by_id(self, object_id: int) -> Device | None:
+        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
+        obj = await self.session.scalar(stmt)
+        return _map_device_sql_to_entity(obj) if obj else None
 
-    @log_call
-    def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
+    async def get_by_mac(self, mac: str) -> Device | None:
+        stmt = select(SQLDevice).where(SQLDevice.mac == mac)
+        obj = await self.session.scalar(stmt)
+        return _map_device_sql_to_entity(obj) if obj else None
+
+    async def search_by(
+        self, limit: int, offset: int, device_filter: DeviceFilter
+    ) -> tuple[list[Device], int]:
         stmt: Select = select(SQLDevice)
         if device_filter.terms:
             stmt = stmt.join(Adherent, SQLDevice.adherent_id == Adherent.id).where(
@@ -49,76 +51,109 @@ class DeviceSQLRepository(DeviceRepository):
         if device_filter.member:
             stmt = stmt.where(SQLDevice.adherent_id == device_filter.member)
         if device_filter.connection_type:
-            stmt = stmt.where(SQLDevice.type == DeviceType[device_filter.connection_type].value)
+            stmt = stmt.where(
+                SQLDevice.type == DeviceType[device_filter.connection_type].value
+            )
 
-        with db.sessionmaker.begin() as session:
-            count = len(session.execute(stmt).all())
-            r = session.scalars(stmt.offset(offset).limit(limit)).all()
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        count = int((await self.session.execute(count_stmt)).scalar_one())
 
-            return list(map(_map_device_sql_to_entity, r)), count
+        rows = await self.session.scalars(stmt.offset(offset).limit(limit))
+        devices = rows.all()
 
-    @log_call
-    def create(self, obj: DeviceBody) -> Device:
+        return list(map(_map_device_sql_to_entity, devices)), count
+
+    async def create(self, obj: DeviceBody) -> Device:
         now = datetime.now()
         device = SQLDevice(
             mac=obj.mac,
             created_at=now,
             updated_at=now,
             last_seen=now,
-            type=DeviceType[obj.connection_type].value,  # type: ignore  # TODO: typing is baaaaad
+            type=DeviceType[obj.connection_type].value,  # type: ignore[index]  # TODO: typing is baaaaad
             adherent_id=obj.member,
             ip="En attente",
             ipv6="En attente",
         )
-        with db.sessionmaker.begin() as session, track_modifications(session, device):
-            session.add(device)
-            session.flush()  # Ensure the device gets an ID
-            # Map to entity while still in session context
-            result = _map_device_sql_to_entity(device)
+        self.session.add(device)
+        await self.session.flush()
+        await self._record_modification(
+            adherent_id=device.adherent_id,
+            action=f"device: created {device.mac}",
+        )
+        return _map_device_sql_to_entity(device)
 
-        return result
+    async def update(
+        self, abstract_device: AbstractDevice, override: bool = False
+    ) -> Device:
+        stmt = select(SQLDevice).where(SQLDevice.id == abstract_device.id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            raise ValueError(f"Device {abstract_device.id} not found")
 
-    @log_call
-    def update(self, abstract_device: AbstractDevice, override=False) -> Device:
-        with db.sessionmaker.begin() as session:
-            query = session.query(SQLDevice)
-            query = query.filter(SQLDevice.id == abstract_device.id)
+        new_device = _merge_sql_with_entity(abstract_device, device, override)
+        await self.session.flush()
+        return _map_device_sql_to_entity(new_device)
 
-            device = query.one()
-            with track_modifications(session, device):
-                new_device = _merge_sql_with_entity(abstract_device, device, override)
-                session.flush()
-                mapped_device = _map_device_sql_to_entity(new_device)
+    async def delete(self, object_id: int) -> None:
+        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            return
+        await self._record_modification(
+            adherent_id=device.adherent_id,
+            action=f"device: deleted {device.mac}",
+        )
+        await self.session.delete(device)
 
-        return mapped_device
+    async def get_mab(self, object_id: int) -> bool:
+        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            raise ValueError(f"Device {object_id} not found")
+        return device.mab
 
-    @log_call
-    def delete(self, id) -> None:
-        with db.sessionmaker.begin() as session:
-            device = session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
-            with track_modifications(session, device):
-                session.delete(device)
+    async def put_mab(self, object_id: int, mab: bool) -> bool:
+        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            raise ValueError(f"Device {object_id} not found")
+        device.mab = mab
+        return mab
 
-    def get_mab(self, id: int) -> bool:
-        with db.sessionmaker.begin() as session:
-            device = session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
-            return device.mab
+    async def owner(self, id: int) -> int | None:
+        stmt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
+        return (await self.session.execute(stmt)).scalar_one_or_none()
 
-    def put_mab(self, id: int, mab: bool) -> bool:
-        with db.sessionmaker.begin() as session:
-            device = session.query(SQLDevice).filter(SQLDevice.id == id).scalar()
-            device.mab = mab
-            return mab
+    async def _record_modification(self, adherent_id: int, action: str) -> None:
+        now = datetime.now()
+        self.session.add(
+            Modification(
+                adherent_id=adherent_id,
+                action=action,
+                created_at=now,
+                updated_at=now,
+                utilisateur_id=None,
+            )
+        )
 
-    def owner(self, id: int) -> int | None:
-        with db.sessionmaker.begin() as session:
-            smt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
-            return session.execute(smt).scalar_one_or_none()
 
-
-def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, override=False) -> SQLDevice:
+def _merge_sql_with_entity(
+    entity: AbstractDevice, sql_object: SQLDevice, override: bool = False
+) -> SQLDevice:
     now = datetime.now()
     device = sql_object
+
+    if entity.connection_type is not None or override:
+        device.type = (
+            DeviceType[entity.connection_type].value
+            if entity.connection_type
+            else device.type
+        )
+    if entity.mac is not None or override:
+        device.mac = entity.mac
+    if entity.member is not None or override:
+        device.adherent_id = entity.member
 
     if entity.ipv4_address is not None or override:
         device.ip = entity.ipv4_address
@@ -136,7 +171,13 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         id=d.id,
         mac=d.mac,
         member=d.adherent_id,
-        connection_type=DeviceType(d.type).name,
-        ipv4_address=d.ip if d.ip != "En attente" else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
-        ipv6_address=d.ipv6 if d.ipv6 != "En attente" else None,  # @TODO retrocompatibilité ADH5, à retirer à terme
+        connectionType=DeviceType(d.type).name,
+        ipv4Address=(
+            d.ip if d.ip != "En attente" else None
+        ),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        ipv6Address=(
+            d.ipv6 if d.ipv6 != "En attente" else None
+        ),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent
+        # Je parierais sur Jenkins ou un bail comme ça
     )

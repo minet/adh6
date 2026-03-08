@@ -13,14 +13,14 @@ class CashboxRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get(self) -> tuple[int, int]:
+    async def get(self) -> tuple[int, int]:
         """
         Get the current value
         """
         # pragma: no cover
 
     @abc.abstractmethod
-    def update(self, value_modifier: int, transaction: AbstractTransaction):
+    async def update(self, value_modifier: int, transaction: AbstractTransaction):
         """
         Add or remove value
         """

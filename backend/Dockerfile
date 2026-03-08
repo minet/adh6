@@ -46,7 +46,6 @@ COPY --from=build /app/.venv/ /app/.venv/
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
-ENV FLASK_APP=manage:manager
 RUN apk add --no-cache --update \ 
     git \
     mariadb-connector-c
@@ -72,7 +71,6 @@ COPY --from=build /app/.venv/ /app/.venv/
 
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
-ENV FLASK_APP=manage:manager
 RUN apk add --no-cache --update \ 
     git \
     mariadb-connector-c
@@ -91,9 +89,8 @@ FROM dev AS debug
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 ENV DEBUG=1
 ENV LOG_LEVEL=DEBUG
-ENV FLASK_APP=manage:manager
 USER root
 RUN uv pip install debugpy
 USER adh6
-RUN flask db upgrade head
+RUN alembic upgrade head
 CMD ["python", "-Xfrozen_modules=off", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "-m", "uvicorn", "--port", "8080", "--host", "0.0.0.0", "main:application", "--reload"]

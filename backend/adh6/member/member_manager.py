@@ -7,7 +7,12 @@ from Crypto.Hash import MD4
 
 # import hashlib # Keep these 2 libs. See comment in change_password method below
 # from binascii import hexlify
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, SUBNET_PUBLIC_ADDRESSES_WIRELESS, MembershipStatus
+from adh6.constants import (
+    DEFAULT_LIMIT,
+    DEFAULT_OFFSET,
+    SUBNET_PUBLIC_ADDRESSES_WIRELESS,
+    MembershipStatus,
+)
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
@@ -58,59 +63,67 @@ class MemberManager(CRUDManager):
         self.subscription_manager = subscription_manager
 
     @log_call
-    def search(
+    async def search(
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
         terms: str = "",
         filter_: MemberFilter | None = None,
     ) -> tuple[list[int], int]:
-        result, count = self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
+        result, count = await self.member_repository.search_by(
+            limit=limit, offset=offset, terms=terms, filter_=filter_
+        )
         return [r.id for r in result if r.id], count
 
     @log_call
-    def get_by_id(self, id: int) -> Member:
-        member = self.member_repository.get_by_id(id)
+    async def get_by_id(self, id: int) -> Member:
+        member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(id)
-        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
+        latest_sub = await self.subscription_manager.latest(id)
+        member.membership = (
+            latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
+        )
         return member
 
     @log_call
-    def get_by_login(self, login: str):
-        member = self.member_repository.get_by_login(login)
+    async def get_by_login(self, login: str):
+        member = await self.member_repository.get_by_login(login)
         if not member or not member.id:
             raise MemberNotFoundError(login)
-        latest_sub = self.subscription_manager.latest(member.id)
-        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
+        latest_sub = await self.subscription_manager.latest(member.id)
+        member.membership = (
+            latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
+        )
         return member
 
     @log_call
-    def get_profile(self) -> tuple[AbstractMember, list[str]]:
+    async def get_profile(self) -> tuple[AbstractMember, list[str]]:
         from adh6.context import get_roles, get_user
 
         user_id = get_user()
         if not user_id:
             raise MemberNotFoundError("<no user id found in context>")
-        m = self.member_repository.get_by_id(user_id)
+        m = await self.member_repository.get_by_id(user_id)
         if not m:
             raise MemberNotFoundError(user_id)
         return m, get_roles()  # type: ignore  # TODO: typing is baaaaad
 
     @log_call
-    def create(self, body: MemberBody) -> Member:
+    async def create(self, body: MemberBody) -> Member:
         # Check that the user exists in the system.
-        fetched_member = self.member_repository.get_by_login(body.username)
+        fetched_member = await self.member_repository.get_by_login(body.username)
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
-        fetched_account_type, _ = self.account_type_repository.search_by(terms="Adhérent")
+        fetched_account_type, _ = await self.account_type_repository.search_by(
+            terms="Adhérent"
+        )
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent")
 
-        created_member = self.member_repository.create(
+        created_member = await self.member_repository.create(
             object_to_create=AbstractMember(
                 id=0,
                 username=body.username,
@@ -125,9 +138,9 @@ class MemberManager(CRUDManager):
             )
         )
 
-        self.mailinglist_repository.update_from_member(created_member.id, 249)  # type: ignore  # TODO: typing is baaaaad
+        await self.mailinglist_repository.update_from_member(created_member.id, 249)  # type: ignore  # TODO: typing is baaaaad
 
-        _ = self.account_repository.create(
+        _ = await self.account_repository.create(
             AbstractAccount(
                 id=0,
                 actif=True,
@@ -141,7 +154,7 @@ class MemberManager(CRUDManager):
             )
         )
 
-        _ = self.subscription_manager.create(
+        _ = await self.subscription_manager.create(
             member_id=created_member.id,
             body=SubscriptionBody(member=created_member.id),
         )
@@ -149,27 +162,33 @@ class MemberManager(CRUDManager):
         return created_member
 
     @log_call
-    def update(self, id: int, body: MemberBody) -> None:
-        member = self.member_repository.get_by_id(id)
+    async def update(self, id: int, body: MemberBody) -> None:
+        member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = self.subscription_manager.latest(id)
+        latest_sub = await self.subscription_manager.latest(id)
         if not latest_sub or latest_sub.status not in [
             MembershipStatus.CANCELLED.value,
             MembershipStatus.ABORTED.value,
             MembershipStatus.COMPLETE.value,
         ]:
-            raise UpdateImpossible(f"member {member.username}", "membership not validated")
+            raise UpdateImpossible(
+                f"member {member.username}", "membership not validated"
+            )
 
-        member = self.member_repository.update(
+        member = await self.member_repository.update(
             AbstractMember(
-                id=id, email=body.mail, username=body.username, first_name=body.first_name, last_name=body.last_name
+                id=id,
+                email=body.mail,
+                username=body.username,
+                first_name=body.first_name,
+                last_name=body.last_name,
             )
         )
 
     @log_call
-    def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
+    async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -182,15 +201,22 @@ class MemberManager(CRUDManager):
 
         :return: dict with logs, total count, and hasMore flag
         """
-        member = self.member_repository.get_by_id(member_id)
+        member = await self.member_repository.get_by_id(member_id)
         if member is None:
             raise MemberNotFoundError(member_id)
         else:
-            logs, total_count = self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
+            logs, total_count = await self.device_logs_manager.get(
+                member=member, limit=limit, offset=offset, dhcp=dhcp
+            )
 
             # Format logs with separate timestamp and message
             formatted_logs = [
-                {"timestamp": x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0]), "message": str(x[1])}
+                {
+                    "timestamp": (
+                        x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])
+                    ),
+                    "message": str(x[1]),
+                }
                 for x in logs
             ]
 
@@ -199,48 +225,67 @@ class MemberManager(CRUDManager):
             return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
 
     @log_call
-    def get_statuses(self, member_id) -> list[MemberStatus]:
+    async def get_statuses(self, member_id) -> list[MemberStatus]:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         # Do the actual log fetching.
         try:
-            logs, _total_count = self.device_logs_manager.get(member=member, dhcp=False)
+            logs, _total_count = await self.device_logs_manager.get(
+                member=member, dhcp=False
+            )
             device_to_statuses = {}
             last_ok_login_mac = {}
 
             def add_to_statuses(status, timestamp, mac):
                 if mac not in device_to_statuses:
                     device_to_statuses[mac] = {}
-                if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
-                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp, comment=mac)
+                if (
+                    status not in device_to_statuses[mac]
+                    or device_to_statuses[mac][status].last_timestamp < timestamp
+                ):
+                    device_to_statuses[mac][status] = MemberStatus(
+                        status=status, last_timestamp=timestamp, comment=mac
+                    )
 
             prev_log = ["", ""]
             for log in logs:
                 if "Login OK" in log[1]:
-                    match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
+                    match = re.search(
+                        r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1]
+                    )
                     if match is not None:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
-                        if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
+                        if (
+                            mac not in last_ok_login_mac
+                            or last_ok_login_mac[mac] < log[0]
+                        ):
                             last_ok_login_mac[mac] = log[0]
                 if (
                     "EAP sub-module failed" in prev_log[1]
                     and "mschap: MS-CHAP2-Response is incorrect" in log[1]
                     and (prev_log[0] - log[0]).total_seconds() < 1
                 ):
-                    match = re.search(r".*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", prev_log[1])
+                    match = re.search(
+                        r".*?EAP sub-module failed\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*",
+                        prev_log[1],
+                    )
                     if match:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
                         if login != member.username:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
                         else:
-                            add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
+                            add_to_statuses(
+                                "LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac
+                            )
                 if "rlm_python" in log[1]:
-                    match = re.search(r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1])
+                    match = re.search(
+                        r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1]
+                    )
                     if match is not None:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
@@ -249,14 +294,19 @@ class MemberManager(CRUDManager):
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
+                if (
+                    "TLS Alert" in log[1]
+                ):  # @TODO Difference between TLS Alert read and TLS Alert write ??
                     # @TODO a read access denied means the user is validating the certificate
                     # @TODO a read/write protocol version is ???
                     # @TODO a write unknown CA means the user is validating the certificate
                     # @TODO a write decryption failed is ???
                     # @TODO a read internal error is most likely not user-related
                     # @TODO a write unexpected_message is ???
-                    match = re.search(r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*", log[1])
+                    match = re.search(
+                        r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*",
+                        log[1],
+                    )
                     if match is not None:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
@@ -266,19 +316,24 @@ class MemberManager(CRUDManager):
             all_statuses = []
             for mac, statuses in device_to_statuses.items():
                 for object in statuses.values():
-                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
+                    if (
+                        mac in last_ok_login_mac
+                        and object.last_timestamp < last_ok_login_mac[mac]
+                    ):
                         continue
                     all_statuses.append(object)
         except LogFetchError:
-            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
+            logging.warning(
+                "log_fetch_failed"
+            )  # noqa: LOG015  # TODO: use a proper logger
             return []  # We fail open here.
         else:
             return all_statuses
 
     @log_call
-    def change_password(self, member_id, password: str, hashed_password):
+    async def change_password(self, member_id, password: str, hashed_password):
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
@@ -290,22 +345,28 @@ class MemberManager(CRUDManager):
         # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # TODO: check for better hashing for security purpose
 
         # TODO: check for better hashing for security purpose
-        pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
+        pw = (
+            hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()
+        )  # noqa: S303
 
-        self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
+        await self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
 
         return True
 
     @log_call
-    def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:
-        member = self.member_repository.get_by_id(member_id)
+    async def update_subnet(
+        self, member_id
+    ) -> tuple[IPv4Network, IPv4Address | None] | None:
+        member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         if not is_member_active(member):
             return
 
-        used_wireles_public_ips = self.member_repository.used_wireless_public_ips()
+        used_wireles_public_ips = (
+            await self.member_repository.used_wireless_public_ips()
+        )
 
         subnet = None
         ip = None
@@ -318,33 +379,39 @@ class MemberManager(CRUDManager):
         if subnet is None:
             raise NoSubnetAvailable("wireless")
 
-        member = self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+        member = await self.member_repository.update(
+            AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip))
+        )
 
-        self.device_ip_manager.allocate_ips(member, device_type="wireless")
+        await self.device_ip_manager.allocate_ips(member, device_type="wireless")
 
         return subnet, ip
 
     @log_call
-    def reset_member(self, member_id: int) -> None:
-        member = self.member_repository.update(AbstractMember(id=member_id, ip="", subnet=""))
-        self.device_ip_manager.unallocate_ips(member=member)
+    async def reset_member(self, member_id: int) -> None:
+        member = await self.member_repository.update(
+            AbstractMember(id=member_id, ip="", subnet="")
+        )
+        await self.device_ip_manager.unallocate_ips(member=member)
 
     @log_call
-    def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
-        member = self.get_by_id(id=member_id)
-        self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
+    async def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
+        member = await self.get_by_id(id=member_id)
+        await self.device_ip_manager.allocate_ips(
+            member=member, vlan_number=vlan_number
+        )
 
     @log_call
-    def change_comment(self, member_id: int, comment: Comment) -> None:
+    async def change_comment(self, member_id: int, comment: Comment) -> None:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-        self.member_repository.update_comment(member_id, comment.comment)
+        await self.member_repository.update_comment(member_id, comment.comment)
 
-    def get_comment(self, member_id: int) -> Comment:
+    async def get_comment(self, member_id: int) -> Comment:
         # Check that the user exists in the system.
-        member = self.member_repository.get_by_id(member_id)
+        member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-        return Comment(member.comment if member.comment else "")
+        return Comment(comment=member.comment if member.comment else "")

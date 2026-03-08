@@ -15,16 +15,15 @@ base_url = f"{host_url}/role/"
 
 
 @pytest.fixture
-def client(sample_member):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_member):
+    """Add test-specific fixtures to the transaction."""
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_member)
-        yield c
-        close_db()
+    add_test_fixtures(sample_member)
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_role_search(client):
@@ -133,7 +132,11 @@ def test_role_post(client):
 
 
 def test_role_post_multiple_roles(client):
-    body = {"auth": "user", "identifier": SAMPLE_CLIENT, "roles": ["admin:write", "admin:read"]}
+    body = {
+        "auth": "user",
+        "identifier": SAMPLE_CLIENT,
+        "roles": ["admin:write", "admin:read"],
+    }
     r = client.post(
         base_url,
         data=json.dumps(body),

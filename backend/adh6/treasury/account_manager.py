@@ -10,6 +10,6 @@ class AccountManager(CRUDManager):
         super().__init__(account_repository, AccountNotFoundError)
         self.account_repository = account_repository
 
-    def get_cav_balance(self):
-        results, _ = self.account_repository.search_by(filter_=AbstractAccount(compte_courant=True))
+    async def get_cav_balance(self):
+        results, _ = await self.account_repository.search_by(filter_=AbstractAccount(compte_courant=True))
         return sum([a.balance for a in results])

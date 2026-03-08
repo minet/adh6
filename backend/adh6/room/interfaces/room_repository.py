@@ -6,17 +6,17 @@ from adh6.entity import AbstractRoom, Room
 
 class RoomRepository(CRUDRepository[Room, AbstractRoom]):
     @abc.abstractmethod
-    def get_from_member(self, member_id: int) -> Room | None:
+    async def get_from_member(self, member_id: int) -> Room | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def get_members(self, room_id: int) -> list[int]:
+    async def get_members(self, room_id: int) -> list[int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def add_member(self, room_id: int, member_id: int) -> None:
+    async def add_member(self, room_id: int, member_id: int) -> None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def remove_member(self, member_id: int) -> None:
+    async def remove_member(self, member_id: int) -> None:
         pass  # pragma: no cover

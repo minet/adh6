@@ -5,7 +5,11 @@ import pytest
 from adh6.storage import db
 from adh6.treasury.storage.models import Account, AccountType, Transaction
 
-from test.integration.resource import INVALID_TRANSACTION_VALUE, TEST_HEADERS, base_url as host_url
+from test.integration.resource import (
+    INVALID_TRANSACTION_VALUE,
+    TEST_HEADERS,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/transaction/"
 
@@ -49,7 +53,9 @@ def sample_account2(sample_account_type2):
 
 
 @pytest.fixture
-def sample_transaction(sample_member, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(
+    sample_member, sample_account1, sample_account2, sample_payment_method
+):
     return Transaction(
         id=91,
         src=sample_account1.id,
@@ -65,7 +71,9 @@ def sample_transaction(sample_member, sample_account1, sample_account2, sample_p
 
 
 @pytest.fixture
-def sample_transaction_pending(sample_member, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction_pending(
+    sample_member, sample_account1, sample_account2, sample_payment_method
+):
     return Transaction(
         id=92,
         src=sample_account1.id,
@@ -81,16 +89,14 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
 
 
 @pytest.fixture
-def client(sample_transaction, sample_transaction_pending):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_transaction, sample_transaction_pending):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_transaction, sample_transaction_pending)
-        yield c
-        close_db()
+    add_test_fixtures([sample_transaction, sample_transaction_pending])
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def assert_transaction_in_db(body):
@@ -123,7 +129,9 @@ def test_switch_post_invalid_value(client, test_value):
 
 
 # TODO: author should not be send and should be in readonly
-@pytest.mark.xfail(reason="author id should not be send and instead be compute in the backend")
+@pytest.mark.xfail(
+    reason="author id should not be send and instead be compute in the backend"
+)
 def test_transaction_post_valid(client, sample_member_admin):
     sample_transaction1 = {
         "src": 1,
@@ -311,7 +319,9 @@ def test_transaction_filter_by_payment_method(client, sample_transaction: Transa
     assert len(result) == 2
 
 
-def test_transaction_filter_by_pending_validation(client, sample_transaction: Transaction):
+def test_transaction_filter_by_pending_validation(
+    client, sample_transaction: Transaction
+):
     r = client.get(
         f"{base_url}?filter[pendingValidation]={sample_transaction.pending_validation}",
         headers=TEST_HEADERS,

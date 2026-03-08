@@ -13,8 +13,26 @@ def base_url(id) -> str:
 
 
 @pytest.fixture
+def client(
+    _test_client, sample_member, sample_account, sample_payment_method, sample_room1
+):
+    """Client fixture for membership tests."""
+    from .conftest import add_test_fixtures, cleanup_test_data
+
+    add_test_fixtures(
+        [sample_payment_method, sample_account, sample_member, sample_room1]
+    )
+
+    yield _test_client
+
+    cleanup_test_data()
+
+
+@pytest.fixture
 def sample_membership_pending_validation_payment_dict(
-    sample_member: Adherent, sample_payment_method: PaymentMethod, sample_account: Account
+    sample_member: Adherent,
+    sample_payment_method: PaymentMethod,
+    sample_account: Account,
 ):
     yield {
         "member": sample_member.id,
@@ -76,7 +94,9 @@ def test_member_post_add_membership_unknown_account(client, sample_member):
     assert result.status_code == 404
 
 
-def test_member_post_add_membership_unknown_payment_method(client, sample_member, sample_account):
+def test_member_post_add_membership_unknown_payment_method(
+    client, sample_member, sample_account
+):
     body = {
         "account": sample_account.id,
         "duration": 1,
@@ -92,7 +112,10 @@ def test_member_post_add_membership_unknown_payment_method(client, sample_member
 
 
 def test_membership_validate_membership_no_room(
-    client, sample_room1, sample_member: Adherent, sample_membership_pending_validation_payment_dict
+    client,
+    sample_room1,
+    sample_member: Adherent,
+    sample_membership_pending_validation_payment_dict,
 ):
     result = client.post(
         f"{host_url}/room/{sample_room1.id}/member/",

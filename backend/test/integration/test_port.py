@@ -11,16 +11,31 @@ base_url = f"{host_url}/port/"
 
 
 @pytest.fixture
-def client(sample_port1, sample_port2, sample_room1, sample_member, sample_switch1, sample_switch2):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(
+    _test_client,
+    sample_port1,
+    sample_port2,
+    sample_room1,
+    sample_member,
+    sample_switch1,
+    sample_switch2,
+):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_port1, sample_port2, sample_room1, sample_member, sample_switch1, sample_switch2)
-        yield c
-        close_db()
+    add_test_fixtures(
+        [
+            sample_port1,
+            sample_port2,
+            sample_room1,
+            sample_member,
+            sample_switch1,
+            sample_switch2,
+        ]
+    )
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def assert_port_in_db(body):
@@ -104,7 +119,9 @@ def sample_port1_room_id(sample_port1: Port):
     ],
 )
 def test_port_get_filter_by_filter(client, filter_name, filter_value, quantity: int):
-    r = client.get(f"{base_url}?filter[{filter_name}]={filter_value}", headers=TEST_HEADERS)
+    r = client.get(
+        f"{base_url}?filter[{filter_name}]={filter_value}", headers=TEST_HEADERS
+    )
     assert r.status_code == 200
     ports = json.loads(r.content.decode())
     assert len(ports) == quantity
@@ -123,7 +140,12 @@ def test_port_get_filter_by_term(client, term: str):
 
 
 def test_port_post_create_port_invalid_switch(client, sample_room1):
-    body = {"room": sample_room1.id, "switchObj": 4242, "portNumber": "1/0/4", "oid": "10104"}
+    body = {
+        "room": sample_room1.id,
+        "switchObj": 4242,
+        "portNumber": "1/0/4",
+        "oid": "10104",
+    }
 
     r = client.post(
         base_url,
@@ -134,7 +156,12 @@ def test_port_post_create_port_invalid_switch(client, sample_room1):
 
 
 def test_port_post_create_port_invalid_room(client, sample_switch1):
-    body = {"room": 4242, "switchObj": sample_switch1.id, "portNumber": "1/0/4", "oid": "10104"}
+    body = {
+        "room": 4242,
+        "switchObj": sample_switch1.id,
+        "portNumber": "1/0/4",
+        "oid": "10104",
+    }
 
     r = client.post(
         base_url,
@@ -145,7 +172,12 @@ def test_port_post_create_port_invalid_room(client, sample_switch1):
 
 
 def test_port_post_create_port(client, sample_switch1, sample_room1):
-    body = {"room": sample_room1.id, "switchObj": sample_switch1.id, "portNumber": "1/0/4", "oid": "10104"}
+    body = {
+        "room": sample_room1.id,
+        "switchObj": sample_switch1.id,
+        "portNumber": "1/0/4",
+        "oid": "10104",
+    }
 
     r = client.post(
         base_url,
@@ -187,7 +219,13 @@ def sample_ports1_id(sample_port1: Port):
     ],
 )
 def test_port_put_update_port(
-    client, sample_switch1: Switch, sample_port1: Port, port_id: int, key: str, value, status_code: int
+    client,
+    sample_switch1: Switch,
+    sample_port1: Port,
+    port_id: int,
+    key: str,
+    value,
+    status_code: int,
 ):
     body = {
         "room": sample_port1.chambre_id,
@@ -209,7 +247,9 @@ def test_port_put_update_port(
         assert_port_in_db(body)
 
 
-@pytest.mark.parametrize("port_id, status_code", [(lf("sample_ports1_id"), 204), (4242, 404)])
+@pytest.mark.parametrize(
+    "port_id, status_code", [(lf("sample_ports1_id"), 204), (4242, 404)]
+)
 def test_port_delete_port(client, port_id: int, status_code: int):
     r = client.delete(
         f"{base_url}{port_id}",

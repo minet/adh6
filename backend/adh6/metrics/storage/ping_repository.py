@@ -1,20 +1,22 @@
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
-
-from adh6.storage import db
 
 from ..interfaces import PingRepository
 
 
 class PingSQLRepository(PingRepository):
-    def ping(self) -> bool:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def ping(self) -> bool:
         try:
-            with db.sessionmaker.begin() as session:
-                result = session.execute(text("SELECT 42 AS result")).fetchall()
-            if len(result) != 1:
+            result = await self.session.execute(text("SELECT 42 AS result"))
+            rows = result.fetchall()
+            if len(rows) != 1:
                 return False
 
         except SQLAlchemyError:
             return False
         else:
-            return result == [(42,)]
+            return rows == [(42,)]

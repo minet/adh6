@@ -1,18 +1,21 @@
 from ipaddress import AddressValueError, IPv4Network, ip_network
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from adh6.decorator import log_call
 from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
-from adh6.storage import db
 
 from ..interfaces import IpAllocator
 from .models import Device
 
 
 class IPSQLAllocator(IpAllocator):
-    @log_call
-    def available_ip(self, ip_range: str = "", member_id: int | None = None) -> str:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def available_ip(
+        self, ip_range: str = "", member_id: int | None = None
+    ) -> str:
         if ip_range == "":
             return "En attente"
 
@@ -33,12 +36,11 @@ class IPSQLAllocator(IpAllocator):
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        with db.sessionmaker.begin() as session:
-            ips = session.execute(smt).scalars().all()
+        ips = (await self.session.execute(smt)).scalars().all()
 
-            for i, h in enumerate(network.hosts()):
-                if i == 0:
-                    continue
-                if str(h) not in ips:
-                    return str(h)
-            raise NoMoreIPAvailableException(ip_range)
+        for index, host in enumerate(network.hosts()):
+            if index == 0:
+                continue
+            if str(host) not in ips:
+                return str(host)
+        raise NoMoreIPAvailableException(ip_range)

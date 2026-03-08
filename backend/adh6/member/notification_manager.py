@@ -16,10 +16,10 @@ class NotificationManager:
         self.notification_template_repository = notification_template_repository
 
     @log_call
-    def send(self, template_title: str, member_email: str, **kwargs):
+    async def send(self, template_title: str, member_email: str, **kwargs):
         # check if template exist
 
-        template = self.notification_template_repository.get(template_title)
+        template = await self.notification_template_repository.get(template_title)
         if not template:
             raise TemplateNotFoundError(template_title)
 
@@ -29,8 +29,10 @@ class NotificationManager:
         variables_in_template = set(meta.find_undeclared_variables(template_parsed))
         variables_in_parameter = set(kwargs.keys())
         if len(variables_in_template) != len(variables_in_parameter):
-            raise UndecalredVariableInTemplate(variables_in_template ^ variables_in_parameter)
+            raise UndecalredVariableInTemplate(
+                variables_in_template ^ variables_in_parameter
+            )
         template = Template(template.template)
         body = template.render(**kwargs)
 
-        self.notification_repository.send(member_email, template_title, body)
+        await self.notification_repository.send(member_email, template_title, body)

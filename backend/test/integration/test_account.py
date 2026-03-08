@@ -5,7 +5,11 @@ import pytest
 from adh6.member.storage.models import Adherent
 from adh6.treasury.storage.models import Account, AccountType
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/account/"
 
@@ -49,16 +53,15 @@ def sample_account2(sample_account_type2: AccountType):
 
 
 @pytest.fixture
-def client(sample_member, sample_room1, sample_account1, sample_account2):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_member, sample_room1, sample_account1, sample_account2):
+    """Add test-specific fixtures to the transaction."""
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_room1, sample_member, sample_account1, sample_account2)
-        yield c
-        close_db()
+    add_test_fixtures([sample_room1, sample_member, sample_account1, sample_account2])
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_account_filter_all_with_invalid_limit(client):

@@ -11,8 +11,8 @@ class HealthManager:
     def __init__(self, ping_repository: PingRepository):
         self.health_repository = ping_repository
 
-    def is_healthy(self) -> bool:
-        db_health = self.health_repository.ping()
+    async def is_healthy(self) -> bool:
+        db_health = await self.health_repository.ping()
         if not db_health:
             logging.error("health_check_db_not_healthy")  # noqa: LOG015  # TODO: use scoped logger ?
             return False

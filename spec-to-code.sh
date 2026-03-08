@@ -13,22 +13,50 @@ OPENAPI_GENERATOR_CLI_VERSION="v7.11.0"
 # On active l'option glob '**' désactivée par défaut sur bash
 shopt -s globstar
 
+if ! command -v docker &> /dev/null
+then
+    echo "Docker is not installed. Please install Docker to use this script."
+    exit
+fi
 
+if [[ "$1" == "--backend-only" ]]; then
+    echo "Generating code for backend only..."
+    generate_backend=true
+    generate_frontend=false
+elif [[ "$1" == "--frontend-only" ]]; then
+    echo "Generating code for frontend only..."
+    generate_backend=false
+    generate_frontend=true
+else
+    echo "Generating code for both backend and frontend..."
+    generate_backend=true
+    generate_frontend=true
+fi
+
+if [ "$generate_backend" = true ]; then
 # BACKEND
 
-backend_tmp=$(mktemp -d -t adh6_backend)
+backend_tmp=$(mktemp -d)
 echo "[BACKEND] Temporary directory created in $backend_tmp"
 
 echo "[BACKEND] Generating code in $backend_tmp"
 # Comme openapi-generator-cli a besoin de java pour fonctionner, et qu'on ne veut pas forcément installer java sur notre système juste pour ADH6 (fuck Java), on utilise Docker !
-docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g python-flask -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity > /dev/null
+docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g python -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+
+echo "[BACKEND] Generation complete. Checking what was generated..."
+ls -la $backend_tmp/
 
 echo "[BACKEND] Removing current entities in $BACKEND_DIR/adh6/entity..."
 rm -r $BACKEND_DIR/adh6/entity
 
-# On ajoute un message et on spécifie d'ignorer les erreurs de type sur tous les fichiers python, car les fichiers générés ne sont malheureusement pas strictement typés
+# On ajoute un message sur tous les fichiers python
 echo "[BACKEND] Copying python files..."
 for file in $backend_tmp/adh6/entity/**/*.py $backend_tmp/adh6/typing_utils.py $backend_tmp/adh6/util.py; do
+    # Skip if file doesn't exist
+    if [ ! -f "$file" ]; then
+        continue
+    fi
+    
     # on enlève le répertoire temporaire du nom
     dest="$BACKEND_DIR/${file#$backend_tmp/}"
 
@@ -36,24 +64,24 @@ for file in $backend_tmp/adh6/entity/**/*.py $backend_tmp/adh6/typing_utils.py $
     mkdir -p "$(dirname "$dest")"
     {
         echo "# File generated using spec-to-code.sh, DO NOT EDIT MANUALLY."
-        echo "# type: ignore"
         echo
         cat "$file"
     } > "$dest"
-done
 
-# On fix base_model.py à cause d'une issue non fixée... https://github.com/OpenAPITools/openapi-generator/issues/9332
-echo "[BACKEND] Fixing base_model.py file..."
-sed -i '' -e 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' $BACKEND_DIR/adh6/entity/base_model.py
+    echo "[BACKEND] Patching $dest..."
+    # Fix import paths occasionally generated with the legacy package name.
+    sed -i.bak -e 's/from adh6\.models\./from adh6.entity./g' "$dest" && rm -f "$dest.bak"
+done
 
 echo "[BACKEND] Add notice file..."
 echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new file here." > $BACKEND_DIR/adh6/entity/README
 
 echo "[BACKEND] Removing $backend_tmp"
-rm -r $backend_tmp
+rm -rf $backend_tmp
+fi
 
 
-
+if [ "$generate_frontend" = true ]; then
 # FRONTEND
 
 frontend_tmp=$(mktemp -d -t adh6_backend)
@@ -90,3 +118,4 @@ echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new f
 
 echo "[FRONTEND] Removing $frontend_tmp"
 rm -r $frontend_tmp
+fi

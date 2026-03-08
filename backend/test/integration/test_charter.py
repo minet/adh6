@@ -8,7 +8,11 @@ from adh6.storage import db
 from sqlalchemy import select
 
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/charter/"
 
@@ -38,16 +42,14 @@ def sample_membership_pending_rules():
 
 
 @pytest.fixture
-def client(sample_member, sample_membership_pending_rules):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_member, sample_membership_pending_rules):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_member, sample_membership_pending_rules)
-        yield c
-        close_db()
+    add_test_fixtures([sample_member, sample_membership_pending_rules])
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_charter_sign_minet(client, sample_member):
@@ -56,7 +58,9 @@ def test_charter_sign_minet(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
-    assert db.session.execute(select(Adherent.datesignedminet).where(Adherent.id == sample_member.id)).scalar_one()
+    assert db.session.execute(
+        select(Adherent.datesignedminet).where(Adherent.id == sample_member.id)
+    ).scalar_one()
 
 
 def test_charter_sign_hosting(client, sample_member):

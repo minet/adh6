@@ -2,22 +2,25 @@ import json
 
 import pytest
 
-from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url as host_url
+from test.integration.resource import (
+    TEST_HEADERS,
+    TEST_HEADERS_SAMPLE,
+    base_url as host_url,
+)
 
 base_url = f"{host_url}/mailinglist/"
 
 
 @pytest.fixture
-def client(sample_member):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_member):
+    """Add test-specific fixtures to the transaction."""
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_member)
-        yield c
-        close_db()
+    add_test_fixtures(sample_member)
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 @pytest.mark.parametrize("value", [(-1,), (256,)])
@@ -126,7 +129,9 @@ def test_mailinglist_update_member_membership_unknown_member(client):
 
 @pytest.mark.parametrize("headers", [TEST_HEADERS, TEST_HEADERS_SAMPLE])
 @pytest.mark.parametrize("value", [-1, 256])
-def test_mailinglist_update_member_membership_bad_value(client, sample_member, value, headers):
+def test_mailinglist_update_member_membership_bad_value(
+    client, sample_member, value, headers
+):
     r = client.put(
         f"{base_url}member/{sample_member.id}",
         data=json.dumps({"value": value}),

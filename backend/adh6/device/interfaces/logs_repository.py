@@ -11,7 +11,7 @@ class LogsRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get(
+    async def get(
         self,
         member: Member,
         devices: list[Device] = [],

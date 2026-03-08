@@ -53,28 +53,32 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[int], int]:
-        result, count = self.device_repository.search_by(limit=limit, offset=offset, device_filter=device_filter)
-        return [r.id for r in result], count
+    async def search(
+        self, limit: int, offset: int, device_filter: DeviceFilter
+    ) -> tuple[list[Device], int]:
+        result, count = await self.device_repository.search_by(
+            limit=limit, offset=offset, device_filter=device_filter
+        )
+        return result, count
 
     @log_call
-    def put_mab(self, id: int) -> bool:
-        device = self.device_repository.get_by_id(id)
+    async def put_mab(self, id: int) -> bool:
+        device = await self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
-        mab = self.device_repository.get_mab(id)
-        return self.device_repository.put_mab(id, not mab)
+        mab = await self.device_repository.get_mab(id)
+        return await self.device_repository.put_mab(id, not mab)
 
     @log_call
-    def get_mab(self, id: int) -> bool:
-        device = self.device_repository.get_by_id(id)
+    async def get_mab(self, id: int) -> bool:
+        device = await self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
-        return self.device_repository.get_mab(id)
+        return await self.device_repository.get_mab(id)
 
     @log_call
-    def get_mac_vendor(self, id: int) -> str:
-        device = self.device_repository.get_by_id(id)
+    async def get_mac_vendor(self, id: int) -> str:
+        device = await self.device_repository.get_by_id(id)
         if not device:
             raise DeviceNotFoundError(id)
 
@@ -87,16 +91,16 @@ class DeviceManager(CRUDManager):
         return vendor
 
     @log_call
-    def create(self, body: DeviceBody) -> Device:
+    async def create(self, body: DeviceBody) -> Device:
         if body.mac is None or not is_mac_address(body.mac):
             raise InvalidMACAddress(body.mac)
 
         if body.member is None:
             raise MemberNotFoundError(None)
-        member = self.member_repository.get_by_id(body.member)
+        member = await self.member_repository.get_by_id(body.member)
         if not member:
             raise MemberNotFoundError(body.member)
-        room = self.room_repository.get_from_member(body.member)
+        room = await self.room_repository.get_from_member(body.member)
         if not room:
             raise RoomNotFoundError(f"for member {member.username}")
 
@@ -104,24 +108,28 @@ class DeviceManager(CRUDManager):
             raise ValueError
         body.mac = str(body.mac).upper().replace(":", "-")
 
-        d = self.device_repository.get_by_mac(body.mac)
-        _, count = self.device_repository.search_by(
-            limit=DEFAULT_LIMIT, offset=0, device_filter=DeviceFilter(member=body.member)
+        d = await self.device_repository.get_by_mac(body.mac)
+        _, count = await self.device_repository.search_by(
+            limit=DEFAULT_LIMIT,
+            offset=0,
+            device_filter=DeviceFilter(member=body.member),
         )
         if d:
             raise DeviceAlreadyExists
         elif count >= 20:
             raise DevicesLimitReached
 
-        device = self.device_repository.create(body)
+        device = await self.device_repository.create(body)
 
-        self.device_ip_manager.allocate_ip_with_vlan_number(device=device, member=member, vlan_number=room.vlan)
+        await self.device_ip_manager.allocate_ip_with_vlan_number(
+            device=device, member=member, vlan_number=room.vlan
+        )
 
         return device
 
     @log_call
-    def get_owner(self, device_id: int) -> int | None:
-        d = self.device_repository.get_by_id(object_id=device_id)
+    async def get_owner(self, device_id: int) -> int | None:
+        d = await self.device_repository.get_by_id(object_id=device_id)
         if not d:
             raise DeviceNotFoundError(device_id)
-        return self.device_repository.owner(id=device_id)
+        return await self.device_repository.owner(id=device_id)

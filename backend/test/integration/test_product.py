@@ -14,16 +14,16 @@ def sample_product():
 
 
 @pytest.fixture
-def client(sample_product):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_product):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_product)
-        yield c
-        close_db()
+    # Add test data
+    add_test_fixtures([sample_product])
+
+    yield _test_client
+
+    # Cleanup after test
+    cleanup_test_data()
 
 
 def test_product_get_all_invalid_limit(client):

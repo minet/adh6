@@ -1,35 +1,36 @@
 from datetime import datetime
 
 from sqlalchemy import select, update
-
-from adh6.storage import db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..interfaces.charter_repository import CharterRepository
 from .models import Adherent
 
 
 class CharterSQLRepository(CharterRepository):
-    def get(self, charter_id: int, member_id: int) -> datetime | None:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def get(self, charter_id: int, member_id: int) -> datetime | None:
         smt = select(Adherent.datesignedminet) if charter_id == 1 else select(Adherent.datesignedhosting)
         smt = smt.where(Adherent.id == member_id)
 
-        with db.sessionmaker.begin() as session:
-            return session.execute(smt).scalar_one()
+        result = await self.session.execute(smt)
+        return result.scalar_one()
 
-    def get_members(self, charter_id: int) -> tuple[list[int], int]:
+    async def get_members(self, charter_id: int) -> tuple[list[int], int]:
         smt = select(Adherent.id)
         smt = smt.where(
             Adherent.datesignedminet.isnot(None) if charter_id == 1 else Adherent.datesignedhosting.isnot(None)
         )
-        with db.sessionmaker.begin() as session:
-            r = session.execute(smt).scalars().all()
-            return r, len(r)  # type: ignore  # TODO: fix typing
+        result = await self.session.execute(smt)
+        r = result.scalars().all()
+        return r, len(r)  # type: ignore  # TODO: fix typing
 
-    def update(self, charter_id: int, member_id: int) -> None:
+    async def update(self, charter_id: int, member_id: int) -> None:
         smt = update(Adherent).where(Adherent.id == member_id)
         if charter_id == 1:
             smt = smt.values(datesignedminet=datetime.now())
         else:
             smt = smt.values(datesignedhosting=datetime.now())
-        with db.sessionmaker.begin() as session:
-            session.execute(smt)
+        await self.session.execute(smt)

@@ -12,5 +12,5 @@ class VlanManager(CRUDManager):
         self.vlan_repository = vlan_repository
 
     @log_call
-    def get_from_number(self, vlan_number: int) -> Vlan:
-        return self.vlan_repository.get_vlan(vlan_number)
+    async def get_from_number(self, vlan_number: int) -> Vlan:
+        return await self.vlan_repository.get_vlan(vlan_number)

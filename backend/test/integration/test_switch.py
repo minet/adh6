@@ -20,16 +20,14 @@ def sample_switch():
 
 
 @pytest.fixture
-def client(sample_switch1):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_switch1):
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_switch1)
-        yield c
-        close_db()
+    add_test_fixtures([sample_switch1])
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def assert_switch_in_db(body):
@@ -44,7 +42,11 @@ def assert_switch_in_db(body):
 
 @pytest.mark.parametrize("test_ip", INVALID_IP)
 def test_switch_post_invalid_ip(client, test_ip):
-    sample_switch1 = {"description": "Test Switch", "ip": test_ip, "community": "myGreatCommunity"}
+    sample_switch1 = {
+        "description": "Test Switch",
+        "ip": test_ip,
+        "community": "myGreatCommunity",
+    }
     r = client.post(
         f"{base_url}",
         data=json.dumps(sample_switch1),
@@ -54,7 +56,11 @@ def test_switch_post_invalid_ip(client, test_ip):
 
 
 def test_switch_post_valid(client):
-    sample_switch1 = {"description": "Test Switch", "ip": "192.168.103.128", "community": "myGreatCommunity"}
+    sample_switch1 = {
+        "description": "Test Switch",
+        "ip": "192.168.103.128",
+        "community": "myGreatCommunity",
+    }
 
     # Insert data to the database
     r = client.post(
@@ -244,7 +250,11 @@ def test_member_filter_by_unknown_switch_description(client):
 
 @pytest.mark.parametrize("test_ip", INVALID_IP)
 def test_switch_update_switch_invalid_ip(client, test_ip):
-    sample_switch1 = {"description": "Modified switch", "ip": test_ip, "community": "communityModified"}
+    sample_switch1 = {
+        "description": "Modified switch",
+        "ip": test_ip,
+        "community": "communityModified",
+    }
 
     r = client.put(
         f"{base_url}{1}",
@@ -271,7 +281,11 @@ def test_switch_update_existant_switch(client, sample_switch1: Switch):
 
 
 def test_switch_update_non_existant_switch(client):
-    sample_switch1 = {"description": "Modified switch", "ip": "192.168.103.132", "community": "communityModified"}
+    sample_switch1 = {
+        "description": "Modified switch",
+        "ip": "192.168.103.132",
+        "community": "communityModified",
+    }
 
     r = client.put(
         f"{base_url}{100000}",

@@ -1,11 +1,11 @@
 import os
 
-import adh6.server as server
 import pytest
 
 
-def test_server():
-    os.environ["ENVIRONMENT"] = "default"
-
-    with pytest.raises(EnvironmentError):
-        server.init()
+def test_app_exists():
+    """Test that the FastAPI app can be imported."""
+    from adh6.main import app
+    
+    assert app is not None
+    assert hasattr(app, 'routes')

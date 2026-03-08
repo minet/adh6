@@ -9,11 +9,11 @@ AbstractT = TypeVar("AbstractT")
 
 class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> T | None:
+    async def get_by_id(self, object_id: int) -> T | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(
+    async def search_by(
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
@@ -23,13 +23,13 @@ class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def create(self, object_to_create: AbstractT) -> T:
+    async def create(self, object_to_create: AbstractT) -> T:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def update(self, object_to_update: AbstractT, override: bool = False) -> T:
+    async def update(self, object_to_update: AbstractT, override: bool = False) -> T:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def delete(self, object_id: int) -> T:
+    async def delete(self, object_id: int) -> T:
         pass  # pragma: no cover

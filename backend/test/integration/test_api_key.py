@@ -14,16 +14,15 @@ base_url = f"{host_url}/api_keys/"
 
 
 @pytest.fixture
-def client(sample_member):
-    from .conftest import close_db, prep_db
-    from .context import app
+def client(_test_client, sample_member):
+    """Add test-specific fixtures to the transaction."""
+    from .conftest import add_test_fixtures, cleanup_test_data
 
-    if app.app is None:
-        return
-    with app.test_client() as c:
-        prep_db(sample_member)
-        yield c
-        close_db()
+    add_test_fixtures(sample_member)
+
+    yield _test_client
+
+    cleanup_test_data()
 
 
 def test_api_key_search(client):
