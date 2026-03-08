@@ -36,7 +36,7 @@ fi
 if [ "$generate_backend" = true ]; then
 # BACKEND
 
-backend_tmp=$(mktemp -d)
+backend_tmp=$(mktemp -d -t adh6_backend_XXXX)
 echo "[BACKEND] Temporary directory created in $backend_tmp"
 
 echo "[BACKEND] Generating code in $backend_tmp"
@@ -84,7 +84,7 @@ fi
 if [ "$generate_frontend" = true ]; then
 # FRONTEND
 
-frontend_tmp=$(mktemp -d -t adh6_backend)
+frontend_tmp=$(mktemp -d -t adh6_frontend_XXXX)
 echo "[FRONTEND] Temporary directory created in $frontend_tmp"
 
 echo "[FRONTEND] Generating code in $frontend_tmp"
@@ -117,5 +117,5 @@ echo "[FRONTEND] Add notice file..."
 echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new file here." > $FRONTEND_DIR/src/app/api/README
 
 echo "[FRONTEND] Removing $frontend_tmp"
-rm -r $frontend_tmp
+rm -rf $frontend_tmp
 fi

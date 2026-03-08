@@ -221,3 +221,51 @@ async def get_device_member(
         return owner
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.put("/{id}/name", status_code=status.HTTP_204_NO_CONTENT)
+async def rename_device(
+    id: int,
+    body: dict,
+    manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    request: Request,
+) -> None:
+    """Rename a device."""
+    name = body.get("name")
+    if not name or not isinstance(name, str):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="name is required"
+        )
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        await manager.rename(device_id=id, name=name)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.post("/{id}/wifi_password", response_model=str)
+async def generate_wifi_password(
+    id: int,
+    manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    request: Request,
+) -> str:
+    """Generate a new random wifi password for a device."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        return await manager.generate_wifi_password(device_id=id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.delete("/{id}/wifi_password", status_code=status.HTTP_204_NO_CONTENT)
+async def clear_wifi_password(
+    id: int,
+    manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    request: Request,
+) -> None:
+    """Clear the wifi password of a device."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        await manager.clear_wifi_password(device_id=id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

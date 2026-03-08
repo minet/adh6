@@ -1,3 +1,4 @@
+import secrets
 from pathlib import Path
 
 from adh6.constants import DEFAULT_LIMIT
@@ -133,3 +134,28 @@ class DeviceManager(CRUDManager):
         if not d:
             raise DeviceNotFoundError(device_id)
         return await self.device_repository.owner(id=device_id)
+
+    @log_call
+    async def rename(self, device_id: int, name: str) -> None:
+        d = await self.device_repository.get_by_id(object_id=device_id)
+        if not d:
+            raise DeviceNotFoundError(device_id)
+        await self.device_repository.set_name(device_id, name)
+
+    @log_call
+    async def generate_wifi_password(self, device_id: int) -> str:
+        easy_chars = "BCDEFHKLMNPQRSTUVWXYZabcdefhikmnopqrstuvwxyz2356789"
+        d = await self.device_repository.get_by_id(object_id=device_id)
+        if not d:
+            raise DeviceNotFoundError(device_id)
+        # Generate a random WPA2-compatible password (printable ASCII, max 63 chars)
+        password = "".join(secrets.choice(easy_chars) for _ in range(12))
+        await self.device_repository.set_wifi_password(device_id, password)
+        return password
+
+    @log_call
+    async def clear_wifi_password(self, device_id: int) -> None:
+        d = await self.device_repository.get_by_id(object_id=device_id)
+        if not d:
+            raise DeviceNotFoundError(device_id)
+        await self.device_repository.set_wifi_password(device_id, None)

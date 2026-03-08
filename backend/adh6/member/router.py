@@ -542,9 +542,7 @@ async def update_mailinglist_member_value(
 # ============================================================================
 
 
-@charter_router.get(
-    "/{charter_id}/member", response_model=list[int]
-)
+@charter_router.get("/{charter_id}/member", response_model=list[int])
 async def list_charter_members(
     charter_id: int,
     manager: Annotated[CharterManager, Depends(get_charter_manager)],

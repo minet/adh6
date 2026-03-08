@@ -44,3 +44,11 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
     @abc.abstractmethod
     async def owner(self, id: int) -> int | None:
         pass  # pragma: no cover
+
+    @abc.abstractmethod
+    async def set_name(self, id: int, name: str | None) -> None:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    async def set_wifi_password(self, id: int, password: str | None) -> None:
+        pass  # pragma: no cover

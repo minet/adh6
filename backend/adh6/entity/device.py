@@ -22,6 +22,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,8 +35,10 @@ class Device(BaseModel):
     ipv4_address: Optional[StrictStr] = Field(default=None, description="The ipv4 address assigned to this device", alias="ipv4Address")
     ipv6_address: Optional[StrictStr] = Field(default=None, description="The ipv6 address assigned to this device", alias="ipv6Address")
     mac: StrictStr = Field(description="The MAC address of this device")
+    name: Optional[StrictStr] = Field(default=None, description="The display name of this device")
+    wifi_password: Optional[Annotated[str, Field(strict=True, max_length=63)]] = Field(default=None, description="The wifi password for this device (wireless only, max 63 chars)", alias="wifiPassword")
     member: Optional[StrictInt] = Field(default=None, description="The id of the member this device belongs to")
-    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Address", "mac", "member"]
+    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Address", "mac", "name", "wifiPassword", "member"]
 
     @field_validator('connection_type')
     def connection_type_validate_enum(cls, value):
@@ -95,6 +98,16 @@ class Device(BaseModel):
         if self.ipv6_address is None and "ipv6_address" in self.model_fields_set:
             _dict['ipv6Address'] = None
 
+        # set to None if name (nullable) is None
+        # and model_fields_set contains the field
+        if self.name is None and "name" in self.model_fields_set:
+            _dict['name'] = None
+
+        # set to None if wifi_password (nullable) is None
+        # and model_fields_set contains the field
+        if self.wifi_password is None and "wifi_password" in self.model_fields_set:
+            _dict['wifiPassword'] = None
+
         return _dict
 
     @classmethod
@@ -112,6 +125,8 @@ class Device(BaseModel):
             "ipv4Address": obj.get("ipv4Address"),
             "ipv6Address": obj.get("ipv6Address"),
             "mac": obj.get("mac"),
+            "name": obj.get("name"),
+            "wifiPassword": obj.get("wifiPassword"),
             "member": obj.get("member")
         })
         return _obj

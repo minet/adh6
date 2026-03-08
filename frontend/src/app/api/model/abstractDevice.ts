@@ -33,6 +33,14 @@ export interface AbstractDevice {
      */
     mac?: string;
     /**
+     * The display name of this device
+     */
+    name?: string | null;
+    /**
+     * The wifi password for this device (wireless only, max 63 chars)
+     */
+    wifiPassword?: string | null;
+    /**
      * The id of the member this device belongs to
      * @deprecated
      */

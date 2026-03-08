@@ -125,6 +125,22 @@ class DeviceSQLRepository(DeviceRepository):
         stmt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
         return (await self.session.execute(stmt)).scalar_one_or_none()
 
+    async def set_name(self, id: int, name: str | None) -> None:
+        stmt = select(SQLDevice).where(SQLDevice.id == id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            raise ValueError(f"Device {id} not found")
+        device.name = name
+        device.updated_at = datetime.now()
+
+    async def set_wifi_password(self, id: int, password: str | None) -> None:
+        stmt = select(SQLDevice).where(SQLDevice.id == id)
+        device = await self.session.scalar(stmt)
+        if device is None:
+            raise ValueError(f"Device {id} not found")
+        device.wifi_password = password
+        device.updated_at = datetime.now()
+
     async def _record_modification(self, adherent_id: int, action: str) -> None:
         now = datetime.now()
         self.session.add(
@@ -178,6 +194,8 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         ipv6Address=(
             d.ipv6 if d.ipv6 != "En attente" else None
         ),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        name=d.name,
+        wifiPassword=d.wifi_password,
         # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent
         # Je parierais sur Jenkins ou un bail comme ça
     )

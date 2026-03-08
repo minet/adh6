@@ -452,6 +452,92 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - device
+  /device/{id}/name:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    put:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  description: The new display name for the device
+                  type: string
+      responses:
+        "204":
+          description: Renamed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Rename a device
+      security:
+        - OpenIdConnect:
+          - user
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - device
+  /device/{id}/wifi_password:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The newly generated wifi password
+          description: Success
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Generate a new random wifi password for a device
+      security:
+        - OpenIdConnect:
+          - user
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - device
+    delete:
+      responses:
+        "204":
+          description: Cleared
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Clear the wifi password of a device
+      security:
+        - OpenIdConnect:
+          - user
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - device
   /device/{id}/member:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -2786,6 +2872,8 @@ components:
             - ipv6Address
             - connectionType
             - member
+            - name
+            - wifiPassword
       explode: false
     onlyMember:
       description: Limit to specific attributes
@@ -3318,6 +3406,15 @@ components:
           description: The MAC address of this device
           example: 01-23-45-67-89-AB
           format: mac
+          type: string
+        name:
+          description: The display name of this device
+          nullable: true
+          type: string
+        wifiPassword:
+          description: The wifi password for this device (wireless only, max 63 chars)
+          nullable: true
+          maxLength: 63
           type: string
         member:
           deprecated: true

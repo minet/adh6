@@ -431,7 +431,9 @@ def test_device_post_create_too_much(faker, client, sample_room1):
     assert r.status_code == 400
 
 
-def test_device_post_create_too_much_wireless(faker, client, sample_room1, sample_member_admin):
+def test_device_post_create_too_much_wireless(
+    faker, client, sample_room1, sample_member_admin
+):
     """
     Create 13 wireless devices for one user
     """
@@ -739,6 +741,122 @@ def test_device_get_vendor_unauthorized(client, custom_device: Device):
 def test_device_get_vendor_unauthorized_unknown_device(client):
     r = client.get(
         f"{base_url}{200}/vendor/",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+# --- rename device ---
+
+
+@pytest.mark.parametrize("device", [lf("wired_device"), lf("wireless_device")])
+def test_device_rename_valid(client, device: Device):
+    r = client.put(
+        f"{base_url}{device.id}/name",
+        json={"name": "my-device"},
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+
+    s = db.session
+    row = s.query(Device).filter(Device.id == device.id).one()
+    assert row.name == "my-device"
+
+
+def test_device_rename_unknown(client, unknown_device: Device):
+    r = client.put(
+        f"{base_url}{unknown_device.id}/name",
+        json={"name": "my-device"},
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_rename_missing_name(client, wired_device: Device):
+    r = client.put(
+        f"{base_url}{wired_device.id}/name",
+        json={},
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_device_rename_unauthorized(client, wired_device: Device):
+    r = client.put(
+        f"{base_url}{wired_device.id}/name",
+        json={"name": "my-device"},
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+# --- wifi password ---
+
+
+@pytest.mark.parametrize("device", [lf("wired_device"), lf("wireless_device")])
+def test_device_wifi_password_generate(client, device: Device):
+    r = client.post(
+        f"{base_url}{device.id}/wifi_password",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    password = r.json()
+    assert isinstance(password, str)
+    assert 8 <= len(password) <= 63
+
+    s = db.session
+    row = s.query(Device).filter(Device.id == device.id).one()
+    assert row.wifi_password == password
+
+
+def test_device_wifi_password_generate_unknown(client, unknown_device: Device):
+    r = client.post(
+        f"{base_url}{unknown_device.id}/wifi_password",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_wifi_password_generate_unauthorized(client, wired_device: Device):
+    r = client.post(
+        f"{base_url}{wired_device.id}/wifi_password",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.parametrize("device", [lf("wired_device"), lf("wireless_device")])
+def test_device_wifi_password_clear(client, device: Device):
+    # First generate a password
+    r = client.post(
+        f"{base_url}{device.id}/wifi_password",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    # Then clear it
+    r = client.delete(
+        f"{base_url}{device.id}/wifi_password",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 204
+
+    s = db.session
+    row = s.query(Device).filter(Device.id == device.id).one()
+    assert row.wifi_password is None
+
+
+def test_device_wifi_password_clear_unknown(client, unknown_device: Device):
+    r = client.delete(
+        f"{base_url}{unknown_device.id}/wifi_password",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 404
+
+
+def test_device_wifi_password_clear_unauthorized(client, wired_device: Device):
+    r = client.delete(
+        f"{base_url}{wired_device.id}/wifi_password",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

@@ -4,9 +4,14 @@
       <p class="card-header-title">
         @if (device$ | async; as device) {
           <strong>
-            {{ device.mac | uppercase }}
-            @if (vendor$ | async; as vendor) {
-              <span>({{ vendor | uppercase }})</span>
+            @if (device.name) {
+              {{ device.name }}
+              <span class="has-text-grey-light ml-2">{{ device.mac | uppercase }}</span>
+            } @else {
+              {{ device.mac | uppercase }}
+              @if (vendor$ | async; as vendor) {
+                <span>({{ vendor | uppercase }})</span>
+              }
             }
           </strong>
         } @else {
@@ -52,6 +57,22 @@
                 }}
               </td>
             </tr>
+            @if (device.connectionType === "wireless") {
+              <tr>
+                <td>
+                  <strong>Mot de passe WiFi</strong>
+                </td>
+                <td>
+                  @if (device.wifiPassword) {
+                    <code>{{ device.wifiPassword }}</code>
+                    <a class="ml-2" (click)="clearWifiPassword()">(supprimer)</a>
+                  } @else {
+                    <em>Aucun</em>
+                    <a class="ml-2" (click)="generateWifiPassword()">(générer)</a>
+                  }
+                </td>
+              </tr>
+            }
             @if (
               ("manage" | able: "admin") && device.connectionType === "wired"
             ) {
@@ -68,9 +89,12 @@
           </tbody>
         </table>
       </div>
-      <footer class="card-footer has-background-danger">
+      <footer class="card-footer">
+        <a class="card-footer-item button is-info is-light" (click)="rename()"
+          >Renommer</a
+        >
         <a class="card-footer-item button is-danger" (click)="deviceDelete()"
-          >Delete</a
+          >Supprimer</a
         >
       </footer>
     }
