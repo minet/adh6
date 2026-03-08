@@ -47,11 +47,28 @@ export class NewComponent {
     this.deviceService
       .devicePost(device)
       .pipe(takeWhile(() => this.alive))
-      .subscribe((res) => {
-        this.notificationService.successNotification();
-        this.deviceService.deviceIdGet(res).subscribe((d) => {
-          this.added.emit(d);
-        });
+      .subscribe({
+        next: (res) => {
+          this.notificationService.successNotification();
+          this.deviceService.deviceIdGet(res).subscribe((d) => {
+            this.added.emit(d);
+          });
+        },
+        error: (err) => {
+          const detail: string = err?.error?.detail ?? "";
+          if (
+            detail.includes("room for member") &&
+            detail.includes("was not found")
+          ) {
+            this.notificationService.errorNotification(
+              404,
+              "Pas de chambre",
+              "Ce membre n'a pas de numéro de chambre assigné.",
+            );
+          } else {
+            this.notificationService.errorNotification(err?.status ?? 500);
+          }
+        },
       });
   }
 
