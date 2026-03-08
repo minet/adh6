@@ -94,7 +94,7 @@ export class CotisationComponent {
           const subscription: SubscriptionBody = {
             duration: this.subscriptionDuration.at(v.durationIndex!)!,
             account: response[0].id,
-            paymentMethod: v.paidWith!,
+            paymentMethod: +v.paidWith!,
             member: this.member!.id!,
             hasRoom: v.durationIndex !== this.subscriptionPrices.length - 1,
           };
