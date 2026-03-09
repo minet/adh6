@@ -44,7 +44,7 @@ services:
     develop:
       watch:
         - path: backend/adh6
-          target: /app/backend/adh6
+          target: /app/adh6
           action: sync
           ignore:
             - backend/adh6/typing_utils.py

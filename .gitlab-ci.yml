@@ -1,10 +1,3 @@
-# workflow:
-#   rules:
-#     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-#     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-#       when: never
-#     - if: $CI_COMMIT_BRANCH
-
 stages:
   - build
   - test
@@ -20,15 +13,36 @@ variables:
   image: docker:latest
   before_script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - TAG=$( [ "$CI_COMMIT_BRANCH" = "dev" ] && echo "prep" || echo "stable" )
-  rules:
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "master" ]; then
+        TAG="stable"
+      elif [ "$CI_COMMIT_BRANCH" = "dev" ]; then
+        TAG="prep"
+      else
+        TAG="$CI_COMMIT_SHORT_SHA"
+      fi
+
+.branch_rules:
+  rules: &branch_rules
     - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - when: never
+
+.feature_rules:
+  rules: &feature_rules
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
       when: always
     - when: never
 
 build_backend:
   <<: *docker_login
   stage: build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      when: always
+    - when: never
   script:
     - docker pull $IMAGE_REGISTRY_BASE/backend:$TAG || true
     - docker pull $IMAGE_REGISTRY_BASE/backend-test:$TAG || true
@@ -52,6 +66,7 @@ build_backend:
 build_frontend:
   <<: *docker_login
   stage: build
+  rules: *branch_rules
   script:
     - docker pull $IMAGE_REGISTRY_BASE/frontend:$TAG || true
     - docker build
@@ -66,6 +81,7 @@ build_frontend:
 build_reverse_proxy:
   <<: *docker_login
   stage: build
+  rules: *branch_rules
   script:
     - docker pull $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG || true
     - docker build
@@ -80,7 +96,7 @@ test_backend:
   stage: test
   before_script: []
   script:
-    - uv run tox
+    - cd backend && uv run tox
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
       when: always
@@ -90,6 +106,10 @@ test_backend:
       when: always
       variables:
         TAG: prep
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      when: always
+      variables:
+        TAG: $CI_COMMIT_SHORT_SHA
     - when: never
   image:
     name: $IMAGE_REGISTRY_BASE/backend-test:$TAG

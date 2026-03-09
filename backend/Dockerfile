@@ -38,18 +38,19 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM base AS runtime
 WORKDIR /app
 RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
-COPY --from=prebuild /app/OUIs.txt ./backend/
+COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/
-COPY --from=build /app/.venv/ /app/.venv/
+COPY --from=build /app/.venv/ .venv/
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
 RUN apk add --no-cache --update \
     git \
     mariadb-connector-c
 USER adh6
-COPY --parents backend/main.py backend/manage.py backend/migrations/ backend/adh6/ ./
-COPY --parents openapi/spec.yaml ./backend
-WORKDIR /app/backend
+COPY backend/main.py backend/manage.py ./
+COPY backend/migrations/ migrations/
+COPY backend/adh6/ adh6/
+COPY openapi/spec.yaml openapi/spec.yaml
 
 FROM runtime AS dev
 COPY backend/start-dev.sh .
@@ -73,15 +74,17 @@ CMD ["python", "-Xfrozen_modules=off", "-m", "debugpy", "--wait-for-client", "--
 FROM base AS test
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
-COPY --from=prebuild /app/OUIs.txt ./backend/
+COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
-COPY --from=testbuild /app/.venv/ /app/.venv/
+COPY --from=testbuild /app/.venv/ .venv/
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
 RUN apk add --no-cache --update \
     git \
     mariadb-connector-c
-COPY --parents backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh backend/migrations/ backend/adh6/ backend/pyproject.toml backend/uv.lock backend/test/ ./
-COPY --parents openapi/spec.yaml ./backend
-WORKDIR /app/backend
+COPY backend/pyproject.toml backend/uv.lock backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh ./
+COPY backend/migrations/ migrations/
+COPY backend/adh6/ adh6/
+COPY backend/test/ test/
+COPY openapi/spec.yaml openapi/spec.yaml
 CMD ["uv", "run", "tox"]
