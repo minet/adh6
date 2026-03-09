@@ -224,6 +224,61 @@ def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
     assert len(response) == 1
 
 
+def test_member_filter_terms_firstname_lastname(client):
+    """Search 'firstname lastname' finds the member."""
+    r = client.get(
+        f"{base_url}?terms=Jean-Louis Dubois",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
+def test_member_filter_terms_lastname_firstname(client):
+    """Search 'lastname firstname' also finds the member."""
+    r = client.get(
+        f"{base_url}?terms=Dubois Jean-Louis",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
+def test_member_filter_terms_firstname_lastname_case_insensitive(client):
+    """Search is case-insensitive regardless of word order."""
+    r = client.get(
+        f"{base_url}?terms=jean-louis dubois",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
+def test_member_filter_terms_lastname_firstname_case_insensitive(client):
+    """Reversed order and lowercase still finds the member."""
+    r = client.get(
+        f"{base_url}?terms=dubois jean-louis",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
+def test_member_filter_terms_firstname_case_insensitive(client):
+    """Single-term search is case-insensitive."""
+    r = client.get(
+        f"{base_url}?terms=dubois",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
 def test_member_filter_unauthorized(client):
     r = client.get(
         f"{base_url}",

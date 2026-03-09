@@ -30,6 +30,17 @@ _sync_engine = None
 _sync_session_factory = None
 
 
+@pytest.fixture(scope="session", autouse=True)
+def disable_elk():
+    """Always disable ELK in tests, regardless of .env settings."""
+    from adh6.config.configuration import settings
+
+    original = settings.elk_enabled
+    settings.elk_enabled = False
+    yield
+    settings.elk_enabled = original
+
+
 def _get_or_create_sync_engine():
     """Get or create the sync engine (cached at module level)."""
     global _sync_engine, _sync_session_factory

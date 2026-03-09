@@ -781,9 +781,9 @@ def test_device_rename_missing_name(client, wired_device: Device):
     assert r.status_code == 400
 
 
-def test_device_rename_unauthorized(client, wired_device: Device):
+def test_device_rename_unauthorized(client, custom_device: Device):
     r = client.put(
-        f"{base_url}{wired_device.id}/name",
+        f"{base_url}{custom_device.id}/name",
         json={"name": "my-device"},
         headers=TEST_HEADERS_SAMPLE,
     )
@@ -817,9 +817,9 @@ def test_device_wifi_password_generate_unknown(client, unknown_device: Device):
     assert r.status_code == 404
 
 
-def test_device_wifi_password_generate_unauthorized(client, wired_device: Device):
+def test_device_wifi_password_generate_unauthorized(client, custom_device: Device):
     r = client.post(
-        f"{base_url}{wired_device.id}/wifi_password",
+        f"{base_url}{custom_device.id}/wifi_password",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403
@@ -854,9 +854,9 @@ def test_device_wifi_password_clear_unknown(client, unknown_device: Device):
     assert r.status_code == 404
 
 
-def test_device_wifi_password_clear_unauthorized(client, wired_device: Device):
+def test_device_wifi_password_clear_unauthorized(client, custom_device: Device):
     r = client.delete(
-        f"{base_url}{wired_device.id}/wifi_password",
+        f"{base_url}{custom_device.id}/wifi_password",
         headers=TEST_HEADERS_SAMPLE,
     )
     assert r.status_code == 403

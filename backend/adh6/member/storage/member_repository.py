@@ -6,7 +6,7 @@ import calendar
 import ipaddress
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.entity import AbstractMember, Member, MemberFilter
@@ -42,14 +42,28 @@ class MemberSQLRepository(MemberRepository):
                 ).where(Membership.status == filter_.membership)
 
         if terms:
+            terms_lower = terms.lower()
+            parts = terms_lower.split(None, 1)  # split into at most 2 words
+            full_name_match = None
+            if len(parts) == 2:
+                a, b = parts
+                # "firstname lastname" or "lastname firstname"
+                full_name_match = (
+                    func.lower(Adherent.prenom).contains(a)
+                    & func.lower(Adherent.nom).contains(b)
+                ) | (
+                    func.lower(Adherent.prenom).contains(b)
+                    & func.lower(Adherent.nom).contains(a)
+                )
             stmt = stmt.where(
-                (Adherent.nom.contains(terms))
-                | (Adherent.prenom.contains(terms))
-                | (Adherent.mail.contains(terms))
-                | (Adherent.login.contains(terms))
-                | (Adherent.commentaires.contains(terms))
+                (func.lower(Adherent.nom).contains(terms_lower))
+                | (func.lower(Adherent.prenom).contains(terms_lower))
+                | (func.lower(Adherent.mail).contains(terms_lower))
+                | (func.lower(Adherent.login).contains(terms_lower))
+                | (func.lower(Adherent.commentaires).contains(terms_lower))
                 | (Adherent.ip.contains(terms))
                 | (Adherent.subnet.contains(terms))
+                | (full_name_match if full_name_match is not None else False)
             )
 
         # Count
