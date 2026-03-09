@@ -44,8 +44,6 @@ build_backend:
       when: always
     - when: never
   script:
-    - docker pull $IMAGE_REGISTRY_BASE/backend:$TAG || true
-    - docker pull $IMAGE_REGISTRY_BASE/backend-test:$TAG || true
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/backend:$TAG
         --build-arg BUILDKIT_INLINE_CACHE=1
@@ -68,7 +66,6 @@ build_frontend:
   stage: build
   rules: *branch_rules
   script:
-    - docker pull $IMAGE_REGISTRY_BASE/frontend:$TAG || true
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/frontend:$TAG
         --build-arg BUILDKIT_INLINE_CACHE=1
@@ -83,7 +80,6 @@ build_reverse_proxy:
   stage: build
   rules: *branch_rules
   script:
-    - docker pull $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG || true
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
         --build-arg BUILDKIT_INLINE_CACHE=1
