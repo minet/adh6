@@ -94,6 +94,8 @@ RUN --mount=type=cache,target=/var/cache/apk \
     nodejs \
     && uv sync --locked --group dev \
     && uv run tox -e ci --notest
+RUN mkdir /openapi
+COPY openapi/spec.yaml /openapi/spec.yaml
 COPY openapi/spec.yaml openapi/spec.yaml
 COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh ./
 COPY backend/migrations/ migrations/
