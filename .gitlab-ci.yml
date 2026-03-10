@@ -84,6 +84,7 @@ build_reverse_proxy:
         --cache-from $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
         --build-arg BUILDKIT_INLINE_CACHE=1
         --file reverse_proxy/Dockerfile
+        --target prod
         --tag $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
         .
     - docker push $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
