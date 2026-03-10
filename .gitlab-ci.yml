@@ -147,7 +147,7 @@ deploy_prod:
     - test_backend
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
-      when: always
+      when: on_success
     - when: never
 
 deploy_dev:
@@ -166,5 +166,5 @@ deploy_dev:
     - test_backend
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
-      when: always
+      when: on_success
     - when: never
