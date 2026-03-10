@@ -18,7 +18,8 @@ server {
   real_ip_recursive on;
 
 
-  # Put the frontend and backend addresses into variables to prevent them from being resolved on start
+  # Workaround for docker internal DNS resolution
+  resolver 127.0.0.11 valid=30s;
   set $frontend_host ${FRONTEND_HOST}:${FRONTEND_PORT};
   set $backend_host ${API_HOST}:${API_PORT};
 
