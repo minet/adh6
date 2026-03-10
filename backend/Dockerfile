@@ -83,7 +83,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
 COPY backend/pyproject.toml backend/uv.lock ./
-# Install build deps + sync all dev groups (bakes uv cache into image layer for tox-uv)
+# Install build deps + sync all dev groups; pre-bake tox ci env (bakes uv cache + .tox into image)
 RUN --mount=type=cache,target=/var/cache/apk \
     apk add --update \
     git \
@@ -91,26 +91,12 @@ RUN --mount=type=cache,target=/var/cache/apk \
     mariadb-dev \
     build-base \
     libffi-dev \
-    && uv sync --locked --group dev
+    && uv sync --locked --group dev \
+    && uv run tox -e ci --notest
+COPY openapi/spec.yaml openapi/spec.yaml
 COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh ./
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY backend/test/ test/
-COPY openapi/spec.yaml openapi/spec.yaml
 
-# Pyright stage - reuses test stage, adds Node.js/npm for pyright-to-gitlab-ci
-FROM base AS pyright-check
-WORKDIR /app
-ENV UV_CACHE_DIR=/app/.uv-cache
-ENV PYTHONUNBUFFERED=1
-ENV PATH="/app/.venv/bin:$PATH"
-# Reuse compiled venv, baked uv-cache, prebuild data, and source files from test stage
-COPY --from=test /app /app
-COPY --from=test /root/.pysnmp/ /root/.pysnmp/
-RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --update \
-    git \
-    mariadb-connector-c \
-    nodejs \
-    npm \
-    && npm install -g pyright pyright-to-gitlab-ci
+

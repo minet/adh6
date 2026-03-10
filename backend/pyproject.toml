@@ -86,8 +86,8 @@ envlist = ["dev"]
 
 [tool.tox.env_run_base]
 dependency_groups = ["dev"]
-description = "Fix all auto-fixable issues and run tests (local dev)"
 package = "skip"
+runner = "uv-venv-lock-runner"
 
 [tool.tox.env.dev]
 commands = [
@@ -96,22 +96,16 @@ commands = [
   ["pyright"],
   ["pytest"],
 ]
+description = "Fix all auto-fixable issues and run tests (local dev)"
 
-runner = "uv-venv-lock-runner"
-
-[tool.tox.env.ruff-format]
-commands = [["ruff", "format", "--diff"]]
-description = "Check code formatting"
-
-[tool.tox.env.ruff-check]
-commands = [["ruff", "check", "--output-format=gitlab", "--output-file={toxinidir}/code-quality-report.json"]]
-description = "Lint code and generate GitLab code quality report"
-
-[tool.tox.env.pytest]
+[tool.tox.env.ci]
 commands = [
+  ["ruff", "format", "--diff"],
+  ["ruff", "check", "--output-format=gitlab", "--output-file=code-quality-report.json"],
+  ["pyright"],
   ["pytest", "--junitxml={toxinidir}/report.xml", "--cov-report=xml:{toxinidir}/coverage.xml"],
 ]
-description = "Run tests with coverage and JUnit report"
+description = "CI: lint and test suite"
 
 # https://docs.astral.sh/ruff/
 [tool.ruff]
@@ -154,10 +148,7 @@ select = [
   "PERF", # Perflint
   "FURB", # refurb
   "LOG", # flake8-logging
-  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME
-  # "PTH",   # flake8-use-pathlib (maybe todo ?)
-  # "TID",   # flake8-tidy-imports (maybe todo ?)
-  # "SLF",   # flake8-self  (managed by pyright)
+  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME  # "PTH",   # flake8-use-pathlib (maybe todo ?)  # "TID",   # flake8-tidy-imports (maybe todo ?)  # "SLF",   # flake8-self  (managed by pyright)
   # "RET",   # flake8-return
   # "Q",     # flake8-quotes
   # "T20",   # flake8-print

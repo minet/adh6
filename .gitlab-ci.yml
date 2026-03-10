@@ -58,16 +58,8 @@ build_backend:
         --file backend/Dockerfile
         --tag $IMAGE_REGISTRY_BASE/backend-test:$TAG
         .
-    - docker build
-        --cache-from $IMAGE_REGISTRY_BASE/backend-pyright-check:$TAG
-        --build-arg BUILDKIT_INLINE_CACHE=1
-        --target pyright-check
-        --file backend/Dockerfile
-        --tag $IMAGE_REGISTRY_BASE/backend-pyright-check:$TAG
-        .
     - docker push $IMAGE_REGISTRY_BASE/backend:$TAG
     - docker push $IMAGE_REGISTRY_BASE/backend-test:$TAG
-    - docker push $IMAGE_REGISTRY_BASE/backend-pyright-check:$TAG
 
 build_frontend:
   <<: *docker_login
@@ -120,46 +112,19 @@ build_reverse_proxy:
   needs:
     - build_backend
 
-ruff_format:
+test_backend:
   <<: *base_test
   script:
-    - cd /app && tox -e ruff-format
-
-ruff_check:
-  <<: *base_test
-  script:
-    - cd /app && tox -e ruff-check
-  after_script:
-    - cp /app/code-quality-report.json $CI_PROJECT_DIR/code-quality-report.json
-  artifacts:
-    when: always
-    reports:
-      codequality: code-quality-report.json
-
-pyright:
-  <<: *base_test
-  image:
-    name: $IMAGE_REGISTRY_BASE/backend-pyright-check:$TAG
-  script:
-    - cd /app && pyright adh6 test --outputjson > /tmp/report_raw.json
-  after_script:
-    - pyright-to-gitlab-ci --src /tmp/report_raw.json --output $CI_PROJECT_DIR/pyright-report.json --base_path /app
-  artifacts:
-    when: always
-    reports:
-      codequality: pyright-report.json
-
-pytest:
-  <<: *base_test
-  script:
-    - cd /app && tox -e pytest
+    - cd /app && tox -e ci
   after_script:
     - cp /app/report.xml $CI_PROJECT_DIR/report.xml
     - cp /app/coverage.xml $CI_PROJECT_DIR/coverage.xml
+    - cp /app/code-quality-report.json $CI_PROJECT_DIR/code-quality-report.json
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
     reports:
+      codequality: code-quality-report.json
       junit: report.xml
       coverage_report:
         coverage_format: cobertura
@@ -178,10 +143,7 @@ deploy_prod:
     - build_backend
     - build_frontend
     - build_reverse_proxy
-    - ruff_format
-    - ruff_check
-    - pyright
-    - pytest
+    - test_backend
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
       when: always
@@ -200,10 +162,7 @@ deploy_dev:
     - build_backend
     - build_frontend
     - build_reverse_proxy
-    - ruff_format
-    - ruff_check
-    - pyright
-    - pytest
+    - test_backend
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
       when: always
