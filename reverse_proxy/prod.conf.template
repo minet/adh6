@@ -78,9 +78,9 @@ server {
     proxy_set_header Connection "keep-alive";
     proxy_buffering off;
   }
-  #location = / { # dosn't work
-  #  return 302 /$lang/;
-  #}
+  location = / {
+    return 302 /$lang/;
+  }
 
   location = /openapi.json {
     proxy_pass http://$backend_host;
@@ -94,8 +94,8 @@ server {
     proxy_buffering off;
   }
 
-  location / {    
-    proxy_pass http://$frontend_host/;
+  location / {
+    proxy_pass http://$frontend_host;
     add_header 'Access-Control-Allow-Origin' '*';
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header Host ${ADH6_URL};
