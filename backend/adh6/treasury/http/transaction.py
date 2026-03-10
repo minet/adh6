@@ -1,5 +1,3 @@
-from connexion import NoContent
-
 from adh6.decorator import log_call, with_context
 from adh6.default.http_handler import DefaultHandler
 from adh6.entity import AbstractTransaction, Transaction
@@ -18,6 +16,6 @@ class TransactionHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def validate(self, id_: int):
-        self.transaction_manager.validate(id=id_)
-        return NoContent, 204
+    async def validate(self, id_: int):
+        await self.transaction_manager.validate(id=id_)
+        return None, 204

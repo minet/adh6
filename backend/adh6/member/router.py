@@ -78,7 +78,7 @@ def _is_valid_email(email: str | None) -> bool:
 
 def _member_to_response_dict(member: Member) -> dict[str, Any]:
     """Serialize generated OpenAPI entity with aliases expected by integration tests."""
-    return member.dict(by_alias=True, exclude_none=True)
+    return member.model_dump(by_alias=True, exclude_none=True)
 
 
 def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[str, Any]:
@@ -377,7 +377,7 @@ async def get_member_logs(
     dhcp: Annotated[bool, Query()] = False,
     limit: Annotated[int, Query(ge=0)] = 10,
     offset: Annotated[int, Query(ge=0)] = 0,
-) -> MemberIdLogsGet200Response:
+) -> dict[str, Any]:
     """Get logs for a member."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "member logs")
     try:
@@ -398,7 +398,7 @@ async def set_member_password(
     try:
         password = body.get("password")
         hashed_password = body.get("hashedPassword")
-        await manager.change_password(id, password, hashed_password)
+        await manager.change_password(id, password or "", hashed_password)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

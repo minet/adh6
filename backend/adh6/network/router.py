@@ -43,7 +43,7 @@ def _validate_ipv4(ip: str | None) -> None:
 
 def _to_public_dict(obj: Any) -> dict[str, Any]:
     if hasattr(obj, "dict"):
-        return obj.model(by_alias=True, exclude_none=True)
+        return obj.model_dump(by_alias=True, exclude_none=True)
     return dict(obj)
 
 

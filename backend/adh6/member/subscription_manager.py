@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from adh6.authentication.enums import Roles
 from adh6.constants import (
@@ -83,7 +84,7 @@ class SubscriptionManager:
             None,
         ):
             return n
-        subscriptions.sort(key=lambda r: r.created_at, reverse=True)
+        subscriptions.sort(key=lambda r: r.created_at or datetime.min, reverse=True)
         return subscriptions[0]
 
     @log_call
@@ -248,6 +249,8 @@ class SubscriptionManager:
 
         await self.membership_repository.validate(subscription.uuid)
         await self.add_payment_record(subscription, free)
+        if subscription.duration is None:
+            raise MembershipNotFoundError(None)
         await self.member_repository.add_duration(subscription.member, subscription.duration)
         # self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
 
@@ -258,6 +261,8 @@ class SubscriptionManager:
         if free and Roles.TRESO_WRITE.value not in get_roles():
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
+        if membership.payment_method is None:
+            raise MembershipNotFoundError(None)
         payment_method = await self.payment_method_repository.get_by_id(membership.payment_method)
         asso_account, _ = await self.account_repository.search_by(
             limit=1,
@@ -271,9 +276,13 @@ class SubscriptionManager:
         )
         if len(tech_account) != 1:
             raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
+        if membership.account is None:
+            raise AccountNotFoundError(None)
         src_account = await self.account_repository.get_by_id(membership.account)
         if src_account is None:
             raise AccountNotFoundError(membership.account)
+        if membership.duration is None:
+            raise MembershipNotFoundError(None)
         price = self.duration_price[membership.duration]  # Expressed in EUR.
         title = f"Internet - {self.duration_string.get(membership.duration)}"
         if price == 50 and not membership.has_room:

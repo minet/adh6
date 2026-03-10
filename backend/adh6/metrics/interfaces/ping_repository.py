@@ -7,5 +7,5 @@ class PingRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def ping(self) -> bool:
+    async def ping(self) -> bool:
         pass  # pragma: no cover

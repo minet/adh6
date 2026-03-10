@@ -26,15 +26,15 @@ async def get_snmp_value(community, ip, mib, obj, oid):
     elif error_status:
         raise NetworkManagerReadError(
             "SNMP read error: {} at {}".format(
-                error_status.prettyPrint(),
-                (error_index and var_binds[int(error_index) - 1][0]) or "?",
+                error_status.prettyPrint(),  # type: ignore[union-attr]
+                (error_index and var_binds[int(error_index) - 1][0]) or "?",  # type: ignore[index]
             )
         )
     else:
         if len(var_binds) > 1:
             raise NetworkManagerReadError("SNMP read error: too many values in response")
 
-        return var_binds[0][1].prettyPrint()
+        return var_binds[0][1].prettyPrint()  # type: ignore[index]
 
 
 async def set_snmp_value(community, ip, mib, obj, oid, value):
@@ -52,12 +52,12 @@ async def set_snmp_value(community, ip, mib, obj, oid, value):
     elif error_status:
         raise NetworkManagerReadError(
             "SNMP read error: {} at {}".format(
-                error_status.prettyPrint(),
-                (error_index and var_binds[int(error_index) - 1][0]) or "?",
+                error_status.prettyPrint(),  # type: ignore[union-attr]
+                (error_index and var_binds[int(error_index) - 1][0]) or "?",  # type: ignore[index]
             )
         )
     else:
         if len(var_binds) > 1:
             raise NetworkManagerReadError("SNMP read error: too many values in response")
 
-        return var_binds[0][1].prettyPrint()
+        return var_binds[0][1].prettyPrint()  # type: ignore[index]

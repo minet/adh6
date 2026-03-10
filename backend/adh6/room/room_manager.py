@@ -55,6 +55,6 @@ class RoomManager(CRUDManager):
     @log_call
     async def room_from_member(self, member_id: int) -> int:
         room = await self.room_repository.get_from_member(member_id)
-        if not room:
+        if not room or room.id is None:
             raise RoomNotFoundError
         return room.id

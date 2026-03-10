@@ -20,14 +20,14 @@ def sample_switch():
 
 
 @pytest.fixture
-def client(_test_client, sample_switch1):
+async def client(_test_client, sample_switch1):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_switch1])
+    await add_test_fixtures([sample_switch1])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def assert_switch_in_db(body):

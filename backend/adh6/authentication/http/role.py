@@ -1,7 +1,5 @@
 from typing import Any
 
-from connexion import NoContent
-
 from adh6.decorator import log_call, with_context
 
 from ..role_manager import RoleManager
@@ -12,19 +10,19 @@ class RoleHandler:
         self.role_manager = role_manager
 
     @with_context
-    def search(self, auth: str, id_: str | None = None):
-        result, count = self.role_manager.search(auth=auth, identifier=id_)
+    async def search(self, auth: str, id_: str | None = None):
+        result, count = await self.role_manager.search(auth=auth, identifier=id_)
         headers = {"X-Total-Count": str(count), "access-control-expose-headers": "X-Total-Count"}
         return [x.to_dict() for x in result], 200, headers
 
     @with_context
     @log_call
-    def post(self, body: dict[str, Any]):
-        self.role_manager.create(auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
-        return NoContent, 201
+    async def post(self, body: dict[str, Any]):
+        await self.role_manager.create(auth=body["auth"], identifier=body["identifier"], roles=body["roles"])
+        return None, 201
 
     @with_context
     @log_call
-    def delete(self, id_: int):
-        self.role_manager.delete(id=id_)
-        return NoContent, 204
+    async def delete(self, id_: int):
+        await self.role_manager.delete(id=id_)
+        return None, 204

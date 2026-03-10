@@ -530,9 +530,11 @@ class TestAddMembershipPaymentRecord:
         mock_account_repository: AccountRepository,
         subscription_manager: SubscriptionManager,
         sample_membership_empty: Membership,
+        sample_payment_method: PaymentMethod,
     ):
+        sample_membership_empty.payment_method = sample_payment_method.id
         mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=()
+            return_value=sample_payment_method
         )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
         mock_account_repository.search_by = AsyncMock(side_effect=[([], 0)])
 
@@ -551,6 +553,7 @@ class TestAddMembershipPaymentRecord:
         sample_account1: Account,
         sample_payment_method: PaymentMethod,
     ):
+        sample_membership_empty.payment_method = sample_payment_method.id
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(sample_payment_method)
         )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
@@ -571,11 +574,13 @@ class TestAddMembershipPaymentRecord:
         sample_account1: Account,
         sample_payment_method: PaymentMethod,
     ):
+        sample_membership_empty.payment_method = sample_payment_method.id
+        sample_membership_empty.account = 42
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(sample_payment_method)
         )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
         mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_repository.get_by_id = AsyncMock(side_effect=AccountNotFoundError(""))
+        mock_account_repository.get_by_id = AsyncMock(return_value=None)
 
         with pytest.raises(AccountNotFoundError):
             await subscription_manager.add_payment_record(sample_membership_empty, False)

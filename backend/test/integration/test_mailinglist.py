@@ -12,15 +12,15 @@ base_url = f"{host_url}/mailinglist/"
 
 
 @pytest.fixture
-def client(_test_client, sample_member):
+async def client(_test_client, sample_member):
     """Add test-specific fixtures to the transaction."""
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures(sample_member)
+    await add_test_fixtures(sample_member)
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 @pytest.mark.parametrize("value", [(-1,), (256,)])

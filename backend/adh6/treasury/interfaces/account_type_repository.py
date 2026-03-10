@@ -6,11 +6,11 @@ from adh6.entity import AccountType
 
 class AccountTypeRepository(abc.ABC):
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> AccountType:
+    async def get_by_id(self, object_id: int) -> AccountType:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    def search_by(
+    async def search_by(
         self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[AccountType], int]:
         pass  # pragma: no cover

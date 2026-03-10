@@ -178,6 +178,7 @@ combine-as-imports = true
 [tool.pytest.ini_options]
 addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
 asyncio_mode = "auto"
+asyncio_event_loop_scope = "session"
 testpaths = [
   "test/",
 ]

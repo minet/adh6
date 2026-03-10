@@ -136,9 +136,9 @@ async def _merge_sql_with_entity(
     now = datetime.now()
     port = sql_object
     if entity.oid is not None or override:
-        port.oid = entity.oid
+        port.oid = entity.oid or ""
     if entity.port_number is not None or override:
-        port.numero = entity.port_number
+        port.numero = entity.port_number or ""
     if entity.room is not None:
         stmt = select(SQLChambre).where(SQLChambre.id == entity.room)
         room = await session.scalar(stmt)
@@ -162,10 +162,10 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
     """
     return Port(
         id=a.id,
-        port_number=a.numero,
+        portNumber=a.numero,
         oid=a.oid,
         room=a.chambre_id,
-        switch_obj=a.switch_id,
+        switchObj=a.switch_id,
     )
 
 
@@ -175,8 +175,8 @@ def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
     """
     return AbstractPort(
         id=a.id,
-        port_number=a.numero,
+        portNumber=a.numero,
         oid=a.oid,
         room=a.chambre_id,
-        switch_obj=a.switch_id,
+        switchObj=a.switch_id,
     )

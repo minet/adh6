@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 
 import calendar
 import ipaddress
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -106,6 +106,10 @@ class MemberSQLRepository(MemberRepository):
     async def update(self, abstract_member: AbstractMember, override=False) -> object:
         stmt = select(Adherent).where(Adherent.id == abstract_member.id)
         adherent = await self.session.scalar(stmt)
+        if adherent is None:
+            from adh6.exceptions import MemberNotFoundError
+
+            raise MemberNotFoundError(abstract_member.id)
 
         new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
         await self._record_modification(
@@ -211,7 +215,7 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
     """
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
-    midnight = datetime.time(0, 0, 0)
+    midnight = time(0, 0, 0)
     date_depart_datetime = datetime.combine(adh.date_de_depart, midnight) if adh.date_de_depart else None
     return AbstractMember(
         id=adh.id,
@@ -233,11 +237,11 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
     """
     return Member(
         id=adh.id,
-        username=adh.login,
-        email=adh.mail,
-        first_name=adh.prenom,
-        last_name=adh.nom,
-        departure_date=adh.date_de_depart,
+        username=adh.login or "",
+        email=adh.mail or "",
+        firstName=adh.prenom or "",
+        lastName=adh.nom or "",
+        departureDate=datetime.combine(adh.date_de_depart, time.min) if adh.date_de_depart else None,
         comment=adh.commentaires,
         ip=adh.ip,
         subnet=adh.subnet,

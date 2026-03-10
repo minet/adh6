@@ -11,5 +11,5 @@ class AccountManager(CRUDManager):
         self.account_repository = account_repository
 
     async def get_cav_balance(self):
-        results, _ = await self.account_repository.search_by(filter_=AbstractAccount(compte_courant=True))
-        return sum([a.balance for a in results])
+        results, _ = await self.account_repository.search_by(filter_=AbstractAccount(compteCourant=True))
+        return sum(a.balance for a in results if a.balance is not None)

@@ -16,6 +16,6 @@ class TreasuryHandler:
 
     @with_context
     @log_call
-    def get_cashbox(self):
-        fond, coffre = self.cashbox_manager.get_cashbox()
+    async def get_cashbox(self):
+        fond, coffre = await self.cashbox_manager.get_cashbox()
         return {"fond": fond, "coffre": coffre}, 200

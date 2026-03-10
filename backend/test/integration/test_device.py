@@ -79,7 +79,7 @@ def device_with_invalid_member(faker, sample_device: Device):
 
 
 @pytest.fixture
-def client(
+async def client(
     _test_client,
     custom_device,
     wired_device,
@@ -96,7 +96,7 @@ def client(
 ):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures(
+    await add_test_fixtures(
         [
             custom_device,
             wired_device,
@@ -115,7 +115,7 @@ def client(
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_device_filter_all_devices(client):

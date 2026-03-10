@@ -9,7 +9,7 @@ from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.entity import ApiKey, ApiKeysPostRequest, RoleMapping
-from adh6.exceptions import NotFoundError
+from adh6.exceptions import NotFoundError, ValidationError
 from adh6.member.member_manager import MemberManager
 from adh6.member.storage import MemberRepository
 from adh6.security import get_token_info, require_role_or_ownership
@@ -103,7 +103,12 @@ async def create_api_key(
     if get_token_info(request).get("auth_method") == "api_key":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API keys cannot create API keys")
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    return await manager.create(login=body.login or "", roles=body.roles or [])
+    try:
+        return await manager.create(login=body.login or "", roles=[r.value for r in body.roles])
+    except NotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    except ValidationError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation Error")
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

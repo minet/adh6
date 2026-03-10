@@ -117,6 +117,8 @@ class TransactionSQLRepository(TransactionRepository):
         stmt = select(SQLTransaction).where(SQLTransaction.id == id)
         transaction = await self.session.scalar(stmt)
 
+        if not transaction:
+            return
         transaction.pending_validation = False
 
     async def delete(self, object_id) -> None:
@@ -134,11 +136,11 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         id=t.id,
         src=t.src,
         dst=t.dst,
-        timestamp=str(t.timestamp),
+        timestamp=t.timestamp,
         name=t.name,
         value=t.value,
         paymentMethod=t.type,
         attachments=[],
         author=t.author_id,
-        pending_validation=t.pending_validation,
+        pendingValidation=t.pending_validation,
     )

@@ -44,8 +44,9 @@ class RoomSQLRepository(RoomRepository):
         # lines needed for compatibility
         adherent_stmt = select(Adherent).where(Adherent.id == member_id)
         adherent = await self.session.scalar(adherent_stmt)
-        stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
-        await self.session.execute(stmt)
+        if adherent is not None:
+            stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
+            await self.session.execute(stmt)
 
     async def add_member(self, room_id: int, member_id: int) -> None:
         stmt = insert(RoomMemberLink).values(member_id=member_id, room_id=room_id)
@@ -174,7 +175,7 @@ async def _map_room_sql_to_entity(r: Chambre, session: AsyncSession) -> Room:
     vlan = result.first()
     return Room(
         id=r.id,
-        roomNumber=r.numero,
+        roomNumber=r.numero or 0,
         description=r.description,
-        vlan=vlan[0].numero if vlan else None,
+        vlan=vlan[0].numero or 0 if vlan else 0,
     )

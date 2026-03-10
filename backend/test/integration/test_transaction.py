@@ -85,14 +85,14 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
 
 
 @pytest.fixture
-def client(_test_client, sample_transaction, sample_transaction_pending):
+async def client(_test_client, sample_transaction, sample_transaction_pending):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_transaction, sample_transaction_pending])
+    await add_test_fixtures([sample_transaction, sample_transaction_pending])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def assert_transaction_in_db(body):

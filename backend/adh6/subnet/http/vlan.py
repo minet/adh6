@@ -12,6 +12,7 @@ class VLANHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def get_from_number(self, vlan_number):
+    async def get_from_number(self, vlan_number):
         """Get the state of a port"""
-        return self.vlan_manager.get_from_number(vlan_number).to_dict(), 200
+        vlan = await self.vlan_manager.get_from_number(vlan_number)
+        return vlan.to_dict(), 200

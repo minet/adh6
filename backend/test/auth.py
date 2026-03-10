@@ -1,7 +1,7 @@
 from typing import Any
 
 from adh6.authentication.enums import Roles
-from connexion.exceptions import Forbidden, Unauthorized
+from fastapi import HTTPException, status
 
 
 def oidc_info(token, required_scopes=None) -> dict[str, Any]:
@@ -33,13 +33,18 @@ def oidc_info(token, required_scopes=None) -> dict[str, Any]:
         }
     else:
         # For unknown tokens, deny access by default
-        raise Unauthorized(f"Unknown test token: {token}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unknown test token: {token}")
 
     # Check required scopes if provided
     if required_scopes:
         if not isinstance(required_scopes, list):
-            raise Forbidden("Invalid OIDC token: required scopes must be a list")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid OIDC token: required scopes must be a list"
+            )
         if not all(req in mock_data["scope"] for req in required_scopes):
-            raise Forbidden(f"Invalid OIDC token: missing required scopes {required_scopes}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Invalid OIDC token: missing required scopes {required_scopes}",
+            )
 
     return mock_data

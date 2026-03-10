@@ -13,7 +13,7 @@ def base_url(id) -> str:
 
 
 @pytest.fixture
-def client(
+async def client(
     _test_client,
     sample_member,
     sample_account,
@@ -27,7 +27,7 @@ def client(
     """Client fixture for membership tests."""
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures(
+    await add_test_fixtures(
         [
             account_type,
             sample_vlan,
@@ -42,7 +42,7 @@ def client(
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 @pytest.fixture

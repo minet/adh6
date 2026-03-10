@@ -156,7 +156,7 @@ def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, overri
         device.type = DeviceType[entity.connection_type].value if entity.connection_type else device.type
     if entity.mac is not None or override:
         device.mac = entity.mac
-    if entity.member is not None or override:
+    if entity.member is not None:
         device.adherent_id = entity.member
 
     if entity.ipv4_address is not None or override:
@@ -173,7 +173,7 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
     """
     return Device(
         id=d.id,
-        mac=d.mac,
+        mac=d.mac or "",
         member=d.adherent_id,
         connectionType=DeviceType(d.type).name,
         ipv4Address=(d.ip if d.ip != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme

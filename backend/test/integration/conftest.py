@@ -25,10 +25,6 @@ from test.integration.resource import (
     TEST_HEADERS_API_KEY_USER,
 )
 
-# Module-level sync engine cache
-_sync_engine = None
-_sync_session_factory = None
-
 
 @pytest.fixture(scope="session", autouse=True)
 def disable_elk():
@@ -41,37 +37,6 @@ def disable_elk():
     settings.elk_enabled = original
 
 
-def _get_or_create_sync_engine():
-    """Get or create the sync engine (cached at module level)."""
-    global _sync_engine, _sync_session_factory
-
-    if _sync_engine is None:
-        from adh6.config.configuration import settings
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker
-
-        # Convert async database URL to sync
-        def to_sync_url(url: str) -> str:
-            if url.startswith("mysql+aiomysql://"):
-                return url.replace("mysql+aiomysql://", "mysql+mysqldb://", 1)
-            if url.startswith("sqlite+aiosqlite://"):
-                return url.replace("sqlite+aiosqlite://", "sqlite://", 1)
-            return url
-
-        # Create sync engine and session factory ONCE
-        _sync_engine = create_engine(
-            to_sync_url(settings.database_url),
-            future=True,
-            pool_pre_ping=True,
-            pool_recycle=3600,
-        )
-        _sync_session_factory = sessionmaker(
-            bind=_sync_engine, autoflush=False, autocommit=False, expire_on_commit=False
-        )
-
-    return _sync_engine, _sync_session_factory
-
-
 @pytest.fixture(scope="session")
 def _app():
     """Session-scoped FastAPI app instance."""
@@ -81,19 +46,19 @@ def _app():
 
 
 @pytest.fixture(scope="session")
-def _db_setup(_app):
+async def _db_setup(_app):
     """Session-scoped database schema creation."""
+    from adh6.database import engine
     from adh6.storage.sql.models import Base
 
-    # Use sync engine to create schema (avoids event loop conflicts with TestClient)
-    sync_engine, _ = _get_or_create_sync_engine()
-    Base.metadata.create_all(bind=sync_engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     yield
 
-    # Clean up at end of session
-    Base.metadata.drop_all(bind=sync_engine)
-    sync_engine.dispose()
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -107,48 +72,38 @@ def _test_client(_app, _db_setup):
     client.close()
 
 
-def get_sync_session():
-    """Create a sync session for test data setup."""
-    _, session_factory = _get_or_create_sync_engine()
-    return session_factory()
-
-
-def add_test_fixtures(*fixtures):
+async def add_test_fixtures(*fixtures):
     """Helper to add fixtures to database and commit."""
-    session = get_sync_session()
-    try:
+    from adh6.database import async_session_factory
+
+    async with async_session_factory() as session:
         for fixture in fixtures:
             if isinstance(fixture, list):
                 session.add_all(fixture)
             else:
                 session.add(fixture)
-        session.commit()
-    finally:
-        session.close()
+        await session.commit()
 
 
-def cleanup_test_data():
+async def cleanup_test_data():
     """Delete all data from all tables."""
+    from adh6.database import async_session_factory, engine
     from adh6.storage.sql.models import Base
     from sqlalchemy import text
 
-    session = get_sync_session()
-    try:
+    async with async_session_factory() as session:
         # Disable foreign key checks for cleanup (MySQL/MariaDB only)
-        assert session.bind is not None  # For type checker
-        if "mysql" in session.bind.url.drivername:
-            session.execute(text("SET FOREIGN_KEY_CHECKS=0"))
+        if "mysql" in engine.url.drivername:
+            await session.execute(text("SET FOREIGN_KEY_CHECKS=0"))
 
         for table in reversed(Base.metadata.sorted_tables):
-            session.execute(table.delete())
+            await session.execute(table.delete())
 
         # Re-enable foreign key checks
-        if "mysql" in session.bind.url.drivername:
-            session.execute(text("SET FOREIGN_KEY_CHECKS=1"))
+        if "mysql" in engine.url.drivername:
+            await session.execute(text("SET FOREIGN_KEY_CHECKS=1"))
 
-        session.commit()
-    finally:
-        session.close()
+        await session.commit()
 
 
 # Default client fixture removed - each test file defines its own client fixture

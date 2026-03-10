@@ -65,7 +65,7 @@ class DeviceIpManager:
 
         ipv6_network = ""
         if vlan:
-            ipv6_network = vlan.ipv6_network
+            ipv6_network = vlan.ipv6_network or ""
 
         if not ipv4_network:
             raise ValueError("Cannot allocate IP without network")

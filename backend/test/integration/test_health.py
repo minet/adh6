@@ -11,15 +11,15 @@ base_url = f"{host_url}/health"
 
 
 @pytest.fixture
-def client(_test_client):
+async def client(_test_client):
     """Client fixture for health tests."""
     from .conftest import add_test_fixtures, api_key_fixtures, cleanup_test_data
 
-    add_test_fixtures(api_key_fixtures())
+    await add_test_fixtures(api_key_fixtures())
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_good_health(client):

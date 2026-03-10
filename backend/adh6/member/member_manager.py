@@ -107,7 +107,7 @@ class MemberManager(CRUDManager):
     @log_call
     async def create(self, body: MemberBody) -> Member:
         # Check that the user exists in the system.
-        fetched_member = await self.member_repository.get_by_login(body.username)
+        fetched_member = await self.member_repository.get_by_login(body.username or "")
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
@@ -119,10 +119,10 @@ class MemberManager(CRUDManager):
             object_to_create=AbstractMember(
                 id=0,
                 username=body.username,
-                first_name=body.first_name,
-                last_name=body.last_name,
+                firstName=body.first_name,
+                lastName=body.last_name,
                 email=body.mail,
-                departure_date=datetime.now() - timedelta(days=1),
+                departureDate=datetime.now() - timedelta(days=1),
                 ip="",
                 subnet="",
                 comment="",
@@ -136,13 +136,13 @@ class MemberManager(CRUDManager):
             AbstractAccount(
                 id=0,
                 actif=True,
-                account_type=fetched_account_type[0].id,
+                accountType=fetched_account_type[0].id,
                 member=created_member.id,
                 name=f"{created_member.first_name} {created_member.last_name} ({created_member.username})",
                 pinned=False,
-                compte_courant=False,
+                compteCourant=False,
                 balance=0,
-                pending_balance=0,
+                pendingBalance=0,
             )
         )
 
@@ -172,8 +172,8 @@ class MemberManager(CRUDManager):
                 id=id,
                 email=body.mail,
                 username=body.username,
-                first_name=body.first_name,
-                last_name=body.last_name,
+                firstName=body.first_name,
+                lastName=body.last_name,
             )
         )
 
@@ -227,7 +227,7 @@ class MemberManager(CRUDManager):
                 if mac not in device_to_statuses:
                     device_to_statuses[mac] = {}
                 if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
-                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp, comment=mac)
+                    device_to_statuses[mac][status] = MemberStatus(status=status, lastTimestamp=timestamp, comment=mac)
 
             prev_log = ["", ""]
             for log in logs:

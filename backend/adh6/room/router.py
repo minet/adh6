@@ -79,7 +79,7 @@ async def search_rooms(
 
 @router.post("", response_model=Room, status_code=status.HTTP_201_CREATED)
 async def create_room(
-    body: AbstractRoom,
+    body: Room,
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
 ) -> Room:
@@ -252,5 +252,7 @@ async def get_member_room(
     require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "room")
     room = await repository.get_from_member(id)
     if not room:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="room not found")
+    if room.id is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="room not found")
     return int(room.id)

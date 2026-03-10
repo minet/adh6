@@ -34,7 +34,7 @@ router = APIRouter(prefix="/device", tags=["device"])
 
 def _device_to_response_dict(device: Device) -> dict[str, Any]:
     """Serialize generated OpenAPI entity with aliases expected by integration tests."""
-    return device.dict(by_alias=True, exclude_none=True)
+    return device.model_dump(by_alias=True, exclude_none=True)
 
 
 def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[str, Any]:

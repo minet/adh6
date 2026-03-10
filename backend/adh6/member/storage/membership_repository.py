@@ -83,6 +83,10 @@ class MembershipSQLRepository(MembershipRepository):
 
         stmt = select(MembershipSQL).where(MembershipSQL.uuid == uuid)
         membership = await self.session.scalar(stmt)
+        if membership is None:
+            from adh6.exceptions import MembershipNotFoundError
+
+            raise MembershipNotFoundError(uuid)
 
         if body.duration:
             membership.duration = body.duration
@@ -103,6 +107,10 @@ class MembershipSQLRepository(MembershipRepository):
     async def validate(self, uuid: str) -> None:
         stmt = select(MembershipSQL).where(MembershipSQL.uuid == uuid)
         membership = await self.session.scalar(stmt)
+        if membership is None:
+            from adh6.exceptions import MembershipNotFoundError
+
+            raise MembershipNotFoundError(uuid)
         membership.status = MembershipStatus.COMPLETE
 
 
@@ -113,11 +121,11 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
     return Membership(
         uuid=str(obj_sql.uuid),
         duration=obj_sql.duration,
-        has_room=obj_sql.has_room,
-        first_time=obj_sql.first_time,
+        hasRoom=obj_sql.has_room,
+        firstTime=obj_sql.first_time,
         paymentMethod=obj_sql.payment_method_id,
         account=obj_sql.account_id,
         member=obj_sql.adherent_id,
         status=obj_sql.status.value,
-        created_at=obj_sql.create_at,
+        createdAt=obj_sql.create_at,
     )

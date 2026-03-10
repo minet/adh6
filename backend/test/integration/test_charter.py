@@ -42,14 +42,14 @@ def sample_membership_pending_rules():
 
 
 @pytest.fixture
-def client(_test_client, sample_member, sample_membership_pending_rules):
+async def client(_test_client, sample_member, sample_membership_pending_rules):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_member, sample_membership_pending_rules])
+    await add_test_fixtures([sample_member, sample_membership_pending_rules])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_charter_sign_minet(client, sample_member):

@@ -11,8 +11,8 @@ class ProfileHandler:
 
     @with_context
     @log_call
-    def profile(self):
-        member, roles = self.member_manager.get_profile()
+    async def profile(self):
+        member, roles = await self.member_manager.get_profile()
         if member.id != get_user():
             raise UnauthorizedError("Not authorize to access this ressource")
         return {"member": member.to_dict(), "roles": roles}, 200

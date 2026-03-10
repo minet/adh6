@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     sqlalchemy_max_overflow: int = 10
 
     @computed_field
+    @property
     def database_url(self) -> str:
         if self.testing:
             # File-backed sqlite keeps a shared database across test sessions.
@@ -28,8 +29,6 @@ class Settings(BaseSettings):
             return "mysql+aiomysql://user:pass@localhost/adh6"
 
         return f"mysql+aiomysql://{self.database_username}:{self.database_password}@{self.database_host}/{self.database_db_name}"
-
-    database_url = computed_field(database_url)
 
     # SMTP
     smtp_server: str | None = None

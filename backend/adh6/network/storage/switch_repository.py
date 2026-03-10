@@ -22,7 +22,7 @@ class SwitchSQLRepository(SwitchRepository):
     async def get_community(self, switch_id: int) -> str:
         result = await self.session.execute(select(SQLSwitch.communaute).where(SQLSwitch.id == switch_id))
         obj = result.scalar_one()
-        return obj
+        return obj or ""
 
     async def get_by_id(self, object_id: int) -> Switch:
         stmt = select(SQLSwitch).where(SQLSwitch.id == object_id)
@@ -119,8 +119,8 @@ def _map_switch_sql_to_entity(a: SQLSwitch) -> Switch:
     """
     return Switch(
         id=a.id,
-        description=a.description,
-        ip=a.ip,
+        description=a.description or "",
+        ip=a.ip or "",
     )
 
 

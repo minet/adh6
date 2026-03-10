@@ -9,7 +9,7 @@ class VlanRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    def get_vlan(self, vlan_number: int) -> Vlan:
+    async def get_vlan(self, vlan_number: int) -> Vlan:
         """
         Get a VLAN.
 

@@ -11,7 +11,7 @@ base_url = f"{host_url}/port/"
 
 
 @pytest.fixture
-def client(
+async def client(
     _test_client,
     sample_port1,
     sample_port2,
@@ -22,7 +22,7 @@ def client(
 ):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures(
+    await add_test_fixtures(
         [
             sample_port1,
             sample_port2,
@@ -35,7 +35,7 @@ def client(
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def assert_port_in_db(body):

@@ -6,7 +6,7 @@ from adh6.entity import AbstractProduct
 
 class ProductRepository(abc.ABC):
     @abc.abstractmethod
-    def get_by_id(self, object_id: int) -> AbstractProduct:
+    async def get_by_id(self, object_id: int) -> AbstractProduct:
         pass  # pragma: no cover
 
     @abc.abstractmethod

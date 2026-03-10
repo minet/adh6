@@ -17,14 +17,14 @@ def sample_account_type2():
 
 
 @pytest.fixture
-def client(_test_client, sample_account_type1, sample_account_type2, sample_member):
+async def client(_test_client, sample_account_type1, sample_account_type2, sample_member):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_account_type1, sample_account_type2, sample_member])
+    await add_test_fixtures([sample_account_type1, sample_account_type2, sample_member])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_account_type_filter_all_with_invalid_limit(client):

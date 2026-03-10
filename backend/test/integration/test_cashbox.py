@@ -13,14 +13,14 @@ def sample_caisse():
 
 
 @pytest.fixture
-def client(_test_client, sample_caisse, sample_member):
+async def client(_test_client, sample_caisse, sample_member):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_caisse, sample_member])
+    await add_test_fixtures([sample_caisse, sample_member])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_cashbox_get(client):

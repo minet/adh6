@@ -33,6 +33,6 @@ def _map_vlan_sql_to_abstract_entity(r: VlanSQL) -> AbstractVlan:
     return AbstractVlan(
         id=r.id,
         number=r.numero,
-        ipv4_network=r.adresses,
-        ipv6_network=r.adressesv6,
+        ipv4Network=r.adresses,
+        ipv6Network=r.adressesv6,
     )

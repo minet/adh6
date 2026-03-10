@@ -16,7 +16,7 @@ base_url = f"{host_url}/member/"
 
 
 @pytest.fixture
-def client(
+async def client(
     _test_client,
     sample_member,
     sample_member2,
@@ -31,7 +31,7 @@ def client(
     """Client fixture for member tests."""
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures(
+    await add_test_fixtures(
         [
             account_type,
             sample_member,
@@ -47,7 +47,7 @@ def client(
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def assert_member_in_db(body):

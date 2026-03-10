@@ -53,15 +53,15 @@ def sample_account2(sample_account_type2: AccountType):
 
 
 @pytest.fixture
-def client(_test_client, sample_member, sample_room1, sample_account1, sample_account2):
+async def client(_test_client, sample_member, sample_room1, sample_account1, sample_account2):
     """Add test-specific fixtures to the transaction."""
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    add_test_fixtures([sample_room1, sample_member, sample_account1, sample_account2])
+    await add_test_fixtures([sample_room1, sample_member, sample_account1, sample_account2])
 
     yield _test_client
 
-    cleanup_test_data()
+    await cleanup_test_data()
 
 
 def test_account_filter_all_with_invalid_limit(client):

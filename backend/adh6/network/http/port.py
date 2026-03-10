@@ -24,15 +24,17 @@ class PortHandler(DefaultHandler):
 
     @with_context
     @log_call
-    def vlan_get(self, id_):
-        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
+    async def vlan_get(self, id_):
+        vlan = await self.switch_network_manager.get_port_vlan(port_id=id_)
+        if vlan == "No Such Instance currently exists at this OID":
             return 1, 200
-        return int(self.switch_network_manager.get_port_vlan(port_id=id_)), 200
+        return int(vlan), 200
 
     @with_context
     @log_call
     async def vlan_put(self, id_, body):
-        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
+        vlan = await self.switch_network_manager.get_port_vlan(port_id=id_)
+        if vlan == "No Such Instance currently exists at this OID":
             return 1, 200
         await self.switch_network_manager.update_port_vlan(port_id=id_, elevated=lambda: None, vlan=int(body))
         return int(body), 204
