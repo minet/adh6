@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-from adh6.authentication import AuthenticationMethod, Roles
+from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.device.storage.device_repository import DeviceType
@@ -46,9 +46,9 @@ def _get_or_create_sync_engine():
     global _sync_engine, _sync_session_factory
 
     if _sync_engine is None:
+        from adh6.config.configuration import settings
         from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
-        from adh6.config.configuration import settings
 
         # Convert async database URL to sync
         def to_sync_url(url: str) -> str:
@@ -135,6 +135,7 @@ def cleanup_test_data():
     session = get_sync_session()
     try:
         # Disable foreign key checks for cleanup (MySQL/MariaDB only)
+        assert session.bind is not None  # For type checker
         if "mysql" in session.bind.url.drivername:
             session.execute(text("SET FOREIGN_KEY_CHECKS=0"))
 
@@ -404,9 +405,7 @@ def api_key_network_dev():
     return ApiKey(
         id=5,
         user_login=TESTING_CLIENT,
-        value=hash_api_key(
-            TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"].encode("utf-8")
-        ),
+        value=hash_api_key(TEST_HEADERS_API_KEY_NETWORK_DEV["X-API-KEY"].encode("utf-8")),
     )
 
 
@@ -422,9 +421,7 @@ def api_key_network_prod():
     return ApiKey(
         id=6,
         user_login=TESTING_CLIENT,
-        value=hash_api_key(
-            TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"].encode("utf-8")
-        ),
+        value=hash_api_key(TEST_HEADERS_API_KEY_NETWORK_PROD["X-API-KEY"].encode("utf-8")),
     )
 
 
@@ -440,9 +437,7 @@ def api_key_network_hosting():
     return ApiKey(
         id=7,
         user_login=TESTING_CLIENT,
-        value=hash_api_key(
-            TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"].encode("utf-8")
-        ),
+        value=hash_api_key(TEST_HEADERS_API_KEY_NETWORK_HOSTING["X-API-KEY"].encode("utf-8")),
     )
 
 
@@ -562,9 +557,7 @@ def sample_complete_membership(
 
 
 @pytest.fixture
-def sample_pending_validation_membership(
-    sample_account: Account, sample_member2: Adherent
-):
+def sample_pending_validation_membership(sample_account: Account, sample_member2: Adherent):
     """Membership that is not completed"""
     yield Membership(
         uuid=str(uuid4()),

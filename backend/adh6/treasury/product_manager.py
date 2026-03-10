@@ -63,6 +63,6 @@ class ProductManager(CRUDManager):
                     dst=dst_accounts[0].id,
                     name=product.name,
                     value=product.selling_price,
-                    payment_method=payment_method.id,  # type: ignore # TODO: typing
+                    paymentMethod=payment_method.id,  # type: ignore # TODO: typing
                 )
             )

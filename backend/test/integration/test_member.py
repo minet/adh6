@@ -489,9 +489,7 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         ("username", "TESTTEST"),
     ],
 )
-def test_member_patch_membership_pending(
-    client, sample_member2: Adherent, key: str, value: str
-):
+def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
     body = {
         key: value,
     }

@@ -11,18 +11,14 @@ class CRUDManager:
         self.not_found_exception = not_found_exception
 
     @log_call
-    async def search(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs
-    ) -> tuple[list, int]:
+    async def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, **kwargs) -> tuple[list, int]:
         if limit < 0:
             raise IntMustBePositive("limit")
 
         if offset < 0:
             raise IntMustBePositive("offset")
 
-        return await self.repository.search_by(
-            limit=limit, offset=offset, terms=terms, **kwargs
-        )
+        return await self.repository.search_by(limit=limit, offset=offset, terms=terms, **kwargs)
 
     @log_call
     async def get_by_id(self, id: int):

@@ -13,9 +13,7 @@ class ApiKeyRepository(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    async def find(
-        self, login: str | None = None, token_hash: str | None = None
-    ) -> list[ApiKey]:
+    async def find(self, login: str | None = None, token_hash: str | None = None) -> list[ApiKey]:
         pass  # pragma: no cover
 
     @abstractmethod

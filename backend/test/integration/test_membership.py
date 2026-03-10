@@ -14,15 +14,30 @@ def base_url(id) -> str:
 
 @pytest.fixture
 def client(
-    _test_client, sample_member, sample_account, sample_payment_method, sample_room1, sample_vlan,
-    sample_account_frais_asso, sample_account_frais_techniques, account_type
+    _test_client,
+    sample_member,
+    sample_account,
+    sample_payment_method,
+    sample_room1,
+    sample_vlan,
+    sample_account_frais_asso,
+    sample_account_frais_techniques,
+    account_type,
 ):
     """Client fixture for membership tests."""
     from .conftest import add_test_fixtures, cleanup_test_data
 
     add_test_fixtures(
-        [account_type, sample_vlan, sample_payment_method, sample_account, sample_member, sample_room1,
-         sample_account_frais_asso, sample_account_frais_techniques]
+        [
+            account_type,
+            sample_vlan,
+            sample_payment_method,
+            sample_account,
+            sample_member,
+            sample_room1,
+            sample_account_frais_asso,
+            sample_account_frais_techniques,
+        ]
     )
 
     yield _test_client
@@ -96,9 +111,7 @@ def test_member_post_add_membership_unknown_account(client, sample_member):
     assert result.status_code == 404
 
 
-def test_member_post_add_membership_unknown_payment_method(
-    client, sample_member, sample_account
-):
+def test_member_post_add_membership_unknown_payment_method(client, sample_member, sample_account):
     body = {
         "account": sample_account.id,
         "duration": 1,

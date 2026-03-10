@@ -4,8 +4,8 @@ Ensures the backend package root is importable when pytest is launched from the
 repository root (IDE discovery case).
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 BACKEND_ROOT = Path(__file__).resolve().parent
 backend_root_str = str(BACKEND_ROOT)

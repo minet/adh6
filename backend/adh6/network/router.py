@@ -1,7 +1,6 @@
 """FastAPI router for network endpoints (ports and switches)."""
 
 import ipaddress
-import json
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -21,8 +20,8 @@ from adh6.utils.filter_wrapper import (
 
 from .port_manager import PortManager
 from .snmp import SwitchNetworkManager
-from .switch_manager import SwitchManager
 from .storage import PortRepository, SwitchRepository
+from .switch_manager import SwitchManager
 
 port_router = APIRouter(prefix="/port", tags=["port"])
 switch_router = APIRouter(prefix="/switch", tags=["switch"])
@@ -44,7 +43,7 @@ def _validate_ipv4(ip: str | None) -> None:
 
 def _to_public_dict(obj: Any) -> dict[str, Any]:
     if hasattr(obj, "dict"):
-        return obj.dict(by_alias=True, exclude_none=True)
+        return obj.model(by_alias=True, exclude_none=True)
     return dict(obj)
 
 
@@ -102,16 +101,10 @@ async def search_ports(
 ) -> list[Port] | JSONResponse:
     """Search network ports."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
-    result, _count = await manager.search(
-        limit=limit, offset=offset, terms=terms or "", filter_=filter_
-    )
+    result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
 
     if only:
-        return JSONResponse(
-            content=[
-                _apply_only_projection(_to_public_dict(port), only) for port in result
-            ]
-        )
+        return JSONResponse(content=[_apply_only_projection(_to_public_dict(port), only) for port in result])
     return result
 
 
@@ -211,9 +204,7 @@ async def set_port_vlan(
     request: Request,
 ) -> None:
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    if (
-        await manager.get_port_vlan(port_id=id)
-    ) == "No Such Instance currently exists at this OID":
+    if (await manager.get_port_vlan(port_id=id)) == "No Such Instance currently exists at this OID":
         return
     await manager.update_port_vlan(
         port_id=id,
@@ -301,9 +292,7 @@ async def get_port_speed(
 async def search_switches(
     manager: Annotated[SwitchManager, Depends(get_switch_manager)],
     request: Request,
-    filter_: Annotated[
-        AbstractSwitch, AbstractSwitchFilterHandler()
-    ] = AbstractSwitch(),
+    filter_: Annotated[AbstractSwitch, AbstractSwitchFilterHandler()] = AbstractSwitch(),
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -319,16 +308,9 @@ async def search_switches(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid only fields: {invalid}",
             )
-    result, _count = await manager.search(
-        limit=limit, offset=offset, terms=terms or "", filter_=filter_
-    )
+    result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
     if only:
-        return JSONResponse(
-            content=[
-                _apply_only_projection(_to_public_dict(switch), only)
-                for switch in result
-            ]
-        )
+        return JSONResponse(content=[_apply_only_projection(_to_public_dict(switch), only) for switch in result])
     return result
 
 

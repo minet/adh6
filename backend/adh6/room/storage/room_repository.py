@@ -44,9 +44,7 @@ class RoomSQLRepository(RoomRepository):
         # lines needed for compatibility
         adherent_stmt = select(Adherent).where(Adherent.id == member_id)
         adherent = await self.session.scalar(adherent_stmt)
-        stmt = (
-            update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
-        )
+        stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=None)
         await self.session.execute(stmt)
 
     async def add_member(self, room_id: int, member_id: int) -> None:
@@ -57,11 +55,7 @@ class RoomSQLRepository(RoomRepository):
         adherent_stmt = select(Adherent).where(Adherent.id == member_id)
         adherent = await self.session.scalar(adherent_stmt)
         if adherent is not None:
-            stmt = (
-                update(Adherent)
-                .where(Adherent.id == adherent.id)
-                .values(chambre_id=room_id)
-            )
+            stmt = update(Adherent).where(Adherent.id == adherent.id).values(chambre_id=room_id)
             await self.session.execute(stmt)
 
     async def get_by_id(self, object_id: int) -> Room:
@@ -127,16 +121,12 @@ class RoomSQLRepository(RoomRepository):
 
         return result
 
-    async def update(
-        self, id: int, abstract_room: AbstractRoom, override=False
-    ) -> Room:
+    async def update(self, id: int, abstract_room: AbstractRoom, override=False) -> Room:
         stmt = select(Chambre).where(Chambre.id == id)
         room = await self.session.scalar(stmt)
         if room is None:
             raise RoomNotFoundError(str(abstract_room.id))
-        new_chambre = await _merge_sql_with_entity(
-            abstract_room, room, self.session, override
-        )
+        new_chambre = await _merge_sql_with_entity(abstract_room, room, self.session, override)
         await self.session.flush()
         mapped_room = await _map_room_sql_to_entity(new_chambre, self.session)
 
@@ -166,9 +156,7 @@ async def _merge_sql_with_entity(
     return chambre
 
 
-async def _map_room_sql_to_abstract_entity(
-    r: Chambre, session: AsyncSession
-) -> AbstractRoom:
+async def _map_room_sql_to_abstract_entity(r: Chambre, session: AsyncSession) -> AbstractRoom:
     stmt = select(Vlan).where(Vlan.id == r.vlan_id)
     result = await session.execute(stmt)
     vlan = result.first()

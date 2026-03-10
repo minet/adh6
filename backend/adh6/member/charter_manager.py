@@ -15,9 +15,7 @@ from .interfaces import CharterRepository, MemberRepository, MembershipRepositor
 def _validate_charter_id(charter_id: int) -> None:
     """Validate that charter_id is 1 (network) or 2 (conditions)."""
     if charter_id not in (1, 2):
-        raise ValidationError(
-            f"Invalid charter_id: {charter_id}. Valid values are 1 or 2."
-        )
+        raise ValidationError(f"Invalid charter_id: {charter_id}. Valid values are 1 or 2.")
 
 
 class CharterManager:
@@ -45,9 +43,7 @@ class CharterManager:
             raise MemberNotFoundError(member_id)
         subscriptions, _ = await self.membership_repository.search(
             limit=1,
-            filter_=AbstractMembership(
-                member=member_id, status=MembershipStatus.PENDING_RULES.value
-            ),
+            filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value),
         )
         if not subscriptions:
             raise MembershipNotFoundError(member_id)

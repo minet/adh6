@@ -29,21 +29,13 @@ class DeviceIpManager:
         vlan_number: int | None = None,
     ) -> None:
         if not vlan_number and device_type == DeviceType.wired.name:
-            raise ValueError(
-                "Cannot have both parameters: device_type to wired and vlan_number to None"
-            )
+            raise ValueError("Cannot have both parameters: device_type to wired and vlan_number to None")
 
-        vlan = (
-            await self.vlan_manager.get_from_number(vlan_number=vlan_number)
-            if vlan_number
-            else None
-        )
+        vlan = await self.vlan_manager.get_from_number(vlan_number=vlan_number) if vlan_number else None
         devices, _ = await self.device_repository.search_by(
             limit=DEFAULT_LIMIT,
             offset=DEFAULT_OFFSET,
-            device_filter=DeviceFilter(
-                member=member.id, connectionType=device_type if device_type else None
-            ),
+            device_filter=DeviceFilter(member=member.id, connectionType=device_type if device_type else None),
         )
         for d in devices:
             await self.allocate_ip_with_vlan(device=d, member=member, vlan=vlan)
@@ -59,16 +51,12 @@ class DeviceIpManager:
             await self.unallocate_ip(device=d)
 
     @log_call
-    async def allocate_ip_with_vlan_number(
-        self, device: Device, member: Member, vlan_number: int
-    ) -> None:
+    async def allocate_ip_with_vlan_number(self, device: Device, member: Member, vlan_number: int) -> None:
         vlan = await self.vlan_manager.get_from_number(vlan_number=vlan_number)
         await self.allocate_ip_with_vlan(device=device, member=member, vlan=vlan)
 
     @log_call
-    async def allocate_ip_with_vlan(
-        self, device: Device, member: Member, vlan: Vlan | None
-    ) -> None:
+    async def allocate_ip_with_vlan(self, device: Device, member: Member, vlan: Vlan | None) -> None:
         ipv4_network = ""
         if device.connection_type == DeviceType.wired.name and vlan:
             ipv4_network = vlan.ipv4_network
@@ -89,13 +77,9 @@ class DeviceIpManager:
         )
 
     @log_call
-    async def _allocate_ip(
-        self, device: Device, ipv4_network: str = "", ipv6_network: str = ""
-    ) -> None:
+    async def _allocate_ip(self, device: Device, ipv4_network: str = "", ipv6_network: str = "") -> None:
         ipv4 = await self.ip_allocator.available_ip(ipv4_network)
-        ipv6 = (
-            await self.ip_allocator.available_ip(ipv6_network) if ipv6_network else None
-        )
+        ipv6 = await self.ip_allocator.available_ip(ipv6_network) if ipv6_network else None
 
         await self.device_repository.update(  # type: ignore  # TODO: typing is baaaaad
             abstract_device=AbstractDevice(  # type: ignore  # TODO: typing is baaaaad

@@ -20,9 +20,7 @@ class SwitchSQLRepository(SwitchRepository):
         self.session = session
 
     async def get_community(self, switch_id: int) -> str:
-        result = await self.session.execute(
-            select(SQLSwitch.communaute).where(SQLSwitch.id == switch_id)
-        )
+        result = await self.session.execute(select(SQLSwitch.communaute).where(SQLSwitch.id == switch_id))
         obj = result.scalar_one()
         return obj
 
@@ -43,9 +41,7 @@ class SwitchSQLRepository(SwitchRepository):
         stmt = select(SQLSwitch)
 
         if terms:
-            stmt = stmt.where(
-                (SQLSwitch.description.contains(terms)) | (SQLSwitch.ip.contains(terms))
-            )
+            stmt = stmt.where((SQLSwitch.description.contains(terms)) | (SQLSwitch.ip.contains(terms)))
         if filter_:
             if filter_.id:
                 stmt = stmt.where(SQLSwitch.id == filter_.id)
@@ -70,11 +66,7 @@ class SwitchSQLRepository(SwitchRepository):
 
         switch = SQLSwitch(
             ip=abstract_switch.ip,
-            communaute=(
-                abstract_switch.community.get_secret_value()
-                if abstract_switch.community
-                else None
-            ),
+            communaute=(abstract_switch.community.get_secret_value() if abstract_switch.community else None),
             description=abstract_switch.description,
             created_at=now,
             updated_at=now,
@@ -107,17 +99,13 @@ class SwitchSQLRepository(SwitchRepository):
         await self.session.delete(switch)
 
 
-def _merge_sql_with_entity(
-    entity: AbstractSwitch, sql_object: SQLSwitch, override=False
-) -> SQLSwitch:
+def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
     now = datetime.now()
     switch = sql_object
     if entity.ip is not None or override:
         switch.ip = entity.ip
     if entity.community is not None or override:
-        switch.communaute = (
-            entity.community.get_secret_value() if entity.community else None
-        )
+        switch.communaute = entity.community.get_secret_value() if entity.community else None
     if entity.description is not None:
         switch.description = entity.description
 

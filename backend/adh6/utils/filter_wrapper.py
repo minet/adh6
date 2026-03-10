@@ -1,12 +1,11 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from fastapi import Depends, Request
-
 from adh6.entity.abstract_port import AbstractPort
 from adh6.entity.abstract_switch import AbstractSwitch
 from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.member_filter import MemberFilter
+from fastapi import Depends, Request
 
 
 def _extract_filter_entries(request: Request) -> dict[str, str]:
@@ -35,17 +34,13 @@ def _parse_optional_datetime(value: str | None) -> datetime | None:
 
 
 def _build_device_filter_dependency() -> Any:
-    def dependency(request: Request) -> DeviceFilter:
+    def dependency(request: Request) -> DeviceFilter | None:
         raw_filters = _extract_filter_entries(request)
         payload = {
             # Only keep supported keys for device search filters.
             "terms": raw_filters.get("terms") if "terms" in raw_filters else None,
             "member": _parse_optional_int(raw_filters.get("member")),
-            "connectionType": (
-                raw_filters.get("connectionType")
-                if "connectionType" in raw_filters
-                else None
-            ),
+            "connectionType": (raw_filters.get("connectionType") if "connectionType" in raw_filters else None),
         }
         return DeviceFilter.from_dict(payload)
 
@@ -53,13 +48,11 @@ def _build_device_filter_dependency() -> Any:
 
 
 def _build_member_filter_dependency() -> Any:
-    def dependency(request: Request) -> MemberFilter:
+    def dependency(request: Request) -> MemberFilter | None:
         raw_filters = _extract_filter_entries(request)
         payload = {
             # Only keep supported keys for member search filters.
-            "membership": (
-                raw_filters.get("membership") if "membership" in raw_filters else None
-            ),
+            "membership": (raw_filters.get("membership") if "membership" in raw_filters else None),
             "mailinglist": _parse_optional_int(raw_filters.get("mailinglist")),
             "since": _parse_optional_datetime(raw_filters.get("since")),
             "until": _parse_optional_datetime(raw_filters.get("until")),
@@ -71,14 +64,12 @@ def _build_member_filter_dependency() -> Any:
 
 
 def _build_abstract_port_filter_dependency() -> Any:
-    def dependency(request: Request) -> AbstractPort:
+    def dependency(request: Request) -> AbstractPort | None:
         raw_filters = _extract_filter_entries(request)
         payload = {
             # Only keep supported keys for port search filters.
             "id": _parse_optional_int(raw_filters.get("id")),
-            "portNumber": (
-                raw_filters.get("portNumber") if "portNumber" in raw_filters else None
-            ),
+            "portNumber": (raw_filters.get("portNumber") if "portNumber" in raw_filters else None),
             "oid": raw_filters.get("oid") if "oid" in raw_filters else None,
             "room": _parse_optional_int(raw_filters.get("room")),
             "switchObj": _parse_optional_int(raw_filters.get("switchObj")),
@@ -89,13 +80,11 @@ def _build_abstract_port_filter_dependency() -> Any:
 
 
 def _build_abstract_switch_filter_dependency() -> Any:
-    def dependency(request: Request) -> AbstractSwitch:
+    def dependency(request: Request) -> AbstractSwitch | None:
         raw_filters = _extract_filter_entries(request)
         payload = {
             "id": _parse_optional_int(raw_filters.get("id")),
-            "description": (
-                raw_filters.get("description") if "description" in raw_filters else None
-            ),
+            "description": (raw_filters.get("description") if "description" in raw_filters else None),
             "ip": raw_filters.get("ip") if "ip" in raw_filters else None,
         }
         return AbstractSwitch.from_dict(payload)
@@ -103,7 +92,7 @@ def _build_abstract_switch_filter_dependency() -> Any:
     return dependency
 
 
-def DeviceFilterWrapper(
+def DeviceFilterWrapper(  # noqa: N802 # Allow capitalized name for consistency with Tiangolo (the GOAT) original design.
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -115,7 +104,7 @@ def DeviceFilterWrapper(
     )
 
 
-def MemberFilterWrapper(
+def MemberFilterWrapper(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -127,7 +116,7 @@ def MemberFilterWrapper(
     )
 
 
-def AbstractPortFilterWrapper(
+def AbstractPortFilterWrapper(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -139,7 +128,7 @@ def AbstractPortFilterWrapper(
     )
 
 
-def DeviceFilterHandler(
+def DeviceFilterHandler(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -147,7 +136,7 @@ def DeviceFilterHandler(
     return DeviceFilterWrapper(use_cache=use_cache, scope=scope)
 
 
-def MemberFilterHandler(
+def MemberFilterHandler(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -155,7 +144,7 @@ def MemberFilterHandler(
     return MemberFilterWrapper(use_cache=use_cache, scope=scope)
 
 
-def AbstractPortFilterHandler(
+def AbstractPortFilterHandler(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -163,7 +152,7 @@ def AbstractPortFilterHandler(
     return AbstractPortFilterWrapper(use_cache=use_cache, scope=scope)
 
 
-def AbstractSwitchFilterWrapper(
+def AbstractSwitchFilterWrapper(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -175,7 +164,7 @@ def AbstractSwitchFilterWrapper(
     )
 
 
-def AbstractSwitchFilterHandler(
+def AbstractSwitchFilterHandler(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -183,7 +172,7 @@ def AbstractSwitchFilterHandler(
     return AbstractSwitchFilterWrapper(use_cache=use_cache, scope=scope)
 
 
-def AbstractPortHandler(
+def AbstractPortHandler(  # noqa: N802
     *,
     use_cache: bool = True,
     scope: Literal["function", "request"] | None = None,
@@ -192,13 +181,13 @@ def AbstractPortHandler(
 
 
 __all__ = [
-    "DeviceFilterWrapper",
-    "MemberFilterWrapper",
-    "AbstractPortFilterWrapper",
-    "AbstractSwitchFilterWrapper",
-    "DeviceFilterHandler",
-    "MemberFilterHandler",
     "AbstractPortFilterHandler",
+    "AbstractPortFilterWrapper",
     "AbstractPortHandler",
     "AbstractSwitchFilterHandler",
+    "AbstractSwitchFilterWrapper",
+    "DeviceFilterHandler",
+    "DeviceFilterWrapper",
+    "MemberFilterHandler",
+    "MemberFilterWrapper",
 ]

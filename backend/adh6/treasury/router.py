@@ -19,10 +19,10 @@ from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.entity import (
-    Account,
-    AccountType,
     AbstractAccount,
     AbstractTransaction,
+    Account,
+    AccountType,
     Bank,
     Cashbox,
     PaymentMethod,
@@ -37,7 +37,6 @@ from .account_type_manager import AccountTypeManager
 from .cashbox_manager import CashboxManager
 from .payment_method_manager import PaymentMethodManager
 from .product_manager import ProductManager
-from .transaction_manager import TransactionManager
 from .storage import (
     AccountRepository,
     AccountTypeRepository,
@@ -46,6 +45,7 @@ from .storage import (
     ProductRepository,
     TransactionRepository,
 )
+from .transaction_manager import TransactionManager
 
 # Create separate routers for each domain (as per spec.yaml)
 router = APIRouter(prefix="/treasury", tags=["treasury"])
@@ -69,9 +69,7 @@ def _extract_filter_entries(request: Request) -> dict[str, str]:
     return filters
 
 
-def _parse_account_filter(
-    request: Request, raw_filter: str | None
-) -> AbstractAccount | None:
+def _parse_account_filter(request: Request, raw_filter: str | None) -> AbstractAccount | None:
     """Parse account filter from either JSON string or deepObject query params."""
     if raw_filter:
         return AbstractAccount.from_dict(json.loads(raw_filter))
@@ -99,9 +97,7 @@ def _parse_account_filter(
     return AbstractAccount.from_dict(payload)
 
 
-def _parse_transaction_filter(
-    request: Request, raw_filter: str | None
-) -> AbstractTransaction | None:
+def _parse_transaction_filter(request: Request, raw_filter: str | None) -> AbstractTransaction | None:
     """Parse transaction filter from either JSON string or deepObject query params."""
     if raw_filter:
         return AbstractTransaction.from_dict(json.loads(raw_filter))
@@ -174,9 +170,7 @@ async def get_transaction_manager(
 
 async def get_product_manager(
     session: Annotated[AsyncSession, Depends(get_session)],
-    transaction_manager: Annotated[
-        TransactionManager, Depends(get_transaction_manager)
-    ],
+    transaction_manager: Annotated[TransactionManager, Depends(get_transaction_manager)],
 ) -> ProductManager:
     """Dependency: Inject Product Manager."""
     product_repo = ProductRepository(session)
@@ -417,14 +411,7 @@ async def search_transactions(
             )
 
         only_fields = {"id", *requested_fields}
-        result = [
-            {
-                k: v
-                for k, v in item.model_dump(by_alias=True).items()
-                if k in only_fields
-            }
-            for item in result
-        ]
+        result = [{k: v for k, v in item.model_dump(by_alias=True).items() if k in only_fields} for item in result]
 
     return result
 

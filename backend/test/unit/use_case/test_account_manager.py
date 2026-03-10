@@ -31,9 +31,7 @@ class TestGetCAV:
         sample_account1: Account,
         sample_account2: Account,
     ):
-        mock_account_repository.search_by = AsyncMock(
-            return_value=([sample_account1, sample_account2], 2)
-        )
+        mock_account_repository.search_by = AsyncMock(return_value=([sample_account1, sample_account2], 2))
         result = await account_manager.get_cav_balance()
         assert result == 0
         mock_account_repository.search_by.assert_awaited_once()

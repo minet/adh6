@@ -1,7 +1,6 @@
 from collections.abc import Generator
-from os import name
 
-from adh6.authentication import Roles
+from adh6.authentication.enums import Roles
 from adh6.constants import MembershipStatus
 from adh6.entity import (
     AbstractMembership,
@@ -28,9 +27,7 @@ def mock_test_configuration(monkeypatch):
     from adh6.member.subscription_manager import SubscriptionManager
 
     monkeypatch.setattr(SubscriptionManager, "duration_price", {1: 9, 12: 50})
-    monkeypatch.setattr(
-        SubscriptionManager, "duration_string", {1: "1 Mois", 12: "1 an"}
-    )
+    monkeypatch.setattr(SubscriptionManager, "duration_string", {1: "1 Mois", 12: "1 an"})
 
 
 @fixture(autouse=True)
@@ -126,9 +123,7 @@ def sample_subscription_duration_account_payment_method(
 
 @fixture
 def sample_membership_empty(sample_member) -> AbstractMembership:
-    return AbstractMembership(
-        uuid="", member=sample_member.id, status=MembershipStatus.INITIAL.value
-    )
+    return AbstractMembership(uuid="", member=sample_member.id, status=MembershipStatus.INITIAL.value)
 
 
 @fixture
@@ -222,9 +217,7 @@ def sample_account_type(faker) -> AccountType:
 
 
 @fixture
-def sample_transaction(
-    faker, sample_admin, sample_account1, sample_account2, sample_payment_method
-):
+def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
     yield Transaction(
         id=faker.random_digit_not_null(),
         src=sample_account1.id,
@@ -239,9 +232,7 @@ def sample_transaction(
 
 
 @fixture
-def sample_transaction_pending(
-    faker, sample_admin, sample_account1, sample_account2, sample_payment_method
-):
+def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
     yield Transaction(
         id=faker.random_digit_not_null(),
         src=sample_account1.id,

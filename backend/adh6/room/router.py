@@ -58,9 +58,7 @@ async def search_rooms(
     """Search rooms with pagination."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     filter_obj = AbstractRoom.from_dict(json.loads(filter_)) if filter_ else None
-    result, _count = await repository.search_by(
-        limit=limit, offset=offset, terms=terms, filter_=filter_obj
-    )
+    result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_obj)
 
     if only:
         # Validate only fields are valid
@@ -74,14 +72,7 @@ async def search_rooms(
             )
 
         only_fields = {"id", *requested_fields}
-        result = [
-            {
-                k: v
-                for k, v in item.model_dump(by_alias=True).items()
-                if k in only_fields
-            }
-            for item in result
-        ]
+        result = [{k: v for k, v in item.model_dump(by_alias=True).items() if k in only_fields} for item in result]
 
     return result  # type: ignore[return-value]
 
@@ -195,9 +186,7 @@ async def remove_member_from_room(
     """Remove a member from a room."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     if member_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="memberId is required"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="memberId is required")
     try:
         await repository.get_by_id(id)
     except NotFoundError as e:
@@ -263,7 +252,5 @@ async def get_member_room(
     require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "room")
     room = await repository.get_from_member(id)
     if not room:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="room not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="room not found")
     return int(room.id)

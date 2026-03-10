@@ -70,7 +70,7 @@ def _extract_runtime_endpoints(openapi_json: dict) -> set[tuple[str, str]]:
         if not isinstance(operations, dict):
             continue
 
-        for method in operations.keys():
+        for method in operations:
             method_l = str(method).lower()
             if method_l in ALLOWED_HTTP_METHODS:
                 endpoints.add((method_l, path))
@@ -94,9 +94,7 @@ def _to_spec_relative_path(runtime_path: str) -> str:
     return runtime_path
 
 
-def _extract_json_response_schema(
-    openapi: dict[str, Any], method: str, path: str
-) -> dict[str, Any] | None:
+def _extract_json_response_schema(openapi: dict[str, Any], method: str, path: str) -> dict[str, Any] | None:
     operation = openapi.get("paths", {}).get(path, {}).get(method)
     if not isinstance(operation, dict):
         return None
@@ -108,11 +106,7 @@ def _extract_json_response_schema(
     preferred_codes = []
     if "200" in responses:
         preferred_codes.append("200")
-    preferred_codes.extend(
-        sorted(
-            code for code in responses if str(code).startswith("2") and code != "200"
-        )
-    )
+    preferred_codes.extend(sorted(code for code in responses if str(code).startswith("2") and code != "200"))
 
     for code in preferred_codes:
         response_obj = responses.get(code)
@@ -169,9 +163,7 @@ def _merge_key_trees(base: dict[str, Any], extra: dict[str, Any]) -> dict[str, A
     return merged
 
 
-def _schema_key_tree(
-    openapi: dict[str, Any], schema: dict[str, Any]
-) -> dict[str, Any] | None:
+def _schema_key_tree(openapi: dict[str, Any], schema: dict[str, Any]) -> dict[str, Any] | None:
     resolved = _resolve_schema(openapi, schema)
 
     for composition in ("allOf", "oneOf", "anyOf"):
@@ -208,9 +200,7 @@ def _schema_key_tree(
 
         additional_properties = resolved.get("additionalProperties")
         if isinstance(additional_properties, dict):
-            normalized_properties["*"] = _schema_key_tree(
-                openapi, additional_properties
-            )
+            normalized_properties["*"] = _schema_key_tree(openapi, additional_properties)
 
         return normalized_properties
 
@@ -234,6 +224,7 @@ def spec_openapi() -> dict[str, Any]:
 @pytest.fixture(scope="module")
 def runtime_openapi() -> dict[str, Any]:
     from fastapi.testclient import TestClient
+
     from .context import app
 
     with TestClient(app) as client:
@@ -256,15 +247,11 @@ def _endpoint_id(endpoint: tuple[str, str]) -> str:
 
 
 def _assert_endpoint_format(endpoint: tuple[str, str]) -> None:
-    assert isinstance(
-        endpoint, tuple
-    ), f"Endpoint must be a tuple, got: {type(endpoint)}"
+    assert isinstance(endpoint, tuple), f"Endpoint must be a tuple, got: {type(endpoint)}"
     assert len(endpoint) == 2, f"Endpoint tuple must have 2 items, got: {endpoint}"
 
     method, path = endpoint
-    assert isinstance(
-        method, str
-    ), f"Endpoint method must be a string, got: {type(method)}"
+    assert isinstance(method, str), f"Endpoint method must be a string, got: {type(method)}"
     assert isinstance(path, str), f"Endpoint path must be a string, got: {type(path)}"
     assert method in ALLOWED_HTTP_METHODS, f"Invalid endpoint method: {method}"
     assert method == method.lower(), f"Endpoint method must be lowercase, got: {method}"
@@ -280,8 +267,7 @@ def test_runtime_openapi_includes_spec_endpoint(
     runtime_endpoints: set[tuple[str, str]], spec_endpoint: tuple[str, str]
 ):
     assert spec_endpoint in runtime_endpoints, (
-        "Endpoint defined in spec.yaml but missing from runtime openapi.json: "
-        f"{spec_endpoint}"
+        f"Endpoint defined in spec.yaml but missing from runtime openapi.json: {spec_endpoint}"
     )
 
 
@@ -290,8 +276,7 @@ def test_runtime_openapi_has_no_undeclared_endpoints(
 ):
     extra_in_runtime = sorted(runtime_endpoints - spec_endpoints)
     assert not extra_in_runtime, (
-        "Endpoints present in runtime openapi.json but not declared in spec.yaml: "
-        f"{extra_in_runtime}"
+        f"Endpoints present in runtime openapi.json but not declared in spec.yaml: {extra_in_runtime}"
     )
 
 
@@ -315,28 +300,20 @@ def test_runtime_openapi_response_format_matches_spec_per_endpoint(
     method, runtime_path = spec_endpoint
 
     if spec_endpoint not in runtime_endpoints:
-        pytest.skip(
-            "Endpoint missing from runtime OpenAPI; covered by endpoint presence test"
-        )
+        pytest.skip("Endpoint missing from runtime OpenAPI; covered by endpoint presence test")
 
     spec_path = _to_spec_relative_path(runtime_path)
-    spec_response_schema = _extract_json_response_schema(
-        spec_openapi, method, spec_path
-    )
-    runtime_response_schema = _extract_json_response_schema(
-        runtime_openapi, method, runtime_path
-    )
+    spec_response_schema = _extract_json_response_schema(spec_openapi, method, spec_path)
+    runtime_response_schema = _extract_json_response_schema(runtime_openapi, method, runtime_path)
 
     if spec_response_schema is None and runtime_response_schema is None:
         pytest.skip("No JSON success response schema declared for this endpoint")
 
     assert spec_response_schema is not None, (
-        "JSON success response schema missing in spec.yaml for endpoint "
-        f"{method.upper()} {runtime_path}"
+        f"JSON success response schema missing in spec.yaml for endpoint {method.upper()} {runtime_path}"
     )
     assert runtime_response_schema is not None, (
-        "JSON success response schema missing in runtime openapi.json for endpoint "
-        f"{method.upper()} {runtime_path}"
+        f"JSON success response schema missing in runtime openapi.json for endpoint {method.upper()} {runtime_path}"
     )
 
     expected_key_tree = _schema_key_tree(spec_openapi, spec_response_schema)

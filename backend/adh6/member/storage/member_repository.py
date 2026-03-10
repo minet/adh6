@@ -37,9 +37,9 @@ class MemberSQLRepository(MemberRepository):
             if filter_.until:
                 stmt = stmt.where(Adherent.date_de_depart <= filter_.until)
             if filter_.membership:
-                stmt = stmt.join(
-                    Membership, Membership.adherent_id == Adherent.id
-                ).where(Membership.status == filter_.membership)
+                stmt = stmt.join(Membership, Membership.adherent_id == Adherent.id).where(
+                    Membership.status == filter_.membership
+                )
 
         if terms:
             terms_lower = terms.lower()
@@ -48,12 +48,8 @@ class MemberSQLRepository(MemberRepository):
             if len(parts) == 2:
                 a, b = parts
                 # "firstname lastname" or "lastname firstname"
-                full_name_match = (
-                    func.lower(Adherent.prenom).contains(a)
-                    & func.lower(Adherent.nom).contains(b)
-                ) | (
-                    func.lower(Adherent.prenom).contains(b)
-                    & func.lower(Adherent.nom).contains(a)
+                full_name_match = (func.lower(Adherent.prenom).contains(a) & func.lower(Adherent.nom).contains(b)) | (
+                    func.lower(Adherent.prenom).contains(b) & func.lower(Adherent.nom).contains(a)
                 )
             stmt = stmt.where(
                 (func.lower(Adherent.nom).contains(terms_lower))
@@ -167,9 +163,7 @@ class MemberSQLRepository(MemberRepository):
         days_to_add = 0
         for i in range(duration_in_mounth):
             if adherent.date_de_depart.month + i <= 12:
-                days_to_add += calendar.monthrange(
-                    adherent.date_de_depart.year, adherent.date_de_depart.month + i
-                )[1]
+                days_to_add += calendar.monthrange(adherent.date_de_depart.year, adherent.date_de_depart.month + i)[1]
             else:
                 days_to_add += calendar.monthrange(
                     adherent.date_de_depart.year + 1,
@@ -191,9 +185,7 @@ class MemberSQLRepository(MemberRepository):
         adherent.commentaires = comment
 
 
-def _merge_sql_with_entity(
-    entity: AbstractMember, sql_object: Adherent, override=False
-) -> Adherent:
+def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
     now = datetime.now()
     adherent = sql_object
     if entity.email is not None or override:
@@ -220,9 +212,7 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
     Map a Adherent object from SQLAlchemy to a Member (from the entity folder/layer).
     """
     midnight = datetime.time(0, 0, 0)
-    date_depart_datetime = (
-        datetime.combine(adh.date_de_depart, midnight) if adh.date_de_depart else None
-    )
+    date_depart_datetime = datetime.combine(adh.date_de_depart, midnight) if adh.date_de_depart else None
     return AbstractMember(
         id=adh.id,
         username=adh.login,

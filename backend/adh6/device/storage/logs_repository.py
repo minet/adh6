@@ -52,9 +52,7 @@ class ElasticsearchLogsRepository(LogsRepository):
             # Generate a large number of mock logs to test pagination
             mock_logs = [
                 [
-                    dateutil.parser.parse(
-                        f"2024-01-{(i % 31) + 1:02d}T10:{(i % 60):02d}:00Z"
-                    ),
+                    dateutil.parser.parse(f"2024-01-{(i % 31) + 1:02d}T10:{(i % 60):02d}:00Z"),
                     f"test_log_{i}",
                 ]
                 for i in range(1, 1001)
@@ -92,18 +90,14 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the count query
         for d in devices:
             addr = d.mac
-            variations = [
-                {"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)
-            ]
+            variations = [{"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)]
 
             if not dhcp:
                 should_list = count_query["query"]["bool"]["should"]
                 if isinstance(should_list, list):
                     should_list.extend(variations)
             else:
-                should_list = count_query["query"]["constant_score"]["filter"]["bool"][
-                    "should"
-                ]
+                should_list = count_query["query"]["constant_score"]["filter"]["bool"]["should"]
                 if isinstance(should_list, list):
                     should_list.extend(variations)
 
@@ -120,9 +114,7 @@ class ElasticsearchLogsRepository(LogsRepository):
                     "bool": {
                         "filter": {"match": {"program": "radiusd"}},
                         "should": [  # "should" in a "bool" query basically act as a "OR"
-                            {
-                                "match": {"radius_user": member.username}
-                            },  # Match every log mentioning this member
+                            {"match": {"radius_user": member.username}},  # Match every log mentioning this member
                             # rules to match MACs addresses are added in the next chunk of code
                         ],
                         "minimum_should_match": 1,
@@ -160,18 +152,14 @@ class ElasticsearchLogsRepository(LogsRepository):
         # Add the macs to the "should"
         for d in devices:
             addr = d.mac
-            variations = (
-                {"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)
-            )
+            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
 
             if not dhcp:
                 # noinspection PyTypeChecker
                 query["query"]["bool"]["should"] += list(variations)
             else:
                 # noinspection PyTypeChecker
-                query["query"]["constant_score"]["filter"]["bool"]["should"] += list(
-                    variations
-                )
+                query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
 
         res = self.es.search(index="", body=query)["hits"]["hits"]
 
@@ -184,8 +172,5 @@ class ElasticsearchLogsRepository(LogsRepository):
                 # r["_source"]["message"] = r["_source"]["message"]
                 pass
 
-        logs = [
-            [dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]]
-            for x in res
-        ]
+        logs = [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]
         return logs, total_count

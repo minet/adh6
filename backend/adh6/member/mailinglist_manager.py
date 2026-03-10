@@ -6,9 +6,7 @@ from .interfaces import MailinglistRepository, MemberRepository
 def _validate_mailinglist_value(value: int) -> None:
     """Validate that mailinglist value is between 0 and 255."""
     if not (0 <= value <= 255):
-        raise ValidationError(
-            f"Invalid mailinglist value: {value}. Must be between 0 and 255."
-        )
+        raise ValidationError(f"Invalid mailinglist value: {value}. Must be between 0 and 255.")
 
 
 class MailinglistManager:

@@ -15,8 +15,8 @@ from adh6.member.storage import MemberRepository
 from adh6.security import get_token_info, require_role_or_ownership
 
 from .api_keys_manager import ApiKeyManager
-from .storage import ApiKeyRepository, RoleRepository
 from .role_manager import RoleManager
+from .storage import ApiKeyRepository, RoleRepository
 
 router = APIRouter(prefix="/api_keys", tags=["api_keys"])
 role_router = APIRouter(prefix="/role", tags=["authentication"])

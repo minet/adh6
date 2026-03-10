@@ -29,14 +29,14 @@ class ProductSQLRepository(ProductRepository):
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[Product], int]:
         stmt = select(SQLProduct)
-        
+
         if terms:
             stmt = stmt.where(SQLProduct.name.contains(terms))
-        
+
         # Count
         count_result = await self.session.execute(stmt)
         count = len(count_result.all())
-        
+
         # Apply ordering and pagination
         stmt = stmt.order_by(SQLProduct.id.asc()).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
@@ -52,6 +52,6 @@ def _map_product_sql_to_entity(p: SQLProduct) -> Product:
     return Product(
         id=p.id,
         name=p.name,
-        buying_price=p.buying_price,
-        selling_price=p.selling_price,
+        buyingPrice=p.buying_price,
+        sellingPrice=p.selling_price,
     )

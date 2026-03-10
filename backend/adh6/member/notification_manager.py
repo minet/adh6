@@ -29,9 +29,7 @@ class NotificationManager:
         variables_in_template = set(meta.find_undeclared_variables(template_parsed))
         variables_in_parameter = set(kwargs.keys())
         if len(variables_in_template) != len(variables_in_parameter):
-            raise UndecalredVariableInTemplate(
-                variables_in_template ^ variables_in_parameter
-            )
+            raise UndecalredVariableInTemplate(variables_in_template ^ variables_in_parameter)
         template = Template(template.template)
         body = template.render(**kwargs)
 

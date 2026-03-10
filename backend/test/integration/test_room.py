@@ -265,10 +265,7 @@ def test_room_add_member_change_vlan_check_wired(
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where(
-                (Device.adherent_id == sample_member.id)
-                & (Device.type == DeviceType.wired.value)
-            )
+            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
         ).scalar()
     ) in IPv4Network(sample_vlan69.adresses)
     r = client.post(
@@ -279,33 +276,22 @@ def test_room_add_member_change_vlan_check_wired(
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where(
-                (Device.adherent_id == sample_member.id)
-                & (Device.type == DeviceType.wired.value)
-            )
+            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
         ).scalar()
     ) in IPv4Network(sample_vlan.adresses)
 
 
-def test_room_add_member_when_no_room(
-    client, sample_room1, sample_room2, sample_member, sample_vlan69
-):
+def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     with db.sessionmaker.begin() as s:
-        assert (
-            s.execute(
-                select(Adherent.subnet).where(Adherent.id == sample_member.id)
-            ).scalar()
-            is None
-        )
+        assert s.execute(select(Adherent.subnet).where(Adherent.id == sample_member.id)).scalar() is None
         assert (
             s.execute(
                 select(Device.ip).where(
-                    (Device.adherent_id == sample_member.id)
-                    & (Device.type == DeviceType.wired.value)
+                    (Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value)
                 )
             ).scalar()
             == "En attente"
@@ -318,10 +304,7 @@ def test_room_add_member_when_no_room(
     assert r.status_code == 204
     assert IPv4Address(
         db.session.execute(
-            select(Device.ip).where(
-                (Device.adherent_id == sample_member.id)
-                & (Device.type == DeviceType.wired.value)
-            )
+            select(Device.ip).where((Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value))
         ).scalar()
     ) in IPv4Network(sample_vlan69.adresses)
 

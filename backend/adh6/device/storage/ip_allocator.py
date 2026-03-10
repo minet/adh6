@@ -13,9 +13,7 @@ class IPSQLAllocator(IpAllocator):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def available_ip(
-        self, ip_range: str = "", member_id: int | None = None
-    ) -> str:
+    async def available_ip(self, ip_range: str = "", member_id: int | None = None) -> str:
         if ip_range == "":
             return "En attente"
 

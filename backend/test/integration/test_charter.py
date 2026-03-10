@@ -58,9 +58,7 @@ def test_charter_sign_minet(client, sample_member):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 201
-    assert db.session.execute(
-        select(Adherent.datesignedminet).where(Adherent.id == sample_member.id)
-    ).scalar_one()
+    assert db.session.execute(select(Adherent.datesignedminet).where(Adherent.id == sample_member.id)).scalar_one()
 
 
 def test_charter_sign_hosting(client, sample_member):

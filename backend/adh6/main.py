@@ -2,13 +2,20 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from adh6.authentication.middleware import auth_middleware
 from adh6.authentication.router import role_router, router as auth_router
 from adh6.device.router import router as device_router
+from adh6.exceptions import (
+    AlreadyExistsError,
+    IntMustBePositive,
+    NotFoundError,
+    UnauthorizedError,
+    ValidationError,
+)
 from adh6.member.router import (
     charter_router,
     mailinglist_router,
@@ -27,21 +34,13 @@ from adh6.treasury.router import (
     router as treasury_router,
     transaction_router,
 )
-from adh6.exceptions import (
-    AlreadyExistsError,
-    NotFoundError,
-    UnauthorizedError,
-    IntMustBePositive,
-    ValidationError,
-)
-
 
 # ============================================================================
 # Exception Handlers
 # ============================================================================
 
 
-async def handle_not_found_error(request: Request, exc: NotFoundError) -> JSONResponse:
+async def handle_not_found_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle NotFoundError exceptions."""
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -49,9 +48,7 @@ async def handle_not_found_error(request: Request, exc: NotFoundError) -> JSONRe
     )
 
 
-async def handle_unauthorized_error(
-    request: Request, exc: UnauthorizedError
-) -> JSONResponse:
+async def handle_unauthorized_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle UnauthorizedError exceptions."""
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -59,9 +56,7 @@ async def handle_unauthorized_error(
     )
 
 
-async def handle_int_must_be_positive_error(
-    request: Request, exc: IntMustBePositive
-) -> JSONResponse:
+async def handle_int_must_be_positive_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle IntMustBePositive exceptions."""
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -69,9 +64,7 @@ async def handle_int_must_be_positive_error(
     )
 
 
-async def handle_validation_error(
-    request: Request, exc: RequestValidationError
-) -> JSONResponse:
+async def handle_validation_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle RequestValidationError exceptions (convert 422 -> 400).
 
     FastAPI returns 422 for validation errors, but our legacy tests expect 400.
@@ -79,13 +72,11 @@ async def handle_validation_error(
     """
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={"detail": exc.errors()},
+        content={"detail": str(exc)},
     )
 
 
-async def handle_already_exists_error(
-    request: Request, exc: AlreadyExistsError
-) -> JSONResponse:
+async def handle_already_exists_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle AlreadyExistsError exceptions."""
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -93,9 +84,7 @@ async def handle_already_exists_error(
     )
 
 
-async def handle_adh6_validation_error(
-    request: Request, exc: ValidationError
-) -> JSONResponse:
+async def handle_adh6_validation_error(request: Request, exc: Exception) -> JSONResponse:
     """Handle ADH6 ValidationError exceptions."""
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -112,7 +101,7 @@ async def handle_adh6_validation_error(
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
     # Startup
-    print("🚀 ADH6 Backend starting...")
+    print("🚀 ADH6 Backend starting...")  # Use emoji to enforce modern terminals for viewing the logs
     yield
     # Shutdown
     print("🛑 ADH6 Backend shutting down...")
@@ -216,7 +205,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "adh6.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # noqa: S104 # Listen on all interfaces for container compatibility
         port=8000,
         reload=True,
     )

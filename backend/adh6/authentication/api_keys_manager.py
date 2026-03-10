@@ -1,9 +1,8 @@
+from adh6.authentication.enums import AuthenticationMethod, Roles
+from adh6.authentication.interfaces import ApiKeyRepository, RoleRepository
 from adh6.entity import ApiKey
 from adh6.exceptions import NotFoundError, ValidationError
 from adh6.member.member_manager import MemberManager
-
-from . import AuthenticationMethod, Roles
-from .interfaces import ApiKeyRepository, RoleRepository
 
 
 class ApiKeyManager:
@@ -30,14 +29,10 @@ class ApiKeyManager:
             raise NotFoundError("User not found")
 
         id_, value = await self.api_key_repository.create(login=login)
-        await self.role_repository.create(
-            method=AuthenticationMethod.API_KEY, identifier=str(id_), roles=roles_
-        )
+        await self.role_repository.create(method=AuthenticationMethod.API_KEY, identifier=str(id_), roles=roles_)
         return value
 
-    async def search(
-        self, limit: int = 25, offset: int = 0, login: str | None = None
-    ) -> tuple[list[ApiKey], int]:
+    async def search(self, limit: int = 25, offset: int = 0, login: str | None = None) -> tuple[list[ApiKey], int]:
         if login:
             t = await self.member_manager.get_by_login(login)
             if not t:

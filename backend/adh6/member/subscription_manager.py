@@ -1,8 +1,6 @@
 import logging
 
-from sqlalchemy.sql.operators import is_false
-
-from adh6.authentication import Roles
+from adh6.authentication.enums import Roles
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -73,9 +71,7 @@ class SubscriptionManager:
     @log_call
     async def latest(self, member_id: int) -> Membership | None:
         """Get the latest subscription of a member, if it exists."""
-        subscriptions, _ = await self.membership_repository.search(
-            filter_=AbstractMembership(member=member_id)
-        )
+        subscriptions, _ = await self.membership_repository.search(filter_=AbstractMembership(member=member_id))
         if not subscriptions:
             return None
 
@@ -128,55 +124,41 @@ class SubscriptionManager:
         state = MembershipStatus.PENDING_RULES
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = await self.charter_repository.get(
-                member_id=member_id, charter_id=1
-            )
+            date_signed_minet = await self.charter_repository.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
-                logging.debug(
-                    "create_membership_record_switch_status_to_pending_payment_initial"
-                )  # noqa: LOG015  # TODO: use a proper logger
+                logging.getLogger(__name__).debug("create_membership_record_switch_status_to_pending_payment_initial")
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
 
-        if (
-            state == MembershipStatus.PENDING_PAYMENT_INITIAL
-            and body.duration is not None
-            and body.duration != 0
-        ):
+        if state == MembershipStatus.PENDING_PAYMENT_INITIAL and body.duration is not None and body.duration != 0:
             if body.duration not in self.duration_price:
-                logging.warning(
+                logging.getLogger(__name__).warning(
                     "create_membership_record_no_price_defined - duration: %s",
                     body.duration,
-                )  # noqa: LOG015  # TODO: use a proper logger
+                )
                 raise NoPriceAssignedToThatDuration(body.duration)
-            logging.debug(
+            logging.getLogger(__name__).debug(
                 "create_membership_record_switch_status_to_pending_payment"
-            )  # noqa: LOG015  # TODO: use a proper logger
+            )  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT
 
-        if (
-            state == MembershipStatus.PENDING_PAYMENT
-            and body.account is not None
-            and body.payment_method is not None
-        ):
+        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
             account = await self.account_repository.get_by_id(body.account)
             if not account:
                 raise AccountNotFoundError(body.account)
-            payment_method = await self.payment_method_repository.get_by_id(
-                body.payment_method
-            )
+            payment_method = await self.payment_method_repository.get_by_id(body.payment_method)
             if not payment_method:
                 raise PaymentMethodNotFoundError(body.payment_method)
-            logging.debug(
+            logging.getLogger(__name__).debug(
                 "create_membership_record_switch_status_to_pending_payment_validation"
-            )  # noqa: LOG015  # TODO: use a proper logger
+            )  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         try:
             membership_created = await self.membership_repository.create(body, state)
         except UnknownPaymentMethod:
-            logging.warning(
+            logging.getLogger(__name__).warning(
                 "create_membership_record_unknown_payment_method"
-            )  # noqa: LOG015  # TODO: use a proper logger
+            )  # TODO: use a proper logger
             raise
 
         return membership_created
@@ -220,35 +202,22 @@ class SubscriptionManager:
         state = MembershipStatus(subscription.status)
 
         if state == MembershipStatus.PENDING_RULES:
-            date_signed_minet = await self.charter_repository.get(
-                member_id=member_id, charter_id=1
-            )
+            date_signed_minet = await self.charter_repository.get(member_id=member_id, charter_id=1)
             if date_signed_minet is not None and date_signed_minet != "":
-                logging.debug(
-                    "create_membership_record_switch_status_to_pending_payment_initial"
-                )  # noqa: LOG015  # TODO: use a proper logger
+                logging.debug("create_membership_record_switch_status_to_pending_payment_initial")  # noqa: LOG015  # TODO: use a proper logger
                 state = MembershipStatus.PENDING_PAYMENT_INITIAL
             else:
                 raise CharterNotSigned(str(member_id))
 
-        if (
-            body.duration is not None
-            and body.duration != 0
-            and body.duration not in self.duration_price
-        ):
-            logging.warning(
+        if body.duration is not None and body.duration != 0 and body.duration not in self.duration_price:
+            logging.getLogger(__name__).warning(
                 "create_membership_record_no_price_defined - duration: %s",
                 body.duration,
-            )  # noqa: LOG015  # TODO: use a proper logger
+            )  # TODO: use a proper logger
             raise NoPriceAssignedToThatDuration(body.duration)
 
-        if (
-            state == MembershipStatus.PENDING_PAYMENT_INITIAL
-            and body.duration is not None
-        ):
-            logging.debug(
-                "create_membership_record_switch_status_to_pending_payment"
-            )  # noqa: LOG015  # TODO: use a proper logger
+        if state == MembershipStatus.PENDING_PAYMENT_INITIAL and body.duration is not None:
+            logging.debug("create_membership_record_switch_status_to_pending_payment")  # noqa: LOG015  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT
 
         if body.account is not None:
@@ -256,20 +225,12 @@ class SubscriptionManager:
             if not account:
                 raise AccountNotFoundError(body.account)
         if body.payment_method is not None:
-            payment_method = await self.payment_method_repository.get_by_id(
-                body.payment_method
-            )
+            payment_method = await self.payment_method_repository.get_by_id(body.payment_method)
             if not payment_method:
                 raise PaymentMethodNotFoundError(body.payment_method)
 
-        if (
-            state == MembershipStatus.PENDING_PAYMENT
-            and body.account is not None
-            and body.payment_method is not None
-        ):
-            logging.debug(
-                "create_membership_record_switch_status_to_pending_payment_validation"
-            )  # noqa: LOG015  # TODO: use a proper logger
+        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
+            logging.debug("create_membership_record_switch_status_to_pending_payment_validation")  # noqa: LOG015  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         await self.membership_repository.update(subscription.uuid, body, state)
@@ -283,15 +244,11 @@ class SubscriptionManager:
         if not subscription:
             raise MembershipNotFoundError(None)
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
-            raise MembershipStatusNotAllowed(
-                subscription.status, "status cannot be used to validate a membership"
-            )
+            raise MembershipStatusNotAllowed(subscription.status, "status cannot be used to validate a membership")
 
         await self.membership_repository.validate(subscription.uuid)
         await self.add_payment_record(subscription, free)
-        await self.member_repository.add_duration(
-            subscription.member, subscription.duration
-        )
+        await self.member_repository.add_duration(subscription.member, subscription.duration)
         # self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
 
     @log_call
@@ -301,9 +258,7 @@ class SubscriptionManager:
         if free and Roles.TRESO_WRITE.value not in get_roles():
             raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
 
-        payment_method = await self.payment_method_repository.get_by_id(
-            membership.payment_method
-        )
+        payment_method = await self.payment_method_repository.get_by_id(membership.payment_method)
         asso_account, _ = await self.account_repository.search_by(
             limit=1,
             filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value),
@@ -325,13 +280,14 @@ class SubscriptionManager:
             price = 9
             title = title + " (sans chambre)"
         from adh6.context import get_user
+
         await self.transaction_manager.update_or_create(
             AbstractTransaction(
                 value=9 if not free else 0,
                 src=src_account.id,  # type: ignore  # TODO: typing
                 dst=asso_account[0].id,
                 name=title + " (gratuit)" if free else title,
-                payment_method=payment_method.id,  # type: ignore  # TODO: typing
+                paymentMethod=payment_method.id,  # type: ignore  # TODO: typing
                 author=get_user(),
             )
         )
@@ -342,7 +298,7 @@ class SubscriptionManager:
                     src=src_account.id,  # type: ignore  # TODO: typing
                     dst=tech_account[0].id,
                     name=title,
-                    payment_method=payment_method.id,  # type: ignore  # TODO: typing
+                    paymentMethod=payment_method.id,  # type: ignore  # TODO: typing
                     author=get_user(),
                 )
             )

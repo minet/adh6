@@ -62,7 +62,9 @@ class TestSearch:
         mock_repo.search_by = AsyncMock(return_value=([mock_object], 1))
 
         # When...
-        result, count = await mock_manager.search(limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms)
+        result, count = await mock_manager.search(
+            limit=10, offset=1, filter_=abstract_object(id=mock_object.id), terms=terms
+        )
 
         # Expect...
         assert [mock_object] == result

@@ -3,7 +3,7 @@ Switch network manager interface.
 """
 
 import abc
-from typing import Callable
+from collections.abc import Callable
 
 
 class SwitchNetworkManager(abc.ABC):
@@ -57,9 +57,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def update_port_vlan(
-        self, port_id: int, elevated: Callable, vlan: int = 1
-    ) -> str:
+    async def update_port_vlan(self, port_id: int, elevated: Callable, vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 

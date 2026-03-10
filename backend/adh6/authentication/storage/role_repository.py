@@ -35,7 +35,7 @@ class RoleSQLRepository(RoleRepository):
             smt = smt.where(AuthenticationRoleMapping.identifier.in_(identifiers))
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
-        
+
         all_roles = (await self.session.execute(smt)).all()
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
 
@@ -58,7 +58,7 @@ class RoleSQLRepository(RoleRepository):
     async def delete(self, id: int) -> None:
         stmt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         role_mapping = await self.session.scalar(stmt)
-        
+
         if role_mapping and role_mapping.authentication == AuthenticationMethod.USER:
             stmt_adherent = select(Adherent).where(Adherent.login == role_mapping.identifier)
             adherent = await self.session.scalar(stmt_adherent)

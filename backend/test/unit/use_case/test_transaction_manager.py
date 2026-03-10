@@ -12,7 +12,9 @@ from pytest import fixture, raises
 
 
 class TestGetByID:
-    async def test_happy_path(self, mock_transaction_repository, sample_transaction, transaction_manager: TransactionManager):
+    async def test_happy_path(
+        self, mock_transaction_repository, sample_transaction, transaction_manager: TransactionManager
+    ):
         mock_transaction_repository.get_by_id = AsyncMock(return_value=(sample_transaction))
         result = await transaction_manager.get_by_id(id=sample_transaction.id)
 
@@ -60,7 +62,7 @@ class TestCreateOrUpdate:
             dst=sample_transaction.dst,
             name=sample_transaction.name,
             value=sample_transaction.value,
-            payment_method=sample_transaction.payment_method,
+            paymentMethod=sample_transaction.payment_method,
             attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = AsyncMock(return_value=(sample_transaction))
@@ -80,7 +82,7 @@ class TestCreateOrUpdate:
         transaction_manager: TransactionManager,
         sample_transaction: Transaction,
     ):
-        req = AbstractTransaction(src=1, dst=2, name="test", value=1, payment_method=1, attachments=None)
+        req = AbstractTransaction(src=1, dst=2, name="test", value=1, paymentMethod=1, attachments=None)
         mock_transaction_repository.create = AsyncMock(return_value=(sample_transaction))
 
         _, c = await transaction_manager.update_or_create(req)
@@ -99,7 +101,7 @@ class TestCreateOrUpdate:
             dst=sample_transaction_pending.dst,
             name=sample_transaction_pending.name,
             value=sample_transaction_pending.value,
-            payment_method=sample_transaction_pending.payment_method,
+            paymentMethod=sample_transaction_pending.payment_method,
             attachments=sample_transaction_pending.attachments,
         )
         mock_transaction_repository.create = AsyncMock(return_value=(sample_transaction_pending))
@@ -123,7 +125,7 @@ class TestCreateOrUpdate:
             dst=sample_transaction.dst,
             name=sample_transaction.name,
             value=sample_transaction.value,
-            payment_method=sample_transaction.payment_method,
+            paymentMethod=sample_transaction.payment_method,
             attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = AsyncMock(return_value=(sample_transaction))
@@ -150,7 +152,7 @@ class TestCreateOrUpdate:
             dst=sample_transaction.dst,
             name=sample_transaction.name,
             value=sample_transaction.value,
-            payment_method=sample_transaction.payment_method,
+            paymentMethod=sample_transaction.payment_method,
             attachments=sample_transaction.attachments,
         )
         mock_transaction_repository.create = AsyncMock(return_value=(sample_transaction))
@@ -166,23 +168,23 @@ class TestCreateOrUpdate:
         )
 
     async def test_same_account(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(src=1, dst=1, name="test", value=1, payment_method=1, attachments=None)
+        req = AbstractTransaction(src=1, dst=1, name="test", value=1, paymentMethod=1, attachments=None)
         with raises(ValidationError):
             await transaction_manager.update_or_create(req)
 
     async def test_no_value(self, transaction_manager: TransactionManager):
-        req = AbstractTransaction(src=1, dst=2, name="test", value=None, payment_method=1, attachments=None)
+        req = AbstractTransaction(src=1, dst=2, name="test", value=None, paymentMethod=1, attachments=None)
         with raises(ValidationError):
             await transaction_manager.update_or_create(req)
 
     async def test_negative_value(self, transaction_manager: TransactionManager):
         with raises(Exception):
-            req = AbstractTransaction(src=1, dst=2, name="test", value=-1, payment_method=1, attachments=None)
+            req = AbstractTransaction(src=1, dst=2, name="test", value=-1, paymentMethod=1, attachments=None)
             await transaction_manager.update_or_create(req)
 
     async def test_happy_path(self, transaction_manager: TransactionManager):
         with raises(Exception):
-            req = AbstractTransaction(src=1, dst=2, name="test", value=-1, payment_method=1, attachments=None)
+            req = AbstractTransaction(src=1, dst=2, name="test", value=-1, paymentMethod=1, attachments=None)
             await transaction_manager.update_or_create(req)
 
 
@@ -209,6 +211,7 @@ class TestValidate:
     ):
         # When...
         mock_transaction_repository.get_by_id = AsyncMock(return_value=(sample_transaction_pending))
+        assert sample_transaction_pending.id is not None
         await transaction_manager.validate(id=sample_transaction_pending.id)
 
         # Expect...
@@ -222,6 +225,7 @@ class TestValidate:
     ):
         # When...
         mock_transaction_repository.get_by_id = AsyncMock(return_value=(sample_transaction))
+        assert sample_transaction.id is not None
         with raises(UserInputError):
             await transaction_manager.validate(id=sample_transaction.id)
 
@@ -235,6 +239,7 @@ class TestDelete:
     ):
         # When...
         mock_transaction_repository.get_by_id = AsyncMock(return_value=(sample_transaction_pending))
+        assert sample_transaction_pending.id is not None
         await transaction_manager.delete(id=sample_transaction_pending.id)
 
         # Expect...
@@ -245,6 +250,7 @@ class TestDelete:
     ):
         # When...
         mock_transaction_repository.get_by_id = AsyncMock(return_value=(sample_transaction))
+        assert sample_transaction.id is not None
         with raises(UserInputError):
             await transaction_manager.delete(id=sample_transaction.id)
 

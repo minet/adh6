@@ -23,9 +23,7 @@ def _to_sync_url(url: str) -> str:
 class _LegacyDb:
     def __init__(self):
         self.engine = create_engine(_to_sync_url(settings.database_url), future=True)
-        self._session_factory = sessionmaker(
-            bind=self.engine, autoflush=False, autocommit=False
-        )
+        self._session_factory = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
         self._session: Session | None = None
 
     @property

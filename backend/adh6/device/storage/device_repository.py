@@ -36,9 +36,7 @@ class DeviceSQLRepository(DeviceRepository):
         obj = await self.session.scalar(stmt)
         return _map_device_sql_to_entity(obj) if obj else None
 
-    async def search_by(
-        self, limit: int, offset: int, device_filter: DeviceFilter
-    ) -> tuple[list[Device], int]:
+    async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         stmt: Select = select(SQLDevice)
         if device_filter.terms:
             stmt = stmt.join(Adherent, SQLDevice.adherent_id == Adherent.id).where(
@@ -51,9 +49,7 @@ class DeviceSQLRepository(DeviceRepository):
         if device_filter.member:
             stmt = stmt.where(SQLDevice.adherent_id == device_filter.member)
         if device_filter.connection_type:
-            stmt = stmt.where(
-                SQLDevice.type == DeviceType[device_filter.connection_type].value
-            )
+            stmt = stmt.where(SQLDevice.type == DeviceType[device_filter.connection_type].value)
 
         count_stmt = select(func.count()).select_from(stmt.subquery())
         count = int((await self.session.execute(count_stmt)).scalar_one())
@@ -83,9 +79,7 @@ class DeviceSQLRepository(DeviceRepository):
         )
         return _map_device_sql_to_entity(device)
 
-    async def update(
-        self, abstract_device: AbstractDevice, override: bool = False
-    ) -> Device:
+    async def update(self, abstract_device: AbstractDevice, override: bool = False) -> Device:
         stmt = select(SQLDevice).where(SQLDevice.id == abstract_device.id)
         device = await self.session.scalar(stmt)
         if device is None:
@@ -154,18 +148,12 @@ class DeviceSQLRepository(DeviceRepository):
         )
 
 
-def _merge_sql_with_entity(
-    entity: AbstractDevice, sql_object: SQLDevice, override: bool = False
-) -> SQLDevice:
+def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, override: bool = False) -> SQLDevice:
     now = datetime.now()
     device = sql_object
 
     if entity.connection_type is not None or override:
-        device.type = (
-            DeviceType[entity.connection_type].value
-            if entity.connection_type
-            else device.type
-        )
+        device.type = DeviceType[entity.connection_type].value if entity.connection_type else device.type
     if entity.mac is not None or override:
         device.mac = entity.mac
     if entity.member is not None or override:
@@ -188,12 +176,8 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         mac=d.mac,
         member=d.adherent_id,
         connectionType=DeviceType(d.type).name,
-        ipv4Address=(
-            d.ip if d.ip != "En attente" else None
-        ),  # @TODO retrocompatibilite ADH5, a retirer a terme
-        ipv6Address=(
-            d.ipv6 if d.ipv6 != "En attente" else None
-        ),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        ipv4Address=(d.ip if d.ip != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        ipv6Address=(d.ipv6 if d.ipv6 != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
         name=d.name,
         wifiPassword=d.wifi_password,
         # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent

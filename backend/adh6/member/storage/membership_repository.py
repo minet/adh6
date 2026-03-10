@@ -19,7 +19,7 @@ class MembershipSQLRepository(MembershipRepository):
         self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
     ) -> tuple[list[Membership], int]:
         stmt = select(MembershipSQL)
-        
+
         if filter_:
             if filter_.uuid is not None:
                 stmt = stmt.where(MembershipSQL.uuid == filter_.uuid)
@@ -54,12 +54,12 @@ class MembershipSQLRepository(MembershipRepository):
         :raise MemberNotFound
         """
         now = datetime.now()
-        
+
         # Check if this is the first membership for the member
         count_stmt = select(func.count()).select_from(MembershipSQL).where(MembershipSQL.adherent_id == body.member)
         count_result = await self.session.execute(count_stmt)
         is_first_time = count_result.scalar() == 0
-        
+
         to_add = MembershipSQL(
             uuid=str(uuid.uuid4()),
             duration=body.duration,
@@ -80,7 +80,7 @@ class MembershipSQLRepository(MembershipRepository):
 
     async def update(self, uuid: str, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         now = datetime.now()
-        
+
         stmt = select(MembershipSQL).where(MembershipSQL.uuid == uuid)
         membership = await self.session.scalar(stmt)
 
@@ -115,7 +115,7 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         duration=obj_sql.duration,
         has_room=obj_sql.has_room,
         first_time=obj_sql.first_time,
-        payment_method=obj_sql.payment_method_id,
+        paymentMethod=obj_sql.payment_method_id,
         account=obj_sql.account_id,
         member=obj_sql.adherent_id,
         status=obj_sql.status.value,

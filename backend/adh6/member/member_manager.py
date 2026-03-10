@@ -70,9 +70,7 @@ class MemberManager(CRUDManager):
         terms: str = "",
         filter_: MemberFilter | None = None,
     ) -> tuple[list[int], int]:
-        result, count = await self.member_repository.search_by(
-            limit=limit, offset=offset, terms=terms, filter_=filter_
-        )
+        result, count = await self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
         return [r.id for r in result if r.id], count
 
     @log_call
@@ -82,9 +80,7 @@ class MemberManager(CRUDManager):
             raise MemberNotFoundError(id)
 
         latest_sub = await self.subscription_manager.latest(id)
-        member.membership = (
-            latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
-        )
+        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
@@ -93,9 +89,7 @@ class MemberManager(CRUDManager):
         if not member or not member.id:
             raise MemberNotFoundError(login)
         latest_sub = await self.subscription_manager.latest(member.id)
-        member.membership = (
-            latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
-        )
+        member.membership = latest_sub.status if latest_sub else MembershipStatus.INITIAL.value
         return member
 
     @log_call
@@ -117,9 +111,7 @@ class MemberManager(CRUDManager):
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
-        fetched_account_type, _ = await self.account_type_repository.search_by(
-            terms="Adhérent"
-        )
+        fetched_account_type, _ = await self.account_type_repository.search_by(terms="Adhérent")
         if not fetched_account_type:
             raise AccountTypeNotFoundError("Adhérent")
 
@@ -173,9 +165,7 @@ class MemberManager(CRUDManager):
             MembershipStatus.ABORTED.value,
             MembershipStatus.COMPLETE.value,
         ]:
-            raise UpdateImpossible(
-                f"member {member.username}", "membership not validated"
-            )
+            raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = await self.member_repository.update(
             AbstractMember(
@@ -205,16 +195,12 @@ class MemberManager(CRUDManager):
         if member is None:
             raise MemberNotFoundError(member_id)
         else:
-            logs, total_count = await self.device_logs_manager.get(
-                member=member, limit=limit, offset=offset, dhcp=dhcp
-            )
+            logs, total_count = await self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
 
             # Format logs with separate timestamp and message
             formatted_logs = [
                 {
-                    "timestamp": (
-                        x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])
-                    ),
+                    "timestamp": (x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])),
                     "message": str(x[1]),
                 }
                 for x in logs
@@ -233,36 +219,24 @@ class MemberManager(CRUDManager):
 
         # Do the actual log fetching.
         try:
-            logs, _total_count = await self.device_logs_manager.get(
-                member=member, dhcp=False
-            )
+            logs, _total_count = await self.device_logs_manager.get(member=member, dhcp=False)
             device_to_statuses = {}
             last_ok_login_mac = {}
 
             def add_to_statuses(status, timestamp, mac):
                 if mac not in device_to_statuses:
                     device_to_statuses[mac] = {}
-                if (
-                    status not in device_to_statuses[mac]
-                    or device_to_statuses[mac][status].last_timestamp < timestamp
-                ):
-                    device_to_statuses[mac][status] = MemberStatus(
-                        status=status, last_timestamp=timestamp, comment=mac
-                    )
+                if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
+                    device_to_statuses[mac][status] = MemberStatus(status=status, last_timestamp=timestamp, comment=mac)
 
             prev_log = ["", ""]
             for log in logs:
                 if "Login OK" in log[1]:
-                    match = re.search(
-                        r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1]
-                    )
+                    match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
                     if match is not None:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
-                        if (
-                            mac not in last_ok_login_mac
-                            or last_ok_login_mac[mac] < log[0]
-                        ):
+                        if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
                             last_ok_login_mac[mac] = log[0]
                 if (
                     "EAP sub-module failed" in prev_log[1]
@@ -279,13 +253,9 @@ class MemberManager(CRUDManager):
                         if login != member.username:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
                         else:
-                            add_to_statuses(
-                                "LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac
-                            )
+                            add_to_statuses("LOGIN_INCORRECT_WRONG_PASSWORD", log[0], mac)
                 if "rlm_python" in log[1]:
-                    match = re.search(
-                        r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1]
-                    )
+                    match = re.search(r".*?rlm_python: Fail (.*?) ([a-f0-9A-F\-]+) with (.+)", log[1])
                     if match is not None:
                         login: str = match.group(1)
                         mac: str = match.group(2).upper()
@@ -294,9 +264,7 @@ class MemberManager(CRUDManager):
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                if (
-                    "TLS Alert" in log[1]
-                ):  # @TODO Difference between TLS Alert read and TLS Alert write ??
+                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
                     # @TODO a read access denied means the user is validating the certificate
                     # @TODO a read/write protocol version is ???
                     # @TODO a write unknown CA means the user is validating the certificate
@@ -316,16 +284,11 @@ class MemberManager(CRUDManager):
             all_statuses = []
             for mac, statuses in device_to_statuses.items():
                 for object in statuses.values():
-                    if (
-                        mac in last_ok_login_mac
-                        and object.last_timestamp < last_ok_login_mac[mac]
-                    ):
+                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
                         continue
                     all_statuses.append(object)
         except LogFetchError:
-            logging.warning(
-                "log_fetch_failed"
-            )  # noqa: LOG015  # TODO: use a proper logger
+            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
             return []  # We fail open here.
         else:
             return all_statuses
@@ -345,18 +308,14 @@ class MemberManager(CRUDManager):
         # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # TODO: check for better hashing for security purpose
 
         # TODO: check for better hashing for security purpose
-        pw = (
-            hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()
-        )  # noqa: S303
+        pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
 
         await self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
 
         return True
 
     @log_call
-    async def update_subnet(
-        self, member_id
-    ) -> tuple[IPv4Network, IPv4Address | None] | None:
+    async def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
@@ -364,9 +323,7 @@ class MemberManager(CRUDManager):
         if not is_member_active(member):
             return
 
-        used_wireles_public_ips = (
-            await self.member_repository.used_wireless_public_ips()
-        )
+        used_wireles_public_ips = await self.member_repository.used_wireless_public_ips()
 
         subnet = None
         ip = None
@@ -379,9 +336,7 @@ class MemberManager(CRUDManager):
         if subnet is None:
             raise NoSubnetAvailable("wireless")
 
-        member = await self.member_repository.update(
-            AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip))
-        )
+        member = await self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
 
         await self.device_ip_manager.allocate_ips(member, device_type="wireless")
 
@@ -389,17 +344,13 @@ class MemberManager(CRUDManager):
 
     @log_call
     async def reset_member(self, member_id: int) -> None:
-        member = await self.member_repository.update(
-            AbstractMember(id=member_id, ip="", subnet="")
-        )
+        member = await self.member_repository.update(AbstractMember(id=member_id, ip="", subnet=""))
         await self.device_ip_manager.unallocate_ips(member=member)
 
     @log_call
     async def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
         member = await self.get_by_id(id=member_id)
-        await self.device_ip_manager.allocate_ips(
-            member=member, vlan_number=vlan_number
-        )
+        await self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
 
     @log_call
     async def change_comment(self, member_id: int, comment: Comment) -> None:

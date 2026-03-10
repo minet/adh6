@@ -7,9 +7,7 @@ from ..port_manager import PortManager
 
 
 class PortHandler(DefaultHandler):
-    def __init__(
-        self, port_manager: PortManager, switch_network_manager: SwitchNetworkManager
-    ):
+    def __init__(self, port_manager: PortManager, switch_network_manager: SwitchNetworkManager):
         super().__init__(Port, AbstractPort, port_manager)
         self.switch_network_manager = switch_network_manager
 
@@ -27,22 +25,16 @@ class PortHandler(DefaultHandler):
     @with_context
     @log_call
     def vlan_get(self, id_):
-        if (
-            self.switch_network_manager.get_port_vlan(port_id=id_)
-        ) == "No Such Instance currently exists at this OID":
+        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
             return 1, 200
         return int(self.switch_network_manager.get_port_vlan(port_id=id_)), 200
 
     @with_context
     @log_call
     async def vlan_put(self, id_, body):
-        if (
-            self.switch_network_manager.get_port_vlan(port_id=id_)
-        ) == "No Such Instance currently exists at this OID":
+        if (self.switch_network_manager.get_port_vlan(port_id=id_)) == "No Such Instance currently exists at this OID":
             return 1, 200
-        await self.switch_network_manager.update_port_vlan(
-            port_id=id_, elevated=lambda: None, vlan=int(body)
-        )
+        await self.switch_network_manager.update_port_vlan(port_id=id_, elevated=lambda: None, vlan=int(body))
         return int(body), 204
 
     @with_context

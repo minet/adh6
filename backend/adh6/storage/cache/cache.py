@@ -15,15 +15,12 @@ class AsyncCache:
 
     def set(self, key: str, value, timeout=None):
         """Set a value in cache (no-op in stub)."""
-        pass
 
     def delete(self, key: str):
         """Delete a value from cache (no-op in stub)."""
-        pass
 
     def clear(self):
         """Clear all cache (no-op in stub)."""
-        pass
 
 
 # Stub cache instance for compatibility

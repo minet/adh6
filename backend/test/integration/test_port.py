@@ -119,9 +119,7 @@ def sample_port1_room_id(sample_port1: Port):
     ],
 )
 def test_port_get_filter_by_filter(client, filter_name, filter_value, quantity: int):
-    r = client.get(
-        f"{base_url}?filter[{filter_name}]={filter_value}", headers=TEST_HEADERS
-    )
+    r = client.get(f"{base_url}?filter[{filter_name}]={filter_value}", headers=TEST_HEADERS)
     assert r.status_code == 200
     ports = json.loads(r.content.decode())
     assert len(ports) == quantity
@@ -247,9 +245,7 @@ def test_port_put_update_port(
         assert_port_in_db(body)
 
 
-@pytest.mark.parametrize(
-    "port_id, status_code", [(lf("sample_ports1_id"), 204), (4242, 404)]
-)
+@pytest.mark.parametrize("port_id, status_code", [(lf("sample_ports1_id"), 204), (4242, 404)])
 def test_port_delete_port(client, port_id: int, status_code: int):
     r = client.delete(
         f"{base_url}{port_id}",

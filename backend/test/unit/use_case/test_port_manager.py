@@ -19,7 +19,9 @@ class TestCreate:
         # Expect..
         mock_port_repository.create.assert_called_once()
 
-    async def test_unknown_switch(self, mock_port_repository: PortRepository, sample_port: Port, port_manager: PortManager):
+    async def test_unknown_switch(
+        self, mock_port_repository: PortRepository, sample_port: Port, port_manager: PortManager
+    ):
         # Given...
         mock_port_repository.create = AsyncMock(side_effect=SwitchNotFoundError)
 

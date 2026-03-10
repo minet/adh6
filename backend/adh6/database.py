@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from adh6.config.configuration import settings
 
-
 engine = create_async_engine(
     settings.database_url,
     echo=settings.sqlalchemy_echo,

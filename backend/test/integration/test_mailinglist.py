@@ -129,9 +129,7 @@ def test_mailinglist_update_member_membership_unknown_member(client):
 
 @pytest.mark.parametrize("headers", [TEST_HEADERS, TEST_HEADERS_SAMPLE])
 @pytest.mark.parametrize("value", [-1, 256])
-def test_mailinglist_update_member_membership_bad_value(
-    client, sample_member, value, headers
-):
+def test_mailinglist_update_member_membership_bad_value(client, sample_member, value, headers):
     r = client.put(
         f"{base_url}member/{sample_member.id}",
         data=json.dumps({"value": value}),

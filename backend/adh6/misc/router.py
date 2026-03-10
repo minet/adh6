@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.database import get_session
-from adh6.entity import Member, Profile200Response
+from adh6.entity import Profile200Response
 from adh6.member.storage import MemberRepository
 
 router = APIRouter(tags=["misc"])
@@ -42,9 +42,7 @@ async def get_current_user(
 # ============================================================================
 
 
-@router.get(
-    "/profile", response_model=Profile200Response, status_code=status.HTTP_200_OK
-)
+@router.get("/profile", response_model=Profile200Response, status_code=status.HTTP_200_OK)
 async def get_profile(
     member_repository: Annotated[MemberRepository, Depends(get_member_repository)],
     token_info: Annotated[dict[str, Any], Depends(get_current_user)],

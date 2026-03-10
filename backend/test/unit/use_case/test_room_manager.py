@@ -13,7 +13,7 @@ class TestUpdateOrCreate:
     @fixture
     def mutation_request(self):
         return AbstractRoom(
-            room_number=1234,
+            roomNumber=1234,
             description="desc",
             vlan=42,
         )

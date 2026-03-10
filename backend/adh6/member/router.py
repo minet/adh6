@@ -1,20 +1,18 @@
 """FastAPI router for member endpoints (members, charters, mailinglists, subscriptions)."""
 
+import re
 from datetime import datetime
 from functools import lru_cache
-import logging
-import re
 from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    Header,
     Query,
     Request,
-    status,
     Response,
+    status,
 )
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,14 +27,13 @@ from adh6.device.storage import (
     LogsRepository,
 )
 from adh6.entity import (
+    Comment,
     Member,
     MemberBody,
     MemberFilter,
-    Comment,
-    AbstractMember,
-    MemberStatus,
-    Membership,
     MemberIdLogsGet200Response,
+    Membership,
+    MemberStatus,
     SubscriptionBody,
 )
 from adh6.exceptions import MemberAlreadyExist, NotFoundError
@@ -57,15 +54,15 @@ from .charter_manager import CharterManager
 from .mailinglist_manager import MailinglistManager
 from .member_manager import MemberManager
 from .notification_manager import NotificationManager
-from .subscription_manager import SubscriptionManager
 from .smtp.notification_repository import NotificationSMTPRepository
 from .storage import (
-    MemberRepository,
     CharterRepository,
     MailinglistReposiroty,
+    MemberRepository,
     MembershipRepository,
 )
 from .storage.notification_template_repository import NotificationTemplateSQLRepository
+from .subscription_manager import SubscriptionManager
 
 router = APIRouter(prefix="/member", tags=["member"])
 mailinglist_router = APIRouter(prefix="/mailinglist", tags=["mailinglist"])
@@ -269,9 +266,7 @@ async def search_members(
 ) -> list[int]:
     """Search members with optional filter."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
-    result, _count = await manager.search(
-        limit=limit, offset=offset, terms=terms, filter_=filter_
-    )
+    result, _count = await manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
     # result = [await manager.get_by_id(member_id) for member_id in result]
     return result
@@ -292,9 +287,7 @@ async def get_member(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     if only:
-        return JSONResponse(
-            content=_apply_only_projection(_member_to_response_dict(result), only)
-        )
+        return JSONResponse(content=_apply_only_projection(_member_to_response_dict(result), only))
     return result
 
 
@@ -358,9 +351,7 @@ async def set_member_comment(
 # ============================================================================
 
 
-@router.post(
-    "/{id}/subscription", status_code=status.HTTP_200_OK, response_model=Membership
-)
+@router.post("/{id}/subscription", status_code=status.HTTP_200_OK, response_model=Membership)
 async def create_subscription(
     id: int,
     body: SubscriptionBody,
@@ -446,9 +437,7 @@ async def update_subscription(
 @router.post("/{id}/subscription/validate", status_code=status.HTTP_204_NO_CONTENT)
 async def validate_subscription(
     id: int,
-    subscription_manager: Annotated[
-        SubscriptionManager, Depends(get_subscription_manager)
-    ],
+    subscription_manager: Annotated[SubscriptionManager, Depends(get_subscription_manager)],
     member_manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     free: Annotated[bool, Query()] = False,
@@ -588,4 +577,4 @@ async def sign_member_charter(
     return Response(status_code=status.HTTP_201_CREATED)
 
 
-__all__ = ["router", "mailinglist_router", "charter_router"]
+__all__ = ["charter_router", "mailinglist_router", "router"]

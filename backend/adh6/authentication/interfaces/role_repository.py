@@ -4,7 +4,7 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from adh6.authentication import AuthenticationMethod, Roles
+    from adh6.authentication.enums import AuthenticationMethod, Roles
     from adh6.entity import RoleMapping
 
 
@@ -14,9 +14,7 @@ class RoleRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def create(
-        self, method: AuthenticationMethod, identifier: str, roles: list[Roles]
-    ) -> None:
+    async def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
         pass  # pragma: no cover
 
     @abc.abstractmethod

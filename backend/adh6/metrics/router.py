@@ -1,7 +1,6 @@
 """FastAPI router for metrics endpoints (health checks)."""
 
 import json
-
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response, status

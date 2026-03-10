@@ -15,7 +15,9 @@ class TestGetFromNumber:
         assert sample_vlan == await vlan_manager.get_from_number(sample_vlan.number)
         mock_vlan_repository.get_vlan.assert_called_once()
 
-    async def test_vlan_not_found(self, sample_vlan: Vlan, mock_vlan_repository: VlanRepository, vlan_manager: VlanManager):
+    async def test_vlan_not_found(
+        self, sample_vlan: Vlan, mock_vlan_repository: VlanRepository, vlan_manager: VlanManager
+    ):
         mock_vlan_repository.get_vlan = AsyncMock(return_value=(None), side_effect=VLANNotFoundError(""))
         assert sample_vlan.number is not None
 

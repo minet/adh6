@@ -49,9 +49,7 @@ def _get_keycloak_client() -> KeycloakOpenID:
         ]
         missing_vars = [var for var in required_env_vars if var not in os.environ]
         if missing_vars:
-            raise ValueError(
-                f"Missing required environment variables: {', '.join(missing_vars)}"
-            )
+            raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
         _keycloak_client = KeycloakOpenID(
             server_url=os.environ["KEYCLOAK_URL"],
@@ -62,9 +60,7 @@ def _get_keycloak_client() -> KeycloakOpenID:
     return _keycloak_client
 
 
-async def _validate_token_with_keycloak(
-    token: str, session: AsyncSession
-) -> dict[str, Any]:
+async def _validate_token_with_keycloak(token: str, session: AsyncSession) -> dict[str, Any]:
     """
     Validate token with Keycloak and extract user information.
 
@@ -72,7 +68,7 @@ async def _validate_token_with_keycloak(
     Raises HTTPException on validation errors.
     """
     if os.environ.get("TESTING") == "1":
-        if token == "TEST_TOKEN":
+        if token == "TEST_TOKEN":  # noqa: S105
             return {
                 "uid": 28,
                 "scope": [
@@ -88,7 +84,7 @@ async def _validate_token_with_keycloak(
                 "groups": ["admin", "network_admin", "treso"],
                 "username": "TestingClient",
             }
-        if token == "TEST_TOKEN_SAMPLE":
+        if token == "TEST_TOKEN_SAMPLE":  # noqa: S105
             return {
                 "uid": 31,
                 "scope": [Roles.USER.value],
@@ -140,9 +136,7 @@ async def _validate_token_with_keycloak(
                 uid = None
 
     # Groups returned by keycloak start with /
-    groups = [
-        group.lstrip("/") for group in token_data.get("groups", []) if group is not None
-    ]
+    groups = [group.lstrip("/") for group in token_data.get("groups", []) if group is not None]
 
     # Find roles based on groups (OIDC method) and username (USER method)
     roles = []
@@ -200,7 +194,7 @@ async def get_token_info(
         elif api_key_header:
             token_info = await _validate_api_key(api_key_header, session)
         else:
-            raise HTTPException(
+            raise HTTPException(  # noqa: TRY301 # This is expected in a token validation function
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Missing authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"},
@@ -209,7 +203,7 @@ async def get_token_info(
         if token_info:
             return token_info
 
-        raise HTTPException(
+        raise HTTPException(  # noqa: TRY301 # This is expected in a token validation function
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
@@ -228,9 +222,7 @@ async def get_token_info(
 
 async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
     hashed = sha3_512(key.encode("utf-8")).hexdigest()
-    api_key = await session.scalar(
-        select(ApiKeyModel).where(ApiKeyModel.value == hashed)
-    )
+    api_key = await session.scalar(select(ApiKeyModel).where(ApiKeyModel.value == hashed))
     if api_key is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -270,9 +262,7 @@ async def auth_middleware(request: Request, call_next):
             try:
                 async for session in get_session():
                     if auth_header.startswith("Bearer "):
-                        token_info = await _validate_token_with_keycloak(
-                            auth_header[7:], session
-                        )
+                        token_info = await _validate_token_with_keycloak(auth_header[7:], session)
                     else:
                         token_info = await _validate_api_key(api_key_header, session)
 

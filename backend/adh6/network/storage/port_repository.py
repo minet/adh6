@@ -39,9 +39,7 @@ class PortSQLRepository(PortRepository):
 
         if terms:
             stmt = stmt.where(
-                (SQLPort.numero.contains(terms))
-                | (SQLPort.oid.contains(terms))
-                | (SQLPort.numero.contains(terms))
+                (SQLPort.numero.contains(terms)) | (SQLPort.oid.contains(terms)) | (SQLPort.numero.contains(terms))
             )
         if filter_:
             if filter_.id is not None:
@@ -109,9 +107,7 @@ class PortSQLRepository(PortRepository):
         port = await self.session.scalar(stmt)
         if port is None:
             raise PortNotFoundError(str(object_to_update.id))
-        new_port = await _merge_sql_with_entity(
-            object_to_update, port, self.session, override
-        )
+        new_port = await _merge_sql_with_entity(object_to_update, port, self.session, override)
         await self.session.flush()
         mapped_port = _map_port_sql_to_entity(new_port)
 

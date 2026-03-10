@@ -18,12 +18,12 @@ def client(_test_client, sample_member, sample_member_admin):
     """Add test-specific fixtures to the transaction."""
     from .conftest import (
         add_test_fixtures,
-        cleanup_test_data,
         api_key_admin,
-        api_key_admin_read_roles,
-        api_key_admin_write_roles,
         api_key_admin_network_read_roles,
         api_key_admin_network_write_roles,
+        api_key_admin_read_roles,
+        api_key_admin_write_roles,
+        cleanup_test_data,
     )
 
     add_test_fixtures(

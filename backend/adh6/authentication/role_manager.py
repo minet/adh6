@@ -1,4 +1,4 @@
-from adh6.authentication import AuthenticationMethod, Roles
+from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
 from adh6.decorator import log_call
 from adh6.entity import RoleMapping
@@ -7,16 +7,12 @@ from adh6.member.member_manager import MemberManager
 
 
 class RoleManager:
-    def __init__(
-        self, role_repository: RoleRepository, member_manager: MemberManager
-    ) -> None:
+    def __init__(self, role_repository: RoleRepository, member_manager: MemberManager) -> None:
         self.role_repository = role_repository
         self.member_manager = member_manager
 
     @log_call
-    async def search(
-        self, auth: str, identifier: str | None = None
-    ) -> tuple[list[RoleMapping], int]:
+    async def search(self, auth: str, identifier: str | None = None) -> tuple[list[RoleMapping], int]:
         return await self.role_repository.find(
             method=AuthenticationMethod(auth),
             identifiers=[identifier] if identifier else None,
@@ -39,9 +35,7 @@ class RoleManager:
             t = await self.member_manager.get_by_login(login=identifier)
             if not t:
                 raise MemberNotFoundError(identifier)
-        await self.role_repository.create(
-            method=method, identifier=identifier, roles=[Roles(r) for r in roles]
-        )
+        await self.role_repository.create(method=method, identifier=identifier, roles=[Roles(r) for r in roles])
 
     @log_call
     async def delete(self, id: int) -> None:

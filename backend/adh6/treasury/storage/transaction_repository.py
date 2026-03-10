@@ -41,18 +41,9 @@ class TransactionSQLRepository(TransactionRepository):
             if filter_.payment_method is not None:
                 stmt = stmt.where(SQLTransaction.type == filter_.payment_method)
             if filter_.pending_validation is not None:
-                stmt = stmt.where(
-                    SQLTransaction.pending_validation == filter_.pending_validation
-                )
-            if (
-                filter_.src is not None
-                and filter_.dst is not None
-                and filter_.src == filter_.dst
-            ):
-                stmt = stmt.where(
-                    (SQLTransaction.src == filter_.src)
-                    | (SQLTransaction.dst == filter_.dst)
-                )
+                stmt = stmt.where(SQLTransaction.pending_validation == filter_.pending_validation)
+            if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
+                stmt = stmt.where((SQLTransaction.src == filter_.src) | (SQLTransaction.dst == filter_.dst))
             elif filter_.src is not None:
                 stmt = stmt.where(SQLTransaction.src == filter_.src)
             elif filter_.dst is not None:
@@ -77,9 +68,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         account_src_id = None
         if abstract_transaction.src is not None:
-            account_src_stmt = select(Account).where(
-                Account.id == abstract_transaction.src
-            )
+            account_src_stmt = select(Account).where(Account.id == abstract_transaction.src)
             account_src = await self.session.scalar(account_src_stmt)
             if not account_src:
                 raise AccountNotFoundError(abstract_transaction.src)
@@ -87,9 +76,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         account_dst_id = None
         if abstract_transaction.dst is not None:
-            account_dst_stmt = select(Account).where(
-                Account.id == abstract_transaction.dst
-            )
+            account_dst_stmt = select(Account).where(Account.id == abstract_transaction.dst)
             account_dst = await self.session.scalar(account_dst_stmt)
             if not account_dst:
                 raise AccountNotFoundError(abstract_transaction.dst)
@@ -97,9 +84,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         method_id = None
         if abstract_transaction.payment_method is not None:
-            method_stmt = select(PaymentMethod).where(
-                PaymentMethod.id == abstract_transaction.payment_method
-            )
+            method_stmt = select(PaymentMethod).where(PaymentMethod.id == abstract_transaction.payment_method)
             method = await self.session.scalar(method_stmt)
             if not method:
                 raise PaymentMethodNotFoundError(abstract_transaction.payment_method)
@@ -115,9 +100,7 @@ class TransactionSQLRepository(TransactionRepository):
             type=method_id,
             author_id=abstract_transaction.author,
             pending_validation=(
-                abstract_transaction.pending_validation
-                if abstract_transaction.pending_validation
-                else False
+                abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
             ),
         )
 
@@ -127,9 +110,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         return mapped_transaction
 
-    def update(
-        self, abstract_transaction: AbstractTransaction, override=False
-    ) -> object:
+    def update(self, abstract_transaction: AbstractTransaction, override=False) -> object:
         raise NotImplementedError
 
     async def validate(self, id) -> None:
@@ -156,7 +137,7 @@ def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
         timestamp=str(t.timestamp),
         name=t.name,
         value=t.value,
-        payment_method=t.type,
+        paymentMethod=t.type,
         attachments=[],
         author=t.author_id,
         pending_validation=t.pending_validation,

@@ -1,7 +1,4 @@
-import os
-from typing import Annotated, Any
-
-from pydantic import Field, computed_field
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,6 +29,8 @@ class Settings(BaseSettings):
 
         return f"mysql+aiomysql://{self.database_username}:{self.database_password}@{self.database_host}/{self.database_db_name}"
 
+    database_url = computed_field(database_url)
+
     # SMTP
     smtp_server: str | None = None
 
@@ -41,9 +40,7 @@ class Settings(BaseSettings):
     elk_user: str | None = None
     elk_secret: str | None = None
 
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
 
 
 settings = Settings()

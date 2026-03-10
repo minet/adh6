@@ -10,7 +10,7 @@ from adh6.entity.room import Room
 from adh6.exceptions import InvalidMACAddress, MemberNotFoundError
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.room.interfaces.room_repository import RoomRepository
-from pytest import fixture, mark, raises
+from pytest import fixture, raises
 
 
 @fixture
@@ -53,8 +53,11 @@ class TestUpdateOrCreate:
         mock_device_repository.create = AsyncMock(return_value=(sample_device))
         mock_device_ip_manager.allocate_ip_with_vlan_number = AsyncMock(return_value=None)
 
+        assert sample_device.mac is not None
+        assert sample_device.connection_type is not None
+
         body = DeviceBody(
-            mac=sample_device.mac, member=sample_device.member, connection_type=sample_device.connection_type
+            mac=sample_device.mac, member=sample_device.member, connectionType=sample_device.connection_type
         )
         # When...
         device = await device_manager.create(body)
@@ -66,7 +69,7 @@ class TestUpdateOrCreate:
     async def test_invalid_mac(self, mock_device_repository: MagicMock, device_manager: DeviceManager):
         # When...
         with raises(InvalidMACAddress):
-            await device_manager.create(DeviceBody(mac="this is not a valid mac", connection_type="wired", member=1))
+            await device_manager.create(DeviceBody(mac="this is not a valid mac", connectionType="wired", member=1))
 
         # Expect...
         mock_device_repository.create.assert_not_called()
@@ -79,7 +82,7 @@ class TestUpdateOrCreate:
 
         # When...
         with raises(MemberNotFoundError):
-            await device_manager.create(DeviceBody(mac="00:00:00:00:00:00", connection_type="wired", member=4242))
+            await device_manager.create(DeviceBody(mac="00:00:00:00:00:00", connectionType="wired", member=4242))
 
         # Expect...
         mock_device_repository.create.assert_not_called()

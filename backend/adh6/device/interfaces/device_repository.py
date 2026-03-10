@@ -14,9 +14,7 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def update(
-        self, object_to_update: AbstractDevice, override: bool = False
-    ) -> Device:
+    async def update(self, object_to_update: AbstractDevice, override: bool = False) -> Device:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -24,9 +22,7 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def search_by(
-        self, limit: int, offset: int, device_filter: DeviceFilter
-    ) -> tuple[list[Device], int]:
+    async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

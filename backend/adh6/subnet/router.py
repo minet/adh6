@@ -6,14 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.entity import Vlan
 from adh6.exceptions import NotFoundError
 from adh6.security import require_role_or_ownership
 
-from .vlan_manager import VlanManager
 from .storage import VLANRepository
+from .vlan_manager import VlanManager
 
 router = APIRouter(prefix="/vlan", tags=["vlan"])
 

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
-from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
+from adh6.entity import Device, DeviceBody, DeviceFilter
 from adh6.exceptions import (
     DeviceAlreadyExists,
     DevicesLimitReached,
@@ -110,9 +110,7 @@ async def search_devices(
     """Search devices with optional filter."""
     owner_id = filter_.member if filter_.member is not None else None
     require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=owner_id)
-    result, _count = await manager.search(
-        limit=limit, offset=offset, device_filter=filter_
-    )
+    result, _count = await manager.search(limit=limit, offset=offset, device_filter=filter_)
     return [d.id for d in result if d.id is not None]
 
 
@@ -131,9 +129,7 @@ async def get_device(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     if only:
-        return JSONResponse(
-            content=_apply_only_projection(_device_to_response_dict(result), only)
-        )
+        return JSONResponse(content=_apply_only_projection(_device_to_response_dict(result), only))
     return result
 
 
@@ -166,9 +162,9 @@ async def get_device_vendor(
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     try:
         vendor = await manager.get_mac_vendor(id=id)
-        return vendor
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return vendor
 
 
 @router.get("/{id}/mab", response_model=bool)
@@ -183,9 +179,9 @@ async def get_device_mab(
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     try:
         mab = await manager.get_mab(id=id)
-        return mab
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return mab
 
 
 @router.post("/{id}/mab", response_model=bool)
@@ -198,9 +194,9 @@ async def set_device_mab(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
         mab = await manager.put_mab(id=id)
-        return mab
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return mab
 
 
 @router.get("/{id}/member", response_model=int)
@@ -218,9 +214,9 @@ async def get_device_member(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Owner for device {id} not found",
             )
-        return owner
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return owner
 
 
 @router.put("/{id}/name", status_code=status.HTTP_204_NO_CONTENT)
@@ -233,9 +229,7 @@ async def rename_device(
     """Rename a device."""
     name = body.get("name")
     if not name or not isinstance(name, str):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="name is required"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="name is required")
     require_role_or_ownership(
         request,
         Roles.NETWORK_WRITE.value,

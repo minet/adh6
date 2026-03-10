@@ -32,9 +32,7 @@ async def get_snmp_value(community, ip, mib, obj, oid):
         )
     else:
         if len(var_binds) > 1:
-            raise NetworkManagerReadError(
-                "SNMP read error: too many values in response"
-            )
+            raise NetworkManagerReadError("SNMP read error: too many values in response")
 
         return var_binds[0][1].prettyPrint()
 
@@ -60,8 +58,6 @@ async def set_snmp_value(community, ip, mib, obj, oid, value):
         )
     else:
         if len(var_binds) > 1:
-            raise NetworkManagerReadError(
-                "SNMP read error: too many values in response"
-            )
+            raise NetworkManagerReadError("SNMP read error: too many values in response")
 
         return var_binds[0][1].prettyPrint()

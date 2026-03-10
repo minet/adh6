@@ -24,10 +24,10 @@ def client(_test_client, sample_member):
         oidc_admin_prod_role,
         oidc_admin_read_role,
         oidc_admin_write_role,
-        oidc_treasurer_read_role,
-        oidc_treasurer_write_role,
         oidc_network_read_role,
         oidc_network_write_role,
+        oidc_treasurer_read_role,
+        oidc_treasurer_write_role,
     )
 
     oidc_roles = [

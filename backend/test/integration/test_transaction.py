@@ -53,9 +53,7 @@ def sample_account2(sample_account_type2):
 
 
 @pytest.fixture
-def sample_transaction(
-    sample_member, sample_account1, sample_account2, sample_payment_method
-):
+def sample_transaction(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=91,
         src=sample_account1.id,
@@ -71,9 +69,7 @@ def sample_transaction(
 
 
 @pytest.fixture
-def sample_transaction_pending(
-    sample_member, sample_account1, sample_account2, sample_payment_method
-):
+def sample_transaction_pending(sample_member, sample_account1, sample_account2, sample_payment_method):
     return Transaction(
         id=92,
         src=sample_account1.id,
@@ -129,9 +125,7 @@ def test_switch_post_invalid_value(client, test_value):
 
 
 # TODO: author should not be send and should be in readonly
-@pytest.mark.xfail(
-    reason="author id should not be send and instead be compute in the backend"
-)
+@pytest.mark.xfail(reason="author id should not be send and instead be compute in the backend")
 def test_transaction_post_valid(client, sample_member_admin):
     sample_transaction1 = {
         "src": 1,
@@ -319,9 +313,7 @@ def test_transaction_filter_by_payment_method(client, sample_transaction: Transa
     assert len(result) == 2
 
 
-def test_transaction_filter_by_pending_validation(
-    client, sample_transaction: Transaction
-):
+def test_transaction_filter_by_pending_validation(client, sample_transaction: Transaction):
     r = client.get(
         f"{base_url}?filter[pendingValidation]={sample_transaction.pending_validation}",
         headers=TEST_HEADERS,

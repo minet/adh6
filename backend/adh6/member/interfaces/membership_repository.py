@@ -15,9 +15,7 @@ class MembershipRepository(abc.ABC):
     """
 
     @abc.abstractmethod
-    async def create(
-        self, body: SubscriptionBody, state: MembershipStatus
-    ) -> Membership:
+    async def create(self, body: SubscriptionBody, state: MembershipStatus) -> Membership:
         """
         Add a membership.
         """

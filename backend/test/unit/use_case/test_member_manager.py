@@ -61,13 +61,9 @@ class TestProfile:
         assert sample_member == m
         mock_member_repository.get_by_id.assert_called_once()
 
-    async def test_member_not_found(
-        self, mock_member_repository: MemberRepository, member_manager: MemberManager
-    ):
+    async def test_member_not_found(self, mock_member_repository: MemberRepository, member_manager: MemberManager):
         # Given...
-        mock_member_repository.get_by_id = AsyncMock(
-            return_value=(None), side_effect=MemberNotFoundError("")
-        )
+        mock_member_repository.get_by_id = AsyncMock(return_value=(None), side_effect=MemberNotFoundError(""))
 
         # When...
         with pytest.raises(MemberNotFoundError):
@@ -103,9 +99,7 @@ class TestGetByID:
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_id = AsyncMock(
-            return_value=(None), side_effect=MemberNotFoundError("")
-        )
+        mock_member_repository.get_by_id = AsyncMock(return_value=(None), side_effect=MemberNotFoundError(""))
 
         # When...
         with raises(MemberNotFoundError):
@@ -129,9 +123,7 @@ class TestSearch:
         test_terms = "blah blah blah"
         test_offset = 42
         test_limit = 99
-        result, _ = await member_manager.search(
-            limit=test_limit, offset=test_offset, terms=test_terms
-        )
+        result, _ = await member_manager.search(limit=test_limit, offset=test_offset, terms=test_terms)
 
         # Expect...
         assert [sample_member.id] == result
@@ -154,14 +146,10 @@ class TestNewMember:
 
         # When...
         with pytest.raises(MemberAlreadyExist):
-            await member_manager.create(
-                body=MemberBody(username=sample_member.username)
-            )
+            await member_manager.create(body=MemberBody(username=sample_member.username))
 
         # Expect...
-        mock_member_repository.get_by_login.assert_called_once_with(
-            sample_member.username
-        )
+        mock_member_repository.get_by_login.assert_called_once_with(sample_member.username)
 
     async def test_no_account_type_adherent(
         self,
@@ -253,9 +241,7 @@ class TestUpdatePartially:
 
         # When...
         with raises(MemberNotFoundError):
-            await member_manager.partially_update(
-                AbstractMember(id=sample_member.id), id=sample_member.id
-            )
+            await member_manager.partially_update(AbstractMember(id=sample_member.id), id=sample_member.id)
 
 
 class TestDelete:
@@ -349,9 +335,9 @@ def sample_mutation_request(faker):
     return AbstractMember(
         username=faker.user_name(),
         email=faker.email(),
-        first_name=faker.first_name(),
-        last_name=faker.last_name(),
-        departure_date=faker.date_this_year(after_today=True).isoformat(),
+        firstName=faker.first_name(),
+        lastName=faker.last_name(),
+        departureDate=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
     )
 
@@ -467,9 +453,7 @@ def mock_device_repository():
 
 @fixture
 def sample_subscription_pending_rules(sample_member):
-    return Membership(
-        uuid="", member=sample_member, status=MembershipStatus.PENDING_RULES.value
-    )
+    return Membership(uuid="", member=sample_member, status=MembershipStatus.PENDING_RULES.value, hasRoom=False)
 
 
 @fixture
@@ -493,6 +477,7 @@ def sample_subscription_pending_payment_initial(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_INITIAL.value,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
@@ -503,20 +488,20 @@ def sample_subscription_pending_payment(sample_member):
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT.value,
         duration=MembershipDuration.ONE_YEAR.value,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
 @fixture
-def sample_subscription_pending_payment_validation(
-    sample_member, sample_account1, sample_payment_method
-):
+def sample_subscription_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
     return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value,
         account=sample_account1.id,
-        payment_method=sample_payment_method.id,
+        paymentMethod=sample_payment_method.id,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
@@ -526,6 +511,7 @@ def sample_membership_pending_rules(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_RULES.value,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
@@ -535,6 +521,7 @@ def sample_membership_pending_payment_initial(sample_member):
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_INITIAL.value,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
@@ -545,18 +532,18 @@ def sample_membership_pending_payment(sample_member):
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT.value,
         duration=MembershipDuration.ONE_YEAR.value,
+        hasRoom=sample_member.room_number is not None,
     )
 
 
 @fixture
-def sample_membership_pending_payment_validation(
-    sample_member, sample_account1, sample_payment_method
-):
+def sample_membership_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
     return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value,
         account=sample_account1.id,
-        payment_method=sample_payment_method.id,
+        paymentMethod=sample_payment_method.id,
+        hasRoom=sample_member.room_number is not None,
     )

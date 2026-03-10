@@ -54,12 +54,8 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    async def search(
-        self, limit: int, offset: int, device_filter: DeviceFilter
-    ) -> tuple[list[Device], int]:
-        result, count = await self.device_repository.search_by(
-            limit=limit, offset=offset, device_filter=device_filter
-        )
+    async def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
+        result, count = await self.device_repository.search_by(limit=limit, offset=offset, device_filter=device_filter)
         return result, count
 
     @log_call
@@ -122,9 +118,7 @@ class DeviceManager(CRUDManager):
 
         device = await self.device_repository.create(body)
 
-        await self.device_ip_manager.allocate_ip_with_vlan_number(
-            device=device, member=member, vlan_number=room.vlan
-        )
+        await self.device_ip_manager.allocate_ip_with_vlan_number(device=device, member=member, vlan_number=room.vlan)
 
         return device
 

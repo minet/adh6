@@ -1,28 +1,6 @@
-import ipaddress
-import uuid
-from datetime import date, datetime
-
-import click
-from adh6.authentication import AuthenticationMethod, Roles
-from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
-from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.device.storage.models import Device
-from adh6.member.storage.models import Adherent, Membership, NotificationTemplate
-from adh6.network.storage.models import Port, Switch
-from adh6.room.storage.models import Chambre
+from adh6.storage import Base
 from flask import Flask
 from flask_alembic import Alembic
-from sqlalchemy.orm import Session
-from adh6.storage import Base
-from adh6.subnet.storage.models import Vlan
-from adh6.treasury.storage.models import (
-    Account,
-    AccountType,
-    Caisse,
-    PaymentMethod,
-    Product,
-)  # , Transaction
-from faker import Faker
 
 # from adh6.storage.sql.models import Adhesion, Modification, Routeur
 

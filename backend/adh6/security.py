@@ -4,9 +4,6 @@ from typing import Any
 
 from fastapi import HTTPException, Request, status
 
-from adh6.authentication.enums import Roles
-
-
 # ============================================================================
 # Token Info Extraction
 # ============================================================================

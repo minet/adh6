@@ -5,11 +5,10 @@ from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException, status
-from jwcrypto.jwt import JWTExpired, JWTInvalidClaimFormat, JWTMissingClaim
-
 from adh6.authentication.enums import Roles
 from adh6.authentication.middleware import _validate_token_with_keycloak
+from fastapi import HTTPException, status
+from jwcrypto.jwt import JWTExpired, JWTInvalidClaimFormat, JWTMissingClaim
 
 
 @pytest.fixture
@@ -129,9 +128,7 @@ async def test_valid_token_without_adh6_id(
     assert Roles.USER.value in result["scope"]
     assert Roles.ADMIN_WRITE in result["scope"]
 
-    mock_role_repository.user_id_from_username.assert_awaited_once_with(
-        login="testuser"
-    )
+    mock_role_repository.user_id_from_username.assert_awaited_once_with(login="testuser")
 
 
 @pytest.mark.anyio
@@ -143,9 +140,7 @@ async def test_invalid_token_claim_format_raises_unauthorized(
 ):
     """Malformed tokens should raise HTTP 401."""
     monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.side_effect = JWTInvalidClaimFormat(
-        "Invalid token format"
-    )
+    mock_keycloak_client.decode_token.side_effect = JWTInvalidClaimFormat("Invalid token format")
 
     with pytest.raises(HTTPException) as exc_info:
         await _validate_token_with_keycloak(cast(Any, 123), mock_session)
@@ -183,9 +178,7 @@ async def test_missing_claim_raises_unauthorized(
 ):
     """Tokens missing claims should raise HTTP 401."""
     monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.side_effect = JWTMissingClaim(
-        "Missing required claim"
-    )
+    mock_keycloak_client.decode_token.side_effect = JWTMissingClaim("Missing required claim")
 
     with pytest.raises(HTTPException) as exc_info:
         await _validate_token_with_keycloak("incomplete_token_123", mock_session)
@@ -228,10 +221,7 @@ async def test_malformed_token_data_raises_unauthorized(
         await _validate_token_with_keycloak("malformed_token", mock_session)
 
     assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert (
-        exc_info.value.detail
-        == "Invalid OIDC token: the data is not properly formatted"
-    )
+    assert exc_info.value.detail == "Invalid OIDC token: the data is not properly formatted"
 
 
 @pytest.mark.anyio
@@ -253,9 +243,7 @@ async def test_token_without_username_or_id(
         (oidc_roles, len(oidc_roles)),
     ]
 
-    result = await _validate_token_with_keycloak(
-        "token_without_user_info", mock_session
-    )
+    result = await _validate_token_with_keycloak("token_without_user_info", mock_session)
 
     assert result is not None
     assert result["uid"] is None
@@ -282,9 +270,7 @@ async def test_groups_stripping_leading_slash(
 
     mock_role_repository.find.return_value = ([], 0)
 
-    result = await _validate_token_with_keycloak(
-        "token_with_various_groups", mock_session
-    )
+    result = await _validate_token_with_keycloak("token_with_various_groups", mock_session)
 
     assert result is not None
     assert result["groups"] == ["admin", "double_slash", "no_slash"]

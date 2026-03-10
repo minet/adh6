@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 
 from adh6.entity import Member
-from sqlalchemy import false
 
 
 def is_member_active(member: Member):

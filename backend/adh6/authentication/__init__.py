@@ -1,8 +1,6 @@
 import os
 from enum import Enum
 
-from .enums import AuthenticationMethod, Roles
-
 
 class Method(Enum):
     READ = 0
@@ -14,8 +12,4 @@ class Method(Enum):
 # Reference: adh6/main.py for exception handlers and routing.
 
 
-user_id = (
-    "preferred_username"
-    if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost")
-    else "id"
-)
+user_id = "preferred_username" if "keycloak" in os.environ.get("OAUTH2_BASE_PATH", "http://localhost") else "id"

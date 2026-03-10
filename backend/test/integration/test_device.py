@@ -8,7 +8,6 @@ from adh6.storage import db
 from pytest_lazy_fixtures import lf
 
 from test import SAMPLE_CLIENT_ID, TESTING_CLIENT_ID
-from test.integration.conftest import sample_member_admin
 
 from .resource import (
     INVALID_MAC,
@@ -218,9 +217,7 @@ def test_device_filter_unauthorized(client):
     assert r.status_code == 403
 
 
-@pytest.mark.parametrize(
-    "device_to_add", [lf("wireless_device_dict"), lf("wired_device_dict")]
-)
+@pytest.mark.parametrize("device_to_add", [lf("wireless_device_dict"), lf("wired_device_dict")])
 def test_device_post(client, sample_room1, device_to_add, sample_member: Adherent):
     """Can create a valid device"""
     r = client.patch(
@@ -241,11 +238,7 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
     q = s.query(Device)
     q = q.filter(
         Device.type
-        == (
-            DeviceType.wireless.value
-            if device_to_add["connectionType"] == "wireless"
-            else DeviceType.wired.value
-        )
+        == (DeviceType.wireless.value if device_to_add["connectionType"] == "wireless" else DeviceType.wired.value)
     )
     q = q.filter(Device.mac == device_to_add["mac"])
     assert q.one_or_none() is not None
@@ -283,9 +276,7 @@ def test_device_post_create_multiple_wireless(
     )
     assert r.status_code == 204
 
-    device_number = (
-        12  # 13 should be the maximum but one of the member already have one
-    )
+    device_number = 12  # 13 should be the maximum but one of the member already have one
 
     devices = []
     for m in [TESTING_CLIENT_ID, SAMPLE_CLIENT_ID]:
@@ -310,18 +301,11 @@ def test_device_post_create_multiple_wireless(
         )
 
         res = r.json()
-        subnet = (
-            sample_member.subnet
-            if d["member"] == SAMPLE_CLIENT_ID
-            else sample_member_admin.subnet
-        )
+        subnet = sample_member.subnet if d["member"] == SAMPLE_CLIENT_ID else sample_member_admin.subnet
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
         start_number_v6 = [2, 5]
-        assert (
-            res["ipv4Address"]
-            == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        )
+        assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
         assert (
             res["ipv6Address"]
             == f"fe80:{42 if d['member'] == TESTING_CLIENT_ID else 69}::{format(start_number_v6[i // device_number] + (i % device_number), 'x')}"
@@ -431,9 +415,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
     assert r.status_code == 400
 
 
-def test_device_post_create_too_much_wireless(
-    faker, client, sample_room1, sample_member_admin
-):
+def test_device_post_create_too_much_wireless(faker, client, sample_room1, sample_member_admin):
     """
     Create 13 wireless devices for one user
     """
@@ -470,10 +452,7 @@ def test_device_post_create_too_much_wireless(
         subnet = sample_member_admin.subnet
         subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
         subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
-        assert (
-            res["ipv4Address"]
-            == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        )
+        assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
         assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % device_number), 'x')}"
 
     d = {
@@ -533,9 +512,7 @@ def test_device_get_valid(client, device, status_code):
     assert json.loads(r.content.decode("utf-8"))
 
 
-@pytest.mark.parametrize(
-    "only", ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"]
-)
+@pytest.mark.parametrize("only", ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"])
 def test_device_get_only_selected_param(client, wired_device, only):
     r = client.get(
         f"{base_url}{wired_device.id}?only={only}",

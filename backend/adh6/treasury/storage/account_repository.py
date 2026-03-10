@@ -82,9 +82,7 @@ class AccountSQLRepository(AccountRepository):
                         (Transaction.src == SQLAccount.id, -Transaction.value),  # type: ignore  # TODO: typing / deprecated
                         else_=Transaction.value,
                     )
-                ).label(
-                    "balance"
-                ),  # type: ignore  # TODO: typing / deprecated
+                ).label("balance"),  # type: ignore  # TODO: typing / deprecated
             )
             .outerjoin(
                 Transaction,
@@ -103,9 +101,7 @@ class AccountSQLRepository(AccountRepository):
         # Query account type
         account_type_stmt = select(AccountType)
         if abstract_account.account_type is not None:
-            account_type_stmt = account_type_stmt.where(
-                AccountType.id == abstract_account.account_type
-            )
+            account_type_stmt = account_type_stmt.where(AccountType.id == abstract_account.account_type)
         else:
             account_type_stmt = account_type_stmt.where(AccountType.name == "Adherent")
 
@@ -115,9 +111,7 @@ class AccountSQLRepository(AccountRepository):
 
         adherent = None
         if abstract_account.member is not None:
-            adherent_stmt = select(Adherent).where(
-                Adherent.id == abstract_account.member
-            )
+            adherent_stmt = select(Adherent).where(Adherent.id == abstract_account.member)
             adherent = await self.session.scalar(adherent_stmt)
             if not adherent:
                 raise MemberNotFoundError(abstract_account.member)
@@ -164,9 +158,7 @@ def _map_account_sql_to_entity(a, has_balance=False) -> Account:
     )
 
 
-def _map_account_sql_to_abstract_entity(
-    a: SQLAccount, has_balance=False
-) -> AbstractAccount:
+def _map_account_sql_to_abstract_entity(a: SQLAccount, has_balance=False) -> AbstractAccount:
     """
     Map a, Account object from SQLAlchemy to an Account (from the entity folder/layer).
     """
