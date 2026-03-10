@@ -109,7 +109,7 @@ description = "CI: lint and test suite"
 
 # https://docs.astral.sh/ruff/
 [tool.ruff]
-exclude = ["migrations", "adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
+exclude = ["migrations", "adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py", ".tox/", ".venv/"]
 indent-width = 4
 line-length = 120
 src = ["adh6"]
@@ -148,12 +148,7 @@ select = [
   "PERF", # Perflint
   "FURB", # refurb
   "LOG", # flake8-logging
-  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME  # "PTH",   # flake8-use-pathlib (maybe todo ?)  # "TID",   # flake8-tidy-imports (maybe todo ?)  # "SLF",   # flake8-self  (managed by pyright)
-  # "RET",   # flake8-return
-  # "Q",     # flake8-quotes
-  # "T20",   # flake8-print
-  # "DTZ",   # flake8-datetimez (TODO)
-  # "B",     # flake8-bugbear
+  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME  # "PTH",   # flake8-use-pathlib (maybe todo ?)  # "TID",   # flake8-tidy-imports (maybe todo ?)  # "SLF",   # flake8-self  (managed by pyright)  # "RET",   # flake8-return  # "Q",     # flake8-quotes  # "T20",   # flake8-print  # "DTZ",   # flake8-datetimez (TODO)  # "B",     # flake8-bugbear
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
@@ -177,8 +172,8 @@ combine-as-imports = true
 
 [tool.pytest.ini_options]
 addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
-asyncio_mode = "auto"
 asyncio_event_loop_scope = "session"
+asyncio_mode = "auto"
 testpaths = [
   "test/",
 ]
@@ -193,4 +188,6 @@ omit = [
   ".vscode/*",
   "adh6/typing_utils.py",
   "adh6/util.py",
+  ".tox/*",
+  ".venv/*",
 ]
