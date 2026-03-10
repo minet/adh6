@@ -11,9 +11,8 @@ os.environ["KEYCLOAK_CLIENT_SECRET"] = "hSK6bC7s4gwnwd7td2iys4Aljgafuy5O"
 os.environ["TOKENINFO_FUNC"] = "test.auth.oidc_info"
 
 # os.environ["TOKENINFO_FUNC"] = "test.auth.token_info"
-
 # Import FastAPI app
-from adh6.main import app
+from adh6.main import app  # noqa
 
 
 tomorrow = datetime.now().date() + timedelta(days=1)
