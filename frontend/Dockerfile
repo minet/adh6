@@ -36,7 +36,16 @@ COPY --from=prodbuild /app/frontend/dist/adh6/browser/en /usr/share/nginx/html/e
 COPY --from=prodbuild /app/frontend/src/assets /usr/share/nginx/html/assets
 
 # Set proper permissions and switch to the existing nginx user
-RUN chown -R nginx:nginx /usr/share/nginx/html
+RUN chown -R nginx:nginx /usr/share/nginx/html \
+    && mkdir -p /var/cache/nginx/client_temp \
+    /var/cache/nginx/proxy_temp \
+    /var/cache/nginx/fastcgi_temp \
+    /var/cache/nginx/uwsgi_temp \
+    /var/cache/nginx/scgi_temp \
+    && chown -R nginx:nginx /var/cache/nginx \
+    && chown -R nginx:nginx /var/log/nginx \
+    && touch /var/run/nginx.pid \
+    && chown nginx:nginx /var/run/nginx.pid
 
 USER nginx
 
