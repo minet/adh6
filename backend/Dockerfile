@@ -71,26 +71,27 @@ USER adh6
 CMD ["python", "-Xfrozen_modules=off", "-m", "debugpy", "--wait-for-client", "--listen", "0.0.0.0:5678", "-m", "uvicorn", "--port", "8080", "--host", "0.0.0.0", "main:application", "--reload"]
 
 # Test stage (CI/CD)
-# Bakes uv cache into the image so tox-uv can create envs without network access
+# Inherits the compiled prod .venv from build so mysqlclient/thrift are not recompiled.
+# Dev-only packages (ruff, pyright, pytest…) are all pre-built wheels — no compiler needed.
+# The .tox/ci env is pre-baked so CI jobs skip the uv-sync step entirely.
 FROM base AS test
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
 ENV UV_LINK_MODE=copy
 ENV UV_COMPILE_BYTECODE=1
-ENV UV_CACHE_DIR=/app/.uv-cache
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
+COPY --from=build /app/.venv /app/.venv
 COPY backend/pyproject.toml backend/uv.lock ./
-# Install build deps + sync all dev groups; pre-bake tox ci env (bakes uv cache + .tox into image)
+# Extend the inherited prod venv with dev packages; pre-bake .tox/ci env
 RUN --mount=type=cache,target=/var/cache/apk \
+    --mount=type=cache,target=/root/.cache/uv \
     apk add --update \
     git \
     mariadb-connector-c \
-    mariadb-dev \
-    build-base \
-    libffi-dev \
+    nodejs \
     && uv sync --locked --group dev \
     && uv run tox -e ci --notest
 COPY openapi/spec.yaml openapi/spec.yaml
