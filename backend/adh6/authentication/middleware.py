@@ -296,10 +296,10 @@ async def auth_middleware(request: Request, call_next):
                 if exc.headers:
                     response_kwargs["headers"] = exc.headers
                 return JSONResponse(**response_kwargs)
-            except Exception:
+            except Exception as e:
                 return JSONResponse(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Authentication failed"},
+                    content={"detail": "Authentication failed", "error": str(e), "type": type(e).__name__},
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
