@@ -41,6 +41,12 @@ def mock_role_repository():
         yield repo
 
 
+@pytest.fixture(autouse=True)
+def set_keycloak_client_id(monkeypatch):
+    """Ensure KEYCLOAK_CLIENT_ID is set to 'adh6-keycloak' for all tests."""
+    monkeypatch.setenv("KEYCLOAK_CLIENT_ID", "adh6-keycloak")
+
+
 @pytest.fixture
 def valid_token_data():
     """Sample valid token data with adh6_id."""
@@ -51,6 +57,7 @@ def valid_token_data():
         "sub": "user-uuid-123",
         "iat": 1234567890,
         "exp": 9999999999,
+        "azp": "adh6-keycloak",
     }
 
 
@@ -63,6 +70,7 @@ def valid_token_data_no_adh6_id():
         "sub": "user-uuid-123",
         "iat": 1234567890,
         "exp": 9999999999,
+        "azp": "adh6-keycloak",
     }
 
 
@@ -207,6 +215,58 @@ async def test_empty_token_data_raises_unauthorized(
 
 
 @pytest.mark.anyio
+async def test_azp_mismatch_raises_unauthorized(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Token with wrong azp and missing aud should raise HTTP 401."""
+    monkeypatch.delenv("TESTING", raising=False)
+    mock_keycloak_client.decode_token.return_value = {
+        "azp": "wrong-client",
+        "aud": ["other-client"],
+        "sub": "user-uuid-123",
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        await _validate_token_with_keycloak("token_wrong_azp", mock_session)
+
+    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert "azp 'wrong-client' does not match" in exc_info.value.detail
+
+
+@pytest.mark.anyio
+async def test_fallback_to_aud_when_azp_missing(
+    monkeypatch,
+    mock_session,
+    mock_keycloak_client,
+    mock_role_repository,
+):
+    """Token without azp but valid aud should be accepted."""
+    monkeypatch.delenv("TESTING", raising=False)
+    # Ensure client ID is what we expect (adh6-keycloak)
+    # This is redundant with autouse fixture but safe
+    monkeypatch.setenv("KEYCLOAK_CLIENT_ID", "adh6-keycloak")
+
+    mock_keycloak_client.decode_token.return_value = {
+        # No azp
+        "aud": ["adh6-keycloak", "account"],
+        "sub": "user-uuid-123",
+        "groups": ["/admin"],
+    }
+
+    # Mock role repository to avoid errors downstream
+    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
+    mock_role_repository.find.return_value = (oidc_roles, 1)
+
+    result = await _validate_token_with_keycloak("token_valid_aud", mock_session)
+
+    assert result is not None
+    assert result["groups"] == ["admin"]
+
+
+@pytest.mark.anyio
 async def test_malformed_token_data_raises_unauthorized(
     monkeypatch,
     mock_session,
@@ -236,6 +296,7 @@ async def test_token_without_username_or_id(
     mock_keycloak_client.decode_token.return_value = {
         "groups": ["/admin"],
         "sub": "user-uuid-123",
+        "azp": "adh6-keycloak",
     }
 
     oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
@@ -266,6 +327,7 @@ async def test_groups_stripping_leading_slash(
         "adh6_id": 123,
         "preferred_username": "testuser",
         "groups": ["/admin", "//double_slash", "no_slash", None],
+        "azp": "adh6-keycloak",
     }
 
     mock_role_repository.find.return_value = ([], 0)
@@ -288,6 +350,7 @@ async def test_no_groups_in_token(
     mock_keycloak_client.decode_token.return_value = {
         "adh6_id": 123,
         "preferred_username": "testuser",
+        "azp": "adh6-keycloak",
     }
 
     user_roles = [SimpleNamespace(role=Roles.USER)]

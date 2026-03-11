@@ -103,15 +103,24 @@ async def _validate_token_with_keycloak(token: str, session: AsyncSession) -> di
 
     # Decode and validate the token
     try:
-        # We disable audience verification because the token issued by Keycloak typically
-        # does not include the client_id in the 'aud' claim unless specific mappers
-        # are configured. Instead, we verify the 'azp' (Authorized Party) claim manually.
-        options = {"verify_aud": False}
-        token_data = keycloak.decode_token(token, options=options)
+        token_data = keycloak.decode_token(token)
     except JWTInvalid as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid OIDC token ({type(e).__name__.replace('JWT', '')}): {e}",
+            detail=f"Invalid OIDC token ({type(e).__name__}): {e}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not token_data:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid OIDC token: no data found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not isinstance(token_data, dict):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid OIDC token: the data is not properly formatted",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -128,19 +137,6 @@ async def _validate_token_with_keycloak(token: str, session: AsyncSession) -> di
                 detail=f"Invalid OIDC token: azp '{token_data.get('azp')}' does not match expected '{expected_azp}' and aud does not contain it",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-    if not token_data:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid OIDC token: no data found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    if not isinstance(token_data, dict):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid OIDC token: the data is not properly formatted",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
     # Extract user ID
     uid = token_data.get("adh6_id")
