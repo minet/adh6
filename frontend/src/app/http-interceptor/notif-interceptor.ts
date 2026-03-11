@@ -6,6 +6,7 @@ import {
   HttpRequest,
   HttpErrorResponse,
 } from "@angular/common/http";
+import {Router} from "@angular/router";
 
 import {Observable, throwError} from "rxjs";
 import {catchError} from "rxjs/operators";
@@ -18,7 +19,10 @@ interface ApiError {
 
 @Injectable()
 export class NotifInterceptor implements HttpInterceptor {
-  constructor(private notificationService: NotificationService) {}
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router,
+  ) {}
 
   intercept(
     req: HttpRequest<unknown>,
@@ -42,8 +46,15 @@ export class NotifInterceptor implements HttpInterceptor {
           err = errorBody as ApiError;
         }
         if (err.code === 401) {
-          if (window.location.href !== "/portail") {
-            window.location.href = "/portail";
+          if (this.router.url !== "/portail") {
+            void this.router.navigate(["/portail"]);
+          } else {
+            this.notificationService.errorNotification(
+              401,
+              "Unauthorized",
+              "Your session has expired, please log in again.",
+              3000,
+            );
           }
         }
         if (err.code !== 404) {

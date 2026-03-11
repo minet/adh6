@@ -103,13 +103,31 @@ async def _validate_token_with_keycloak(token: str, session: AsyncSession) -> di
 
     # Decode and validate the token
     try:
-        token_data = keycloak.decode_token(token)
+        # We disable audience verification because the token issued by Keycloak typically
+        # does not include the client_id in the 'aud' claim unless specific mappers
+        # are configured. Instead, we verify the 'azp' (Authorized Party) claim manually.
+        options = {"verify_aud": False}
+        token_data = keycloak.decode_token(token, options=options)
     except JWTInvalid as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid OIDC token ({type(e).__name__.replace('JWT', '')}): {e}",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # Verify authorized party (azp) matches our client ID
+    expected_azp = os.environ.get("KEYCLOAK_CLIENT_ID")
+    if expected_azp and token_data.get("azp") != expected_azp:
+        # If azp doesn't match, check if client_id is in aud (fallback)
+        aud = token_data.get("aud", [])
+        if isinstance(aud, str):
+            aud = [aud]
+        if expected_azp not in aud:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Invalid OIDC token: azp '{token_data.get('azp')}' does not match expected '{expected_azp}' and aud does not contain it",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
     if not token_data:
         raise HTTPException(
