@@ -8,8 +8,8 @@ import {
   trigger,
 } from "@angular/animations";
 import {CommonModule} from "@angular/common";
-import {Component, OnInit} from "@angular/core";
-import {Router, RouterModule, RouterOutlet} from "@angular/router";
+import {Component} from "@angular/core";
+import {RouterModule, RouterOutlet} from "@angular/router";
 import {map, Observable, filter} from "rxjs";
 import {Member, MiscService} from "../api";
 import {MemberDeviceModule} from "../member-device/member-device.module";
@@ -75,22 +75,15 @@ function slideTo(direction: string) {
     </ng-container>
   `,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   public member$: Observable<Member>;
   public currentTab = "device";
 
-  constructor(
-    private readonly miscService: MiscService,
-    private readonly router: Router,
-  ) {
+  constructor(private readonly miscService: MiscService) {
     this.member$ = this.miscService.profile().pipe(
       map((r) => r.member),
       filter((member): member is Member => member != null),
     );
-  }
-
-  ngOnInit(): void {
-    void this.router.navigate(["dashboard", "device"]);
   }
 
   public onOutletLoaded(component: {member?: Member}, member: Member) {

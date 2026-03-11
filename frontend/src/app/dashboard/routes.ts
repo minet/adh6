@@ -7,6 +7,7 @@ export const ROUTES: Route[] = [
       import("./dashboard.component").then((c) => c.DashboardComponent),
     data: {animation: 0},
     children: [
+      {path: "", redirectTo: "device", pathMatch: "full"},
       {
         path: "device",
         loadComponent: () =>
