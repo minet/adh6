@@ -681,7 +681,7 @@ def test_device_get_owner_unauthorized(client, wired_device: Device):
     assert r.status_code == 403
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail(reason="OUIs.txt not found, skipping loading MAC OUI dictionary.")
 def test_device_get_vendor(client, wired_device_dict):
     wired_device_dict["mac"] = "00-00-0C-01-23-45"
     r = client.post(
@@ -696,7 +696,7 @@ def test_device_get_vendor(client, wired_device_dict):
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
-    assert r.json == "Cisco Systems, Inc\n"
+    assert r.json() == "Cisco Systems, Inc\n"
 
 
 def test_device_get_vendor_unknown_device(client, unknown_device: Device):

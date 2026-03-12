@@ -122,10 +122,13 @@ async def get_device(
     only: Annotated[str | None, Query()] = None,
 ) -> Device | JSONResponse:
     """Get a specific device by ID."""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
     try:
         result = await manager.get_by_id(id=id)
+        require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=result.member)
     except NotFoundError as e:
+        require_role_or_ownership(
+            request, Roles.NETWORK_READ.value
+        )  # Check if user has read access to reveal existence of the resource
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     if only:
@@ -140,10 +143,13 @@ async def delete_device(
     request: Request,
 ) -> None:
     """Delete a device."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
+        require_role_or_ownership(request, Roles.NETWORK_WRITE.value, owner_id=await manager.get_owner(device_id=id))
         await manager.delete(id=id)
     except NotFoundError as e:
+        require_role_or_ownership(
+            request, Roles.NETWORK_READ.value
+        )  # Check if user has read access to reveal existence of the resource
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
@@ -159,10 +165,11 @@ async def get_device_vendor(
     request: Request,
 ) -> str:
     """Get the MAC vendor for a device."""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
     try:
+        require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=await manager.get_owner(device_id=id))
         vendor = await manager.get_mac_vendor(id=id)
     except NotFoundError as e:
+        require_role_or_ownership(request, Roles.NETWORK_READ.value)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return vendor
 
@@ -230,14 +237,17 @@ async def rename_device(
     name = body.get("name")
     if not name or not isinstance(name, str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="name is required")
-    require_role_or_ownership(
-        request,
-        Roles.NETWORK_WRITE.value,
-        owner_id=await manager.get_owner(device_id=id),
-    )
     try:
+        require_role_or_ownership(
+            request,
+            Roles.NETWORK_WRITE.value,
+            owner_id=await manager.get_owner(device_id=id),
+        )
         await manager.rename(device_id=id, name=name)
     except NotFoundError as e:
+        require_role_or_ownership(
+            request, Roles.NETWORK_READ.value
+        )  # Check if user has read access to reveal existence of the resource
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
