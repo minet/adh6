@@ -8,8 +8,8 @@ import {
 } from "@angular/forms";
 import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 
-import {AbstractRoom, Room, RoomService, VlanService} from "../../api";
-import {finalize, first, switchMap, tap} from "rxjs/operators";
+import {AbstractRoom, RoomService} from "../../api";
+import {finalize, switchMap, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {NotificationService} from "../../notification.service";
 
@@ -27,7 +27,6 @@ export class RoomEditComponent implements OnInit {
 
   constructor(
     private readonly roomService: RoomService,
-    private readonly vlanService: VlanService,
     private readonly fb: UntypedFormBuilder,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -51,22 +50,18 @@ export class RoomEditComponent implements OnInit {
 
   onSubmit() {
     const v = this.roomEdit.value;
-    this.vlanService
-      .getFromNumber(v.vlan)
-      .pipe(
-        first(() => (this.disabled = true)),
-        finalize(() => (this.disabled = false)),
-      )
-      .subscribe((vlan) => {
-        const room: Room = {
-          roomNumber: v.roomNumber,
-          vlan: vlan.id!,
-          description: v.description,
-        };
-        this.roomService.roomIdPut(v.id, room).subscribe(() => {
-          void this.router.navigate(["/room/view", v.roomNumber]);
-          this.notificationService.successNotification();
-        });
+    this.disabled = true;
+    const room: AbstractRoom = {
+      roomNumber: v.roomNumber,
+      vlan: v.vlan,
+      description: v.description,
+    };
+    this.roomService
+      .roomIdPut(v.id, room)
+      .pipe(finalize(() => (this.disabled = false)))
+      .subscribe(() => {
+        void this.router.navigate(["/room/view", v.id]);
+        this.notificationService.successNotification();
       });
   }
 

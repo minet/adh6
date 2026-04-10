@@ -10,7 +10,7 @@ from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.entity import AbstractRoom, Room
-from adh6.exceptions import NotFoundError
+from adh6.exceptions import MemberNotFoundError, NotFoundError
 from adh6.member.member_manager import MemberManager
 from adh6.member.router import get_member_manager
 from adh6.member.storage import MemberRepository
@@ -150,12 +150,21 @@ async def update_room(
     id: int,
     body: AbstractRoom,
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
+    member_manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
 ) -> None:
     """Update a room."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
-        await repository.update(id=id, abstract_room=body)
+        old_room = await repository.get_by_id(id)
+        updated_room = await repository.update(id=id, abstract_room=body)
+        if body.vlan is not None and old_room.vlan != updated_room.vlan:
+            member_ids = await repository.get_members(id)
+            for member_id in member_ids:
+                try:
+                    await member_manager.ethernet_vlan_changed(member_id, updated_room.vlan)
+                except MemberNotFoundError:
+                    pass  # stale link — member no longer exists, skip
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

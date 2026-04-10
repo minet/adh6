@@ -1,29 +1,36 @@
-<h2>Modification d'une chambre</h2>
+<h2 class="title is-2">Modification d'une chambre</h2>
 @if (room$ | async) {
   <form [formGroup]="roomEdit" (ngSubmit)="onSubmit()" novalidate>
-    <div class="form-group">
-      <label>Numéro de la chambre</label>
+    <div class="field">
+      <label class="label">Numéro de chambre</label>
       <input
-        class="w-100 form-control"
+        class="input is-fullwidth"
         formControlName="roomNumber"
-        [disabled]="true"
+        [attr.disabled]="true"
         type="number" />
+      <p class="help">Identifiant physique de la chambre (non modifiable)</p>
     </div>
-    <div class="form-group">
-      <label>Vlan</label>
-      <input class="w-100 form-control" formControlName="vlan" type="number" />
-    </div>
-    <div class="form-group">
-      <label>Description</label>
+    <div class="field">
+      <label class="label">Numéro de VLAN</label>
       <input
-        class="w-100 form-control"
+        class="input is-fullwidth"
+        formControlName="vlan"
+        type="number"
+        placeholder="ex : 42" />
+      <p class="help">Numéro du VLAN (41–49) — les IP des appareils filaires seront réassignées</p>
+    </div>
+    <div class="field">
+      <label class="label">Description</label>
+      <input
+        class="input is-fullwidth"
         formControlName="description"
         type="text" />
     </div>
-    <div class="form-group">
-      <button type="submit" [disabled]="disabled" class="w-100 btn btn-primary">
-        Modifier
-      </button>
-    </div>
+    <button
+      type="submit"
+      [disabled]="disabled || roomEdit.invalid"
+      class="button is-primary is-fullwidth">
+      Enregistrer
+    </button>
   </form>
 }

@@ -151,7 +151,11 @@ async def _merge_sql_with_entity(
     if entity.room_number is not None or override:
         chambre.numero = entity.room_number
     if entity.vlan is not None:
-        chambre.vlan_id = entity.vlan
+        vlan_stmt = select(Vlan).where(Vlan.numero == entity.vlan)
+        vlan = await session.scalar(vlan_stmt)
+        if not vlan:
+            raise VLANNotFoundError(str(entity.vlan))
+        chambre.vlan_id = vlan.id
 
     chambre.updated_at = now
     return chambre
