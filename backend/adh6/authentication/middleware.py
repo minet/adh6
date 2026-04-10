@@ -22,7 +22,7 @@ from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.storage import RoleRepository
 from adh6.authentication.storage.models import ApiKey as ApiKeyModel
 from adh6.context import set_user
-from adh6.database import get_session
+from adh6.database import async_session_factory, get_session
 
 JWTInvalid = (
     JWTExpired,
@@ -274,7 +274,7 @@ async def auth_middleware(request: Request, call_next):
 
         if auth_header.startswith("Bearer ") or api_key_header:
             try:
-                async for session in get_session():
+                async with async_session_factory() as session:
                     if auth_header.startswith("Bearer "):
                         token_info = await _validate_token_with_keycloak(auth_header[7:], session)
                     else:
@@ -283,7 +283,6 @@ async def auth_middleware(request: Request, call_next):
                     if token_info:
                         request.state.token_info = token_info
                         set_user(token_info.get("uid"))
-                    break
             except HTTPException as exc:
                 response_kwargs: dict[str, Any] = {
                     "status_code": exc.status_code,
@@ -295,7 +294,11 @@ async def auth_middleware(request: Request, call_next):
             except Exception as e:
                 return JSONResponse(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Authentication failed", "error": str(e), "type": type(e).__name__},
+                    content={
+                        "detail": "Authentication failed",
+                        "error": str(e),
+                        "type": type(e).__name__,
+                    },
                     headers={"WWW-Authenticate": "Bearer"},
                 )
 
