@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card mb-1">
   <a (click)="toogleDeviceDetails()">
     <header class="card-header">
       <p class="card-header-title">
@@ -6,7 +6,9 @@
           <strong>
             @if (device.name) {
               {{ device.name }}
-              <span class="has-text-grey-light ml-2">{{ device.mac | uppercase }}</span>
+              <span class="has-text-grey-light ml-2">{{
+                device.mac | uppercase
+              }}</span>
             } @else {
               {{ device.mac | uppercase }}
               @if (vendor$ | async; as vendor) {
@@ -65,10 +67,14 @@
                 <td>
                   @if (device.wifiPassword) {
                     <code>{{ device.wifiPassword }}</code>
-                    <a class="ml-2" (click)="clearWifiPassword()">(supprimer)</a>
+                    <a class="ml-2" (click)="clearWifiPassword()"
+                      >(supprimer)</a
+                    >
                   } @else {
                     <em>Aucun</em>
-                    <a class="ml-2" (click)="generateWifiPassword()">(générer)</a>
+                    <a class="ml-2" (click)="generateWifiPassword()"
+                      >(générer)</a
+                    >
                   }
                 </td>
               </tr>
