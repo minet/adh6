@@ -3,7 +3,7 @@
 import ipaddress
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -199,7 +199,7 @@ async def get_port_vlan(
 @port_router.put("/{id}/vlan", status_code=status.HTTP_204_NO_CONTENT)
 async def set_port_vlan(
     id: int,
-    body: int | None,
+    body: Annotated[int | None, Body()],
     manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
     request: Request,
 ) -> None:
