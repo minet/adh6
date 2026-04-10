@@ -3,7 +3,7 @@
 import ipaddress
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -93,6 +93,7 @@ async def get_switch_network_manager(
 async def search_ports(
     manager: Annotated[PortManager, Depends(get_port_manager)],
     request: Request,
+    response: Response,
     filter_: Annotated[AbstractPort, AbstractPortFilterHandler()] = AbstractPort(),
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
@@ -102,9 +103,13 @@ async def search_ports(
     """Search network ports."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
+    response.headers["X-Total-Count"] = str(_count)
 
     if only:
-        return JSONResponse(content=[_apply_only_projection(_to_public_dict(port), only) for port in result])
+        return JSONResponse(
+            content=[_apply_only_projection(_to_public_dict(port), only) for port in result],
+            headers={"X-Total-Count": str(_count)},
+        )
     return result
 
 
@@ -292,6 +297,7 @@ async def get_port_speed(
 async def search_switches(
     manager: Annotated[SwitchManager, Depends(get_switch_manager)],
     request: Request,
+    response: Response,
     filter_: Annotated[AbstractSwitch, AbstractSwitchFilterHandler()] = AbstractSwitch(),
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
@@ -309,8 +315,12 @@ async def search_switches(
                 detail=f"Invalid only fields: {invalid}",
             )
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
+    response.headers["X-Total-Count"] = str(_count)
     if only:
-        return JSONResponse(content=[_apply_only_projection(_to_public_dict(switch), only) for switch in result])
+        return JSONResponse(
+            content=[_apply_only_projection(_to_public_dict(switch), only) for switch in result],
+            headers={"X-Total-Count": str(_count)},
+        )
     return result
 
 

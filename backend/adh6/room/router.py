@@ -4,7 +4,7 @@ import contextlib
 import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
@@ -50,6 +50,7 @@ async def get_member_repository(
 async def search_rooms(
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -60,6 +61,7 @@ async def search_rooms(
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     filter_obj = AbstractRoom.from_dict(json.loads(filter_)) if filter_ else None
     result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_obj)
+    response.headers["X-Total-Count"] = str(_count)
 
     if only:
         # Validate only fields are valid
