@@ -1,0 +1,16 @@
+@if (member$ | async) {
+  <div class="tabs is-centered is-large">
+    <ul>
+      <li routerLinkActive="is-active">
+        <a [routerLink]="['profile']">Profile</a>
+      </li>
+      <li routerLinkActive="is-active">
+        <a [routerLink]="['payment']">Paiement</a>
+      </li>
+      <li routerLinkActive="is-active">
+        <a [routerLink]="['device']">Appareils</a>
+      </li>
+    </ul>
+  </div>
+  <router-outlet></router-outlet>
+}

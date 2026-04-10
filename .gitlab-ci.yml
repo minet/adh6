@@ -1,304 +1,170 @@
-cache:
-  paths:
-    - ~/.cache/pip 
-    - frontend_angular/node_modules
-
-variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  BACKEND_DIR: $CI_PROJECT_DIR/api_server
-  FRONTEND_DIR: $CI_PROJECT_DIR/frontend_angular
-  OPENAPI_CLI: /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
-
-# We declare a job that gitlab ignores and put a YAML anchor
-# See https://gitlab.com/gitlab-org/gitlab-ce/issues/15403#note_27079119
-.setup_test_jobs: &before_python_jobs
-  image: python:3.9-slim
-  before_script:
-    - apt update
-    - apt install -y git build-essential python3-dev libpcre3 libpcre3-dev libssl-dev libmariadb-dev git wget
-    - pip install -r api_server/requirements.txt
-
-.setup_angular_jobs: &before_angular_jobs
-  image: node:18-alpine
-  before_script:
-    - cd frontend_angular/
-    - yarn --network-timeout 100000 install --frozen-lockfile
-
 stages:
-  - conformity
-  - generation
-  - lint
-  - test
   - build
+  - test
   - deploy
 
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_REGISTRY_BASE: $CI_REGISTRY_IMAGE
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_BUILDKIT: 1
 
-################################################
-########## Execute when merge request ##########
-################################################
-semgrep:
-  stage: conformity
-  image: returntocorp/semgrep
-  script: semgrep ci --exclude api_server/adh6/member/member_manager.py --exclude reverse_proxy/adh6.template.conf --exclude frontend_angular/yarn.lock --exclude api_server/manage.py
-  rules:
-  - if: $CI_MERGE_REQUEST_IID
-  variables:
-    SEMGREP_RULES: >- 
-      p/security-audit
-      p/secrets
-      p/dockerfile
-      p/docker-compose
-      p/eslint-plugin-security
-      p/nodejsscan
-      p/flask
-      p/xss
-      p/jwt
-      p/command-injection
-      p/r2c-ci
-      p/r2c-security-audit
-      p/owasp-top-ten
-      p/gitlab-bandit
-      p/gitlab-eslint
+.docker_login: &docker_login
+  image: docker:latest
+  before_script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "master" ]; then
+        TAG="stable"
+      elif [ "$CI_COMMIT_BRANCH" = "dev" ]; then
+        TAG="prep"
+      else
+        TAG="$CI_COMMIT_SHORT_SHA"
+      fi
 
+.branch_rules:
+  rules: &branch_rules
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - when: never
 
-################################
-########## Generation ##########
-################################
-generation:backend_entity:
-  stage: generation
-  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
-  script:
-    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g python-flask -o tmpsrc --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
-    - cp -r tmpsrc/adh6/entity/* api_server/adh6/entity/
-    - cp tmpsrc/adh6/typing_utils.py api_server/adh6/
-    - cp tmpsrc/adh6/util.py api_server/adh6/
-    - sed -i 's/result\[attr\]/result\[self.attribute_map\[attr\]\]/g' api_server/adh6/entity/base_model_.py
-  artifacts:
-    paths:
-    - api_server/adh6
-    - api_server/openapi
-    expire_in: 1 day
+.feature_rules:
+  rules: &feature_rules
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      when: always
+    - when: never
 
-generation:frontend_module:
-  stage: generation
-  image: openapitools/openapi-generator-cli:latest-release@sha256:c49d9c99124fe2ad94ccef54cc6d3362592e7ca29006a8cf01337ab10d1c01f4
-  script:
-    - java -jar $OPENAPI_CLI generate -i openapi/spec.yaml -g typescript-angular -o "frontend_angular/src/app/api" --additional-properties=queryParamObjectFormat=key
-    - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
-    - find frontend_angular/src/app/api/api -type f -name "*.service.ts" -exec sed -i 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
-  artifacts:
-    paths:
-    - frontend_angular/src/app/api
-    expire_in: 1 day
-
-generation:frontend_assets:
-  stage: generation
-  image: node:18-alpine
-  script:
-    - yarn global add svgo
-    - cd frontend_angular/src/assets
-    - svgo minet.svg adh6-logo.svg minet-dark.svg -o minet.min.svg adh6.min.svg minet-dark.min.svg
-  artifacts:
-    paths:
-    - frontend_angular/src/assets
-    expire_in: 1 day
-
-
-##################################################
-########## Linting frontend and backend ##########
-##################################################
-lint:frontend:
-  stage: lint
-  needs:
-    - generation:frontend_module
-    - generation:frontend_assets
-  <<: *before_angular_jobs 
-  script:
-    - yarn lint
-
-lint:backend:
-  image: python:3.9-slim
-  stage: lint
-  needs:
-    - generation:backend_entity
-  script:
-    - pip install black isort
-    - black . --extend-exclude migrations,venv
-    - isort . --skip venv --skip migrations
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - api_server/
-
-
-####################################
-########## Backends Tests ##########
-####################################
-test:backend:
-  stage: test
-  needs:
-    - lint:backend
-  <<: *before_python_jobs # We reference our previous anchor
-  script:
-  - cd api_server/
-  - apt update -q
-  - apt install -qy sqlite3
-  - pytest -vvv --cov-fail-under=70 --cov-report=term --junitxml=report.xml
-  artifacts:
-    paths:
-      - api_server/htmlcov/
-    reports:
-      junit: report.xml
-
-# test:python_check_for_vuln_deps:
-#   stage: test
-#   <<: *before_python_jobs # We reference our previous anchor
-#   script:
-#     - cd api_server/
-#     - pip install safety
-#     - safety check -r requirements.txt
-#     - safety check
-
-
-###########################
-########## Build ##########
-###########################
-build:frontend:
+build_backend:
+  <<: *docker_login
   stage: build
-  <<: *before_angular_jobs
-  needs:
-    - lint:frontend
-    - generation:frontend_module
-    - generation:frontend_assets
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      when: always
+    - when: never
   script:
-    - export NODE_OPTIONS=--openssl-legacy-provider
-    - yarn build
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/backend:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --target prod
+        --file backend/Dockerfile
+        --tag $IMAGE_REGISTRY_BASE/backend:$TAG
+        .
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/backend-test:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --target test
+        --file backend/Dockerfile
+        --tag $IMAGE_REGISTRY_BASE/backend-test:$TAG
+        .
+    - docker push $IMAGE_REGISTRY_BASE/backend:$TAG
+    - docker push $IMAGE_REGISTRY_BASE/backend-test:$TAG
+
+build_frontend:
+  <<: *docker_login
+  stage: build
+  rules: *branch_rules
+  script:
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/frontend:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --target prod
+        --file frontend/Dockerfile
+        --tag $IMAGE_REGISTRY_BASE/frontend:$TAG
+        .
+    - docker push $IMAGE_REGISTRY_BASE/frontend:$TAG
+
+build_reverse_proxy:
+  <<: *docker_login
+  stage: build
+  rules: *branch_rules
+  script:
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --file reverse_proxy/Dockerfile
+        --target prod
+        --tag $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
+        .
+    - docker push $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
+
+.base_test: &base_test
+  stage: test
+  before_script: []
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+      when: always
+      variables:
+        TAG: stable
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
+      when: always
+      variables:
+        TAG: prep
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      when: always
+      variables:
+        TAG: $CI_COMMIT_SHORT_SHA
+    - when: never
+  image:
+    name: $IMAGE_REGISTRY_BASE/backend-test:$TAG
+  needs:
+    - build_backend
+
+test_backend:
+  <<: *base_test
+  script:
+    - cd /app && tox -e ci
+  after_script:
+    - cp /app/report.xml $CI_PROJECT_DIR/report.xml
+    - cp /app/coverage.xml $CI_PROJECT_DIR/coverage.xml
+    - cp /app/code-quality-report.json $CI_PROJECT_DIR/code-quality-report.json
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-    - frontend_angular/dist/
-    expire_in: 1 day
+    when: always
+    reports:
+      codequality: code-quality-report.json
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
-
-###########################################
-########## Deploy in stagged ##############
-###########################################
-stagged:frontend:
+deploy_prod:
   stage: deploy
+  trigger:
+    project: minet/configurations/push/swarm-prod
+    branch: main
+    strategy: depend
+    inputs:
+      folder_name: adh6.minet.net
+      image_registry: $CI_REGISTRY_IMAGE
+  needs:
+    - build_backend
+    - build_frontend
+    - build_reverse_proxy
+    - test_backend
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  needs:
-    - lint:frontend
-    - generation:frontend_module
-    - generation:frontend_assets
-    - build:frontend
-  script:
-    - cp -r frontend_angular/dist/adh6/* /var/www/
-    - cp -r frontend_angular/src/assets /var/www/assets
-  environment:
-    name: stagged
-    url: https://adh6-stagged.minet.net/
-  tags:
-    - adh6-stagged
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+      when: on_success
+    - when: never
 
-stagged:backend:
+deploy_dev:
   stage: deploy
+  trigger:
+    project: minet/configurations/push/swarm-prod
+    branch: main
+    strategy: depend
+    inputs:
+      folder_name: adh6-dev.minet.net
+      image_registry: $CI_REGISTRY_IMAGE
+  needs:
+    - build_backend
+    - build_frontend
+    - build_reverse_proxy
+    - test_backend
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  when: manual
-  needs:
-    - lint:backend
-    - test:backend
-  before_script:
-    - sudo systemctl stop emperor.uwsgi.service
-    - export http_proxy=$HTTP_PROXY
-    - export https_proxy=$HTTPS_PROXY
-    - cd api_server/
-    - sudo -H -E pip3 install -r ./requirements.txt
-  script:
-    - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
-    - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
-    - cp ../openapi/spec.yaml ./openapi/spec.yaml
-    - export FLASK_APP=manage:manager
-    - ENVIRONMENT=production flask db upgrade
-    - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
-    - sudo rm /etc/uwsgi/vassals/adh6_api.ini
-    - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
-    - sudo systemctl start emperor.uwsgi.service
-  environment:
-    name: stagged
-    url: https://adh6-stagged.minet.net/
-  tags:
-    - adh6-stagged
-
-
-###########################################
-########## Deploy in development ##########
-###########################################
-development:
-  stage: deploy
-  when: manual
-  needs:
-    - generation:backend_entity
-    - generation:frontend_module
-    - generation:frontend_assets
-  script:
-    - docker-compose -f docker-compose-deploy.yml build
-    - docker-compose -f docker-compose-deploy.yml down
-    - docker-compose -f docker-compose-deploy.yml up --force-recreate -d 
-  environment:
-    name: development
-    url: https://adh6-dev.minet.net/
-  tags:
-    - dev
-
-
-##########################################
-########## Deploy in production ##########
-##########################################
-production_frontend:
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_TAG
-  when: manual
-  needs:
-    - build:frontend
-    - generation:frontend_assets
-  script:
-    - cp -r frontend_angular/dist/adh6/* /var/www/
-    - cp -r frontend_angular/src/assets /var/www/assets
-  environment:
-    name: production
-    url: https://adh6.minet.net/
-  tags:
-    - adh6-prod
-    - adh6-frontend
-
-production_backend:
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_TAG
-  when: manual
-  needs:
-    - test:backend
-    - lint:backend
-  before_script:
-    - sudo systemctl stop emperor.uwsgi.service
-    - cd api_server/
-    - sudo -E pip3 install -r ./requirements.txt
-  script:
-    - /usr/local/bin/mibdump.py --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB
-    - wget -O - -o /dev/null http://standards-oui.ieee.org/oui.txt | grep '(hex)' | sed -E 's/\s*?\(hex\)\s+/\t/' > OUIs.txt
-    - cp ../openapi/spec.yaml ./openapi/spec.yaml
-    - export FLASK_APP=manage:manager
-    - ENVIRONMENT=production flask db upgrade
-    - cat uwsgi-prod.template | envsubst | tee uwsgi-prod.ini
-    - sudo rm /etc/uwsgi/vassals/adh6_api.ini
-    - sudo ln -s $(pwd)/uwsgi-prod.ini /etc/uwsgi/vassals/adh6_api.ini
-    - sudo systemctl start emperor.uwsgi.service
-  environment:
-    name: production
-    url: https://adh6.minet.net/
-  tags:
-    - adh6-prod
-    - adh6-backend
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
+      when: on_success
+    - when: never

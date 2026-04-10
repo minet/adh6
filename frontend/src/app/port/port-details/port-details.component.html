@@ -1,0 +1,101 @@
+@if (port$ | async; as port) {
+  <div class="container mt-5">
+    <div class="columns">
+      <div class="column is-one-quarter box">
+        <h4 class="title is-4 has-text-centered">Informations</h4>
+        <p><strong>Numéro : </strong>{{ port.portNumber }}</p>
+        <p>
+          <strong>Switch : </strong>
+          <a [routerLink]="['/switch', port.switchObj, 'view']">
+            {{ switch_description$ | async }}
+          </a>
+        </p>
+        <p>
+          <strong>Chambre : </strong>
+          @if (port.room !== undefined) {
+            <span>
+              {{ room_number$ | async }}
+            </span>
+          }
+          @if (port.room === undefined) {
+            <span>Aucune chambre</span>
+          }
+        </p>
+        <p><strong>VLAN actuel : </strong>{{ vlan$ | async }}</p>
+      </div>
+      <div class="column">
+        <h4 class="title is-4 has-text-centered">Configuration</h4>
+        <div class="columns has-text-centered">
+          <div class="column">
+            @if ({value: (status$ | async)}; as context) {
+              @if (context.value !== null) {
+                <p>
+                  <strong>Port: {{ getStatus(context.value) }}</strong>
+                </p>
+                <button
+                  class="button is-fullwidth"
+                  [ngClass]="
+                    !context.value ? 'is-success' : 'is-danger'
+                  "
+                  (click)="toggleStatus()">
+                  {{ getAction(!context.value) }}
+                </button>
+              } @else {
+                <p><strong>Chargement...</strong></p>
+                <button class="button is-loading is-primary is-fullwidth">
+                  loading
+                </button>
+              }
+            }
+          </div>
+          <div class="column">
+            @if ({value: (auth$ | async)}; as context) {
+              @if (context.value !== null) {
+                <p>
+                  <strong
+                    >Authentification: {{ getState(context.value) }}</strong
+                  >
+                </p>
+                <button
+                  class="button is-fullwidth"
+                  [ngClass]="
+                    !context.value ? 'is-success' : 'is-danger'
+                  "
+                  (click)="toggleAuth(context.value)">
+                  {{ getAction(!context.value) }}
+                </button>
+              } @else {
+                <p><strong>Chargement...</strong></p>
+                <button class="button is-loading is-primary is-fullwidth">
+                  loading
+                </button>
+              }
+            }
+          </div>
+          <div class="column">
+            @if ({value: (mab$ | async)}; as context) {
+              @if (context.value !== null) {
+                <p>
+                  <strong>MAB: {{ getState(context.value) }}</strong>
+                </p>
+                <button
+                  class="button is-fullwidth"
+                  [ngClass]="
+                    !context.value ? 'is-success' : 'is-danger'
+                  "
+                  (click)="toggleMAB()">
+                  {{ getAction(!context.value) }}
+                </button>
+              } @else {
+                <p><strong>Chargement...</strong></p>
+                <button class="button is-loading is-primary is-fullwidth">
+                  loading
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

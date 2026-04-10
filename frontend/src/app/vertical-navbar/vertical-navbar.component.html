@@ -1,0 +1,101 @@
+@if (oidcSecurityService.isAuthenticated() | async) {
+  <div class="p-3">
+    <aside class="menu">
+      <p class="menu-label">General</p>
+      <ul class="menu-list">
+        <li>
+          <a routerLinkActive="is-active" [routerLink]="['dashboard']"
+            >Mon Compte</a
+          >
+        </li>
+      </ul>
+      <p class="menu-label">Administration</p>
+      <ul class="menu-list">
+        <li>
+          Gestion Adhérents
+          <ul>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['member']"
+                >Adhérents</a
+              >
+            </li>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['device']"
+                >Appareils</a
+              >
+            </li>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['room']"
+                >Chambres</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          Gestion réseau
+          <ul>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['switch/search']"
+                >Commutateurs</a
+              >
+            </li>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['port/search']"
+                >Ports</a
+              >
+            </li>
+            <li>
+              <a routerLinkActive="is-active" [routerLink]="['switch_local']">
+                Commutateur Local
+              </a>
+            </li>
+          </ul>
+        </li>
+        @if ("manage" | able: "prod") {
+          <li>
+            Authentification
+            <ul>
+              <li>
+                <a routerLinkActive="is-active" [routerLink]="['auth/naina']"
+                  >NainA</a
+                >
+              </li>
+              <li>
+                <a routerLinkActive="is-active" [routerLink]="['auth/api-key']"
+                  >Clef d'API</a
+                >
+              </li>
+            </ul>
+          </li>
+        }
+      </ul>
+      @if ("manage" | able: "treasury") {
+        <p class="menu-label">Transactions</p>
+      }
+      @if ("manage" | able: "treasury") {
+        <ul class="menu-list">
+          <li>
+            <a routerLinkActive="is-active" [routerLink]="['transaction/add']"
+              >Transaction</a
+            >
+          </li>
+          <li>
+            <a routerLinkActive="is-active" [routerLink]="['treasury']"
+              >Trésorerie</a
+            >
+          </li>
+          <li>
+            <a routerLinkActive="is-active" [routerLink]="['account/search']"
+              >Comptes</a
+            >
+          </li>
+          <li>
+            <a routerLinkActive="is-active" [routerLink]="['product/search']"
+              >Produit</a
+            >
+          </li>
+        </ul>
+      }
+    </aside>
+  </div>
+}

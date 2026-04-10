@@ -1,0 +1,39 @@
+<div class="dropdown" [ngClass]="{'is-active': display}">
+  <div class="dropdown-trigger">
+    <div class="field">
+      <p class="control is-expanded has-icons-right">
+        <input
+          class="input"
+          type="search"
+          placeholder="Search..."
+          #account
+          [value]="selectedAccount !== undefined ? selectedAccount.name : ''"
+          (keyup)="search(account.value)"
+          (appClickOutside)="display = false" />
+        <span class="icon is-small is-right"
+          ><i class="fas fa-search"></i
+        ></span>
+      </p>
+    </div>
+  </div>
+  @if (result$ | async; as result) {
+    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+      <div class="dropdown-content">
+        @for (account of result; track account) {
+          <a (click)="setSelectedAccount(account)" class="dropdown-item">
+            {{ account.name }}
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>
+<hr />
+@if (selectedAccount) {
+  <div>
+    <p><b>Actif :</b> {{ selectedAccount.actif }}</p>
+    <p><b>Solde :</b> {{ selectedAccount.balance }}</p>
+  </div>
+} @else {
+  <p>Aucun compte séléctioné</p>
+}

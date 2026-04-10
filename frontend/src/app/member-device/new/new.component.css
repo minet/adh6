@@ -1,0 +1,65 @@
+/* Mobile-optimized MAC address input styling */
+.mac-address-input {
+  font-family: "Courier New", "Lucida Console", monospace !important;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Mobile-specific improvements */
+@media screen and (max-width: 768px) {
+  .mac-address-input {
+    font-size: 1.1rem;
+    padding: 0.75rem;
+    min-height: 3rem;
+    text-align: center;
+  }
+
+  /* Ensure full width on mobile */
+  .field .control {
+    width: 100%;
+  }
+
+  .button.is-fullwidth-mobile {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Better spacing on mobile */
+  .box {
+    margin: 0.5rem;
+  }
+
+  .column.is-full-mobile {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Tablet and desktop specific */
+@media screen and (min-width: 769px) {
+  .mac-address-input {
+    min-width: 200px;
+  }
+
+  .field .columns {
+    align-items: end;
+  }
+}
+
+/* Validation styling */
+.input.ng-invalid.ng-touched {
+  border-color: #ff3860;
+}
+
+.input.ng-valid.ng-touched {
+  border-color: #23d160;
+}
+
+/* Help text styling */
+.help a {
+  text-decoration: none;
+}
+
+.help a:hover {
+  text-decoration: underline;
+}

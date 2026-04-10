@@ -1,0 +1,193 @@
+# Docs:
+# - User friendly: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+# - Technical: https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata
+# - Technical: https://packaging.python.org/en/latest/specifications/pyproject-toml/#declaring-project-metadata-the-project-table
+# - UV: https://docs.astral.sh/uv/concepts/projects/config/#configuring-projects
+#
+# Related examples:
+# - https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#a-full-example
+[project]
+dependencies = [
+  # faire le lien entre la spec OpenAPI et les handlers Flask
+  "sqlalchemy[asyncio]",
+  "mysqlclient", # TODO: vérifier qu'il s'agisse bien du driver
+  "python-dateutil", # Un ensemble d'utilitaires pour gérer une base de donnée
+  "pyasn1<0.6.0",
+  "pysnmp==7.1.22", # communiquer avec les switches
+  "elasticsearch>=7,<9", # TODO: deprecated
+  "requests", # TODO: remplacer par httpx
+  "Flask-Migrate",
+  "authlib", # TODO: vérifier qu'il s'agisse du support du CAS
+  "cryptography", # TODO: vérifier de quoi il s'agit
+  "jinja2", # TODO: devrait être inclus avec flask
+  "bcrypt", # TODO: vérifier de quoi il s'agit
+  "Faker", # TODO: vérifier de quoi il s'agit / si c'est du test-time only
+  "opentelemetry-instrumentation-flask",
+  "opentelemetry-instrumentation-requests",
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "opentelemetry-exporter-jaeger",
+  "flask-alembic>=3.1.1",
+  "pycryptodome", #Used to replace hashlib as it no longer supports MD4. Can be removed when we switch off MD4.
+  "python-keycloak",
+  "rpds-py<0.25.0",
+  "fastapi>=0.135.1",
+  "uvicorn[standard]>=0.35.0",
+  "pydantic>=2.12.5",
+  "pydantic-settings>=2.13.1",
+  "aiomysql>=0.3.2",
+  "aiosqlite>=0.22.1",
+  "aenum>=3.1.16",
+  "pytest-asyncio>=0.23.8",
+] 
+name = "ADH6" 
+requires-python = "~=3.11.0" 
+version = "6.0" # https://packaging.python.org/en/latest/specifications/version-specifiers/
+
+# Docs:
+# - User friendly: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#dependencies-optional-dependencies
+# - Technical: https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
+# - UV: https://docs.astral.sh/uv/concepts/projects/dependencies/#optional-dependencies
+[project.optional-dependencies]
+gunicorn = ["gunicorn", "uvicorn"]
+
+# Docs:
+# - Technical: https://packaging.python.org/en/latest/specifications/dependency-groups/ 
+# - UV: https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
+[dependency-groups]
+debug = ["debugpy"]
+dev = [
+  {include-group = "lint"},
+  {include-group = "tox"},
+  {include-group = "tests"},
+  {include-group = "debug"},
+]
+lint = ["pyright", "ruff"]
+tests = [
+  #
+  "pytest<8",
+  "pytest-cov",
+  "pytest-cases",
+  "pytest-lazy-fixtures",
+]
+tox = ["tox", "tox-uv"]
+
+# Docs:
+# - pyright: https://microsoft.github.io/pyright/#/
+[tool.pyright]
+include = ["adh6", "test"] 
+typeCheckingMode = "basic" # TODO: passer en strict
+# exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
+ignore = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"] #, "migrations/*.py"]
+
+# https://tox.wiki/en/latest/
+[tool.tox]
+envlist = ["dev"]
+
+[tool.tox.env_run_base]
+dependency_groups = ["dev"]
+package = "skip"
+runner = "uv-venv-lock-runner"
+
+[tool.tox.env.dev]
+commands = [
+  ["ruff", "format"],
+  ["ruff", "check", "--fix"],
+  ["pyright"],
+  ["pytest"],
+]
+description = "Fix all auto-fixable issues and run tests (local dev)"
+
+[tool.tox.env.ci]
+commands = [
+  ["ruff", "format", "--diff"],
+  ["ruff", "check", "--output-format=gitlab", "--output-file=code-quality-report.json"],
+  ["pyright"],
+  ["pytest", "--junitxml={toxinidir}/report.xml", "--cov-report=xml:{toxinidir}/coverage.xml"],
+]
+description = "CI: lint and test suite"
+
+# https://docs.astral.sh/ruff/
+[tool.ruff]
+exclude = ["migrations", "adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py", ".tox/", ".venv/"]
+indent-width = 4
+line-length = 120
+src = ["adh6"]
+target-version = "py311"
+
+[tool.ruff.lint]
+dummy-variable-rgx = '^\*{0,2}(_$|__$|unused_|dummy_)'
+ignore = [
+  "E501", # line too long (we rely on the formater)
+  "N818", # Error suffix for exceptions names
+  "PIE796", # Enum contains duplicate value
+  "TRY003", # Avoid specifying long messages outsides the exception class
+  "ISC001", # To avoid conflicts with the formatter
+]
+select = [
+  "E", # pycodestyle Error
+  "F", # pyflakes
+  "UP", # pyupgrade
+  "SIM", # flake8-simplify
+  "I", # imports
+  "S", # bandit (security)
+  "N", # pep8-naming
+  "ASYNC", # flake8-async
+  "C4", # flake8-compehensions
+  "FA", # flake8-future-annotations
+  "ISC", # flake8-implicit-str-concat
+  "ICN", # flake8-import-conventions
+  "G", # flake8-logging-format
+  "PIE", # flake8-pie
+  "PYI", # flake8-pyi
+  "RSE", # flake8-raise
+  "SLOT", # flake8-slots
+  "INT", # flake8-gettext
+  "TRY", # tryceratops
+  "FLY", # flynt
+  "PERF", # Perflint
+  "FURB", # refurb
+  "LOG", # flake8-logging
+  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME  # "PTH",   # flake8-use-pathlib (maybe todo ?)  # "TID",   # flake8-tidy-imports (maybe todo ?)  # "SLF",   # flake8-self  (managed by pyright)  # "RET",   # flake8-return  # "Q",     # flake8-quotes  # "T20",   # flake8-print  # "DTZ",   # flake8-datetimez (TODO)  # "B",     # flake8-bugbear
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"test/**/*.py" = [
+  "S101", # asserts allowed in tests...
+  "ARG", # Unused function args -> fixtures nevertheless are functionally relevant...
+  "FBT", # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+  "PLR2004", # Magic value used in comparison, ...
+  "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+  "S105", # Possible hardcoded password
+  "S106", # Possible hardcoded password
+]
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+addopts = "-vvv --cov --cov-fail-under=75 --cov-report=html --cov-report=term"
+asyncio_event_loop_scope = "session"
+asyncio_mode = "auto"
+testpaths = [
+  "test/",
+]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "test/*",
+  "adh6/entity/*",
+  "venv/*",
+  "migration/*",
+  ".vscode/*",
+  "adh6/typing_utils.py",
+  "adh6/util.py",
+  ".tox/*",
+  ".venv/*",
+]

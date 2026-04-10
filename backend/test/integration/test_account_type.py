@@ -1,0 +1,74 @@
+import json
+
+import pytest
+from adh6.treasury.storage.models import AccountType
+
+from test.integration.resource import TEST_HEADERS, TEST_HEADERS_SAMPLE, base_url
+
+
+@pytest.fixture
+def sample_account_type1():
+    return AccountType(id=1, name="test1")
+
+
+@pytest.fixture
+def sample_account_type2():
+    return AccountType(id=2, name="test2")
+
+
+@pytest.fixture
+async def client(_test_client, sample_account_type1, sample_account_type2, sample_member):
+    from .conftest import add_test_fixtures, cleanup_test_data
+
+    await add_test_fixtures([sample_account_type1, sample_account_type2, sample_member])
+
+    yield _test_client
+
+    await cleanup_test_data()
+
+
+def test_account_type_filter_all_with_invalid_limit(client):
+    r = client.get(
+        f"{base_url}/account_type/?limit=-1",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 400
+
+
+def test_account_type_filter_all_with_limit(client):
+    r = client.get(
+        f"{base_url}/account_type/?limit={1}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+
+    response = json.loads(r.content.decode("utf-8"))
+    assert len(response) == 1
+
+
+def test_account_type_filter_by_terms(client):
+    r = client.get(
+        "{}/account_type/?terms={}".format(base_url, "test"),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.content.decode("utf-8"))
+    assert len(result) == 2
+
+
+def test_account_type_filter_by_terms_one_result(client):
+    r = client.get(
+        "{}/account_type/?terms={}".format(base_url, "test1"),
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    result = json.loads(r.content.decode("utf-8"))
+    assert len(result) == 1
+
+
+def test_account_type_filter_unauthorized(client):
+    r = client.get(
+        f"{base_url}/account_type/",
+        headers=TEST_HEADERS_SAMPLE,
+    )
+    assert r.status_code == 403

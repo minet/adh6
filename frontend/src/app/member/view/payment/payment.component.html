@@ -1,0 +1,55 @@
+@if (member$ | async; as member) {
+  @if (paymentMethods$ | async; as paymentMethods) {
+    @if (member.membership === "PENDING_PAYMENT_VALIDATION") {
+      @if ("free" | able: "Membership") {
+        <div class="field">
+          <div class="control">
+            <div class="form-check">
+              <label class="checkbox">
+                <input [(ngModel)]="isFree" type="checkbox" />
+                Cocher pour faire une cotisation gratuite
+              </label>
+            </div>
+          </div>
+        </div>
+      }
+      <div class="field">
+        <button
+          class="button is-success is-fullwidth"
+          (click)="validatePayment(member)">
+          Valider paiement
+        </button>
+      </div>
+    }
+    <a (click)="membershipCollapse = !membershipCollapse">
+      <h3 class="title is-4">
+        Cotisation
+        <span style="position: absolute; right: 30px">
+          {{ !membershipCollapse ? "&#x25bc;" : "&#x25b2;" }}
+        </span>
+      </h3>
+    </a>
+    <hr />
+    @if (membershipCollapse) {
+      <app-cotisation
+        [member]="member"
+        [paymentMethods]="paymentMethods"
+        (updateSubscription)="subscriptionUpdated()"></app-cotisation>
+    }
+    <br />
+    <a (click)="productCollapse = !productCollapse">
+      <h3 class="title is-4">
+        Produits
+        <span style="position: absolute; right: 30px">
+          {{ !productCollapse ? "&#x25bc;" : "&#x25b2;" }}
+        </span>
+      </h3>
+    </a>
+    <hr />
+    @if (productCollapse) {
+      <app-buy-product
+        [member]="member"
+        [paymentMethods]="paymentMethods"></app-buy-product>
+    }
+  }
+}

@@ -1,0 +1,102 @@
+name: adh6
+
+services:
+  frontend:
+    container_name: adh6_frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: frontend/src
+          target: /app/frontend/src
+        - action: rebuild
+          path: frontend/angular.json
+        - action: rebuild
+          path: openapi/spec.yaml
+
+  backend:
+    container_name: adh6_backend
+    init: true
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: dev
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      ENVIRONMENT: "development"
+      OAUTH2_BASE_PATH: "https://cas.minet.net/oidc/profile"
+      DATABASE_HOST: ${DATABASE_HOST:-database}
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-adh6}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-adh6pass}
+      DATABASE_DB_NAME: ${DATABASE_DB_NAME:-adh6}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://keycloak.minet.net/auth}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-MiNET}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-adh6-keycloak}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-adh6-keycloak-secret}
+    develop:
+      watch:
+        - path: backend/adh6
+          target: /app/adh6
+          action: sync
+          ignore:
+            - backend/adh6/typing_utils.py
+            - backend/adh6/utils.py
+            - backend/adh6/entity
+
+  reverse_proxy:
+    container_name: adh6_reverse_proxy
+    build:
+      context: .
+      dockerfile: reverse_proxy/Dockerfile
+      target: with_certs
+    init: true
+    links:
+      - frontend
+      - backend
+    ports:
+      - "443:443"
+      - "80:80"
+    environment:
+      ADH6_URL: ${ADH6_URL:-adh6-local.minet.net}
+      API_HOST: "backend"
+      API_PORT: "8080"
+      FRONTEND_HOST: "frontend"
+      FRONTEND_PORT: "80"
+    command: [ 'nginx-debug', '-g', 'daemon off;' ]
+  database:
+    read_only: true
+    container_name: adh6_database
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: ${DATABASE_DB_NAME:-adh6}
+      MYSQL_USER: ${DATABASE_USERNAME:-adh6}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-adh6pass}
+    ports:
+      - 3306:3306
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /var/lib/mysql:rw
+      - /tmp:rw
+      - /run/mysqld/:rw
+    healthcheck:
+      test: "/usr/bin/mysql --user=${DATABASE_USERNAME:-adh6} --password=${DATABASE_PASSWORD:-adh6pass} --execute \"SHOW DATABASES;\""
+      # test: "/usr/local/mysql/bin/mysql --user=foo --password=foo --execute \"SHOW DATABASES;\""
+      interval: 3s
+      timeout: 1s
+      retries: 10
+  # jaeger:
+  #   image: jaegertracing/all-in-one:1.22
+  #   environment:
+  #     COLLECTOR_ZIPKIN_HOST_PORT: :9411
+  #   ports:
+  #     - 16686:16686

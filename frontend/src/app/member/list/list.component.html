@@ -1,0 +1,123 @@
+<div class="field">
+  <!-- Responsive search layout: horizontal on desktop, vertical on mobile -->
+  <div class="columns is-variable is-3">
+    <!-- Search input -->
+    <div class="column">
+      <div class="field">
+        <label class="label is-hidden-mobile">Recherche</label>
+        <div class="control">
+          <input
+            #searchBox
+            id="search-box"
+            (keyup)="search(searchBox.value)"
+            class="input is-fullwidth"
+            placeholder="Rechercher..."
+            type="text" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscription filter -->
+    <div class="column is-narrow-desktop is-full-mobile">
+      <div class="field">
+        <label class="label is-hidden-mobile">Inscription</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select (change)="onSubscriptionFilterChange($event)">
+              <option value="">-- Toutes inscriptions --</option>
+              @for (v of subscriptionValues | keyvalue; track v) {
+                <option value="{{ v.value }}">
+                  {{ v.key }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add new member button -->
+    <div class="column is-narrow-desktop is-full-mobile">
+      <div class="field">
+        <label class="label is-hidden-mobile">&nbsp;</label>
+        <div class="control">
+          <a [routerLink]="['../add']">
+            <button class="button is-primary is-fullwidth-mobile">
+              Nouvelle inscription
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<table class="table is-hoverable is-fullwidth is-clickable">
+  <thead>
+    <tr>
+      <th style="width: 33%">Nom</th>
+      <th style="width: 33%">Login</th>
+      <th style="width: 33%">Chambre</th>
+    </tr>
+  </thead>
+  @if (result$ | async; as result) {
+    <tbody>
+      @if (!shouldShowSensitiveData) {
+        <tr>
+          <td colspan="3">
+            <div class="notification is-warning is-light has-text-centered">
+              <h4 class="title is-5" i18n="@@member.list.gdpr.title">
+                Protection des données personnelles
+              </h4>
+              <p i18n="@@member.list.gdpr.description">
+                Pour respecter le RGPD, les noms et numéros de chambre ne sont
+                visibles que lorsque la recherche est affinée à moins d'une page
+                complète de résultats.
+              </p>
+              <p>
+                <strong i18n="@@member.list.gdpr.results-count"
+                  >{{ maxItems }} résultats trouvés</strong
+                >
+                -
+                <span i18n="@@member.list.gdpr.refine-search"
+                  >Veuillez affiner votre recherche.</span
+                >
+              </p>
+            </div>
+          </td>
+        </tr>
+      } @else {
+        @for (i of result; track i) {
+          @if (getMember(i) | async; as member) {
+            @if (member) {
+            <tr [routerLink]="['../view', member.id, 'profile']">
+              <td>
+                {{ member.lastName | uppercase }}
+                <span class="capitalize">{{
+                  member.firstName | lowercase
+                }}</span>
+              </td>
+              <td>{{ member.username }}</td>
+              <td class="roomNumberRow">
+                <p>
+                  {{ (getRoomNumber(member.id) | async) || "Aucune" }}
+                </p>
+              </td>
+            </tr>
+            }
+          }
+        }
+      }
+    </tbody>
+  } @else {
+    <tr>
+      <td colspan="42">
+        <div class="notification is-info is-light has-text-centered">
+          <h4 class="title is-4">Chargement ...</h4>
+        </div>
+      </td>
+    </tr>
+  }
+</table>
+<app-pagination
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)"></app-pagination>

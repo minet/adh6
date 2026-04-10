@@ -1,0 +1,18 @@
+import abc
+
+from adh6.entity.vlan import Vlan
+
+
+class VlanRepository(abc.ABC):
+    """
+    Abstract interface to handle VLANs.
+    """
+
+    @abc.abstractmethod
+    async def get_vlan(self, vlan_number: int) -> Vlan:
+        """
+        Get a VLAN.
+
+        :raise VlanNotFound
+        """
+        # pragma: no cover

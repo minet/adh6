@@ -1,0 +1,111 @@
+@if (memberDetailService.member$ | async; as member) {
+  <h3 class="title is-3 has-text-centered">
+    <span>{{ member.firstName | lowercase | titlecase }}</span>
+    {{ member.lastName | uppercase }}
+  </h3>
+  <table class="table is-fullwidth">
+    <tbody>
+      <tr>
+        <td>Login</td>
+        <td>{{ member.username }}</td>
+      </tr>
+      <tr>
+        <td>Date de départ</td>
+        <td>{{ member.departureDate | date: "dd/MM/y" }}</td>
+      </tr>
+      <tr>
+        <td>Wifi</td>
+        @if (member.subnet !== undefined && member.ip !== undefined) {
+          <td>{{ member.subnet }} - {{ member.ip }}</td>
+        } @else {
+          <td>-</td>
+        }
+      </tr>
+      <tr>
+        <td>Mail</td>
+        <td>
+          <a href="mailto:{{ member.email }}">{{ member.email }}</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Chambre</td>
+        <td>
+          @if (room$ | async; as room) {
+            <a [routerLink]="['/room/view/', room.id]">
+              {{ room.roomNumber }}
+            </a>
+          } @else {
+            <button
+              class="button is-warning"
+              (click)="collapseMoveIn()"
+              [disabled]="
+                member.membership !== 'ABORTED' &&
+                member.membership !== 'CANCELLED' &&
+                member.membership !== 'COMPLETE'
+              ">
+              Emmenager
+            </button>
+          }
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  @if (moveIn) {
+    <div>
+      <form (ngSubmit)="submitRoom(member)" [formGroup]="roomForm">
+        <input
+          class="input is-fullwidth"
+          formControlName="roomNumber"
+          type="number"
+          placeholder="Numéro de chambre..." />
+        <button
+          class="button is-success is-fullwidth"
+          type="submit"
+          [disabled]="roomForm.invalid">
+          Valider
+        </button>
+      </form>
+    </div>
+  }
+  @if (member.comment) {
+    <div>
+      <h3 class="title is-4">Commentaire</h3>
+      <hr />
+      <div class="notification is-primary is-light">
+        <p>{{ member.comment }}</p>
+        <p></p>
+      </div>
+    </div>
+  }
+  <h3 class="title is-4">Edition</h3>
+  <hr />
+  <div class="columns">
+    <div class="column">
+      <a [routerLink]="['/member/edit/', member.id]">
+        <button class="button is-primary is-fullwidth">Éditer le profil</button>
+      </a>
+    </div>
+    <div class="column">
+      <a [routerLink]="['comment']">
+        <button class="button is-primary is-fullwidth">
+          {{
+            member.comment
+              ? "Modifier le commentaire"
+              : "Ajouter un commentaire"
+          }}
+        </button>
+      </a>
+    </div>
+    <div class="column">
+      <a [routerLink]="['/password', member.id, 0]">
+        <button class="button is-danger is-fullwidth">
+          Changer mot de passe
+        </button>
+      </a>
+    </div>
+  </div>
+  <app-mailinglist
+    [mailinglistValue]="member.mailinglist"
+    [memberId]="member.id"></app-mailinglist>
+}
+<router-outlet></router-outlet>

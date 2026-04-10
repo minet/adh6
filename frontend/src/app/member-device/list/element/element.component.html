@@ -1,0 +1,111 @@
+<div class="card mb-1">
+  <a (click)="toogleDeviceDetails()">
+    <header class="card-header">
+      <p class="card-header-title">
+        @if (device$ | async; as device) {
+          <strong>
+            @if (device.name) {
+              {{ device.name }}
+              <span class="has-text-grey-light ml-2">{{
+                device.mac | uppercase
+              }}</span>
+            } @else {
+              {{ device.mac | uppercase }}
+              @if (vendor$ | async; as vendor) {
+                <span>({{ vendor | uppercase }})</span>
+              }
+            }
+          </strong>
+        } @else {
+          <strong i18n="@@loading">Chargement</strong>
+        }
+        <span style="position: absolute; right: 30px">
+          {{ !isCollapse ? "&#x25bc;" : "&#x25b2;" }}
+        </span>
+      </p>
+    </header>
+  </a>
+  @if (device$ | async; as device) {
+    @if (!isCollapse) {
+      <div class="card-content">
+        <table class="table is-fullwidth">
+          <tbody>
+            <tr>
+              <td>
+                <strong>Type</strong>
+              </td>
+              <td>
+                <i>{{ device.connectionType }}</i>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>IPv4</strong>
+              </td>
+              <td>
+                {{ device.ipv4Address === null ? "-" : device.ipv4Address }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <strong>IPv6</strong>
+              </td>
+              <td>
+                {{
+                  device.ipv6Address === null ||
+                  device.connectionType === "wireless"
+                    ? "-"
+                    : device.ipv6Address
+                }}
+              </td>
+            </tr>
+            @if (device.connectionType === "wireless") {
+              <tr>
+                <td>
+                  <strong>Mot de passe WiFi</strong>
+                </td>
+                <td>
+                  @if (device.wifiPassword) {
+                    <code>{{ device.wifiPassword }}</code>
+                    <a class="ml-2" (click)="clearWifiPassword()"
+                      >(supprimer)</a
+                    >
+                  } @else {
+                    <em>Aucun</em>
+                    <a class="ml-2" (click)="generateWifiPassword()"
+                      >(générer)</a
+                    >
+                  }
+                </td>
+              </tr>
+            }
+            @if (
+              ("manage" | able: "admin") && device.connectionType === "wired"
+            ) {
+              <tr>
+                <td>
+                  <strong>MAB</strong>
+                </td>
+                <td>
+                  {{ mab$ | async }}
+                  <a (click)="updateMAB()">(changer)</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <footer class="card-footer">
+        <a class="card-footer-item button is-info is-light" (click)="rename()"
+          >Renommer</a
+        >
+        <a class="card-footer-item button is-danger" (click)="deviceDelete()"
+          >Supprimer</a
+        >
+      </footer>
+    }
+  }
+</div>
+@if (!isCollapse) {
+  <br />
+}

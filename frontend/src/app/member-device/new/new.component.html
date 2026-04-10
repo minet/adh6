@@ -1,0 +1,109 @@
+<div class="box">
+  <form [formGroup]="deviceForm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Responsive form layout: horizontal on desktop, vertical on mobile -->
+    <div class="field">
+      <div class="columns is-variable is-3">
+        <!-- Device type selection -->
+        <div class="column is-narrow-desktop is-full-mobile">
+          <div class="field">
+            <label class="label is-hidden-mobile" i18n="@@device.type.label"
+              >Type d'appareil</label
+            >
+            <label
+              class="label is-hidden-desktop is-hidden-tablet"
+              i18n="@@device.type.label"
+              >Type d'appareil</label
+            >
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select formControlName="connectionType">
+                  <option value="" i18n="@@device_type">
+                    -- Type d'appareil --
+                  </option>
+                  <option value="wired" i18n="@@wired">Filaire</option>
+                  <option value="wireless" i18n="@@wireless">Wifi</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAC address input -->
+        <div class="column">
+          <div class="field">
+            <label class="label is-hidden-mobile" i18n="@@device.mac.label"
+              >Adresse MAC</label
+            >
+            <label
+              class="label is-hidden-desktop is-hidden-tablet"
+              i18n="@@device.mac.label"
+              >Adresse MAC</label
+            >
+            <div class="control">
+              <input
+                class="input mac-address-input"
+                formControlName="mac"
+                type="text"
+                placeholder="AA-BB-CC-DD-EE-FF"
+                appMacAddressFormatter
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                maxlength="17" />
+              <!-- Validation feedback -->
+              <div
+                class="help is-danger"
+                *ngIf="
+                  deviceForm.get('mac')?.invalid &&
+                  deviceForm.get('mac')?.touched
+                ">
+                <span i18n="@@device.mac.invalid"
+                  >Veuillez saisir une adresse MAC valide (ex:
+                  AA-BB-CC-DD-EE-FF)</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="column is-narrow-desktop is-full-mobile">
+          <div class="field">
+            <label class="label is-hidden-mobile">&nbsp;</label>
+            <div class="control">
+              <button
+                [disabled]="deviceForm.status === 'INVALID'"
+                class="button is-primary is-fullwidth-mobile"
+                type="submit"
+                i18n="device new add|Add a new device">
+                <span class="icon">
+                  <i class="fa fa-plus"></i>
+                </span>
+                <span>Ajouter l'appareil</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help section -->
+    <div class="field">
+      <div class="has-text-right-tablet has-text-centered-mobile">
+        <p class="help">
+          <a
+            href="//www.minet.net/{{ locale }}/tutoriels"
+            target="_blank"
+            class="has-text-info"
+            i18n="device new where mac">
+            <span class="icon is-small">
+              <i class="fa fa-question-circle"></i>
+            </span>
+            <span>Où trouver mon adresse MAC ?</span>
+          </a>
+        </p>
+      </div>
+    </div>
+  </form>
+</div>

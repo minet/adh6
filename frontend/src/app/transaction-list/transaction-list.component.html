@@ -1,0 +1,131 @@
+<div class="columns">
+  <div class="column">
+    <input
+      #searchBox
+      id="search-box"
+      (keyup)="search(searchBox.value)"
+      placeholder="Rechercher..."
+      class="input is-fullwidth"
+      type="text" />
+  </div>
+  <div class="column is-narrow">
+    <select class="input" (change)="onTypeFilterChange($event)">
+      <option value="">-- Tout type --</option>
+      @for (pm of paymentMethods; track pm) {
+        <option value="{{ pm.id }}">
+          {{ pm.name }}
+        </option>
+      }
+    </select>
+  </div>
+</div>
+<br />
+<table class="table is-striped is-fullwidth">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Montant</th>
+      <th>Intitulé</th>
+      @if (!asAccount) {
+        <th>De</th>
+      }
+      @if (asAccount) {
+        <th>De / Vers</th>
+      }
+      @if (!asAccount) {
+        <th>Vers</th>
+      }
+      <th>Moyen</th>
+      @if (actions.length > 0) {
+        <th>Actions</th>
+      }
+    </tr>
+  </thead>
+  @if (result$ | async; as result) {
+    <tbody>
+      @for (transactionResult of result; track transactionResult) {
+        <tr
+          [ngClass]="{
+            'has-text-primary-dark':
+              asAccount && transactionResult.dst === this.asAccount,
+            'has-text-danger-dark':
+              asAccount && transactionResult.dst !== this.asAccount,
+            'has-background-grey-lighter': transactionResult.pendingValidation,
+          }">
+          <td class="text-center align-middle">
+            <h6 class="mb-0">
+              {{ transactionResult.timestamp | date: "dd/MM" }}
+            </h6>
+            <small>{{ transactionResult.timestamp | date: "yyy" }}</small>
+          </td>
+          <td class="text-right text-nowrap align-middle">
+            <h5>
+              {{
+                asAccount
+                  ? transactionResult.dst === asAccount
+                    ? "+"
+                    : "-"
+                  : ""
+              }}{{ transactionResult.value | number: "" : "fr" }} €
+            </h5>
+          </td>
+          <td class="align-middle">{{ transactionResult.name }}</td>
+          <td class="align-middle">
+            {{
+              transactionResult.src === asAccount
+                ? (cachedAccountName.get(transactionResult.dst || 0) | async)
+                : (cachedAccountName.get(transactionResult.src || 0) | async)
+            }}
+          </td>
+          @if (!asAccount) {
+            <td class="align-middle">
+              {{ cachedAccountName.get(transactionResult.dst || 0) | async }}
+            </td>
+          }
+          <td class="align-middle">
+            {{
+              cachedPaymentMethodName.get(transactionResult.paymentMethod || 0)
+                | async
+            }}
+          </td>
+          @if (actions) {
+            <td class="text-right align-middle">
+              <div class="btn-group" role="group" aria-label="actions">
+                <div class="field is-grouped">
+                  @for (action of actions; track action) {
+                    <p class="control">
+                      @if (action.condition(transactionResult)) {
+                        <button
+                          type="button"
+                          class="button {{ action.class }}"
+                          (click)="
+                            whenOnAction.emit({
+                              name: action.name,
+                              transaction: transactionResult,
+                            })
+                          "
+                          placement="bottom">
+                          <img
+                            src="assets/icons/{{ action.buttonIcon }}.svg"
+                            width="25"
+                            height="25" />
+                        </button>
+                      }
+                    </p>
+                  }
+                </div>
+              </div>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  } @else {
+    <div class="notification is-info is-light has-text-centered">
+      <h4 class="title is-4">Chargement ...</h4>
+    </div>
+  }
+</table>
+<app-pagination
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)"></app-pagination>

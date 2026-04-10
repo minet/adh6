@@ -1,0 +1,42 @@
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.decorator import log_call, with_context
+from adh6.treasury.product_manager import ProductManager
+
+
+class ProductHandler:
+    """
+    Handler for the product endpoint
+    """
+
+    # Constructor method that initializes the class with a ProductManager object
+    def __init__(self, product_manager: ProductManager):
+        self.product_manager = product_manager
+
+    # Method to search for products
+    @with_context
+    @log_call
+    async def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None):
+        # Call the search method of the ProductManager object and stores the result and total count in variables
+        result, total_count = await self.product_manager.search(limit=limit, offset=offset, terms=terms)
+        # Set the headers to be returned with the result
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
+        # Map each product in the result to a dictionnary representation and return the result and headers
+        result = [x.to_dict() for x in result]
+        return result, 200, headers
+
+    # Method to get a product by its id
+    @with_context
+    @log_call
+    async def get(self, id_: int):
+        # Calls the get_by_id method of the ProductManager object and returns the result and a status code
+        obj = await self.product_manager.get_by_id(id=id_)
+        return obj.to_dict(), 200
+
+    # Method to buy products
+    @with_context
+    @log_call
+    async def buy_post(self, member_id: int, payment_method: int, products: list[int]):
+        # Calls the buy method of the ProductManager object with the provided parameters
+        await self.product_manager.buy(member_id, payment_method, products)
+        # Return None and a status code indicating success
+        return None, 204

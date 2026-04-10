@@ -1,0 +1,107 @@
+import typing as t
+
+from adh6.authentication.enums import Roles
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.context import get_roles, get_user
+from adh6.decorator import log_call, with_context
+from adh6.default.http_handler import DefaultHandler
+from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
+from adh6.exceptions import NotFoundError, UnauthorizedError
+
+from ..device_manager import DeviceManager
+
+
+class DeviceHandler(DefaultHandler):
+    def __init__(self, device_manager: DeviceManager):
+        super().__init__(Device, AbstractDevice, device_manager)
+        self.device_manager = device_manager
+
+    @with_context
+    @log_call
+    async def post(self, body: dict = {}):
+        device_body = DeviceBody.from_dict(body)
+        if device_body is None:
+            raise UnauthorizedError("Invalid body")
+        if get_user() != device_body.member and Roles.ADMIN_WRITE.value not in get_roles():
+            raise UnauthorizedError("Unauthorize to access this resource")
+        created = await self.device_manager.create(device_body)
+        return created.id, 201
+
+    @with_context
+    @log_call
+    async def search(self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, filter_: dict = {}):
+        device_filter = DeviceFilter.from_dict(filter_)
+        if device_filter is None:
+            raise UnauthorizedError("Invalid filter")
+        if get_user() != device_filter.member and Roles.ADMIN_READ.value not in get_roles():
+            raise UnauthorizedError("Unauthorize to access this resource")
+        result, total_count = await self.device_manager.search(limit=limit, offset=offset, device_filter=device_filter)
+        headers = {"X-Total-Count": str(total_count), "access-control-expose-headers": "X-Total-Count"}
+        return result, 200, headers
+
+    @with_context
+    @log_call
+    async def get(self, id_: int, only: list[str] | None = None):
+        try:
+            device = await self.device_manager.get_by_id(id=id_)
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
+
+            def remove(entity: t.Any) -> t.Any:
+                if isinstance(entity, dict) and only is not None:
+                    entity_cp = entity.copy()
+                    for k in entity_cp:
+                        if k not in [*only, "id"]:  # TODO: this looks like duplicate code at multiple places
+                            del entity[k]
+                return entity
+
+            return remove(device.to_dict()), 200
+        except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
+                e = UnauthorizedError("cannot access this resource")
+            raise e  # noqa: TRY201
+
+    @with_context
+    @log_call
+    async def delete(self, id_: int):
+        try:
+            if get_user() != await self.device_manager.get_owner(id_) and Roles.ADMIN_WRITE.value not in get_roles():
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
+            await self.main_manager.delete(id=id_)
+        except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_WRITE.value not in get_roles():
+                e = UnauthorizedError("cannot access this resource")
+            raise e  # noqa: TRY201
+        else:
+            return None, 204  # 204 No Content
+
+    @with_context
+    @log_call
+    async def vendor_search(self, id_: int):
+        """Return the vendor associated with the given device"""
+        try:
+            device = await self.device_manager.get_by_id(id=id_)
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
+                raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
+            return await self.device_manager.get_mac_vendor(id=id_), 200
+        except Exception as e:
+            if isinstance(e, NotFoundError) and Roles.ADMIN_READ.value not in get_roles():
+                e = UnauthorizedError("cannot access this resource")
+            raise e  # noqa: TRY201
+
+    @with_context
+    @log_call
+    async def mab_search(self, id_: int):
+        """Return the vendor associated with the given device"""
+        return await self.device_manager.get_mab(id=id_), 200
+
+    @with_context
+    @log_call
+    async def mab_post(self, id_: int):
+        """Return the vendor associated with the given device"""
+        return await self.device_manager.put_mab(id=id_), 200
+
+    @with_context
+    @log_call
+    async def member_search(self, id_: int):
+        return await self.device_manager.get_owner(device_id=id_), 200

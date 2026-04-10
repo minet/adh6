@@ -1,0 +1,33 @@
+// File generated using spec-to-code.sh, DO NOT EDIT MANUALLY.
+
+export * from './account.service';
+import { AccountService } from './account.service';
+export * from './authentication.service';
+import { AuthenticationService } from './authentication.service';
+export * from './charter.service';
+import { CharterService } from './charter.service';
+export * from './device.service';
+import { DeviceService } from './device.service';
+export * from './mailinglist.service';
+import { MailinglistService } from './mailinglist.service';
+export * from './member.service';
+import { MemberService } from './member.service';
+export * from './membership.service';
+import { MembershipService } from './membership.service';
+export * from './misc.service';
+import { MiscService } from './misc.service';
+export * from './port.service';
+import { PortService } from './port.service';
+export * from './room.service';
+import { RoomService } from './room.service';
+export * from './roomMembers.service';
+import { RoomMembersService } from './roomMembers.service';
+export * from './switch.service';
+import { SwitchService } from './switch.service';
+export * from './transaction.service';
+import { TransactionService } from './transaction.service';
+export * from './treasury.service';
+import { TreasuryService } from './treasury.service';
+export * from './vlan.service';
+import { VlanService } from './vlan.service';
+export const APIS = [AccountService, AuthenticationService, CharterService, DeviceService, MailinglistService, MemberService, MembershipService, MiscService, PortService, RoomService, RoomMembersService, SwitchService, TransactionService, TreasuryService, VlanService];

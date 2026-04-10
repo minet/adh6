@@ -1,0 +1,30 @@
+@if (result$ | async; as result) {
+  <div>
+    @if (result.length === 0) {
+      <p
+        class="title"
+        i18n="device list none|Tells the user they have no registered devices">
+        Aucun appareil enregistré
+      </p>
+    } @else {
+      <!-- Container with rounded corners for the entire device list -->
+      <div class="device-list-container">
+        @for (deviceId of result; track deviceId; let i = $index) {
+          <div
+            class="device-item"
+            [class.is-first]="i === 0"
+            [class.is-last]="i === result.length - 1">
+            <app-element
+              [deviceId]="deviceId"
+              style="padding: 0% 0%"
+              (removed)="updateSearch()"></app-element>
+          </div>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div class="notification is-info is-light has-text-centered">
+    <h4 class="title is-4"><span i18n="@@loading">Chargement</span> ...</h4>
+  </div>
+}
