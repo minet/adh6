@@ -11,7 +11,8 @@ RUN apk add --no-cache --update wget \
 RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
 USER adh6
 COPY backend/mibs.zip .
-RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB
+RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB \
+    && touch /home/adh6/.pysnmp/mibs/__init__.py
 
 # Install production Python dependencies
 FROM base AS build
@@ -39,7 +40,7 @@ FROM base AS runtime
 WORKDIR /app
 RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
 COPY --from=prebuild /app/OUIs.txt .
-COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/ /home/adh6/.pysnmp/
+COPY --from=prebuild --chown=adh6:adh6 /home/adh6/.pysnmp/mibs /app/pysnmp_mibs
 COPY --from=build /app/.venv/ .venv/
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"

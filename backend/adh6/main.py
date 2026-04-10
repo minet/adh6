@@ -12,6 +12,7 @@ from adh6.device.router import router as device_router
 from adh6.exceptions import (
     AlreadyExistsError,
     IntMustBePositive,
+    NetworkManagerReadError,
     NotFoundError,
     UnauthorizedError,
     ValidationError,
@@ -92,6 +93,14 @@ async def handle_adh6_validation_error(request: Request, exc: Exception) -> JSON
     )
 
 
+async def handle_network_manager_read_error(request: Request, exc: Exception) -> JSONResponse:
+    """Handle NetworkManagerReadError exceptions."""
+    return JSONResponse(
+        status_code=status.HTTP_502_BAD_GATEWAY,
+        content={"detail": str(exc)},
+    )
+
+
 # ============================================================================
 # Lifespan Events
 # ============================================================================
@@ -139,6 +148,7 @@ app.add_exception_handler(AlreadyExistsError, handle_already_exists_error)
 app.add_exception_handler(NotFoundError, handle_not_found_error)
 app.add_exception_handler(UnauthorizedError, handle_unauthorized_error)
 app.add_exception_handler(IntMustBePositive, handle_int_must_be_positive_error)
+app.add_exception_handler(NetworkManagerReadError, handle_network_manager_read_error)
 
 
 # ============================================================================
