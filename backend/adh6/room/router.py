@@ -1,5 +1,6 @@
 """FastAPI router for room endpoints."""
 
+import contextlib
 import json
 from typing import Annotated
 
@@ -161,10 +162,8 @@ async def update_room(
         if body.vlan is not None and old_room.vlan != updated_room.vlan:
             member_ids = await repository.get_members(id)
             for member_id in member_ids:
-                try:
+                with contextlib.suppress(MemberNotFoundError):
                     await member_manager.ethernet_vlan_changed(member_id, updated_room.vlan)
-                except MemberNotFoundError:
-                    pass  # stale link — member no longer exists, skip
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
