@@ -2307,13 +2307,106 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Update a switch
-      security: 
+      security:
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
             - admin:write
       tags:
       - switch
+  /switch/{id}/apply-descriptions:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkOperationResult"
+          description: Bulk operation completed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Set each port SNMP alias to its linked room description
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyNetworkAuth: []
+      tags:
+        - switch
+  /switch/{id}/apply-vlans:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example: 42
+              type: integer
+        description: The VLAN number to assign to all rooms linked to ports on this switch
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkOperationResult"
+          description: Bulk operation completed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Assign a VLAN number to all rooms linked to ports on this switch (database only)
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyNetworkAuth: []
+      tags:
+        - switch
+  /switch/{id}/ping:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PingRequest"
+        description: Ping parameters (target address, packet count, timeout)
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResult"
+          description: Ping completed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Run an ICMP ping from the switch via Cisco SNMP Ping MIB
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyNetworkAuth: []
+      tags:
+        - switch
   /vlan:
     get:
       operationId: get_from_number
@@ -3699,6 +3792,64 @@ components:
             - description
             - ip
       type: object
+    PingRequest:
+      type: object
+      required:
+        - address
+      properties:
+        address:
+          type: string
+          description: IPv4 address to ping from the switch
+          format: ipv4
+        count:
+          type: integer
+          description: Number of ICMP packets to send
+          default: 5
+          minimum: 1
+          maximum: 15
+        timeoutMs:
+          type: integer
+          description: Per-packet timeout in milliseconds
+          default: 2000
+          minimum: 100
+        size:
+          type: integer
+          description: ICMP packet size in bytes
+          default: 100
+          minimum: 64
+          maximum: 1500
+    PingResult:
+      type: object
+      properties:
+        sent:
+          type: integer
+          description: Number of packets sent
+        received:
+          type: integer
+          description: Number of packets received
+        minRtt:
+          type: integer
+          description: Minimum round-trip time in milliseconds
+        avgRtt:
+          type: integer
+          description: Average round-trip time in milliseconds
+        maxRtt:
+          type: integer
+          description: Maximum round-trip time in milliseconds
+    BulkOperationResult:
+      type: object
+      properties:
+        success:
+          type: integer
+          description: Number of ports successfully updated
+        failed:
+          type: integer
+          description: Number of ports that failed
+        errors:
+          type: array
+          items:
+            type: string
+          description: Per-port error messages
     AbstractVlan:
       type: object
       properties:

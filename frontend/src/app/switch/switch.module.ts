@@ -4,6 +4,7 @@ import {SwitchListComponent} from "./switch-list/switch-list.component";
 import {SwitchDetailsComponent} from "./switch-details/switch-details.component";
 import {SwitchEditComponent} from "./switch-edit/switch-edit.component";
 import {SwitchNewComponent} from "./switch-new/switch-new.component";
+import {SwitchAdminComponent} from "./switch-admin/switch-admin.component";
 import {RouterModule} from "@angular/router";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PaginationComponent} from "../pagination/pagination.component";
@@ -18,11 +19,13 @@ import {PortListComponent} from "../port/list/list.component";
     SwitchDetailsComponent,
     SwitchEditComponent,
     SwitchNewComponent,
+    SwitchAdminComponent,
     RouterModule.forChild([
       {path: "", redirectTo: "search", pathMatch: "full"},
       {path: "search", component: SwitchListComponent},
       {path: ":switch_id/view", component: SwitchDetailsComponent},
       {path: ":switch_id/edit", component: SwitchEditComponent},
+      {path: ":switch_id/admin", component: SwitchAdminComponent},
       {path: "add", component: SwitchNewComponent},
     ]),
     PaginationComponent,

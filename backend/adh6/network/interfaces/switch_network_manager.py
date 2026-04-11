@@ -109,3 +109,24 @@ class SwitchNetworkManager(abc.ABC):
         :raise PortNotFound
         """
         # pragma: no cover
+
+    @abc.abstractmethod
+    async def update_port_alias(self, port_id: int, alias: str) -> str:
+        """
+        Set the description/alias of a port via IF-MIB::ifAlias.
+
+        :raise PortNotFound
+        """
+        # pragma: no cover
+
+    @abc.abstractmethod
+    async def ping_from_switch(
+        self, switch_id: int, address: str, count: int = 5, timeout_ms: int = 2000, size: int = 100
+    ) -> dict:
+        """
+        Run an ICMP ping from the switch via Cisco SNMP Ping MIB (CISCO-PING-MIB).
+
+        :raise SwitchNotFound
+        :raise NetworkManagerReadError
+        """
+        # pragma: no cover

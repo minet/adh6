@@ -71,6 +71,9 @@ for file in $backend_tmp/adh6/entity/**/*.py $backend_tmp/adh6/typing_utils.py $
     echo "[BACKEND] Patching $dest..."
     # Fix import paths occasionally generated with the legacy package name.
     sed -i.bak -e 's/from adh6\.models\./from adh6.entity./g' "$dest" && rm -f "$dest.bak"
+    # Replace         return json.dumps(self.to_dict())
+    # With         return self.model_dump_json(by_alias=True, exclude_none=True)
+    sed -i.bak -e 's/return json.dumps(self.to_dict())/return self.model_dump_json(by_alias=True, exclude_none=True)/g' "$dest" && rm -f "$dest.bak" 
 done
 
 echo "[BACKEND] Add notice file..."
