@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -103,6 +103,7 @@ async def create_device(
 async def search_devices(
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
+    response: Response,
     filter_: Annotated[DeviceFilter, DeviceFilterWrapper()] = DeviceFilter(),
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
@@ -111,6 +112,7 @@ async def search_devices(
     owner_id = filter_.member if filter_.member is not None else None
     require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=owner_id)
     result, _count = await manager.search(limit=limit, offset=offset, device_filter=filter_)
+    response.headers["X-Total-Count"] = str(_count)
     return [d.id for d in result if d.id is not None]
 
 

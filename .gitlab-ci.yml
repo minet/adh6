@@ -22,27 +22,20 @@ variables:
         TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
-.branch_rules:
-  rules: &branch_rules
-    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
-      when: always
-    - when: never
-
-.feature_rules:
-  rules: &feature_rules
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
-      when: always
-    - when: never
-
 build_backend:
   <<: *docker_login
   stage: build
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
-      when: always
+      changes:
+        - backend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
-      when: always
-    - when: never
+      changes:
+        - backend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
   script:
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/backend:$TAG
@@ -64,7 +57,12 @@ build_backend:
 build_frontend:
   <<: *docker_login
   stage: build
-  rules: *branch_rules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
   script:
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/frontend:$TAG
@@ -78,7 +76,11 @@ build_frontend:
 build_reverse_proxy:
   <<: *docker_login
   stage: build
-  rules: *branch_rules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      changes:
+        - reverse_proxy/**/*
+        - .gitlab-ci.yml
   script:
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
@@ -89,32 +91,38 @@ build_reverse_proxy:
         .
     - docker push $IMAGE_REGISTRY_BASE/reverse_proxy:$TAG
 
-.base_test: &base_test
+test_backend:
   stage: test
   before_script: []
   variables:
     GIT_STRATEGY: none
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
-      when: always
       variables:
         TAG: stable
+      changes:
+        - backend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
-      when: always
       variables:
         TAG: prep
+      changes:
+        - backend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
-      when: always
       variables:
         TAG: $CI_COMMIT_SHORT_SHA
-    - when: never
+      changes:
+        - backend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
   image:
     name: $IMAGE_REGISTRY_BASE/backend-test:$TAG
   needs:
-    - build_backend
-
-test_backend:
-  <<: *base_test
+    - job: build_backend
+      optional: true
   script:
     - cd /app && tox -e ci
   after_script:
@@ -141,14 +149,22 @@ deploy_prod:
       folder_name: adh6.minet.net
       image_registry: $CI_REGISTRY_IMAGE
   needs:
-    - build_backend
-    - build_frontend
-    - build_reverse_proxy
-    - test_backend
+    - job: build_backend
+      optional: true
+    - job: build_frontend
+      optional: true
+    - job: build_reverse_proxy
+      optional: true
+    - job: test_backend
+      optional: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
-      when: on_success
-    - when: never
+      changes:
+        - backend/**/*
+        - frontend/**/*
+        - reverse_proxy/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
 
 deploy_dev:
   stage: deploy
@@ -160,11 +176,19 @@ deploy_dev:
       folder_name: adh6-dev.minet.net
       image_registry: $CI_REGISTRY_IMAGE
   needs:
-    - build_backend
-    - build_frontend
-    - build_reverse_proxy
-    - test_backend
+    - job: build_backend
+      optional: true
+    - job: build_frontend
+      optional: true
+    - job: build_reverse_proxy
+      optional: true
+    - job: test_backend
+      optional: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
-      when: on_success
-    - when: never
+      changes:
+        - backend/**/*
+        - frontend/**/*
+        - reverse_proxy/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml

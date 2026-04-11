@@ -4,10 +4,11 @@ import {
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
+  HttpErrorResponse,
 } from "@angular/common/http";
-import {Observable, from} from "rxjs";
+import {Observable, throwError} from "rxjs";
 import {OidcSecurityService} from "angular-auth-oidc-client";
-import {switchMap} from "rxjs/operators";
+import {catchError, switchMap} from "rxjs/operators";
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
@@ -17,17 +18,36 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     req: HttpRequest<unknown>,
     next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
-    return from(this.oidcSecurityService.getAccessToken()).pipe(
+    // Never attach a Bearer token to auth endpoints — they are unauthenticated
+    // by design and the backend middleware would reject an expired token.
+    if (req.url.includes("/api/auth/")) {
+      return next.handle(req);
+    }
+
+    return this.oidcSecurityService.getAccessToken().pipe(
       switchMap((token) => {
-        if (token) {
-          const cloned = req.clone({
-            setHeaders: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          return next.handle(cloned);
-        }
-        return next.handle(req);
+        const authReq = token
+          ? req.clone({setHeaders: {Authorization: `Bearer ${token}`}})
+          : req;
+        return next.handle(authReq).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 401) {
+              return this.oidcSecurityService.forceRefreshSession().pipe(
+                switchMap(() => this.oidcSecurityService.getAccessToken()),
+                switchMap((newToken) => {
+                  const retryReq = newToken
+                    ? req.clone({
+                        setHeaders: {Authorization: `Bearer ${newToken}`},
+                      })
+                    : req;
+                  return next.handle(retryReq);
+                }),
+                catchError(() => throwError(() => error)),
+              );
+            }
+            return throwError(() => error);
+          }),
+        );
       }),
     );
   }
