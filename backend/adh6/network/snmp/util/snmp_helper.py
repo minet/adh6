@@ -9,6 +9,7 @@ from pysnmp.hlapi.v3arch.asyncio import (
     SnmpEngine,
     UdpTransportTarget,
     get_cmd,
+    next_cmd,
     set_cmd,
 )
 
@@ -37,6 +38,57 @@ async def get_snmp_value(community, ip, mib, obj, oid):
             raise NetworkManagerReadError("SNMP read error: too many values in response")
 
         return var_binds[0][1].prettyPrint()  # type: ignore[index]
+
+
+async def walk_snmp(community: str, ip: str, mib: str, obj: str) -> list[tuple[str, str]]:
+    """Performs an SNMP WALK (NEXT) and returns a list of (oid_suffix, value)."""
+    transport_target = await UdpTransportTarget.create((ip, 161))
+    results = []
+    engine = SnmpEngine()
+    context = ContextData()
+    auth = CommunityData(community)
+
+    initial_oid = ObjectIdentity(mib, obj)
+    # Load MIB to resolve the initial OID
+    # initial_oid.resolveWithMib(mibViewController) # Usually done internally if MIBs are available
+
+    current_object_type = ObjectType(initial_oid)
+
+    while True:
+        error_indication, error_status, error_index, var_binds = await next_cmd(
+            engine,
+            auth,
+            transport_target,
+            context,
+            current_object_type,
+            lexicographicMode=False,
+        )
+
+        if error_indication:
+            raise NetworkManagerReadError(f"SNMP walk error: {error_indication}")
+        elif error_status:
+            raise NetworkManagerReadError(f"SNMP walk error: {error_status}")
+
+        if not var_binds:
+            break
+
+        # next_cmd returns a list of var_binds (one per requested OID)
+        var_bind = var_binds[0]
+        oid, val = var_bind
+
+        # Check if we are still within the requested MIB object
+        # lexicographicMode=False handles this mostly, but safety check is good
+        if not initial_oid.isPrefixOf(oid):
+            break
+
+        full_oid = oid.prettyPrint()
+        suffix = full_oid.split(".")[-1]
+        results.append((suffix, val.prettyPrint()))
+
+        # Prepare next iteration
+        current_object_type = ObjectType(oid)
+
+    return results
 
 
 async def get_snmp_value_raw(community: str, ip: str, oid: str) -> str:

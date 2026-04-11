@@ -47,6 +47,22 @@
           <span>Changer les VLANs des chambres</span>
         </button>
         <button
+          class="button is-link"
+          [class.is-loading]="syncingNames"
+          [disabled]="syncingNames"
+          (click)="syncPortNames()">
+          <span class="icon"><i class="fas fa-sync"></i></span>
+          <span>Sync noms techniques ports</span>
+        </button>
+        <button
+          class="button is-success"
+          [class.is-loading]="discoveringNew"
+          [disabled]="discoveringNew"
+          (click)="discoverNewPorts()">
+          <span class="icon"><i class="fas fa-search-plus"></i></span>
+          <span>Découvrir de nouveaux ports</span>
+        </button>
+        <button
           class="button is-primary"
           [class.is-loading]="pinging"
           [disabled]="pinging"

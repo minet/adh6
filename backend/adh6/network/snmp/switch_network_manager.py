@@ -6,6 +6,7 @@ import contextlib
 from collections.abc import Callable
 
 from adh6.decorator import log_call
+from adh6.entity import AbstractPort
 from adh6.exceptions import (
     NetworkManagerReadError,
     SwitchNotFoundError,
@@ -17,6 +18,7 @@ from .util.snmp_helper import (
     get_snmp_value_raw,
     set_snmp_value,
     set_snmp_values_raw,
+    walk_snmp,
 )
 
 
@@ -269,6 +271,52 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
             await set_snmp_values_raw(community, ip, [(f"{base_oid}.16.{serial}", Integer(6))])
 
         return result
+
+    @log_call
+    async def discover_ports(self, switch_id: int) -> list[dict]:
+        """
+        Discover ports on a switch via SNMP walking IF-MIB::ifDescr.
+        """
+        switch = await self.switch_repository.get_by_id(object_id=switch_id)
+        community = await self.switch_repository.get_community(switch_id=switch_id)
+        if switch is None or switch.ip is None:
+            raise SwitchNotFoundError(switch_id)
+
+        # Walk ifDescr to get names and OIDs (suffixes)
+        discovered = await walk_snmp(community, switch.ip, "IF-MIB", "ifDescr")
+
+        return [{"portNumber": name, "oid": suffix} for suffix, name in discovered if name]
+
+    @log_call
+    async def sync_port_names(self, switch_id: int) -> dict:
+        """
+        Sync port names from switch technical names (ifDescr) via SNMP.
+        """
+        switch = await self.switch_repository.get_by_id(object_id=switch_id)
+        community = await self.switch_repository.get_community(switch_id=switch_id)
+        if switch is None or switch.ip is None:
+            raise SwitchNotFoundError(switch_id)
+
+        discovered = await walk_snmp(community, switch.ip, "IF-MIB", "ifDescr")
+        name_map = dict(discovered)
+
+        ports, _ = await self.port_repository.search_by(filter_=AbstractPort(switchObj=switch_id), limit=1000)
+
+        success, failed, errors = 0, 0, []
+        for port in ports:
+            if port.oid in name_map:
+                try:
+                    new_name = name_map[port.oid]
+                    await self.port_repository.update(AbstractPort(id=port.id, portNumber=new_name))
+                    success += 1
+                except Exception as e:
+                    failed += 1
+                    errors.append(f"Port {port.id} (OID {port.oid}): {e}")
+            else:
+                failed += 1
+                errors.append(f"Port {port.id} (OID {port.oid}): OID not found on switch")
+
+        return {"success": success, "failed": failed, "errors": errors}
 
     @log_call
     async def get_oid_switch_ipand_community_from_port_id(self, port_id) -> tuple[str, str, str]:

@@ -18,6 +18,19 @@ class PortManager(CRUDManager):
         return await self.port_repository.create(body)
 
     @log_call
+    async def bulk_create(self, bodies: list[AbstractPort]) -> dict:
+        """Bulk create ports."""
+        success, failed, errors = 0, 0, []
+        for body in bodies:
+            try:
+                await self.port_repository.create(body)
+                success += 1
+            except Exception as e:
+                failed += 1
+                errors.append(f"Port {body.port_number} (OID {body.oid}): {e}")
+        return {"success": success, "failed": failed, "errors": errors}
+
+    @log_call
     async def update(self, id: int, body: AbstractPort) -> None:
         """Update an existing port."""
         # Check if port exists

@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {AsyncPipe, CommonModule} from "@angular/common";
-import {finalize, forkJoin, Observable, shareReplay, tap} from "rxjs";
+import {finalize, forkJoin, Observable, shareReplay, tap, take} from "rxjs";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   AbstractPort,
@@ -12,6 +12,7 @@ import {
   PortService,
   RoomService,
   SwitchService,
+  DiscoveredPort,
 } from "../../api";
 import {NotificationService} from "../../notification.service";
 import Swal from "sweetalert2";
@@ -28,7 +29,9 @@ export class SwitchAdminComponent implements OnInit {
 
   applyingDescriptions = false;
   applyingVlans = false;
+  syncingNames = false;
   pinging = false;
+  discoveringNew = false;
 
   roomCache = new Map<number, AbstractRoom>();
 
@@ -44,13 +47,17 @@ export class SwitchAdminComponent implements OnInit {
     this.route.params.subscribe((params) => {
       this.switchId = +params["switch_id"];
       this.switch$ = this.switchService.switchIdGet(this.switchId);
-      this.ports$ = this.portService
-        .portGet(500, 0, undefined, {switchObj: this.switchId})
-        .pipe(
-          tap((ports) => this.loadRooms(ports)),
-          shareReplay(1),
-        );
+      this.refreshPorts();
     });
+  }
+
+  refreshPorts(): void {
+    this.ports$ = this.portService
+      .portGet(500, 0, undefined, {switchObj: this.switchId})
+      .pipe(
+        tap((ports) => this.loadRooms(ports)),
+        shareReplay(1),
+      );
   }
 
   private loadRooms(ports: AbstractPort[]): void {
@@ -86,6 +93,114 @@ export class SwitchAdminComponent implements OnInit {
   getRoomVlan(roomId: number | null | undefined): number | string {
     if (roomId == null) return "-";
     return this.roomCache.get(roomId)?.vlan ?? "...";
+  }
+
+  syncPortNames(): void {
+    this.syncingNames = true;
+    this.switchService.switchIdSyncPortNamesPost(this.switchId)
+      .pipe(finalize(() => this.syncingNames = false))
+      .subscribe({
+        next: (result: BulkOperationResult) => {
+          this.notificationService.successNotification(
+            `Noms synchronisés : ${result.success ?? 0} succès, ${result.failed ?? 0} échec(s)`
+          );
+          this.refreshPorts();
+        },
+        error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+      });
+  }
+
+  discoverNewPorts(): void {
+    this.discoveringNew = true;
+    // 1. Get existing ports to know what to filter
+    this.ports$.pipe(take(1)).subscribe(existingPorts => {
+      const existingOids = new Set(existingPorts.map(p => p.oid));
+
+      // 2. Discover via SNMP
+      this.switchService.switchIdDiscoverPortsGet(this.switchId)
+        .pipe(finalize(() => this.discoveringNew = false))
+        .subscribe({
+          next: (discovered) => {
+            const newPorts = discovered.filter(p => p.oid && !existingOids.has(p.oid));
+            
+            if (newPorts.length === 0) {
+              void Swal.fire("Aucun nouveau port", "Tous les ports découverts sont déjà dans la base de données.", "info");
+              return;
+            }
+
+            this.showDiscoveryModal(newPorts);
+          },
+          error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        });
+    });
+  }
+
+  private showDiscoveryModal(newPorts: DiscoveredPort[]): void {
+    const html = `
+      <div class="table-container" style="max-height: 300px; overflow-y: auto; text-align: left;">
+        <table class="table is-fullwidth is-narrow is-striped">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="swal-toggle-all" checked></th>
+              <th>Nom</th>
+              <th>OID</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${newPorts.map((p, i) => `
+              <tr>
+                <td><input type="checkbox" class="swal-port-cb" data-index="${i}" checked></td>
+                <td>${p.portNumber}</td>
+                <td>${p.oid}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    void Swal.fire({
+      title: "Nouveaux ports découverts",
+      html: html,
+      showCancelButton: true,
+      confirmButtonText: "Ajouter la sélection",
+      cancelButtonText: "Annuler",
+      didOpen: () => {
+        const toggleAll = document.getElementById("swal-toggle-all") as HTMLInputElement;
+        const cbs = document.querySelectorAll(".swal-port-cb") as NodeListOf<HTMLInputElement>;
+        toggleAll.addEventListener("change", () => {
+          cbs.forEach(cb => cb.checked = toggleAll.checked);
+        });
+      },
+      preConfirm: () => {
+        const cbs = document.querySelectorAll(".swal-port-cb:checked") as NodeListOf<HTMLInputElement>;
+        return Array.from(cbs).map(cb => {
+          const idx = parseInt(cb.getAttribute("data-index")!, 10);
+          return newPorts[idx];
+        });
+      }
+    }).then(result => {
+      if (result.isConfirmed && result.value && result.value.length > 0) {
+        this.addDiscoveredPorts(result.value);
+      }
+    });
+  }
+
+  private addDiscoveredPorts(ports: DiscoveredPort[]): void {
+    const portsToAdd: AbstractPort[] = ports.map(p => ({
+      switchObj: this.switchId,
+      portNumber: p.portNumber,
+      oid: p.oid,
+      room: undefined
+    }));
+
+    this.portService.portBulkPost(portsToAdd).subscribe({
+      next: (res) => {
+        this.notificationService.successNotification(`${res.success} ports ajoutés.`);
+        this.refreshPorts();
+      },
+      error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+    });
   }
 
   applyDescriptions(): void {

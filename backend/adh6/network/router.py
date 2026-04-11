@@ -24,6 +24,7 @@ from adh6.entity import (
     AbstractRoom,
     AbstractSwitch,
     BulkOperationResult,
+    DiscoveredPort,
     PingRequest,
     PingResult,
     Port,
@@ -152,6 +153,18 @@ async def create_port(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     port = await manager.create(body)
     return port
+
+
+@port_router.post("/bulk", response_model=BulkOperationResult)
+async def bulk_create_ports(
+    bodies: list[AbstractPort],
+    manager: Annotated[PortManager, Depends(get_port_manager)],
+    request: Request,
+) -> BulkOperationResult:
+    """Bulk create network ports."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    data = await manager.bulk_create(bodies)
+    return BulkOperationResult(**data)
 
 
 @port_router.get("/{id}", response_model=Port)
@@ -500,3 +513,37 @@ async def ping_switch(
     except NetworkManagerReadError as e:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
     return PingResult(**data)
+
+
+@switch_router.get("/{id}/discover-ports", response_model=list[DiscoveredPort])
+async def discover_ports(
+    id: int,
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> list[DiscoveredPort]:
+    """Discover ports on a switch via SNMP."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    try:
+        data = await manager.discover_ports(switch_id=id)
+        return [DiscoveredPort(**item) for item in data]
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except NetworkManagerReadError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+
+
+@switch_router.post("/{id}/sync-port-names", response_model=BulkOperationResult)
+async def sync_port_names(
+    id: int,
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> BulkOperationResult:
+    """Sync port names from switch technical names via SNMP."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        data = await manager.sync_port_names(switch_id=id)
+        return BulkOperationResult(**data)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except NetworkManagerReadError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))

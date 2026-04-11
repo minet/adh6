@@ -17,7 +17,16 @@
           </div>
         </div>
         <hr />
-        <h4 class="title is-4 has-text-centered">Ports</h4>
+        <div class="level">
+          <div class="level-left">
+            <h4 class="title is-4">Ports</h4>
+          </div>
+          <div class="level-right">
+            <button class="button is-small is-success" (click)="addPort()">
+              <span class="icon is-small"><i class="fas fa-plus"></i></span>
+            </button>
+          </div>
+        </div>
         <ul>
           @for (portRes of ports$ | async; track portRes) {
             <p>

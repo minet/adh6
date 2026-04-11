@@ -326,3 +326,55 @@ async def test_ping_from_switch_success(mock_repos):
         # Verify cleanup SET call (destroy=6)
         args_cleanup, _ = mock_set_raw.call_args_list[1]
         assert args_cleanup[2][0][1] == 6
+
+
+@pytest.mark.asyncio
+async def test_discover_ports(mock_repos):
+    port_repo, switch_repo = mock_repos
+    manager = SwitchSNMPNetworkManager(port_repo, switch_repo)
+    mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
+    switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
+    switch_repo.get_community = AsyncMock(return_value="public")
+
+    walk_results = [
+        ("10101", "GigabitEthernet1/0/1"),
+        ("10102", "GigabitEthernet1/0/2"),
+    ]
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.walk_snmp",
+        AsyncMock(return_value=walk_results),
+    ) as mock_walk:
+        ports = await manager.discover_ports(10)
+        assert len(ports) == 2
+        assert ports[0]["portNumber"] == "GigabitEthernet1/0/1"
+        assert ports[0]["oid"] == "10101"
+        mock_walk.assert_called_once_with("public", "1.2.3.4", "IF-MIB", "ifDescr")
+
+
+@pytest.mark.asyncio
+async def test_sync_port_names(mock_repos):
+    port_repo, switch_repo = mock_repos
+    manager = SwitchSNMPNetworkManager(port_repo, switch_repo)
+    mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
+    switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
+    switch_repo.get_community = AsyncMock(return_value="public")
+
+    # DB has 1 port with OID 10101, but name is currently "OldName"
+    existing_port = Port(id=1, oid="10101", portNumber="OldName", switchObj=10, room=None)
+    port_repo.search_by = AsyncMock(return_value=([existing_port], 1))
+    port_repo.update = AsyncMock(return_value=None)
+
+    walk_results = [("10101", "NewName-Gi1/0/1"), ("10102", "OtherPort")]
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.walk_snmp",
+        AsyncMock(return_value=walk_results),
+    ):
+        res = await manager.sync_port_names(10)
+        assert res["success"] == 1
+        assert res["failed"] == 0
+        # Verify repo update was called with new name
+        args, _ = port_repo.update.call_args
+        assert args[0].port_number == "NewName-Gi1/0/1"
+        assert args[0].id == 1

@@ -1,4 +1,4 @@
-import {Component, OnDestroy} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {
   UntypedFormBuilder,
   UntypedFormGroup,
@@ -6,9 +6,9 @@ import {
   ReactiveFormsModule,
 } from "@angular/forms";
 import {Router} from "@angular/router";
+import {finalize} from "rxjs/operators";
 
 import {Room, RoomService} from "../../api";
-import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 
 @Component({
@@ -18,17 +18,18 @@ import {NotificationService} from "../../notification.service";
   styleUrls: ["./room-new.component.css"],
   standalone: true,
 })
-export class RoomNewComponent implements OnDestroy {
-  disabled = false;
-  roomForm!: UntypedFormGroup;
-  private alive = true;
+export class RoomNewComponent implements OnInit {
+  public disabled = false;
+  public roomForm!: UntypedFormGroup;
 
   constructor(
-    public roomService: RoomService,
+    private readonly roomService: RoomService,
     private readonly fb: UntypedFormBuilder,
     private readonly router: Router,
     private readonly notificationService: NotificationService,
-  ) {
+  ) {}
+
+  ngOnInit() {
     this.createForm();
   }
 
@@ -38,7 +39,7 @@ export class RoomNewComponent implements OnDestroy {
         "",
         [Validators.min(1000), Validators.max(9999), Validators.required],
       ],
-      vlan: ["", [Validators.min(0), Validators.max(100), Validators.required]],
+      vlan: ["", [Validators.min(41), Validators.max(49), Validators.required]],
       description: ["", Validators.required],
     });
   }
@@ -54,15 +55,16 @@ export class RoomNewComponent implements OnDestroy {
 
     this.roomService
       .roomPost(room)
-      .pipe(takeWhile(() => this.alive))
-      .subscribe((_) => {
-        void this.router.navigate(["/room/view", v.roomNumber]);
-        this.notificationService.successNotification();
+      .pipe(finalize(() => (this.disabled = false)))
+      .subscribe({
+        next: (createdRoom) => {
+          const id = createdRoom.id ?? v.roomNumber;
+          void this.router.navigate(["/room/view", id]);
+          this.notificationService.successNotification();
+        },
+        error: (err: {status: number}) => {
+          this.notificationService.errorNotification(err.status);
+        },
       });
-    this.disabled = false;
-  }
-
-  ngOnDestroy() {
-    this.alive = false;
   }
 }

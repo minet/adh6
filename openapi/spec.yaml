@@ -1375,6 +1375,39 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
         - port
+  /port/bulk:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AbstractPort"
+        description: List of ports to create
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkOperationResult"
+          description: Bulk creation completed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Bulk create ports
+      security:
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - port
   /port/{id}:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -2404,6 +2437,60 @@ paths:
       security:
         - OpenIdConnect:
           - network:read
+        - ApiKeyNetworkAuth: []
+      tags:
+        - switch
+  /switch/{id}/discover-ports:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscoveredPort"
+          description: List of ports discovered on the switch
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Discover ports on a switch via SNMP
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyNetworkAuth: []
+      tags:
+        - switch
+  /switch/{id}/sync-port-names:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkOperationResult"
+          description: Bulk operation completed
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Sync port names (portNumber) from switch technical names (ifDescr) via SNMP
+      security:
+        - OpenIdConnect:
+          - network:write
         - ApiKeyNetworkAuth: []
       tags:
         - switch
@@ -3792,6 +3879,17 @@ components:
             - description
             - ip
       type: object
+    DiscoveredPort:
+      type: object
+      properties:
+        portNumber:
+          type: string
+          description: Technical name of the port (ifDescr)
+          example: GigabitEthernet1/0/1
+        oid:
+          type: string
+          description: OID (ifIndex) of the port
+          example: "10101"
     PingRequest:
       type: object
       required:

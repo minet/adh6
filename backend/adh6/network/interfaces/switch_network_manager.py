@@ -120,6 +120,28 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
+    async def discover_ports(self, switch_id: int) -> list[dict]:
+        """
+        Discover ports on a switch via SNMP.
+        Returns a list of dicts with 'portNumber' and 'oid'.
+
+        :raise SwitchNotFound
+        :raise NetworkManagerReadError
+        """
+        # pragma: no cover
+
+    @abc.abstractmethod
+    async def sync_port_names(self, switch_id: int) -> dict:
+        """
+        Sync port names from switch technical names (ifDescr) via SNMP.
+        Updates the database.
+
+        :raise SwitchNotFound
+        :raise NetworkManagerReadError
+        """
+        # pragma: no cover
+
+    @abc.abstractmethod
     async def ping_from_switch(
         self, switch_id: int, address: str, count: int = 5, timeout_ms: int = 2000, size: int = 100
     ) -> dict:
