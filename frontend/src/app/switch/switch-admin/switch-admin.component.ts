@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {AsyncPipe, CommonModule} from "@angular/common";
-import {finalize, forkJoin, Observable, shareReplay, tap, take} from "rxjs";
+import {finalize, forkJoin, Observable, shareReplay, tap, take, catchError, of} from "rxjs";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   AbstractPort,
@@ -34,6 +34,7 @@ export class SwitchAdminComponent implements OnInit {
   discoveringNew = false;
 
   roomCache = new Map<number, AbstractRoom>();
+  failedRooms = new Set<number>();
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -69,29 +70,48 @@ export class SwitchAdminComponent implements OnInit {
       ),
     ];
     if (roomIds.length === 0) return;
+
+    this.failedRooms.clear();
+
     forkJoin(
-      roomIds.map((id) => this.roomService.roomIdGet(id).pipe(shareReplay(1))),
+      roomIds.map((id) =>
+        this.roomService.roomIdGet(id).pipe(
+          shareReplay(1),
+          catchError(() => {
+            this.failedRooms.add(id);
+            return of(null);
+          })
+        )
+      ),
     ).subscribe((rooms) => {
       rooms.forEach((room) => {
-        if (room.id != null) {
+        if (room && room.id != null) {
           this.roomCache.set(room.id, room);
         }
       });
     });
   }
 
+  isRoomError(roomId: number | null | undefined): boolean {
+    if (roomId == null) return false;
+    return roomId <= 0 || this.failedRooms.has(roomId);
+  }
+
   getRoomNumber(roomId: number | null | undefined): number | string {
     if (roomId == null) return "-";
+    if (this.isRoomError(roomId)) return `ID invalide (${roomId})`;
     return this.roomCache.get(roomId)?.roomNumber ?? "...";
   }
 
   getRoomDescription(roomId: number | null | undefined): string {
     if (roomId == null) return "-";
+    if (this.isRoomError(roomId)) return "Erreur de chargement";
     return this.roomCache.get(roomId)?.description ?? "...";
   }
 
   getRoomVlan(roomId: number | null | undefined): number | string {
     if (roomId == null) return "-";
+    if (this.isRoomError(roomId)) return "ERR";
     return this.roomCache.get(roomId)?.vlan ?? "...";
   }
 

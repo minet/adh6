@@ -11,9 +11,9 @@
       </div>
       <div class="level-right">
         <div class="level-item">
-          <a class="button" [routerLink]="['/switch', switchId, 'view']">
+          <a class="button" [routerLink]="['/switch', 'search']">
             <span class="icon"><i class="fas fa-arrow-left"></i></span>
-            <span>Retour au commutateur</span>
+            <span>Retour à la liste</span>
           </a>
         </div>
       </div>
@@ -96,7 +96,7 @@
             </thead>
             <tbody>
               @for (port of ports; track port.id) {
-                <tr>
+                <tr [class.has-background-danger-light]="isRoomError(port.room)">
                   <td>
                     <a [routerLink]="['/port', switchId, port.id]">{{
                       port.portNumber
