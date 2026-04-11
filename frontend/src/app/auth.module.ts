@@ -8,7 +8,7 @@ import {environment} from "../environments/environment";
       config: {
         secureRoutes: ["/"],
         authority: environment.SSO_URL,
-        redirectUrl: window.location.href,
+        redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
         clientId: environment.SSO_CLIENT_ID,
         scope: environment.SSO_SCOPE,
