@@ -4,6 +4,7 @@
       <div class="column is-one-quarter box">
         <h4 class="title is-4 has-text-centered">Informations</h4>
         <p><strong>Numéro : </strong>{{ port.portNumber }}</p>
+        <p><strong>OID : </strong>{{ port.oid }}</p>
         <p>
           <strong>Switch : </strong>
           <a [routerLink]="['/switch', port.switchObj, 'view']">

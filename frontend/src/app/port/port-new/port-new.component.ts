@@ -84,12 +84,7 @@ export class PortNewComponent implements OnInit {
       .portPost(port)
       .pipe(takeWhile(() => this.alive))
       .subscribe((res: Port) => {
-        void this.router.navigate([
-          "/switch/",
-          this.switch_id,
-          "/port/",
-          res.id,
-        ]);
+        void this.router.navigate(["/port", this.switch_id, res.id]);
         this.notificationService.successNotification();
       });
   }

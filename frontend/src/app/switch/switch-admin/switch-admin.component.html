@@ -1,0 +1,122 @@
+@if (switch$ | async; as sw) {
+  <div class="container mt-5">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <div>
+            <h2 class="title is-2">Administration — {{ sw.description }}</h2>
+            <p class="subtitle is-5">{{ sw.ip }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <a class="button" [routerLink]="['/switch', switchId, 'view']">
+            <span class="icon"><i class="fas fa-arrow-left"></i></span>
+            <span>Retour au commutateur</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Actions Section -->
+    <section class="box mb-5">
+      <h3 class="title is-4">
+        <span class="icon mr-2"><i class="fas fa-tasks"></i></span>
+        Actions groupées
+      </h3>
+      <p class="help mb-4">
+        Ces actions appliquent les valeurs configurées dans la base de données à
+        tous les ports du commutateur qui ont une chambre associée.
+      </p>
+      <div class="buttons">
+        <button
+          class="button is-info"
+          [class.is-loading]="applyingDescriptions"
+          [disabled]="applyingDescriptions"
+          (click)="applyDescriptions()">
+          <span class="icon"><i class="fas fa-tag"></i></span>
+          <span>Appliquer les descriptions ports</span>
+        </button>
+        <button
+          class="button is-warning"
+          [class.is-loading]="applyingVlans"
+          [disabled]="applyingVlans"
+          (click)="applyVlans()">
+          <span class="icon"><i class="fas fa-network-wired"></i></span>
+          <span>Changer les VLANs des chambres</span>
+        </button>
+        <button
+          class="button is-link"
+          [class.is-loading]="syncingNames"
+          [disabled]="syncingNames"
+          (click)="syncPortNames()">
+          <span class="icon"><i class="fas fa-sync"></i></span>
+          <span>Sync noms techniques ports</span>
+        </button>
+        <button
+          class="button is-success"
+          [class.is-loading]="discoveringNew"
+          [disabled]="discoveringNew"
+          (click)="discoverNewPorts()">
+          <span class="icon"><i class="fas fa-search-plus"></i></span>
+          <span>Découvrir de nouveaux ports</span>
+        </button>
+        <button
+          class="button is-primary"
+          [class.is-loading]="pinging"
+          [disabled]="pinging"
+          (click)="pingSwitch()">
+          <span class="icon"><i class="fas fa-satellite-dish"></i></span>
+          <span>Ping depuis le commutateur</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Ports Table Section -->
+    <section class="box">
+      <h3 class="title is-4">
+        <span class="icon mr-2"><i class="fas fa-plug"></i></span>
+        Ports du commutateur
+      </h3>
+      @if (ports$ | async; as ports) {
+        @if (ports.length === 0) {
+          <p class="has-text-grey-light">
+            Aucun port configuré pour ce commutateur.
+          </p>
+        } @else {
+          <table class="table is-fullwidth is-striped is-hoverable">
+            <thead>
+              <tr>
+                <th>Port</th>
+                <th>Chambre</th>
+                <th>Description attendue</th>
+                <th>VLAN</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (port of ports; track port.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/port', switchId, port.id]">{{
+                      port.portNumber
+                    }}</a>
+                  </td>
+                  <td>{{ getRoomNumber(port.room) }}</td>
+                  <td>{{ getRoomDescription(port.room) }}</td>
+                  <td>{{ getRoomVlan(port.room) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      } @else {
+        <p>
+          <span class="icon is-small mr-1"
+            ><i class="fas fa-spinner fa-spin"></i></span
+          >Chargement…
+        </p>
+      }
+    </section>
+  </div>
+}

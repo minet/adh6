@@ -16,9 +16,11 @@ import {
   RoomService,
   AbstractRoom,
   RoomMembersService,
+  SwitchService,
 } from "../../api";
-import {map, shareReplay} from "rxjs/operators";
+import {map, shareReplay, take} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
+import Swal from "sweetalert2";
 
 @Component({
   imports: [RouterModule, AsyncPipe, ReactiveFormsModule],
@@ -45,6 +47,7 @@ export class RoomDetailsComponent implements OnInit {
     public roomService: RoomService,
     public portService: PortService,
     public memberService: MemberService,
+    public switchService: SwitchService,
     private readonly fb: UntypedFormBuilder,
     private readonly route: ActivatedRoute,
   ) {
@@ -174,5 +177,61 @@ export class RoomDetailsComponent implements OnInit {
 
   public getMemberUsername(id: number) {
     return this.cachedMemberUsernames.get(id);
+  }
+
+  addPort(): void {
+    this.switchService.switchGet(100, 0).pipe(take(1)).subscribe(switches => {
+      const switchOptions = switches.reduce((acc, s) => {
+        if (s.id != null) acc[s.id] = s.description ?? s.ip ?? `ID ${s.id}`;
+        return acc;
+      }, {} as {[key: string]: string});
+
+      void Swal.fire({
+        title: "Ajouter un port",
+        icon: "info",
+        html:
+          '<div class="field"><label class="label">Switch</label>' +
+          '<div class="select is-fullwidth"><select id="swal-port-switch">' +
+          Object.entries(switchOptions).map(([id, label]) => `<option value="${id}">${label}</option>`).join('') +
+          '</select></div></div>' +
+          '<div class="field"><label class="label">Type d\'identifiant</label>' +
+          '<div class="control"><label class="radio"><input type="radio" name="id-type" value="oid" checked> OID</label>' +
+          '<label class="radio ml-2"><input type="radio" name="id-type" value="name"> Nom (Gi1/0/x)</label></div></div>' +
+          '<div class="field"><label class="label">Valeur</label>' +
+          '<input id="swal-port-value" class="input" type="text" placeholder="ex: 10101 ou GigabitEthernet1/0/1"></div>',
+        showCancelButton: true,
+        confirmButtonText: "Ajouter",
+        cancelButtonText: "Annuler",
+        preConfirm: () => {
+          const switchId = +(document.getElementById("swal-port-switch") as HTMLSelectElement).value;
+          const type = (document.querySelector('input[name="id-type"]:checked') as HTMLInputElement).value;
+          const value = (document.getElementById("swal-port-value") as HTMLInputElement).value.trim();
+
+          if (!value) {
+            Swal.showValidationMessage("La valeur est requise");
+            return false;
+          }
+          return {switchId, type, value};
+        }
+      }).then(result => {
+        if (!result.isConfirmed || !result.value) return;
+        const {switchId, type, value} = result.value;
+        
+        const port: AbstractPort = {
+          switchObj: switchId,
+          room: this.room_id,
+          oid: type === 'oid' ? value : value, // If we had discover, we'd find OID from name here
+          portNumber: type === 'name' ? value : `Port ${value}`
+        };
+
+        this.portService.portPost(port).subscribe({
+          next: () => {
+            this.notificationService.successNotification("Port ajouté");
+            this.refreshInfo();
+          },
+          error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        });
+      });
+    });
   }
 }

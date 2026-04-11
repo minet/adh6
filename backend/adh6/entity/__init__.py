@@ -33,12 +33,14 @@ from adh6.entity.account_type import AccountType
 from adh6.entity.api_key import ApiKey
 from adh6.entity.api_keys_post_request import ApiKeysPostRequest
 from adh6.entity.bank import Bank
+from adh6.entity.bulk_operation_result import BulkOperationResult
 from adh6.entity.cashbox import Cashbox
 from adh6.entity.comment import Comment
 from adh6.entity.device import Device
 from adh6.entity.device_body import DeviceBody
 from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.device_id_name_put_request import DeviceIdNamePutRequest
+from adh6.entity.discovered_port import DiscoveredPort
 from adh6.entity.error import Error
 from adh6.entity.mailinglist_member_id_put_request import MailinglistMemberIdPutRequest
 from adh6.entity.member import Member
@@ -50,6 +52,8 @@ from adh6.entity.member_id_password_put_request import MemberIdPasswordPutReques
 from adh6.entity.member_status import MemberStatus
 from adh6.entity.membership import Membership
 from adh6.entity.payment_method import PaymentMethod
+from adh6.entity.ping_request import PingRequest
+from adh6.entity.ping_result import PingResult
 from adh6.entity.port import Port
 from adh6.entity.product import Product
 from adh6.entity.profile200_response import Profile200Response

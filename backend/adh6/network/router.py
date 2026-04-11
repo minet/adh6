@@ -3,15 +3,35 @@
 import ipaddress
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    status,
+)
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
-from adh6.entity import AbstractPort, AbstractSwitch, Port, Switch
-from adh6.exceptions import NotFoundError
+from adh6.entity import (
+    AbstractPort,
+    AbstractRoom,
+    AbstractSwitch,
+    BulkOperationResult,
+    DiscoveredPort,
+    PingRequest,
+    PingResult,
+    Port,
+    Switch,
+)
+from adh6.exceptions import NetworkManagerReadError, NotFoundError
+from adh6.room.storage import RoomRepository as RoomStorageRepository
 from adh6.security import require_role_or_ownership
 from adh6.utils.filter_wrapper import (
     AbstractPortFilterHandler,
@@ -84,6 +104,16 @@ async def get_switch_network_manager(
     return SwitchNetworkManager(PortRepository(session), SwitchRepository(session))
 
 
+async def get_switch_bulk_deps(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> tuple[SwitchNetworkManager, PortManager, RoomStorageRepository]:
+    """Dependency: Inject network manager, port manager and room repository for bulk ops."""
+    net_manager = SwitchNetworkManager(PortRepository(session), SwitchRepository(session))
+    port_manager = PortManager(PortRepository(session))
+    room_repo = RoomStorageRepository(session)
+    return net_manager, port_manager, room_repo
+
+
 # ============================================================================
 # Port Endpoints
 # ============================================================================
@@ -123,6 +153,18 @@ async def create_port(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     port = await manager.create(body)
     return port
+
+
+@port_router.post("/bulk", response_model=BulkOperationResult)
+async def bulk_create_ports(
+    bodies: list[AbstractPort],
+    manager: Annotated[PortManager, Depends(get_port_manager)],
+    request: Request,
+) -> BulkOperationResult:
+    """Bulk create network ports."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    data = await manager.bulk_create(bodies)
+    return BulkOperationResult(**data)
 
 
 @port_router.get("/{id}", response_model=Port)
@@ -379,3 +421,129 @@ async def delete_switch(
         await manager.delete(id=id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+# ============================================================================
+# Switch Bulk Action Endpoints
+# ============================================================================
+
+
+@switch_router.post("/{id}/apply-descriptions", response_model=BulkOperationResult)
+async def apply_port_descriptions(
+    id: int,
+    deps: Annotated[tuple, Depends(get_switch_bulk_deps)],
+    request: Request,
+) -> BulkOperationResult:
+    """Set each port SNMP alias (IF-MIB::ifAlias) to its linked room description."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    net_manager, port_manager, room_repo = deps
+    try:
+        await net_manager.switch_repository.get_by_id(object_id=id)  # type: ignore[attr-defined]
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    ports, _ = await port_manager.search(limit=500, offset=0, terms="", filter_=AbstractPort(switchObj=id))
+    success, failed, errors = 0, 0, []
+    for port in ports:
+        if port.room is None:
+            continue
+        try:
+            room = await room_repo.get_by_id(object_id=port.room)
+            alias = room.description or f"Room {room.room_number}"
+            await net_manager.update_port_alias(port_id=port.id, alias=alias)  # type: ignore[arg-type]
+            success += 1
+        except Exception as e:
+            failed += 1
+            errors.append(f"Port {port.port_number}: {e}")
+    return BulkOperationResult(success=success, failed=failed, errors=errors)
+
+
+@switch_router.post("/{id}/apply-vlans", response_model=BulkOperationResult)
+async def apply_port_vlans(
+    id: int,
+    vlan: Annotated[int, Body()],
+    deps: Annotated[tuple, Depends(get_switch_bulk_deps)],
+    request: Request,
+) -> BulkOperationResult:
+    """Assign a VLAN number to all rooms linked to ports on this switch (database only, no SNMP)."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    net_manager, port_manager, room_repo = deps
+    try:
+        await net_manager.switch_repository.get_by_id(object_id=id)  # type: ignore[attr-defined]
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    ports, _ = await port_manager.search(limit=500, offset=0, terms="", filter_=AbstractPort(switchObj=id))
+    # Deduplicate room IDs so each room is updated exactly once
+    seen_rooms: set[int] = set()
+    success, failed, errors = 0, 0, []
+    for port in ports:
+        if port.room is None or port.room in seen_rooms:
+            continue
+        seen_rooms.add(port.room)
+        try:
+            await room_repo.update(port.room, AbstractRoom(vlan=vlan))
+            success += 1
+        except Exception as e:
+            failed += 1
+            errors.append(f"Room {port.room}: {e}")
+    return BulkOperationResult(success=success, failed=failed, errors=errors)
+
+
+@switch_router.post("/{id}/ping", response_model=PingResult)
+async def ping_switch(
+    id: int,
+    body: PingRequest,
+    net_manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> PingResult:
+    """Run an ICMP ping from the switch via Cisco SNMP Ping MIB."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    _validate_ipv4(body.address)
+    try:
+        data = await net_manager.ping_from_switch(
+            switch_id=id,
+            address=body.address,
+            count=body.count or 5,
+            timeout_ms=body.timeout_ms or 2000,
+            size=body.size or 100,
+        )
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except NetworkManagerReadError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+    return PingResult(**data)
+
+
+@switch_router.get("/{id}/discover-ports", response_model=list[DiscoveredPort])
+async def discover_ports(
+    id: int,
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> list[DiscoveredPort]:
+    """Discover ports on a switch via SNMP."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    try:
+        data = await manager.discover_ports(switch_id=id)
+        return [DiscoveredPort(**item) for item in data]
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except NetworkManagerReadError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+
+
+@switch_router.post("/{id}/sync-port-names", response_model=BulkOperationResult)
+async def sync_port_names(
+    id: int,
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> BulkOperationResult:
+    """Sync port names from switch technical names via SNMP."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        data = await manager.sync_port_names(switch_id=id)
+        return BulkOperationResult(**data)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except NetworkManagerReadError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
