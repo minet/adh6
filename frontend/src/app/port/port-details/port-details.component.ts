@@ -165,13 +165,8 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.portID = +params["port_id"];
       this.port$ = this.portService.portIdGet(this.portID).pipe(
         map((p) => {
-          if (p.room) {
-            this.room_number$ = this.roomService
-              .roomIdGet(p.room, ["roomNumber"])
-              .pipe(
-                shareReplay(1),
-                map((r) => r.roomNumber ?? 0),
-              );
+          if (p.roomObj) {
+            this.room_number$ = of(p.roomObj.roomNumber ?? 0);
           }
           if (p.switchObj) {
             this.switch_description$ = this.switchService

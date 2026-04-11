@@ -28,15 +28,15 @@
           </td>
           <td class="center">{{ port.portNumber }}</td>
           <td class="center">
-            @if (port.room !== undefined) {
+            @if (port.roomObj) {
               <a [routerLink]="['/room/view', port.room]">
-                {{
-                  (port.room ? (cachedRoomDescription.get(port.room) | async) : null) ||
-                    "Chargement..."
-                }}
+                {{ port.roomObj.roomNumber }}
               </a>
-            }
-            @if (port.room === null) {
+            } @else if (port.room !== undefined && port.room !== null) {
+              <a [routerLink]="['/room/view', port.room]">
+                ID invalide ({{ port.room }})
+              </a>
+            } @else {
               <a>Aucune chambre</a>
             }
           </td>

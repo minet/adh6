@@ -3118,6 +3118,7 @@ components:
             - portNumber
             - room
             - switchObj
+            - roomObj
       explode: false
     onlySwitch:
       description: Limit to specific attributes
@@ -3839,6 +3840,10 @@ components:
           description: The switch this port is a member of
           type: integer
           example: 4
+        roomObj:
+          $ref: "#/components/schemas/AbstractRoom"
+          nullable: true
+          readOnly: true
     Port:
       allOf:
         - $ref: "#/components/schemas/AbstractPort"

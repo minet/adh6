@@ -96,15 +96,15 @@
             </thead>
             <tbody>
               @for (port of ports; track port.id) {
-                <tr [class.has-background-danger-light]="isRoomError(port.room)">
+                <tr [class.has-background-danger-light]="isRoomError(port)">
                   <td>
                     <a [routerLink]="['/port', switchId, port.id]">{{
                       port.portNumber
                     }}</a>
                   </td>
-                  <td>{{ getRoomNumber(port.room) }}</td>
-                  <td>{{ getRoomDescription(port.room) }}</td>
-                  <td>{{ getRoomVlan(port.room) }}</td>
+                  <td>{{ getRoomNumber(port) }}</td>
+                  <td>{{ getRoomDescription(port) }}</td>
+                  <td>{{ getRoomVlan(port) }}</td>
                 </tr>
               }
             </tbody>

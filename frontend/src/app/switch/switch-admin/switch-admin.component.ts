@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {AsyncPipe, CommonModule} from "@angular/common";
-import {finalize, forkJoin, Observable, shareReplay, tap, take, catchError, of} from "rxjs";
+import {finalize, Observable, shareReplay} from "rxjs";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   AbstractPort,
@@ -10,7 +10,6 @@ import {
   PingRequest,
   PingResult,
   PortService,
-  RoomService,
   SwitchService,
   DiscoveredPort,
 } from "../../api";
@@ -33,14 +32,10 @@ export class SwitchAdminComponent implements OnInit {
   pinging = false;
   discoveringNew = false;
 
-  roomCache = new Map<number, AbstractRoom>();
-  failedRooms = new Set<number>();
-
   constructor(
     private readonly route: ActivatedRoute,
     private readonly switchService: SwitchService,
     private readonly portService: PortService,
-    private readonly roomService: RoomService,
     private readonly notificationService: NotificationService,
   ) {}
 
@@ -55,64 +50,31 @@ export class SwitchAdminComponent implements OnInit {
   refreshPorts(): void {
     this.ports$ = this.portService
       .portGet(500, 0, undefined, {switchObj: this.switchId})
-      .pipe(
-        tap((ports) => this.loadRooms(ports)),
-        shareReplay(1),
-      );
+      .pipe(shareReplay(1));
   }
 
-  private loadRooms(ports: AbstractPort[]): void {
-    const roomIds = [
-      ...new Set(
-        ports
-          .filter((p) => p.room != null)
-          .map((p) => p.room as number),
-      ),
-    ];
-    if (roomIds.length === 0) return;
-
-    this.failedRooms.clear();
-
-    forkJoin(
-      roomIds.map((id) =>
-        this.roomService.roomIdGet(id).pipe(
-          shareReplay(1),
-          catchError(() => {
-            this.failedRooms.add(id);
-            return of(null);
-          })
-        )
-      ),
-    ).subscribe((rooms) => {
-      rooms.forEach((room) => {
-        if (room && room.id != null) {
-          this.roomCache.set(room.id, room);
-        }
-      });
-    });
+  isRoomError(port: AbstractPort): boolean {
+    // Error if room ID is specified but room object is missing or invalid
+    if (port.room === null || port.room === undefined) return false;
+    return port.room <= 0 || !port.roomObj;
   }
 
-  isRoomError(roomId: number | null | undefined): boolean {
-    if (roomId == null) return false;
-    return roomId <= 0 || this.failedRooms.has(roomId);
+  getRoomNumber(port: AbstractPort): number | string {
+    if (port.room == null) return "-";
+    if (this.isRoomError(port)) return `ID invalide (${port.room})`;
+    return port.roomObj?.roomNumber ?? "...";
   }
 
-  getRoomNumber(roomId: number | null | undefined): number | string {
-    if (roomId == null) return "-";
-    if (this.isRoomError(roomId)) return `ID invalide (${roomId})`;
-    return this.roomCache.get(roomId)?.roomNumber ?? "...";
+  getRoomDescription(port: AbstractPort): string {
+    if (port.room == null) return "-";
+    if (this.isRoomError(port)) return "Erreur de chargement";
+    return port.roomObj?.description ?? "...";
   }
 
-  getRoomDescription(roomId: number | null | undefined): string {
-    if (roomId == null) return "-";
-    if (this.isRoomError(roomId)) return "Erreur de chargement";
-    return this.roomCache.get(roomId)?.description ?? "...";
-  }
-
-  getRoomVlan(roomId: number | null | undefined): number | string {
-    if (roomId == null) return "-";
-    if (this.isRoomError(roomId)) return "ERR";
-    return this.roomCache.get(roomId)?.vlan ?? "...";
+  getRoomVlan(port: AbstractPort): number | string {
+    if (port.room == null) return "-";
+    if (this.isRoomError(port)) return "ERR";
+    return port.roomObj?.vlan ?? "...";
   }
 
   syncPortNames(): void {
@@ -132,11 +94,9 @@ export class SwitchAdminComponent implements OnInit {
 
   discoverNewPorts(): void {
     this.discoveringNew = true;
-    // 1. Get existing ports to know what to filter
-    this.ports$.pipe(take(1)).subscribe(existingPorts => {
+    this.portService.portGet(500, 0, undefined, {switchObj: this.switchId}).subscribe(existingPorts => {
       const existingOids = new Set(existingPorts.map(p => p.oid));
 
-      // 2. Discover via SNMP
       this.switchService.switchIdDiscoverPortsGet(this.switchId)
         .pipe(finalize(() => this.discoveringNew = false))
         .subscribe({

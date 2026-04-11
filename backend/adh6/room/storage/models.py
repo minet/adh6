@@ -1,12 +1,13 @@
 import datetime as dt
 
-from sqlalchemy import DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from adh6.storage import Base
 from adh6.storage.sql.rubydiff import rubydiff
 from adh6.storage.sql.trackable import RubyHashTrackable
+from adh6.subnet.storage.models import Vlan
 
 
 class Chambre(Base, RubyHashTrackable):
@@ -22,7 +23,9 @@ class Chambre(Base, RubyHashTrackable):
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
     dernier_adherent: Mapped[int | None] = mapped_column(Integer)
-    vlan_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    vlan_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("vlans.id"), index=True)
+
+    vlan: Mapped["Vlan"] = relationship("Vlan", lazy="selectin")
 
     def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
         """

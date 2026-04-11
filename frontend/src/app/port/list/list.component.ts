@@ -20,10 +20,6 @@ export class PortListComponent
     number,
     Observable<string>
   >();
-  cachedRoomDescription: Map<number, Observable<string>> = new Map<
-    number,
-    Observable<string>
-  >();
 
   private filter: AbstractPort = {};
   constructor(
@@ -38,22 +34,13 @@ export class PortListComponent
           (page - 1) * this.itemsPerPage,
           terms,
           this.filter,
-          ["portNumber", "room", "switchObj"],
+          ["portNumber", "room", "switchObj", "roomObj"],
           "response",
         )
         .pipe(
           map((response) => {
             if (!response.body) return response;
             for (const p of response.body) {
-              if (p.room && !this.cachedRoomDescription.has(p.room)) {
-                this.cachedRoomDescription.set(
-                  p.room,
-                  this.roomService.roomIdGet(p.room).pipe(
-                    shareReplay(1),
-                    map((room) => room?.description || ""),
-                  ),
-                );
-              }
               if (
                 p.switchObj &&
                 !this.cachedSwitchDescription.has(p.switchObj)
