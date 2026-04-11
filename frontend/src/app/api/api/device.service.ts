@@ -21,6 +21,8 @@ import { Observable }                                        from 'rxjs';
 // @ts-ignore
 import { AbstractDevice } from '../model/abstractDevice';
 // @ts-ignore
+import { Device } from '../model/device';
+// @ts-ignore
 import { DeviceBody } from '../model/deviceBody';
 // @ts-ignore
 import { DeviceFilter } from '../model/deviceFilter';
@@ -103,13 +105,14 @@ export class DeviceService {
      * @param limit Limit the number of results returned
      * @param offset Skip the first n results
      * @param filter filters of a device
+     * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<number>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<number>>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<number>>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Device>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (limit !== undefined && limit !== null) {
@@ -123,6 +126,10 @@ export class DeviceService {
         if (filter !== undefined && filter !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>filter, 'filter');
+        }
+        if (only) {
+            localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+                [...only].join(COLLECTION_FORMATS['csv']), 'only');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -175,7 +182,7 @@ export class DeviceService {
         }
 
         let localVarPath = `/device`;
-        return this.httpClient.request<Array<number>>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<Array<Device>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
@@ -196,10 +203,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceIdDelete(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deviceIdDelete(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deviceIdDelete(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deviceIdDelete(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling deviceIdDelete.');
         }
@@ -281,10 +288,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceIdGet(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractDevice>;
-    public deviceIdGet(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractDevice>>;
-    public deviceIdGet(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractDevice>>;
-    public deviceIdGet(id: number, only?: Array<'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractDevice>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractDevice>>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractDevice>>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling deviceIdGet.');
         }

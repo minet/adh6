@@ -11,8 +11,8 @@
               }}</span>
             } @else {
               {{ device.mac | uppercase }}
-              @if (vendor$ | async; as vendor) {
-                <span>({{ vendor | uppercase }})</span>
+              @if (device.vendor) {
+                <span>({{ device.vendor | uppercase }})</span>
               }
             }
           </strong>
@@ -87,7 +87,7 @@
                   <strong>MAB</strong>
                 </td>
                 <td>
-                  {{ mab$ | async }}
+                  {{ device.mab ? 'ACTIVÉ' : 'DÉSACTIVÉ' }}
                   <a (click)="updateMAB()">(changer)</a>
                 </td>
               </tr>

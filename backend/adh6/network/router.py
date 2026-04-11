@@ -62,8 +62,10 @@ def _validate_ipv4(ip: str | None) -> None:
 
 
 def _to_public_dict(obj: Any) -> dict[str, Any]:
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump(mode="json", by_alias=True, exclude_none=True)
     if hasattr(obj, "dict"):
-        return obj.model_dump(by_alias=True, exclude_none=True)
+        return obj.dict(by_alias=True, exclude_none=True)
     return dict(obj)
 
 
@@ -129,16 +131,20 @@ async def search_ports(
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     only: Annotated[str | None, Query()] = None,
-) -> list[Port] | JSONResponse:
+) -> Any:
     """Search network ports."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
 
     if only:
         return JSONResponse(
             content=[_apply_only_projection(_to_public_dict(port), only) for port in result],
-            headers={"X-Total-Count": str(_count)},
+            headers={
+                "X-Total-Count": str(_count),
+                "Access-Control-Expose-Headers": "X-Total-Count",
+            },
         )
     return result
 
@@ -345,7 +351,7 @@ async def search_switches(
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     only: Annotated[str | None, Query()] = None,
-) -> list[Switch] | JSONResponse:
+) -> Any:
     """Search network switches."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     if only:
@@ -358,10 +364,14 @@ async def search_switches(
             )
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms or "", filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     if only:
         return JSONResponse(
             content=[_apply_only_projection(_to_public_dict(switch), only) for switch in result],
-            headers={"X-Total-Count": str(_count)},
+            headers={
+                "X-Total-Count": str(_count),
+                "Access-Control-Expose-Headers": "X-Total-Count",
+            },
         )
     return result
 

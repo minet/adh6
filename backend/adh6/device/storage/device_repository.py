@@ -180,6 +180,7 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         ipv6Address=(d.ipv6 if d.ipv6 != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
         name=d.name,
         wifiPassword=d.wifi_password,
+        mab=d.mab,
         # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent
         # Je parierais sur Jenkins ou un bail comme ça
     )

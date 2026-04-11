@@ -34,7 +34,7 @@ router = APIRouter(prefix="/device", tags=["device"])
 
 def _device_to_response_dict(device: Device) -> dict[str, Any]:
     """Serialize generated OpenAPI entity with aliases expected by integration tests."""
-    return device.model_dump(by_alias=True, exclude_none=True)
+    return device.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
 def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[str, Any]:
@@ -99,7 +99,7 @@ async def create_device(
     return int(device.id)
 
 
-@router.get("", response_model=list[int])
+@router.get("", response_model=list[Device])
 async def search_devices(
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
@@ -107,13 +107,24 @@ async def search_devices(
     filter_: Annotated[DeviceFilter, DeviceFilterWrapper()] = DeviceFilter(),
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
-) -> list[int]:
+    only: Annotated[str | None, Query()] = None,
+) -> Any:
     """Search devices with optional filter."""
     owner_id = filter_.member if filter_.member is not None else None
     require_role_or_ownership(request, Roles.NETWORK_READ.value, owner_id=owner_id)
     result, _count = await manager.search(limit=limit, offset=offset, device_filter=filter_)
     response.headers["X-Total-Count"] = str(_count)
-    return [d.id for d in result if d.id is not None]
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
+
+    if only:
+        return JSONResponse(
+            content=[_apply_only_projection(_device_to_response_dict(device), only) for device in result],
+            headers={
+                "X-Total-Count": str(_count),
+                "Access-Control-Expose-Headers": "X-Total-Count",
+            },
+        )
+    return result
 
 
 @router.get("/{id}", response_model=Device)
@@ -122,7 +133,7 @@ async def get_device(
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
     only: Annotated[str | None, Query()] = None,
-) -> Device | JSONResponse:
+) -> Any:
     """Get a specific device by ID."""
     try:
         result = await manager.get_by_id(id=id)

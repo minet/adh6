@@ -1,7 +1,7 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {BehaviorSubject, first, Observable, of, shareReplay, switchMap} from "rxjs";
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from "@angular/core";
+import {BehaviorSubject, first, Observable, of, shareReplay, switchMap, map} from "rxjs";
 import Swal from "sweetalert2";
-import {AbstractDevice, DeviceService} from "../../../api";
+import {AbstractDevice, DeviceService, Device} from "../../../api";
 import {CommonModule, AsyncPipe} from "@angular/common";
 import {AblePipe} from "@casl/angular";
 
@@ -10,8 +10,8 @@ import {AblePipe} from "@casl/angular";
   selector: "app-element",
   templateUrl: "./element.component.html",
 })
-export class ElementComponent implements OnInit {
-  @Input() deviceId!: number;
+export class ElementComponent implements OnInit, OnChanges {
+  @Input() device!: Device;
   @Output() removed: EventEmitter<number> = new EventEmitter<number>();
 
   public device$!: Observable<AbstractDevice>;
@@ -23,22 +23,35 @@ export class ElementComponent implements OnInit {
 
   constructor(private readonly deviceService: DeviceService) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['device'] && !changes['device'].firstChange) {
+      this.refreshDevice();
+    }
+  }
+
+  private initObservables() {
+    this.device$ = this.refreshTrigger$.pipe(
+      switchMap((_, index) => {
+        if (index === 0) return of(this.device as AbstractDevice);
+        return this.deviceService.deviceIdGet(this.device.id!);
+      }),
+      shareReplay(1)
+    );
+
+    this.vendor$ = this.device$.pipe(
+      map((device: AbstractDevice) => device.vendor || null)
+    );
+
+    this.mab$ = this.device$.pipe(
+      map((device: AbstractDevice) => device.mab ?? false)
+    );
+  }
+
   ngOnInit(): void {
-    if (this.deviceId == undefined) {
+    if (!this.device) {
       throw new Error("device undefined");
     }
-    this.refreshMAB();
-    this.device$ = this.refreshTrigger$.pipe(
-      switchMap(() => this.deviceService.deviceIdGet(this.deviceId)),
-      shareReplay(1),
-    );
-    this.vendor$ = this.device$.pipe(
-      switchMap((device: AbstractDevice) =>
-        device.name
-          ? of(null)
-          : this.deviceService.deviceIdVendorGet(this.deviceId),
-      ),
-    );
+    this.initObservables();
   }
 
   private refreshDevice(): void {
@@ -47,19 +60,15 @@ export class ElementComponent implements OnInit {
 
   public deviceDelete() {
     this.deviceService
-      .deviceIdDelete(this.deviceId)
+      .deviceIdDelete(this.device.id!)
       .pipe(first())
       .subscribe(() => {
-        this.removed.emit(this.deviceId);
+        this.removed.emit(this.device.id);
       });
   }
 
   public toogleDeviceDetails(): void {
     this.isCollapse = !this.isCollapse;
-  }
-
-  private refreshMAB(): void {
-    this.mab$ = this.deviceService.deviceIdMabGet(this.deviceId);
   }
 
   public updateMAB(): void {
@@ -70,8 +79,8 @@ export class ElementComponent implements OnInit {
       showCancelButton: true,
     }).then((result: {isConfirmed: boolean}) => {
       if (result.isConfirmed) {
-        this.deviceService.deviceIdMabPost(this.deviceId).subscribe(() => {
-          this.refreshMAB();
+        this.deviceService.deviceIdMabPost(this.device.id!).subscribe(() => {
+          this.refreshDevice();
         });
       }
     });
@@ -90,7 +99,7 @@ export class ElementComponent implements OnInit {
       }).then((result: {isConfirmed: boolean; value?: string}) => {
         if (result.isConfirmed && result.value !== undefined) {
           this.deviceService
-            .deviceIdNamePut(this.deviceId, {name: result.value})
+            .deviceIdNamePut(this.device.id!, {name: result.value})
             .pipe(first())
             .subscribe(() => this.refreshDevice());
         }
@@ -109,7 +118,7 @@ export class ElementComponent implements OnInit {
     }).then((result: {isConfirmed: boolean}) => {
       if (result.isConfirmed) {
         this.deviceService
-          .deviceIdWifiPasswordPost(this.deviceId)
+          .deviceIdWifiPasswordPost(this.device.id!)
           .pipe(first())
           .subscribe(() => this.refreshDevice());
       }
@@ -127,7 +136,7 @@ export class ElementComponent implements OnInit {
     }).then((result: {isConfirmed: boolean}) => {
       if (result.isConfirmed) {
         this.deviceService
-          .deviceIdWifiPasswordDelete(this.deviceId)
+          .deviceIdWifiPasswordDelete(this.device.id!)
           .pipe(first())
           .subscribe(() => this.refreshDevice());
       }

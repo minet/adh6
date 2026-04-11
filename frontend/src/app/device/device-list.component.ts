@@ -6,47 +6,47 @@ import {
   DeviceFilter,
   DeviceService,
   MemberService,
+  Device,
 } from "../api";
 import {PaginationComponent} from "../pagination/pagination.component";
 import {SearchPage} from "../search-page";
 import {RouterModule, ActivatedRoute} from "@angular/router";
 import {AbstractAccount} from "../api/model/abstractAccount";
+import {HttpResponse} from "@angular/common/http";
 
 @Component({
   imports: [CommonModule, PaginationComponent, RouterModule],
   selector: "app-device-list",
   templateUrl: "./device-list.component.html",
 })
-export class DeviceListComponent extends SearchPage<number> implements OnInit {
+export class DeviceListComponent extends SearchPage<Device> implements OnInit {
   public memberUsernames: Map<number, Observable<string>> = new Map<
     number,
     Observable<string>
   >();
-  public cachedDevices: Map<number, Observable<AbstractDevice>> = new Map();
+
   @Input() abstractAccountFilter: AbstractAccount = {};
+  
   constructor(
     private readonly deviceService: DeviceService,
     private readonly memberService: MemberService,
     private readonly route: ActivatedRoute,
   ) {
     super((terms, page) =>
-      this.deviceService
+      (this.deviceService
         .deviceGet(
           this.itemsPerPage,
           (page - 1) * this.itemsPerPage,
           <DeviceFilter>{terms: terms},
+          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor", "mab"] as any,
           "response",
-        )
+        ) as Observable<HttpResponse<Device[]>>)
         .pipe(
           map((response) => {
             if (response.body) {
-              for (const i of response.body) {
-                this.cachedDevices.set(
-                  +i,
-                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-                );
-                if (i && !this.memberUsernames.has(i)) {
-                  this.memberUsernames.set(i, this.memberUsername$(i));
+              for (const device of response.body) {
+                if (device.member && !this.memberUsernames.has(device.id!)) {
+                  this.memberUsernames.set(device.id!, this.memberUsername$(device));
                 }
               }
             }
@@ -73,29 +73,17 @@ export class DeviceListComponent extends SearchPage<number> implements OnInit {
     this.changePage(page);
   }
 
-  public memberUsername$(id: number): Observable<string> {
-    const device$ = this.cachedDevices.get(id);
-    if (!device$) {
+  public memberUsername$(device: Device): Observable<string> {
+    if (!device.member) {
       return of("");
     }
-    return device$.pipe(
-      switchMap((response) => {
-        if (!response.member) {
-          return of("");
-        }
-        return this.memberService
-          .memberIdGet(response.member, ["username"])
-          .pipe(
-            shareReplay(1),
-            map((result) => {
-              return result.username || "";
-            }),
-          );
-      }),
-    );
-  }
-
-  public getDevice(id: number) {
-    return this.cachedDevices.get(id);
+    return this.memberService
+      .memberIdGet(device.member, ["username"])
+      .pipe(
+        shareReplay(1),
+        map((result) => {
+          return result.username || "";
+        }),
+      );
   }
 }
