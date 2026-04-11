@@ -98,7 +98,7 @@
               @for (port of ports; track port.id) {
                 <tr>
                   <td>
-                    <a [routerLink]="['/port', port.id, 'view']">{{
+                    <a [routerLink]="['/port', switchId, port.id]">{{
                       port.portNumber
                     }}</a>
                   </td>
