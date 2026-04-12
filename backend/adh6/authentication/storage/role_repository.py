@@ -47,7 +47,16 @@ class RoleSQLRepository(RoleRepository):
 
         # in case a NainA is created put is_naina to true for compatibility
         if method == AuthenticationMethod.USER and (
-            len({Roles.ADMIN_WRITE, Roles.ADMIN_READ, Roles.NETWORK_WRITE, Roles.NETWORK_READ} & set(roles)) == 4
+            len(
+                {
+                    Roles.ADMIN_WRITE,
+                    Roles.ADMIN_READ,
+                    Roles.NETWORK_WRITE,
+                    Roles.NETWORK_READ,
+                }
+                & set(roles)
+            )
+            == 4
         ):
             stmt = select(Adherent).where(Adherent.login == identifier)
             adherent = await self.session.scalar(stmt)
@@ -80,5 +89,8 @@ class RoleSQLRepository(RoleRepository):
 
     def _map_to_role_mapping(self, role: AuthenticationRoleMapping) -> RoleMapping:
         return RoleMapping(
-            id=role.id, identifier=role.identifier, role=role.role.value, authentication=role.authentication.value
+            id=role.id,
+            identifier=role.identifier,
+            role=role.role.value,
+            authentication=role.authentication.value,
         )
