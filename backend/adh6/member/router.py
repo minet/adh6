@@ -555,7 +555,7 @@ async def get_member_charter_signature(
     request: Request,
 ) -> str | None:
     """Get signature date for a charter and member."""
-    require_role_or_ownership(request, Roles.USER.value, id, "charter")
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "charter")
     signed_at = await manager.get(charter_id, id)
     if isinstance(signed_at, datetime):
         return signed_at.isoformat()
