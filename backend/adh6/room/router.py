@@ -62,6 +62,7 @@ async def search_rooms(
     filter_obj = AbstractRoom.from_dict(json.loads(filter_)) if filter_ else None
     result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_obj)
     response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
 
     if only:
         # Validate only fields are valid
@@ -75,7 +76,10 @@ async def search_rooms(
             )
 
         only_fields = {"id", *requested_fields}
-        result = [{k: v for k, v in item.model_dump(by_alias=True).items() if k in only_fields} for item in result]
+        result = [
+            {k: v for k, v in item.model_dump(mode="json", by_alias=True).items() if k in only_fields}
+            for item in result
+        ]
 
     return result  # type: ignore[return-value]
 

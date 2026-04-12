@@ -259,14 +259,14 @@ paths:
             $ref: "#/components/schemas/DeviceFilter"
           style: deepObject
           explode: true
+        - $ref: "#/components/parameters/onlyDevice"
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  type: integer
-                  minimum: 0
+                  $ref: "#/components/schemas/Device"
                 type: array
           description: Success
           headers:
@@ -3047,6 +3047,7 @@ components:
         items:
           type: string
           enum:
+            - id
             - mac
             - ipv4Address
             - ipv6Address
@@ -3054,6 +3055,8 @@ components:
             - member
             - name
             - wifiPassword
+            - vendor
+            - mab
       explode: false
     onlyMember:
       description: Limit to specific attributes
@@ -3118,6 +3121,7 @@ components:
             - portNumber
             - room
             - switchObj
+            - roomObj
       explode: false
     onlySwitch:
       description: Limit to specific attributes
@@ -3587,6 +3591,17 @@ components:
           example: 01-23-45-67-89-AB
           format: mac
           type: string
+        vendor:
+          description: The vendor of this device (from MAC prefix)
+          example: Apple, Inc.
+          nullable: true
+          type: string
+          readOnly: true
+        mab:
+          description: Whether MAB is active on this device
+          example: false
+          type: boolean
+          readOnly: true
         name:
           description: The display name of this device
           nullable: true
@@ -3839,6 +3854,10 @@ components:
           description: The switch this port is a member of
           type: integer
           example: 4
+        roomObj:
+          $ref: "#/components/schemas/AbstractRoom"
+          nullable: true
+          readOnly: true
     Port:
       allOf:
         - $ref: "#/components/schemas/AbstractPort"

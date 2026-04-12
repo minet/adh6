@@ -1,9 +1,10 @@
 import datetime as dt
 
-from sqlalchemy import DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
+from adh6.room.storage.models import Chambre
 from adh6.storage import Base
 
 
@@ -30,10 +31,12 @@ class Port(Base):
     numero: Mapped[str] = mapped_column(String(255), nullable=False)
     oid: Mapped[str] = mapped_column(String(255), nullable=False)
     switch_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    chambre_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
+    chambre_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("chambres.id"), index=True, nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
+
+    room: Mapped[Chambre] = relationship("Chambre", lazy="selectin", foreign_keys=[chambre_id])

@@ -90,7 +90,7 @@ export class SwitchNewComponent implements OnInit {
     if (!this.createdSwitchId) return;
     const selected = this.discoveredPorts.filter(p => p.selected);
     if (selected.length === 0) {
-      void this.router.navigate(["/switch", this.createdSwitchId, "view"]);
+      void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
       return;
     }
 
@@ -109,7 +109,7 @@ export class SwitchNewComponent implements OnInit {
           this.notificationService.successNotification(
             `Ports ajoutés : ${result.success} succès, ${result.failed} échec(s)`
           );
-          void this.router.navigate(["/switch", this.createdSwitchId, "view"]);
+          void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
         },
         error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
       });

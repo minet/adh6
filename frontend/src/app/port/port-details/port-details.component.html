@@ -7,7 +7,7 @@
         <p><strong>OID : </strong>{{ port.oid }}</p>
         <p>
           <strong>Switch : </strong>
-          <a [routerLink]="['/switch', port.switchObj, 'view']">
+          <a [routerLink]="['/switch', port.switchObj, 'admin']">
             {{ switch_description$ | async }}
           </a>
         </p>

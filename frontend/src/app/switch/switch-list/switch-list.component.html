@@ -24,7 +24,7 @@
   @if (result$ | async; as result) {
     <tbody>
       @for (switchResult of result; track switchResult) {
-        <tr [routerLink]="['/switch', switchResult.id, 'view']">
+        <tr [routerLink]="['/switch', switchResult.id, 'admin']">
           <td>
             {{ switchResult.description }}
           </td>

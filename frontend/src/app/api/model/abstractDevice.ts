@@ -33,6 +33,14 @@ export interface AbstractDevice {
      */
     mac?: string;
     /**
+     * The vendor of this device (from MAC prefix)
+     */
+    readonly vendor?: string | null;
+    /**
+     * Whether MAB is active on this device
+     */
+    readonly mab?: boolean;
+    /**
      * The display name of this device
      */
     name?: string | null;

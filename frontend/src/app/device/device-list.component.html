@@ -9,21 +9,21 @@
 <table class="table is-hoverable is-fullwidth is-clickable">
   <thead>
     <tr>
-      <th style="width: 33%">Utilisateur</th>
-      <th style="width: 33%">MAC de l'appareil</th>
-      <th style="width: 33%">Type d'appareil</th>
+      <th style="width: 25%">Utilisateur</th>
+      <th style="width: 25%">MAC de l'appareil</th>
+      <th style="width: 25%">Type d'appareil</th>
+      <th style="width: 25%">Fabricant</th>
     </tr>
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (i of result; track i) {
-        @if (getDevice(i) | async; as device) {
-          <tr [routerLink]="['/member/view', device.member, 'profile']">
-            <td>{{ (getUsername(i) | async) || "chargement..." }}</td>
-            <td>{{ device.mac }}</td>
-            <td>{{ device.connectionType }}</td>
-          </tr>
-        }
+      @for (device of result; track device.id) {
+        <tr [routerLink]="['/member/view', device.member, 'profile']">
+          <td>{{ (getUsername(device.id!) | async) || "chargement..." }}</td>
+          <td>{{ device.mac }}</td>
+          <td>{{ device.connectionType }}</td>
+          <td>{{ device.vendor || "-" }}</td>
+        </tr>
       }
     </tbody>
   } @else {

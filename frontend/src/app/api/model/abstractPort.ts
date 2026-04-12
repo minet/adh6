@@ -9,6 +9,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { AbstractRoom } from './abstractRoom';
 
 
 export interface AbstractPort { 
@@ -32,5 +33,6 @@ export interface AbstractPort {
      * The switch this port is a member of
      */
     switchObj?: number;
+    roomObj?: AbstractRoom;
 }
 

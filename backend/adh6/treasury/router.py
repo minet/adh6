@@ -1,7 +1,7 @@
 """FastAPI router for treasury endpoints (accounts, transactions, products, etc.)."""
 
 import json
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
@@ -13,6 +13,7 @@ from fastapi import (
     Response,
     status,
 )
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
@@ -191,6 +192,7 @@ async def get_product_manager(
 async def search_accounts(
     manager: Annotated[AccountManager, Depends(get_account_manager)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -205,6 +207,8 @@ async def search_accounts(
         terms=terms,
         filter_=filter_obj,
     )
+    response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     return result
 
 
@@ -255,6 +259,7 @@ async def update_account(
 async def search_account_types(
     manager: Annotated[AccountTypeManager, Depends(get_account_type_manager)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -262,6 +267,8 @@ async def search_account_types(
     """Search account types."""
     require_role_or_ownership(request, Roles.ADMIN_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms)
+    response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     return result
 
 
@@ -288,6 +295,7 @@ async def get_account_type(
 async def search_payment_methods(
     manager: Annotated[PaymentMethodManager, Depends(get_payment_method_manager)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -295,6 +303,8 @@ async def search_payment_methods(
     """Search payment methods."""
     require_role_or_ownership(request, Roles.ADMIN_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms)
+    response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     return result
 
 
@@ -321,6 +331,7 @@ async def get_payment_method(
 async def search_products(
     manager: Annotated[ProductManager, Depends(get_product_manager)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -328,6 +339,8 @@ async def search_products(
     """Search products."""
     require_role_or_ownership(request, Roles.ADMIN_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms)
+    response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     return result
 
 
@@ -367,16 +380,17 @@ async def buy_product(
 # ============================================================================
 
 
-@transaction_router.get("")
+@transaction_router.get("", response_model=list[Transaction])
 async def search_transactions(
     manager: Annotated[TransactionManager, Depends(get_transaction_manager)],
     request: Request,
+    response: Response,
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     filter_: Annotated[str | None, Query()] = None,
     only: Annotated[str | None, Query()] = None,
-) -> list[Transaction] | list[dict]:
+) -> Any:
     """Search transactions."""
     require_role_or_ownership(request, Roles.TRESO_READ.value)
     filter_obj = _parse_transaction_filter(request, filter_)
@@ -386,6 +400,8 @@ async def search_transactions(
         terms=terms,
         filter_=filter_obj,
     )
+    response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
 
     if only:
         # Validate only fields are valid
@@ -411,7 +427,16 @@ async def search_transactions(
             )
 
         only_fields = {"id", *requested_fields}
-        result = [{k: v for k, v in item.model_dump(by_alias=True).items() if k in only_fields} for item in result]
+        return JSONResponse(
+            content=[
+                {k: v for k, v in item.model_dump(mode="json", by_alias=True).items() if k in only_fields}
+                for item in result
+            ],
+            headers={
+                "X-Total-Count": str(_count),
+                "Access-Control-Expose-Headers": "X-Total-Count",
+            },
+        )
 
     return result
 

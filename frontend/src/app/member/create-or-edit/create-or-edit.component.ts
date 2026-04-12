@@ -15,7 +15,7 @@ import {
   RoomService,
 } from "../../api";
 import {mergeMap} from "rxjs/operators";
-import {EMPTY, of} from "rxjs";
+import {EMPTY, of, switchMap, catchError} from "rxjs";
 import {Toast} from "../../notification.service";
 
 interface MemberEditForm {
@@ -135,11 +135,21 @@ export class CreateOrEditComponent implements OnInit {
           }
           return EMPTY;
         }),
+        mergeMap((member) => {
+          if (member.id != null) {
+            this.member_id = member.id;
+            this.memberEdit.patchValue(member);
+            return this.roomMemberService.roomMemberIdGet(member.id).pipe(
+              switchMap((roomId) => this.roomService.roomIdGet(roomId)),
+              catchError(() => EMPTY),
+            );
+          }
+          return EMPTY;
+        }),
       )
-      .subscribe((member) => {
-        if (member.id != null) {
-          this.member_id = member.id;
-          this.memberEdit.patchValue(member);
+      .subscribe((room) => {
+        if (room.roomNumber != null) {
+          this.memberEdit.patchValue({roomNumber: room.roomNumber});
         }
       });
   }

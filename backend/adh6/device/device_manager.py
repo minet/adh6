@@ -56,7 +56,23 @@ class DeviceManager(CRUDManager):
     @log_call
     async def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         result, count = await self.device_repository.search_by(limit=limit, offset=offset, device_filter=device_filter)
+        for device in result:
+            device.vendor = self.get_vendor_from_mac(device.mac)
         return result, count
+
+    def get_vendor_from_mac(self, mac: str | None) -> str:
+        if not mac:
+            return "-"
+        mac_address = mac[:8].upper().replace(":", "-")
+        return self.oui_repository.get(mac_address, "-")
+
+    @log_call
+    async def get_by_id(self, id: int) -> Device:
+        device = await self.device_repository.get_by_id(id)
+        if not device:
+            raise DeviceNotFoundError(id)
+        device.vendor = self.get_vendor_from_mac(device.mac)
+        return device
 
     @log_call
     async def put_mab(self, id: int) -> bool:

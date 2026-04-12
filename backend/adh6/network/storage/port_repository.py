@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.entity import AbstractPort, Port, Room, Switch
+from adh6.entity import AbstractPort, AbstractRoom, Port, Room, Switch
 from adh6.exceptions import PortNotFoundError, RoomNotFoundError, SwitchNotFoundError
 from adh6.room.storage.models import Chambre as SQLChambre
 
@@ -166,6 +166,14 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         oid=a.oid,
         room=a.chambre_id,
         switchObj=a.switch_id,
+        roomObj=AbstractRoom(
+            id=a.room.id,
+            roomNumber=a.room.numero,
+            description=a.room.description,
+            vlan=a.room.vlan.numero if a.room.vlan else None,
+        )
+        if a.room
+        else None,
     )
 
 
@@ -179,4 +187,12 @@ def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
         oid=a.oid,
         room=a.chambre_id,
         switchObj=a.switch_id,
+        roomObj=AbstractRoom(
+            id=a.room.id,
+            roomNumber=a.room.numero,
+            description=a.room.description,
+            vlan=a.room.vlan.numero if a.room.vlan else None,
+        )
+        if a.room
+        else None,
     )

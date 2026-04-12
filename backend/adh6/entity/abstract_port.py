@@ -22,6 +22,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from adh6.entity.abstract_room import AbstractRoom
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,7 +35,8 @@ class AbstractPort(BaseModel):
     oid: Optional[StrictStr] = Field(default=None, description="The oid of this port for SNMP access")
     room: Optional[StrictInt] = Field(default=None, description="The room this port is in")
     switch_obj: Optional[StrictInt] = Field(default=None, description="The switch this port is a member of", alias="switchObj")
-    __properties: ClassVar[List[str]] = ["id", "portNumber", "oid", "room", "switchObj"]
+    room_obj: Optional[AbstractRoom] = Field(default=None, alias="roomObj")
+    __properties: ClassVar[List[str]] = ["id", "portNumber", "oid", "room", "switchObj", "roomObj"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -77,6 +79,9 @@ class AbstractPort(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of room_obj
+        if self.room_obj:
+            _dict['roomObj'] = self.room_obj.to_dict()
         # set to None if port_number (nullable) is None
         # and model_fields_set contains the field
         if self.port_number is None and "port_number" in self.model_fields_set:
@@ -103,7 +108,8 @@ class AbstractPort(BaseModel):
             "portNumber": obj.get("portNumber"),
             "oid": obj.get("oid"),
             "room": obj.get("room"),
-            "switchObj": obj.get("switchObj")
+            "switchObj": obj.get("switchObj"),
+            "roomObj": AbstractRoom.from_dict(obj["roomObj"]) if obj.get("roomObj") is not None else None
         })
         return _obj
 

@@ -424,10 +424,10 @@ export class PortService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AbstractPort>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AbstractPort>>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AbstractPort>>>;
-    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AbstractPort>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AbstractPort>>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AbstractPort>>>;
+    public portGet(limit?: number, offset?: number, terms?: string, filter?: AbstractPort, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (limit !== undefined && limit !== null) {
@@ -676,10 +676,10 @@ export class PortService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractPort>;
-    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractPort>>;
-    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractPort>>;
-    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractPort>;
+    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractPort>>;
+    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractPort>>;
+    public portIdGet(id: number, only?: Array<'id' | 'oid' | 'portNumber' | 'room' | 'switchObj' | 'roomObj'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling portIdGet.');
         }

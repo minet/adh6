@@ -1,9 +1,10 @@
 import {Component, Input} from "@angular/core";
-import {map, Observable, shareReplay} from "rxjs";
-import {AbstractDevice, DeviceFilter, DeviceService} from "../../api";
+import {Observable} from "rxjs";
+import {AbstractDevice, DeviceFilter, DeviceService, Device} from "../../api";
 import {SearchPage} from "../../search-page";
 import {CommonModule, AsyncPipe} from "@angular/common";
 import {ElementComponent} from "./element/element.component";
+import {HttpResponse} from "@angular/common/http";
 
 @Component({
   imports: [CommonModule, AsyncPipe, ElementComponent],
@@ -11,13 +12,12 @@ import {ElementComponent} from "./element/element.component";
   templateUrl: "./list.component.html",
   styleUrls: ["./list.component.css"],
 })
-export class MemberDeviceListComponent extends SearchPage<number> {
+export class MemberDeviceListComponent extends SearchPage<Device> {
   @Input() abstractDeviceFilter: AbstractDevice = {};
 
-  public cachedDevices: Map<number, Observable<AbstractDevice>> = new Map();
   constructor(public deviceService: DeviceService) {
     super((terms, page) =>
-      this.deviceService
+      (this.deviceService
         .deviceGet(
           this.itemsPerPage,
           (page - 1) * this.itemsPerPage,
@@ -26,29 +26,13 @@ export class MemberDeviceListComponent extends SearchPage<number> {
             member: this.abstractDeviceFilter.member,
             connectionType: this.abstractDeviceFilter.connectionType,
           },
+          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor", "mab"] as any,
           "response",
-        )
-        .pipe(
-          map((response) => {
-            if (response.body) {
-              for (const i of response.body) {
-                this.cachedDevices.set(
-                  +i,
-                  this.deviceService.deviceIdGet(i).pipe(shareReplay(1)),
-                );
-              }
-            }
-            return response;
-          }),
-        ),
+        ) as Observable<HttpResponse<Device[]>>)
     );
   }
 
   updateSearch() {
     this.getSearchResult();
-  }
-
-  public getDevice(id: number) {
-    return this.cachedDevices.get(id);
   }
 }

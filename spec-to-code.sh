@@ -113,8 +113,8 @@ done
 
 # Je ne sais pas pourquoi, mais flemme d'investiguer, je fais comme c'était déjà fait
 echo "[FRONTEND] Patching *.service.ts files..."
-find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i '' -e 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
-find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i '' -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
+find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i -e 's/private addToHttpParams(/private addToHttpParamsBad(/g' {} \;
+find $FRONTEND_DIR/src/app/api/api -type f -name "*.service.ts" -exec sed -i -e 's/addToHttpParamsRecursive/addToHttpParams/g' {} \;
 
 echo "[FRONTEND] Add notice file..."
 echo "Directory managed by spec-to-code.sh script, DO NOT add manually any new file here." > $FRONTEND_DIR/src/app/api/README

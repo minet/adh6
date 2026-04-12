@@ -78,7 +78,7 @@ def _is_valid_email(email: str | None) -> bool:
 
 def _member_to_response_dict(member: Member) -> dict[str, Any]:
     """Serialize generated OpenAPI entity with aliases expected by integration tests."""
-    return member.model_dump(by_alias=True, exclude_none=True)
+    return member.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
 def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[str, Any]:
@@ -268,6 +268,7 @@ async def search_members(
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     # result = [await manager.get_by_id(member_id) for member_id in result]
     return result
 
@@ -278,7 +279,7 @@ async def get_member(
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     only: Annotated[str | None, Query()] = None,
-) -> Member | JSONResponse:
+) -> Any:
     """Get a specific member by ID."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "member")
     try:
@@ -542,6 +543,7 @@ async def list_charter_members(
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.get_members(charter_id)
     response.headers["X-Total-Count"] = str(_count)
+    response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     return list(result)
 
 
