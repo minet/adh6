@@ -33,6 +33,7 @@ interface MemberEditForm {
 })
 export class CreateOrEditComponent implements OnInit {
   create = false;
+  loading = false;
   public memberEdit: FormGroup<MemberEditForm>;
   private member_id!: number;
 
@@ -69,6 +70,7 @@ export class CreateOrEditComponent implements OnInit {
   }
 
   editMember() {
+    this.loading = true;
     const v = this.memberEdit.value;
     const body: MemberBody = {
       mail: v.email!,
@@ -88,10 +90,10 @@ export class CreateOrEditComponent implements OnInit {
               .roomIdMemberPost(rooms[0].id, {id: this.member_id})
               .subscribe(
                 () =>
-                  void this.router.navigate(["member/view", this.member_id]),
+                  void this.router.navigate(["member/view", this.member_id, "profile"]),
               );
           } else {
-            void this.router.navigate(["member/view", this.member_id]);
+            void this.router.navigate(["member/view", this.member_id, "profile"]);
           }
         });
       } else {

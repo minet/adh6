@@ -7,7 +7,7 @@ import {
   Validators,
 } from "@angular/forms";
 import {RouterModule} from "@angular/router";
-import {map, Observable, switchMap} from "rxjs";
+import {catchError, map, Observable, of, startWith, switchMap} from "rxjs";
 import {
   AbstractMember,
   AbstractRoom,
@@ -37,7 +37,7 @@ export class DetailsComponent {
   public roomForm: FormGroup<RoomForm> = new FormGroup({
     roomNumber: new FormControl<number | null>(null, Validators.required),
   });
-  public room$!: Observable<AbstractRoom>;
+  public roomState$!: Observable<{loading: boolean; room: AbstractRoom | null}>;
 
   constructor(
     public memberDetailService: MemberDetailService,
@@ -49,14 +49,19 @@ export class DetailsComponent {
   }
 
   public refreshRoom(): void {
-    this.room$ = this.memberDetailService.member$.pipe(
+    this.roomState$ = this.memberDetailService.member$.pipe(
       switchMap((member) => {
         if (member?.id != null) {
           return this.roomMemberService
             .roomMemberIdGet(member.id)
-            .pipe(switchMap((roomId) => this.roomService.roomIdGet(roomId)));
+            .pipe(
+              switchMap((roomId) => this.roomService.roomIdGet(roomId)),
+              map((room) => ({loading: false, room})),
+              catchError(() => of({loading: false, room: null})),
+              startWith({loading: true, room: null}),
+            );
         }
-        throw new Error("Member ID is required");
+        return of({loading: false, room: null});
       }),
     );
   }

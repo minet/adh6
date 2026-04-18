@@ -435,6 +435,7 @@ async def update_subscription(
     await manager.update(id, body)
 
 
+
 @router.post("/{id}/subscription/validate", status_code=status.HTTP_204_NO_CONTENT)
 async def validate_subscription(
     id: int,

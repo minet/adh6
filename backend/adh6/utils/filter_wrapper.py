@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 from adh6.entity.abstract_port import AbstractPort
+from adh6.entity.abstract_room import AbstractRoom
 from adh6.entity.abstract_switch import AbstractSwitch
 from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.member_filter import MemberFilter
@@ -152,6 +153,32 @@ def AbstractPortFilterHandler(  # noqa: N802
     return AbstractPortFilterWrapper(use_cache=use_cache, scope=scope)
 
 
+def _build_abstract_room_filter_dependency() -> Any:
+    def dependency(request: Request) -> AbstractRoom | None:
+        raw_filters = _extract_filter_entries(request)
+        payload = {
+            "id": _parse_optional_int(raw_filters.get("id")),
+            "roomNumber": _parse_optional_int(raw_filters.get("roomNumber")),
+            "description": raw_filters.get("description") if "description" in raw_filters else None,
+            "vlan": _parse_optional_int(raw_filters.get("vlan")),
+        }
+        return AbstractRoom.from_dict(payload)
+
+    return dependency
+
+
+def AbstractRoomFilterWrapper(  # noqa: N802
+    *,
+    use_cache: bool = True,
+    scope: Literal["function", "request"] | None = None,
+) -> Any:
+    return Depends(
+        dependency=_build_abstract_room_filter_dependency(),
+        use_cache=use_cache,
+        scope=scope,
+    )
+
+
 def AbstractSwitchFilterWrapper(  # noqa: N802
     *,
     use_cache: bool = True,
@@ -184,6 +211,7 @@ __all__ = [
     "AbstractPortFilterHandler",
     "AbstractPortFilterWrapper",
     "AbstractPortHandler",
+    "AbstractRoomFilterWrapper",
     "AbstractSwitchFilterHandler",
     "AbstractSwitchFilterWrapper",
     "DeviceFilterHandler",
