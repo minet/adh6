@@ -10,7 +10,7 @@ from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.entity import AbstractRoom, Room
-from adh6.exceptions import MemberNotFoundError, NotFoundError
+from adh6.exceptions import MemberNotFoundError, NotFoundError, WifiOnlyRestrictionError
 from adh6.member.member_manager import MemberManager
 from adh6.member.router import get_member_manager
 from adh6.member.storage import MemberRepository
@@ -133,7 +133,9 @@ async def add_member_to_room(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
         member_id = int(body.get("id", -1))
-        await member_repository.get_by_id(member_id)
+        member = await member_repository.get_by_id(member_id)
+        if member and member.wifi_only:
+            raise WifiOnlyRestrictionError("wifi-only accounts cannot be assigned to a room")  # noqa: TRY301
         room = await repository.get_by_id(id)
         previous_room = await repository.get_from_member(member_id)
         if previous_room:
@@ -147,6 +149,8 @@ async def add_member_to_room(
                 await member_manager.ethernet_vlan_changed(member_id, room.vlan)
         elif previous_room.vlan != room.vlan and room.vlan is not None:
             await member_manager.ethernet_vlan_changed(member_id, room.vlan)
+    except WifiOnlyRestrictionError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -226,7 +230,11 @@ async def add_member_to_room_patch(
     """Deprecated add member endpoint."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     member_id = int(body.get("id", -1))
-    await member_repository.get_by_id(member_id)
+    member = await member_repository.get_by_id(member_id)
+    if member and member.wifi_only:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="wifi-only accounts cannot be assigned to a room"
+        )
     room = await repository.get_by_id(id)
     previous_room = await repository.get_from_member(member_id)
     if previous_room:

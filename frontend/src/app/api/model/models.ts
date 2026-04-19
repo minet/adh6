@@ -31,6 +31,7 @@ export * from './memberFilter';
 export * from './memberIdLogsGet200Response';
 export * from './memberIdLogsGet200ResponseLogsInner';
 export * from './memberIdPasswordPutRequest';
+export * from './memberIdWifiGet200Response';
 export * from './memberStatus';
 export * from './membership';
 export * from './modelError';

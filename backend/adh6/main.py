@@ -1,6 +1,7 @@
 """FastAPI application entry point for ADH6."""
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -125,8 +126,9 @@ def _run_migrations() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
-    _log.info("Running Alembic migrations...")
-    _run_migrations()
+    if os.environ.get("TESTING", "0") != "1":
+        _log.info("Running Alembic migrations...")
+        _run_migrations()
     yield
 
 

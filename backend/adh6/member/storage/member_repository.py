@@ -206,7 +206,10 @@ def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, overrid
         adherent.subnet = entity.subnet if entity.subnet != "" else None  # type: ignore  # TODO: typing
     if entity.comment is not None or override:
         adherent.commentaires = entity.comment
-
+    if "permanent" in entity.model_fields_set and (entity.permanent is not None):
+        adherent.permanent = entity.permanent
+    if "wifi_only" in entity.model_fields_set and (entity.wifi_only is not None):
+        adherent.wifi_only = entity.wifi_only
     adherent.updated_at = now
     return adherent
 
@@ -228,6 +231,8 @@ def _map_member_sql_to_abstract_entity(adh: Adherent) -> AbstractMember:
         ip=adh.ip,
         subnet=adh.subnet,
         mailinglist=adh.mail_membership,
+        permanent=adh.permanent,
+        wifiOnly=adh.wifi_only,
     )
 
 
@@ -246,4 +251,6 @@ def _map_member_sql_to_entity(adh: Adherent) -> Member:
         ip=adh.ip,
         subnet=adh.subnet,
         mailinglist=adh.mail_membership,
+        permanent=adh.permanent,
+        wifiOnly=adh.wifi_only,
     )

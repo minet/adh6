@@ -57,6 +57,14 @@ export interface AbstractMember {
      * The current status of this membership request:  * `INITIAL` - Just created  * `PENDING_RULES` - Waiting for the member to sign the rules  * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow  * `PENDING_PAYMENT` - During the payment flow  * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation  * `COMPLETE` - The membership request is completed  * `CANCELLED` - The membership has been cancelled  * `ABORTED` - The membership request flow was aborted Do note that some of the steps may be skipped depending on the payment method, whether or not this is the member\'s first membership request etc. 
      */
     membership?: AbstractMember.MembershipEnum | null;
+    /**
+     * Whether this account is permanent (never expires, always considered active)
+     */
+    permanent?: boolean;
+    /**
+     * Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)
+     */
+    wifiOnly?: boolean;
 }
 export namespace AbstractMember {
     export type MembershipEnum = 'INITIAL' | 'PENDING_RULES' | 'PENDING_PAYMENT_INITIAL' | 'PENDING_PAYMENT' | 'PENDING_PAYMENT_VALIDATION' | 'COMPLETE' | 'CANCELLED' | 'ABORTED';

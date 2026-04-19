@@ -16,5 +16,13 @@ export interface MemberBody {
     firstName?: string;
     lastName?: string;
     mail?: string;
+    /**
+     * Whether this account is permanent (never expires, always considered active)
+     */
+    permanent?: boolean;
+    /**
+     * Whether this account is wifi-only (no wired devices, no room, cannot update subscription)
+     */
+    wifiOnly?: boolean;
 }
 

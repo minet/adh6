@@ -20,22 +20,17 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class MemberBody(BaseModel):
+class MemberIdWifiGet200Response(BaseModel):
     """
-    MemberBody
+    MemberIdWifiGet200Response
     """ # noqa: E501
-    username: Optional[StrictStr] = None
-    first_name: Optional[StrictStr] = Field(default=None, alias="firstName")
-    last_name: Optional[StrictStr] = Field(default=None, alias="lastName")
-    mail: Optional[StrictStr] = None
-    permanent: Optional[StrictBool] = Field(default=None, description="Whether this account is permanent (never expires, always considered active)")
-    wifi_only: Optional[StrictBool] = Field(default=None, description="Whether this account is wifi-only (no wired devices, no room, cannot update subscription)", alias="wifiOnly")
-    __properties: ClassVar[List[str]] = ["username", "firstName", "lastName", "mail", "permanent", "wifiOnly"]
+    wifi_only: StrictBool = Field(description="Whether this account is wifi-only", alias="wifiOnly")
+    __properties: ClassVar[List[str]] = ["wifiOnly"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -55,7 +50,7 @@ class MemberBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MemberBody from a JSON string"""
+        """Create an instance of MemberIdWifiGet200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,7 +75,7 @@ class MemberBody(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MemberBody from a dict"""
+        """Create an instance of MemberIdWifiGet200Response from a dict"""
         if obj is None:
             return None
 
@@ -88,11 +83,6 @@ class MemberBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "username": obj.get("username"),
-            "firstName": obj.get("firstName"),
-            "lastName": obj.get("lastName"),
-            "mail": obj.get("mail"),
-            "permanent": obj.get("permanent"),
             "wifiOnly": obj.get("wifiOnly")
         })
         return _obj

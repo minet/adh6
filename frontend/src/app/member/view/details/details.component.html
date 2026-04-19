@@ -27,29 +27,43 @@
           <a href="mailto:{{ member.email }}">{{ member.email }}</a>
         </td>
       </tr>
-      <tr>
-        <td>Chambre</td>
-        <td>
-          @if (roomState$ | async; as state) {
-            @if (state.room) {
-              <a [routerLink]="['/room/view/', state.room.id]">
-                {{ state.room.roomNumber }}
-              </a>
-            } @else if (!state.loading) {
-              <button
-                class="button is-warning"
-                (click)="collapseMoveIn()"
-                [disabled]="
-                  member.membership !== 'ABORTED' &&
-                  member.membership !== 'CANCELLED' &&
-                  member.membership !== 'COMPLETE'
-                ">
-                Emmenager
-              </button>
+      @if (member.permanent) {
+        <tr>
+          <td>Compte permanent</td>
+          <td><span class="tag is-success">Oui</span></td>
+        </tr>
+      }
+      @if (member.wifiOnly) {
+        <tr>
+          <td>Wi-Fi uniquement</td>
+          <td><span class="tag is-warning">Oui</span></td>
+        </tr>
+      }
+      @if (!member.wifiOnly) {
+        <tr>
+          <td>Chambre</td>
+          <td>
+            @if (roomState$ | async; as state) {
+              @if (state.room) {
+                <a [routerLink]="['/room/view/', state.room.id]">
+                  {{ state.room.roomNumber }}
+                </a>
+              } @else if (!state.loading) {
+                <button
+                  class="button is-warning"
+                  (click)="collapseMoveIn()"
+                  [disabled]="
+                    member.membership !== 'ABORTED' &&
+                    member.membership !== 'CANCELLED' &&
+                    member.membership !== 'COMPLETE'
+                  ">
+                  Emmenager
+                </button>
+              }
             }
-          }
-        </td>
-      </tr>
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
   @if (moveIn) {

@@ -43,12 +43,26 @@
     <label class="label">Mail :</label>
     <input class="input is-fullwidth" type="email" formControlName="email" />
   </div>
+  @if (!memberEdit.controls.wifiOnly.value) {
+    <div class="field">
+      <label class="label">Numéro de chambre / Room number :</label>
+      <input
+        class="input is-fullwidth"
+        formControlName="roomNumber"
+        type="number" />
+    </div>
+  }
   <div class="field">
-    <label class="label">Numéro de chambre / Room number :</label>
-    <input
-      class="input is-fullwidth"
-      formControlName="roomNumber"
-      type="number" />
+    <label class="checkbox">
+      <input type="checkbox" formControlName="permanent" />
+      Compte permanent (pas d'expiration, toujours actif)
+    </label>
+  </div>
+  <div class="field">
+    <label class="checkbox">
+      <input type="checkbox" formControlName="wifiOnly" />
+      Compte Wi-Fi uniquement (pas d'appareils filaires, pas de chambre, abonnement non modifiable)
+    </label>
   </div>
   <button
     type="submit"

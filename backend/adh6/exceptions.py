@@ -76,6 +76,11 @@ class CharterNotSigned(ValidationError):
         super().__init__(f'"{v}" charter not signed yet')
 
 
+class WifiOnlyRestrictionError(ValidationError):
+    def __init__(self, msg="wifi-only accounts are restricted"):
+        super().__init__(msg)
+
+
 class InvalidPassword(ValidationError):
     def __init__(self):
         super().__init__(

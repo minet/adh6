@@ -45,6 +45,8 @@ class Adherent(Base, RubyHashTrackable):
     datesignedhosting: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     mail_membership: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="1")
     mailinglist: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=True)
+    permanent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    wifi_only: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
 
     def take_snapshot(self) -> dict:
         snap = super().take_snapshot()

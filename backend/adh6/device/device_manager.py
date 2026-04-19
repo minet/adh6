@@ -12,6 +12,7 @@ from adh6.exceptions import (
     InvalidMACAddress,
     MemberNotFoundError,
     RoomNotFoundError,
+    WifiOnlyRestrictionError,
 )
 from adh6.member.interfaces import MemberRepository
 from adh6.misc import is_mac_address
@@ -113,6 +114,10 @@ class DeviceManager(CRUDManager):
         member = await self.member_repository.get_by_id(body.member)
         if not member:
             raise MemberNotFoundError(body.member)
+
+        if member.wifi_only and body.connection_type == "wired":
+            raise WifiOnlyRestrictionError("wifi-only accounts cannot add wired devices")
+
         room = await self.room_repository.get_from_member(body.member)
         if not room:
             raise RoomNotFoundError(f"for member {member.username}")

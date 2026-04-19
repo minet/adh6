@@ -2,6 +2,7 @@
 With context decator.
 """
 
+import asyncio
 from functools import wraps
 
 from adh6.misc import handle_error
@@ -18,8 +19,33 @@ def with_context(f):
     implement session function which create the session object
     """
 
+    if asyncio.iscoroutinefunction(f):
+
+        @wraps(f)
+        async def async_wrapper(*args, **kwargs):
+            from adh6.storage import db
+
+            try:
+                result = await f(*args, **kwargs)
+                if not isinstance(result, tuple) or len(result) <= 1:
+                    raise ValueError("Please always pass the result AND the HTTP code.")  # noqa: TRY301
+
+                status_code = result[1]
+                if status_code and (200 <= status_code <= 299 or status_code == 302):
+                    if db.session.dirty or db.session.new or db.session.deleted:
+                        db.session.commit()
+                else:
+                    raise Exception  # noqa: TRY002, TRY301
+            except Exception as e:
+                db.session.rollback()
+                return handle_error(e)
+            else:
+                return result
+
+        return async_wrapper
+
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def sync_wrapper(*args, **kwargs):
         """
         Wrap http_api function.
         """
@@ -35,15 +61,13 @@ def with_context(f):
             status_code = result[1]
             if status_code and (200 <= status_code <= 299 or status_code == 302):
                 if db.session.dirty or db.session.new or db.session.deleted:
-                    print("Code should not be called")
                     db.session.commit()  # this is bad imo  # TODO: big change
             else:
                 raise Exception  # noqa: TRY002, TRY301 # TODO: own exception
         except Exception as e:
-            print(e)
             db.session.rollback()
             return handle_error(e)
         else:
             return result
 
-    return wrapper
+    return sync_wrapper

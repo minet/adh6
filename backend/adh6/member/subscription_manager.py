@@ -27,6 +27,7 @@ from adh6.exceptions import (
     PaymentMethodNotFoundError,
     UnauthorizedError,
     UnknownPaymentMethod,
+    WifiOnlyRestrictionError,
 )
 from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
@@ -185,6 +186,9 @@ class SubscriptionManager:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
+
+        if member.wifi_only:
+            raise WifiOnlyRestrictionError("wifi-only accounts cannot update their subscription")
 
         subscription = await self.latest(member_id=member_id)
         if not subscription:
