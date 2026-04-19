@@ -134,6 +134,7 @@ class TestIsMemberActive:
         from adh6.utils.validators.member_validators import is_member_active
 
         member = MagicMock(spec=Member)
+        member.permanent = False
         member.departure_date = None
         assert is_member_active(member) is False
 
@@ -141,6 +142,7 @@ class TestIsMemberActive:
         from adh6.utils.validators.member_validators import is_member_active
 
         member = MagicMock(spec=Member)
+        member.permanent = False
         member.departure_date = date.today() + timedelta(days=365)
         assert is_member_active(member) is True
 
@@ -148,6 +150,7 @@ class TestIsMemberActive:
         from adh6.utils.validators.member_validators import is_member_active
 
         member = MagicMock(spec=Member)
+        member.permanent = False
         member.departure_date = date.today() - timedelta(days=1)
         assert is_member_active(member) is False
 
@@ -155,6 +158,7 @@ class TestIsMemberActive:
         from adh6.utils.validators.member_validators import is_member_active
 
         member = MagicMock(spec=Member)
+        member.permanent = False
         member.departure_date = datetime.now() + timedelta(days=365)
         assert is_member_active(member) is True
 
@@ -162,8 +166,16 @@ class TestIsMemberActive:
         from adh6.utils.validators.member_validators import is_member_active
 
         member = MagicMock(spec=Member)
+        member.permanent = False
         member.departure_date = datetime.now() - timedelta(days=1)
         assert is_member_active(member) is False
+
+    def test_permanent_member(self):
+        from adh6.utils.validators.member_validators import is_member_active
+
+        member = MagicMock(spec=Member)
+        member.permanent = True
+        assert is_member_active(member) is True
 
 
 class TestIsPasswordValid:
@@ -378,7 +390,7 @@ class TestWithContext:
         wrapped = with_context(mock_func)
         result = wrapped("test_value")
 
-        assert result[1] == 200
+        assert result[1] == 200  # type: ignore
 
     def test_error_response_triggers_rollback(self, monkeypatch):
         """Call a wrapped function that raises an exception."""
@@ -397,7 +409,7 @@ class TestWithContext:
         result = wrapped()
 
         mock_db_module.session.rollback.assert_called_once()
-        assert result[1] == 400  # ValueError -> 400
+        assert result[1] == 400  # type: ignore # ValueError -> 400
 
     def test_non_tuple_result_triggers_rollback(self, monkeypatch):
         """A function returning non-tuple raises ValueError, triggering rollback."""
@@ -436,5 +448,5 @@ class TestWithContext:
         wrapped = with_context(redirect_func)
         result = wrapped()
 
-        assert result[1] == 302
+        assert result[1] == 302  # type: ignore
         mock_db_module.session.commit.assert_not_called()

@@ -28,12 +28,14 @@ class TestGetCAV:
         self,
         mock_account_repository: AccountRepository,
         account_manager: AccountManager,
-        sample_account1: Account,
-        sample_account2: Account,
     ):
-        mock_account_repository.search_by = AsyncMock(return_value=([sample_account1, sample_account2], 2))
+        account1 = MagicMock(spec=Account)
+        account1.balance = 100
+        account2 = MagicMock(spec=Account)
+        account2.balance = 200
+        mock_account_repository.search_by = AsyncMock(return_value=([account1, account2], 2))
         result = await account_manager.get_cav_balance()
-        assert result == 0
+        assert result == 300
         mock_account_repository.search_by.assert_awaited_once()
 
 
