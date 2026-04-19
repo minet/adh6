@@ -28,16 +28,39 @@ class TestBuy:
         mock_product_repository.get_by_id = AsyncMock(return_value=(sample_product))
         mock_transaction_manager.update_or_create = AsyncMock()
 
-        await product_manager.buy(0, 0, [1])
+        await product_manager.buy(0, 0, author_id=42, product_ids=[1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
         mock_account_repository.search_by.assert_called()
         mock_product_repository.get_by_id.assert_called_once_with(1)
         mock_transaction_manager.update_or_create.assert_called_once()
 
+    async def test_author_id_propagated_to_transaction(
+        self,
+        sample_account1: Account,
+        sample_account2: Account,
+        sample_product: Product,
+        sample_payment_method: PaymentMethod,
+        mock_payment_method_repository: PaymentMethodRepository,
+        mock_account_repository: AccountRepository,
+        mock_product_repository: ProductRepository,
+        mock_transaction_manager: TransactionManager,
+        product_manager: ProductManager,
+    ):
+        mock_payment_method_repository.get_by_id = AsyncMock(return_value=sample_payment_method)
+        mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 1), ([sample_account2], 1)])
+        mock_product_repository.get_by_id = AsyncMock(return_value=sample_product)
+        mock_transaction_manager.update_or_create = AsyncMock()
+
+        await product_manager.buy(0, 0, author_id=99, product_ids=[1])
+
+        call_args = mock_transaction_manager.update_or_create.call_args
+        abstract_transaction = call_args[0][0]
+        assert abstract_transaction.author == 99, "author must not be None — transaction INSERT will fail"
+
     async def test_no_products(self, product_manager):
         with pytest.raises(NotFoundError):
-            await product_manager.buy(0, 0, [])
+            await product_manager.buy(0, 0, author_id=42, product_ids=[])
 
     async def test_payment_method_not_found(
         self, mock_payment_method_repository: PaymentMethodRepository, product_manager: ProductManager
@@ -47,7 +70,7 @@ class TestBuy:
         )
 
         with pytest.raises(PaymentMethodNotFoundError):
-            await product_manager.buy(0, 0, [1])
+            await product_manager.buy(0, 0, author_id=42, product_ids=[1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
 
@@ -62,7 +85,7 @@ class TestBuy:
         mock_account_repository.search_by = AsyncMock(return_value=([], 0))
 
         with pytest.raises(AccountNotFoundError):
-            await product_manager.buy(0, 0, [1])
+            await product_manager.buy(0, 0, author_id=42, product_ids=[1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
         mock_account_repository.search_by.assert_called_once()
@@ -79,7 +102,7 @@ class TestBuy:
         mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 1), ([], 0)])
 
         with pytest.raises(AccountNotFoundError):
-            await product_manager.buy(0, 0, [1])
+            await product_manager.buy(0, 0, author_id=42, product_ids=[1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
         mock_account_repository.search_by.assert_called()
@@ -99,7 +122,7 @@ class TestBuy:
         mock_product_repository.get_by_id = AsyncMock(return_value=(None), side_effect=ProductNotFoundError(""))
 
         with pytest.raises(ProductNotFoundError):
-            await product_manager.buy(0, 0, [1])
+            await product_manager.buy(0, 0, author_id=42, product_ids=[1])
 
         mock_payment_method_repository.get_by_id.assert_called_once_with(0)
         mock_account_repository.search_by.assert_called()

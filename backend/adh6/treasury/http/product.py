@@ -1,5 +1,7 @@
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.context import get_user
 from adh6.decorator import log_call, with_context
+from adh6.exceptions import UnauthenticatedError
 from adh6.treasury.product_manager import ProductManager
 
 
@@ -36,7 +38,8 @@ class ProductHandler:
     @with_context
     @log_call
     async def buy_post(self, member_id: int, payment_method: int, products: list[int]):
-        # Calls the buy method of the ProductManager object with the provided parameters
-        await self.product_manager.buy(member_id, payment_method, products)
-        # Return None and a status code indicating success
+        author_id = get_user()
+        if author_id is None:
+            raise UnauthenticatedError
+        await self.product_manager.buy(member_id, payment_method, author_id=author_id, product_ids=products)
         return None, 204

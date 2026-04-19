@@ -85,10 +85,31 @@ def sample_transaction_pending(sample_member, sample_account1, sample_account2, 
 
 
 @pytest.fixture
-async def client(_test_client, sample_transaction, sample_transaction_pending):
+async def client(
+    _test_client,
+    sample_account_type1,
+    sample_account_type2,
+    sample_account1,
+    sample_account2,
+    sample_payment_method,
+    sample_member,
+    sample_transaction,
+    sample_transaction_pending,
+):
     from .conftest import add_test_fixtures, cleanup_test_data
 
-    await add_test_fixtures([sample_transaction, sample_transaction_pending])
+    await add_test_fixtures(
+        [
+            sample_account_type1,
+            sample_account_type2,
+            sample_account1,
+            sample_account2,
+            sample_payment_method,
+            sample_member,
+            sample_transaction,
+            sample_transaction_pending,
+        ]
+    )
 
     yield _test_client
 
@@ -124,9 +145,7 @@ def test_switch_post_invalid_value(client, test_value):
     assert r.status_code == 400
 
 
-# TODO: author should not be send and should be in readonly
-@pytest.mark.xfail(reason="author id should not be send and instead be compute in the backend")
-def test_transaction_post_valid(client, sample_member_admin):
+def test_transaction_post_valid(client):
     sample_transaction1 = {
         "src": 1,
         "dst": 2,
@@ -134,16 +153,16 @@ def test_transaction_post_valid(client, sample_member_admin):
         "attachments": [],
         "value": 400,
         "paymentMethod": 1,
-        "author": sample_member_admin.id,
     }
 
-    # Insert data to the database
     r = client.post(
         f"{base_url}",
         data=json.dumps(sample_transaction1),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
-    assert r.status_code == 201
+    assert r.status_code == 200
+    body = r.json()
+    assert body["author"] is not None, "author must be set from authenticated user, not null"
     assert_transaction_in_db(sample_transaction1)
 
 
