@@ -106,6 +106,32 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     );
   }
 
+  public togglePubliclyAccessible(port: AbstractPort): void {
+    const updated: AbstractPort = { ...port, publiclyAccessible: !port.publiclyAccessible };
+    this.portService.portIdPut(this.portID, updated).pipe(
+      finalize(() => {
+        this.notificationService.successNotification("Accès public modifié");
+      }),
+    ).subscribe(() => {
+      this.port$ = this.portService.portIdGet(this.portID).pipe(
+        map((p) => {
+          if (p.roomObj) {
+            this.room_number$ = of(p.roomObj.roomNumber ?? 0);
+          }
+          if (p.switchObj) {
+            this.switch_description$ = this.switchService
+              .switchIdGet(p.switchObj, ["description"])
+              .pipe(
+                shareReplay(1),
+                map((s) => s.description ?? ""),
+              );
+          }
+          return p;
+        }),
+      );
+    });
+  }
+
   public toggleAuth(currentValue: boolean): void {
     if (currentValue) {
       void Swal.fire({

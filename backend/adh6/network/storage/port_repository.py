@@ -91,6 +91,7 @@ class PortSQLRepository(PortRepository):
             oid=abstract_port.oid,
             switch_id=switch.id if switch else None,
             chambre_id=room.id if room else None,
+            publicly_accessible=abstract_port.publicly_accessible or False,
             created_at=now,
             updated_at=now,
         )
@@ -152,6 +153,8 @@ async def _merge_sql_with_entity(
             raise SwitchNotFoundError(entity.switch_obj)
         port.switch_id = switch.id
 
+    if entity.publicly_accessible is not None or override:
+        port.publicly_accessible = entity.publicly_accessible if entity.publicly_accessible is not None else False
     port.updated_at = now
     return port
 
@@ -166,6 +169,7 @@ def _map_port_sql_to_entity(a: SQLPort) -> Port:
         oid=a.oid,
         room=a.chambre_id,
         switchObj=a.switch_id,
+        publiclyAccessible=a.publicly_accessible,
         roomObj=AbstractRoom(
             id=a.room.id,
             roomNumber=a.room.numero,
@@ -187,6 +191,7 @@ def _map_port_sql_to_abstract_entity(a: SQLPort) -> AbstractPort:
         oid=a.oid,
         room=a.chambre_id,
         switchObj=a.switch_id,
+        publiclyAccessible=a.publicly_accessible,
         roomObj=AbstractRoom(
             id=a.room.id,
             roomNumber=a.room.numero,

@@ -34,5 +34,9 @@ export interface Port {
      */
     switchObj: number;
     roomObj?: AbstractRoom;
+    /**
+     * Whether the port is publicly accessible to any member with a valid subscription
+     */
+    publiclyAccessible?: boolean;
 }
 

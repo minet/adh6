@@ -39,6 +39,7 @@ def create_mock_sql_port(id=1):
     room.vlan.numero = 41
 
     port.room = room
+    port.publicly_accessible = False
     return port
 
 

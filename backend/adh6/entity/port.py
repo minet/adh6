@@ -20,7 +20,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from adh6.entity.abstract_room import AbstractRoom
 from typing import Optional, Set
@@ -36,7 +36,8 @@ class Port(BaseModel):
     room: Optional[StrictInt] = Field(description="The room this port is in")
     switch_obj: StrictInt = Field(description="The switch this port is a member of", alias="switchObj")
     room_obj: Optional[AbstractRoom] = Field(default=None, alias="roomObj")
-    __properties: ClassVar[List[str]] = ["id", "portNumber", "oid", "room", "switchObj", "roomObj"]
+    publicly_accessible: Optional[StrictBool] = Field(default=False, description="Whether the port is publicly accessible to any member with a valid subscription", alias="publiclyAccessible")
+    __properties: ClassVar[List[str]] = ["id", "portNumber", "oid", "room", "switchObj", "roomObj", "publiclyAccessible"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -109,7 +110,8 @@ class Port(BaseModel):
             "oid": obj.get("oid"),
             "room": obj.get("room"),
             "switchObj": obj.get("switchObj"),
-            "roomObj": AbstractRoom.from_dict(obj["roomObj"]) if obj.get("roomObj") is not None else None
+            "roomObj": AbstractRoom.from_dict(obj["roomObj"]) if obj.get("roomObj") is not None else None,
+            "publiclyAccessible": obj.get("publiclyAccessible") if obj.get("publiclyAccessible") is not None else False
         })
         return _obj
 

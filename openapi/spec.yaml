@@ -3906,6 +3906,10 @@ components:
           $ref: "#/components/schemas/AbstractRoom"
           nullable: true
           readOnly: true
+        publiclyAccessible:
+          description: Whether the port is publicly accessible to any member with a valid subscription
+          type: boolean
+          default: false
     Port:
       allOf:
         - $ref: "#/components/schemas/AbstractPort"
