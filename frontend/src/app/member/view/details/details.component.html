@@ -11,7 +11,11 @@
       </tr>
       <tr>
         <td>Date de départ</td>
-        <td>{{ member.departureDate | date: "dd/MM/y" }}</td>
+        <td
+          [class.has-text-danger]="!member.permanent && member.departureDate && member.departureDate < today"
+          [style.font-weight]="!member.permanent && member.departureDate && member.departureDate < today ? 'bold' : null">
+          {{ member.departureDate | date: "dd/MM/y" }}
+        </td>
       </tr>
       <tr>
         <td>Wifi</td>
