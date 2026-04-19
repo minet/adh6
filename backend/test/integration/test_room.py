@@ -124,6 +124,39 @@ def test_room_filter_by_term(client, sample_room1):
     assert len(response) == 1
 
 
+def test_room_filter_by_room_number(client, sample_room1):
+    r = client.get(
+        f"{base_url}?filter[roomNumber]={sample_room1.numero}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode())
+    assert len(response) == 1
+    assert response[0]["roomNumber"] == sample_room1.numero
+
+
+def test_room_filter_by_room_number_no_match(client):
+    r = client.get(
+        f"{base_url}?filter[roomNumber]=9999",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode())
+    assert len(response) == 0
+
+
+def test_room_filter_by_room_number_returns_correct_room(client, sample_room1, sample_room2):
+    r = client.get(
+        f"{base_url}?filter[roomNumber]={sample_room2.numero}",
+        headers=TEST_HEADERS,
+    )
+    assert r.status_code == 200
+    response = json.loads(r.content.decode())
+    assert len(response) == 1
+    assert response[0]["roomNumber"] == sample_room2.numero
+    assert response[0]["roomNumber"] != sample_room1.numero
+
+
 def test_room_get_valid_room(client, sample_room1):
     r = client.get(
         f"{base_url}{sample_room1.id}",

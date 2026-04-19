@@ -30,21 +30,23 @@
       <tr>
         <td>Chambre</td>
         <td>
-          @if (room$ | async; as room) {
-            <a [routerLink]="['/room/view/', room.id]">
-              {{ room.roomNumber }}
-            </a>
-          } @else {
-            <button
-              class="button is-warning"
-              (click)="collapseMoveIn()"
-              [disabled]="
-                member.membership !== 'ABORTED' &&
-                member.membership !== 'CANCELLED' &&
-                member.membership !== 'COMPLETE'
-              ">
-              Emmenager
-            </button>
+          @if (roomState$ | async; as state) {
+            @if (state.room) {
+              <a [routerLink]="['/room/view/', state.room.id]">
+                {{ state.room.roomNumber }}
+              </a>
+            } @else if (!state.loading) {
+              <button
+                class="button is-warning"
+                (click)="collapseMoveIn()"
+                [disabled]="
+                  member.membership !== 'ABORTED' &&
+                  member.membership !== 'CANCELLED' &&
+                  member.membership !== 'COMPLETE'
+                ">
+                Emmenager
+              </button>
+            }
           }
         </td>
       </tr>

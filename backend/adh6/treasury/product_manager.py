@@ -29,7 +29,7 @@ class ProductManager(CRUDManager):
 
     # Define a method for buying products
     @log_call
-    async def buy(self, member_id: int, payment_method_id: int, product_ids: list[int] = []) -> None:
+    async def buy(self, member_id: int, payment_method_id: int, author_id: int, product_ids: list[int] = []) -> None:
         # If no product IDs are provided, raise an error
         if not product_ids:
             raise ProductNotFoundError("None")
@@ -64,5 +64,6 @@ class ProductManager(CRUDManager):
                     name=product.name,
                     value=product.selling_price,
                     paymentMethod=payment_method.id,  # type: ignore # TODO: typing
+                    author=author_id,
                 )
             )

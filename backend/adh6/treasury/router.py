@@ -31,7 +31,7 @@ from adh6.entity import (
     Transaction,
 )
 from adh6.exceptions import NotFoundError
-from adh6.security import require_role_or_ownership
+from adh6.security import get_user_id, require_role_or_ownership
 
 from .account_manager import AccountManager
 from .account_type_manager import AccountTypeManager
@@ -368,9 +368,13 @@ async def buy_product(
 ) -> None:
     """Buy products."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    author_id = get_user_id(request)
+    if author_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not determine authenticated user")
     await manager.buy(
         member_id=member_id,
         payment_method_id=payment_method,
+        author_id=author_id,
         product_ids=products,
     )
 
@@ -452,6 +456,10 @@ async def create_transaction(
     abstract = AbstractTransaction.from_dict(body.to_dict())
     if abstract is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid transaction data")
+    author_id = get_user_id(request)
+    if author_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not determine authenticated user")
+    abstract.author = author_id
     transaction, _created = await manager.update_or_create(abstract)
     return transaction
 

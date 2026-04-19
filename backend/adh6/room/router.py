@@ -1,7 +1,6 @@
 """FastAPI router for room endpoints."""
 
 import contextlib
-import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
@@ -16,6 +15,7 @@ from adh6.member.member_manager import MemberManager
 from adh6.member.router import get_member_manager
 from adh6.member.storage import MemberRepository
 from adh6.security import require_role_or_ownership
+from adh6.utils.filter_wrapper import AbstractRoomFilterWrapper
 
 from .storage import RoomRepository
 
@@ -54,13 +54,12 @@ async def search_rooms(
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
-    filter_: Annotated[str | None, Query()] = None,
+    filter_: Annotated[AbstractRoom, AbstractRoomFilterWrapper()] = AbstractRoom(),
     only: Annotated[str | None, Query()] = None,
 ) -> list[Room] | list[dict]:
     """Search rooms with pagination."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
-    filter_obj = AbstractRoom.from_dict(json.loads(filter_)) if filter_ else None
-    result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_obj)
+    result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
     response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
 
