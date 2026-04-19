@@ -48,7 +48,7 @@ RUN apk add --no-cache --update \
     git \
     mariadb-connector-c
 USER adh6
-COPY backend/main.py backend/manage.py ./
+COPY backend/main.py backend/manage.py backend/alembic.ini ./
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY openapi/spec.yaml openapi/spec.yaml

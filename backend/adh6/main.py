@@ -1,7 +1,11 @@
 """FastAPI application entry point for ADH6."""
 
+import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -106,14 +110,24 @@ async def handle_network_manager_read_error(request: Request, exc: Exception) ->
 # ============================================================================
 
 
+_log = logging.getLogger("uvicorn")
+
+_ROOT = Path(__file__).parent.parent
+
+
+def _run_migrations() -> None:
+    cfg = Config(str(_ROOT / "alembic.ini"))
+    cfg.set_main_option("script_location", str(_ROOT / "migrations"))
+    cfg.set_main_option("version_locations", str(_ROOT / "migrations" / "versions"))
+    command.upgrade(cfg, "head")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
-    # Startup
-    print("🚀 ADH6 Backend starting...")  # Use emoji to enforce modern terminals for viewing the logs
+    _log.info("Running Alembic migrations...")
+    _run_migrations()
     yield
-    # Shutdown
-    print("🛑 ADH6 Backend shutting down...")
 
 
 # ============================================================================
