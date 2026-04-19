@@ -707,6 +707,36 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - member
+  /member/{id}/wifi:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wifiOnly:
+                    type: boolean
+                    description: Whether this account is wifi-only
+                required:
+                  - wifiOnly
+          description: Success
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Check if a member has a wifi-only account
+      security:
+        - OpenIdConnect:
+          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - member
   /member/{id}/logs:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -3714,6 +3744,14 @@ components:
           type: string
           example: webmaster@minet.net
           format: email
+        permanent:
+          description: Whether this account is permanent (never expires, always considered active)
+          type: boolean
+          example: false
+        wifiOnly:
+          description: Whether this account is wifi-only (no wired devices, no room, cannot update subscription)
+          type: boolean
+          example: false
     AbstractMember:
       type: object
       properties:
@@ -3789,6 +3827,16 @@ components:
              * `ABORTED` - The membership request flow was aborted
             Do note that some of the steps may be skipped depending on the payment method,
             whether or not this is the member's first membership request etc.
+        permanent:
+          description: Whether this account is permanent (never expires, always considered active)
+          type: boolean
+          default: false
+          example: false
+        wifiOnly:
+          description: Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)
+          type: boolean
+          default: false
+          example: false
     Member:
       allOf:
         - $ref: "#/components/schemas/AbstractMember"

@@ -21,7 +21,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -41,7 +41,9 @@ class AbstractMember(BaseModel):
     ip: Optional[StrictStr] = Field(default=None, description="The public ipv4 address assigned to this member")
     subnet: Optional[StrictStr] = Field(default=None, description="The private ipv4 network assigned to this member")
     membership: Optional[StrictStr] = Field(default=None, description="The current status of this membership request:  * `INITIAL` - Just created  * `PENDING_RULES` - Waiting for the member to sign the rules  * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow  * `PENDING_PAYMENT` - During the payment flow  * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation  * `COMPLETE` - The membership request is completed  * `CANCELLED` - The membership has been cancelled  * `ABORTED` - The membership request flow was aborted Do note that some of the steps may be skipped depending on the payment method, whether or not this is the member's first membership request etc. ")
-    __properties: ClassVar[List[str]] = ["id", "username", "firstName", "lastName", "email", "comment", "departureDate", "mailinglist", "ip", "subnet", "membership"]
+    permanent: Optional[StrictBool] = Field(default=False, description="Whether this account is permanent (never expires, always considered active)")
+    wifi_only: Optional[StrictBool] = Field(default=False, description="Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)", alias="wifiOnly")
+    __properties: ClassVar[List[str]] = ["id", "username", "firstName", "lastName", "email", "comment", "departureDate", "mailinglist", "ip", "subnet", "membership", "permanent", "wifiOnly"]
 
     @field_validator('membership')
     def membership_validate_enum(cls, value):
@@ -136,7 +138,9 @@ class AbstractMember(BaseModel):
             "mailinglist": obj.get("mailinglist"),
             "ip": obj.get("ip"),
             "subnet": obj.get("subnet"),
-            "membership": obj.get("membership")
+            "membership": obj.get("membership"),
+            "permanent": obj.get("permanent") if obj.get("permanent") is not None else False,
+            "wifiOnly": obj.get("wifiOnly") if obj.get("wifiOnly") is not None else False
         })
         return _obj
 

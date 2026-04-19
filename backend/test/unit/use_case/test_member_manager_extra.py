@@ -169,6 +169,7 @@ def member_manager(
     mock_mailinglist_repository,
     mock_device_logs_manager,
     mock_device_ip_manager,
+    mock_room_repository,
 ):
     return MemberManager(
         member_repository=mock_member_repository,
@@ -178,7 +179,50 @@ def member_manager(
         device_logs_manager=mock_device_logs_manager,
         mailinglist_repository=mock_mailinglist_repository,
         subscription_manager=subscription_manager,
+        room_repository=mock_room_repository,
     )
+
+
+class TestSearch:
+    async def test_happy_path(
+        self,
+        mock_member_repository: MemberRepository,
+        member_manager: MemberManager,
+        sample_member: Member,
+    ):
+        mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
+
+        result, count = await member_manager.search(terms="some search")
+
+        assert result == [sample_member.id]
+        assert count == 1
+        mock_member_repository.search_by.assert_called_once_with(limit=100, offset=0, terms="some search", filter_=None)
+
+    async def test_no_results(
+        self,
+        mock_member_repository: MemberRepository,
+        member_manager: MemberManager,
+    ):
+        mock_member_repository.search_by = AsyncMock(return_value=([], 0))
+
+        result, count = await member_manager.search()
+
+        assert result == []
+        assert count == 0
+
+    async def test_result_with_none_id(
+        self,
+        mock_member_repository: MemberRepository,
+        member_manager: MemberManager,
+    ):
+        member_no_id = MagicMock(spec=Member)
+        member_no_id.id = None
+        mock_member_repository.search_by = AsyncMock(return_value=([member_no_id], 1))
+
+        result, count = await member_manager.search()
+
+        assert result == []
+        assert count == 1
 
 
 class TestGetById:
@@ -369,7 +413,7 @@ class TestUpdate:
         mock_membership_repository.search = AsyncMock(return_value=([pending_membership], 1))
 
         with raises(UpdateImpossible):
-            await member_manager.update(id=sample_member.id, body=MemberBody())
+            await member_manager.update(id=sample_member.id, body=MemberBody(username="newusername"))
 
     async def test_update_impossible_no_membership(
         self,
@@ -382,7 +426,7 @@ class TestUpdate:
         mock_membership_repository.search = AsyncMock(return_value=([], 0))
 
         with raises(UpdateImpossible):
-            await member_manager.update(id=sample_member.id, body=MemberBody())
+            await member_manager.update(id=sample_member.id, body=MemberBody(mail="new@example.com"))
 
 
 class TestGetLogs:

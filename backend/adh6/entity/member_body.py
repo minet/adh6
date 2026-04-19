@@ -20,7 +20,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -33,7 +33,9 @@ class MemberBody(BaseModel):
     first_name: Optional[StrictStr] = Field(default=None, alias="firstName")
     last_name: Optional[StrictStr] = Field(default=None, alias="lastName")
     mail: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["username", "firstName", "lastName", "mail"]
+    permanent: Optional[StrictBool] = Field(default=None, description="Whether this account is permanent (never expires, always considered active)")
+    wifi_only: Optional[StrictBool] = Field(default=None, description="Whether this account is wifi-only (no wired devices, no room, cannot update subscription)", alias="wifiOnly")
+    __properties: ClassVar[List[str]] = ["username", "firstName", "lastName", "mail", "permanent", "wifiOnly"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,7 +91,9 @@ class MemberBody(BaseModel):
             "username": obj.get("username"),
             "firstName": obj.get("firstName"),
             "lastName": obj.get("lastName"),
-            "mail": obj.get("mail")
+            "mail": obj.get("mail"),
+            "permanent": obj.get("permanent"),
+            "wifiOnly": obj.get("wifiOnly")
         })
         return _obj
 

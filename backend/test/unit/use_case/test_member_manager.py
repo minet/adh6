@@ -361,6 +361,7 @@ def member_manager(
     mock_mailinglist_repository,
     mock_device_logs_manager,
     mock_device_ip_manager,
+    mock_room_repository,
 ):
     return MemberManager(
         member_repository=mock_member_repository,
@@ -370,6 +371,7 @@ def member_manager(
         device_logs_manager=mock_device_logs_manager,
         mailinglist_repository=mock_mailinglist_repository,
         subscription_manager=subscription_manager,
+        room_repository=mock_room_repository,
     )
 
 

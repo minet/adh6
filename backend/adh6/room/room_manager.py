@@ -1,6 +1,6 @@
 from adh6.decorator import log_call
 from adh6.default.crud_manager import CRUDManager
-from adh6.exceptions import RoomNotFoundError
+from adh6.exceptions import RoomNotFoundError, WifiOnlyRestrictionError
 from adh6.member.member_manager import MemberManager
 
 from .interfaces import RoomRepository
@@ -21,7 +21,9 @@ class RoomManager(CRUDManager):
         room = await self.room_repository.get_by_id(room_id)
         if not room:
             raise RoomNotFoundError(room_id)
-        await self.member_manager.get_by_id(member_id)
+        member = await self.member_manager.get_by_id(member_id)
+        if member.wifi_only:
+            raise WifiOnlyRestrictionError("wifi-only accounts cannot be assigned to a room")
 
         previous_room = await self.room_repository.get_from_member(member_id)
         if previous_room:

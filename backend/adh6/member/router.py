@@ -32,11 +32,13 @@ from adh6.entity import (
     MemberBody,
     MemberFilter,
     MemberIdLogsGet200Response,
+    MemberIdWifiGet200Response,
     Membership,
     MemberStatus,
     SubscriptionBody,
 )
 from adh6.exceptions import MemberAlreadyExist, NotFoundError
+from adh6.room.storage import RoomRepository
 from adh6.security import require_role_or_ownership
 from adh6.subnet.storage import VLANRepository
 from adh6.subnet.vlan_manager import VlanManager
@@ -189,6 +191,7 @@ async def get_member_manager(
         device_logs_manager=device_logs_manager,
         mailinglist_repository=MailinglistReposiroty(session),
         subscription_manager=subscription_manager,
+        room_repository=RoomRepository(session),
     )
 
 
@@ -319,6 +322,21 @@ async def delete_member(
         await manager.delete(id=id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get("/{id}/wifi")
+async def get_member_wifi_status(
+    id: int,
+    manager: Annotated[MemberManager, Depends(get_member_manager)],
+    request: Request,
+) -> MemberIdWifiGet200Response:
+    """Check whether a member has a wifi-only account."""
+    require_role_or_ownership(request, Roles.NETWORK_READ.value, id, "member")
+    try:
+        member = await manager.get_by_id(id=id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return MemberIdWifiGet200Response(wifiOnly=bool(member.model_dump(by_alias=True).get("wifiOnly", False)))
 
 
 @router.get("/{id}/comment", response_model=Comment)

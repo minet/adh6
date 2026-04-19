@@ -24,6 +24,8 @@ interface MemberEditForm {
   username: FormControl<string>;
   email: FormControl<string>;
   roomNumber: FormControl<number | null>;
+  permanent: FormControl<boolean>;
+  wifiOnly: FormControl<boolean>;
 }
 
 @Component({
@@ -66,6 +68,8 @@ export class CreateOrEditComponent implements OnInit {
         validators: [Validators.required, Validators.email],
       }),
       roomNumber: new FormControl<number | null>(null),
+      permanent: new FormControl<boolean>(false, {nonNullable: true}),
+      wifiOnly: new FormControl<boolean>(false, {nonNullable: true}),
     });
   }
 
@@ -77,15 +81,22 @@ export class CreateOrEditComponent implements OnInit {
       firstName: v.firstName!,
       lastName: v.lastName!,
       username: v.username!,
+      permanent: v.permanent,
+      wifiOnly: v.wifiOnly,
     };
 
+    const wifiOnly = v.wifiOnly;
     const roomFilter =
-      v.roomNumber != null ? {roomNumber: v.roomNumber} : undefined;
+      !wifiOnly && v.roomNumber != null ? {roomNumber: v.roomNumber} : undefined;
 
-    this.roomService.roomGet(1, 0, undefined, roomFilter).subscribe((rooms) => {
+    const rooms$ = wifiOnly
+      ? of([])
+      : this.roomService.roomGet(1, 0, undefined, roomFilter);
+
+    rooms$.subscribe((rooms) => {
       if (!this.create) {
         this.memberService.memberIdPatch(this.member_id, body).subscribe(() => {
-          if (rooms.length > 0 && rooms[0].id != null) {
+          if (!wifiOnly && rooms.length > 0 && rooms[0].id != null) {
             this.roomMemberService
               .roomIdMemberPost(rooms[0].id, {id: this.member_id})
               .subscribe(
@@ -98,7 +109,7 @@ export class CreateOrEditComponent implements OnInit {
         });
       } else {
         this.memberService.memberPost(body).subscribe((id) => {
-          if (rooms.length > 0 && rooms[0].id != null && id != null) {
+          if (!wifiOnly && rooms.length > 0 && rooms[0].id != null && id != null) {
             this.roomMemberService
               .roomIdMemberPost(rooms[0].id, {id: id})
               .subscribe(() => void this.router.navigate(["/password", id, 1]));

@@ -49,6 +49,7 @@ from adh6.entity.member_filter import MemberFilter
 from adh6.entity.member_id_logs_get200_response import MemberIdLogsGet200Response
 from adh6.entity.member_id_logs_get200_response_logs_inner import MemberIdLogsGet200ResponseLogsInner
 from adh6.entity.member_id_password_put_request import MemberIdPasswordPutRequest
+from adh6.entity.member_id_wifi_get200_response import MemberIdWifiGet200Response
 from adh6.entity.member_status import MemberStatus
 from adh6.entity.membership import Membership
 from adh6.entity.payment_method import PaymentMethod

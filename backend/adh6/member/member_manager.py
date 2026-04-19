@@ -35,6 +35,7 @@ from adh6.exceptions import (
     NoSubnetAvailable,
     UpdateImpossible,
 )
+from adh6.room.interfaces import RoomRepository
 from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
 from adh6.utils.validators.member_validators import is_member_active, is_password_valid
 
@@ -52,6 +53,7 @@ class MemberManager(CRUDManager):
         device_logs_manager: DeviceLogsManager,
         mailinglist_repository: MailinglistRepository,
         subscription_manager: SubscriptionManager,
+        room_repository: RoomRepository,
     ):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
@@ -61,6 +63,7 @@ class MemberManager(CRUDManager):
         self.account_repository = account_repository
         self.account_type_repository = account_type_repository
         self.subscription_manager = subscription_manager
+        self.room_repository = room_repository
 
     @log_call
     async def search(
@@ -159,13 +162,17 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(id)
 
-        latest_sub = await self.subscription_manager.latest(id)
-        if not latest_sub or latest_sub.status not in [
-            MembershipStatus.CANCELLED.value,
-            MembershipStatus.ABORTED.value,
-            MembershipStatus.COMPLETE.value,
-        ]:
-            raise UpdateImpossible(f"member {member.username}", "membership not validated")
+        flag_only_patch = (
+            body.username is None and body.first_name is None and body.last_name is None and body.mail is None
+        )
+        if not flag_only_patch:
+            latest_sub = await self.subscription_manager.latest(id)
+            if not latest_sub or latest_sub.status not in [
+                MembershipStatus.CANCELLED.value,
+                MembershipStatus.ABORTED.value,
+                MembershipStatus.COMPLETE.value,
+            ]:
+                raise UpdateImpossible(f"member {member.username}", "membership not validated")
 
         member = await self.member_repository.update(
             AbstractMember(
@@ -174,8 +181,16 @@ class MemberManager(CRUDManager):
                 username=body.username,
                 firstName=body.first_name,
                 lastName=body.last_name,
+                permanent=body.permanent,
+                wifiOnly=body.wifi_only,
             )
         )
+
+        if body.wifi_only:
+            current_room = await self.room_repository.get_from_member(id)
+            if current_room:
+                await self.room_repository.remove_member(id)
+                await self.reset_member(id)
 
     @log_call
     async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:

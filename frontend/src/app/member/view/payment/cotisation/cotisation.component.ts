@@ -163,4 +163,21 @@ export class CotisationComponent {
       this.member?.membership === AbstractMembership.StatusEnum.Aborted
     );
   }
+
+  get isPermanent(): boolean {
+    return this.member?.permanent === true;
+  }
+
+  get isWifiOnly(): boolean {
+    return this.member?.wifiOnly === true;
+  }
+
+  get visibleOptions(): {index: number; duration: AbstractMembership.DurationEnum; price: number}[] {
+    return this.subscriptionDuration
+      .map((duration, index) => ({index, duration, price: this.subscriptionPrices[index]}))
+      .filter(({index}) => {
+        const isSansChambre = index === this.subscriptionDuration.length - 1;
+        return this.isWifiOnly ? isSansChambre : !isSansChambre;
+      });
+  }
 }

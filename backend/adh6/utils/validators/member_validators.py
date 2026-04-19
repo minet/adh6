@@ -5,6 +5,9 @@ from adh6.entity import Member
 
 
 def is_member_active(member: Member):
+    if member.permanent:
+        return True
+
     if member.departure_date is None:
         return False
 

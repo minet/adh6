@@ -84,6 +84,8 @@ def sample_member(faker) -> Member:
         lastName=faker.last_name(),
         departureDate=faker.date_this_year(after_today=True).isoformat(),
         comment=faker.sentence(),
+        permanent=False,
+        wifiOnly=False,
     )
 
 

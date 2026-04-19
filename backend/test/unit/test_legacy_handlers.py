@@ -26,11 +26,9 @@ def ctx(faker, monkeypatch):
     """Setup context with admin user roles."""
     import adh6.context as context
 
-    monkeypatch.setattr(context, "get_user", lambda: 28, raising=False)
-    monkeypatch.setattr(
-        context,
-        "get_roles",
-        lambda: [
+    context.set_user(28)
+    context.set_roles(
+        [
             Roles.USER.value,
             Roles.ADMIN_READ.value,
             Roles.ADMIN_WRITE.value,
@@ -38,8 +36,7 @@ def ctx(faker, monkeypatch):
             Roles.TRESO_WRITE.value,
             Roles.NETWORK_READ.value,
             Roles.NETWORK_WRITE.value,
-        ],
-        raising=False,
+        ]
     )
 
 

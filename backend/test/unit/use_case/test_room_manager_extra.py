@@ -66,7 +66,7 @@ class TestAddMember:
         sample_room: Room,
     ):
         mock_room_repository.get_by_id = AsyncMock(return_value=sample_room)
-        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1))
+        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1, wifi_only=False))
         mock_room_repository.get_from_member = AsyncMock(return_value=None)
         mock_room_repository.add_member = AsyncMock(return_value=None)
         mock_member_manager.update_subnet = AsyncMock(return_value=None)
@@ -88,7 +88,7 @@ class TestAddMember:
     ):
         previous_room = Room(id=999, roomNumber=100, vlan=sample_room.vlan, description="Other room")
         mock_room_repository.get_by_id = AsyncMock(return_value=sample_room)
-        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1))
+        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1, wifi_only=False))
         mock_room_repository.get_from_member = AsyncMock(return_value=previous_room)
         mock_room_repository.remove_member = AsyncMock(return_value=None)
         mock_room_repository.add_member = AsyncMock(return_value=None)
@@ -111,7 +111,7 @@ class TestAddMember:
         sample_room_different_vlan: Room,
     ):
         mock_room_repository.get_by_id = AsyncMock(return_value=sample_room)
-        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1))
+        mock_member_manager.get_by_id = AsyncMock(return_value=MagicMock(id=1, wifi_only=False))
         mock_room_repository.get_from_member = AsyncMock(return_value=sample_room_different_vlan)
         mock_room_repository.remove_member = AsyncMock(return_value=None)
         mock_room_repository.add_member = AsyncMock(return_value=None)
