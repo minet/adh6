@@ -33,6 +33,7 @@ interface RoomForm {
   templateUrl: "./details.component.html",
 })
 export class DetailsComponent {
+  public today = new Date().toISOString().slice(0, 10);
   public moveIn = false;
   public roomForm: FormGroup<RoomForm> = new FormGroup({
     roomNumber: new FormControl<number | null>(null, Validators.required),

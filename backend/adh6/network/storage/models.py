@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -32,6 +32,7 @@ class Port(Base):
     oid: Mapped[str] = mapped_column(String(255), nullable=False)
     switch_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     chambre_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("chambres.id"), index=True, nullable=True)
+    publicly_accessible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="0")
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )

@@ -23,6 +23,13 @@
           }
         </p>
         <p><strong>VLAN actuel : </strong>{{ vlan$ | async }}</p>
+        <label class="checkbox">
+          <input
+            type="checkbox"
+            [checked]="!!port.publiclyAccessible"
+            (change)="togglePubliclyAccessible(port)" />
+          <strong> Accès public</strong>
+        </label>
       </div>
       <div class="column">
         <h4 class="title is-4 has-text-centered">Configuration</h4>
