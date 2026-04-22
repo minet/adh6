@@ -260,6 +260,7 @@ async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
         "uid": uid,
         "scope": [Roles.USER.value, *roles],
         "groups": [],
+        "adh6_id": uid,
         "username": api_key.user_login,
         "auth_method": "api_key",
     }
