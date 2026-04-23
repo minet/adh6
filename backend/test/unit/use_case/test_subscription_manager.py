@@ -11,7 +11,6 @@ from adh6.exceptions import (
     MembershipStatusNotAllowed,
     NoPriceAssignedToThatDuration,
     PaymentMethodNotFoundError,
-    UnauthorizedError,
 )
 from adh6.member.interfaces import (
     CharterRepository,
