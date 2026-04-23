@@ -11,7 +11,6 @@ from adh6.exceptions import (
     MembershipStatusNotAllowed,
     NoPriceAssignedToThatDuration,
     PaymentMethodNotFoundError,
-    UnauthorizedError,
 )
 from adh6.member.interfaces import (
     CharterRepository,
@@ -638,15 +637,6 @@ class TestAddMembershipPaymentRecord:
         mock_account_repository.search_by.assert_called()
         mock_account_repository.get_by_id.assert_called_once()
         mock_transaction_manager.update_or_create.assert_called_once()
-
-    async def test_free_not_super_admin(
-        self,
-        ctx_only_admin,
-        subscription_manager: SubscriptionManager,
-        sample_membership_pending_payment_validation: Membership,
-    ):
-        with pytest.raises(UnauthorizedError):
-            await subscription_manager.add_payment_record(sample_membership_pending_payment_validation, True)
 
 
 @pytest.fixture

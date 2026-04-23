@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.member.storage.models import Adherent, Membership
+from adh6.room.storage.models import RoomMemberLink
 
 from test.integration.context import tomorrow
 from test.integration.resource import TEST_HEADERS, base_url as host_url
@@ -237,3 +238,85 @@ def test_patch_member_sets_wifi_only_flag(client_wifi_only, permanent_member: Ad
     r2 = client_wifi_only.get(f"{member_url}{permanent_member.id}", headers=TEST_HEADERS)
     body = json.loads(r2.content.decode("utf-8"))
     assert body.get("wifiOnly") is True
+
+
+# ── wifi_only subnet preservation / allocation tests ─────────────────────────
+
+
+@pytest.fixture
+def member_with_subnet(sample_room1):
+    """Active member already holding a wireless subnet/IP, linked to a room."""
+    yield Adherent(
+        id=53,
+        nom="SubnetHolder",
+        prenom="Test",
+        mail="subnetholder@test.net",
+        login="subnet_holder",
+        password="a",
+        chambre_id=sample_room1.id,
+        date_de_depart=tomorrow,
+        mail_membership=1,
+        ip="157.159.192.2",
+        subnet="10.42.0.16/28",
+    )
+
+
+@pytest.fixture
+def room_link_for_member_with_subnet(sample_room1, member_with_subnet):
+    yield RoomMemberLink(room_id=sample_room1.id, member_id=member_with_subnet.id)
+
+
+@pytest.fixture
+async def client_wifi_subnet(
+    _test_client,
+    member_with_subnet,
+    permanent_member,
+    room_link_for_member_with_subnet,
+    sample_room1,
+    sample_vlan,
+):
+    from .conftest import add_test_fixtures, cleanup_test_data
+
+    await add_test_fixtures(
+        [
+            sample_vlan,
+            sample_room1,
+            member_with_subnet,
+            permanent_member,
+            room_link_for_member_with_subnet,
+        ]
+    )
+
+    yield _test_client
+
+    await cleanup_test_data()
+
+
+def test_set_wifi_only_preserves_existing_subnet(client_wifi_subnet, member_with_subnet: Adherent):
+    """Enabling wifiOnly for a member who already has a subnet keeps subnet and IP intact."""
+    r = client_wifi_subnet.patch(
+        f"{member_url}{member_with_subnet.id}",
+        data=json.dumps({"wifiOnly": True}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+
+    r2 = client_wifi_subnet.get(f"{member_url}{member_with_subnet.id}", headers=TEST_HEADERS)
+    body = json.loads(r2.content.decode("utf-8"))
+    assert body.get("ip") is not None and body.get("ip") != ""
+    assert body.get("subnet") is not None and body.get("subnet") != ""
+
+
+def test_set_wifi_only_allocates_subnet_when_none(client_wifi_subnet, permanent_member: Adherent):
+    """Enabling wifiOnly for an active member with no subnet allocates one for wifi access."""
+    r = client_wifi_subnet.patch(
+        f"{member_url}{permanent_member.id}",
+        data=json.dumps({"wifiOnly": True}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+
+    r2 = client_wifi_subnet.get(f"{member_url}{permanent_member.id}", headers=TEST_HEADERS)
+    body = json.loads(r2.content.decode("utf-8"))
+    assert body.get("ip") is not None and body.get("ip") != ""
+    assert body.get("subnet") is not None and body.get("subnet") != ""

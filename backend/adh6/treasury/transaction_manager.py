@@ -32,7 +32,7 @@ class TransactionManager(CRUDManager):
             raise ValidationError("the source and destination accounts must not be the same")
         if abstract_transaction.value is None:
             raise ValidationError("the value field should not be None")
-        if abstract_transaction.value <= 0:
+        if abstract_transaction.value < 0:
             raise IntMustBePositive("value")
 
         # Context-based role resolution from legacy Connexion handlers is not

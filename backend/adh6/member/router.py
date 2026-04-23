@@ -463,6 +463,8 @@ async def validate_subscription(
 ) -> None:
     """Validate a member's subscription."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    if free:
+        require_role_or_ownership(request, Roles.TRESO_WRITE.value)
     await subscription_manager.validate(id, free)
     await member_manager.update_subnet(id)
 

@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-from adh6.authentication.enums import Roles
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -25,7 +24,6 @@ from adh6.exceptions import (
     MembershipStatusNotAllowed,
     NoPriceAssignedToThatDuration,
     PaymentMethodNotFoundError,
-    UnauthorizedError,
     UnknownPaymentMethod,
     WifiOnlyRestrictionError,
 )
@@ -260,11 +258,6 @@ class SubscriptionManager:
 
     @log_call
     async def add_payment_record(self, membership: Membership, free: bool) -> None:
-        from adh6.context import get_roles
-
-        if free and Roles.TRESO_WRITE.value not in get_roles():
-            raise UnauthorizedError("Impossibilité de faire une cotisation gratuite")
-
         if membership.payment_method is None:
             raise MembershipNotFoundError(None)
         payment_method = await self.payment_method_repository.get_by_id(membership.payment_method)
