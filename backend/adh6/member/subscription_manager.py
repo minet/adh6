@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-from adh6.authentication.enums import Roles
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -25,7 +24,6 @@ from adh6.exceptions import (
     MembershipStatusNotAllowed,
     NoPriceAssignedToThatDuration,
     PaymentMethodNotFoundError,
-    UnauthorizedError,
     UnknownPaymentMethod,
     WifiOnlyRestrictionError,
 )
