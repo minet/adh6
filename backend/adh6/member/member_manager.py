@@ -190,7 +190,8 @@ class MemberManager(CRUDManager):
             current_room = await self.room_repository.get_from_member(id)
             if current_room:
                 await self.room_repository.remove_member(id)
-                await self.reset_member(id)
+            if not member.subnet:
+                await self.update_subnet(id)
 
     @log_call
     async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
