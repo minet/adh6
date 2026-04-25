@@ -51,3 +51,4 @@ export * from './subscriptionBody';
 export * from './switch';
 export * from './transaction';
 export * from './vlan';
+export * from './vlanStats';

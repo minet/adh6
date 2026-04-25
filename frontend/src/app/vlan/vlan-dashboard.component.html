@@ -1,0 +1,140 @@
+<div class="section px-3 py-4">
+  <div class="level mb-4">
+    <div class="level-left">
+      <div class="level-item">
+        <div>
+          <h1 class="title is-4 mb-1">VLANs</h1>
+          <p class="subtitle is-6 has-text-grey">Disponibilité des adresses IP par réseau</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (vlans$ | async; as vlans) {
+    @if (vlans.length === 0) {
+      <div class="notification is-info is-light has-text-centered">
+        <p>Aucun VLAN trouvé.</p>
+      </div>
+    } @else {
+      <div class="columns is-multiline is-mobile">
+        @for (vlan of vlans; track vlan.id) {
+          <div class="column is-full-mobile is-half-tablet is-one-third-desktop is-one-quarter-widescreen">
+            <div class="card" [class.has-border-danger]="vlan.isOverLimit">
+              <div class="card-content p-4">
+
+                <!-- Header row: VLAN badge + usage tag -->
+                <div class="is-flex is-justify-content-space-between is-align-items-center mb-3 gap-2" style="flex-wrap: wrap; gap: 0.5rem;">
+                  <span class="tag is-dark is-medium has-text-weight-bold">
+                    VLAN&nbsp;{{ vlan.number }}
+                  </span>
+                  @if (vlan.capacity !== null && vlan.capacity !== undefined) {
+                    <span
+                      class="tag is-medium"
+                      [ngClass]="{
+                        'is-success': !vlan.isOverLimit && vlan.fillPct < 75,
+                        'is-warning': !vlan.isOverLimit && vlan.fillPct >= 75,
+                        'is-danger': vlan.isOverLimit
+                      }">
+                      {{ vlan.deviceCount | number }} / {{ vlan.capacity | number }}
+                    </span>
+                  } @else {
+                    <span class="tag is-light is-medium">{{ vlan.deviceCount }} appareils</span>
+                  }
+                </div>
+
+                <!-- Networks -->
+                @if (vlan.ipv4Network) {
+                  <div class="mb-1">
+                    <span class="icon-text has-text-grey-dark is-size-7">
+                      <span class="icon is-small"><i class="fas fa-network-wired"></i></span>
+                      <span class="is-family-monospace" style="word-break: break-all;">{{ vlan.ipv4Network }}</span>
+                    </span>
+                  </div>
+                }
+                @if (vlan.ipv6Network) {
+                  <div class="mb-3">
+                    <span class="icon-text has-text-grey is-size-7">
+                      <span class="icon is-small"><i class="fas fa-globe"></i></span>
+                      <span class="is-family-monospace" style="word-break: break-all; font-size: 0.7em;">{{ vlan.ipv6Network }}</span>
+                    </span>
+                  </div>
+                }
+                @if (!vlan.ipv4Network && !vlan.ipv6Network) {
+                  <div class="mb-3"></div>
+                }
+
+                <!-- Progress bar -->
+                @if (vlan.capacity !== null && vlan.capacity !== undefined && vlan.capacity > 0) {
+                  <progress
+                    class="progress mb-1 is-small"
+                    [ngClass]="progressClass(vlan)"
+                    [value]="vlan.fillPct"
+                    max="100">
+                  </progress>
+                  <p class="is-size-7 has-text-grey has-text-right">
+                    @if (vlan.isOverLimit) {
+                      <span class="has-text-danger has-text-weight-semibold">Capacité dépassée</span>
+                    } @else {
+                      {{ vlan.fillPct | number: '1.0-1' }}% alloué
+                    }
+                  </p>
+                } @else {
+                  <div style="height: 1.5rem;"></div>
+                  <p class="is-size-7 has-text-grey has-text-right">Sous-réseau non défini</p>
+                }
+
+                <!-- Over-limit devices expandable list -->
+                @if (vlan.overLimitDevices && vlan.overLimitDevices.length > 0) {
+                  <details class="mt-3">
+                    <summary class="is-size-7 has-text-danger has-text-weight-semibold" style="cursor: pointer; list-style: none;">
+                      <span class="icon-text">
+                        <span class="icon is-small"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span>{{ vlan.overLimitDevices.length }} appareil(s) sans IP</span>
+                        <span class="icon is-small"><i class="fas fa-chevron-down"></i></span>
+                      </span>
+                    </summary>
+                    <div class="mt-2" style="max-height: 12rem; overflow-y: auto;">
+                      <table class="table is-narrow is-fullwidth is-size-7">
+                        <thead>
+                          <tr>
+                            <th>MAC</th>
+                            <th>Nom</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (device of vlan.overLimitDevices; track device.id) {
+                            <tr>
+                              <td class="is-family-monospace">{{ device.mac }}</td>
+                              <td>{{ device.name || '—' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                }
+
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  } @else {
+    <!-- Loading skeleton -->
+    <div class="columns is-multiline is-mobile">
+      @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+        <div class="column is-full-mobile is-half-tablet is-one-third-desktop is-one-quarter-widescreen">
+          <div class="card">
+            <div class="card-content p-4">
+              <div class="skeleton-block mb-3" style="height: 1.5rem; width: 45%;"></div>
+              <div class="skeleton-block mb-2" style="height: 0.9rem; width: 65%;"></div>
+              <div class="skeleton-block mb-3" style="height: 0.9rem; width: 80%;"></div>
+              <div class="skeleton-block" style="height: 0.6rem;"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

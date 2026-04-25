@@ -2,7 +2,7 @@ import typing as t
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
-from adh6.entity import AbstractDevice, Device, DeviceFilter, Member, Vlan
+from adh6.entity import AbstractDevice, AbstractVlan, Device, DeviceFilter, Member
 from adh6.subnet.vlan_manager import VlanManager
 
 from .interfaces import DeviceRepository, IpAllocator
@@ -56,7 +56,7 @@ class DeviceIpManager:
         await self.allocate_ip_with_vlan(device=device, member=member, vlan=vlan)
 
     @log_call
-    async def allocate_ip_with_vlan(self, device: Device, member: Member, vlan: Vlan | None) -> None:
+    async def allocate_ip_with_vlan(self, device: Device, member: Member, vlan: AbstractVlan | None) -> None:
         ipv4_network = ""
         if device.connection_type == DeviceType.wired.name and vlan:
             ipv4_network = vlan.ipv4_network

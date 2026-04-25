@@ -2556,6 +2556,52 @@ paths:
             - network:read
       tags:
       - vlan
+  /vlans:
+    get:
+      operationId: vlans_get
+      summary: List all VLANs
+      responses:
+        "200":
+          description: List of all VLANs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AbstractVlan"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      security:
+        - OpenIdConnect:
+          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - vlan
+  /vlans/stats:
+    get:
+      operationId: vlans_stats_get
+      summary: List all VLANs with device counts and over-limit devices
+      responses:
+        "200":
+          description: List of VLAN statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VlanStats"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      security:
+        - OpenIdConnect:
+          - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - vlan
   /transaction:
     get:
       parameters:
@@ -4051,6 +4097,41 @@ components:
             - ipv4Network
             - ipv6Network
       type: object
+    VlanStats:
+      type: object
+      properties:
+        id:
+          description: The unique identifier of this vlan
+          readOnly: true
+          type: integer
+        number:
+          description: The number of this VLAN
+          minimum: 1
+          maximum: 2048
+          type: integer
+        ipv4Network:
+          description: The IPv4 network range for this VLAN
+          type: string
+          nullable: true
+        ipv6Network:
+          description: The IPv6 network range for this VLAN
+          type: string
+          nullable: true
+        deviceCount:
+          description: Number of devices with an assigned IP in this VLAN
+          type: integer
+        capacity:
+          description: Total usable IP addresses in this VLAN's subnet
+          type: integer
+          nullable: true
+        overLimitDevices:
+          description: Devices without an assigned IP (VLAN over capacity)
+          type: array
+          items:
+            $ref: "#/components/schemas/AbstractDevice"
+      required:
+        - deviceCount
+        - overLimitDevices
     Error:
       type: object
       properties:

@@ -68,3 +68,4 @@ from adh6.entity.subscription_body import SubscriptionBody
 from adh6.entity.switch import Switch
 from adh6.entity.transaction import Transaction
 from adh6.entity.vlan import Vlan
+from adh6.entity.vlan_stats import VlanStats
