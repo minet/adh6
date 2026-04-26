@@ -96,7 +96,7 @@ export class MembershipService {
 
     /**
      * Add a membership record for a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param subscriptionBody The membership to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -187,7 +187,7 @@ export class MembershipService {
 
     /**
      * Add a membership record for a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param subscriptionBody The membership to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -278,7 +278,7 @@ export class MembershipService {
 
     /**
      * Validate a pending transaction
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param free Should the membership be free
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

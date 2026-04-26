@@ -1,6 +1,5 @@
 // File generated using spec-to-code.sh, DO NOT EDIT MANUALLY.
 
-export * from './abstractAccount';
 export * from './abstractDevice';
 export * from './abstractMember';
 export * from './abstractMembership';
@@ -11,13 +10,9 @@ export * from './abstractRoom';
 export * from './abstractSwitch';
 export * from './abstractTransaction';
 export * from './abstractVlan';
-export * from './account';
-export * from './accountType';
 export * from './apiKey';
 export * from './apiKeysPostRequest';
-export * from './bank';
 export * from './bulkOperationResult';
-export * from './cashbox';
 export * from './comment';
 export * from './device';
 export * from './deviceBody';

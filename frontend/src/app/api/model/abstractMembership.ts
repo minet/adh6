@@ -33,10 +33,6 @@ export interface AbstractMembership {
      */
     paymentMethod?: number | null;
     /**
-     * The id of the source account from which to execute the transaction
-     */
-    account?: number | null;
-    /**
      * The id of the member to whom this membership applies
      */
     member?: number;

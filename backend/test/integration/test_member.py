@@ -18,30 +18,31 @@ base_url = f"{host_url}/member/"
 @pytest.fixture
 async def client(
     _test_client,
+    sample_vlan,
+    sample_room1,
     sample_member,
     sample_member2,
     sample_member3,
     sample_member_admin,
-    account_type,
-    sample_account,
     sample_payment_method,
     sample_complete_membership,
     sample_pending_validation_membership,
 ):
     """Client fixture for member tests."""
-    from .conftest import add_test_fixtures, cleanup_test_data
+    from .conftest import add_test_fixtures, api_key_fixtures, cleanup_test_data
 
     await add_test_fixtures(
         [
-            account_type,
+            sample_vlan,
+            sample_room1,
             sample_member,
             sample_member2,
             sample_member3,
             sample_member_admin,
-            sample_account,
             sample_payment_method,
             sample_complete_membership,
             sample_pending_validation_membership,
+            *api_key_fixtures(),
         ]
     )
 

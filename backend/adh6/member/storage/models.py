@@ -71,7 +71,6 @@ class Membership(Base):
     __tablename__ = "membership"
 
     uuid: Mapped[str] = mapped_column(String(36), primary_key=True)
-    account_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     duration: Mapped[Any] = mapped_column(
         Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False
     )  # TODO: typing

@@ -17,7 +17,6 @@
 
 
 # import models into model package
-from adh6.entity.abstract_account import AbstractAccount
 from adh6.entity.abstract_device import AbstractDevice
 from adh6.entity.abstract_member import AbstractMember
 from adh6.entity.abstract_membership import AbstractMembership
@@ -28,13 +27,9 @@ from adh6.entity.abstract_room import AbstractRoom
 from adh6.entity.abstract_switch import AbstractSwitch
 from adh6.entity.abstract_transaction import AbstractTransaction
 from adh6.entity.abstract_vlan import AbstractVlan
-from adh6.entity.account import Account
-from adh6.entity.account_type import AccountType
 from adh6.entity.api_key import ApiKey
 from adh6.entity.api_keys_post_request import ApiKeysPostRequest
-from adh6.entity.bank import Bank
 from adh6.entity.bulk_operation_result import BulkOperationResult
-from adh6.entity.cashbox import Cashbox
 from adh6.entity.comment import Comment
 from adh6.entity.device import Device
 from adh6.entity.device_body import DeviceBody

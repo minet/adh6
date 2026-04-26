@@ -3,9 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.entity import Account, Member, Membership, PaymentMethod, SubscriptionBody
+from adh6.entity import Member, Membership, PaymentMethod, SubscriptionBody
 from adh6.exceptions import (
-    AccountNotFoundError,
     MemberNotFoundError,
     MembershipNotFoundError,
     MembershipStatusNotAllowed,
@@ -19,7 +18,7 @@ from adh6.member.interfaces import (
 )
 from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
-from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
+from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 
@@ -35,7 +34,6 @@ class TestNewMembership:
         mock_member_repository.get_by_id = AsyncMock(return_value=(None), side_effect=MemberNotFoundError(""))
         assert sample_member.id is not None
 
-        # When...
         with pytest.raises(MemberNotFoundError):
             await subscription_manager.create(sample_member.id, SubscriptionBody())
 
@@ -52,11 +50,8 @@ class TestNewMembership:
         mock_subscription_repository.search = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value="")
         assert sample_member.id is not None
-        # When...
         await subscription_manager.create(sample_member.id, sample_subscription_empty)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
+        mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_pending_payment_initial(
         self,
@@ -70,11 +65,8 @@ class TestNewMembership:
         mock_subscription_repository.search = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
-        # When...
         await subscription_manager.create(sample_member.id, SubscriptionBody())
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
+        mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_pending_payment(
         self,
@@ -82,43 +74,33 @@ class TestNewMembership:
         mock_member_repository: MemberRepository,
         sample_member: Member,
         mock_charter_repository: CharterRepository,
-        sample_subscription_duration_no_account: SubscriptionBody,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
-        # When...
         await subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
+        mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_payment_validation(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
         mock_charter_repository: CharterRepository,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_account1: Account,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_payment_method: PaymentMethod,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([], 0))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
-        # When...
-        await subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.create.assert_called_once()  # type: ignore  # TODO: typing (generics)
+        await subscription_manager.create(sample_member.id, sample_subscription_duration_payment_method)
+        mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_unknown_member(
         self,
@@ -133,40 +115,18 @@ class TestNewMembership:
         with pytest.raises(MemberNotFoundError):
             await subscription_manager.create(sample_member.id, sample_subscription_empty)
 
-    async def test_unknown_account(
-        self,
-        mock_subscription_repository: MembershipRepository,
-        mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
-        sample_member: Member,
-        mock_charter_repository: CharterRepository,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        subscription_manager: SubscriptionManager,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(None), side_effect=AccountNotFoundError(""))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
-        assert sample_member.id is not None
-
-        with pytest.raises(AccountNotFoundError):
-            await subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
-
     async def test_unknown_payment_method(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
         mock_charter_repository: CharterRepository,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_account1: Account,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([], 0))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
         )
@@ -174,7 +134,7 @@ class TestNewMembership:
         assert sample_member.id is not None
 
         with pytest.raises(PaymentMethodNotFoundError):
-            await subscription_manager.create(sample_member.id, sample_subscription_duration_account_payment_method)
+            await subscription_manager.create(sample_member.id, sample_subscription_duration_payment_method)
 
     async def test_unknown_price_assign_to_duration(
         self,
@@ -211,15 +171,11 @@ class TestPatchMembership:
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
-        # When...
         await subscription_manager.update(sample_member.id, sample_subscription_empty)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_from_pending_rules_to_pending_payment(
         self,
@@ -227,7 +183,7 @@ class TestPatchMembership:
         mock_member_repository: MemberRepository,
         sample_member: Member,
         mock_charter_repository: CharterRepository,
-        sample_subscription_duration_no_account: SubscriptionBody,
+        sample_subscription_duration_no_payment_method: SubscriptionBody,
         sample_membership_pending_rules: Membership,
         subscription_manager: SubscriptionManager,
     ):
@@ -236,48 +192,36 @@ class TestPatchMembership:
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
-        # When...
-        await subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
+        await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_from_pending_rules_to_pending_payment_validation(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
         mock_charter_repository: CharterRepository,
         sample_membership_pending_rules: Membership,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_account1: Account,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_payment_method: PaymentMethod,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
-        # When...
-        await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
-        mock_account_repository.get_by_id.assert_called_once()
-        mock_payment_method_repository.get_by_id.assert_called_once()
+        await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_from_pending_payment_initial_to_pending_payment(
         self,
@@ -286,7 +230,7 @@ class TestPatchMembership:
         sample_member: Member,
         mock_charter_repository: CharterRepository,
         sample_membership_pending_payment_initial: Membership,
-        sample_subscription_duration_no_account: SubscriptionBody,
+        sample_subscription_duration_no_payment_method: SubscriptionBody,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
@@ -294,71 +238,55 @@ class TestPatchMembership:
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
-        # When...
-        await subscription_manager.update(sample_member.id, sample_subscription_duration_no_account)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_not_called()
+        await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_not_called()  # type: ignore[attr-defined]
 
     async def test_from_pending_payment_initial_to_pending_payment_validation(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
         sample_membership_pending_payment_initial: Membership,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_account1: Account,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_payment_method: PaymentMethod,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment_initial], 1))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
-        # When...
-        await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_account_repository.get_by_id.assert_called_once()
+        await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_from_pending_payment_to_pending_payment_validation(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
         sample_membership_pending_payment: Membership,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_account1: Account,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_payment_method: PaymentMethod,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment], 1))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
-        # When...
-        await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
-
-        # Expect to create a new membership record...
-        mock_subscription_repository.update.assert_called_once()  # type: ignore  # TODO: typing (generics)
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_account_repository.get_by_id.assert_called_once()
+        await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
+        mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_unknown_member(
         self,
@@ -372,8 +300,8 @@ class TestPatchMembership:
 
         with pytest.raises(MemberNotFoundError):
             await subscription_manager.update(sample_member.id, SubscriptionBody())
-            mock_member_repository.get_by_id.assert_called_once()
-            mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
+            mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+            mock_subscription_repository.update.assert_not_called()  # type: ignore[attr-defined]
 
     async def test_unknown_membership(
         self,
@@ -388,50 +316,21 @@ class TestPatchMembership:
 
         with pytest.raises(MembershipNotFoundError):
             await subscription_manager.update(sample_member.id, SubscriptionBody())
-            mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
-
-    async def test_unknown_account(
-        self,
-        mock_subscription_repository: MembershipRepository,
-        mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
-        sample_member: Member,
-        mock_charter_repository: CharterRepository,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
-        sample_membership_pending_rules: Membership,
-        subscription_manager: SubscriptionManager,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(None), side_effect=AccountNotFoundError(""))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
-        assert sample_member.id is not None
-
-        with pytest.raises(AccountNotFoundError):
-            await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
-
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_account_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
+            mock_subscription_repository.update.assert_not_called()  # type: ignore[attr-defined]
 
     async def test_unknown_payment_method(
         self,
         mock_subscription_repository: MembershipRepository,
         mock_member_repository: MemberRepository,
         mock_charter_repository: CharterRepository,
-        mock_account_repository: AccountRepository,
         mock_payment_method_repository: PaymentMethodRepository,
         sample_member: Member,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_membership_pending_rules: Membership,
-        sample_account1: Account,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
@@ -439,14 +338,13 @@ class TestPatchMembership:
         assert sample_member.id is not None
 
         with pytest.raises(PaymentMethodNotFoundError):
-            await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
+            await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_account_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.update.assert_not_called()  # type: ignore[attr-defined]
 
     async def test_unknown_price_assign_to_duration(
         self,
@@ -454,23 +352,23 @@ class TestPatchMembership:
         mock_member_repository: MemberRepository,
         mock_charter_repository: CharterRepository,
         sample_member: Member,
-        sample_subscription_duration_account_payment_method: SubscriptionBody,
+        sample_subscription_duration_payment_method: SubscriptionBody,
         sample_membership_pending_rules: Membership,
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
-        sample_subscription_duration_account_payment_method.duration = 5
+        sample_subscription_duration_payment_method.duration = 5
         assert sample_member.id is not None
 
         with pytest.raises(NoPriceAssignedToThatDuration):
-            await subscription_manager.update(sample_member.id, sample_subscription_duration_account_payment_method)
+            await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_charter_repository.get.assert_called_once()
-        mock_subscription_repository.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.update.assert_not_called()  # type: ignore[attr-defined]
 
 
 class TestValidateMembership:
@@ -484,7 +382,7 @@ class TestValidateMembership:
         with pytest.raises(MemberNotFoundError):
             await subscription_manager.validate(0, False)
 
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_unknown_membership(
         self,
@@ -500,8 +398,8 @@ class TestValidateMembership:
         with pytest.raises(MembershipNotFoundError):
             await subscription_manager.validate(sample_member.id, False)
 
-        mock_member_repository.get_by_id.assert_called_once()
-        mock_subscription_repository.search.assert_called_once()
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_not_payment_validation(
         self,
@@ -518,125 +416,44 @@ class TestValidateMembership:
         with pytest.raises(MembershipStatusNotAllowed):
             await subscription_manager.validate(sample_member.id, False)
 
-        mock_subscription_repository.search.assert_called_once()
-        mock_member_repository.get_by_id.assert_called_once()
+        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
 
 class TestAddMembershipPaymentRecord:
-    async def test_no_asso_account(
-        self,
-        mock_payment_method_repository: PaymentMethodRepository,
-        mock_account_repository: AccountRepository,
-        subscription_manager: SubscriptionManager,
-        sample_membership_empty: Membership,
-        sample_payment_method: PaymentMethod,
-    ):
-        sample_membership_empty.payment_method = sample_payment_method.id
-        mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=sample_payment_method
-        )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_repository.search_by = AsyncMock(side_effect=[([], 0)])
-
-        with pytest.raises(AccountNotFoundError):
-            await subscription_manager.add_payment_record(sample_membership_empty, False)
-
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_account_repository.search_by.assert_called_once()
-
-    async def test_no_tech_account(
-        self,
-        mock_payment_method_repository: PaymentMethodRepository,
-        mock_account_repository: AccountRepository,
-        subscription_manager: SubscriptionManager,
-        sample_membership_empty: Membership,
-        sample_account1: Account,
-        sample_payment_method: PaymentMethod,
-    ):
-        sample_membership_empty.payment_method = sample_payment_method.id
-        mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=(sample_payment_method)
-        )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 0), ([], 0)])
-
-        with pytest.raises(AccountNotFoundError):
-            await subscription_manager.add_payment_record(sample_membership_empty, False)
-
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_account_repository.search_by.assert_called()
-
-    async def test_no_src_account(
-        self,
-        mock_payment_method_repository: PaymentMethodRepository,
-        mock_account_repository: AccountRepository,
-        subscription_manager: SubscriptionManager,
-        sample_membership_empty: Membership,
-        sample_account1: Account,
-        sample_payment_method: PaymentMethod,
-    ):
-        sample_membership_empty.payment_method = sample_payment_method.id
-        sample_membership_empty.account = 42
-        mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=(sample_payment_method)
-        )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_repository.get_by_id = AsyncMock(return_value=None)
-
-        with pytest.raises(AccountNotFoundError):
-            await subscription_manager.add_payment_record(sample_membership_empty, False)
-
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_account_repository.search_by.assert_called()
-        mock_account_repository.get_by_id.assert_called_once()
-
     async def test_no_room(
         self,
         mock_payment_method_repository: PaymentMethodRepository,
-        mock_account_repository: AccountRepository,
         mock_transaction_manager: TransactionManager,
         subscription_manager: SubscriptionManager,
         sample_membership_pending_payment_validation: Membership,
-        sample_account1: Account,
         sample_payment_method: PaymentMethod,
     ):
-        mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=(sample_payment_method)
-        )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
+        mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         mock_transaction_manager.update_or_create = AsyncMock(return_value=(None))
 
         sample_membership_pending_payment_validation.has_room = False
 
         await subscription_manager.add_payment_record(sample_membership_pending_payment_validation, False)
 
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_account_repository.search_by.assert_called()
-        mock_account_repository.get_by_id.assert_called_once()
-        mock_transaction_manager.update_or_create.assert_called_once()
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_transaction_manager.update_or_create.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_free(
         self,
         mock_payment_method_repository: PaymentMethodRepository,
-        mock_account_repository: AccountRepository,
         mock_transaction_manager: TransactionManager,
         subscription_manager: SubscriptionManager,
         sample_membership_pending_payment_validation: Membership,
-        sample_account1: Account,
         sample_payment_method: PaymentMethod,
     ):
-        mock_payment_method_repository.get_by_id = AsyncMock(
-            return_value=(sample_payment_method)
-        )  # in this test don't care of the return value, the most important thing is that the function does not raise NotFound exception
-        mock_account_repository.search_by = AsyncMock(side_effect=[([sample_account1], 0), ([sample_account1], 0)])
-        mock_account_repository.get_by_id = AsyncMock(return_value=(sample_account1))
+        mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         mock_transaction_manager.update_or_create = AsyncMock(return_value=(None))
 
         await subscription_manager.add_payment_record(sample_membership_pending_payment_validation, True)
 
-        mock_payment_method_repository.get_by_id.assert_called_once()
-        mock_account_repository.search_by.assert_called()
-        mock_account_repository.get_by_id.assert_called_once()
-        mock_transaction_manager.update_or_create.assert_called_once()
+        mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
+        mock_transaction_manager.update_or_create.assert_called_once()  # type: ignore[attr-defined]
 
 
 @pytest.fixture
@@ -644,7 +461,6 @@ def subscription_manager(
     mock_member_repository,
     mock_subscription_repository,
     mock_charter_repository,
-    mock_account_repository,
     mock_payment_method_repository,
     mock_transaction_manager,
     mock_notification_manager,
@@ -654,7 +470,6 @@ def subscription_manager(
         membership_repository=mock_subscription_repository,
         charter_repository=mock_charter_repository,
         notification_manager=mock_notification_manager,
-        account_repository=mock_account_repository,
         payment_method_repository=mock_payment_method_repository,
         transaction_manager=mock_transaction_manager,
     )
@@ -691,11 +506,6 @@ def mock_payment_method_repository():
 
 
 @pytest.fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)
-
-
-@pytest.fixture
 def sample_subscription_pending_rules(sample_member):
     return Membership(uuid="", member=sample_member, status=MembershipStatus.PENDING_RULES.value, hasRoom=False)
 
@@ -717,19 +527,6 @@ def sample_subscription_pending_payment(sample_member):
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT.value,
         duration=MembershipDuration.ONE_YEAR.value,
-        hasRoom=False,
-    )
-
-
-@pytest.fixture
-def sample_subscription_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
-    return Membership(
-        uuid="",
-        member=sample_member,
-        status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
-        duration=MembershipDuration.ONE_YEAR.value,
-        account=sample_account1.id,
-        paymentMethod=sample_payment_method.id,
         hasRoom=False,
     )
 
@@ -766,13 +563,12 @@ def sample_membership_pending_payment(sample_member):
 
 
 @pytest.fixture
-def sample_membership_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
+def sample_membership_pending_payment_validation(sample_member, sample_payment_method):
     return Membership(
         uuid="",
         member=sample_member.id,
         hasRoom=False,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value,
-        account=sample_account1.id,
         paymentMethod=sample_payment_method.id,
     )

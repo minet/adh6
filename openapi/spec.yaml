@@ -67,186 +67,6 @@ paths:
           - admin:read
       tags:
       - misc
-  /account:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/skip"
-        - $ref: "#/components/parameters/searchTerm"
-        - description: Filters by various properties
-          in: query
-          name: filter
-          schema:
-            $ref: "#/components/schemas/AbstractAccount"
-          style: deepObject
-          explode: true
-        - $ref: "#/components/parameters/onlyAccount"
-      responses:
-        "200":
-          description: The list of accounts
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: "#/components/schemas/AbstractAccount"
-                type: array
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Filter accounts
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - ApiKeyAdminAuth: []
-      tags:
-        - account
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AbstractAccount"
-        description: The account to create
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Account"
-          description: The created account
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Create an account
-      security: 
-        - OpenIdConnect:
-          - treasurer:write
-        - ApiKeyTreasuryAuth: []
-      tags:
-        - account
-  /account/{id}:
-    parameters:
-      - $ref: "#/components/parameters/idPath"
-    get:
-      parameters:
-        - $ref: "#/components/parameters/onlyAccount"
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AbstractAccount"
-          description: The fetched account
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Retrieve an account
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - ApiKeyAdminAuth: []
-      tags:
-        - account
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AbstractAccount"
-        description: The new values for this account
-        required: true
-      responses:
-        "204":
-          description: Updated
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Udate an account
-      security: 
-        - OpenIdConnect:
-          - treasurer:write
-        - ApiKeyTreasuryAuth: []
-      tags:
-      - account
-  /account_type:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/limit"
-        - $ref: "#/components/parameters/skip"
-        - $ref: "#/components/parameters/searchTerm"
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: "#/components/schemas/AccountType"
-                type: array
-          description: Success
-          headers:
-            X-Total-Count:
-              description: Total count of filtered entities
-              schema:
-                type: integer
-                example: 25
-        "400":
-          description: Invalid input
-      summary: Filter account types
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - ApiKeyAdminAuth: []
-      tags:
-        - account
-  /account_type/{id}:
-    parameters:
-      - $ref: "#/components/parameters/idPath"
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AccountType"
-          description: Success
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Retrieve an account type
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - ApiKeyAdminAuth: []
-      tags:
-      - account
   /device:
     get:
       parameters:
@@ -1825,9 +1645,37 @@ paths:
         "400":
           description: Invalid input
       summary: Filter products
-      security: 
+      security:
         - OpenIdConnect:
           - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - treasury
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbstractProduct"
+        description: The product to create
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+          description: The created product
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Create a product
+      security:
+        - OpenIdConnect:
+          - admin:write
         - ApiKeyAdminAuth: []
       tags:
         - treasury
@@ -1851,9 +1699,54 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Retrieve a product
-      security: 
+      security:
         - OpenIdConnect:
           - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - treasury
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AbstractProduct"
+        description: The new values for this product
+        required: true
+      responses:
+        "204":
+          description: Updated
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Update a product
+      security:
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - treasury
+    delete:
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Delete a product
+      security:
+        - OpenIdConnect:
+          - admin:write
         - ApiKeyAdminAuth: []
       tags:
         - treasury
@@ -2679,59 +2572,6 @@ paths:
             - treasurer:write
       tags:
       - transaction
-  /transaction/{id}/upload:
-    parameters:
-      - $ref: "#/components/parameters/idPath"
-    post:
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-      responses:
-        "204":
-          description: Success
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Upload an attachment to a transaction
-      security: 
-        - OpenIdConnect:
-          - treasurer:write
-        - ApiKeyTreasuryAuth:
-            - treasurer:write
-      tags:
-        - transaction
-  /transaction/{id}/validate:
-    parameters:
-      - $ref: "#/components/parameters/idPath"
-    get:
-      operationId: validate
-      responses:
-        "204":
-          description: Success
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Validate a pending transaction
-      security: 
-        - OpenIdConnect:
-          - treasurer:read
-        - ApiKeyTreasuryAuth:
-            - treasurer:read
-      tags:
-        - transaction
   /transaction/{id}:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -2800,7 +2640,7 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/Unexpected"
-      summary: Delete a transaction (MUST only be possible when pendingValidation is true)
+      summary: Delete a transaction
       security: 
         - OpenIdConnect:
           - treasurer:write
@@ -2808,66 +2648,50 @@ paths:
             - treasurer:write
       tags:
         - transaction
-  /treasury/cashbox:
+  /treasury/export:
     get:
-      operationId: get_cashbox
+      operationId: export_transactions
+      parameters:
+        - description: Start date for the export range (inclusive)
+          in: query
+          name: fromDate
+          required: true
+          schema:
+            type: string
+            format: date
+        - description: End date for the export range (inclusive)
+          in: query
+          name: toDate
+          required: true
+          schema:
+            type: string
+            format: date
       responses:
         "200":
           content:
-            application/json:
+            application/vnd.oasis.opendocument.spreadsheet:
               schema:
-                properties:
-                  fond:
-                    description: balance in the cashbox
-                    example: 1
-                    type: number
-                  coffre:
-                    description: balance in the coffre
-                    example: 1
-                    type: number
-                type: object
-                title: cashbox
-          description: Success
+                type: string
+                format: binary
+          description: ODS file with transactions in the given date range
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/Invalid"
         "403":
           $ref: "#/components/responses/Unauthorized"
         default:
           $ref: "#/components/responses/Unexpected"
-      summary: Retrieve the state of the cashbox
-      security: 
+      summary: Export transactions as ODS spreadsheet
+      security:
         - OpenIdConnect:
           - treasurer:read
         - ApiKeyTreasuryAuth:
             - treasurer:read
       tags:
         - treasury
-  /treasury/bank:
-    get:
-      operationId: get_bank
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                properties:
-                  expectedCav:
-                    description: the expected balance of MiNET's CAV accunt
-                    type: number
-                    format: double
-                type: object
-                title: bank
-          description: Success
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Retrieve the expected state of MiNET's bank accounts
-      security: 
-        - OpenIdConnect:
-          - treasurer:read
-        - ApiKeyTreasuryAuth:
-            - treasurer:read
-      tags:
-      - treasury
   /role:
     get:
       parameters:
@@ -3107,7 +2931,7 @@ components:
       schema:
         type: string
     idPath:
-      description: The id of the account that needs to be fetched.
+      description: The id of the resource that needs to be fetched.
       in: path
       name: id
       required: true
@@ -3178,7 +3002,6 @@ components:
             - products
             - firstTime
             - paymentMethod
-            - account
             - member
             - status
             - description
@@ -3236,35 +3059,15 @@ components:
           type: string
           enum:
             - id
-            - attachment
-            - cashbox
-            - dst
-            - src
             - name
             - paymentMethod
-            - pendingValidation
             - timestamp
             - value
-      explode: false
-    onlyAccount:
-      description: Limit to specific attributes
-      in: query
-      name: only
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - id
-            - accountType
-            - actif
-            - balance
-            - compteCourant
-            - creationDate
-            - member
-            - name
-            - pendingBalance
-            - pinned
+            - productId
+            - productType
+            - apiKeyId
+            - membershipUuid
+            - author
       explode: false
   responses:
     NotFound:
@@ -3335,11 +3138,6 @@ components:
           type: integer
           example: 4
           nullable: true
-        account:
-          description: The id of the source account from which to execute the transaction
-          type: integer
-          example: 4
-          nullable: true
         member:
           description: The id of the member to whom this membership applies
           type: integer
@@ -3369,11 +3167,6 @@ components:
           example: false
         paymentMethod:
           description: The payment method id to be used for the transaction
-          type: integer
-          example: 4
-          nullable: true
-        account:
-          description: The id of the source account from which to execute the transaction
           type: integer
           example: 4
           nullable: true
@@ -3423,76 +3216,6 @@ components:
             - member
             - status
       type: object
-    AbstractAccount:
-      type: object
-      properties:
-        actif:
-          description: Whether this account is active or not
-          example: true
-          type: boolean
-        pinned:
-          description: Whether this account should be displayed before others
-          example: true
-          type: boolean
-        compteCourant:
-          description: Whether this account depends on MiNET's main account
-          example: true
-          type: boolean
-        accountType:
-          description: The type of this account
-          type: integer
-          example: 2
-        creationDate:
-          description: The date-time at which this account was first created
-          format: date-time
-          type: string
-        member:
-          description: The member this account belongs to
-          nullable: true
-          type: integer
-          example: 4
-        name:
-          description: The name of this account
-          example: MiNET
-          type: string
-        id:
-          description: The unique identifier of this account
-          example: 1
-          readOnly: true
-          type: integer
-        balance:
-          description: The current balance of this account
-          readOnly: true
-          nullable: true
-          type: number
-          format: double
-          example: 332.4
-        pendingBalance:
-          description: The pending balance of this account
-          readOnly: true
-          nullable: true
-          type: number
-          format: double
-          example: 321.1
-    Account:
-      allOf:
-        - $ref: "#/components/schemas/AbstractAccount"
-        - required:
-            - accountType
-            - name
-            - balance
-            - pendingBalance
-      type: object
-    AccountType:
-      type: object
-      properties:
-        id:
-          example: 1
-          readOnly: true
-          type: integer
-        name:
-          example: "Adh\xE9rent"
-          type: string
     AbstractTransaction:
       type: object
       properties:
@@ -3505,17 +3228,9 @@ components:
           description: The description of this transaction
           example: Sample transaction
           type: string
-        src:
-          description: The source account of this transaction
-          type: integer
-          example: 4
-        dst:
-          description: The destination account of this transaction
-          type: integer
-          example: 1
         timestamp:
           readOnly: true
-          description: The date-time at which this transaction was executed
+          description: The date-time at which this transaction was created
           format: date-time
           type: string
         paymentMethod:
@@ -3528,37 +3243,42 @@ components:
           minimum: 0
           exclusiveMinimum: false
           type: number
-        attachments:
-          description: The list of attachments linked with this transaction
-          type: array
-          items:
-            type: string
-          example: ["3b2f552df763bc9444f9f31a4fd831a3e3ace994"]
         author:
           readOnly: true
-          description: The member who executed this transaction
+          description: The member who created this transaction
           type: integer
           example: 6
-        pendingValidation:
+        productId:
           readOnly: true
-          description: Whether this transaction is awaiting confirmation from a member with higher privileges
-          example: true
-          type: boolean
-        cashbox:
-          description: Whether to use the cashbox or not
+          description: The product associated with this transaction
+          type: integer
+          nullable: true
+          example: 3
+        productType:
+          readOnly: true
+          description: The type of product associated with this transaction
           type: string
           nullable: true
           enum:
-            - to
-            - from
-            - direct
+            - cotisation
+            - product
+        apiKeyId:
+          readOnly: true
+          description: The API key used to create this transaction, if any
+          type: integer
+          nullable: true
+          example: 2
+        membershipUuid:
+          readOnly: true
+          description: The membership UUID associated with this transaction, if any
+          type: string
+          nullable: true
+          example: "123e4567-e89b-12d3-a456-426614174000"
     Transaction:
       allOf:
         - $ref: "#/components/schemas/AbstractTransaction"
         - required:
             - name
-            - src
-            - dst
             - paymentMethod
             - value
       type: object
@@ -4246,8 +3966,6 @@ tags:
     name: switch
   - description: Operations on ports
     name: port
-  - description: Operations on accounts
-    name: account
   - description: Operations on transactions
     name: transaction
   - description: Operations on the treasury

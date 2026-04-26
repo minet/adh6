@@ -197,7 +197,7 @@ export class RoomService {
 
     /**
      * Delete a room
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -274,7 +274,7 @@ export class RoomService {
 
     /**
      * Retrieve a room
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -359,7 +359,7 @@ export class RoomService {
 
     /**
      * Update a room
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param abstractRoom The new values for this room
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

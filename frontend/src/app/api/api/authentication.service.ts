@@ -185,7 +185,7 @@ export class AuthenticationService {
 
     /**
      * Delete an Api Key
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -426,7 +426,7 @@ export class AuthenticationService {
 
     /**
      * Delete a Role
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

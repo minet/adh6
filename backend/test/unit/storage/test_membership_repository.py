@@ -31,7 +31,6 @@ class TestMembershipSQLRepository:
             duration=12,
             has_room=True,
             first_time=True,
-            account_id=1,
             payment_method_id=1,
             create_at=datetime.now(),
         )
@@ -50,7 +49,7 @@ class TestMembershipSQLRepository:
 
     async def test_create(self, membership_repo, mock_session):
         # Given
-        body = SubscriptionBody(member=1, duration=12, account=1, paymentMethod=1)
+        body = SubscriptionBody(member=1, duration=12, paymentMethod=1)
         mock_count_result = MagicMock()
         mock_count_result.scalar.return_value = 0
         mock_session.execute = AsyncMock(return_value=mock_count_result)
@@ -73,7 +72,6 @@ class TestMembershipSQLRepository:
             duration=12,
             has_room=True,
             first_time=True,
-            account_id=1,
             payment_method_id=1,
             create_at=datetime.now(),
         )

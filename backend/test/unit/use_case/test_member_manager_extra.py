@@ -21,7 +21,7 @@ from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
-from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository, PaymentMethodRepository
+from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 from pytest import fixture, raises
 
@@ -90,16 +90,6 @@ def mock_charter_repository():
 
 
 @fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)
-
-
-@fixture
-def mock_account_type_repository():
-    return MagicMock(spec=AccountTypeRepository)
-
-
-@fixture
 def mock_mailinglist_repository():
     return MagicMock(spec=MailinglistRepository)
 
@@ -144,7 +134,6 @@ def subscription_manager(
     mock_member_repository,
     mock_membership_repository,
     mock_charter_repository,
-    mock_account_repository,
     mock_payment_method_repository,
     mock_transaction_manager,
     mock_notification_manager,
@@ -156,15 +145,12 @@ def subscription_manager(
         notification_manager=mock_notification_manager,
         transaction_manager=mock_transaction_manager,
         payment_method_repository=mock_payment_method_repository,
-        account_repository=mock_account_repository,
     )
 
 
 @fixture
 def member_manager(
     mock_member_repository,
-    mock_account_repository,
-    mock_account_type_repository,
     subscription_manager,
     mock_mailinglist_repository,
     mock_device_logs_manager,
@@ -173,8 +159,6 @@ def member_manager(
 ):
     return MemberManager(
         member_repository=mock_member_repository,
-        account_repository=mock_account_repository,
-        account_type_repository=mock_account_type_repository,
         device_ip_manager=mock_device_ip_manager,
         device_logs_manager=mock_device_logs_manager,
         mailinglist_repository=mock_mailinglist_repository,
@@ -332,22 +316,15 @@ class TestCreate:
     async def test_happy_path(
         self,
         mock_member_repository: MemberRepository,
-        mock_account_repository: AccountRepository,
-        mock_account_type_repository: AccountTypeRepository,
         mock_mailinglist_repository: MailinglistRepository,
         mock_membership_repository: MembershipRepository,
         sample_member: Member,
         member_manager: MemberManager,
         faker,
     ):
-        from adh6.entity import AccountType
-
-        account_type = AccountType(id=1, name="Adhérent")
         mock_member_repository.get_by_login = AsyncMock(return_value=None)
-        mock_account_type_repository.search_by = AsyncMock(return_value=([account_type], 1))
         mock_member_repository.create = AsyncMock(return_value=sample_member)
         mock_mailinglist_repository.update_from_member = AsyncMock(return_value=None)
-        mock_account_repository.create = AsyncMock(return_value=MagicMock())
         mock_membership_repository.search = AsyncMock(return_value=([], 0))
         mock_membership_repository.create = AsyncMock(return_value=MagicMock(status=MembershipStatus.INITIAL.value))
 

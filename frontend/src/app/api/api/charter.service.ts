@@ -169,7 +169,7 @@ export class CharterService {
 
     /**
      * Retreive the signature date of the specific charter
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -250,7 +250,7 @@ export class CharterService {
 
     /**
      * Sign the specific charter
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

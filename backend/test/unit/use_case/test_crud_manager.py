@@ -2,14 +2,12 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.default.crud_repository import CRUDRepository
-from adh6.entity import AbstractAccount, AbstractPaymentMethod, AbstractPort, AbstractSwitch
+from adh6.entity import AbstractPaymentMethod, AbstractPort, AbstractSwitch
 from adh6.exceptions import IntMustBePositive, NotFoundError
 from adh6.network.interfaces.port_repository import PortRepository
 from adh6.network.interfaces.switch_repository import SwitchRepository
 from adh6.network.port_manager import PortManager
 from adh6.network.switch_manager import SwitchManager
-from adh6.treasury.account_manager import AccountManager
-from adh6.treasury.interfaces.account_repository import AccountRepository
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 from adh6.treasury.payment_method_manager import PaymentMethodManager
 from pytest import raises
@@ -21,7 +19,6 @@ from pytest_lazy_fixtures import lf
     params=[
         (SwitchRepository, SwitchManager, AbstractSwitch, lf("sample_switch")),
         (PortRepository, PortManager, AbstractPort, lf("sample_port")),
-        (AccountRepository, AccountManager, AbstractAccount, lf("sample_account1")),
         (PaymentMethodRepository, PaymentMethodManager, AbstractPaymentMethod, lf("sample_payment_method")),
     ]
 )
@@ -29,7 +26,7 @@ def data_set(request):
     return request.param
 
 
-@pytest.fixture(ids=["switch", "port", "account", "payment_method"])
+@pytest.fixture(ids=["switch", "port", "payment_method"])
 def manager(data_set):
     mock_repo = MagicMock(spec=data_set[0])
     return mock_repo, data_set[1](mock_repo), data_set[2], data_set[3]

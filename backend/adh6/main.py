@@ -33,8 +33,6 @@ from adh6.network.router import port_router, switch_router
 from adh6.room.router import router as room_router
 from adh6.subnet.router import router as subnet_router, vlans_router
 from adh6.treasury.router import (
-    account_router,
-    account_type_router,
     payment_method_router,
     product_router,
     router as treasury_router,
@@ -192,8 +190,6 @@ app.include_router(subnet_router, prefix="/api")
 app.include_router(vlans_router, prefix="/api")
 
 # Treasury sub-routers (separate prefixes per spec.yaml)
-app.include_router(account_router, prefix="/api")
-app.include_router(account_type_router, prefix="/api")
 app.include_router(payment_method_router, prefix="/api")
 app.include_router(product_router, prefix="/api")
 app.include_router(transaction_router, prefix="/api")

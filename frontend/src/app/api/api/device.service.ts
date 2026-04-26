@@ -198,7 +198,7 @@ export class DeviceService {
 
     /**
      * Delete a device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -283,7 +283,7 @@ export class DeviceService {
 
     /**
      * Retrieve a device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -368,7 +368,7 @@ export class DeviceService {
 
     /**
      * Retreive the MAB of the device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -445,7 +445,7 @@ export class DeviceService {
 
     /**
      * Update the MAB of the device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -522,7 +522,7 @@ export class DeviceService {
 
     /**
      * Get user of the device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -599,7 +599,7 @@ export class DeviceService {
 
     /**
      * Rename a device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param deviceIdNamePutRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -690,7 +690,7 @@ export class DeviceService {
 
     /**
      * Retrieve the vendor of a device based on its MAC
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -767,7 +767,7 @@ export class DeviceService {
 
     /**
      * Clear the wifi password of a device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -844,7 +844,7 @@ export class DeviceService {
 
     /**
      * Generate a new random wifi password for a device
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
