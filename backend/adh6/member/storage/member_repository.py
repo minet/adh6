@@ -10,7 +10,6 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.entity import AbstractMember, Member, MemberFilter
-from adh6.storage.sql.models import Modification
 
 from ..interfaces.member_repository import MemberRepository
 from .models import Adherent, Membership
@@ -112,10 +111,6 @@ class MemberSQLRepository(MemberRepository):
             raise MemberNotFoundError(abstract_member.id)
 
         new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
-        await self._record_modification(
-            adherent_id=new_adherent.id,
-            action=f"member: updated {new_adherent.login}",
-        )
         await self.session.flush()
         mapped_member = _map_member_sql_to_entity(new_adherent)
 
@@ -126,23 +121,7 @@ class MemberSQLRepository(MemberRepository):
         member = await self.session.scalar(stmt)
         if not member:
             raise ValueError(f"Member {member_id} not found")
-        await self._record_modification(
-            adherent_id=member.id,
-            action=f"member: deleted {member.login}",
-        )
         await self.session.delete(member)
-
-    async def _record_modification(self, adherent_id: int, action: str) -> None:
-        now = datetime.now()
-        self.session.add(
-            Modification(
-                adherent_id=adherent_id,
-                action=action,
-                created_at=now,
-                updated_at=now,
-                utilisateur_id=None,
-            )
-        )
 
     async def update_password(self, member_id, hashed_password):
         stmt = select(Adherent).where(Adherent.id == member_id)

@@ -13,7 +13,6 @@ from .resource import (
     INVALID_MAC,
     TEST_HEADERS,
     TEST_HEADERS_SAMPLE,
-    assert_modification_was_created,
     base_url as host_url,
 )
 
@@ -232,7 +231,6 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert r.status_code == 201
-    assert_modification_was_created(db.session)
 
     s = db.session
     q = s.query(Device)
@@ -554,8 +552,6 @@ def test_device_delete(client, device: Device, status_code: int):
     )
     assert r.status_code == status_code
     if status_code == 204:
-        assert_modification_was_created(db.session)
-
         s = db.session
         q = s.query(Device)
         q = q.filter(Device.type == "wired")

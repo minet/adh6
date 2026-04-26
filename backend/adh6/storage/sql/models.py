@@ -4,9 +4,6 @@ from sqlalchemy import Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from adh6.storage.sql.rubydiff import rubydiff
-from adh6.storage.sql.trackable import RubyHashTrackable
-
 
 class Base(DeclarativeBase):
     pass
@@ -39,22 +36,7 @@ class Inscription(Base):
     )
 
 
-class Modification(Base):
-    __tablename__ = "modifications"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    adherent_id: Mapped[int | None] = mapped_column(Integer, index=True)
-    action: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[dt.datetime] = mapped_column(
-        DateTime, nullable=False, default=func.now(), server_default=func.now()
-    )
-    updated_at: Mapped[dt.datetime] = mapped_column(
-        DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
-    )
-    utilisateur_id: Mapped[int | None] = mapped_column(Integer, index=True)
-
-
-class Routeur(Base, RubyHashTrackable):
+class Routeur(Base):
     __tablename__ = "routeurs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -67,21 +49,6 @@ class Routeur(Base, RubyHashTrackable):
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-
-    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
-        """
-        Override this method to add the prefix.
-        """
-        modif = rubydiff(snap_before, snap_after)
-        if snap_after is None:
-            proper_mac = snap_before.get("mac").upper().replace(":", "-")
-            return f"---\ndevice: Suppression du périphérique {proper_mac}\n"
-
-        modif = "device: !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
-        return modif
-
-    def get_related_member(self):
-        return self.adherent_id
 
 
 class Adhesion(Base):

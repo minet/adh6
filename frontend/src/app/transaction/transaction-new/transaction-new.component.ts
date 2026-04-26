@@ -108,7 +108,7 @@ export class TransactionNewComponent implements OnInit {
     this.transactionService
       .transactionPost({
         name: v.name,
-        paymentMethod: v.paymentMethod,
+        paymentMethod: +v.paymentMethod,
         value: v.value,
       })
       .pipe(takeWhile(() => this.alive))

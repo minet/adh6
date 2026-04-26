@@ -8,15 +8,9 @@ from sqlalchemy.sql.sqltypes import Enum
 
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.storage import Base
-from adh6.storage.sql.rubydiff import rubydiff
-from adh6.storage.sql.trackable import RubyHashTrackable
 
 
-def abc(test: int):
-    print(test)
-
-
-class Adherent(Base, RubyHashTrackable):
+class Adherent(Base):
     __tablename__ = "adherents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -47,24 +41,6 @@ class Adherent(Base, RubyHashTrackable):
     mailinglist: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=True)
     permanent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
     wifi_only: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
-
-    def take_snapshot(self) -> dict:
-        snap = super().take_snapshot()
-        if "password" in snap:
-            del snap["password"]  # Let's not track the password changes, this is none of our business. :)
-        return snap
-
-    def serialize_snapshot_diff(self, snap_before: dict, snap_after: dict) -> str:
-        """
-        Override this method to add the prefix.
-        """
-
-        modif = rubydiff(snap_before, snap_after)
-        modif = "--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess\n" + modif
-        return modif
-
-    def get_related_member(self):
-        return self.id
 
 
 class Membership(Base):

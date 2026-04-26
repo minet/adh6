@@ -8,7 +8,6 @@ from adh6.storage import db
 from test.integration.resource import (
     TEST_HEADERS,
     TEST_HEADERS_SAMPLE,
-    assert_modification_was_created,
     base_url as host_url,
 )
 
@@ -353,7 +352,6 @@ def test_member_get_another_user(client, sample_member2):
 def test_member_delete_existant(client, sample_member):
     r = client.delete(f"{base_url}{sample_member.id}", headers=TEST_HEADERS)
     assert r.status_code == 204
-    assert_modification_was_created(db.session)
 
     s = db.session
     q = s.query(Adherent)
@@ -469,7 +467,6 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
         headers=TEST_HEADERS,
     )
     assert res.status_code == 204
-    assert_modification_was_created(db.session)
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,
