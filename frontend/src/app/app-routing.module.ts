@@ -75,6 +75,13 @@ const routes: Routes = [
       ),
   },
   {
+    path: "vlan",
+    loadComponent: () =>
+      import("./vlan/vlan-dashboard.component").then(
+        (m) => m.VlanDashboardComponent,
+      ),
+  },
+  {
     path: "auth",
     loadChildren: () =>
       import("./auth-management/routes").then((m) => m.ROUTES),

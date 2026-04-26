@@ -14,6 +14,7 @@ import {environment} from "../environments/environment";
         scope: environment.SSO_SCOPE,
         responseType: environment.SSO_RESPONSE_TYPE,
         useRefreshToken: true,
+        silentRenew: true,
         renewTimeBeforeTokenExpiresInSeconds: 30,
         logLevel: environment.LOG_LEVEL,
       },

@@ -49,6 +49,11 @@
                 Commutateur Local
               </a>
             </li>
+            @if ("manage" | able: "admin") {
+              <li>
+                <a routerLinkActive="is-active" [routerLink]="['vlan']">VLANs</a>
+              </li>
+            }
           </ul>
         </li>
         @if ("manage" | able: "prod") {
