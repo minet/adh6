@@ -11,7 +11,6 @@ import {
 import {PaginationComponent} from "../pagination/pagination.component";
 import {SearchPage} from "../search-page";
 import {RouterModule, ActivatedRoute} from "@angular/router";
-import {AbstractAccount} from "../api/model/abstractAccount";
 import {HttpResponse} from "@angular/common/http";
 
 @Component({
@@ -25,8 +24,6 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
     Observable<string>
   >();
 
-  @Input() abstractAccountFilter: AbstractAccount = {};
-  
   constructor(
     private readonly deviceService: DeviceService,
     private readonly memberService: MemberService,
@@ -58,9 +55,6 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
 
   override ngOnInit() {
     this.route.queryParams.subscribe((params) => {
-      if (params["member"] !== undefined) {
-        this.abstractAccountFilter.member = +params["member"];
-      }
       this.getSearchResult();
     });
   }

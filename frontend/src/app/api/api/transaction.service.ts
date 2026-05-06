@@ -189,7 +189,7 @@ export class TransactionService {
 
     /**
      * Retrieve a payment method
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -274,10 +274,10 @@ export class TransactionService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AbstractTransaction>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AbstractTransaction>>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AbstractTransaction>>>;
-    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AbstractTransaction>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AbstractTransaction>>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AbstractTransaction>>>;
+    public transactionGet(limit?: number, offset?: number, terms?: string, filter?: AbstractTransaction, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (limit !== undefined && limit !== null) {
@@ -366,8 +366,8 @@ export class TransactionService {
     }
 
     /**
-     * Delete a transaction (MUST only be possible when pendingValidation is true)
-     * @param id The id of the account that needs to be fetched.
+     * Delete a transaction
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -444,15 +444,15 @@ export class TransactionService {
 
     /**
      * Retrieve a transaction
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public transactionIdGet(id: number, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractTransaction>;
-    public transactionIdGet(id: number, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractTransaction>>;
-    public transactionIdGet(id: number, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractTransaction>>;
-    public transactionIdGet(id: number, only?: Array<'id' | 'attachment' | 'cashbox' | 'dst' | 'src' | 'name' | 'paymentMethod' | 'pendingValidation' | 'timestamp' | 'value'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public transactionIdGet(id: number, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractTransaction>;
+    public transactionIdGet(id: number, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractTransaction>>;
+    public transactionIdGet(id: number, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractTransaction>>;
+    public transactionIdGet(id: number, only?: Array<'id' | 'name' | 'paymentMethod' | 'timestamp' | 'value' | 'productId' | 'productType' | 'apiKeyId' | 'membershipUuid' | 'author'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling transactionIdGet.');
         }
@@ -529,7 +529,7 @@ export class TransactionService {
 
     /**
      * Partially update a transaction
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param abstractTransaction The new values for this transaction
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -608,94 +608,6 @@ export class TransactionService {
             {
                 context: localVarHttpContext,
                 body: abstractTransaction,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Upload an attachment to a transaction
-     * @param id The id of the account that needs to be fetched.
-     * @param body 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public transactionIdUploadPost(id: number, body?: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public transactionIdUploadPost(id: number, body?: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public transactionIdUploadPost(id: number, body?: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public transactionIdUploadPost(id: number, body?: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling transactionIdUploadPost.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        let localVarCredential: string | undefined;
-        // authentication (ApiKeyTreasuryAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyTreasuryAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
-        }
-
-        // authentication (OpenIdConnect) required
-        localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
-        }
-
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'application/json'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        let localVarHttpContext: HttpContext | undefined = options && options.context;
-        if (localVarHttpContext === undefined) {
-            localVarHttpContext = new HttpContext();
-        }
-
-        let localVarTransferCache: boolean | undefined = options && options.transferCache;
-        if (localVarTransferCache === undefined) {
-            localVarTransferCache = true;
-        }
-
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/octet-stream'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
-        }
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/transaction/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/upload`;
-        return this.httpClient.request<any>('post', `${this.configuration.basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: body,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,
@@ -795,7 +707,7 @@ export class TransactionService {
 
     /**
      * Validate a pending transaction
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

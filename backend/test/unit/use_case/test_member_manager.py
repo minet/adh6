@@ -9,7 +9,6 @@ from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.entity import AbstractMember, Member, Membership
 from adh6.entity.member_body import MemberBody
 from adh6.exceptions import (
-    AccountTypeNotFoundError,
     LogFetchError,
     MemberAlreadyExist,
     MemberNotFoundError,
@@ -25,11 +24,7 @@ from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
-from adh6.treasury.interfaces import (
-    AccountRepository,
-    AccountTypeRepository,
-    PaymentMethodRepository,
-)
+from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 from pytest import fixture, raises
 
@@ -150,27 +145,6 @@ class TestNewMember:
 
         # Expect...
         mock_member_repository.get_by_login.assert_called_once_with(sample_member.username)
-
-    async def test_no_account_type_adherent(
-        self,
-        mock_member_repository: MemberRepository,
-        mock_account_type_repository: AccountTypeRepository,
-        member_manager: MemberManager,
-    ):
-        # Given...
-        mock_member_repository.get_by_login = AsyncMock(return_value=(None))
-        mock_account_type_repository.search_by = AsyncMock(return_value=([], 0))
-
-        # When...
-        with pytest.raises(AccountTypeNotFoundError):
-            await member_manager.create(
-                body=MemberBody(
-                    username="testtest",
-                )
-            )
-
-        # Expect...
-        mock_account_type_repository.search_by.assert_called_once_with(terms="Adhérent")
 
 
 class TestCreateOrUpdate:
@@ -355,8 +329,6 @@ def mock_device_ip_manager():
 @fixture
 def member_manager(
     mock_member_repository,
-    mock_account_repository,
-    mock_account_type_repository,
     subscription_manager,
     mock_mailinglist_repository,
     mock_device_logs_manager,
@@ -365,8 +337,6 @@ def member_manager(
 ):
     return MemberManager(
         member_repository=mock_member_repository,
-        account_repository=mock_account_repository,
-        account_type_repository=mock_account_type_repository,
         device_ip_manager=mock_device_ip_manager,
         device_logs_manager=mock_device_logs_manager,
         mailinglist_repository=mock_mailinglist_repository,
@@ -380,7 +350,6 @@ def subscription_manager(
     mock_member_repository,
     mock_membership_repository,
     mock_charter_repository,
-    mock_account_repository,
     mock_payment_method_repository,
     mock_transaction_manager,
     mock_notification_manager,
@@ -392,7 +361,6 @@ def subscription_manager(
         notification_manager=mock_notification_manager,
         transaction_manager=mock_transaction_manager,
         payment_method_repository=mock_payment_method_repository,
-        account_repository=mock_account_repository,
     )
 
 
@@ -404,16 +372,6 @@ def mock_mailinglist_repository():
 @fixture
 def mock_notification_manager():
     return MagicMock(spec=NotificationManager)
-
-
-@fixture
-def mock_account_repository():
-    return MagicMock(spec=AccountRepository)
-
-
-@fixture
-def mock_account_type_repository():
-    return MagicMock(spec=AccountTypeRepository)
 
 
 @fixture
@@ -495,13 +453,12 @@ def sample_subscription_pending_payment(sample_member):
 
 
 @fixture
-def sample_subscription_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
+def sample_subscription_pending_payment_validation(sample_member, sample_payment_method):
     return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value,
-        account=sample_account1.id,
         paymentMethod=sample_payment_method.id,
         hasRoom=sample_member.room_number is not None,
     )
@@ -539,13 +496,12 @@ def sample_membership_pending_payment(sample_member):
 
 
 @fixture
-def sample_membership_pending_payment_validation(sample_member, sample_account1, sample_payment_method):
+def sample_membership_pending_payment_validation(sample_member, sample_payment_method):
     return Membership(
         uuid="",
         member=sample_member,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION.value,
         duration=MembershipDuration.ONE_YEAR.value,
-        account=sample_account1.id,
         paymentMethod=sample_payment_method.id,
         hasRoom=sample_member.room_number is not None,
     )

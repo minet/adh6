@@ -21,7 +21,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -33,25 +33,24 @@ class AbstractTransaction(BaseModel):
     """ # noqa: E501
     id: Optional[StrictInt] = Field(default=None, description="The unique identifier of this transaction")
     name: Optional[StrictStr] = Field(default=None, description="The description of this transaction")
-    src: Optional[StrictInt] = Field(default=None, description="The source account of this transaction")
-    dst: Optional[StrictInt] = Field(default=None, description="The destination account of this transaction")
-    timestamp: Optional[datetime] = Field(default=None, description="The date-time at which this transaction was executed")
+    timestamp: Optional[datetime] = Field(default=None, description="The date-time at which this transaction was created")
     payment_method: Optional[StrictInt] = Field(default=None, description="The payment method used for this transaction", alias="paymentMethod")
     value: Optional[Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]]] = Field(default=None, description="The unsigned value of this transaction")
-    attachments: Optional[List[StrictStr]] = Field(default=None, description="The list of attachments linked with this transaction")
-    author: Optional[StrictInt] = Field(default=None, description="The member who executed this transaction")
-    pending_validation: Optional[StrictBool] = Field(default=None, description="Whether this transaction is awaiting confirmation from a member with higher privileges", alias="pendingValidation")
-    cashbox: Optional[StrictStr] = Field(default=None, description="Whether to use the cashbox or not")
-    __properties: ClassVar[List[str]] = ["id", "name", "src", "dst", "timestamp", "paymentMethod", "value", "attachments", "author", "pendingValidation", "cashbox"]
+    author: Optional[StrictInt] = Field(default=None, description="The member who created this transaction")
+    product_id: Optional[StrictInt] = Field(default=None, description="The product associated with this transaction", alias="productId")
+    product_type: Optional[StrictStr] = Field(default=None, description="The type of product associated with this transaction", alias="productType")
+    api_key_id: Optional[StrictInt] = Field(default=None, description="The API key used to create this transaction, if any", alias="apiKeyId")
+    membership_uuid: Optional[StrictStr] = Field(default=None, description="The membership UUID associated with this transaction, if any", alias="membershipUuid")
+    __properties: ClassVar[List[str]] = ["id", "name", "timestamp", "paymentMethod", "value", "author", "productId", "productType", "apiKeyId", "membershipUuid"]
 
-    @field_validator('cashbox')
-    def cashbox_validate_enum(cls, value):
+    @field_validator('product_type')
+    def product_type_validate_enum(cls, value):
         """Validates the enum"""
         if value is None:
             return value
 
-        if value not in set(['to', 'from', 'direct']):
-            raise ValueError("must be one of enum values ('to', 'from', 'direct')")
+        if value not in set(['cotisation', 'product']):
+            raise ValueError("must be one of enum values ('cotisation', 'product')")
         return value
 
     model_config = ConfigDict(
@@ -88,12 +87,18 @@ class AbstractTransaction(BaseModel):
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
             "id",
             "timestamp",
             "author",
-            "pending_validation",
+            "product_id",
+            "product_type",
+            "api_key_id",
+            "membership_uuid",
         ])
 
         _dict = self.model_dump(
@@ -101,10 +106,25 @@ class AbstractTransaction(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if cashbox (nullable) is None
+        # set to None if product_id (nullable) is None
         # and model_fields_set contains the field
-        if self.cashbox is None and "cashbox" in self.model_fields_set:
-            _dict['cashbox'] = None
+        if self.product_id is None and "product_id" in self.model_fields_set:
+            _dict['productId'] = None
+
+        # set to None if product_type (nullable) is None
+        # and model_fields_set contains the field
+        if self.product_type is None and "product_type" in self.model_fields_set:
+            _dict['productType'] = None
+
+        # set to None if api_key_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.api_key_id is None and "api_key_id" in self.model_fields_set:
+            _dict['apiKeyId'] = None
+
+        # set to None if membership_uuid (nullable) is None
+        # and model_fields_set contains the field
+        if self.membership_uuid is None and "membership_uuid" in self.model_fields_set:
+            _dict['membershipUuid'] = None
 
         return _dict
 
@@ -120,15 +140,14 @@ class AbstractTransaction(BaseModel):
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "name": obj.get("name"),
-            "src": obj.get("src"),
-            "dst": obj.get("dst"),
             "timestamp": obj.get("timestamp"),
             "paymentMethod": obj.get("paymentMethod"),
             "value": obj.get("value"),
-            "attachments": obj.get("attachments"),
             "author": obj.get("author"),
-            "pendingValidation": obj.get("pendingValidation"),
-            "cashbox": obj.get("cashbox")
+            "productId": obj.get("productId"),
+            "productType": obj.get("productType"),
+            "apiKeyId": obj.get("apiKeyId"),
+            "membershipUuid": obj.get("membershipUuid")
         })
         return _obj
 

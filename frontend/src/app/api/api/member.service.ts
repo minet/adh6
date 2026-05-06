@@ -108,7 +108,7 @@ export class MemberService {
 
     /**
      * Retrieves if the hosting charter has been signed
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -190,7 +190,7 @@ export class MemberService {
 
     /**
      * Update if the hosting/MiNET charter has been signed
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -368,7 +368,7 @@ export class MemberService {
 
     /**
      * Retrieves the comment of the user
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -445,7 +445,7 @@ export class MemberService {
 
     /**
      * Update the comment of a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param comment 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -533,7 +533,7 @@ export class MemberService {
 
     /**
      * Delete a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -610,7 +610,7 @@ export class MemberService {
 
     /**
      * Retrieve a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -695,7 +695,7 @@ export class MemberService {
 
     /**
      * Retrieve the most recent logs of a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param dhcp Whether to fetch DHCP logs
      * @param limit Maximum number of logs to retrieve
      * @param offset Number of logs to skip (for pagination)
@@ -784,7 +784,7 @@ export class MemberService {
 
     /**
      * Update the password of a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param memberIdPasswordPutRequest The new value for the password in plaintext
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -875,7 +875,7 @@ export class MemberService {
 
     /**
      * Partially update a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param memberBody The new values for this member
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -966,7 +966,7 @@ export class MemberService {
 
     /**
      * Retrieves some common status updates concerning a member
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -1043,7 +1043,7 @@ export class MemberService {
 
     /**
      * Check if a member has a wifi-only account
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

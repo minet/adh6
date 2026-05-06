@@ -13,9 +13,3 @@ class TransactionHandler(DefaultHandler):
     @log_call
     def upload_post(self, body):
         pass
-
-    @with_context
-    @log_call
-    async def validate(self, id_: int):
-        await self.transaction_manager.validate(id=id_)
-        return None, 204

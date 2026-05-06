@@ -1,7 +1,5 @@
 // File generated using spec-to-code.sh, DO NOT EDIT MANUALLY.
 
-export * from './account.service';
-import { AccountService } from './account.service';
 export * from './authentication.service';
 import { AuthenticationService } from './authentication.service';
 export * from './charter.service';
@@ -30,4 +28,4 @@ export * from './treasury.service';
 import { TreasuryService } from './treasury.service';
 export * from './vlan.service';
 import { VlanService } from './vlan.service';
-export const APIS = [AccountService, AuthenticationService, CharterService, DeviceService, MailinglistService, MemberService, MembershipService, MiscService, PortService, RoomService, RoomMembersService, SwitchService, TransactionService, TreasuryService, VlanService];
+export const APIS = [AuthenticationService, CharterService, DeviceService, MailinglistService, MemberService, MembershipService, MiscService, PortService, RoomService, RoomMembersService, SwitchService, TransactionService, TreasuryService, VlanService];

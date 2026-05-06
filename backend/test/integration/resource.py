@@ -1,8 +1,6 @@
 import uuid
 from logging import LogRecord
 
-from adh6.storage.sql.models import Modification
-
 from test import SAMPLE_CLIENT_TOKEN, TESTING_CLIENT_TOKEN
 
 base_url = "api"
@@ -65,11 +63,6 @@ TEST_HEADERS_API_KEY_NETWORK_PROD = {"X-API-KEY": str(uuid.uuid4())}
 TEST_HEADERS_API_KEY_NETWORK_HOSTING = {"X-API-KEY": str(uuid.uuid4())}
 
 INVALID_TRANSACTION_VALUE = ["", "-1", "-1120192834923949", "0.123", "0,123", "test"]
-
-
-def assert_modification_was_created(s):
-    q = s.query(Modification)
-    assert q.count() >= 1
 
 
 def _records_contains_fields(record: LogRecord, fields: dict):

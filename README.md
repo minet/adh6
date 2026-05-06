@@ -409,3 +409,59 @@ Dans le pire des cas on peut se permettre d'aller dans la base de données pour 
 Ces cas d'utilisation sont ajoutés à ADH pour notre propre confort mais ne sont pas indispensables.
 
 - Supprimer un membre (`MemberManager.delete`) : Supprimer un adhérent de notre base de données, par exemple dans le cadre du droit à l'effacement de la RGPD (article 17).
+
+## Cycle de vie des adhésions
+
+Le processus d'adhésion suit une machine à états pour suivre la progression de la cotisation d'un membre, de sa création à sa validation.
+
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Cycle de vie des adhésions
+
+[*] --> INITIAL : Membre créé
+
+state "INITIAL\n(Nouvel utilisateur)" as INITIAL
+state "PENDING_RULES\n(En attente de signature)" as PENDING_RULES
+state "PENDING_PAYMENT_INITIAL\n(En attente de durée)" as PENDING_PAYMENT_INITIAL
+state "PENDING_PAYMENT\n(En attente de moyen de paiement)" as PENDING_PAYMENT
+state "PENDING_PAYMENT_VALIDATION\n(En attente de validation)" as PENDING_PAYMENT_VALIDATION
+state "COMPLETE\n(Cotisation active)" as COMPLETE
+state "CANCELLED\n(Annulé)" as CANCELLED
+state "ABORTED\n(Abandonné)" as ABORTED
+
+INITIAL --> PENDING_RULES : Créer une cotisation
+PENDING_RULES --> PENDING_PAYMENT_INITIAL : Signer la charte
+PENDING_PAYMENT_INITIAL --> PENDING_PAYMENT : Choisir la durée
+PENDING_PAYMENT --> PENDING_PAYMENT_VALIDATION : Choisir le moyen de paiement
+PENDING_PAYMENT_VALIDATION --> COMPLETE : Validation administrateur / Paiement reçu via HelloAsso (payment.minet.net)
+
+PENDING_RULES --> CANCELLED : Annuler
+PENDING_PAYMENT_INITIAL --> CANCELLED
+PENDING_PAYMENT --> CANCELLED
+PENDING_PAYMENT_VALIDATION --> CANCELLED
+
+PENDING_RULES --> ABORTED : Abandonner
+PENDING_PAYMENT_INITIAL --> ABORTED
+PENDING_PAYMENT --> ABORTED
+PENDING_PAYMENT_VALIDATION --> ABORTED
+
+COMPLETE --> [*]
+CANCELLED --> [*]
+ABORTED --> [*]
+
+@enduml
+```
+
+### Description des statuts
+
+- **INITIAL** : Statut par défaut pour un membre n'ayant jamais eu de cotisation ou dont la cotisation précédente est terminée.
+- **PENDING_RULES** : Une demande d'adhésion a été créée, et le système attend que le membre signe le règlement de l'association (charte).
+- **PENDING_PAYMENT_INITIAL** : Le règlement a été signé. Le système attend que le membre (ou un administrateur) choisisse la durée de l'adhésion.
+- **PENDING_PAYMENT** : La durée a été sélectionnée. Le système attend le choix d'un moyen de paiement.
+- **PENDING_PAYMENT_VALIDATION** : Le moyen de paiement a été sélectionné. La cotisation attend désormais qu'un administrateur confirme la réception du paiement.
+- **COMPLETE** : L'administrateur a validé le paiement. La cotisation est désormais active, et le membre a accès aux services de l'association.
+- **CANCELLED** : La demande d'adhésion a été annulée, généralement par un administrateur ou parce qu'elle a été remplacée par une nouvelle demande.
+- **ABORTED** : Le processus d'adhésion a été arrêté avant son achèvement.

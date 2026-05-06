@@ -6,7 +6,6 @@ import {
   Transaction,
   TransactionService,
   AbstractTransaction,
-  AccountService,
   MemberService,
 } from "../api";
 import {AppConstantsService} from "../app-constants.service";
@@ -29,7 +28,6 @@ export class TransactionListComponent
   extends SearchPage<AbstractTransaction>
   implements OnInit
 {
-  @Input() asAccount: number | undefined = 0;
   @Input() refresh: EventEmitter<{action: string}> = new EventEmitter();
   @Input() actions: Action[] = [];
 
@@ -45,16 +43,11 @@ export class TransactionListComponent
   public paymentMethods: PaymentMethod[] = [];
   public filterType = "";
 
-  cachedAccountName: Map<number, Observable<string>> = new Map();
   cachedPaymentMethodName: Map<number, Observable<string>> = new Map();
   cachedMemberUsername: Map<number, Observable<string>> = new Map();
 
   getUsername(id: number) {
     return this.cachedMemberUsername.get(id);
-  }
-
-  getAccountName(id: number) {
-    return this.cachedAccountName.get(id);
   }
 
   getPaymentMethodName(id: number) {
@@ -64,17 +57,10 @@ export class TransactionListComponent
   constructor(
     private readonly transactionService: TransactionService,
     public appConstantsService: AppConstantsService,
-    private readonly accountService: AccountService,
     private readonly memberService: MemberService,
   ) {
     super((terms, page) => {
-      let abstractTransaction: AbstractTransaction = {};
-      if (this.asAccount) {
-        abstractTransaction = {
-          src: this.asAccount,
-          dst: this.asAccount,
-        };
-      }
+      const abstractTransaction: AbstractTransaction = {};
       if (this.filterType != null && this.filterType !== "") {
         abstractTransaction.paymentMethod = Number(this.filterType);
       }
@@ -93,24 +79,6 @@ export class TransactionListComponent
               return response;
             }
             for (const i of response.body) {
-              if (i.src && !this.cachedAccountName.has(i.src)) {
-                this.cachedAccountName.set(
-                  i.src,
-                  this.accountService.accountIdGet(i.src).pipe(
-                    shareReplay(1),
-                    map((result) => result.name || ""),
-                  ),
-                );
-              }
-              if (i.dst && !this.cachedAccountName.has(i.dst)) {
-                this.cachedAccountName.set(
-                  i.dst,
-                  this.accountService.accountIdGet(i.dst).pipe(
-                    shareReplay(1),
-                    map((result) => result.name || ""),
-                  ),
-                );
-              }
               if (
                 i.paymentMethod &&
                 !this.cachedPaymentMethodName.has(i.paymentMethod)

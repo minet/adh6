@@ -11,7 +11,7 @@ from adh6.member.storage.models import Adherent, Membership
 from adh6.network.storage.models import Port, Switch
 from adh6.room.storage.models import Chambre, RoomMemberLink
 from adh6.subnet.storage.models import Vlan
-from adh6.treasury.storage.models import Account, AccountType, PaymentMethod
+from adh6.treasury.storage.models import PaymentMethod
 
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT, TESTING_CLIENT_ID
 from test.integration.context import tomorrow
@@ -108,51 +108,6 @@ async def cleanup_test_data():
 
 # Default client fixture removed - each test file defines its own client fixture
 # with specific dependencies now to avoid fixture resolution conflicts
-
-
-@pytest.fixture
-def account_type(faker):
-    yield AccountType(id=faker.random_digit_not_null(), name="Adhérent")
-
-
-@pytest.fixture
-def sample_account(account_type: AccountType, sample_member: Adherent):
-    yield Account(
-        id=1,
-        type=account_type.id,
-        creation_date=datetime.now(),
-        name="account",
-        actif=True,
-        compte_courant=False,
-        pinned=False,
-        adherent_id=sample_member.id,
-    )
-
-
-@pytest.fixture
-def sample_account_frais_asso(account_type: AccountType):
-    yield Account(
-        id=2,
-        type=account_type.id,
-        creation_date=datetime.now(),
-        name="MiNET frais asso",
-        actif=True,
-        compte_courant=True,
-        pinned=True,
-    )
-
-
-@pytest.fixture
-def sample_account_frais_techniques(account_type: AccountType):
-    yield Account(
-        id=3,
-        type=account_type.id,
-        creation_date=datetime.now(),
-        name="MiNET frais techniques",
-        actif=True,
-        compte_courant=True,
-        pinned=True,
-    )
 
 
 @pytest.fixture
@@ -492,13 +447,11 @@ def oidc_network_write_role():
 
 @pytest.fixture
 def sample_complete_membership(
-    sample_account: Account,
     sample_member: Adherent,
     sample_payment_method: PaymentMethod,
 ):
     yield Membership(
         uuid=str(uuid4()),
-        account_id=sample_account.id,
         create_at=datetime.now(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
@@ -512,11 +465,10 @@ def sample_complete_membership(
 
 
 @pytest.fixture
-def sample_pending_validation_membership(sample_account: Account, sample_member2: Adherent):
+def sample_pending_validation_membership(sample_member2: Adherent):
     """Membership that is not completed"""
     yield Membership(
         uuid=str(uuid4()),
-        account_id=sample_account.id,
         create_at=datetime.now(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,

@@ -4,8 +4,6 @@ from adh6.authentication.enums import Roles
 from adh6.constants import MembershipStatus
 from adh6.entity import (
     AbstractMembership,
-    Account,
-    AccountType,
     Device,
     Member,
     PaymentMethod,
@@ -107,18 +105,15 @@ def sample_subscription_empty(sample_member) -> SubscriptionBody:
 
 
 @fixture
-def sample_subscription_duration_no_account(sample_member) -> SubscriptionBody:
+def sample_subscription_duration_no_payment_method(sample_member) -> SubscriptionBody:
     return SubscriptionBody(member=sample_member.id, duration=1)
 
 
 @fixture
-def sample_subscription_duration_account_payment_method(
-    sample_member, sample_account1, sample_payment_method
-) -> SubscriptionBody:
+def sample_subscription_duration_payment_method(sample_member, sample_payment_method) -> SubscriptionBody:
     return SubscriptionBody(
         member=sample_member.id,
         duration=1,
-        account=sample_account1.id,
         paymentMethod=sample_payment_method.id,
     )
 
@@ -129,7 +124,7 @@ def sample_membership_empty(sample_member) -> AbstractMembership:
 
 
 @fixture
-def sample_membership_duration_no_account(sample_member) -> AbstractMembership:
+def sample_membership_duration(sample_member) -> AbstractMembership:
     return AbstractMembership(
         uuid="",
         member=sample_member.id,
@@ -139,15 +134,12 @@ def sample_membership_duration_no_account(sample_member) -> AbstractMembership:
 
 
 @fixture
-def sample_membership_duration_account_payment_method(
-    sample_member, sample_account1, sample_payment_method
-) -> AbstractMembership:
+def sample_membership_duration_payment_method(sample_member, sample_payment_method) -> AbstractMembership:
     return AbstractMembership(
         uuid="",
         member=sample_member.id,
         status=MembershipStatus.INITIAL.value,
         duration=1,
-        account=sample_account1.id,
         paymentMethod=sample_payment_method.id,
     )
 
@@ -214,19 +206,11 @@ def sample_payment_method(faker) -> PaymentMethod:
 
 
 @fixture
-def sample_account_type(faker) -> AccountType:
-    return AccountType(id=faker.random_digit_not_null(), name=faker.word())
-
-
-@fixture
-def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction(faker, sample_admin, sample_payment_method):
     yield Transaction(
         id=faker.random_digit_not_null(),
-        src=sample_account1.id,
-        dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
-        attachments=[],
         timestamp=faker.date_this_year(),
         paymentMethod=sample_payment_method.id,
         author=sample_admin.id,
@@ -234,50 +218,14 @@ def sample_transaction(faker, sample_admin, sample_account1, sample_account2, sa
 
 
 @fixture
-def sample_transaction_pending(faker, sample_admin, sample_account1, sample_account2, sample_payment_method):
+def sample_transaction_pending(faker, sample_admin, sample_payment_method):
     yield Transaction(
         id=faker.random_digit_not_null(),
-        src=sample_account1.id,
-        dst=sample_account2.id,
         name=faker.sentence(),
         value=faker.random_int(),
-        attachments=[],
         timestamp=faker.date_this_year(),
         paymentMethod=sample_payment_method.id,
         author=sample_admin.id,
-        pendingValidation=True,
-    )
-
-
-@fixture
-def sample_account1(faker, sample_member, sample_account_type):
-    yield Account(
-        id=faker.random_digit_not_null(),
-        name=faker.word(),
-        actif=faker.boolean(),
-        creationDate=faker.date_this_year(),
-        member=sample_member.id,
-        balance=0,
-        compteCourant=faker.boolean(),
-        pinned=faker.boolean(),
-        accountType=sample_account_type.id,
-        pendingBalance=faker.random_int(),
-    )
-
-
-@fixture
-def sample_account2(faker, sample_member, sample_account_type) -> Account:
-    return Account(
-        id=faker.random_digit_not_null() + 1024,
-        name=faker.word(),
-        actif=faker.boolean(),
-        creationDate=faker.date_this_year(),
-        member=sample_member.id,
-        balance=0,
-        compteCourant=faker.boolean(),
-        pinned=faker.boolean(),
-        accountType=sample_account_type.id,
-        pendingBalance=faker.random_int(),
     )
 
 

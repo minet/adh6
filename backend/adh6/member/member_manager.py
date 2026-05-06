@@ -17,7 +17,6 @@ from adh6.decorator import log_call
 from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.entity import (
-    AbstractAccount,
     AbstractMember,
     Comment,
     Member,
@@ -27,7 +26,6 @@ from adh6.entity import (
     SubscriptionBody,
 )
 from adh6.exceptions import (
-    AccountTypeNotFoundError,
     InvalidPassword,
     LogFetchError,
     MemberAlreadyExist,
@@ -36,7 +34,6 @@ from adh6.exceptions import (
     UpdateImpossible,
 )
 from adh6.room.interfaces import RoomRepository
-from adh6.treasury.interfaces import AccountRepository, AccountTypeRepository
 from adh6.utils.validators.member_validators import is_member_active, is_password_valid
 
 from .interfaces import MailinglistRepository, MemberRepository
@@ -47,8 +44,6 @@ class MemberManager(CRUDManager):
     def __init__(
         self,
         member_repository: MemberRepository,
-        account_repository: AccountRepository,
-        account_type_repository: AccountTypeRepository,
         device_ip_manager: DeviceIpManager,
         device_logs_manager: DeviceLogsManager,
         mailinglist_repository: MailinglistRepository,
@@ -60,8 +55,6 @@ class MemberManager(CRUDManager):
         self.mailinglist_repository = mailinglist_repository
         self.device_logs_manager = device_logs_manager
         self.device_ip_manager = device_ip_manager
-        self.account_repository = account_repository
-        self.account_type_repository = account_type_repository
         self.subscription_manager = subscription_manager
         self.room_repository = room_repository
 
@@ -109,14 +102,9 @@ class MemberManager(CRUDManager):
 
     @log_call
     async def create(self, body: MemberBody) -> Member:
-        # Check that the user exists in the system.
         fetched_member = await self.member_repository.get_by_login(body.username or "")
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
-
-        fetched_account_type, _ = await self.account_type_repository.search_by(terms="Adhérent")
-        if not fetched_account_type:
-            raise AccountTypeNotFoundError("Adhérent")
 
         created_member = await self.member_repository.create(
             object_to_create=AbstractMember(
@@ -133,21 +121,7 @@ class MemberManager(CRUDManager):
             )
         )
 
-        await self.mailinglist_repository.update_from_member(created_member.id, 249)  # type: ignore  # TODO: typing is baaaaad
-
-        _ = await self.account_repository.create(
-            AbstractAccount(
-                id=0,
-                actif=True,
-                accountType=fetched_account_type[0].id,
-                member=created_member.id,
-                name=f"{created_member.first_name} {created_member.last_name} ({created_member.username})",
-                pinned=False,
-                compteCourant=False,
-                balance=0,
-                pendingBalance=0,
-            )
-        )
+        await self.mailinglist_repository.update_from_member(created_member.id, 249)  # type: ignore
 
         _ = await self.subscription_manager.create(
             member_id=created_member.id,

@@ -11,7 +11,6 @@ from sqlalchemy.sql.selectable import Select
 
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.member.storage.models import Adherent
-from adh6.storage.sql.models import Modification
 
 from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
@@ -73,10 +72,6 @@ class DeviceSQLRepository(DeviceRepository):
         )
         self.session.add(device)
         await self.session.flush()
-        await self._record_modification(
-            adherent_id=device.adherent_id,
-            action=f"device: created {device.mac}",
-        )
         return _map_device_sql_to_entity(device)
 
     async def update(self, abstract_device: AbstractDevice, override: bool = False) -> Device:
@@ -94,10 +89,6 @@ class DeviceSQLRepository(DeviceRepository):
         device = await self.session.scalar(stmt)
         if device is None:
             return
-        await self._record_modification(
-            adherent_id=device.adherent_id,
-            action=f"device: deleted {device.mac}",
-        )
         await self.session.delete(device)
 
     async def get_mab(self, object_id: int) -> bool:
@@ -134,18 +125,6 @@ class DeviceSQLRepository(DeviceRepository):
             raise ValueError(f"Device {id} not found")
         device.wifi_password = password
         device.updated_at = datetime.now()
-
-    async def _record_modification(self, adherent_id: int, action: str) -> None:
-        now = datetime.now()
-        self.session.add(
-            Modification(
-                adherent_id=adherent_id,
-                action=action,
-                created_at=now,
-                updated_at=now,
-                utilisateur_id=None,
-            )
-        )
 
 
 def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, override: bool = False) -> SQLDevice:

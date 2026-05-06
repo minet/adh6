@@ -76,7 +76,7 @@ export class PortNewComponent implements OnInit {
     const v = this.portForm.value;
     const port = {
       portNumber: "" + v.portNumber,
-      room: v.roomNumber,
+      room: +v.roomNumber!,
       switchObj: this.switch_id,
     };
 

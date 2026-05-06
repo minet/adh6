@@ -43,9 +43,6 @@ from adh6.security import require_role_or_ownership
 from adh6.subnet.storage import VLANRepository
 from adh6.subnet.vlan_manager import VlanManager
 from adh6.treasury.storage import (
-    AccountRepository,
-    AccountTypeRepository,
-    CashboxRepository,
     PaymentMethodRepository,
     TransactionRepository,
 )
@@ -143,7 +140,6 @@ def build_transaction_manager(session: AsyncSession) -> TransactionManager:
     """Build transaction manager for the current DB session."""
     return TransactionManager(
         transaction_repository=TransactionRepository(session),
-        cashbox_repository=CashboxRepository(session),
     )
 
 
@@ -157,8 +153,6 @@ async def get_member_manager(
 ) -> MemberManager:
     """Dependency: Inject Member Manager."""
     member_repo = MemberRepository(session)
-    account_repo = AccountRepository(session)
-    account_type_repo = AccountTypeRepository(session)
     device_repo = DeviceStorageRepository(session)
     device_ip_manager = DeviceIpManager(
         ip_allocator=IPAllocator(session),
@@ -180,13 +174,10 @@ async def get_member_manager(
         notification_manager=notification_manager,
         transaction_manager=transaction_manager,
         payment_method_repository=PaymentMethodRepository(session),
-        account_repository=account_repo,
     )
 
     return MemberManager(
         member_repository=member_repo,
-        account_repository=account_repo,
-        account_type_repository=account_type_repo,
         device_ip_manager=device_ip_manager,
         device_logs_manager=device_logs_manager,
         mailinglist_repository=MailinglistReposiroty(session),
@@ -228,7 +219,6 @@ async def get_subscription_manager(
         notification_manager=notification_manager,
         transaction_manager=transaction_manager,
         payment_method_repository=PaymentMethodRepository(session),
-        account_repository=AccountRepository(session),
     )
 
 

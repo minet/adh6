@@ -123,7 +123,7 @@ export class BuyProductComponent {
     }
 
     this.treasuryService
-      .productBuyPost(this.member.id, productIds, paymentMethod)
+      .productBuyPost(this.member.id, productIds, +paymentMethod)
       .subscribe(() => {
         void Toast.fire({
           title: "Produit(s) acheté(s)",

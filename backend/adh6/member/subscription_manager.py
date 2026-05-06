@@ -4,19 +4,17 @@ from datetime import datetime
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
-    KnownAccountExpense,
     MembershipStatus,
 )
+from adh6.context import get_api_key_id, get_user
 from adh6.decorator import log_call
 from adh6.entity import (
-    AbstractAccount,
     AbstractMembership,
     AbstractTransaction,
     Membership,
     SubscriptionBody,
 )
 from adh6.exceptions import (
-    AccountNotFoundError,
     CharterNotSigned,
     MemberNotFoundError,
     MembershipAlreadyExist,
@@ -27,7 +25,7 @@ from adh6.exceptions import (
     UnknownPaymentMethod,
     WifiOnlyRestrictionError,
 )
-from adh6.treasury.interfaces import AccountRepository, PaymentMethodRepository
+from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
@@ -43,13 +41,11 @@ class SubscriptionManager:
         notification_manager: NotificationManager,
         transaction_manager: TransactionManager,
         payment_method_repository: PaymentMethodRepository,
-        account_repository: AccountRepository,
     ):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.charter_repository = charter_repository
         self.notification_manager = notification_manager
-        self.account_repository = account_repository
         self.payment_method_repository = payment_method_repository
         self.transaction_manager = transaction_manager
 
@@ -141,16 +137,11 @@ class SubscriptionManager:
             )  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT
 
-        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
-            account = await self.account_repository.get_by_id(body.account)
-            if not account:
-                raise AccountNotFoundError(body.account)
+        if state == MembershipStatus.PENDING_PAYMENT and body.payment_method is not None:
             payment_method = await self.payment_method_repository.get_by_id(body.payment_method)
             if not payment_method:
                 raise PaymentMethodNotFoundError(body.payment_method)
-            logging.getLogger(__name__).debug(
-                "create_membership_record_switch_status_to_pending_payment_validation"
-            )  # TODO: use a proper logger
+            logging.getLogger(__name__).debug("create_membership_record_switch_status_to_pending_payment_validation")
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         try:
@@ -223,17 +214,13 @@ class SubscriptionManager:
             logging.debug("create_membership_record_switch_status_to_pending_payment")  # noqa: LOG015  # TODO: use a proper logger
             state = MembershipStatus.PENDING_PAYMENT
 
-        if body.account is not None:
-            account = await self.account_repository.get_by_id(body.account)
-            if not account:
-                raise AccountNotFoundError(body.account)
         if body.payment_method is not None:
             payment_method = await self.payment_method_repository.get_by_id(body.payment_method)
             if not payment_method:
                 raise PaymentMethodNotFoundError(body.payment_method)
 
-        if state == MembershipStatus.PENDING_PAYMENT and body.account is not None and body.payment_method is not None:
-            logging.debug("create_membership_record_switch_status_to_pending_payment_validation")  # noqa: LOG015  # TODO: use a proper logger
+        if state == MembershipStatus.PENDING_PAYMENT and body.payment_method is not None:
+            logging.debug("create_membership_record_switch_status_to_pending_payment_validation")  # noqa: LOG015
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         await self.membership_repository.update(subscription.uuid, body, state)
@@ -261,50 +248,22 @@ class SubscriptionManager:
         if membership.payment_method is None:
             raise MembershipNotFoundError(None)
         payment_method = await self.payment_method_repository.get_by_id(membership.payment_method)
-        asso_account, _ = await self.account_repository.search_by(
-            limit=1,
-            filter_=AbstractAccount(name=KnownAccountExpense.ASSOCIATION_EXPENCE.value),
-        )
-        if len(asso_account) != 1:
-            raise AccountNotFoundError(KnownAccountExpense.ASSOCIATION_EXPENCE.value)
-        tech_account, _ = await self.account_repository.search_by(
-            limit=1,
-            filter_=AbstractAccount(name=KnownAccountExpense.TECHNICAL_EXPENSE.value),
-        )
-        if len(tech_account) != 1:
-            raise AccountNotFoundError(KnownAccountExpense.TECHNICAL_EXPENSE.value)
-        if membership.account is None:
-            raise AccountNotFoundError(None)
-        src_account = await self.account_repository.get_by_id(membership.account)
-        if src_account is None:
-            raise AccountNotFoundError(membership.account)
         if membership.duration is None:
             raise MembershipNotFoundError(None)
-        price = self.duration_price[membership.duration]  # Expressed in EUR.
+        price = self.duration_price[membership.duration]
         title = f"Internet - {self.duration_string.get(membership.duration)}"
         if price == 50 and not membership.has_room:
             price = 9
             title = title + " (sans chambre)"
-        from adh6.context import get_user
 
         await self.transaction_manager.update_or_create(
             AbstractTransaction(
-                value=9 if not free else 0,
-                src=src_account.id,  # type: ignore  # TODO: typing
-                dst=asso_account[0].id,
+                value=price if not free else 0,
                 name=title + " (gratuit)" if free else title,
-                paymentMethod=payment_method.id,  # type: ignore  # TODO: typing
+                paymentMethod=payment_method.id,  # type: ignore
                 author=get_user(),
+                apiKeyId=get_api_key_id(),
+                productType="cotisation",
+                membershipUuid=membership.uuid,
             )
         )
-        if price > 9 and not free:
-            await self.transaction_manager.update_or_create(
-                AbstractTransaction(
-                    value=price - 9,
-                    src=src_account.id,  # type: ignore  # TODO: typing
-                    dst=tech_account[0].id,
-                    name=title,
-                    paymentMethod=payment_method.id,  # type: ignore  # TODO: typing
-                    author=get_user(),
-                )
-            )

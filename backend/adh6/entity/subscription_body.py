@@ -32,9 +32,8 @@ class SubscriptionBody(BaseModel):
     duration: Optional[StrictInt] = Field(default=None, description="The requested duration (in months) for this membership")
     has_room: Optional[StrictBool] = Field(default=None, description="if the Member ask for a room or not", alias="hasRoom")
     payment_method: Optional[StrictInt] = Field(default=None, description="The payment method id to be used for the transaction", alias="paymentMethod")
-    account: Optional[StrictInt] = Field(default=None, description="The id of the source account from which to execute the transaction")
     member: Optional[StrictInt] = Field(default=None, description="The id of the member to whom this membership applies")
-    __properties: ClassVar[List[str]] = ["duration", "hasRoom", "paymentMethod", "account", "member"]
+    __properties: ClassVar[List[str]] = ["duration", "hasRoom", "paymentMethod", "member"]
 
     @field_validator('duration')
     def duration_validate_enum(cls, value):
@@ -100,11 +99,6 @@ class SubscriptionBody(BaseModel):
         if self.payment_method is None and "payment_method" in self.model_fields_set:
             _dict['paymentMethod'] = None
 
-        # set to None if account (nullable) is None
-        # and model_fields_set contains the field
-        if self.account is None and "account" in self.model_fields_set:
-            _dict['account'] = None
-
         # set to None if member (nullable) is None
         # and model_fields_set contains the field
         if self.member is None and "member" in self.model_fields_set:
@@ -125,7 +119,6 @@ class SubscriptionBody(BaseModel):
             "duration": obj.get("duration"),
             "hasRoom": obj.get("hasRoom"),
             "paymentMethod": obj.get("paymentMethod"),
-            "account": obj.get("account"),
             "member": obj.get("member")
         })
         return _obj

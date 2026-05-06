@@ -31,8 +31,6 @@ class MembershipSQLRepository(MembershipRepository):
                 stmt = stmt.where(MembershipSQL.duration == filter_.duration)
             if filter_.payment_method is not None:
                 stmt = stmt.where(MembershipSQL.payment_method_id == filter_.payment_method)
-            if filter_.account is not None:
-                stmt = stmt.where(MembershipSQL.account_id == filter_.account)
             if filter_.member is not None:
                 stmt = stmt.where(MembershipSQL.adherent_id == filter_.member)
 
@@ -63,7 +61,6 @@ class MembershipSQLRepository(MembershipRepository):
         to_add = MembershipSQL(
             uuid=str(uuid.uuid4()),
             duration=body.duration,
-            account_id=body.account,
             payment_method_id=body.payment_method,
             adherent_id=body.member,
             status=state,
@@ -90,8 +87,6 @@ class MembershipSQLRepository(MembershipRepository):
 
         if body.duration:
             membership.duration = body.duration
-        if body.account:
-            membership.account_id = body.account
         if body.payment_method:
             membership.payment_method_id = body.payment_method
         if body.has_room is not None:
@@ -124,7 +119,6 @@ def _map_membership_sql_to_entity(obj_sql: MembershipSQL) -> Membership:
         hasRoom=obj_sql.has_room,
         firstTime=obj_sql.first_time,
         paymentMethod=obj_sql.payment_method_id,
-        account=obj_sql.account_id,
         member=obj_sql.adherent_id,
         status=obj_sql.status.value,
         createdAt=obj_sql.create_at,

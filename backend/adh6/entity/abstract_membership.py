@@ -35,12 +35,11 @@ class AbstractMembership(BaseModel):
     has_room: Optional[StrictBool] = Field(default=None, description="if the Member ask for a room or not", alias="hasRoom")
     first_time: Optional[StrictBool] = Field(default=None, description="Whether this is the first membership request ever for this member", alias="firstTime")
     payment_method: Optional[StrictInt] = Field(default=None, description="The payment method id to be used for the transaction", alias="paymentMethod")
-    account: Optional[StrictInt] = Field(default=None, description="The id of the source account from which to execute the transaction")
     member: Optional[StrictInt] = Field(default=None, description="The id of the member to whom this membership applies")
     status: Optional[StrictStr] = Field(default=None, description="The current status of this membership request:  * `INITIAL` - Just created  * `PENDING_RULES` - Waiting for the member to sign the rules  * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow  * `PENDING_PAYMENT` - During the payment flow  * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation  * `COMPLETE` - The membership request is completed  * `CANCELLED` - The membership has been cancelled  * `ABORTED` - The membership request flow was aborted Do note that some of the steps may be skipped depending on the payment method, whether or not this is the member's first membership request etc. ")
     created_at: Optional[datetime] = Field(default=None, description="The date-time at which this membership request was first created", alias="createdAt")
     updated_at: Optional[datetime] = Field(default=None, description="The date-time at which this membership request was last updated", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["uuid", "duration", "hasRoom", "firstTime", "paymentMethod", "account", "member", "status", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["uuid", "duration", "hasRoom", "firstTime", "paymentMethod", "member", "status", "createdAt", "updatedAt"]
 
     @field_validator('duration')
     def duration_validate_enum(cls, value):
@@ -118,11 +117,6 @@ class AbstractMembership(BaseModel):
         if self.payment_method is None and "payment_method" in self.model_fields_set:
             _dict['paymentMethod'] = None
 
-        # set to None if account (nullable) is None
-        # and model_fields_set contains the field
-        if self.account is None and "account" in self.model_fields_set:
-            _dict['account'] = None
-
         # set to None if updated_at (nullable) is None
         # and model_fields_set contains the field
         if self.updated_at is None and "updated_at" in self.model_fields_set:
@@ -145,7 +139,6 @@ class AbstractMembership(BaseModel):
             "hasRoom": obj.get("hasRoom"),
             "firstTime": obj.get("firstTime"),
             "paymentMethod": obj.get("paymentMethod"),
-            "account": obj.get("account"),
             "member": obj.get("member"),
             "status": obj.get("status"),
             "createdAt": obj.get("createdAt"),

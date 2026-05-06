@@ -205,7 +205,7 @@ export class SwitchService {
 
     /**
      * Set each port SNMP alias to its linked room description
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -282,7 +282,7 @@ export class SwitchService {
 
     /**
      * Assign a VLAN number to all rooms linked to ports on this switch (database only)
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param body The VLAN number to assign to all rooms linked to ports on this switch
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -373,7 +373,7 @@ export class SwitchService {
 
     /**
      * Delete a switch
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -450,7 +450,7 @@ export class SwitchService {
 
     /**
      * Discover ports on a switch via SNMP
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
@@ -527,7 +527,7 @@ export class SwitchService {
 
     /**
      * Retrieve a switch
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param only Limit to specific attributes
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -612,7 +612,7 @@ export class SwitchService {
 
     /**
      * Run an ICMP ping from the switch via Cisco SNMP Ping MIB
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param pingRequest Ping parameters (target address, packet count, timeout)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -703,7 +703,7 @@ export class SwitchService {
 
     /**
      * Update a switch
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param abstractSwitch The new values for this switch
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -794,7 +794,7 @@ export class SwitchService {
 
     /**
      * Sync port names (portNumber) from switch technical names (ifDescr) via SNMP
-     * @param id The id of the account that needs to be fetched.
+     * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

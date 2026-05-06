@@ -1,103 +1,101 @@
 @if (oidcSecurityService.isAuthenticated() | async) {
   <div class="p-3">
     <aside class="menu">
-      <p class="menu-label">General</p>
+      <p i18n="sidebar section general" class="menu-label">Général</p>
       <ul class="menu-list">
         <li>
-          <a routerLinkActive="is-active" [routerLink]="['dashboard']"
-            >Mon Compte</a
-          >
+          <a routerLinkActive="is-active" [routerLink]="['dashboard']" i18n="sidebar link my account">
+            Mon Compte
+          </a>
         </li>
       </ul>
-      <p class="menu-label">Administration</p>
+      <p i18n="sidebar section administration" class="menu-label">Administration</p>
       <ul class="menu-list">
         <li>
-          Gestion Adhérents
+          <span i18n="sidebar group members">Gestion Adhérents</span>
           <ul>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['member']"
-                >Adhérents</a
-              >
+              <a routerLinkActive="is-active" [routerLink]="['member']" i18n="sidebar link members">
+                Adhérents
+              </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['device']"
-                >Appareils</a
-              >
+              <a routerLinkActive="is-active" [routerLink]="['device']" i18n="sidebar link devices">
+                Appareils
+              </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['room']"
-                >Chambres</a
-              >
+              <a routerLinkActive="is-active" [routerLink]="['room']" i18n="sidebar link rooms">
+                Chambres
+              </a>
             </li>
           </ul>
         </li>
         <li>
-          Gestion réseau
+          <span i18n="sidebar group network">Gestion réseau</span>
           <ul>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['switch/search']"
-                >Commutateurs</a
-              >
+              <a routerLinkActive="is-active" [routerLink]="['switch/search']" i18n="sidebar link switches">
+                Commutateurs
+              </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['port/search']"
-                >Ports</a
-              >
+              <a routerLinkActive="is-active" [routerLink]="['port/search']" i18n="sidebar link ports">
+                Ports
+              </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['switch_local']">
+              <a routerLinkActive="is-active" [routerLink]="['switch_local']" i18n="sidebar link local switch">
                 Commutateur Local
               </a>
             </li>
             @if ("manage" | able: "admin") {
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['vlan']">VLANs</a>
+                <a routerLinkActive="is-active" [routerLink]="['vlan']" i18n="sidebar link vlans">VLANs</a>
               </li>
             }
           </ul>
         </li>
         @if ("manage" | able: "prod") {
           <li>
-            Authentification
+            <span i18n="sidebar group authentication">Authentification</span>
             <ul>
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['auth/naina']"
-                  >NainA</a
-                >
+                <a routerLinkActive="is-active" [routerLink]="['auth/naina']" i18n="sidebar link naina">
+                  NainA
+                </a>
               </li>
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['auth/api-key']"
-                  >Clef d'API</a
-                >
+                <a routerLinkActive="is-active" [routerLink]="['auth/api-key']" i18n="sidebar link api key">
+                  Clef d'API
+                </a>
               </li>
             </ul>
           </li>
         }
       </ul>
       @if ("manage" | able: "treasury") {
-        <p class="menu-label">Transactions</p>
-      }
-      @if ("manage" | able: "treasury") {
+        <p i18n="sidebar section treasury" class="menu-label">Trésorerie</p>
         <ul class="menu-list">
           <li>
-            <a routerLinkActive="is-active" [routerLink]="['transaction/add']"
-              >Transaction</a
-            >
+            <span i18n="sidebar group transactions">Transactions</span>
+            <ul>
+              <li>
+                <a routerLinkActive="is-active" [routerLink]="['transaction/add']" i18n="sidebar link new transaction">
+                  Nouvelle transaction
+                </a>
+              </li>
+              <li>
+                <a routerLinkActive="is-active" [routerLink]="['transaction/export']" i18n="sidebar link export transactions">
+                  Export
+                </a>
+              </li>
+            </ul>
           </li>
           <li>
-            <a routerLinkActive="is-active" [routerLink]="['treasury']"
-              >Trésorerie</a
-            >
-          </li>
-          <li>
-            <a routerLinkActive="is-active" [routerLink]="['account/search']"
-              >Comptes</a
-            >
-          </li>
-          <li>
-            <a routerLinkActive="is-active" [routerLink]="['product/search']"
-              >Produit</a
-            >
+            <a routerLinkActive="is-active" [routerLink]="['product/search']" i18n="sidebar link products">
+              Produits
+            </a>
           </li>
         </ul>
       }

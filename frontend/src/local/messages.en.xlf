@@ -891,6 +891,126 @@
         </context-group>
         <note priority="1" from="description">Logs hidden description</note>
       </trans-unit>
+      <trans-unit id="sidebar section general" datatype="html">
+        <source>Général</source>
+        <target>General</target>
+        <note priority="1" from="description">sidebar section general</note>
+      </trans-unit>
+      <trans-unit id="sidebar section administration" datatype="html">
+        <source>Administration</source>
+        <target>Administration</target>
+        <note priority="1" from="description">sidebar section administration</note>
+      </trans-unit>
+      <trans-unit id="sidebar section treasury" datatype="html">
+        <source>Trésorerie</source>
+        <target>Treasury</target>
+        <note priority="1" from="description">sidebar section treasury</note>
+      </trans-unit>
+      <trans-unit id="sidebar link my account" datatype="html">
+        <source>Mon Compte</source>
+        <target>My Account</target>
+        <note priority="1" from="description">sidebar link my account</note>
+      </trans-unit>
+      <trans-unit id="sidebar group members" datatype="html">
+        <source>Gestion Adhérents</source>
+        <target>Member Management</target>
+        <note priority="1" from="description">sidebar group members</note>
+      </trans-unit>
+      <trans-unit id="sidebar link members" datatype="html">
+        <source>Adhérents</source>
+        <target>Members</target>
+        <note priority="1" from="description">sidebar link members</note>
+      </trans-unit>
+      <trans-unit id="sidebar link devices" datatype="html">
+        <source>Appareils</source>
+        <target>Devices</target>
+        <note priority="1" from="description">sidebar link devices</note>
+      </trans-unit>
+      <trans-unit id="sidebar link rooms" datatype="html">
+        <source>Chambres</source>
+        <target>Rooms</target>
+        <note priority="1" from="description">sidebar link rooms</note>
+      </trans-unit>
+      <trans-unit id="sidebar group network" datatype="html">
+        <source>Gestion réseau</source>
+        <target>Network Management</target>
+        <note priority="1" from="description">sidebar group network</note>
+      </trans-unit>
+      <trans-unit id="sidebar link switches" datatype="html">
+        <source>Commutateurs</source>
+        <target>Switches</target>
+        <note priority="1" from="description">sidebar link switches</note>
+      </trans-unit>
+      <trans-unit id="sidebar link ports" datatype="html">
+        <source>Ports</source>
+        <target>Ports</target>
+        <note priority="1" from="description">sidebar link ports</note>
+      </trans-unit>
+      <trans-unit id="sidebar link local switch" datatype="html">
+        <source>Commutateur Local</source>
+        <target>Local Switch</target>
+        <note priority="1" from="description">sidebar link local switch</note>
+      </trans-unit>
+      <trans-unit id="sidebar link vlans" datatype="html">
+        <source>VLANs</source>
+        <target>VLANs</target>
+        <note priority="1" from="description">sidebar link vlans</note>
+      </trans-unit>
+      <trans-unit id="sidebar group authentication" datatype="html">
+        <source>Authentification</source>
+        <target>Authentication</target>
+        <note priority="1" from="description">sidebar group authentication</note>
+      </trans-unit>
+      <trans-unit id="sidebar link naina" datatype="html">
+        <source>NainA</source>
+        <target>NainA</target>
+        <note priority="1" from="description">sidebar link naina</note>
+      </trans-unit>
+      <trans-unit id="sidebar link api key" datatype="html">
+        <source>Clef d'API</source>
+        <target>API Key</target>
+        <note priority="1" from="description">sidebar link api key</note>
+      </trans-unit>
+      <trans-unit id="sidebar group transactions" datatype="html">
+        <source>Transactions</source>
+        <target>Transactions</target>
+        <note priority="1" from="description">sidebar group transactions</note>
+      </trans-unit>
+      <trans-unit id="sidebar link new transaction" datatype="html">
+        <source>Nouvelle transaction</source>
+        <target>New transaction</target>
+        <note priority="1" from="description">sidebar link new transaction</note>
+      </trans-unit>
+      <trans-unit id="sidebar link export transactions" datatype="html">
+        <source>Export</source>
+        <target>Export</target>
+        <note priority="1" from="description">sidebar link export transactions</note>
+      </trans-unit>
+      <trans-unit id="sidebar link products" datatype="html">
+        <source>Produits</source>
+        <target>Products</target>
+        <note priority="1" from="description">sidebar link products</note>
+      </trans-unit>
+      <trans-unit id="transaction export title" datatype="html">
+        <source>Export des transactions</source>
+        <target>Transaction export</target>
+        <note priority="1" from="description">transaction export title</note>
+      </trans-unit>
+      <trans-unit id="export from date label" datatype="html">
+        <source>Du</source>
+        <target>From</target>
+        <note priority="1" from="description">export from date label</note>
+      </trans-unit>
+      <trans-unit id="export to date label" datatype="html">
+        <source>Au</source>
+        <target>To</target>
+        <note priority="1" from="description">export to date label</note>
+      </trans-unit>
+      <trans-unit id="export download button" datatype="html">
+        <source>Télécharger (.ods)</source>
+        <target>Download (.ods)</target>
+        <note priority="1" from="description">export download button</note>
+      </trans-unit>
     </body>
   </file>
 </xliff>

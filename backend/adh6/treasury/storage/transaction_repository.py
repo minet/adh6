@@ -2,19 +2,17 @@
 Implements everything related to actions on the SQL database.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractTransaction, Transaction
-from adh6.exceptions import AccountNotFoundError, PaymentMethodNotFoundError
+from adh6.exceptions import PaymentMethodNotFoundError
 
 from ..interfaces import TransactionRepository
-from .models import Account, PaymentMethod, Transaction as SQLTransaction
-
-auto_validate_payment_method = ["Liquide", "Carte bancaire"]
+from .models import PaymentMethod, Transaction as SQLTransaction
 
 
 class TransactionSQLRepository(TransactionRepository):
@@ -32,6 +30,8 @@ class TransactionSQLRepository(TransactionRepository):
         offset: int = DEFAULT_OFFSET,
         terms: str | None = None,
         filter_: AbstractTransaction | None = None,
+        from_date: date | None = None,
+        to_date: date | None = None,
     ) -> tuple[list[Transaction], int]:
         stmt = select(SQLTransaction)
 
@@ -40,23 +40,28 @@ class TransactionSQLRepository(TransactionRepository):
                 stmt = stmt.where(SQLTransaction.id == filter_.id)
             if filter_.payment_method is not None:
                 stmt = stmt.where(SQLTransaction.type == filter_.payment_method)
-            if filter_.pending_validation is not None:
-                stmt = stmt.where(SQLTransaction.pending_validation == filter_.pending_validation)
-            if filter_.src is not None and filter_.dst is not None and filter_.src == filter_.dst:
-                stmt = stmt.where((SQLTransaction.src == filter_.src) | (SQLTransaction.dst == filter_.dst))
-            elif filter_.src is not None:
-                stmt = stmt.where(SQLTransaction.src == filter_.src)
-            elif filter_.dst is not None:
-                stmt = stmt.where(SQLTransaction.dst == filter_.dst)
+            if filter_.membership_uuid is not None:
+                stmt = stmt.where(SQLTransaction.membership_uuid == filter_.membership_uuid)
+            if filter_.product_type is not None:
+                stmt = stmt.where(SQLTransaction.product_type == filter_.product_type)
+            if filter_.product_id is not None:
+                stmt = stmt.where(SQLTransaction.product_id == filter_.product_id)
+
+        if from_date is not None:
+            stmt = stmt.where(SQLTransaction.timestamp >= datetime.combine(from_date, datetime.min.time()))
+        if to_date is not None:
+            stmt = stmt.where(SQLTransaction.timestamp <= datetime.combine(to_date, datetime.max.time()))
 
         if terms:
             stmt = stmt.where(SQLTransaction.name.like(f"%{terms}%"))
+
+        stmt = stmt.order_by(SQLTransaction.timestamp.desc())
 
         # Count
         count_result = await self.session.execute(stmt)
         count = len(count_result.all())
 
-        # Apply ordering and pagination
+        # Apply pagination
         stmt = stmt.offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         r = result.scalars().all()
@@ -65,22 +70,6 @@ class TransactionSQLRepository(TransactionRepository):
 
     async def create(self, abstract_transaction: AbstractTransaction) -> object:
         now = datetime.now()
-
-        account_src_id = None
-        if abstract_transaction.src is not None:
-            account_src_stmt = select(Account).where(Account.id == abstract_transaction.src)
-            account_src = await self.session.scalar(account_src_stmt)
-            if not account_src:
-                raise AccountNotFoundError(abstract_transaction.src)
-            account_src_id = account_src.id
-
-        account_dst_id = None
-        if abstract_transaction.dst is not None:
-            account_dst_stmt = select(Account).where(Account.id == abstract_transaction.dst)
-            account_dst = await self.session.scalar(account_dst_stmt)
-            if not account_dst:
-                raise AccountNotFoundError(abstract_transaction.dst)
-            account_dst_id = account_dst.id
 
         method_id = None
         if abstract_transaction.payment_method is not None:
@@ -91,35 +80,24 @@ class TransactionSQLRepository(TransactionRepository):
             method_id = method.id
 
         transaction = SQLTransaction(
-            src=account_src_id,
-            dst=account_dst_id,
             value=abstract_transaction.value,
             name=abstract_transaction.name,
             timestamp=now,
-            attachments="",
             type=method_id,
             author_id=abstract_transaction.author,
-            pending_validation=(
-                abstract_transaction.pending_validation if abstract_transaction.pending_validation else False
-            ),
+            membership_uuid=abstract_transaction.membership_uuid,
+            api_key_id=abstract_transaction.api_key_id,
+            product_id=abstract_transaction.product_id,
+            product_type=abstract_transaction.product_type,
         )
 
         self.session.add(transaction)
         await self.session.flush()
-        mapped_transaction = _map_transaction_sql_to_entity(transaction)
 
-        return mapped_transaction
+        return _map_transaction_sql_to_entity(transaction)
 
     def update(self, abstract_transaction: AbstractTransaction, override=False) -> object:
         raise NotImplementedError
-
-    async def validate(self, id) -> None:
-        stmt = select(SQLTransaction).where(SQLTransaction.id == id)
-        transaction = await self.session.scalar(stmt)
-
-        if not transaction:
-            return
-        transaction.pending_validation = False
 
     async def delete(self, object_id) -> None:
         stmt = select(SQLTransaction).where(SQLTransaction.id == object_id)
@@ -127,20 +105,31 @@ class TransactionSQLRepository(TransactionRepository):
 
         await self.session.delete(transaction)
 
+    async def search_for_export(
+        self,
+        from_date: date,
+        to_date: date,
+    ) -> list[Transaction]:
+        stmt = (
+            select(SQLTransaction)
+            .where(SQLTransaction.timestamp >= datetime.combine(from_date, datetime.min.time()))
+            .where(SQLTransaction.timestamp <= datetime.combine(to_date, datetime.max.time()))
+            .order_by(SQLTransaction.timestamp.asc())
+        )
+        result = await self.session.execute(stmt)
+        return [_map_transaction_sql_to_entity(i) for i in result.scalars().all()]
+
 
 def _map_transaction_sql_to_entity(t: SQLTransaction) -> Transaction:
-    """
-    Map a Transaction object from SQLAlchemy to a Transaction (from the entity folder/layer).
-    """
     return Transaction(
         id=t.id,
-        src=t.src,
-        dst=t.dst,
         timestamp=t.timestamp,
         name=t.name,
         value=t.value,
         paymentMethod=t.type,
-        attachments=[],
         author=t.author_id,
-        pendingValidation=t.pending_validation,
+        membershipUuid=t.membership_uuid,
+        apiKeyId=t.api_key_id,
+        productId=t.product_id,
+        productType=t.product_type,
     )

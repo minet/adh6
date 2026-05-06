@@ -21,15 +21,7 @@ export interface AbstractTransaction {
      */
     name?: string;
     /**
-     * The source account of this transaction
-     */
-    src?: number;
-    /**
-     * The destination account of this transaction
-     */
-    dst?: number;
-    /**
-     * The date-time at which this transaction was executed
+     * The date-time at which this transaction was created
      */
     readonly timestamp?: string;
     /**
@@ -41,28 +33,31 @@ export interface AbstractTransaction {
      */
     value?: number;
     /**
-     * The list of attachments linked with this transaction
-     */
-    attachments?: Array<string>;
-    /**
-     * The member who executed this transaction
+     * The member who created this transaction
      */
     readonly author?: number;
     /**
-     * Whether this transaction is awaiting confirmation from a member with higher privileges
+     * The product associated with this transaction
      */
-    readonly pendingValidation?: boolean;
+    readonly productId?: number | null;
     /**
-     * Whether to use the cashbox or not
+     * The type of product associated with this transaction
      */
-    cashbox?: AbstractTransaction.CashboxEnum | null;
+    readonly productType?: AbstractTransaction.ProductTypeEnum | null;
+    /**
+     * The API key used to create this transaction, if any
+     */
+    readonly apiKeyId?: number | null;
+    /**
+     * The membership UUID associated with this transaction, if any
+     */
+    readonly membershipUuid?: string | null;
 }
 export namespace AbstractTransaction {
-    export type CashboxEnum = 'to' | 'from' | 'direct';
-    export const CashboxEnum = {
-        To: 'to' as CashboxEnum,
-        From: 'from' as CashboxEnum,
-        Direct: 'direct' as CashboxEnum
+    export type ProductTypeEnum = 'cotisation' | 'product';
+    export const ProductTypeEnum = {
+        Cotisation: 'cotisation' as ProductTypeEnum,
+        Product: 'product' as ProductTypeEnum
     };
 }
 

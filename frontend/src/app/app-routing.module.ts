@@ -27,10 +27,6 @@ const routes: Routes = [
     loadChildren: () => import("./dashboard/routes").then((m) => m.ROUTES),
   },
   {
-    path: "account",
-    loadChildren: () => import("./account/routes").then((m) => m.ROUTES),
-  },
-  {
     path: "switch",
     loadChildren: () =>
       import("./switch/switch.module").then((m) => m.SwitchModule),
@@ -49,11 +45,6 @@ const routes: Routes = [
       import("./transaction/transaction.module").then(
         (m) => m.TransactionModule,
       ),
-  },
-  {
-    path: "treasury",
-    loadComponent: () =>
-      import("./treasury/treasury.component").then((m) => m.TreasuryComponent),
   },
   {
     path: "member",

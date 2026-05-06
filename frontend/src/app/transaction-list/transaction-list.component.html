@@ -26,16 +26,9 @@
       <th>Date</th>
       <th>Montant</th>
       <th>Intitulé</th>
-      @if (!asAccount) {
-        <th>De</th>
-      }
-      @if (asAccount) {
-        <th>De / Vers</th>
-      }
-      @if (!asAccount) {
-        <th>Vers</th>
-      }
+      <th>Type</th>
       <th>Moyen</th>
+      <th>Créé par</th>
       @if (actions.length > 0) {
         <th>Actions</th>
       }
@@ -44,76 +37,54 @@
   @if (result$ | async; as result) {
     <tbody>
       @for (transactionResult of result; track transactionResult) {
-        <tr
-          [ngClass]="{
-            'has-text-primary-dark':
-              asAccount && transactionResult.dst === this.asAccount,
-            'has-text-danger-dark':
-              asAccount && transactionResult.dst !== this.asAccount,
-            'has-background-grey-lighter': transactionResult.pendingValidation,
-          }">
+        <tr>
           <td class="text-center align-middle">
             <h6 class="mb-0">
               {{ transactionResult.timestamp | date: "dd/MM" }}
             </h6>
-            <small>{{ transactionResult.timestamp | date: "yyy" }}</small>
+            <small>{{ transactionResult.timestamp | date: "yyyy" }}</small>
           </td>
           <td class="text-right text-nowrap align-middle">
-            <h5>
-              {{
-                asAccount
-                  ? transactionResult.dst === asAccount
-                    ? "+"
-                    : "-"
-                  : ""
-              }}{{ transactionResult.value | number: "" : "fr" }} €
-            </h5>
+            <h5>{{ transactionResult.value | number: "" : "fr" }} €</h5>
           </td>
           <td class="align-middle">{{ transactionResult.name }}</td>
-          <td class="align-middle">
-            {{
-              transactionResult.src === asAccount
-                ? (cachedAccountName.get(transactionResult.dst || 0) | async)
-                : (cachedAccountName.get(transactionResult.src || 0) | async)
-            }}
-          </td>
-          @if (!asAccount) {
-            <td class="align-middle">
-              {{ cachedAccountName.get(transactionResult.dst || 0) | async }}
-            </td>
-          }
+          <td class="align-middle">{{ transactionResult.productType || "-" }}</td>
           <td class="align-middle">
             {{
               cachedPaymentMethodName.get(transactionResult.paymentMethod || 0)
                 | async
             }}
           </td>
+          <td class="align-middle">
+            {{
+              transactionResult.author
+                ? (cachedMemberUsername.get(transactionResult.author) | async)
+                : "-"
+            }}
+          </td>
           @if (actions) {
             <td class="text-right align-middle">
-              <div class="btn-group" role="group" aria-label="actions">
-                <div class="field is-grouped">
-                  @for (action of actions; track action) {
-                    <p class="control">
-                      @if (action.condition(transactionResult)) {
-                        <button
-                          type="button"
-                          class="button {{ action.class }}"
-                          (click)="
-                            whenOnAction.emit({
-                              name: action.name,
-                              transaction: transactionResult,
-                            })
-                          "
-                          placement="bottom">
-                          <img
-                            src="assets/icons/{{ action.buttonIcon }}.svg"
-                            width="25"
-                            height="25" />
-                        </button>
-                      }
-                    </p>
-                  }
-                </div>
+              <div class="field is-grouped">
+                @for (action of actions; track action) {
+                  <p class="control">
+                    @if (action.condition(transactionResult)) {
+                      <button
+                        type="button"
+                        class="button {{ action.class }}"
+                        (click)="
+                          whenOnAction.emit({
+                            name: action.name,
+                            transaction: transactionResult,
+                          })
+                        ">
+                        <img
+                          src="assets/icons/{{ action.buttonIcon }}.svg"
+                          width="25"
+                          height="25" />
+                      </button>
+                    }
+                  </p>
+                }
               </div>
             </td>
           }

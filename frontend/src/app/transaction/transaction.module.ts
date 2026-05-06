@@ -1,10 +1,10 @@
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {TransactionNewComponent} from "./transaction-new/transaction-new.component";
+import {TransactionExportComponent} from "./transaction-export/transaction-export.component";
 import {RouterModule} from "@angular/router";
 import {ReactiveFormsModule} from "@angular/forms";
 import {ClickOutsideDirective} from "./clickOutside.directive";
-import {AccountSearchComponent} from "./transaction-new/account-search/account-search.component";
 import {TransactionListComponent} from "../transaction-list/transaction-list.component";
 
 @NgModule({
@@ -13,12 +13,12 @@ import {TransactionListComponent} from "../transaction-list/transaction-list.com
     ReactiveFormsModule,
     CommonModule,
     TransactionNewComponent,
+    TransactionExportComponent,
     ClickOutsideDirective,
-    AccountSearchComponent,
     RouterModule.forChild([
       {path: "", redirectTo: "add", pathMatch: "full"},
       {path: "add", component: TransactionNewComponent},
-      {path: "add/:account_id", component: TransactionNewComponent},
+      {path: "export", component: TransactionExportComponent},
     ]),
     TransactionListComponent,
   ],
