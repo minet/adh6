@@ -144,6 +144,14 @@ class DeviceManager(CRUDManager):
         return device
 
     @log_call
+    async def delete(self, id: int) -> None:
+        device = await self.device_repository.get_by_id(object_id=id)
+        if not device:
+            raise DeviceNotFoundError(id)
+        await self.device_ip_manager.unallocate_ip(device)
+        await self.device_repository.delete(id)
+
+    @log_call
     async def get_owner(self, device_id: int) -> int | None:
         d = await self.device_repository.get_by_id(object_id=device_id)
         if not d:

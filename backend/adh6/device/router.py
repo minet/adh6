@@ -1,14 +1,19 @@
 """FastAPI router for device endpoints."""
 
+import asyncio
+import logging
+from datetime import UTC, datetime
+from enum import Enum
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
-from adh6.database import get_session
+from adh6.database import async_session_factory, get_session
 from adh6.entity import Device, DeviceBody, DeviceFilter
 from adh6.exceptions import (
     DeviceAlreadyExists,
@@ -27,9 +32,83 @@ from adh6.utils.filter_wrapper import DeviceFilterWrapper
 
 from .device_ip_manager import DeviceIpManager
 from .device_manager import DeviceManager
+from .netbox_sync_manager import NetboxSyncManager
 from .storage import DeviceRepository, IPAllocator
+from .storage.netbox_client import get_netbox_repository
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/device", tags=["device"])
+
+
+class NetboxSyncResponse(BaseModel):
+    ips_created: int
+    ips_deleted: int
+    prefixes_created: int
+    prefixes_deleted: int
+    errors: list[str]
+
+
+class NetboxSyncStatusEnum(str, Enum):
+    idle = "idle"
+    running = "running"
+    completed = "completed"
+    failed = "failed"
+
+
+class NetboxSyncStatus(BaseModel):
+    status: NetboxSyncStatusEnum
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    result: NetboxSyncResponse | None = None
+    error: str | None = None
+
+
+_sync_status: NetboxSyncStatus = NetboxSyncStatus(status=NetboxSyncStatusEnum.idle)
+_sync_task: asyncio.Task | None = None
+
+
+async def _run_sync_background() -> None:
+    global _sync_status
+    nb = get_netbox_repository()
+    if nb is None:
+        _sync_status = NetboxSyncStatus(
+            status=NetboxSyncStatusEnum.failed,
+            started_at=_sync_status.started_at,
+            finished_at=datetime.now(UTC),
+            error="Netbox integration is not enabled",
+        )
+        return
+    try:
+        async with async_session_factory() as session:
+            manager = NetboxSyncManager(
+                netbox_repository=nb,
+                device_repository=DeviceRepository(session),
+                member_repository=MemberRepository(session),
+                room_repository=RoomRepository(session),
+                vlan_manager=VlanManager(VLANRepository(session)),
+            )
+            result = await manager.sync()
+        _sync_status = NetboxSyncStatus(
+            status=NetboxSyncStatusEnum.completed,
+            started_at=_sync_status.started_at,
+            finished_at=datetime.now(UTC),
+            result=NetboxSyncResponse(
+                ips_created=result.ips_created,
+                ips_deleted=result.ips_deleted,
+                prefixes_created=result.prefixes_created,
+                prefixes_deleted=result.prefixes_deleted,
+                errors=result.errors,
+            ),
+        )
+    except Exception as e:
+        logger.exception("Netbox background sync failed")
+        _sync_status = NetboxSyncStatus(
+            status=NetboxSyncStatusEnum.failed,
+            started_at=_sync_status.started_at,
+            finished_at=datetime.now(UTC),
+            error=str(e),
+        )
 
 
 def _device_to_response_dict(device: Device) -> dict[str, Any]:
@@ -61,6 +140,7 @@ async def get_device_manager(
         ip_allocator=IPAllocator(session),
         device_repository=device_repo,
         vlan_manager=VlanManager(VLANRepository(session)),
+        netbox_repository=get_netbox_repository(),
     )
     member_repository = MemberRepository(session)
     room_repository = RoomRepository(session)
@@ -298,3 +378,37 @@ async def clear_wifi_password(
         await manager.clear_wifi_password(device_id=id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.post("/netbox/sync", response_model=NetboxSyncStatus, status_code=status.HTTP_202_ACCEPTED)
+async def sync_netbox(
+    request: Request,
+) -> NetboxSyncStatus:
+    """Start a background Netbox IPAM reconciliation. 409 if already running."""
+    global _sync_status, _sync_task
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    if get_netbox_repository() is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Netbox integration is not enabled",
+        )
+    if _sync_task is not None and not _sync_task.done():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Sync already running",
+        )
+    _sync_status = NetboxSyncStatus(
+        status=NetboxSyncStatusEnum.running,
+        started_at=datetime.now(UTC),
+    )
+    _sync_task = asyncio.create_task(_run_sync_background())
+    return _sync_status
+
+
+@router.get("/netbox/sync/status", response_model=NetboxSyncStatus, status_code=status.HTTP_200_OK)
+async def get_sync_status(
+    request: Request,
+) -> NetboxSyncStatus:
+    """Return current Netbox sync task status."""
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
+    return _sync_status

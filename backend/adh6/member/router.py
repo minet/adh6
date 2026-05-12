@@ -26,6 +26,7 @@ from adh6.device.storage import (
     IPAllocator,
     LogsRepository,
 )
+from adh6.device.storage.netbox_client import get_netbox_repository
 from adh6.entity import (
     Comment,
     Member,
@@ -154,10 +155,12 @@ async def get_member_manager(
     """Dependency: Inject Member Manager."""
     member_repo = MemberRepository(session)
     device_repo = DeviceStorageRepository(session)
+    netbox_repo = get_netbox_repository()
     device_ip_manager = DeviceIpManager(
         ip_allocator=IPAllocator(session),
         device_repository=device_repo,
         vlan_manager=VlanManager(VLANRepository(session)),
+        netbox_repository=netbox_repo,
     )
 
     device_logs_manager = DeviceLogsManager(
@@ -183,6 +186,7 @@ async def get_member_manager(
         mailinglist_repository=MailinglistReposiroty(session),
         subscription_manager=subscription_manager,
         room_repository=RoomRepository(session),
+        netbox_repository=netbox_repo,
     )
 
 

@@ -16,6 +16,7 @@ from adh6.constants import (
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
+from adh6.device.interfaces.netbox_repository import NetboxRepository
 from adh6.entity import (
     AbstractMember,
     Comment,
@@ -49,6 +50,7 @@ class MemberManager(CRUDManager):
         mailinglist_repository: MailinglistRepository,
         subscription_manager: SubscriptionManager,
         room_repository: RoomRepository,
+        netbox_repository: NetboxRepository | None = None,
     ):
         super().__init__(member_repository, MemberNotFoundError)
         self.member_repository = member_repository
@@ -57,6 +59,7 @@ class MemberManager(CRUDManager):
         self.device_ip_manager = device_ip_manager
         self.subscription_manager = subscription_manager
         self.room_repository = room_repository
+        self.netbox_repository = netbox_repository
 
     @log_call
     async def search(
@@ -313,29 +316,45 @@ class MemberManager(CRUDManager):
         if not is_member_active(member):
             return
 
-        used_wireles_public_ips = await self.member_repository.used_wireless_public_ips()
+        if member.subnet and member.ip:
+            subnet = IPv4Network(member.subnet)
+            ip = IPv4Address(member.ip)
+        else:
+            used_wireles_public_ips = await self.member_repository.used_wireless_public_ips()
 
-        subnet = None
-        ip = None
-        if len(used_wireles_public_ips) < len(SUBNET_PUBLIC_ADDRESSES_WIRELESS):
-            for i, s in SUBNET_PUBLIC_ADDRESSES_WIRELESS.items():
-                if i not in used_wireles_public_ips:
-                    subnet = s
-                    ip = i
+            subnet = None
+            ip = None
+            if len(used_wireles_public_ips) < len(SUBNET_PUBLIC_ADDRESSES_WIRELESS):
+                for i, s in SUBNET_PUBLIC_ADDRESSES_WIRELESS.items():
+                    if i not in used_wireles_public_ips:
+                        subnet = s
+                        ip = i
 
-        if subnet is None:
-            raise NoSubnetAvailable("wireless")
+            if subnet is None:
+                raise NoSubnetAvailable("wireless")
 
-        member = await self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
+            member = await self.member_repository.update(AbstractMember(id=member_id, subnet=str(subnet), ip=str(ip)))
 
         await self.device_ip_manager.allocate_ips(member, device_type="wireless")
+
+        if self.netbox_repository and subnet:
+            await self.netbox_repository.create_wifi_prefix(str(subnet), member_id, nat_ip=str(ip))
 
         return subnet, ip
 
     @log_call
+    async def delete(self, id: int) -> None:
+        await self.reset_member(id)
+        await super().delete(id)
+
+    @log_call
     async def reset_member(self, member_id: int) -> None:
+        old_member = await self.member_repository.get_by_id(member_id)
+        old_subnet = old_member.subnet if old_member else None
         member = await self.member_repository.update(AbstractMember(id=member_id, ip="", subnet=""))
         await self.device_ip_manager.unallocate_ips(member=member)
+        if self.netbox_repository and old_subnet:
+            await self.netbox_repository.delete_wifi_prefix(old_subnet)
 
     @log_call
     async def ethernet_vlan_changed(self, member_id: int, vlan_number: int):

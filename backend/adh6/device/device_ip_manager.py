@@ -1,11 +1,12 @@
 import typing as t
+from ipaddress import ip_network
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
 from adh6.entity import AbstractDevice, AbstractVlan, Device, DeviceFilter, Member
 from adh6.subnet.vlan_manager import VlanManager
 
-from .interfaces import DeviceRepository, IpAllocator
+from .interfaces import DeviceRepository, IpAllocator, NetboxRepository
 from .storage.device_repository import DeviceType
 
 
@@ -15,11 +16,12 @@ class DeviceIpManager:
         ip_allocator: IpAllocator,
         device_repository: DeviceRepository,
         vlan_manager: VlanManager,
+        netbox_repository: NetboxRepository | None = None,
     ) -> None:
         self.ip_allocator = ip_allocator
         self.device_repository = device_repository
-
         self.vlan_manager = vlan_manager
+        self.netbox_repository = netbox_repository
 
     @log_call
     async def allocate_ips(
@@ -74,10 +76,13 @@ class DeviceIpManager:
             device=device,
             ipv4_network=ipv4_network,
             ipv6_network=ipv6_network,
+            member=member,
         )
 
     @log_call
-    async def _allocate_ip(self, device: Device, ipv4_network: str = "", ipv6_network: str = "") -> None:
+    async def _allocate_ip(
+        self, device: Device, ipv4_network: str = "", ipv6_network: str = "", member: Member | None = None
+    ) -> None:
         ipv4 = await self.ip_allocator.available_ip(ipv4_network)
         ipv6 = await self.ip_allocator.available_ip(ipv6_network) if ipv6_network else None
 
@@ -87,8 +92,30 @@ class DeviceIpManager:
             ),
         )
 
+        if self.netbox_repository and device.mac and device.member:
+            # Remove old IPs before assigning new ones (e.g. VLAN change)
+            if device.ipv4_address and device.ipv4_address != "En attente":
+                await self.netbox_repository.unassign_ip(device.ipv4_address)
+            if device.ipv6_address and device.ipv6_address != "En attente":
+                await self.netbox_repository.unassign_ip(device.ipv6_address)
+
+            nat_ip = member.ip if member and device.connection_type == DeviceType.wireless.name else None
+
+            if ipv4 and ipv4 != "En attente" and ipv4_network:
+                prefixlen = ip_network(ipv4_network, strict=False).prefixlen
+                await self.netbox_repository.assign_ip(f"{ipv4}/{prefixlen}", device.mac, device.member, nat_ip=nat_ip)
+            if ipv6 and ipv6 != "En attente" and ipv6_network:
+                prefixlen6 = ip_network(ipv6_network, strict=False).prefixlen
+                await self.netbox_repository.assign_ip(f"{ipv6}/{prefixlen6}", device.mac, device.member)
+
     @log_call
     async def unallocate_ip(self, device: Device) -> None:
+        if self.netbox_repository:
+            if device.ipv4_address and device.ipv4_address != "En attente":
+                await self.netbox_repository.unassign_ip(device.ipv4_address)
+            if device.ipv6_address and device.ipv6_address != "En attente":
+                await self.netbox_repository.unassign_ip(device.ipv6_address)
+
         await self.device_repository.update(
             abstract_device=AbstractDevice(  # type: ignore  # TODO: typing is baaaaad
                 id=device.id, ipv4Address="En attente", ipv6Address="En attente"

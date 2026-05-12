@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,6 +30,21 @@ class Settings(BaseSettings):
             return "mysql+aiomysql://user:pass@localhost/adh6"
 
         return f"mysql+aiomysql://{self.database_username}:{self.database_password}@{self.database_host}/{self.database_db_name}"
+
+    # Netbox
+    netbox_enabled: bool = Field(default=False, alias="NETBOX_ENABLED")
+
+    @computed_field
+    @property
+    def is_netbox_enabled(self) -> bool:
+        if self.testing:
+            return False
+        return self.netbox_enabled
+
+    netbox_url: str | None = None
+    netbox_token: str | None = None
+    netbox_tag_slug: str = "adh6"
+    strict_netbox_check: bool = False
 
     # SMTP
     smtp_server: str | None = None

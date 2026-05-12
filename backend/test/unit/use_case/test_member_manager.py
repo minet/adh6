@@ -4,7 +4,7 @@ import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_logs_manager import DeviceLogsManager
-from adh6.device.interfaces import IpAllocator, LogsRepository
+from adh6.device.interfaces import IpAllocator, LogsRepository, NetboxRepository
 from adh6.device.interfaces.device_repository import DeviceRepository
 from adh6.entity import AbstractMember, Member, Membership
 from adh6.entity.member_body import MemberBody
@@ -219,6 +219,26 @@ class TestUpdatePartially:
 
 
 class TestDelete:
+    async def test_delete_calls_reset_member(self, member_manager: MemberManager, mock_member_repository):
+        member_id = 42
+        mock_member_repository.get_by_id = AsyncMock(
+            return_value=Member(
+                id=member_id,
+                username="u",
+                firstName="f",
+                lastName="l",
+                email="e@e.com",
+                subnet="10.0.0.0/24",
+            )
+        )
+        mock_member_repository.delete = AsyncMock()
+        member_manager.reset_member = AsyncMock()
+
+        await member_manager.delete(member_id)
+
+        member_manager.reset_member.assert_called_once_with(member_id)
+        mock_member_repository.delete.assert_called_once_with(member_id)
+
     async def test_happy_path(
         self,
         mock_member_repository: MagicMock,
@@ -505,3 +525,82 @@ def sample_membership_pending_payment_validation(sample_member, sample_payment_m
         paymentMethod=sample_payment_method.id,
         hasRoom=sample_member.room_number is not None,
     )
+
+
+@fixture
+def mock_netbox_repository():
+    return AsyncMock(spec=NetboxRepository)
+
+
+@fixture
+def member_manager_with_netbox(
+    mock_member_repository,
+    subscription_manager,
+    mock_mailinglist_repository,
+    mock_device_logs_manager,
+    mock_device_ip_manager,
+    mock_room_repository,
+    mock_netbox_repository,
+):
+    return MemberManager(
+        member_repository=mock_member_repository,
+        device_ip_manager=mock_device_ip_manager,
+        device_logs_manager=mock_device_logs_manager,
+        mailinglist_repository=mock_mailinglist_repository,
+        subscription_manager=subscription_manager,
+        room_repository=mock_room_repository,
+        netbox_repository=mock_netbox_repository,
+    )
+
+
+class TestNetboxIntegration:
+    async def test_update_subnet_calls_create_wifi_prefix(
+        self,
+        member_manager_with_netbox: MemberManager,
+        mock_member_repository: MagicMock,
+        mock_device_ip_manager: MagicMock,
+        mock_netbox_repository: AsyncMock,
+        sample_member: Member,
+    ):
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_member_repository.used_wireless_public_ips = AsyncMock(return_value=[])
+        mock_member_repository.update = AsyncMock(return_value=sample_member)
+        mock_device_ip_manager.allocate_ips = AsyncMock(return_value=None)
+
+        await member_manager_with_netbox.update_subnet(sample_member.id)
+
+        mock_netbox_repository.create_wifi_prefix.assert_called_once()
+        call_args = mock_netbox_repository.create_wifi_prefix.call_args
+        assert call_args.args[1] == sample_member.id
+
+    async def test_reset_member_calls_delete_wifi_prefix(
+        self,
+        member_manager_with_netbox: MemberManager,
+        mock_member_repository: MagicMock,
+        mock_device_ip_manager: MagicMock,
+        mock_netbox_repository: AsyncMock,
+        sample_member: Member,
+    ):
+        sample_member.subnet = "192.168.42.0/28"
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_member_repository.update = AsyncMock(return_value=sample_member)
+        mock_device_ip_manager.unallocate_ips = AsyncMock(return_value=None)
+
+        await member_manager_with_netbox.reset_member(sample_member.id)
+
+        mock_netbox_repository.delete_wifi_prefix.assert_called_once_with("192.168.42.0/28")
+
+    async def test_netbox_none_does_not_break_update_subnet(
+        self,
+        member_manager: MemberManager,
+        mock_member_repository: MagicMock,
+        mock_device_ip_manager: MagicMock,
+        sample_member: Member,
+    ):
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_member_repository.used_wireless_public_ips = AsyncMock(return_value=[])
+        mock_member_repository.update = AsyncMock(return_value=sample_member)
+        mock_device_ip_manager.allocate_ips = AsyncMock(return_value=None)
+
+        # Should not raise even with netbox_repository=None
+        await member_manager.update_subnet(sample_member.id)

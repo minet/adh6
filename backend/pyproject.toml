@@ -40,6 +40,7 @@ dependencies = [
   "aenum>=3.1.16",
   "pytest-asyncio>=0.23.8",
   "odfpy>=1.4.1",
+  "pynetbox>=7.6.1",
 ] 
 name = "ADH6" 
 requires-python = "~=3.11.0" 

@@ -378,9 +378,44 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Get user of the device
-      security: 
+      security:
         - OpenIdConnect:
           - admin:read
+        - ApiKeyAdminAuth: []
+      tags:
+      - device
+  /device/netbox/sync:
+    post:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ips_created:
+                    type: integer
+                  ips_deleted:
+                    type: integer
+                  prefixes_created:
+                    type: integer
+                  prefixes_deleted:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: string
+          description: Sync completed
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/Unexpected"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Reconcile Netbox IPAM with DB state
+      security:
+        - OpenIdConnect:
+          - admin:write
         - ApiKeyAdminAuth: []
       tags:
       - device

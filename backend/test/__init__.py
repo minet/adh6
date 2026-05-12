@@ -8,6 +8,7 @@ os.environ.setdefault("KEYCLOAK_REALM", "MiNET")
 os.environ.setdefault("KEYCLOAK_CLIENT_ID", "adh6-testing")
 os.environ.setdefault("KEYCLOAK_CLIENT_SECRET", "adh6-testing-secret")
 os.environ.setdefault("TOKENINFO_FUNC", "test.auth.oidc_info")
+os.environ.setdefault("NETBOX_ENABLED", "false")
 
 TESTING_CLIENT_TOKEN = "TEST_TOKEN"
 SAMPLE_CLIENT_TOKEN = "TEST_TOKEN_SAMPLE"
