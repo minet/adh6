@@ -107,6 +107,7 @@ class TestCreateWifiPrefix:
         # First host of 192.168.42.0/28 is 192.168.42.1
         mock_nb.ipam.ip_addresses.create.assert_called_once_with(
             address="192.168.42.1/28",
+            description="gateway",
             status="active",
             tags=[{"slug": "adh6"}],
             custom_fields={"adh6_id": 7},

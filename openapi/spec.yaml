@@ -387,25 +387,12 @@ paths:
   /device/netbox/sync:
     post:
       responses:
-        "200":
+        "202":
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ips_created:
-                    type: integer
-                  ips_deleted:
-                    type: integer
-                  prefixes_created:
-                    type: integer
-                  prefixes_deleted:
-                    type: integer
-                  errors:
-                    type: array
-                    items:
-                      type: string
-          description: Sync completed
+                $ref: "#/components/schemas/NetboxSyncStatus"
+          description: Sync started
         "403":
           $ref: "#/components/responses/Unauthorized"
         "503":
@@ -413,6 +400,26 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Reconcile Netbox IPAM with DB state
+      security:
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth: []
+      tags:
+      - device
+  /device/netbox/sync/status:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetboxSyncStatus"
+          description: Current sync status
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Get current Netbox sync status
       security:
         - OpenIdConnect:
           - admin:write
@@ -3130,6 +3137,41 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    NetboxSyncResponse:
+      type: object
+      properties:
+        ips_created:
+          type: integer
+        ips_deleted:
+          type: integer
+        prefixes_created:
+          type: integer
+        prefixes_deleted:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+    NetboxSyncStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - idle
+            - running
+            - completed
+            - failed
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        result:
+          $ref: "#/components/schemas/NetboxSyncResponse"
+        error:
+          type: string
     MemberStatus:
       type: object
       properties:
