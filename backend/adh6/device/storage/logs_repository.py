@@ -87,7 +87,7 @@ class ElasticsearchLogsRepository(LogsRepository):
                     },
                 },
             }
-            
+
         # Add the macs to the count query
         for d in devices:
             addr = d.mac
