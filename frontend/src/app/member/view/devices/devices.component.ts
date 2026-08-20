@@ -13,9 +13,7 @@ import {
   switchMap,
   map,
   catchError,
-  startWith,
   takeUntil,
-  scan,
 } from "rxjs/operators";
 import {
   MemberService,
@@ -118,6 +116,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
             catchError((error) => {
               console.error("Error loading logs:", error);
               this.logsError$.next("Failed to load logs");
+              this.logsLoading$.next(false);
               return EMPTY;
             }),
           );
@@ -156,29 +155,16 @@ export class DevicesComponent implements OnInit, OnDestroy {
             catchError((error) => {
               console.error("Error loading more logs:", error);
               this.logsError$.next("Failed to load more logs");
+              this.loadingMore$.next(false);
               return EMPTY;
             }),
           );
       }),
     );
 
-    // Combine initial load and load more
-    const combinedLogsStream$ = logsStream$.pipe(
-      startWith(null),
-      scan((acc: LogEntry[], curr: LogsResponse | null) => {
-        if (!curr) {
-          return [];
-        }
-        if (curr.isLoadMore) {
-          return [...acc, ...curr.logs];
-        } else {
-          return curr.logs;
-        }
-      }, []),
-    );
-
-    combinedLogsStream$.pipe(takeUntil(this.destroy$)).subscribe((logs) => {
-      this.logs$.next(logs);
+    logsStream$.pipe(takeUntil(this.destroy$)).subscribe((result) => {
+      this.hasMoreLogs$.next(result.hasMore);
+      this.logs$.next(result.logs);
       this.logsLoading$.next(false);
       this.loadingMore$.next(false);
     });
@@ -192,17 +178,13 @@ export class DevicesComponent implements OnInit, OnDestroy {
     });
 
     // Auto-refresh when enabled
-    timer(0, this.autoRefreshInterval)
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap(() => {
-          if (this.autoRefresh && this.showLogs) {
-            return this.refreshTrigger$.pipe(startWith(undefined));
-          }
-          return EMPTY;
-        }),
-      )
-      .subscribe();
+    timer(this.autoRefreshInterval, this.autoRefreshInterval)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.autoRefresh && this.showLogs && !this.logsLoading$.value) {
+          this.refreshLogs();
+        }
+      });
   }
 
   private parseLogsResponse(
