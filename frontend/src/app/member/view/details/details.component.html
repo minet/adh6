@@ -31,6 +31,12 @@
           <a href="mailto:{{ member.email }}">{{ member.email }}</a>
         </td>
       </tr>
+      <tr>
+        <td>Langue des mails</td>
+        <td>
+          {{ member.preferredLanguage === "en" ? "English" : "Français" }}
+        </td>
+      </tr>
       @if (member.permanent) {
         <tr>
           <td>Compte permanent</td>
