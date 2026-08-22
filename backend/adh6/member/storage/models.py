@@ -41,6 +41,7 @@ class Adherent(Base):
     mailinglist: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=True)
     permanent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
     wifi_only: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, server_default="0")
+    preferred_language: Mapped[str] = mapped_column(String(2), default="fr", nullable=False, server_default="fr")
 
 
 class Membership(Base):

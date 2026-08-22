@@ -65,6 +65,10 @@ export interface Member {
      * Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)
      */
     wifiOnly?: boolean;
+    /**
+     * Language the member wants to receive emails in
+     */
+    preferredLanguage?: Member.PreferredLanguageEnum;
 }
 export namespace Member {
     export type MembershipEnum = 'INITIAL' | 'PENDING_RULES' | 'PENDING_PAYMENT_INITIAL' | 'PENDING_PAYMENT' | 'PENDING_PAYMENT_VALIDATION' | 'COMPLETE' | 'CANCELLED' | 'ABORTED';
@@ -77,6 +81,11 @@ export namespace Member {
         Complete: 'COMPLETE' as MembershipEnum,
         Cancelled: 'CANCELLED' as MembershipEnum,
         Aborted: 'ABORTED' as MembershipEnum
+    };
+    export type PreferredLanguageEnum = 'fr' | 'en';
+    export const PreferredLanguageEnum = {
+        Fr: 'fr' as PreferredLanguageEnum,
+        En: 'en' as PreferredLanguageEnum
     };
 }
 

@@ -65,6 +65,10 @@ export interface AbstractMember {
      * Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)
      */
     wifiOnly?: boolean;
+    /**
+     * Language the member wants to receive emails in
+     */
+    preferredLanguage?: AbstractMember.PreferredLanguageEnum;
 }
 export namespace AbstractMember {
     export type MembershipEnum = 'INITIAL' | 'PENDING_RULES' | 'PENDING_PAYMENT_INITIAL' | 'PENDING_PAYMENT' | 'PENDING_PAYMENT_VALIDATION' | 'COMPLETE' | 'CANCELLED' | 'ABORTED';
@@ -77,6 +81,11 @@ export namespace AbstractMember {
         Complete: 'COMPLETE' as MembershipEnum,
         Cancelled: 'CANCELLED' as MembershipEnum,
         Aborted: 'ABORTED' as MembershipEnum
+    };
+    export type PreferredLanguageEnum = 'fr' | 'en';
+    export const PreferredLanguageEnum = {
+        Fr: 'fr' as PreferredLanguageEnum,
+        En: 'en' as PreferredLanguageEnum
     };
 }
 

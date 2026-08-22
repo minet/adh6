@@ -98,6 +98,7 @@ def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[st
         "ip",
         "subnet",
         "membership",
+        "preferredLanguage",
     }
 
     wanted = {field.strip() for field in only.split(",") if field.strip()}
