@@ -29,7 +29,6 @@ from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
-from .notification_manager import NotificationManager
 
 
 class SubscriptionManager:
@@ -38,14 +37,12 @@ class SubscriptionManager:
         member_repository: MemberRepository,
         membership_repository: MembershipRepository,
         charter_repository: CharterRepository,
-        notification_manager: NotificationManager,
         transaction_manager: TransactionManager,
         payment_method_repository: PaymentMethodRepository,
     ):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.charter_repository = charter_repository
-        self.notification_manager = notification_manager
         self.payment_method_repository = payment_method_repository
         self.transaction_manager = transaction_manager
 
@@ -233,6 +230,12 @@ class SubscriptionManager:
         subscription = await self.latest(member_id=member_id)
         if not subscription:
             raise MembershipNotFoundError(None)
+        if subscription.status == MembershipStatus.PENDING_RULES.value:
+            # Naming the real cause. This is by far the most common way validation fails, and
+            # "PENDING_RULES status cannot be used to validate a membership" said nothing about the
+            # charter -- it sent whoever read the error mail looking in the wrong place.
+            raise CharterNotSigned(str(member_id))
+
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
             raise MembershipStatusNotAllowed(subscription.status, "status cannot be used to validate a membership")
 
@@ -241,7 +244,6 @@ class SubscriptionManager:
         if subscription.duration is None:
             raise MembershipNotFoundError(None)
         await self.member_repository.add_duration(subscription.member, subscription.duration)
-        # self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
 
     @log_call
     async def add_payment_record(self, membership: Membership, free: bool) -> None:

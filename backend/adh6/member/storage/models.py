@@ -1,7 +1,7 @@
 import datetime as dt
 from typing import Any
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
@@ -65,11 +65,3 @@ class Membership(Base):
     update_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
-
-
-class NotificationTemplate(Base):
-    __tablename__ = "notification_templates"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    template: Mapped[str | None] = mapped_column(Text, nullable=True)  # why Text ? Vs String ?

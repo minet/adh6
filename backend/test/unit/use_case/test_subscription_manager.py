@@ -16,7 +16,6 @@ from adh6.member.interfaces import (
     MemberRepository,
     MembershipRepository,
 )
-from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
 from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
@@ -463,13 +462,11 @@ def subscription_manager(
     mock_charter_repository,
     mock_payment_method_repository,
     mock_transaction_manager,
-    mock_notification_manager,
 ):
     return SubscriptionManager(
         member_repository=mock_member_repository,
         membership_repository=mock_subscription_repository,
         charter_repository=mock_charter_repository,
-        notification_manager=mock_notification_manager,
         payment_method_repository=mock_payment_method_repository,
         transaction_manager=mock_transaction_manager,
     )
@@ -488,11 +485,6 @@ def mock_subscription_repository():
 @pytest.fixture
 def mock_charter_repository():
     return MagicMock(spec=CharterRepository)
-
-
-@pytest.fixture
-def mock_notification_manager():
-    return MagicMock(spec=NotificationManager)
 
 
 @pytest.fixture
