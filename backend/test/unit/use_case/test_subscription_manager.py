@@ -5,6 +5,7 @@ import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.entity import Member, Membership, PaymentMethod, SubscriptionBody
 from adh6.exceptions import (
+    CharterNotSigned,
     MemberNotFoundError,
     MembershipNotFoundError,
     MembershipStatusNotAllowed,
@@ -399,6 +400,46 @@ class TestValidateMembership:
 
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+
+    async def test_pending_rules_without_a_signature_names_the_charter(
+        self,
+        mock_subscription_repository: MembershipRepository,
+        mock_member_repository: MemberRepository,
+        mock_charter_repository: CharterRepository,
+        sample_member: Member,
+        sample_membership_pending_rules: Membership,
+        subscription_manager: SubscriptionManager,
+    ):
+        """ "PENDING_RULES not allowed" said nothing about the charter to whoever read the error mail."""
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
+        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_charter_repository.get = AsyncMock(return_value=None)
+        assert sample_member.id is not None
+
+        with pytest.raises(CharterNotSigned):
+            await subscription_manager.validate(sample_member.id, False)
+
+    async def test_pending_rules_with_a_signature_does_not_claim_it_is_missing(
+        self,
+        mock_subscription_repository: MembershipRepository,
+        mock_member_repository: MemberRepository,
+        mock_charter_repository: CharterRepository,
+        sample_member: Member,
+        sample_membership_pending_rules: Membership,
+        subscription_manager: SubscriptionManager,
+    ):
+        """Keycloak's Required Action writes datesignedminet with a direct UPDATE, without going
+        through charter_manager.sign, so it never advances a waiting membership. A member can be
+        signed and still sit in PENDING_RULES -- telling them the charter is missing would be a lie.
+        """
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
+        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_charter_repository.get = AsyncMock(return_value=datetime.datetime(2026, 8, 24, 10, 0))
+        assert sample_member.id is not None
+
+        with pytest.raises(MembershipStatusNotAllowed) as error:
+            await subscription_manager.validate(sample_member.id, False)
+        assert "never advanced" in str(error.value)
 
     async def test_not_payment_validation(
         self,

@@ -231,9 +231,18 @@ class SubscriptionManager:
         if not subscription:
             raise MembershipNotFoundError(None)
         if subscription.status == MembershipStatus.PENDING_RULES.value:
-            # Naming the real cause. This is by far the most common way validation fails, and
-            # "PENDING_RULES status cannot be used to validate a membership" said nothing about the
-            # charter -- it sent whoever read the error mail looking in the wrong place.
+            # Read the signature instead of inferring it from the status. Keycloak's charter
+            # Required Action writes `adherents.datesignedminet` with a direct UPDATE, without
+            # going through charter_manager.sign, so it never advances a waiting membership. A
+            # member can therefore be signed AND still sit in PENDING_RULES -- announcing "charter
+            # not signed" to them would send the reader looking in the wrong place, which is the
+            # very problem this branch exists to fix.
+            signed_at = await self.charter_repository.get(member_id=member_id, charter_id=1)
+            if signed_at:
+                raise MembershipStatusNotAllowed(
+                    subscription.status,
+                    "the charter is signed but this membership was never advanced past PENDING_RULES",
+                )
             raise CharterNotSigned(str(member_id))
 
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:

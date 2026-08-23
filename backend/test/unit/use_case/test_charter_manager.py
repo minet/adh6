@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from adh6.constants import MembershipStatus
 from adh6.entity import AbstractMembership, Member
-from adh6.exceptions import MemberNotFoundError, MembershipNotFoundError, ValidationError
+from adh6.exceptions import MemberNotFoundError, ValidationError
 from adh6.member.charter_manager import CharterManager
 from adh6.member.interfaces import CharterRepository, MemberRepository, MembershipRepository
 
@@ -66,11 +66,25 @@ class TestCharterManager:
         mock_charter_repo.update.assert_called_once_with(1, 123)
         mock_membership_repo.update.assert_called_once()
 
-    async def test_sign_no_subscription(self, charter_manager, mock_member_repo, mock_membership_repo):
+    async def test_sign_without_a_pending_membership_still_records_the_signature(
+        self, charter_manager, mock_member_repo, mock_membership_repo, mock_charter_repo
+    ):
+        """Signing a charter must not require a membership to be waiting for it.
+
+        This used to raise MembershipNotFoundError, which created a chicken-and-egg on renewals:
+        the previous membership is COMPLETE, so no PENDING_RULES row exists, so the member could
+        never sign, so the renewal could never advance.
+        """
+        # Given
         mock_member_repo.get_by_id = AsyncMock(return_value=MagicMock(spec=Member))
         mock_membership_repo.search = AsyncMock(return_value=([], 0))
-        with pytest.raises(MembershipNotFoundError):
-            await charter_manager.sign(1, 123)
+
+        # When
+        await charter_manager.sign(1, 123)
+
+        # Then
+        mock_charter_repo.update.assert_called_once_with(1, 123)
+        mock_membership_repo.update.assert_not_called()
 
     async def test_get_members(self, charter_manager, mock_charter_repo):
         mock_charter_repo.get_members = AsyncMock(return_value=([1, 2], 2))
