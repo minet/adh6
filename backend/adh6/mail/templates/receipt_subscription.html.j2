@@ -1,0 +1,98 @@
+{% extends "_base.html.j2" %}
+{% set badge = "Membership receipt" if lang == "en" else "Reçu de cotisation" %}
+{% set badge_color = "blue" %}
+{% set subject_title = "MiNET membership receipt" if lang == "en" else "Reçu de cotisation MiNET" %}
+
+{% block content %}
+{% if lang != "en" %}
+<h1 style="margin:0 0 10px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">Cotisation validée</h1>
+<p style="margin:0 0 30px; font-size:16px; color:#6b7280; text-align:center;">Votre paiement a bien été enregistré.</p>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">Bonjour <strong>{{ prenom }}</strong>,</p>
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  Nous avons bien reçu votre règlement de <strong>{{ prix }}&nbsp;€</strong> pour une cotisation de
+  <strong>{{ nbr_mois }}&nbsp;mois</strong>.{% if date_fin %} Votre accès est valable jusqu'au
+  <strong>{{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}</strong>.{% endif %}
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    <strong style="color:#111827;">Détail</strong><br>
+    Identifiant : {{ username }}<br>
+    Durée : {{ nbr_mois }} mois{% if date_fin %}, jusqu'au {{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% endif %}<br>
+    Montant : {{ prix }} €<br>
+    Moyen de paiement : {{ payment_method }}<br>
+    Date : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }}
+  </td></tr>
+</table>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  Vous avez désormais accès à Internet en Wi-Fi et en Ethernet. Il reste une étape :
+  <strong>déclarer vos appareils</strong> sur le portail, sans quoi ils ne pourront pas se connecter.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    <strong style="color:#111827;">Pour vous connecter</strong><br>
+    1. D&eacute;clarez vos appareils sur <a href="https://portail.minet.net/dashboard" style="color:#0284c7;">portail.minet.net</a><br>
+    2. Besoin d'aide ? Les <a href="https://minet.net/fr/tutoriels/" style="color:#0284c7;">tutoriels</a> d&eacute;taillent chaque cas<br>
+    3. Une question ? Un <a href="https://tickets.minet.net" style="color:#0284c7;">ticket</a>, ou passez au local
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0;">
+  <a href="https://portail.minet.net/dashboard" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    D&eacute;clarer mes appareils
+  </a>
+</div>
+
+{% endif %}
+{% if lang == "en" %}
+<h1 style="margin:0 0 10px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">Membership confirmed</h1>
+<p style="margin:0 0 30px; font-size:16px; color:#6b7280; text-align:center;">Your payment has been recorded.</p>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">Hello <strong>{{ prenom }}</strong>,</p>
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  We have received your payment of <strong>{{ prix }}&nbsp;€</strong> for a <strong>{{ nbr_mois }}-month</strong>
+  membership.{% if date_fin %} Your access is valid until
+  <strong>{{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}</strong>.{% endif %}
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    <strong style="color:#111827;">Details</strong><br>
+    Username: {{ username }}<br>
+    Duration: {{ nbr_mois }} months{% if date_fin %}, until {{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}{% endif %}<br>
+    Amount: {{ prix }} €<br>
+    Payment method: {{ payment_method }}<br>
+    Date: {{ MONTHS_EN[paid_at.month - 1] }} {{ paid_at.day }}, {{ paid_at.year }}
+  </td></tr>
+</table>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  You now have Internet access over Wi-Fi and Ethernet. One step remains:
+  <strong>register your devices</strong> on the portal, otherwise they will not be able to connect.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    <strong style="color:#111827;">Getting connected</strong><br>
+    1. Register your devices on <a href="https://portail.minet.net/dashboard" style="color:#0284c7;">portail.minet.net</a><br>
+    2. Need help? The <a href="https://minet.net/en/tutoriels/" style="color:#0284c7;">tutorials</a> cover every case<br>
+    3. Any question? Open a <a href="https://tickets.minet.net" style="color:#0284c7;">ticket</a>, or drop by our office
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0 0;">
+  <a href="https://portail.minet.net/dashboard" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    Register my devices
+  </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer_note %}
+<p style="margin:0 0 10px; font-size:12px; color:#6b7280; line-height:1.5;">
+  {% if lang == "en" %}This email is your payment receipt, please keep it.{% else %}Ce mail constitue votre preuve de paiement, conservez-le.{% endif %}
+</p>
+{% endblock %}

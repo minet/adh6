@@ -1,0 +1,34 @@
+{% extends "_base.html.j2" %}
+{% set badge = "Achat de matériel" %}
+{% set badge_color = "blue" %}
+{% set subject_title = "Nouvel achat de matériel" %}
+
+{% block content %}
+<h1 style="margin:0 0 30px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">{{ username }} a acheté du matériel</h1>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    Pay&eacute; le : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }} &agrave; {{ paid_at.strftime("%Hh%M") }}<br>
+    Encaiss&eacute; par : {{ author }}<br>
+    Moyen de paiement : {{ payment_method }}
+  </td></tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px;">
+  {% for item in items %}
+  <tr><td style="padding:8px 0; font-size:15px; color:#4b5563; border-bottom:1px solid #f3f4f6;">
+    {{ item.name }} &mdash; <strong>{{ item.price }}&nbsp;&euro;</strong>{% if item.stock_after is not none %}
+    <span style="color:#6b7280; font-size:13px;">(stock restant : {{ item.stock_after }})</span>{% endif %}
+  </td></tr>
+  {% endfor %}
+  <tr><td style="padding:12px 0 0; font-size:16px; color:#111827;">
+    <strong>Total : {{ total }}&nbsp;&euro;</strong>
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0;">
+  <a href="{{ adh6_url }}" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    Voir la fiche ADH6
+  </a>
+</div>
+{% endblock %}

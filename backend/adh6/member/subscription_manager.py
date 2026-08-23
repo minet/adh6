@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
+from adh6 import mail
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -11,6 +13,7 @@ from adh6.decorator import log_call
 from adh6.entity import (
     AbstractMembership,
     AbstractTransaction,
+    Member,
     Membership,
     SubscriptionBody,
 )
@@ -29,6 +32,11 @@ from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
+
+logger = logging.getLogger(__name__)
+
+# The container clock is UTC. A receipt read by a human in Évry must not be dated the day before.
+PARIS = ZoneInfo("Europe/Paris")
 
 
 class SubscriptionManager:
@@ -253,6 +261,41 @@ class SubscriptionManager:
         if subscription.duration is None:
             raise MembershipNotFoundError(None)
         await self.member_repository.add_duration(subscription.member, subscription.duration)
+
+        await self._send_receipt(member, subscription, free)
+
+    async def _send_receipt(self, member: Member, subscription: Membership, free: bool) -> None:
+        """Receipt for a subscription recorded at the desk.
+
+        Members paying online already get one from payment; those paying cash at the desk got
+        nothing -- yet cash is precisely the case where they hold no other proof of payment.
+
+        Never raises: a delivery failure must not undo a subscription that is already committed.
+        Called after add_duration so the departure date read here is the new one.
+        """
+        if not member.email:
+            logger.warning("Member %s has no email address, not sending the receipt", member.id)
+            return
+        try:
+            duration = subscription.duration
+            price = "0.00" if free else f"{self.duration_price[duration]:.2f}"
+            method = await self.payment_method_repository.get_by_id(subscription.payment_method)
+            # Re-read: add_duration has just moved the departure date, the member we hold is stale.
+            fresh = await self.member_repository.get_by_id(member.id)
+            end_date = fresh.departure_date if fresh else None
+            await mail.send_subscription_receipt_async(
+                to=member.email,
+                first_name=member.first_name or member.username,
+                username=member.username,
+                price=price,
+                months=duration,
+                end_date=end_date.date() if isinstance(end_date, datetime) else end_date,
+                payment_method=method.name if method else "-",
+                paid_at=datetime.now(PARIS).date(),
+                language=fresh.preferred_language if fresh else None,
+            )
+        except Exception:
+            logger.warning("Cannot send the subscription receipt to member %s", member.id, exc_info=True)
 
     @log_call
     async def add_payment_record(self, membership: Membership, free: bool) -> None:

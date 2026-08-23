@@ -1,0 +1,12 @@
+{{ username }} a acheté du matériel.
+
+  Payé le      : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }} à {{ paid_at.strftime("%Hh%M") }}
+  Encaissé par : {{ author }}
+  Moyen        : {{ payment_method }}
+
+Articles
+{% for item in items %}  - {{ item.name }} : {{ item.price }} €{% if item.stock_after is not none %} (stock restant : {{ item.stock_after }}){% endif %}
+{% endfor %}
+  Total        : {{ total }} €
+
+Fiche ADH6 : {{ adh6_url }}

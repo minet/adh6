@@ -1,0 +1,61 @@
+{% if lang != "en" %}Bonjour {{ prenom }},
+
+Nous avons bien reçu votre règlement de {{ prix }} € pour une cotisation de {{ nbr_mois }} mois.
+{% if date_fin %}Votre accès est valable jusqu'au {{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}.{% endif %}
+
+Détail
+  Identifiant       : {{ username }}
+  Durée             : {{ nbr_mois }} mois{% if date_fin %}, jusqu'au {{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% endif %}
+  Montant           : {{ prix }} €
+  Moyen de paiement : {{ payment_method }}
+  Date              : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }}
+
+Vous avez désormais accès à Internet en Wi-Fi et en Ethernet. Il reste une étape : déclarer vos
+appareils, sans quoi ils ne pourront pas se connecter.
+
+  1. Déclarez vos appareils sur https://portail.minet.net/dashboard
+  2. Besoin d'aide ? Les tutoriels : https://minet.net/fr/tutoriels/
+  3. Une question ? https://tickets.minet.net ou passez au local
+
+Ce mail constitue votre preuve de paiement, conservez-le.
+{% endif %}{% if lang == "en" %}Hello {{ prenom }},
+
+We have received your payment of {{ prix }} € for a {{ nbr_mois }}-month membership.
+{% if date_fin %}Your access is valid until {{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}.{% endif %}
+
+Details
+  Username       : {{ username }}
+  Duration       : {{ nbr_mois }} months{% if date_fin %}, until {{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}{% endif %}
+  Amount         : {{ prix }} €
+  Payment method : {{ payment_method }}
+  Date           : {{ MONTHS_EN[paid_at.month - 1] }} {{ paid_at.day }}, {{ paid_at.year }}
+
+You now have Internet access over Wi-Fi and Ethernet. One step remains: register your devices,
+otherwise they will not be able to connect.
+
+  1. Register your devices on https://portail.minet.net/dashboard
+  2. Need help? The tutorials: https://minet.net/en/tutoriels/
+  3. Any question? https://tickets.minet.net or drop by our office
+
+This email is your payment receipt, please keep it.
+{% endif %}
+---
+{% if lang == "en" %}
+For any question, open a ticket at https://tickets.minet.net or drop by our office
+(Monday to Thursday, 6:00 pm to 7:30 pm).
+
+MiNET processes your personal data as part of your membership and of the Internet access we
+provide to you. Privacy policy:
+https://minet.net/en/legal/politique-de-confidentialite/
+
+MiNET - Automated message, please do not reply.
+{% else %}
+Pour toute question, ouvrez un ticket sur https://tickets.minet.net ou passez nous voir au local
+(du lundi au jeudi de 18h à 19h30).
+
+MiNET traite vos données personnelles dans le cadre de votre adhésion et de l'accès à Internet que
+nous vous proposons. Politique de confidentialité :
+https://minet.net/fr/legal/politique-de-confidentialite/
+
+MiNET - Message automatique, merci de ne pas y répondre.
+{% endif %}
