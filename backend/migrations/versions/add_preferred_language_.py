@@ -15,9 +15,9 @@ depends_on = None
 
 
 def upgrade():
-    # server_default indispensable : la colonne est NOT NULL et la table contient deja des lignes.
-    # Les valeurs ainsi ecrites deviennent des preferences explicites, que MAIL_DEFAULT_LANGUAGE
-    # ne modifiera pas retroactivement.
+    # server_default is required: the column is NOT NULL and the table already holds rows.
+    # The values it writes become explicit preferences, which MAIL_DEFAULT_LANGUAGE will not
+    # retroactively change.
     op.add_column(
         'adherents',
         sa.Column('preferred_language', sa.String(length=2), nullable=False, server_default='fr'),
