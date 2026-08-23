@@ -276,10 +276,20 @@ class SubscriptionManager:
         if not member.email:
             logger.warning("Member %s has no email address, not sending the receipt", member.id)
             return
+        # Both are Optional on the generated entity, and a receipt without them would be
+        # meaningless anyway: no amount, no payment method.
+        duration = subscription.duration
+        payment_method_id = subscription.payment_method
+        if duration is None or payment_method_id is None:
+            logger.warning(
+                "Membership of member %s has no duration or no payment method, not sending the receipt",
+                member.id,
+            )
+            return
+
         try:
-            duration = subscription.duration
             price = "0.00" if free else f"{self.duration_price[duration]:.2f}"
-            method = await self.payment_method_repository.get_by_id(subscription.payment_method)
+            method = await self.payment_method_repository.get_by_id(payment_method_id)
             # Re-read: add_duration has just moved the departure date, the member we hold is stale.
             fresh = await self.member_repository.get_by_id(member.id)
             end_date = fresh.departure_date if fresh else None
