@@ -9,13 +9,26 @@
       est nécessaire.
     </p>
   </div>
+  <!-- PENDING_RULES means "this membership is waiting", not necessarily "the charter is
+       unsigned": Keycloak's Required Action writes adherents.datesignedminet with a direct SQL
+       UPDATE, so it never advances the membership. Both cases are covered below, and the old
+       link pointed at chartes.minet.net, which no longer exists. -->
   @if (member?.membership === "PENDING_RULES") {
-    <div class="notification is-danger is-light">
+    <div class="notification is-warning is-light">
       <p>
-        La charte n'est pas signée:
-        <a href="//chartes.minet.net" target="_blank" rel="noopener noreferrer"
-          >aller sur charte</a
+        Cotisation en attente de la charte.
+        <br />
+        Si l'adhérent ne l'a pas encore signée, demandez-lui de se connecter sur
+        <a
+          href="https://keycloak.minet.net/realms/MiNET/account/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >son compte MiNET</a
         >
+        : la signature y est demandée automatiquement.
+        <br />
+        Si elle est déjà signée, renseignez simplement la durée et le moyen de paiement ci-dessous
+        et enregistrez : la cotisation se débloquera.
       </p>
     </div>
   }
