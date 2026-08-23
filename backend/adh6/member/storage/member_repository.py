@@ -93,6 +93,12 @@ class MemberSQLRepository(MemberRepository):
             updated_at=now,
             commentaires=object_to_create.comment,
             date_de_depart=object_to_create.departure_date,
+            # Dropped until now: create() built its Adherent from a fixed subset, so these three
+            # never reached the database even when the caller provided them. Unlike update(), which
+            # goes through _merge_sql_with_entity, this path assigns the columns by hand.
+            permanent=object_to_create.permanent or False,
+            wifi_only=object_to_create.wifi_only or False,
+            preferred_language=object_to_create.preferred_language or "fr",
         )
 
         self.session.add(member)
