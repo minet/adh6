@@ -5,6 +5,8 @@ from ipaddress import IPv4Address, IPv4Network
 
 from Crypto.Hash import MD4
 
+from adh6 import mail
+
 # import hashlib # Keep these 2 libs. See comment in change_password method below
 # from binascii import hexlify
 from adh6.constants import (
@@ -38,6 +40,8 @@ from adh6.utils.validators.member_validators import is_member_active, is_passwor
 
 from .interfaces import MailinglistRepository, MemberRepository
 from .subscription_manager import SubscriptionManager
+
+logger = logging.getLogger(__name__)
 
 
 class MemberManager(CRUDManager):
@@ -118,6 +122,12 @@ class MemberManager(CRUDManager):
                 subnet="",
                 comment="",
                 membership=MembershipStatus.INITIAL.value,
+                # These three used to be dropped: the body carried them, the entity accepts them,
+                # but create() built its AbstractMember from a fixed subset. permanent and wifiOnly
+                # were silently ignored on creation since they were introduced.
+                permanent=body.permanent,
+                wifiOnly=body.wifi_only,
+                preferredLanguage=body.preferred_language,
             )
         )
 
@@ -127,6 +137,21 @@ class MemberManager(CRUDManager):
             member_id=created_member.id,
             body=SubscriptionBody(member=created_member.id),
         )
+
+        # After every write, and never inside a try that would roll them back: a delivery failure
+        # must not undo the creation of a member. send_welcome_async never raises.
+        if created_member.email:
+            await mail.send_welcome_async(
+                to=created_member.email,
+                first_name=created_member.first_name or created_member.username,
+                username=created_member.username,
+                # A member registered at the desk has no subscription yet: create() sets
+                # membership to INITIAL and a departure date in the past.
+                has_subscription=False,
+                language=body.preferred_language,
+            )
+        else:
+            logger.warning("Member %s has no email address, not sending the welcome mail", created_member.id)
 
         return created_member
 
@@ -355,4 +380,4 @@ class MemberManager(CRUDManager):
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-        return Comment(comment=member.comment if member.comment else "")
+        return Comment(comment=member.comment or "")
