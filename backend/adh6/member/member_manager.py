@@ -182,6 +182,10 @@ class MemberManager(CRUDManager):
                 lastName=body.last_name,
                 permanent=body.permanent,
                 wifiOnly=body.wifi_only,
+                # Was missing, exactly like in create(): the body carried it, the entity accepts
+                # it, but update() rebuilt its AbstractMember from a fixed subset of fields. The
+                # form saved without error and the language silently stayed the same.
+                preferredLanguage=body.preferred_language,
             )
         )
 
