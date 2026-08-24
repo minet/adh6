@@ -232,7 +232,11 @@ async def delete_product(
 async def buy_product(
     member_id: Annotated[int, Query(alias="memberId")],
     payment_method: Annotated[int, Query(alias="paymentMethod")],
-    products: Annotated[list[int], Query()],
+    # A string, not list[int]: the spec declares `explode: false` for this parameter, so the
+    # generated client joins the ids with commas (products=1,2). FastAPI would expect repeated
+    # keys (products=1&products=2) for a list, so it failed to parse "1,2" and answered 400 -
+    # which is why buying one product worked and buying two did not.
+    products: Annotated[str, Query(description="Comma-separated product ids, e.g. 1,2")],
     manager: Annotated[ProductManager, Depends(get_product_manager)],
     request: Request,
 ) -> None:
@@ -240,11 +244,26 @@ async def buy_product(
     author_id = get_user_id(request)
     if author_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not determine authenticated user")
+
+    try:
+        product_ids = [int(product) for product in products.split(",") if product.strip()]
+    except ValueError:
+        # Say what is wrong rather than letting the ValueError surface as a 500.
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid product list: {products!r}. Expected comma-separated integers.",
+        )
+    if not product_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No product to buy: the products parameter is empty.",
+        )
+
     await manager.buy(
         member_id=member_id,
         payment_method_id=payment_method,
         author_id=author_id,
-        product_ids=products,
+        product_ids=product_ids,
     )
 
 
