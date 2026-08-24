@@ -27,7 +27,7 @@
         <p>
           <strong>Cotisation en attente de la charte.</strong>
           @if (checkingCharter) {
-            <em style="font-weight: normal">— vérification…</em>
+            <em style="font-weight: normal">- vérification…</em>
           }
           <br />
           Demandez à l'adhérent de se connecter sur
@@ -86,11 +86,11 @@
     @if (member?.membership === "PENDING_PAYMENT_VALIDATION") {
       <div class="notification is-success is-light">
         <p>
-          <strong>Cotisation enregistrée</strong> — {{ selectedDurationLabel }},
+          <strong>Cotisation enregistrée</strong> - {{ selectedDurationLabel }},
           {{ amount }} €.
           <br />
           Il reste <strong>une étape</strong> : cliquez sur
-          <strong>« Étape 2/2 — Valider le paiement »</strong> en haut de cet
+          <strong>« Étape 2/2 - Valider le paiement »</strong> en haut de cet
           onglet.
         </p>
       </div>
@@ -102,8 +102,8 @@
         [disabled]="subscriptionForm.invalid">
         {{
           isSubscriptionFinished
-            ? "Étape 1/2 — Créer la cotisation"
-            : "Étape 1/2 — Enregistrer la cotisation"
+            ? "Étape 1/2 - Créer la cotisation"
+            : "Étape 1/2 - Enregistrer la cotisation"
         }}
       </button>
     </div>
