@@ -35,7 +35,7 @@
             <input
               type="checkbox"
               [(ngModel)]="getDhcp"
-              (change)="toggleDhcp()" />
+              (ngModelChange)="refreshLogs()" />
             <span i18n="@@member.logs.include-dhcp">Inclure les logs DHCP</span>
           </label>
         </div>
@@ -43,8 +43,7 @@
           <label class="checkbox">
             <input
               type="checkbox"
-              [(ngModel)]="autoRefresh"
-              (change)="toggleAutoRefresh()" />
+              [(ngModel)]="autoRefresh" />
             <span i18n="@@member.logs.auto-refresh"
               >Actualisation automatique</span
             >
