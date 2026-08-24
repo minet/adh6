@@ -108,6 +108,7 @@ async def get_product_manager(
         product_repository=product_repo,
         transaction_manager=transaction_manager,
         payment_method_repository=PaymentMethodRepository(session),
+        member_repository=MemberRepository(session),
     )
 
 
