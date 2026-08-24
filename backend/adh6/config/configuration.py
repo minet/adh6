@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     mail_minirouter_recipients: str = ""
     # minet_dark.png is the black-text variant, for a light background -- which is what the
     # mail card uses. minet_light.png is the white-text one, for dark backgrounds.
+    # Public host, used to build the ADH6 links inside admin mails. The reverse proxy already
+    # receives it as ADH6_URL; the backend needs it too now that it sends mails.
+    adh6_url: str = "adh6.minet.net"
     # Empty means no logo, rather than a broken image.
     mail_logo_url: str = "https://minet.net/minet_dark.png"
 

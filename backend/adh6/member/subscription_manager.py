@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from adh6 import mail
+from adh6.config.configuration import settings
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -264,6 +265,21 @@ class SubscriptionManager:
 
         await self._send_receipt(member, subscription, free)
 
+    async def _author_label(self) -> str:
+        """Who took the money.
+
+        Worth a query: for cash handled at the desk, a name is the only accountability trail there
+        is. Never fails -- falls back to the raw id, then to a generic label.
+        """
+        author_id = get_user()
+        if author_id is None:
+            return "clé d'API"
+        try:
+            author = await self.member_repository.get_by_id(author_id)
+        except Exception:
+            return str(author_id)
+        return author.username if author else str(author_id)
+
     async def _send_receipt(self, member: Member, subscription: Membership, free: bool) -> None:
         """Receipt for a subscription recorded at the desk.
 
@@ -293,17 +309,36 @@ class SubscriptionManager:
             # Re-read: add_duration has just moved the departure date, the member we hold is stale.
             fresh = await self.member_repository.get_by_id(member.id)
             end_date = fresh.departure_date if fresh else None
+            method_name = method.name if method else "-"
+            end_day = end_date.date() if isinstance(end_date, datetime) else end_date
+            now = datetime.now(PARIS)
+
             await mail.send_subscription_receipt_async(
                 to=member.email,
                 first_name=member.first_name or member.username,
                 username=member.username,
                 price=price,
                 months=duration,
-                end_date=end_date.date() if isinstance(end_date, datetime) else end_date,
-                payment_method=method.name if method else "-",
-                paid_at=datetime.now(PARIS).date(),
+                end_date=end_day,
+                payment_method=method_name,
+                paid_at=now.date(),
                 language=fresh.preferred_language if fresh else None,
             )
+
+            # The treasury list saw every online payment through payment, but nothing for desk
+            # payments -- the ones involving cash in a box.
+            if settings.treasury_recipients:
+                await mail.send_subscription_admin_async(
+                    to=settings.treasury_recipients,
+                    username=member.username,
+                    adh6_url=f"https://{settings.adh6_url}/fr/member/view/{member.id}/payment",
+                    price=price,
+                    months=duration,
+                    end_date=end_day,
+                    payment_method=method_name,
+                    author=await self._author_label(),
+                    paid_at=now,
+                )
         except Exception:
             logger.warning("Cannot send the subscription receipt to member %s", member.id, exc_info=True)
 

@@ -27,6 +27,9 @@ SUBJECTS = {
     "purchase_admin": {
         "fr": "Nouvel achat de matériel",
     },
+    "subscription_admin": {
+        "fr": "Nouvelle cotisation au local",
+    },
 }
 
 
@@ -121,4 +124,42 @@ async def send_purchase_admin_async(
         subject=SUBJECTS["purchase_admin"]["fr"],
         plain=render("purchase_admin.txt.j2", language="fr", **context),
         html=render("purchase_admin.html.j2", language="fr", **context),
+    )
+
+
+async def send_subscription_admin_async(
+    *,
+    to: list[str],
+    username: str,
+    adh6_url: str,
+    price: str,
+    months: int,
+    end_date: date | None,
+    payment_method: str,
+    author: str,
+    paid_at: datetime,
+) -> bool:
+    """Tells the treasury list that a subscription was paid at the desk.
+
+    payment already notifies the list for every online payment; desk payments were invisible --
+    and those are the ones involving cash in a box, so they are the ones that most need a trace.
+
+    French only, and identified by username plus the ADH6 link rather than by email address: this
+    goes to a mailing list whose archives are kept without a time limit.
+    """
+    context = {
+        "username": username,
+        "adh6_url": adh6_url,
+        "prix": price,
+        "nbr_mois": months,
+        "date_fin": end_date,
+        "payment_method": payment_method,
+        "author": author,
+        "paid_at": paid_at,
+    }
+    return await send_mail_async(
+        to=to,
+        subject=SUBJECTS["subscription_admin"]["fr"],
+        plain=render("admin_new_subscription.txt.j2", language="fr", **context),
+        html=render("admin_new_subscription.html.j2", language="fr", **context),
     )

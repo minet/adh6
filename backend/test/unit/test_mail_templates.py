@@ -32,6 +32,17 @@ PURCHASE_ADMIN = {
     "paid_at": dt.datetime(2026, 8, 24, 18, 42),
 }
 
+SUBSCRIPTION_ADMIN = {
+    "username": "camille.dupont",
+    "adh6_url": "https://adh6.minet.net/fr/member/view/1234/payment",
+    "prix": "50.00",
+    "nbr_mois": 12,
+    "date_fin": dt.date(2027, 8, 24),
+    "payment_method": "Espèces",
+    "author": "tim.cormier",
+    "paid_at": dt.datetime(2026, 8, 24, 18, 42),
+}
+
 ALL_TEMPLATES = [
     ("welcome.html.j2", WELCOME),
     ("welcome.txt.j2", WELCOME),
@@ -39,6 +50,8 @@ ALL_TEMPLATES = [
     ("receipt_subscription.txt.j2", RECEIPT),
     ("purchase_admin.html.j2", PURCHASE_ADMIN),
     ("purchase_admin.txt.j2", PURCHASE_ADMIN),
+    ("admin_new_subscription.html.j2", SUBSCRIPTION_ADMIN),
+    ("admin_new_subscription.txt.j2", SUBSCRIPTION_ADMIN),
 ]
 
 
@@ -93,8 +106,8 @@ def test_no_data_uri_logo():
     assert "data:image" not in render("welcome.html.j2", language="fr", **WELCOME)
 
 
-def test_the_purchase_admin_mail_carries_no_email_address():
-    """It goes to a mailing list whose archives are kept without a time limit."""
+def test_the_admin_mails_carry_no_email_address():
+    """They go to a mailing list whose archives are kept without a time limit."""
     for template in ("purchase_admin.txt.j2", "purchase_admin.html.j2"):
         rendered = render(template, language="fr", **PURCHASE_ADMIN)
         # Not a plain `"@" not in`: the base stylesheet contains `@media` rules.
@@ -105,3 +118,15 @@ def test_subjects_have_one_entry_per_language_and_no_bilingual_one():
     for key, subjects in SUBJECTS.items():
         for language, subject in subjects.items():
             assert "/" not in subject, f"{key}/{language} still looks bilingual"
+
+
+@pytest.mark.parametrize("template", ["admin_new_subscription.txt.j2", "admin_new_subscription.html.j2"])
+def test_the_subscription_admin_mail_carries_no_email_address(template):
+    rendered = render(template, language="fr", **SUBSCRIPTION_ADMIN)
+    assert not re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", rendered)
+
+
+def test_the_subscription_admin_mail_flags_a_missing_departure_date():
+    """For the treasury, a missing date is an anomaly: it has to show."""
+    text = render("admin_new_subscription.txt.j2", language="fr", **{**SUBSCRIPTION_ADMIN, "date_fin": None})
+    assert "date de départ non lue" in text
