@@ -64,6 +64,15 @@
       Compte Wi-Fi uniquement (pas d'appareils filaires, pas de chambre, abonnement non modifiable)
     </label>
   </div>
+  <div class="field">
+    <label class="label">Langue des mails / Email language :</label>
+    <div class="select is-fullwidth">
+      <select formControlName="preferredLanguage">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
   <button
     type="submit"
     [disabled]="memberEdit.invalid || loading"

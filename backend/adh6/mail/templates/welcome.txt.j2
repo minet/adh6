@@ -1,0 +1,53 @@
+{% if lang != "en" %}Bonjour {{ prenom }},
+
+Toute l'équipe est ravie de t'accueillir au sein de l'association.
+Ton identifiant est : {{ username }}
+{% if a_cotise %}
+Voici ce à quoi tu as accès :
+{% else %}
+Il ne te reste plus qu'à cotiser pour accéder à nos services :
+{% endif %}
+  - Internet haut débit : connecte tes appareils en filaire ou en Wi-Fi dans ta chambre Maisel.
+    https://portail.minet.net/dashboard
+  - Hosting MiNET : 9 Go de RAM et 30 Go de stockage sur 3 machines virtuelles.
+    https://hosting.minet.net
+  - Achat de matériel : câbles Ethernet et adaptateurs, lors de nos permanences au local.
+{% if not a_cotise %}
+Pour cotiser : https://payment.minet.net/ ou passe nous voir au local.
+{% endif %}{% endif %}{% if lang == "en" %}Hello {{ prenom }},
+
+The whole team is glad to welcome you.
+Your username is: {{ username }}
+{% if a_cotise %}
+Here is what you get access to:
+{% else %}
+All that is left is to pay your membership to access our services:
+{% endif %}
+  - High-speed Internet: connect your devices over Ethernet or Wi-Fi in your Maisel room.
+    https://portail.minet.net/dashboard
+  - MiNET Hosting: 9 GB of RAM and 30 GB of storage across 3 virtual machines.
+    https://hosting.minet.net
+  - Hardware: Ethernet cables and adapters, available during our office hours.
+{% if not a_cotise %}
+To pay: https://payment.minet.net/ or drop by our office.
+{% endif %}{% endif %}
+---
+{% if lang == "en" %}
+For any question, open a ticket at https://tickets.minet.net or drop by our office
+(Monday to Thursday, 6:00 pm to 7:30 pm).
+
+MiNET processes your personal data as part of your membership and of the Internet access we
+provide to you. Privacy policy:
+https://minet.net/en/legal/politique-de-confidentialite/
+
+MiNET - Automated message, please do not reply.
+{% else %}
+Pour toute question, ouvrez un ticket sur https://tickets.minet.net ou passez nous voir au local
+(du lundi au jeudi de 18h à 19h30).
+
+MiNET traite vos données personnelles dans le cadre de votre adhésion et de l'accès à Internet que
+nous vous proposons. Politique de confidentialité :
+https://minet.net/fr/legal/politique-de-confidentialite/
+
+MiNET - Message automatique, merci de ne pas y répondre.
+{% endif %}

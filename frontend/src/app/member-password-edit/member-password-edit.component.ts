@@ -70,16 +70,24 @@ export class MemberPasswordEditComponent implements OnInit {
   createForm(): void {
     // These checks or run on the frontend to give instant feedback to the user and on the backend as a HTTP request could be sent with an invalid password.
     // nosemgrep: ajinabraham.njsscan.generic.hardcoded_secrets.node_password
+    // A regex literal, not a string. As a string, `\-` collapsed to `-` before the regex engine
+    // ever saw it, turning `+\-=` into the character RANGE + (0x2B) to = (0x3D) -- which covers
+    // +,-./0123456789:;<= and therefore every digit. "Abcdefg1", with no special character at all,
+    // passed this check and was then rejected by the API with a 400. Same pattern as payment's
+    // signup.component.ts, which was already a literal and therefore correct.
     const passwordValidationRegex =
-      "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\"'#!@$%^&(){}[\\]:;<>,.*?/~_+\-=|]).*$"; // Regex pattern to ensure at least one uppercase letter, one lowercase letter, one digit, and one special character
+      /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*["'#!@$%^&(){}[\]:;<>,.*?/~_+\-=|]).*$/;
     /***
      * ^ - Start of string
-     * (?=.*[!@#$%^&*]) - At least one special character from the set !@#$%^&*
-     * (?=.*\d) - At least one digit
+     * (?=.*[0-9]) - At least one digit
      * (?=.*[a-z]) - At least one lowercase letter
      * (?=.*[A-Z]) - At least one uppercase letter
+     * (?=.*["'#!@...|]) - At least one special character from the set
      * .* - Any character (except for line terminators) zero or more times
      * $ - End of string
+     *
+     * Length is enforced separately by minLength(8) and maxLength(64) below, which is why the
+     * pattern ends with `.*$` and not `.{8,}$`.
      */
     this.memberPassword = this.fb.group(
       {

@@ -5,7 +5,6 @@ from adh6.entity.abstract_membership import AbstractMembership
 from adh6.entity.subscription_body import SubscriptionBody
 from adh6.exceptions import (
     MemberNotFoundError,
-    MembershipNotFoundError,
     ValidationError,
 )
 
@@ -45,10 +44,17 @@ class CharterManager:
             limit=1,
             filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value),
         )
-        if not subscriptions:
-            raise MembershipNotFoundError(member_id)
+
+        # Record the signature unconditionally. Signing a charter is an act of its own: it does not
+        # require a subscription to be waiting for it. Refusing here created a chicken-and-egg on
+        # renewals -- the previous membership is COMPLETE, so no PENDING_RULES row exists, so the
+        # member could never sign, so the renewal could never advance.
         await self.charter_repository.update(charter_id, member_id)
-        if subscriptions[0].status == MembershipStatus.PENDING_RULES.value:
+
+        # Only advance a membership that was actually waiting for this signature. The search above
+        # already filters on PENDING_RULES, so a non-empty result means exactly that -- the previous
+        # re-check of the status was dead code.
+        if subscriptions:
             await self.membership_repository.update(
                 subscriptions[0].uuid,
                 SubscriptionBody(),

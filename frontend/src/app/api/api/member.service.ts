@@ -615,10 +615,10 @@ export class MemberService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractMember>;
-    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractMember>>;
-    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractMember>>;
-    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber' | 'preferredLanguage'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractMember>;
+    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber' | 'preferredLanguage'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractMember>>;
+    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber' | 'preferredLanguage'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractMember>>;
+    public memberIdGet(id: number, only?: Array<'id' | 'username' | 'firstName' | 'lastName' | 'roomNumber' | 'preferredLanguage'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling memberIdGet.');
         }

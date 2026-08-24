@@ -17,7 +17,6 @@ from adh6.exceptions import (
 from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository
 from adh6.member.interfaces.charter_repository import CharterRepository
 from adh6.member.member_manager import MemberManager
-from adh6.member.notification_manager import NotificationManager
 from adh6.member.subscription_manager import SubscriptionManager
 from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
@@ -105,11 +104,6 @@ def mock_device_ip_manager():
 
 
 @fixture
-def mock_notification_manager():
-    return MagicMock(spec=NotificationManager)
-
-
-@fixture
 def mock_transaction_manager():
     return MagicMock(spec=TransactionManager)
 
@@ -136,13 +130,11 @@ def subscription_manager(
     mock_charter_repository,
     mock_payment_method_repository,
     mock_transaction_manager,
-    mock_notification_manager,
 ):
     return SubscriptionManager(
         member_repository=mock_member_repository,
         membership_repository=mock_membership_repository,
         charter_repository=mock_charter_repository,
-        notification_manager=mock_notification_manager,
         transaction_manager=mock_transaction_manager,
         payment_method_repository=mock_payment_method_repository,
     )

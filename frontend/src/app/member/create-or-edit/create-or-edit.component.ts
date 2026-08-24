@@ -26,6 +26,7 @@ interface MemberEditForm {
   roomNumber: FormControl<number | null>;
   permanent: FormControl<boolean>;
   wifiOnly: FormControl<boolean>;
+  preferredLanguage: FormControl<MemberBody.PreferredLanguageEnum>;
 }
 
 @Component({
@@ -70,6 +71,9 @@ export class CreateOrEditComponent implements OnInit {
       roomNumber: new FormControl<number | null>(null),
       permanent: new FormControl<boolean>(false, {nonNullable: true}),
       wifiOnly: new FormControl<boolean>(false, {nonNullable: true}),
+      preferredLanguage: new FormControl<MemberBody.PreferredLanguageEnum>("fr", {
+        nonNullable: true,
+      }),
     });
   }
 
@@ -83,6 +87,7 @@ export class CreateOrEditComponent implements OnInit {
       username: v.username!,
       permanent: v.permanent,
       wifiOnly: v.wifiOnly,
+      preferredLanguage: v.preferredLanguage,
     };
 
     const wifiOnly = v.wifiOnly;

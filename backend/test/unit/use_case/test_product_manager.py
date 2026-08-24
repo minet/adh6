@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from adh6.entity import PaymentMethod, Product
 from adh6.exceptions import NotFoundError, PaymentMethodNotFoundError, ProductNotFoundError
+from adh6.member.interfaces import MemberRepository
 from adh6.treasury.interfaces.payment_method_repository import PaymentMethodRepository
 from adh6.treasury.interfaces.product_repository import ProductRepository
 from adh6.treasury.product_manager import ProductManager
@@ -86,8 +87,20 @@ def product_manager(
     mock_product_repository: ProductRepository,
     mock_transaction_manager: TransactionManager,
     mock_payment_method_repository: PaymentMethodRepository,
+    mock_member_repository: MemberRepository,
 ):
-    return ProductManager(mock_product_repository, mock_transaction_manager, mock_payment_method_repository)
+    return ProductManager(
+        mock_product_repository,
+        mock_transaction_manager,
+        mock_payment_method_repository,
+        mock_member_repository,
+    )
+
+
+@pytest.fixture
+def mock_member_repository():
+    """Needed since buy() names the buyer and the seller in the treasury notice."""
+    return MagicMock(spec=MemberRepository)
 
 
 @pytest.fixture

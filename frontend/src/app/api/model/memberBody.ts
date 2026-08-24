@@ -24,5 +24,17 @@ export interface MemberBody {
      * Whether this account is wifi-only (no wired devices, no room, cannot update subscription)
      */
     wifiOnly?: boolean;
+    /**
+     * Language the member wants to receive emails in
+     */
+    preferredLanguage?: MemberBody.PreferredLanguageEnum;
 }
+export namespace MemberBody {
+    export type PreferredLanguageEnum = 'fr' | 'en';
+    export const PreferredLanguageEnum = {
+        Fr: 'fr' as PreferredLanguageEnum,
+        En: 'en' as PreferredLanguageEnum
+    };
+}
+
 

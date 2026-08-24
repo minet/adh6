@@ -1,0 +1,133 @@
+{#
+  Shared shell for every mail sent from adh6.
+
+  Kept deliberately identical to payment's htmltemplates/_base.html.j2: same brand, same
+  mail-client constraints (no data: URI logo, inline styles, no external font). The two
+  copies are independent on purpose -- the services deploy separately -- so a change to one
+  should be mirrored to the other.
+
+  A child template provides:
+    - `badge`       : the pill label at the top (e.g. "Purchase receipt")
+    - `badge_color` : `blue` (default), `orange` or `red` -- the urgency level
+    - block `content`     : the body of the mail
+    - block `footer_note` : an optional line above the footer
+
+  Always injected by mail.render(): `logo_url` and `lang`.
+
+  Rendering constraints, learned the hard way (see doc_update/plan/05-templates-mails.md):
+    - every style is inline: Outlook renders with the Word engine;
+    - no <link> to Google Fonts, it is stripped by Gmail, Outlook.com and Yahoo;
+    - the logo is a URL, never a `data:` URI, which Gmail does not render;
+    - layout tables carry role="presentation" for screen readers.
+#}
+{%- set palette = {
+      "blue":   {"bg": "#e0f2fe", "fg": "#0284c7"},
+      "orange": {"bg": "#fef3c7", "fg": "#b45309"},
+      "red":    {"bg": "#fee2e2", "fg": "#b91c1c"},
+    } -%}
+{%- set tone = palette.get(badge_color | default("blue"), palette["blue"]) -%}
+<!DOCTYPE html>
+<html lang="{{ lang | default('fr') }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject_title | default('MiNET') }}</title>
+  <style type="text/css">
+    @media only screen and (max-width: 600px) {
+      .responsive-table { width: 100% !important; }
+      .mobile-padding   { padding: 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .card    { background-color: #ffffff !important; }
+      .body-bg { background-color: #f3f4f6 !important; }
+    }
+  </style>
+</head>
+<body class="body-bg" style="margin:0; padding:1rem; background-color:#f3f4f6; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing:antialiased; color:#1f2937;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f3f4f6;">
+    <tr>
+      <td align="center">
+
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" class="responsive-table card" style="max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb; box-shadow:0 4px 10px rgba(0,0,0,0.03);">
+
+          <tr>
+            <td style="padding:15px 30px 10px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td valign="middle" align="left" width="50%">
+                    {% if logo_url %}
+                    <!-- Styled even though it wraps an image: if the logo fails to load, the alt
+                         text is what shows, and an unstyled link renders it underlined in the
+                         visited-link colour. -->
+                    <a href="https://minet.net" style="color:#0284c7; font-size:20px; font-weight:800; text-decoration:none; white-space:nowrap;">
+                      <img alt="MiNET" width="110" height="71" src="{{ logo_url }}" style="display:block; border:0;">
+                    </a>
+                    {% else %}
+                    <a href="https://minet.net" style="color:#0284c7; font-size:20px; font-weight:800; text-decoration:none;">MiNET</a>
+                    {% endif %}
+                  </td>
+                  <td align="right" valign="middle" width="50%">
+                    <a href="https://portail.minet.net/" style="border:1px solid #0284c7; color:#0284c7; background-color:transparent; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:14px; font-weight:600; display:inline-block; white-space:nowrap;">
+                      Portail MiNET
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="mobile-padding" style="padding:20px 40px 40px; color:#374151; font-size:16px; line-height:1.6;">
+              {% if badge %}
+              <div style="text-align:center; margin-bottom:30px;">
+                <span style="display:inline-block; background-color:{{ tone.bg }}; color:{{ tone.fg }}; font-size:14px; font-weight:700; padding:6px 12px; border-radius:20px;">{{ badge }}</span>
+              </div>
+              {% endif %}
+              {% block content %}{% endblock %}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="mobile-padding" style="padding:30px 40px; text-align:center; background-color:#f9fafb; border-top:1px solid #e5e7eb;">
+              <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                  <td style="padding-bottom:20px; text-align:center;">
+                    <a href="https://minet.net/{{ lang }}/tutoriels/" style="color:#0284c7; font-size:14px; font-weight:500; text-decoration:none; margin:0 12px;">{% if lang == "en" %}Tutorials{% else %}Tutoriels{% endif %}</a>
+                    <a href="https://wiki.minet.net" style="color:#0284c7; font-size:14px; font-weight:500; text-decoration:none; margin:0 12px;">Wiki</a>
+                    <a href="https://tickets.minet.net" style="color:#0284c7; font-size:14px; font-weight:500; text-decoration:none; margin:0 12px;">Support</a>
+                  </td>
+                </tr>
+              </table>
+              {% block footer_note %}{% endblock %}
+              {% if lang == "en" %}
+              <p style="margin:0 0 10px; font-size:12px; color:#6b7280; line-height:1.5;">
+                For any question, open a <a href="https://tickets.minet.net" style="color:#0284c7; text-decoration:none;">ticket</a> or drop by our office.<br>
+                The MiNET office is open Monday to Thursday, 6:00 pm to 7:30 pm.
+              </p>
+              <p style="margin:0; font-size:12px; color:#6b7280; line-height:1.5;">
+                MiNET processes your personal data as part of your membership and of the Internet
+                access we provide to you.
+                <a href="https://minet.net/en/legal/politique-de-confidentialite/" style="color:#0284c7; text-decoration:none;">Privacy policy</a>.<br>
+                &copy; MiNET. Automated message, please do not reply.
+              </p>
+              {% else %}
+              <p style="margin:0 0 10px; font-size:12px; color:#6b7280; line-height:1.5;">
+                Pour toute question, ouvrez un <a href="https://tickets.minet.net" style="color:#0284c7; text-decoration:none;">ticket</a> ou passez nous voir au local.<br>
+                Le local MiNET est ouvert du lundi au jeudi de 18h &agrave; 19h30.
+              </p>
+              <p style="margin:0; font-size:12px; color:#6b7280; line-height:1.5;">
+                MiNET traite vos donn&eacute;es personnelles dans le cadre de votre adh&eacute;sion et de l'acc&egrave;s
+                &agrave; Internet que nous vous proposons.
+                <a href="https://minet.net/fr/legal/politique-de-confidentialite/" style="color:#0284c7; text-decoration:none;">Politique de confidentialit&eacute;</a>.<br>
+                &copy; MiNET. Message automatique, merci de ne pas y r&eacute;pondre.
+              </p>
+              {% endif %}
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

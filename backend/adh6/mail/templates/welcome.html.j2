@@ -1,0 +1,70 @@
+{% extends "_base.html.j2" %}
+{% set badge = "New account" if lang == "en" else "Nouveau compte" %}
+{% set badge_color = "blue" %}
+{% set subject_title = "Welcome to MiNET" if lang == "en" else "Bienvenue chez MiNET" %}
+
+{% block content %}
+{% if lang != "en" %}
+<h1 style="margin:0 0 10px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">Bienvenue chez MiNET !</h1>
+<p style="margin:0 0 30px; font-size:16px; color:#6b7280; text-align:center;">{% if a_cotise %}Ton compte a bien été créé.{% else %}Ton compte a bien été créé. Il ne te reste plus qu'à cotiser.{% endif %}</p>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">Bonjour <strong>{{ prenom }}</strong>,</p>
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  Toute l'équipe est ravie de t'accueillir au sein de l'association. Ton identifiant est
+  <strong>{{ username }}</strong>. Voici ce à quoi tu as accès :
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px;">
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong><a href="https://portail.minet.net/dashboard" style="color:#0284c7; text-decoration:none;">Internet haut débit</a> :</strong>
+    connecte tes appareils en filaire ou en Wi-Fi dans ta chambre Maisel.
+  </td></tr>
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong><a href="https://hosting.minet.net" style="color:#0284c7; text-decoration:none;">Hosting MiNET</a> :</strong>
+    9 Go de RAM et 30 Go de stockage répartis sur 3 machines virtuelles, pour déployer tes projets.
+  </td></tr>
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong style="color:#0284c7;">Achat de matériel :</strong>
+    câbles Ethernet et adaptateurs, lors de nos permanences au local.
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0;">
+  <a href="{% if a_cotise %}https://minet.net/{{ lang }}/services/{% else %}https://payment.minet.net/{% endif %}" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    {% if a_cotise %}Découvrir nos services{% else %}Cotiser maintenant{% endif %}
+  </a>
+</div>
+
+{% endif %}
+{% if lang == "en" %}
+<h1 style="margin:0 0 10px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">Welcome to MiNET!</h1>
+<p style="margin:0 0 30px; font-size:16px; color:#6b7280; text-align:center;">{% if a_cotise %}Your account has been created.{% else %}Your account has been created. All that is left is to pay your membership.{% endif %}</p>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">Hello <strong>{{ prenom }}</strong>,</p>
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  The whole team is glad to welcome you. Your username is <strong>{{ username }}</strong>.
+  Here is what you get access to:
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:0;">
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong><a href="https://portail.minet.net/dashboard" style="color:#0284c7; text-decoration:none;">High-speed Internet</a>:</strong>
+    connect your devices over Ethernet or Wi-Fi in your Maisel room.
+  </td></tr>
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong><a href="https://hosting.minet.net" style="color:#0284c7; text-decoration:none;">MiNET Hosting</a>:</strong>
+    9 GB of RAM and 30 GB of storage across 3 virtual machines, to deploy your projects.
+  </td></tr>
+  <tr><td style="padding:10px 0; font-size:15px; color:#4b5563;">
+    <strong style="color:#0284c7;">Hardware:</strong>
+    Ethernet cables and adapters, available during our office hours.
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0;">
+  <a href="{% if a_cotise %}https://minet.net/{{ lang }}/services/{% else %}https://payment.minet.net/{% endif %}" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    {% if a_cotise %}Discover our services{% else %}Pay my membership{% endif %}
+  </a>
+</div>
+{% endif %}
+{% endblock %}

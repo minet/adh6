@@ -2972,6 +2972,7 @@ components:
             - firstName
             - lastName
             - roomNumber
+            - preferredLanguage
       explode: false
     onlyRoom:
       description: Limit to specific attributes
@@ -3518,6 +3519,13 @@ components:
           description: Whether this account is wifi-only (no wired devices, no room, cannot update subscription)
           type: boolean
           example: false
+        preferredLanguage:
+          description: Language the member wants to receive emails in
+          type: string
+          enum:
+            - fr
+            - en
+          example: fr
     AbstractMember:
       type: object
       properties:
@@ -3603,6 +3611,14 @@ components:
           type: boolean
           default: false
           example: false
+        preferredLanguage:
+          description: Language the member wants to receive emails in
+          type: string
+          enum:
+            - fr
+            - en
+          default: fr
+          example: fr
     Member:
       allOf:
         - $ref: "#/components/schemas/AbstractMember"

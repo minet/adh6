@@ -1,6 +1,9 @@
 import logging
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
+from adh6 import mail
+from adh6.config.configuration import settings
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
@@ -11,6 +14,7 @@ from adh6.decorator import log_call
 from adh6.entity import (
     AbstractMembership,
     AbstractTransaction,
+    Member,
     Membership,
     SubscriptionBody,
 )
@@ -29,7 +33,11 @@ from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
 
 from .interfaces import CharterRepository, MemberRepository, MembershipRepository
-from .notification_manager import NotificationManager
+
+logger = logging.getLogger(__name__)
+
+# The container clock is UTC. A receipt read by a human in Évry must not be dated the day before.
+PARIS = ZoneInfo("Europe/Paris")
 
 
 class SubscriptionManager:
@@ -38,14 +46,12 @@ class SubscriptionManager:
         member_repository: MemberRepository,
         membership_repository: MembershipRepository,
         charter_repository: CharterRepository,
-        notification_manager: NotificationManager,
         transaction_manager: TransactionManager,
         payment_method_repository: PaymentMethodRepository,
     ):
         self.member_repository = member_repository
         self.membership_repository = membership_repository
         self.charter_repository = charter_repository
-        self.notification_manager = notification_manager
         self.payment_method_repository = payment_method_repository
         self.transaction_manager = transaction_manager
 
@@ -233,6 +239,21 @@ class SubscriptionManager:
         subscription = await self.latest(member_id=member_id)
         if not subscription:
             raise MembershipNotFoundError(None)
+        if subscription.status == MembershipStatus.PENDING_RULES.value:
+            # Read the signature instead of inferring it from the status. Keycloak's charter
+            # Required Action writes `adherents.datesignedminet` with a direct UPDATE, without
+            # going through charter_manager.sign, so it never advances a waiting membership. A
+            # member can therefore be signed AND still sit in PENDING_RULES -- announcing "charter
+            # not signed" to them would send the reader looking in the wrong place, which is the
+            # very problem this branch exists to fix.
+            signed_at = await self.charter_repository.get(member_id=member_id, charter_id=1)
+            if signed_at:
+                raise MembershipStatusNotAllowed(
+                    subscription.status,
+                    "the charter is signed but this membership was never advanced past PENDING_RULES",
+                )
+            raise CharterNotSigned(str(member_id))
+
         if subscription.status != MembershipStatus.PENDING_PAYMENT_VALIDATION.value:
             raise MembershipStatusNotAllowed(subscription.status, "status cannot be used to validate a membership")
 
@@ -241,7 +262,85 @@ class SubscriptionManager:
         if subscription.duration is None:
             raise MembershipNotFoundError(None)
         await self.member_repository.add_duration(subscription.member, subscription.duration)
-        # self.notification_manager.send(template_title="Nouvelle cotisation / New subscription", member_email=member.email, subscription_duration=subscription.duration.value, subscription_end=member.departure_date)
+
+        await self._send_receipt(member, subscription, free)
+
+    async def _author_label(self) -> str:
+        """Who took the money.
+
+        Worth a query: for cash handled at the desk, a name is the only accountability trail there
+        is. Never fails -- falls back to the raw id, then to a generic label.
+        """
+        author_id = get_user()
+        if author_id is None:
+            return "clé d'API"
+        try:
+            author = await self.member_repository.get_by_id(author_id)
+        except Exception:
+            return str(author_id)
+        return author.username if author else str(author_id)
+
+    async def _send_receipt(self, member: Member, subscription: Membership, free: bool) -> None:
+        """Receipt for a subscription recorded at the desk.
+
+        Members paying online already get one from payment; those paying cash at the desk got
+        nothing -- yet cash is precisely the case where they hold no other proof of payment.
+
+        Never raises: a delivery failure must not undo a subscription that is already committed.
+        Called after add_duration so the departure date read here is the new one.
+        """
+        if not member.email:
+            logger.warning("Member %s has no email address, not sending the receipt", member.id)
+            return
+        # Both are Optional on the generated entity, and a receipt without them would be
+        # meaningless anyway: no amount, no payment method.
+        duration = subscription.duration
+        payment_method_id = subscription.payment_method
+        if duration is None or payment_method_id is None:
+            logger.warning(
+                "Membership of member %s has no duration or no payment method, not sending the receipt",
+                member.id,
+            )
+            return
+
+        try:
+            price = "0.00" if free else f"{self.duration_price[duration]:.2f}"
+            method = await self.payment_method_repository.get_by_id(payment_method_id)
+            # Re-read: add_duration has just moved the departure date, the member we hold is stale.
+            fresh = await self.member_repository.get_by_id(member.id)
+            end_date = fresh.departure_date if fresh else None
+            method_name = method.name if method else "-"
+            end_day = end_date.date() if isinstance(end_date, datetime) else end_date
+            now = datetime.now(PARIS)
+
+            await mail.send_subscription_receipt_async(
+                to=member.email,
+                first_name=member.first_name or member.username,
+                username=member.username,
+                price=price,
+                months=duration,
+                end_date=end_day,
+                payment_method=method_name,
+                paid_at=now.date(),
+                language=fresh.preferred_language if fresh else None,
+            )
+
+            # The treasury list saw every online payment through payment, but nothing for desk
+            # payments -- the ones involving cash in a box.
+            if settings.treasury_recipients:
+                await mail.send_subscription_admin_async(
+                    to=settings.treasury_recipients,
+                    username=member.username,
+                    adh6_url=f"https://{settings.adh6_url}/fr/member/view/{member.id}/payment",
+                    price=price,
+                    months=duration,
+                    end_date=end_day,
+                    payment_method=method_name,
+                    author=await self._author_label(),
+                    paid_at=now,
+                )
+        except Exception:
+            logger.warning("Cannot send the subscription receipt to member %s", member.id, exc_info=True)
 
     @log_call
     async def add_payment_record(self, membership: Membership, free: bool) -> None:

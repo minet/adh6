@@ -52,15 +52,12 @@ from adh6.utils.filter_wrapper import MemberFilterWrapper
 from .charter_manager import CharterManager
 from .mailinglist_manager import MailinglistManager
 from .member_manager import MemberManager
-from .notification_manager import NotificationManager
-from .smtp.notification_repository import NotificationSMTPRepository
 from .storage import (
     CharterRepository,
     MailinglistReposiroty,
     MemberRepository,
     MembershipRepository,
 )
-from .storage.notification_template_repository import NotificationTemplateSQLRepository
 from .subscription_manager import SubscriptionManager
 
 router = APIRouter(prefix="/member", tags=["member"])
@@ -98,6 +95,7 @@ def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[st
         "ip",
         "subnet",
         "membership",
+        "preferredLanguage",
     }
 
     wanted = {field.strip() for field in only.split(",") if field.strip()}
@@ -123,19 +121,6 @@ def get_logs_repository() -> LogsRepository:
 
 
 @lru_cache(maxsize=1)
-def get_notification_repository() -> NotificationSMTPRepository:
-    """Reuse notification repository instance across requests."""
-    return NotificationSMTPRepository()
-
-
-def build_notification_manager(session: AsyncSession) -> NotificationManager:
-    """Build notification manager for the current DB session."""
-    return NotificationManager(
-        notification_repository=get_notification_repository(),
-        notification_template_repository=NotificationTemplateSQLRepository(session),
-    )
-
-
 def build_transaction_manager(session: AsyncSession) -> TransactionManager:
     """Build transaction manager for the current DB session."""
     return TransactionManager(
@@ -165,13 +150,11 @@ async def get_member_manager(
         logs_repository=get_logs_repository(),
     )
 
-    notification_manager = build_notification_manager(session)
     transaction_manager = build_transaction_manager(session)
     subscription_manager = SubscriptionManager(
         member_repository=member_repo,
         membership_repository=MembershipRepository(session),
         charter_repository=CharterRepository(session),
-        notification_manager=notification_manager,
         transaction_manager=transaction_manager,
         payment_method_repository=PaymentMethodRepository(session),
     )
@@ -210,13 +193,11 @@ async def get_subscription_manager(
 ) -> SubscriptionManager:
     """Dependency: Inject Subscription Manager."""
     member_repo = MemberRepository(session)
-    notification_manager = build_notification_manager(session)
     transaction_manager = build_transaction_manager(session)
     return SubscriptionManager(
         member_repository=member_repo,
         membership_repository=MembershipRepository(session),
         charter_repository=CharterRepository(session),
-        notification_manager=notification_manager,
         transaction_manager=transaction_manager,
         payment_method_repository=PaymentMethodRepository(session),
     )
@@ -232,6 +213,8 @@ async def create_member(
     body: MemberBody,
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
+    # Same session object as the one the manager received: FastAPI caches dependencies per request.
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> int:
     """Create a new member."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
@@ -244,6 +227,15 @@ async def create_member(
         member = await manager.create(body)
     except MemberAlreadyExist as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    # Commit before publishing the id. The repository only flushes, so without this the response
+    # announces an auto-increment id for a row that is not durable yet -- and a caller that chains
+    # a second request (payment does: create_member then set_password) can hit another session,
+    # on another worker, that cannot see it. The commit in get_session() runs too late for that.
+    #
+    # It also turns a silent failure into a visible one: if the commit fails, this raises here and
+    # the caller gets an error, instead of a 201 carrying the id of a row that was rolled back.
+    await session.commit()
     return member.id
 
 

@@ -1,0 +1,9 @@
+{{ username }} a cotisé au local.
+
+  Payé le      : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }} à {{ paid_at.strftime("%Hh%M") }}
+  Encaissé par : {{ author }}
+  Moyen        : {{ payment_method }}
+  Durée        : {{ nbr_mois }} mois, jusqu'au {% if date_fin %}{{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% else %}?? (date de départ non lue){% endif %}
+  Montant      : {{ prix }} €
+
+Fiche ADH6 : {{ adh6_url }}

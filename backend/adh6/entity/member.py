@@ -43,7 +43,8 @@ class Member(BaseModel):
     membership: Optional[StrictStr] = Field(default=None, description="The current status of this membership request:  * `INITIAL` - Just created  * `PENDING_RULES` - Waiting for the member to sign the rules  * `PENDING_PAYMENT_INITIAL` - Initiating the payment flow  * `PENDING_PAYMENT` - During the payment flow  * `PENDING_PAYMENT_VALIDATION` - After the payment flow, waiting for confirmation  * `COMPLETE` - The membership request is completed  * `CANCELLED` - The membership has been cancelled  * `ABORTED` - The membership request flow was aborted Do note that some of the steps may be skipped depending on the payment method, whether or not this is the member's first membership request etc. ")
     permanent: Optional[StrictBool] = Field(default=False, description="Whether this account is permanent (never expires, always considered active)")
     wifi_only: Optional[StrictBool] = Field(default=False, description="Whether this account is wifi-only (no wired devices, no room assignment, cannot update subscription)", alias="wifiOnly")
-    __properties: ClassVar[List[str]] = ["id", "username", "firstName", "lastName", "email", "comment", "departureDate", "mailinglist", "ip", "subnet", "membership", "permanent", "wifiOnly"]
+    preferred_language: Optional[StrictStr] = Field(default='fr', description="Language the member wants to receive emails in", alias="preferredLanguage")
+    __properties: ClassVar[List[str]] = ["id", "username", "firstName", "lastName", "email", "comment", "departureDate", "mailinglist", "ip", "subnet", "membership", "permanent", "wifiOnly", "preferredLanguage"]
 
     @field_validator('membership')
     def membership_validate_enum(cls, value):
@@ -53,6 +54,16 @@ class Member(BaseModel):
 
         if value not in set(['INITIAL', 'PENDING_RULES', 'PENDING_PAYMENT_INITIAL', 'PENDING_PAYMENT', 'PENDING_PAYMENT_VALIDATION', 'COMPLETE', 'CANCELLED', 'ABORTED']):
             raise ValueError("must be one of enum values ('INITIAL', 'PENDING_RULES', 'PENDING_PAYMENT_INITIAL', 'PENDING_PAYMENT', 'PENDING_PAYMENT_VALIDATION', 'COMPLETE', 'CANCELLED', 'ABORTED')")
+        return value
+
+    @field_validator('preferred_language')
+    def preferred_language_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['fr', 'en']):
+            raise ValueError("must be one of enum values ('fr', 'en')")
         return value
 
     model_config = ConfigDict(
@@ -140,7 +151,8 @@ class Member(BaseModel):
             "subnet": obj.get("subnet"),
             "membership": obj.get("membership"),
             "permanent": obj.get("permanent") if obj.get("permanent") is not None else False,
-            "wifiOnly": obj.get("wifiOnly") if obj.get("wifiOnly") is not None else False
+            "wifiOnly": obj.get("wifiOnly") if obj.get("wifiOnly") is not None else False,
+            "preferredLanguage": obj.get("preferredLanguage") if obj.get("preferredLanguage") is not None else 'fr'
         })
         return _obj
 

@@ -20,7 +20,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -35,7 +35,18 @@ class MemberBody(BaseModel):
     mail: Optional[StrictStr] = None
     permanent: Optional[StrictBool] = Field(default=None, description="Whether this account is permanent (never expires, always considered active)")
     wifi_only: Optional[StrictBool] = Field(default=None, description="Whether this account is wifi-only (no wired devices, no room, cannot update subscription)", alias="wifiOnly")
-    __properties: ClassVar[List[str]] = ["username", "firstName", "lastName", "mail", "permanent", "wifiOnly"]
+    preferred_language: Optional[StrictStr] = Field(default=None, description="Language the member wants to receive emails in", alias="preferredLanguage")
+    __properties: ClassVar[List[str]] = ["username", "firstName", "lastName", "mail", "permanent", "wifiOnly", "preferredLanguage"]
+
+    @field_validator('preferred_language')
+    def preferred_language_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['fr', 'en']):
+            raise ValueError("must be one of enum values ('fr', 'en')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,7 +104,8 @@ class MemberBody(BaseModel):
             "lastName": obj.get("lastName"),
             "mail": obj.get("mail"),
             "permanent": obj.get("permanent"),
-            "wifiOnly": obj.get("wifiOnly")
+            "wifiOnly": obj.get("wifiOnly"),
+            "preferredLanguage": obj.get("preferredLanguage")
         })
         return _obj
 

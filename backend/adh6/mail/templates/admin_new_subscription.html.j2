@@ -1,0 +1,29 @@
+{% extends "_base.html.j2" %}
+{% set badge = "Cotisation au local" %}
+{% set badge_color = "blue" %}
+{% set subject_title = "Nouvelle cotisation au local" %}
+
+{% block content %}
+<h1 style="margin:0 0 30px; font-size:24px; font-weight:800; color:#111827; letter-spacing:-0.5px; text-align:center;">{{ username }} a cotisé au local</h1>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151;">
+  <strong>{{ nbr_mois }}&nbsp;mois</strong> pour <strong>{{ prix }}&nbsp;€</strong>, encaiss&eacute;s en
+  <strong>{{ payment_method }}</strong>.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; margin:0 0 24px;">
+  <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
+    Pay&eacute; le : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }} &agrave; {{ paid_at.strftime("%Hh%M") }}<br>
+    Encaiss&eacute; par : {{ author }}<br>
+    Moyen de paiement : {{ payment_method }}<br>
+    Dur&eacute;e : {{ nbr_mois }} mois, jusqu'au {% if date_fin %}{{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% else %}?? (date de d&eacute;part non lue){% endif %}<br>
+    Montant : {{ prix }} €
+  </td></tr>
+</table>
+
+<div style="text-align:center; margin:30px 0;">
+  <a href="{{ adh6_url }}" style="border:1px solid #0284c7; color:#ffffff; background-color:#0284c7; padding:12px 24px; border-radius:6px; text-decoration:none; font-size:15px; font-weight:600; display:inline-block;">
+    Voir la fiche ADH6
+  </a>
+</div>
+{% endblock %}
