@@ -2,7 +2,9 @@ import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from adh6 import mail
 from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.context import set_api_key_id
 from adh6.entity import Member, Membership, PaymentMethod, SubscriptionBody
 from adh6.exceptions import (
     CharterNotSigned,
@@ -440,6 +442,36 @@ class TestValidateMembership:
         with pytest.raises(MembershipStatusNotAllowed) as error:
             await subscription_manager.validate(sample_member.id, False)
         assert "never advanced" in str(error.value)
+
+    async def test_no_mail_when_payment_validates_with_an_api_key(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member: Member,
+        sample_membership_pending_payment_validation: Membership,
+        subscription_manager: SubscriptionManager,
+        monkeypatch,
+    ):
+        """payment calls validate() from its webhook and sends its own receipt and notice.
+
+        Without the API key guard the member got TWO receipts and the treasury list TWO notices
+        for every online payment. Only a human at the desk should trigger the adh6 mails.
+        """
+        sent: list[str] = []
+        monkeypatch.setattr(
+            mail, "send_subscription_receipt_async", AsyncMock(side_effect=lambda **_: sent.append("receipt"))
+        )
+        monkeypatch.setattr(
+            mail, "send_subscription_admin_async", AsyncMock(side_effect=lambda **_: sent.append("admin"))
+        )
+        mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
+
+        set_api_key_id(4242)
+        try:
+            await subscription_manager._send_receipt(sample_member, sample_membership_pending_payment_validation, False)
+        finally:
+            set_api_key_id(None)
+
+        assert sent == []
 
     async def test_not_payment_validation(
         self,

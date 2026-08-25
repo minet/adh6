@@ -289,6 +289,13 @@ class SubscriptionManager:
         Never raises: a delivery failure must not undo a subscription that is already committed.
         Called after add_duration so the departure date read here is the new one.
         """
+        # validate() is not called only by a volunteer at the desk: payment calls it too, from its
+        # webhook, authenticated with an API key -- and it sends its own receipt and treasury
+        # notice, with the HelloAsso details we do not have here. Without this guard the member
+        # received TWO receipts and the list TWO notices for every online payment.
+        if get_api_key_id() is not None:
+            return
+
         if not member.email:
             logger.warning("Member %s has no email address, not sending the receipt", member.id)
             return
