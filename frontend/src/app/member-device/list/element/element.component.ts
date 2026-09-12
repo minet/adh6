@@ -71,21 +71,6 @@ export class ElementComponent implements OnInit, OnChanges {
     this.isCollapse = !this.isCollapse;
   }
 
-  public updateMAB(): void {
-    void Swal.fire({
-      title: "Changer le MAB",
-      text: "Voulez-vous changer le MAB pour l'appareil ?",
-      icon: "warning",
-      showCancelButton: true,
-    }).then((result: {isConfirmed: boolean}) => {
-      if (result.isConfirmed) {
-        this.deviceService.deviceIdMabPost(this.device.id!).subscribe(() => {
-          this.refreshDevice();
-        });
-      }
-    });
-  }
-
   public rename(): void {
     this.device$.pipe(first()).subscribe((device: AbstractDevice) => {
       void Swal.fire({
