@@ -13,6 +13,7 @@ from adh6.constants import (
     DEFAULT_LIMIT,
     DEFAULT_OFFSET,
     SUBNET_PUBLIC_ADDRESSES_WIRELESS,
+    WIFI_ONLY_ROOM_NUMBER,
     MembershipStatus,
 )
 from adh6.decorator import log_call
@@ -20,6 +21,7 @@ from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
 from adh6.entity import (
     AbstractMember,
+    AbstractRoom,
     Comment,
     Member,
     MemberBody,
@@ -33,6 +35,7 @@ from adh6.exceptions import (
     MemberAlreadyExist,
     MemberNotFoundError,
     NoSubnetAvailable,
+    RoomNotFoundError,
     UpdateImpossible,
 )
 from adh6.room.interfaces import RoomRepository
@@ -110,6 +113,8 @@ class MemberManager(CRUDManager):
         if fetched_member:
             raise MemberAlreadyExist(fetched_member.username)
 
+        wifi_only_room_id = await self._get_wifi_only_room_id() if body.wifi_only else None
+
         created_member = await self.member_repository.create(
             object_to_create=AbstractMember(
                 id=0,
@@ -138,6 +143,9 @@ class MemberManager(CRUDManager):
             body=SubscriptionBody(member=created_member.id),
         )
 
+        if wifi_only_room_id is not None and created_member.id is not None:
+            await self._move_to_room(created_member.id, wifi_only_room_id)
+
         # After every write, and never inside a try that would roll them back: a delivery failure
         # must not undo the creation of a member. send_welcome_async never raises.
         if created_member.email:
@@ -161,10 +169,18 @@ class MemberManager(CRUDManager):
         if not member:
             raise MemberNotFoundError(id)
 
-        flag_only_patch = (
-            body.username is None and body.first_name is None and body.last_name is None and body.mail is None
+        wifi_only_room_id = await self._get_wifi_only_room_id() if body.wifi_only else None
+
+        identity_changed = any(
+            value is not None and value != current_value
+            for value, current_value in (
+                (body.username, member.username),
+                (body.first_name, member.first_name),
+                (body.last_name, member.last_name),
+                (body.mail, member.email),
+            )
         )
-        if not flag_only_patch:
+        if identity_changed:
             latest_sub = await self.subscription_manager.latest(id)
             if not latest_sub or latest_sub.status not in [
                 MembershipStatus.CANCELLED.value,
@@ -189,12 +205,27 @@ class MemberManager(CRUDManager):
             )
         )
 
-        if body.wifi_only:
-            current_room = await self.room_repository.get_from_member(id)
-            if current_room:
-                await self.room_repository.remove_member(id)
+        if wifi_only_room_id is not None:
+            await self._move_to_room(id, wifi_only_room_id)
             if not member.subnet:
                 await self.update_subnet(id)
+
+    async def _get_wifi_only_room_id(self) -> int:
+        rooms, _ = await self.room_repository.search_by(
+            limit=1,
+            filter_=AbstractRoom(roomNumber=WIFI_ONLY_ROOM_NUMBER),
+        )
+        if not rooms or rooms[0].id is None:
+            raise RoomNotFoundError(WIFI_ONLY_ROOM_NUMBER)
+        return rooms[0].id
+
+    async def _move_to_room(self, member_id: int, room_id: int) -> None:
+        current_room = await self.room_repository.get_from_member(member_id)
+        if current_room and current_room.id == room_id:
+            return
+        if current_room:
+            await self.room_repository.remove_member(member_id)
+        await self.room_repository.add_member(room_id, member_id)
 
     @log_call
     async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:

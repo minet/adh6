@@ -7,7 +7,7 @@ from uuid import uuid4
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.member.storage.models import Adherent, Membership
-from adh6.room.storage.models import RoomMemberLink
+from adh6.room.storage.models import Chambre, RoomMemberLink
 
 from test.integration.context import tomorrow
 from test.integration.resource import TEST_HEADERS, base_url as host_url
@@ -70,6 +70,17 @@ def permanent_member():
 
 
 @pytest.fixture
+def wifi_only_room(sample_vlan):
+    """Special room assigned to wifi-only members."""
+    yield Chambre(
+        id=1666,
+        numero=666,
+        description="Comptes Wi-Fi uniquement",
+        vlan_id=sample_vlan.id,
+    )
+
+
+@pytest.fixture
 def pending_membership_wifi_only(wifi_only_member: Adherent):
     yield Membership(
         uuid=str(uuid4()),
@@ -90,6 +101,7 @@ async def client_wifi_only(
     wifi_only_member_no_room,
     permanent_member,
     sample_room1,
+    wifi_only_room,
     sample_vlan,
     pending_membership_wifi_only,
 ):
@@ -99,6 +111,7 @@ async def client_wifi_only(
         [
             sample_vlan,
             sample_room1,
+            wifi_only_room,
             wifi_only_member,
             wifi_only_member_no_room,
             permanent_member,
@@ -240,6 +253,32 @@ def test_patch_member_sets_wifi_only_flag(client_wifi_only, permanent_member: Ad
     assert body.get("wifiOnly") is True
 
 
+def test_create_wifi_only_member_assigns_room_666(client_wifi_only, wifi_only_room: Chambre):
+    """Creating a wifi-only member assigns the dedicated room 666."""
+    body = {
+        "firstName": "Wifi",
+        "lastName": "Only",
+        "mail": "wifi.only@test.net",
+        "username": "wifi_only_created",
+        "wifiOnly": True,
+    }
+    response = client_wifi_only.post(
+        member_url,
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert response.status_code == 201
+    member_id = response.json()
+
+    member_response = client_wifi_only.get(f"{member_url}{member_id}", headers=TEST_HEADERS)
+    assert member_response.status_code == 200
+    assert member_response.json()["wifiOnly"] is True
+
+    room_response = client_wifi_only.get(f"{room_url}member/{member_id}", headers=TEST_HEADERS)
+    assert room_response.status_code == 200
+    assert room_response.json() == wifi_only_room.id
+
+
 # ── wifi_only subnet preservation / allocation tests ─────────────────────────
 
 
@@ -273,6 +312,7 @@ async def client_wifi_subnet(
     permanent_member,
     room_link_for_member_with_subnet,
     sample_room1,
+    wifi_only_room,
     sample_vlan,
 ):
     from .conftest import add_test_fixtures, cleanup_test_data
@@ -281,6 +321,7 @@ async def client_wifi_subnet(
         [
             sample_vlan,
             sample_room1,
+            wifi_only_room,
             member_with_subnet,
             permanent_member,
             room_link_for_member_with_subnet,
@@ -305,6 +346,57 @@ def test_set_wifi_only_preserves_existing_subnet(client_wifi_subnet, member_with
     body = json.loads(r2.content.decode("utf-8"))
     assert body.get("ip") is not None and body.get("ip") != ""
     assert body.get("subnet") is not None and body.get("subnet") != ""
+
+
+def test_set_wifi_only_moves_member_to_room_666(
+    client_wifi_subnet,
+    member_with_subnet: Adherent,
+    wifi_only_room: Chambre,
+):
+    """Enabling wifiOnly moves the member to the dedicated room 666."""
+    r = client_wifi_subnet.patch(
+        f"{member_url}{member_with_subnet.id}",
+        data=json.dumps({"wifiOnly": True}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+
+    room_response = client_wifi_subnet.get(
+        f"{room_url}member/{member_with_subnet.id}",
+        headers=TEST_HEADERS,
+    )
+    assert room_response.status_code == 200
+    assert room_response.json() == wifi_only_room.id
+
+
+def test_edit_form_can_set_wifi_only_and_move_member_to_room_666(
+    client_wifi_subnet,
+    member_with_subnet: Adherent,
+    wifi_only_room: Chambre,
+):
+    """The full payload sent by the edit form can enable wifiOnly."""
+    r = client_wifi_subnet.patch(
+        f"{member_url}{member_with_subnet.id}",
+        data=json.dumps(
+            {
+                "username": member_with_subnet.login,
+                "firstName": member_with_subnet.prenom,
+                "lastName": member_with_subnet.nom,
+                "mail": member_with_subnet.mail,
+                "permanent": False,
+                "wifiOnly": True,
+            }
+        ),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+
+    room_response = client_wifi_subnet.get(
+        f"{room_url}member/{member_with_subnet.id}",
+        headers=TEST_HEADERS,
+    )
+    assert room_response.status_code == 200
+    assert room_response.json() == wifi_only_room.id
 
 
 def test_set_wifi_only_allocates_subnet_when_none(client_wifi_subnet, permanent_member: Adherent):
