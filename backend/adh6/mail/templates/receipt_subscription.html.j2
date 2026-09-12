@@ -2,6 +2,8 @@
 {% set badge = "Membership receipt" if lang == "en" else "Reçu de cotisation" %}
 {% set badge_color = "blue" %}
 {% set subject_title = "MiNET membership receipt" if lang == "en" else "Reçu de cotisation MiNET" %}
+{% set duree = ("1 an" if nbr_mois == 12 else nbr_mois ~ " mois") %}
+{% set duration = ("1 year" if nbr_mois == 12 else nbr_mois ~ " months") %}
 
 {% block content %}
 {% if lang != "en" %}
@@ -11,7 +13,7 @@
 <p style="margin:0 0 16px; font-size:15px; color:#374151;">Bonjour <strong>{{ prenom }}</strong>,</p>
 <p style="margin:0 0 16px; font-size:15px; color:#374151;">
   Nous avons bien reçu votre règlement de <strong>{{ prix }}&nbsp;€</strong> pour une cotisation de
-  <strong>{{ nbr_mois }}&nbsp;mois</strong>.{% if date_fin %} Votre accès est valable jusqu'au
+  <strong>{{ duree }}</strong>.{% if date_fin %} Votre accès est valable jusqu'au
   <strong>{{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}</strong>.{% endif %}
 </p>
 
@@ -19,7 +21,7 @@
   <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
     <strong style="color:#111827;">Détail</strong><br>
     Identifiant : {{ username }}<br>
-    Durée : {{ nbr_mois }} mois{% if date_fin %}, jusqu'au {{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% endif %}<br>
+    Durée : {{ duree }}{% if date_fin %}, jusqu'au {{ date_fin.day }} {{ MONTHS_FR[date_fin.month - 1] }} {{ date_fin.year }}{% endif %}<br>
     Montant : {{ prix }} €<br>
     Moyen de paiement : {{ payment_method }}<br>
     Date : {{ paid_at.day }} {{ MONTHS_FR[paid_at.month - 1] }} {{ paid_at.year }}
@@ -53,8 +55,8 @@
 
 <p style="margin:0 0 16px; font-size:15px; color:#374151;">Hello <strong>{{ prenom }}</strong>,</p>
 <p style="margin:0 0 16px; font-size:15px; color:#374151;">
-  We have received your payment of <strong>{{ prix }}&nbsp;€</strong> for a <strong>{{ nbr_mois }}-month</strong>
-  membership.{% if date_fin %} Your access is valid until
+  We have received your payment of <strong>{{ prix }}&nbsp;€</strong> for a membership of
+  <strong>{{ duration }}</strong>.{% if date_fin %} Your access is valid until
   <strong>{{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}</strong>.{% endif %}
 </p>
 
@@ -62,7 +64,7 @@
   <tr><td style="padding:18px 20px; font-size:14px; color:#374151; line-height:1.7;">
     <strong style="color:#111827;">Details</strong><br>
     Username: {{ username }}<br>
-    Duration: {{ nbr_mois }} months{% if date_fin %}, until {{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}{% endif %}<br>
+    Duration: {{ duration }}{% if date_fin %}, until {{ MONTHS_EN[date_fin.month - 1] }} {{ date_fin.day }}, {{ date_fin.year }}{% endif %}<br>
     Amount: {{ prix }} €<br>
     Payment method: {{ payment_method }}<br>
     Date: {{ MONTHS_EN[paid_at.month - 1] }} {{ paid_at.day }}, {{ paid_at.year }}

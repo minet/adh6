@@ -51,9 +51,7 @@
           class="input is-fullwidth"
           formControlName="durationIndex"
           type="text">
-          @if (!isWifiOnly) {
-            <option value="-1">Pas de cotisation</option>
-          }
+          <option value="-1">Pas de cotisation</option>
           @for (opt of visibleOptions; track opt.index) {
             <option value="{{ opt.index }}">
               {{ opt.duration === 12 ? "1 an" : opt.duration + " mois" }}

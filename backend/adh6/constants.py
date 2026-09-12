@@ -5,6 +5,8 @@ DEFAULT_LIMIT = 100
 DEFAULT_OFFSET = 0
 LOG_DEFAULT_LIMIT = 10
 WIFI_ONLY_ROOM_NUMBER = 666
+# One year without a room: billed like a single month instead of PRICES[12].
+WIFI_ONLY_PRICE = 9
 
 PRICES = {
     1: 9,

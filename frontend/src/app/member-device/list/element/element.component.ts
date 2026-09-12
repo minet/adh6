@@ -3,10 +3,9 @@ import {BehaviorSubject, first, Observable, of, shareReplay, switchMap, map} fro
 import Swal from "sweetalert2";
 import {AbstractDevice, DeviceService, Device} from "../../../api";
 import {CommonModule, AsyncPipe} from "@angular/common";
-import {AblePipe} from "@casl/angular";
 
 @Component({
-  imports: [CommonModule, AsyncPipe, AblePipe],
+  imports: [CommonModule, AsyncPipe],
   selector: "app-element",
   templateUrl: "./element.component.html",
 })

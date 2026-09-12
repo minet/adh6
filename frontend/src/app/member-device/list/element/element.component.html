@@ -79,18 +79,6 @@
                 </td>
               </tr>
             }
-            @if (
-              ("manage" | able: "admin") && device.connectionType === "wired"
-            ) {
-              <tr>
-                <td>
-                  <strong>MAB</strong>
-                </td>
-                <td>
-                  {{ device.mab ? 'ACTIVÉ' : 'DÉSACTIVÉ' }}
-                </td>
-              </tr>
-            }
           </tbody>
         </table>
       </div>

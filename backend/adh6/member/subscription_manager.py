@@ -7,6 +7,7 @@ from adh6.config.configuration import settings
 from adh6.constants import (
     DURATION_STRING,
     PRICES,
+    WIFI_ONLY_PRICE,
     MembershipStatus,
 )
 from adh6.context import get_api_key_id, get_user
@@ -27,7 +28,6 @@ from adh6.exceptions import (
     NoPriceAssignedToThatDuration,
     PaymentMethodNotFoundError,
     UnknownPaymentMethod,
-    WifiOnlyRestrictionError,
 )
 from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
@@ -62,6 +62,19 @@ class SubscriptionManager:
     @property
     def duration_string(self) -> dict[int, str]:
         return DURATION_STRING
+
+    @staticmethod
+    def is_wifi_only(membership: AbstractMembership) -> bool:
+        """The subscription without a room is the wifi-only one."""
+        return not membership.has_room
+
+    def price_of(self, membership: AbstractMembership) -> int:
+        """What the member pays: the wifi-only year costs 9€, not the 50€ of a regular year."""
+        if membership.duration is None:
+            raise MembershipNotFoundError(None)
+        if self.is_wifi_only(membership):
+            return WIFI_ONLY_PRICE
+        return self.duration_price[membership.duration]
 
     def is_finished(self, status: MembershipStatus) -> bool:
         return status in [
@@ -181,9 +194,6 @@ class SubscriptionManager:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
-
-        if member.wifi_only:
-            raise WifiOnlyRestrictionError("wifi-only accounts cannot update their subscription")
 
         subscription = await self.latest(member_id=member_id)
         if not subscription:
@@ -311,7 +321,7 @@ class SubscriptionManager:
             return
 
         try:
-            price = "0.00" if free else f"{self.duration_price[duration]:.2f}"
+            price = "0.00" if free else f"{self.price_of(subscription):.2f}"
             method = await self.payment_method_repository.get_by_id(payment_method_id)
             # Re-read: add_duration has just moved the departure date, the member we hold is stale.
             fresh = await self.member_repository.get_by_id(member.id)
@@ -354,12 +364,9 @@ class SubscriptionManager:
         if membership.payment_method is None:
             raise MembershipNotFoundError(None)
         payment_method = await self.payment_method_repository.get_by_id(membership.payment_method)
-        if membership.duration is None:
-            raise MembershipNotFoundError(None)
-        price = self.duration_price[membership.duration]
-        title = f"Internet - {self.duration_string.get(membership.duration)}"
-        if price == 50 and not membership.has_room:
-            price = 9
+        price = self.price_of(membership)
+        title = f"Internet - {self.duration_string.get(membership.duration)}"  # type: ignore[arg-type]
+        if self.is_wifi_only(membership):
             title = title + " (sans chambre)"
 
         await self.transaction_manager.update_or_create(

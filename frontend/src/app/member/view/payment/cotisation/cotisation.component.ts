@@ -218,10 +218,6 @@ export class CotisationComponent implements OnInit, OnDestroy {
     return this.member?.permanent === true;
   }
 
-  get isWifiOnly(): boolean {
-    return this.member?.wifiOnly === true;
-  }
-
   /** Human-readable label of the duration currently picked, for the recap. */
   get selectedDurationLabel(): string {
     const index = this.subscriptionForm.value.durationIndex;
@@ -237,16 +233,13 @@ export class CotisationComponent implements OnInit, OnDestroy {
     duration: AbstractMembership.DurationEnum;
     price: number;
   }[] {
-    return this.subscriptionDuration
-      .map((duration, index) => ({
-        index,
-        duration,
-        price: this.subscriptionPrices[index],
-      }))
-      .filter(({index}) => {
-        // Any member can be given the wifi-only subscription; a wifi-only member gets nothing else.
-        return !this.isWifiOnly || this.isWifiOnlyIndex(index);
-      });
+    // Every member, wifi-only or not, can be given any subscription: validating a regular one
+    // turns the wifi-only flag off (the member stays in room 666).
+    return this.subscriptionDuration.map((duration, index) => ({
+      index,
+      duration,
+      price: this.subscriptionPrices[index],
+    }));
   }
 
   /** The last option is the wifi-only one: validating it moves the account to room 666. */
