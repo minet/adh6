@@ -438,7 +438,6 @@ async def update_subscription(
 @router.post("/{id}/subscription/validate", status_code=status.HTTP_204_NO_CONTENT)
 async def validate_subscription(
     id: int,
-    subscription_manager: Annotated[SubscriptionManager, Depends(get_subscription_manager)],
     member_manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     free: Annotated[bool, Query()] = False,
@@ -447,8 +446,7 @@ async def validate_subscription(
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)
     if free:
         require_role_or_ownership(request, Roles.TRESO_WRITE.value)
-    await subscription_manager.validate(id, free)
-    await member_manager.update_subnet(id)
+    await member_manager.validate_subscription(id, free)
 
 
 # ============================================================================

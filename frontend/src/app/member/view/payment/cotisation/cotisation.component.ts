@@ -244,8 +244,13 @@ export class CotisationComponent implements OnInit, OnDestroy {
         price: this.subscriptionPrices[index],
       }))
       .filter(({index}) => {
-        const isSansChambre = index === this.subscriptionDuration.length - 1;
-        return this.isWifiOnly ? isSansChambre : !isSansChambre;
+        // Any member can be given the wifi-only subscription; a wifi-only member gets nothing else.
+        return !this.isWifiOnly || this.isWifiOnlyIndex(index);
       });
+  }
+
+  /** The last option is the wifi-only one: validating it moves the account to room 666. */
+  public isWifiOnlyIndex(index: number): boolean {
+    return index === this.subscriptionDuration.length - 1;
   }
 }

@@ -57,7 +57,7 @@
           @for (opt of visibleOptions; track opt.index) {
             <option value="{{ opt.index }}">
               {{ opt.duration === 12 ? "1 an" : opt.duration + " mois" }}
-              {{ isWifiOnly ? "- sans chambre" : "" }}
+              {{ isWifiOnlyIndex(opt.index) ? "- Wi-Fi only" : "" }}
               ({{ opt.price }}€) -
               {{ formatDate(opt.duration) }}
             </option>

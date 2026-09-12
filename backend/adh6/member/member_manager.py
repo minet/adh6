@@ -210,6 +210,26 @@ class MemberManager(CRUDManager):
             if not member.subnet:
                 await self.update_subnet(id)
 
+    @log_call
+    async def validate_subscription(self, id: int, free: bool) -> None:
+        """Validate the pending subscription, then give the member their wireless access.
+
+        A subscription without a room is the wifi-only one (9€): the staff can pick it for any
+        member, and validating it turns the account wifi-only and moves it to room 666.
+        """
+        subscription = await self.subscription_manager.latest(id)
+        wifi_only = subscription is not None and subscription.has_room is False
+        # Looked up before validating: a missing room 666 must not leave a paid subscription behind.
+        wifi_only_room_id = await self._get_wifi_only_room_id() if wifi_only else None
+
+        await self.subscription_manager.validate(id, free)
+
+        if wifi_only_room_id is not None:
+            await self.member_repository.update(AbstractMember(id=id, wifiOnly=True))
+            await self._move_to_room(id, wifi_only_room_id)
+
+        await self.update_subnet(id)
+
     async def _get_wifi_only_room_id(self) -> int:
         rooms, _ = await self.room_repository.search_by(
             limit=1,

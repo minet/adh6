@@ -126,8 +126,7 @@ class MemberHandler(DefaultHandler):
     @with_context
     @log_call
     async def subscription_validate(self, id_: int, free: bool = False):
-        await self.subscription_manager.validate(id_, free)
-        await self.member_manager.update_subnet(id_)
+        await self.member_manager.validate_subscription(id_, free)
         return None, 204
 
     @with_context
