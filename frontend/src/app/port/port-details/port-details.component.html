@@ -32,73 +32,122 @@
         </label>
       </div>
       <div class="column">
-        <h4 class="title is-4 has-text-centered">Configuration</h4>
-        <div class="columns has-text-centered">
-          <div class="column">
+        <div class="box">
+          <h4 class="title is-4 has-text-centered">Configuration</h4>
+          <div class="port-toggle">
+            <strong>Port</strong>
             @if ({value: (status$ | async)}; as context) {
               @if (context.value !== null) {
-                <p>
-                  <strong>Port: {{ getStatus(context.value) }}</strong>
-                </p>
-                <button
-                  class="button is-fullwidth"
-                  [ngClass]="
-                    !context.value ? 'is-success' : 'is-danger'
-                  "
-                  (click)="toggleStatus()">
-                  {{ getAction(!context.value) }}
-                </button>
+                <div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      aria-label="Port ouvert"
+                      [checked]="context.value"
+                      (click)="$event.preventDefault(); toggleStatus()" />
+                    <span class="switch__slider"></span>
+                  </label>
+                  <span
+                    class="port-toggle__state"
+                    [ngClass]="
+                      context.value ? 'has-text-success' : 'has-text-danger'
+                    ">
+                    {{ getStatus(context.value) }}
+                  </span>
+                </div>
               } @else {
-                <p><strong>Chargement...</strong></p>
-                <button class="button is-loading is-primary is-fullwidth">
-                  loading
-                </button>
+                <span class="port-toggle__state">Chargement...</span>
               }
             }
           </div>
-          <div class="column">
+          <div class="port-toggle">
+            <strong>Authentification</strong>
             @if ({value: (auth$ | async)}; as context) {
               @if (context.value !== null) {
-                <p>
-                  <strong
-                    >Authentification: {{ getState(context.value) }}</strong
-                  >
-                </p>
-                <button
-                  class="button is-fullwidth"
-                  [ngClass]="
-                    !context.value ? 'is-success' : 'is-danger'
-                  "
-                  (click)="toggleAuth(context.value)">
-                  {{ getAction(!context.value) }}
-                </button>
+                <div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      aria-label="Authentification activée"
+                      [checked]="context.value"
+                      (click)="
+                        $event.preventDefault(); toggleAuth(context.value)
+                      " />
+                    <span class="switch__slider"></span>
+                  </label>
+                  <span
+                    class="port-toggle__state"
+                    [ngClass]="
+                      context.value ? 'has-text-success' : 'has-text-danger'
+                    ">
+                    {{ getState(context.value) }}
+                  </span>
+                </div>
               } @else {
-                <p><strong>Chargement...</strong></p>
-                <button class="button is-loading is-primary is-fullwidth">
-                  loading
-                </button>
+                <span class="port-toggle__state">Chargement...</span>
               }
             }
           </div>
-          <div class="column">
+          <div class="port-toggle">
+            <strong>MAB</strong>
             @if ({value: (mab$ | async)}; as context) {
               @if (context.value !== null) {
-                <p>
-                  <strong>MAB: {{ getState(context.value) }}</strong>
-                </p>
-                <button
-                  class="button is-fullwidth"
-                  [ngClass]="
-                    !context.value ? 'is-success' : 'is-danger'
-                  "
-                  (click)="toggleMAB()">
-                  {{ getAction(!context.value) }}
-                </button>
+                <div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      aria-label="MAB activé"
+                      [checked]="context.value"
+                      (click)="$event.preventDefault(); toggleMAB()" />
+                    <span class="switch__slider"></span>
+                  </label>
+                  <span
+                    class="port-toggle__state"
+                    [ngClass]="
+                      context.value ? 'has-text-success' : 'has-text-danger'
+                    ">
+                    {{ getState(context.value) }}
+                  </span>
+                </div>
               } @else {
-                <p><strong>Chargement...</strong></p>
-                <button class="button is-loading is-primary is-fullwidth">
-                  loading
-                </button>
+                <span class="port-toggle__state">Chargement...</span>
+              }
+            }
+          </div>
+        </div>
+        <div class="box">
+          <h4 class="title is-4 has-text-centered">Presets</h4>
+          <div class="port-toggle">
+            <div>
+              <strong>Mini-Routeur</strong>
+              <p class="preset-commands has-text-grey">
+                Voice VLAN 31, host-mode multi-auth, pas de VLAN 15 en
+                no-response
+              </p>
+            </div>
+            @if ({value: (miniRouter$ | async)}; as context) {
+              @if (context.value !== null) {
+                <div>
+                  <label class="switch">
+                    <input
+                      type="checkbox"
+                      aria-label="Mini-Routeur activé"
+                      [checked]="context.value"
+                      (click)="
+                        $event.preventDefault(); toggleMiniRouter(context.value)
+                      " />
+                    <span class="switch__slider"></span>
+                  </label>
+                  <span
+                    class="port-toggle__state"
+                    [ngClass]="
+                      context.value ? 'has-text-success' : 'has-text-danger'
+                    ">
+                    {{ getState(context.value) }}
+                  </span>
+                </div>
+              } @else {
+                <span class="port-toggle__state">Chargement...</span>
               }
             }
           </div>

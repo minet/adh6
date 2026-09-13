@@ -22,6 +22,7 @@ import {CommonModule} from "@angular/common";
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   selector: "app-port-details",
   templateUrl: "./port-details.component.html",
+  styleUrl: "./port-details.component.scss",
 })
 export class PortDetailsComponent implements OnInit, OnDestroy {
   vlanForm!: UntypedFormGroup;
@@ -44,6 +45,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   public room_number$!: Observable<number>;
   public switch_description$!: Observable<string>;
   public mab$!: Observable<boolean>;
+  public miniRouter$!: Observable<boolean>;
   public auth$!: Observable<boolean>;
   public use$!: Observable<string>;
   public status$!: Observable<boolean>;
@@ -86,9 +88,6 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   getState(state: boolean): string {
     return state ? "ACTIVÉ" : "DÉSACTIVÉ";
   }
-  getAction(state: boolean): string {
-    return state ? "ACTIVER" : "DÉSACTIVER";
-  }
 
   public toggleStatus(): void {
     this.status$ = this.portService.portIdStatePut(this.portID).pipe(
@@ -106,30 +105,46 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     );
   }
 
-  public togglePubliclyAccessible(port: AbstractPort): void {
-    const updated: AbstractPort = { ...port, publiclyAccessible: !port.publiclyAccessible };
-    this.portService.portIdPut(this.portID, updated).pipe(
-      finalize(() => {
-        this.notificationService.successNotification("Accès public modifié");
-      }),
-    ).subscribe(() => {
-      this.port$ = this.portService.portIdGet(this.portID).pipe(
-        map((p) => {
-          if (p.roomObj) {
-            this.room_number$ = of(p.roomObj.roomNumber ?? 0);
-          }
-          if (p.switchObj) {
-            this.switch_description$ = this.switchService
-              .switchIdGet(p.switchObj, ["description"])
-              .pipe(
-                shareReplay(1),
-                map((s) => s.description ?? ""),
-              );
-          }
-          return p;
+  public toggleMiniRouter(currentValue: boolean): void {
+    this.miniRouter$ = this.portService
+      .portIdMiniRouterPut(this.portID, !currentValue)
+      .pipe(
+        finalize(() => {
+          this.notificationService.successNotification("Mini-Routeur modifié");
         }),
       );
-    });
+  }
+
+  public togglePubliclyAccessible(port: AbstractPort): void {
+    const updated: AbstractPort = {
+      ...port,
+      publiclyAccessible: !port.publiclyAccessible,
+    };
+    this.portService
+      .portIdPut(this.portID, updated)
+      .pipe(
+        finalize(() => {
+          this.notificationService.successNotification("Accès public modifié");
+        }),
+      )
+      .subscribe(() => {
+        this.port$ = this.portService.portIdGet(this.portID).pipe(
+          map((p) => {
+            if (p.roomObj) {
+              this.room_number$ = of(p.roomObj.roomNumber ?? 0);
+            }
+            if (p.switchObj) {
+              this.switch_description$ = this.switchService
+                .switchIdGet(p.switchObj, ["description"])
+                .pipe(
+                  shareReplay(1),
+                  map((s) => s.description ?? ""),
+                );
+            }
+            return p;
+          }),
+        );
+      });
   }
 
   public toggleAuth(currentValue: boolean): void {
@@ -218,6 +233,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     this.auth$ = this.portService.authGet(this.portID);
     this.status$ = this.portService.stateGet(this.portID);
     this.mab$ = this.portService.mabGet(this.portID);
+    this.miniRouter$ = this.portService.miniRouterGet(this.portID);
     this.use$ = this.portService.useGet(this.portID);
     this.vlan$ = this.portService.vlanGet(this.portID);
     this.alias$ = this.portService.aliasGet(this.portID);

@@ -11,7 +11,7 @@ RUN apk add --no-cache --update wget \
 RUN adduser -s /bin/sh adh6 -h /home/adh6 -D
 USER adh6
 COPY backend/mibs.zip .
-RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB \
+RUN uvx --from pysmi mibdump --mib-borrower="" --mib-source=mibs.zip CISCO-VLAN-MEMBERSHIP-MIB IF-MIB CISCO-MAC-AUTH-BYPASS-MIB IEEE8021-PAE-MIB CISCO-AUTH-FRAMEWORK-MIB \
     && touch /home/adh6/.pysnmp/mibs/__init__.py
 
 # Install production Python dependencies

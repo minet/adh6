@@ -21,6 +21,11 @@ from .util.snmp_helper import (
     walk_snmp,
 )
 
+MINI_ROUTER_VOICE_VLAN = 31
+MINI_ROUTER_NO_RESPONSE_VLAN = 15
+# vmVoiceVlanId value meaning "no voice vlan"
+NO_VOICE_VLAN = 4096
+
 
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
     def __init__(self, port_repository: PortRepository, switch_repository: SwitchRepository) -> None:
@@ -138,6 +143,56 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                 oid,
                 2,
             )
+
+    @log_call
+    async def get_port_mini_router(self, port_id: int) -> bool:
+        """
+        Retrieve whether the Mini-Routeur preset is active on a port.
+
+        :raise PortNotFound
+        """
+        oid, ip, community = await self.get_oid_switch_ipand_community_from_port_id(port_id)
+        voice_vlan = await get_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid)
+        host_mode = await get_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid)
+        return str(voice_vlan) == str(MINI_ROUTER_VOICE_VLAN) and host_mode == "multiAuth"
+
+    @log_call
+    async def update_port_mini_router(self, port_id: int, enabled: bool) -> None:
+        """
+        Apply or remove the Mini-Routeur preset on a port.
+
+        Enabled:
+            switchport voice vlan 31
+            no authentication event no-response action authorize vlan 15
+            authentication host-mode multi-auth
+        Disabled:
+            no switchport voice vlan 31
+            authentication event no-response action authorize vlan 15
+            authentication host-mode multi-host
+
+        :raise PortNotFound
+        """
+        oid, ip, community = await self.get_oid_switch_ipand_community_from_port_id(port_id)
+        if enabled:
+            await set_snmp_value(
+                community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid, MINI_ROUTER_VOICE_VLAN
+            )
+            # TruthValue true(1): no action on No Response event
+            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespNoActionEnabled", oid, 1)
+            # CiscoAuthHostMode multiAuth(3)
+            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid, 3)
+        else:
+            await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid, NO_VOICE_VLAN)
+            await set_snmp_value(
+                community,
+                ip,
+                "CISCO-AUTH-FRAMEWORK-MIB",
+                "cafClientNoRespAuthorizedVlan",
+                oid,
+                MINI_ROUTER_NO_RESPONSE_VLAN,
+            )
+            # CiscoAuthHostMode multiHost(2)
+            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid, 2)
 
     @log_call
     async def get_port_use(self, port_id: int) -> bool:

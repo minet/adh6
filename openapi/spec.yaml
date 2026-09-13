@@ -1324,6 +1324,62 @@ paths:
         - ApiKeyNetworkAuth: []
       tags:
       - port
+  /port/{id}/mini-router:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    get:
+      operationId: mini_router_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Whether the Mini-Routeur preset is enabled on this port
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Retrieve whether the Mini-Routeur preset is enabled on this port
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyNetworkAuth: []
+      tags:
+        - port
+    put:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: boolean
+          description: Updated
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Enable or disable the Mini-Routeur preset on a port
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyNetworkAuth: []
+      tags:
+      - port
   /port/{id}/alias:
     parameters:
       - $ref: "#/components/parameters/idPath"

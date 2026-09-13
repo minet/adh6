@@ -286,6 +286,28 @@ async def set_port_mab(
     return (await manager.update_port_mab(port_id=id)) == "true"
 
 
+@port_router.get("/{id}/mini-router", response_model=bool)
+async def get_port_mini_router(
+    id: int,
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> bool:
+    require_role_or_ownership(request, Roles.NETWORK_READ.value)
+    return await manager.get_port_mini_router(port_id=id)
+
+
+@port_router.put("/{id}/mini-router", response_model=bool)
+async def set_port_mini_router(
+    id: int,
+    body: Annotated[bool, Body()],
+    manager: Annotated[SwitchNetworkManager, Depends(get_switch_network_manager)],
+    request: Request,
+) -> bool:
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    await manager.update_port_mini_router(port_id=id, enabled=body)
+    return await manager.get_port_mini_router(port_id=id)
+
+
 @port_router.get("/{id}/auth", response_model=bool)
 async def get_port_auth(
     id: int,

@@ -84,6 +84,24 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
+    async def get_port_mini_router(self, port_id: int) -> bool:
+        """
+        Retrieve whether the Mini-Routeur preset is active on a port.
+
+        :raise PortNotFound
+        """
+        # pragma: no cover
+
+    @abc.abstractmethod
+    async def update_port_mini_router(self, port_id: int, enabled: bool) -> None:
+        """
+        Apply or remove the Mini-Routeur preset on a port.
+
+        :raise PortNotFound
+        """
+        # pragma: no cover
+
+    @abc.abstractmethod
     async def get_port_use(self, port_id: int) -> bool:
         """
         Get the usage of a port.

@@ -210,6 +210,51 @@ async def test_auth_methods(mock_repos):
 
 
 @pytest.mark.asyncio
+async def test_mini_router_methods(mock_repos):
+    port_repo, switch_repo = mock_repos
+    manager = SwitchSNMPNetworkManager(port_repo, switch_repo)
+    mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
+    mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
+    port_repo.get_by_id = AsyncMock(return_value=mock_port)
+    switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
+    switch_repo.get_community = AsyncMock(return_value="public")
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.get_snmp_value",
+        AsyncMock(side_effect=["31", "multiAuth"]),
+    ):
+        assert await manager.get_port_mini_router(1) is True
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.get_snmp_value",
+        AsyncMock(side_effect=["4096", "multiHost"]),
+    ):
+        assert await manager.get_port_mini_router(1) is False
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.set_snmp_value",
+        AsyncMock(return_value="OK"),
+    ) as mock_set:
+        await manager.update_port_mini_router(1, enabled=True)
+        assert [c.args for c in mock_set.call_args_list] == [
+            ("public", "1.2.3.4", "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", "1.1", 31),
+            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespNoActionEnabled", "1.1", 1),
+            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", "1.1", 3),
+        ]
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.set_snmp_value",
+        AsyncMock(return_value="OK"),
+    ) as mock_set:
+        await manager.update_port_mini_router(1, enabled=False)
+        assert [c.args for c in mock_set.call_args_list] == [
+            ("public", "1.2.3.4", "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", "1.1", 4096),
+            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespAuthorizedVlan", "1.1", 15),
+            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", "1.1", 2),
+        ]
+
+
+@pytest.mark.asyncio
 async def test_misc_getters(mock_repos):
     port_repo, switch_repo = mock_repos
     manager = SwitchSNMPNetworkManager(port_repo, switch_repo)
