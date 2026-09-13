@@ -66,7 +66,7 @@ class VLANSQLRepository(VlanRepository):
             .join(DeviceSQL, DeviceSQL.adherent_id == AdherentSQL.id)
             .where((DeviceSQL.ip.is_(None)) | (DeviceSQL.ip == "En attente"))
         )
-        
+
         wifi_stmt = select(func.count(AdherentSQL.id)).where(AdherentSQL.ip.isnot(None), AdherentSQL.ip != "")
 
         count_rows = (await self.session.execute(count_stmt)).all()
