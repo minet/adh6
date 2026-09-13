@@ -125,22 +125,26 @@ export class CotisationComponent implements OnInit, OnDestroy {
   }
 
   public get amount(): number {
-    const durationIndex = this.subscriptionForm.value.durationIndex;
-    return durationIndex !== null &&
-      durationIndex !== undefined &&
-      durationIndex !== -1
+    // The select hands over a string: "-1" !== -1, and .at(-1) would read the last price.
+    const durationIndex = Number(
+      this.subscriptionForm.value.durationIndex ?? -1,
+    );
+    return durationIndex >= 0
       ? this.subscriptionPrices.at(durationIndex) || 0
       : 0;
   }
 
   public submitSubscription() {
     const v = this.subscriptionForm.value;
+    // A <select> with value="{{ }}" hands the form a string ("6", not 6): a strict comparison
+    // against a number is then always false, and hasRoom was always sent as true.
+    const durationIndex = Number(v.durationIndex);
 
     if (
       !this.member?.id ||
       v.durationIndex == null ||
       v.paidWith == null ||
-      v.durationIndex < 0 ||
+      durationIndex < 0 ||
       v.paidWith < 1
     ) {
       void Toast.fire("Veuillez remplir tous les champs requis");
@@ -148,10 +152,10 @@ export class CotisationComponent implements OnInit, OnDestroy {
     }
 
     const subscription: SubscriptionBody = {
-      duration: this.subscriptionDuration.at(v.durationIndex!)!,
+      duration: this.subscriptionDuration.at(durationIndex)!,
       paymentMethod: +v.paidWith!,
       member: this.member!.id!,
-      hasRoom: v.durationIndex !== this.subscriptionPrices.length - 1,
+      hasRoom: !this.isWifiOnlyIndex(durationIndex),
     };
 
     if (this.isSubscriptionFinished) {
