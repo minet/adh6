@@ -78,16 +78,19 @@ class VLANSQLRepository(VlanRepository):
 
         result = []
         for vlan, device_count in count_rows:
+            ipv4_network = vlan.adresses
             if vlan.numero == WIFI_VLAN_NUMBER:
                 device_count = await self.session.scalar(wifi_stmt) or 0
                 capacity = sum(_compute_capacity(str(n)) or 0 for n in WIFI_PUBLIC_NETWORKS)
+                # Show the public ranges being counted, not the private 10.42.0.0/16
+                ipv4_network = ", ".join(str(n) for n in WIFI_PUBLIC_NETWORKS)
             else:
                 capacity = _compute_capacity(vlan.adresses)
             result.append(
                 VlanStats(
                     id=vlan.id,
                     number=vlan.numero,
-                    ipv4Network=vlan.adresses,
+                    ipv4Network=ipv4_network,
                     ipv6Network=vlan.adressesv6,
                     deviceCount=device_count,
                     capacity=capacity,

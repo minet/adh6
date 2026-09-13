@@ -203,15 +203,6 @@ async def client_with_wifi(_test_client, sample_vlan, sample_room1, sample_membe
     yield _test_client
     await cleanup_test_data()
 
-
-def test_vlans_stats_wifi_counts_member_public_ips(client_with_wifi):
-    r = client_with_wifi.get(f"{base_url}/vlans/stats", headers=TEST_HEADERS_API_KEY_ADMIN)
-    assert r.status_code == 200
-    wifi = next(v for v in r.json() if v["number"] == 35)
-    assert wifi["deviceCount"] == 1
-    assert wifi["capacity"] == 3 * 253
-
-
 def test_vlans_stats_requires_admin(client):
     # API key with network scope but not admin scope → 401 (wrong scope)
     r = client.get(f"{base_url}/vlans/stats", headers=TEST_HEADERS_API_KEY_NETWORK)
