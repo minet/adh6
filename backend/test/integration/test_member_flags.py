@@ -199,8 +199,8 @@ def test_wifi_only_member_cannot_be_assigned_to_room(
 # ── wifi_only subscription restriction tests ─────────────────────────────────
 
 
-def test_wifi_only_member_cannot_patch_subscription(client_wifi_only, wifi_only_member: Adherent):
-    """PATCH subscription for wifi_only member → 400."""
+def test_wifi_only_member_can_patch_subscription(client_wifi_only, wifi_only_member: Adherent):
+    """The staff may give a wifi-only account any subscription, so PATCH is allowed."""
     body = {
         "member": wifi_only_member.id,
         "duration": MembershipDuration.ONE_YEAR.value,
@@ -210,7 +210,7 @@ def test_wifi_only_member_cannot_patch_subscription(client_wifi_only, wifi_only_
         data=json.dumps(body),
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
-    assert r.status_code == 400
+    assert r.status_code == 204
 
 
 # ── wifi status endpoint ─────────────────────────────────────────────────────

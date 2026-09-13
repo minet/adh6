@@ -64,11 +64,11 @@ class SubscriptionManager:
         return DURATION_STRING
 
     @staticmethod
-    def is_wifi_only(membership: AbstractMembership) -> bool:
+    def is_wifi_only(membership: Membership | AbstractMembership) -> bool:
         """The subscription without a room is the wifi-only one."""
         return not membership.has_room
 
-    def price_of(self, membership: AbstractMembership) -> int:
+    def price_of(self, membership: Membership | AbstractMembership) -> int:
         """What the member pays: the wifi-only year costs 9€, not the 50€ of a regular year."""
         if membership.duration is None:
             raise MembershipNotFoundError(None)
