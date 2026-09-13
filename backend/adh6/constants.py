@@ -57,6 +57,10 @@ class KnownAccountExpense(enum.Enum):
 
 PUBLIC_RANGE = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
 
+# The wifi VLAN: its public IPs are held by members (Adherent.ip), not by devices.
+WIFI_VLAN_NUMBER = 35
+WIFI_PUBLIC_NETWORKS = sorted(n for r in PUBLIC_RANGE for n in r.subnets(new_prefix=24))  # 192, 193, 194
+
 
 def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:
     # These are perfectly valid addresses, but we exclude them to avoid confusion

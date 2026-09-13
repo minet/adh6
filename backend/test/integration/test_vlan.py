@@ -157,11 +157,11 @@ def test_vlans_stats_wireless_device_not_counted(client, sample_vlan):
 
 
 def test_vlans_stats_capacity_from_cidr(client, sample_vlan):
-    """/24 subnet → 254 usable IPs."""
+    """/24 subnet → 253 usable IPs (network, broadcast and gateway excluded)."""
     r = client.get(f"{base_url}/vlans/stats", headers=TEST_HEADERS_API_KEY_ADMIN)
     assert r.status_code == 200
     vlan42 = next(v for v in r.json() if v["number"] == sample_vlan.numero)
-    assert vlan42["capacity"] == 254
+    assert vlan42["capacity"] == 253
 
 
 def test_vlans_stats_no_over_limit_devices_when_under_capacity(client, sample_vlan):
@@ -178,6 +178,38 @@ def test_vlans_stats_over_limit_device_appears(client_with_over_limit, sample_vl
     vlan42 = next(v for v in r.json() if v["number"] == sample_vlan.numero)
     assert len(vlan42["overLimitDevices"]) == 1
     assert vlan42["overLimitDevices"][0]["mac"] == device_no_ip.mac
+
+
+@pytest.fixture
+async def client_with_wifi(_test_client, sample_vlan, sample_room1, sample_member):
+    from adh6.member.storage.models import Adherent
+    from adh6.subnet.storage.models import Vlan
+
+    from .conftest import add_test_fixtures, api_key_fixtures, cleanup_test_data
+
+    wifi_vlan = Vlan(id=35, numero=35, adresses="10.42.0.0/16", adressesv6=None)
+    sample_member.ip = "157.159.193.12"
+    other = Adherent(
+        id=4242,
+        nom="Wifi",
+        prenom="Only",
+        mail="wifi@example.com",
+        login="wifionly",
+        password="a",
+        ip=None,  # no wifi public IP → not counted
+        mail_membership=1,
+    )
+    await add_test_fixtures([*api_key_fixtures(), sample_vlan, wifi_vlan, sample_room1, sample_member, other])
+    yield _test_client
+    await cleanup_test_data()
+
+
+def test_vlans_stats_wifi_counts_member_public_ips(client_with_wifi):
+    r = client_with_wifi.get(f"{base_url}/vlans/stats", headers=TEST_HEADERS_API_KEY_ADMIN)
+    assert r.status_code == 200
+    wifi = next(v for v in r.json() if v["number"] == 35)
+    assert wifi["deviceCount"] == 1
+    assert wifi["capacity"] == 3 * 253
 
 
 def test_vlans_stats_requires_admin(client):

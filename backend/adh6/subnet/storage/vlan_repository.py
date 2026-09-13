@@ -7,6 +7,7 @@ import ipaddress
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from adh6.constants import WIFI_PUBLIC_NETWORKS, WIFI_VLAN_NUMBER
 from adh6.device.storage.device_repository import DeviceType
 from adh6.device.storage.models import Device as DeviceSQL
 from adh6.entity import AbstractDevice, AbstractVlan, VlanStats
@@ -65,6 +66,8 @@ class VLANSQLRepository(VlanRepository):
             .join(DeviceSQL, DeviceSQL.adherent_id == AdherentSQL.id)
             .where((DeviceSQL.ip.is_(None)) | (DeviceSQL.ip == "En attente"))
         )
+        
+        wifi_stmt = select(func.count(AdherentSQL.id)).where(AdherentSQL.ip.isnot(None), AdherentSQL.ip != "")
 
         count_rows = (await self.session.execute(count_stmt)).all()
         no_ip_rows = (await self.session.execute(no_ip_stmt)).all()
@@ -75,7 +78,11 @@ class VLANSQLRepository(VlanRepository):
 
         result = []
         for vlan, device_count in count_rows:
-            capacity = _compute_capacity(vlan.adresses)
+            if vlan.numero == WIFI_VLAN_NUMBER:
+                device_count = await self.session.scalar(wifi_stmt) or 0
+                capacity = sum(_compute_capacity(str(n)) or 0 for n in WIFI_PUBLIC_NETWORKS)
+            else:
+                capacity = _compute_capacity(vlan.adresses)
             result.append(
                 VlanStats(
                     id=vlan.id,
@@ -95,7 +102,7 @@ def _compute_capacity(cidr: str | None) -> int | None:
         return None
     try:
         network = ipaddress.ip_network(cidr, strict=False)
-        return max(0, network.num_addresses - 2)
+        return max(0, network.num_addresses - 3)
     except ValueError:
         return None
 
