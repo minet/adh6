@@ -27,7 +27,6 @@ async def test_get_port_status(mock_repos):
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
 
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -50,7 +49,6 @@ async def test_update_port_status_to_down(mock_repos):
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
 
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -79,7 +77,6 @@ async def test_update_port_status_to_up(mock_repos):
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
 
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -105,7 +102,6 @@ async def test_vlan_methods(mock_repos):
     mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -133,7 +129,6 @@ async def test_mab_methods(mock_repos):
     mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -174,7 +169,6 @@ async def test_auth_methods(mock_repos):
     mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -222,7 +216,6 @@ async def test_misc_getters(mock_repos):
     mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 
@@ -255,7 +248,6 @@ async def test_update_port_alias(mock_repos):
     mock_port = Port(id=1, oid="1.1", switchObj=10, portNumber="Gi1/0/1", room=None)
     mock_switch = Switch(id=10, ip="1.2.3.4", description="Test Switch", community=_public_community_str)
     port_repo.get_by_id = AsyncMock(return_value=mock_port)
-    port_repo.get_rcom = AsyncMock(return_value=None)
     switch_repo.get_by_id = AsyncMock(return_value=mock_switch)
     switch_repo.get_community = AsyncMock(return_value="public")
 

@@ -110,15 +110,3 @@ class TestPortSQLRepository:
 
         # Then
         mock_session.delete.assert_called_once_with(sql_port)
-
-    async def test_get_rcom(self, port_repo, mock_session):
-        # Given
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = 123
-        mock_session.execute.return_value = mock_result
-
-        # When
-        await port_repo.get_rcom(1)
-
-        # Then
-        mock_session.execute.assert_called_once()

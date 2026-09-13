@@ -366,7 +366,6 @@ async def client_with_port_no_room(_test_client, sample_switch1):
     from .conftest import add_test_fixtures, cleanup_test_data
 
     port_no_room = Port(
-        rcom=None,
         numero="0/1/1",
         oid="2.2.2",
         switch_id=sample_switch1.id,
@@ -411,7 +410,7 @@ async def client_with_port_and_room(_test_client, sample_switch1):
 
     vlan = Vlan(id=42, numero=42, adresses="192.168.42.0/24", adressesv6="fe80:42::0/64")
     room = Chambre(id=420, numero=5110, description="Chambre test", vlan_id=vlan.id)
-    port = Port(rcom=1, numero="0/1/2", oid="3.3.3", switch_id=sample_switch1.id, chambre_id=room.id)
+    port = Port(numero="0/1/2", oid="3.3.3", switch_id=sample_switch1.id, chambre_id=room.id)
     await add_test_fixtures([vlan, room, sample_switch1, port])
     yield _test_client
     await cleanup_test_data()

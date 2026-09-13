@@ -329,7 +329,4 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         community = await self.switch_repository.get_community(switch_id=port.switch_obj)  # type: ignore  # TODO: typing
         if switch.ip is None or not isinstance(switch.ip, str):  # type: ignore  # TODO: typing
             raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")  # type: ignore  # TODO: typing
-        rcom = await self.port_repository.get_rcom(id=port_id)
-        if rcom is not None and rcom != 0:
-            community += str(rcom)
         return port.oid, switch.ip, community  # type: ignore  # TODO: typing

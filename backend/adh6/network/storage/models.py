@@ -27,7 +27,6 @@ class Port(Base):
     __tablename__ = "ports"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    rcom: Mapped[int | None] = mapped_column(Integer)
     numero: Mapped[str] = mapped_column(String(255), nullable=False)
     oid: Mapped[str] = mapped_column(String(255), nullable=False)
     switch_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)

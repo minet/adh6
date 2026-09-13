@@ -570,7 +570,6 @@ def sample_switch2():
 @pytest.fixture
 def sample_port1(sample_switch1, sample_room1):
     yield Port(
-        rcom=1,
         numero="0/0/1",
         oid="1.1.1",
         switch_id=sample_switch1.id,
@@ -581,7 +580,6 @@ def sample_port1(sample_switch1, sample_room1):
 @pytest.fixture
 def sample_port2(sample_switch2, sample_room1):
     yield Port(
-        rcom=2,
         numero="0/0/2",
         oid="1.1.2",
         switch_id=sample_switch2.id,

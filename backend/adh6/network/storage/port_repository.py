@@ -122,14 +122,6 @@ class PortSQLRepository(PortRepository):
 
         await self.session.delete(port)
 
-    async def get_rcom(self, id) -> int | None:
-        stmt = select(SQLPort.rcom).where(SQLPort.id == id)
-        result = await self.session.execute(stmt)
-        port = result.scalar_one_or_none()
-        if port is None:
-            raise PortNotFoundError(id)
-        return port
-
 
 async def _merge_sql_with_entity(
     entity: AbstractPort, sql_object: SQLPort, session: AsyncSession, override=False
