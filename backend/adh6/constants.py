@@ -55,7 +55,10 @@ class KnownAccountExpense(enum.Enum):
     ASSOCIATION_EXPENCE = "MiNET frais asso"
 
 
-PUBLIC_RANGE = ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
+# address_exclude returns a one-shot generator: materialize it, it is iterated several times below
+PUBLIC_RANGE = list(
+    ipaddress.IPv4Network("157.159.192.0/22").address_exclude(ipaddress.IPv4Network("157.159.195.0/24"))
+)
 
 # The wifi VLAN: its public IPs are held by members (Adherent.ip), not by devices.
 WIFI_VLAN_NUMBER = 35
