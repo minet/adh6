@@ -16,15 +16,26 @@ from ..interfaces import PortRepository, SwitchNetworkManager, SwitchRepository
 from .util.snmp_helper import (
     get_snmp_value,
     get_snmp_value_raw,
+    get_snmp_values_raw,
     set_snmp_value,
     set_snmp_values_raw,
     walk_snmp,
 )
 
+# Numeric OIDs (indexed by ifIndex) so the Mini-Routeur preset does not depend on MIB resolution
+VOICE_VLAN_OID = "1.3.6.1.4.1.9.9.68.1.5.1.1.1"  # CISCO-VLAN-MEMBERSHIP-MIB::vmVoiceVlanId
+AUTH_HOST_MODE_OID = "1.3.6.1.4.1.9.9.656.1.2.1.1.3"  # CISCO-AUTH-FRAMEWORK-MIB::cafPortAuthHostMode
+NO_RESP_NO_ACTION_OID = "1.3.6.1.4.1.9.9.656.1.3.2.1.1"  # CISCO-AUTH-FRAMEWORK-MIB::cafClientNoRespNoActionEnabled
+NO_RESP_AUTHORIZED_VLAN_OID = "1.3.6.1.4.1.9.9.656.1.3.2.1.2"  # CISCO-AUTH-FRAMEWORK-MIB::cafClientNoRespAuthorizedVlan
+
 MINI_ROUTER_VOICE_VLAN = 31
 MINI_ROUTER_NO_RESPONSE_VLAN = 15
 # vmVoiceVlanId value meaning "no voice vlan"
 NO_VOICE_VLAN = 4096
+# CiscoAuthHostMode values
+HOST_MODE_MULTI_HOST = 2
+HOST_MODE_MULTI_AUTH = 3
+TRUTH_VALUE_TRUE = 1
 
 
 class SwitchSNMPNetworkManager(SwitchNetworkManager):
@@ -152,9 +163,10 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         :raise PortNotFound
         """
         oid, ip, community = await self.get_oid_switch_ipand_community_from_port_id(port_id)
-        voice_vlan = await get_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid)
-        host_mode = await get_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid)
-        return str(voice_vlan) == str(MINI_ROUTER_VOICE_VLAN) and host_mode == "multiAuth"
+        voice_vlan, host_mode = await get_snmp_values_raw(
+            community, ip, [f"{VOICE_VLAN_OID}.{oid}", f"{AUTH_HOST_MODE_OID}.{oid}"]
+        )
+        return voice_vlan == str(MINI_ROUTER_VOICE_VLAN) and host_mode == str(HOST_MODE_MULTI_AUTH)
 
     @log_call
     async def update_port_mini_router(self, port_id: int, enabled: bool) -> None:
@@ -172,27 +184,24 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
 
         :raise PortNotFound
         """
+        from pysnmp.proto.rfc1902 import Integer
+
         oid, ip, community = await self.get_oid_switch_ipand_community_from_port_id(port_id)
         if enabled:
-            await set_snmp_value(
-                community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid, MINI_ROUTER_VOICE_VLAN
-            )
-            # TruthValue true(1): no action on No Response event
-            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespNoActionEnabled", oid, 1)
-            # CiscoAuthHostMode multiAuth(3)
-            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid, 3)
+            values = [
+                (f"{VOICE_VLAN_OID}.{oid}", Integer(MINI_ROUTER_VOICE_VLAN)),
+                # no action on No Response event
+                (f"{NO_RESP_NO_ACTION_OID}.{oid}", Integer(TRUTH_VALUE_TRUE)),
+                (f"{AUTH_HOST_MODE_OID}.{oid}", Integer(HOST_MODE_MULTI_AUTH)),
+            ]
         else:
-            await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", oid, NO_VOICE_VLAN)
-            await set_snmp_value(
-                community,
-                ip,
-                "CISCO-AUTH-FRAMEWORK-MIB",
-                "cafClientNoRespAuthorizedVlan",
-                oid,
-                MINI_ROUTER_NO_RESPONSE_VLAN,
-            )
-            # CiscoAuthHostMode multiHost(2)
-            await set_snmp_value(community, ip, "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", oid, 2)
+            values = [
+                (f"{VOICE_VLAN_OID}.{oid}", Integer(NO_VOICE_VLAN)),
+                (f"{NO_RESP_AUTHORIZED_VLAN_OID}.{oid}", Integer(MINI_ROUTER_NO_RESPONSE_VLAN)),
+                (f"{AUTH_HOST_MODE_OID}.{oid}", Integer(HOST_MODE_MULTI_HOST)),
+            ]
+        # Single SET request for the whole preset
+        await set_snmp_values_raw(community, ip, values)
 
     @log_call
     async def get_port_use(self, port_id: int) -> bool:

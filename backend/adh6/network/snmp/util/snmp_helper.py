@@ -113,6 +113,29 @@ async def get_snmp_value_raw(community: str, ip: str, oid: str) -> str:
     return var_binds[0][1].prettyPrint()  # type: ignore[index]
 
 
+async def get_snmp_values_raw(community: str, ip: str, oids: list[str]) -> list[str]:
+    """Multi-varbind GET using raw numeric OID strings, without MIB lookup (single round trip)."""
+    transport_target = await UdpTransportTarget.create((ip, 161))
+    error_indication, error_status, error_index, var_binds = await get_cmd(
+        SnmpEngine(),
+        CommunityData(community),
+        transport_target,
+        ContextData(),
+        *[ObjectType(ObjectIdentity(oid)) for oid in oids],
+        lookupMib=False,
+    )
+    if error_indication:
+        raise NetworkManagerReadError("SNMP read error:" + str(error_indication))
+    elif error_status:
+        raise NetworkManagerReadError(
+            "SNMP read error: {} at {}".format(
+                error_status.prettyPrint(),  # type: ignore[union-attr]
+                (error_index and var_binds[int(error_index) - 1][0]) or "?",  # type: ignore[index]
+            )
+        )
+    return [value.prettyPrint() for _, value in var_binds]  # type: ignore[misc]
+
+
 async def set_snmp_values_raw(community: str, ip: str, oid_values: list[tuple[str, Any]]) -> None:
     """Multi-varbind SET using raw numeric OID strings."""
     transport_target = await UdpTransportTarget.create((ip, 161))

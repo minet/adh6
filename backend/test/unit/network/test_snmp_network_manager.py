@@ -220,37 +220,53 @@ async def test_mini_router_methods(mock_repos):
     switch_repo.get_community = AsyncMock(return_value="public")
 
     with patch(
-        "adh6.network.snmp.switch_network_manager.get_snmp_value",
-        AsyncMock(side_effect=["31", "multiAuth"]),
-    ):
+        "adh6.network.snmp.switch_network_manager.get_snmp_values_raw",
+        AsyncMock(return_value=["31", "3"]),
+    ) as mock_get:
         assert await manager.get_port_mini_router(1) is True
+        mock_get.assert_called_once_with(
+            "public",
+            "1.2.3.4",
+            ["1.3.6.1.4.1.9.9.68.1.5.1.1.1.1.1", "1.3.6.1.4.1.9.9.656.1.2.1.1.3.1.1"],
+        )
 
     with patch(
-        "adh6.network.snmp.switch_network_manager.get_snmp_value",
-        AsyncMock(side_effect=["4096", "multiHost"]),
+        "adh6.network.snmp.switch_network_manager.get_snmp_values_raw",
+        AsyncMock(return_value=["4096", "2"]),
     ):
         assert await manager.get_port_mini_router(1) is False
 
     with patch(
-        "adh6.network.snmp.switch_network_manager.set_snmp_value",
-        AsyncMock(return_value="OK"),
+        "adh6.network.snmp.switch_network_manager.get_snmp_values_raw",
+        AsyncMock(return_value=["No Such Instance currently exists at this OID", "3"]),
+    ):
+        assert await manager.get_port_mini_router(1) is False
+
+    with patch(
+        "adh6.network.snmp.switch_network_manager.set_snmp_values_raw",
+        AsyncMock(return_value=None),
     ) as mock_set:
         await manager.update_port_mini_router(1, enabled=True)
-        assert [c.args for c in mock_set.call_args_list] == [
-            ("public", "1.2.3.4", "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", "1.1", 31),
-            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespNoActionEnabled", "1.1", 1),
-            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", "1.1", 3),
+        mock_set.assert_called_once()
+        community, ip, values = mock_set.call_args.args
+        assert (community, ip) == ("public", "1.2.3.4")
+        assert [(o, int(v)) for o, v in values] == [
+            ("1.3.6.1.4.1.9.9.68.1.5.1.1.1.1.1", 31),
+            ("1.3.6.1.4.1.9.9.656.1.3.2.1.1.1.1", 1),
+            ("1.3.6.1.4.1.9.9.656.1.2.1.1.3.1.1", 3),
         ]
 
     with patch(
-        "adh6.network.snmp.switch_network_manager.set_snmp_value",
-        AsyncMock(return_value="OK"),
+        "adh6.network.snmp.switch_network_manager.set_snmp_values_raw",
+        AsyncMock(return_value=None),
     ) as mock_set:
         await manager.update_port_mini_router(1, enabled=False)
-        assert [c.args for c in mock_set.call_args_list] == [
-            ("public", "1.2.3.4", "CISCO-VLAN-MEMBERSHIP-MIB", "vmVoiceVlanId", "1.1", 4096),
-            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafClientNoRespAuthorizedVlan", "1.1", 15),
-            ("public", "1.2.3.4", "CISCO-AUTH-FRAMEWORK-MIB", "cafPortAuthHostMode", "1.1", 2),
+        mock_set.assert_called_once()
+        _, _, values = mock_set.call_args.args
+        assert [(o, int(v)) for o, v in values] == [
+            ("1.3.6.1.4.1.9.9.68.1.5.1.1.1.1.1", 4096),
+            ("1.3.6.1.4.1.9.9.656.1.3.2.1.2.1.1", 15),
+            ("1.3.6.1.4.1.9.9.656.1.2.1.1.3.1.1", 2),
         ]
 
 
