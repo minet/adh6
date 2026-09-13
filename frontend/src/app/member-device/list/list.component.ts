@@ -26,7 +26,7 @@ export class MemberDeviceListComponent extends SearchPage<Device> {
             member: this.abstractDeviceFilter.member,
             connectionType: this.abstractDeviceFilter.connectionType,
           },
-          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor", "mab"] as any,
+          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor"] as any,
           "response",
         ) as Observable<HttpResponse<Device[]>>)
     );

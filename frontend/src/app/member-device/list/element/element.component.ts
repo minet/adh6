@@ -15,7 +15,6 @@ export class ElementComponent implements OnInit, OnChanges {
 
   public device$!: Observable<AbstractDevice>;
   public vendor$!: Observable<string | null>;
-  public mab$!: Observable<boolean>;
   public isCollapse = true;
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
@@ -39,10 +38,6 @@ export class ElementComponent implements OnInit, OnChanges {
 
     this.vendor$ = this.device$.pipe(
       map((device: AbstractDevice) => device.vendor || null)
-    );
-
-    this.mab$ = this.device$.pipe(
-      map((device: AbstractDevice) => device.mab ?? false)
     );
   }
 

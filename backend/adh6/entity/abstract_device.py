@@ -20,7 +20,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -36,11 +36,10 @@ class AbstractDevice(BaseModel):
     ipv6_address: Optional[StrictStr] = Field(default=None, description="The ipv6 address assigned to this device", alias="ipv6Address")
     mac: Optional[StrictStr] = Field(default=None, description="The MAC address of this device")
     vendor: Optional[StrictStr] = Field(default=None, description="The vendor of this device (from MAC prefix)")
-    mab: Optional[StrictBool] = Field(default=None, description="Whether MAB is active on this device")
     name: Optional[StrictStr] = Field(default=None, description="The display name of this device")
     wifi_password: Optional[Annotated[str, Field(strict=True, max_length=63)]] = Field(default=None, description="The wifi password for this device (wireless only, max 63 chars)", alias="wifiPassword")
     member: Optional[StrictInt] = Field(default=None, description="The id of the member this device belongs to")
-    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Address", "mac", "vendor", "mab", "name", "wifiPassword", "member"]
+    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Address", "mac", "vendor", "name", "wifiPassword", "member"]
 
     @field_validator('connection_type')
     def connection_type_validate_enum(cls, value):
@@ -89,7 +88,6 @@ class AbstractDevice(BaseModel):
         excluded_fields: Set[str] = set([
             "id",
             "vendor",
-            "mab",
         ])
 
         _dict = self.model_dump(
@@ -140,7 +138,6 @@ class AbstractDevice(BaseModel):
             "ipv6Address": obj.get("ipv6Address"),
             "mac": obj.get("mac"),
             "vendor": obj.get("vendor"),
-            "mab": obj.get("mab"),
             "name": obj.get("name"),
             "wifiPassword": obj.get("wifiPassword"),
             "member": obj.get("member")

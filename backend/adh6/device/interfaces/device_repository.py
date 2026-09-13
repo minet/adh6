@@ -30,14 +30,6 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def put_mab(self, id: int, mab: bool) -> bool:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    async def get_mab(self, id: int) -> bool:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
     async def owner(self, id: int) -> int | None:
         pass  # pragma: no cover
 

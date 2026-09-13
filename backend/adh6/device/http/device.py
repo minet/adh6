@@ -91,17 +91,5 @@ class DeviceHandler(DefaultHandler):
 
     @with_context
     @log_call
-    async def mab_search(self, id_: int):
-        """Return the vendor associated with the given device"""
-        return await self.device_manager.get_mab(id=id_), 200
-
-    @with_context
-    @log_call
-    async def mab_post(self, id_: int):
-        """Return the vendor associated with the given device"""
-        return await self.device_manager.put_mab(id=id_), 200
-
-    @with_context
-    @log_call
     async def member_search(self, id_: int):
         return await self.device_manager.get_owner(device_id=id_), 200

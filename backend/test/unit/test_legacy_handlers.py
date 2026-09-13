@@ -233,16 +233,6 @@ class TestDeviceHandler:
         assert status == 200
         assert result == "TestVendor"
 
-    async def test_mab_search(self, handler, mock_device_manager, sample_device):
-        mock_device_manager.get_mab = AsyncMock(return_value=False)
-        result, status = await unwrap(handler.mab_search)(handler, id_=sample_device.id)
-        assert status == 200
-
-    async def test_mab_post(self, handler, mock_device_manager, sample_device):
-        mock_device_manager.put_mab = AsyncMock(return_value=True)
-        result, status = await unwrap(handler.mab_post)(handler, id_=sample_device.id)
-        assert status == 200
-
     async def test_member_search(self, handler, mock_device_manager, sample_device):
         mock_device_manager.get_owner = AsyncMock(return_value=28)
         result, status = await unwrap(handler.member_search)(handler, id_=sample_device.id)

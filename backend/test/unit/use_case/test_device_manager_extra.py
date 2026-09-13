@@ -73,60 +73,6 @@ def sample_device(faker, sample_member) -> Device:
     )
 
 
-class TestPutMab:
-    async def test_device_not_found(
-        self,
-        mock_device_repository: DeviceRepository,
-        device_manager: DeviceManager,
-    ):
-        mock_device_repository.get_by_id = AsyncMock(return_value=None)
-
-        with raises(DeviceNotFoundError):
-            await device_manager.put_mab(id=999)
-
-    async def test_happy_path(
-        self,
-        mock_device_repository: DeviceRepository,
-        sample_device: Device,
-        device_manager: DeviceManager,
-    ):
-        mock_device_repository.get_by_id = AsyncMock(return_value=sample_device)
-        mock_device_repository.get_mab = AsyncMock(return_value=False)
-        mock_device_repository.put_mab = AsyncMock(return_value=True)
-
-        assert sample_device.id is not None
-        result = await device_manager.put_mab(id=sample_device.id)
-
-        assert result is True
-        mock_device_repository.put_mab.assert_called_once_with(sample_device.id, True)
-
-
-class TestGetMab:
-    async def test_device_not_found(
-        self,
-        mock_device_repository: DeviceRepository,
-        device_manager: DeviceManager,
-    ):
-        mock_device_repository.get_by_id = AsyncMock(return_value=None)
-
-        with raises(DeviceNotFoundError):
-            await device_manager.get_mab(id=999)
-
-    async def test_happy_path(
-        self,
-        mock_device_repository: DeviceRepository,
-        sample_device: Device,
-        device_manager: DeviceManager,
-    ):
-        mock_device_repository.get_by_id = AsyncMock(return_value=sample_device)
-        mock_device_repository.get_mab = AsyncMock(return_value=True)
-
-        assert sample_device.id is not None
-        result = await device_manager.get_mab(id=sample_device.id)
-
-        assert result is True
-
-
 class TestGetMacVendor:
     async def test_device_not_found(
         self,

@@ -219,59 +219,6 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - device
-  /device/{id}/mab:
-    parameters:
-      - $ref: "#/components/parameters/idPath"
-    get:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                example: true
-                type: boolean
-          description: Success
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Retreive the MAB of the device
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - OpenIdConnect:
-          - network:read
-        - ApiKeyNetworkAuth: []
-      tags:
-        - device
-    post:
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                example: true
-                type: boolean
-          description: Success
-        "400":
-          $ref: "#/components/responses/Invalid"
-        "403":
-          $ref: "#/components/responses/Unauthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        default:
-          $ref: "#/components/responses/Unexpected"
-      summary: Update the MAB of the device
-      security: 
-        - OpenIdConnect:
-          - admin:write
-        - ApiKeyAdminAuth: []
-      tags:
-      - device
   /device/{id}/name:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -2956,7 +2903,6 @@ components:
             - name
             - wifiPassword
             - vendor
-            - mab
       explode: false
     onlyMember:
       description: Limit to specific attributes
@@ -3393,11 +3339,6 @@ components:
           example: Apple, Inc.
           nullable: true
           type: string
-          readOnly: true
-        mab:
-          description: Whether MAB is active on this device
-          example: false
-          type: boolean
           readOnly: true
         name:
           description: The display name of this device

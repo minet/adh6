@@ -109,10 +109,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Device>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Device>>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Device>>>;
-    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Device>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Device>>>;
+    public deviceGet(limit?: number, offset?: number, filter?: DeviceFilter, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (limit !== undefined && limit !== null) {
@@ -203,10 +203,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deviceIdDelete(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling deviceIdDelete.');
         }
@@ -288,10 +288,10 @@ export class DeviceService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractDevice>;
-    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractDevice>>;
-    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractDevice>>;
-    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor' | 'mab'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AbstractDevice>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AbstractDevice>>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AbstractDevice>>;
+    public deviceIdGet(id: number, only?: Array<'id' | 'mac' | 'ipv4Address' | 'ipv6Address' | 'connectionType' | 'member' | 'name' | 'wifiPassword' | 'vendor'>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling deviceIdGet.');
         }
@@ -356,160 +356,6 @@ export class DeviceService {
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Retreive the MAB of the device
-     * @param id The id of the resource that needs to be fetched.
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public deviceIdMabGet(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<boolean>;
-    public deviceIdMabGet(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<boolean>>;
-    public deviceIdMabGet(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<boolean>>;
-    public deviceIdMabGet(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling deviceIdMabGet.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        let localVarCredential: string | undefined;
-        // authentication (OpenIdConnect) required
-        localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
-        }
-
-        // authentication (ApiKeyNetworkAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyNetworkAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
-        }
-
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'application/json'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        let localVarHttpContext: HttpContext | undefined = options && options.context;
-        if (localVarHttpContext === undefined) {
-            localVarHttpContext = new HttpContext();
-        }
-
-        let localVarTransferCache: boolean | undefined = options && options.transferCache;
-        if (localVarTransferCache === undefined) {
-            localVarTransferCache = true;
-        }
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/device/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/mab`;
-        return this.httpClient.request<boolean>('get', `${this.configuration.basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Update the MAB of the device
-     * @param id The id of the resource that needs to be fetched.
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public deviceIdMabPost(id: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<boolean>;
-    public deviceIdMabPost(id: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<boolean>>;
-    public deviceIdMabPost(id: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<boolean>>;
-    public deviceIdMabPost(id: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling deviceIdMabPost.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        let localVarCredential: string | undefined;
-        // authentication (OpenIdConnect) required
-        localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
-        }
-
-        // authentication (ApiKeyAdminAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
-        }
-
-        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
-        if (localVarHttpHeaderAcceptSelected === undefined) {
-            // to determine the Accept header
-            const httpHeaderAccepts: string[] = [
-                'application/json'
-            ];
-            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        }
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        let localVarHttpContext: HttpContext | undefined = options && options.context;
-        if (localVarHttpContext === undefined) {
-            localVarHttpContext = new HttpContext();
-        }
-
-        let localVarTransferCache: boolean | undefined = options && options.transferCache;
-        if (localVarTransferCache === undefined) {
-            localVarTransferCache = true;
-        }
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/device/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/mab`;
-        return this.httpClient.request<boolean>('post', `${this.configuration.basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 withCredentials: this.configuration.withCredentials,
                 headers: localVarHeaders,

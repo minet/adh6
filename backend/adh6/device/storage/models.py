@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -23,6 +23,5 @@ class Device(Base):
     last_seen: Mapped[dt.datetime | None] = mapped_column(DateTime)
     ipv6: Mapped[str | None] = mapped_column(String(255))
     type: Mapped[int | None] = mapped_column(Integer)
-    mab: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="0")
     name: Mapped[str | None] = mapped_column(String(255))
     wifi_password: Mapped[str | None] = mapped_column(String(63))

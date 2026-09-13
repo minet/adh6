@@ -187,38 +187,6 @@ async def get_device_vendor(
     return vendor
 
 
-@router.get("/{id}/mab", response_model=bool)
-async def get_device_mab(
-    id: int,
-    manager: Annotated[DeviceManager, Depends(get_device_manager)],
-    request: Request,
-) -> bool:
-    """Get MAB status for a device.
-
-    Only for admins, not visible to regular users even if they own the resource"""
-    require_role_or_ownership(request, Roles.NETWORK_READ.value)
-    try:
-        mab = await manager.get_mab(id=id)
-    except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    return mab
-
-
-@router.post("/{id}/mab", response_model=bool)
-async def set_device_mab(
-    id: int,
-    manager: Annotated[DeviceManager, Depends(get_device_manager)],
-    request: Request,
-) -> bool:
-    """Set MAB for a device."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    try:
-        mab = await manager.put_mab(id=id)
-    except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    return mab
-
-
 @router.get("/{id}/member", response_model=int)
 async def get_device_member(
     id: int,

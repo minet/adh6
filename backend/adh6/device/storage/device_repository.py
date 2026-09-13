@@ -91,21 +91,6 @@ class DeviceSQLRepository(DeviceRepository):
             return
         await self.session.delete(device)
 
-    async def get_mab(self, object_id: int) -> bool:
-        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
-        device = await self.session.scalar(stmt)
-        if device is None:
-            raise ValueError(f"Device {object_id} not found")
-        return device.mab
-
-    async def put_mab(self, object_id: int, mab: bool) -> bool:
-        stmt = select(SQLDevice).where(SQLDevice.id == object_id)
-        device = await self.session.scalar(stmt)
-        if device is None:
-            raise ValueError(f"Device {object_id} not found")
-        device.mab = mab
-        return mab
-
     async def owner(self, id: int) -> int | None:
         stmt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)
         return (await self.session.execute(stmt)).scalar_one_or_none()
@@ -159,7 +144,6 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         ipv6Address=(d.ipv6 if d.ipv6 != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
         name=d.name,
         wifiPassword=d.wifi_password,
-        mab=d.mab,
         # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent
         # Je parierais sur Jenkins ou un bail comme ça
     )

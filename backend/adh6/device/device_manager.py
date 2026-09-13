@@ -76,21 +76,6 @@ class DeviceManager(CRUDManager):
         return device
 
     @log_call
-    async def put_mab(self, id: int) -> bool:
-        device = await self.device_repository.get_by_id(id)
-        if not device:
-            raise DeviceNotFoundError(id)
-        mab = await self.device_repository.get_mab(id)
-        return await self.device_repository.put_mab(id, not mab)
-
-    @log_call
-    async def get_mab(self, id: int) -> bool:
-        device = await self.device_repository.get_by_id(id)
-        if not device:
-            raise DeviceNotFoundError(id)
-        return await self.device_repository.get_mab(id)
-
-    @log_call
     async def get_mac_vendor(self, id: int) -> str:
         device = await self.device_repository.get_by_id(id)
         if not device:

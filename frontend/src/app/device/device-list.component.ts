@@ -35,7 +35,7 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
           this.itemsPerPage,
           (page - 1) * this.itemsPerPage,
           <DeviceFilter>{terms: terms},
-          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor", "mab"] as any,
+          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor"] as any,
           "response",
         ) as Observable<HttpResponse<Device[]>>)
         .pipe(
