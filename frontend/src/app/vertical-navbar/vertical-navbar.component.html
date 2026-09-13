@@ -44,11 +44,6 @@
                 Ports
               </a>
             </li>
-            <li>
-              <a routerLinkActive="is-active" [routerLink]="['switch_local']" i18n="sidebar link local switch">
-                Commutateur Local
-              </a>
-            </li>
             @if ("manage" | able: "admin") {
               <li>
                 <a routerLinkActive="is-active" [routerLink]="['vlan']" i18n="sidebar link vlans">VLANs</a>

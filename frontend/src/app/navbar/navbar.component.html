@@ -34,14 +34,6 @@
         >
       }
       @if ("manage" | able: "admin") {
-        <a
-          class="navbar-item"
-          [routerLinkActive]="['active']"
-          [routerLink]="['switch_local']"
-          >Switch Local</a
-        >
-      }
-      @if ("manage" | able: "admin") {
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link"> Gestion Adhérents </a>
           <div class="navbar-dropdown">

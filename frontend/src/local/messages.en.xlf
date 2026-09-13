@@ -946,11 +946,6 @@
         <target>Ports</target>
         <note priority="1" from="description">sidebar link ports</note>
       </trans-unit>
-      <trans-unit id="sidebar link local switch" datatype="html">
-        <source>Commutateur Local</source>
-        <target>Local Switch</target>
-        <note priority="1" from="description">sidebar link local switch</note>
-      </trans-unit>
       <trans-unit id="sidebar link vlans" datatype="html">
         <source>VLANs</source>
         <target>VLANs</target>

@@ -203,6 +203,7 @@ async def client_with_wifi(_test_client, sample_vlan, sample_room1, sample_membe
     yield _test_client
     await cleanup_test_data()
 
+
 def test_vlans_stats_requires_admin(client):
     # API key with network scope but not admin scope → 401 (wrong scope)
     r = client.get(f"{base_url}/vlans/stats", headers=TEST_HEADERS_API_KEY_NETWORK)

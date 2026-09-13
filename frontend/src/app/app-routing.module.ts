@@ -59,13 +59,6 @@ const routes: Routes = [
       ),
   },
   {
-    path: "switch_local",
-    loadComponent: () =>
-      import("./switch-local/switch-local.component").then(
-        (m) => m.SwitchLocalComponent,
-      ),
-  },
-  {
     path: "vlan",
     loadComponent: () =>
       import("./vlan/vlan-dashboard.component").then(
