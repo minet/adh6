@@ -29,7 +29,7 @@ dependencies = [
   "opentelemetry-exporter-jaeger",
   "flask-alembic>=3.1.1",
   "pycryptodome", #Used to replace hashlib as it no longer supports MD4. Can be removed when we switch off MD4.
-  "python-keycloak",
+  "httpx>=0.28.1",
   "rpds-py<0.25.0",
   "fastapi>=0.135.1",
   "uvicorn[standard]>=0.35.0",
@@ -40,6 +40,7 @@ dependencies = [
   "aenum>=3.1.16",
   "pytest-asyncio>=0.23.8",
   "odfpy>=1.4.1",
+  "jwcrypto>=1.5",
 ] 
 name = "ADH6" 
 requires-python = "~=3.11.0" 

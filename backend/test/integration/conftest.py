@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -14,6 +15,7 @@ from adh6.subnet.storage.models import Vlan
 from adh6.treasury.storage.models import PaymentMethod
 
 from test import SAMPLE_CLIENT, SAMPLE_CLIENT_ID, TESTING_CLIENT, TESTING_CLIENT_ID
+from test.auth import validate_test_token
 from test.integration.context import tomorrow
 from test.integration.resource import (
     TEST_HEADERS_API_KEY_ADMIN,
@@ -24,6 +26,16 @@ from test.integration.resource import (
     TEST_HEADERS_API_KEY_TRESO,
     TEST_HEADERS_API_KEY_USER,
 )
+
+
+@pytest.fixture(scope="package", autouse=True)
+def fake_keycloak_tokens():
+    """Authenticate with fixed fake tokens instead of real Keycloak ones.
+
+    Package-scoped so the patch is undone before the unit tests, which test the real validation.
+    """
+    with patch("adh6.authentication.middleware._validate_token_with_keycloak", validate_test_token):
+        yield
 
 
 @pytest.fixture(scope="session", autouse=True)
