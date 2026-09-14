@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile-upstream:master-labs
-
 FROM python:3.11-alpine AS base
 
 # Fetch OUIs database and pre-compile MIBs
