@@ -1,5 +1,5 @@
 import {BrowserModule} from "@angular/platform-browser";
-import {APP_INITIALIZER, NgModule} from "@angular/core";
+import {NgModule, inject, provideAppInitializer} from "@angular/core";
 import {AppRoutingModule} from "./app-routing.module";
 import {ApiModule, Configuration, MiscService} from "./api";
 import {CommonModule} from "@angular/common";
@@ -113,12 +113,14 @@ function initializeAuth(
       useFactory: load,
       multi: false,
     },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeAuth,
-      deps: [OidcSecurityService, Configuration, MiscService, AppAbility, Router],
-      multi: true,
-    },
+    provideAppInitializer(() =>
+      initializeAuth(
+        inject(OidcSecurityService),
+        inject(MiscService),
+        inject(AppAbility),
+        inject(Router),
+      )(),
+    ),
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })
