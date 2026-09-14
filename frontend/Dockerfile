@@ -59,7 +59,8 @@ USER nodeuser
 WORKDIR /app/frontend
 COPY --from=prebuild /app/frontend/node_modules ./node_modules
 COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend/yarn.lock ./
-COPY frontend/src ./src
-COPY --from=prebuild /app/frontend/src/assets ./src/assets
+# Sources possédées par nodeuser, sinon docker compose watch ne peut pas supprimer les fichiers
+COPY --chown=nodeuser:nodeuser frontend/src ./src
+COPY --chown=nodeuser:nodeuser --from=prebuild /app/frontend/src/assets ./src/assets
 
 CMD yarn start:en --watch --host 0.0.0.0 --allowed-hosts true

@@ -52,6 +52,10 @@ COPY backend/adh6/ adh6/
 COPY openapi/spec.yaml openapi/spec.yaml
 
 FROM runtime AS dev
+# Code possédé par adh6 (dossiers compris), sinon docker compose watch ne peut pas supprimer les fichiers
+USER root
+RUN chown -R adh6:adh6 /app/adh6
+USER adh6
 COPY backend/start-dev.sh .
 CMD ["./start-dev.sh"]
 

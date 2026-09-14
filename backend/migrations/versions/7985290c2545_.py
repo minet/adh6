@@ -14,9 +14,15 @@ branch_labels = None
 depends_on = None
 
 
+def _drop_index_if_exists(name, table_name):
+    # MySQL ne supporte pas DROP INDEX IF EXISTS (MariaDB oui)
+    if any(index['name'] == name for index in sa.inspect(op.get_bind()).get_indexes(table_name)):
+        op.drop_index(name, table_name=table_name)
+
+
 def upgrade():
     # Drop membership.account_id
-    op.drop_index('ix_membership_account_id', table_name='membership', if_exists=True)
+    _drop_index_if_exists('ix_membership_account_id', 'membership')
     op.drop_column('membership', 'account_id')
 
     # Add new columns to transactions
@@ -25,8 +31,8 @@ def upgrade():
     op.add_column('transactions', sa.Column('product_type', sa.String(20), nullable=True))
 
     # Drop columns from transactions
-    op.drop_index('ix_transactions_src', table_name='transactions', if_exists=True)
-    op.drop_index('ix_transactions_dst', table_name='transactions', if_exists=True)
+    _drop_index_if_exists('ix_transactions_src', 'transactions')
+    _drop_index_if_exists('ix_transactions_dst', 'transactions')
     op.drop_column('transactions', 'src')
     op.drop_column('transactions', 'dst')
     op.drop_column('transactions', 'attachments')

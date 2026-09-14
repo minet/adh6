@@ -1,3 +1,5 @@
+# Ce fichier sert au dev local
+
 name: adh6
 
 services:
@@ -27,17 +29,23 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    env_file:
-      - .env
     environment:
       ENVIRONMENT: "development"
+      MAIL_ENABLED: "false"
       DATABASE_HOST: ${DATABASE_HOST:-database}
       DATABASE_PORT: ${DATABASE_PORT:-3306}
       DATABASE_USERNAME: ${DATABASE_USERNAME:-adh6}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-adh6pass}
       DATABASE_DB_NAME: ${DATABASE_DB_NAME:-adh6}
-      OIDC_ISSUER: ${OIDC_ISSUER:-https://keycloak.minet.net/realms/MiNET}
+      OIDC_ISSUER: ${OIDC_ISSUER:-http://localhost:8180/realms/MiNET}
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-adh6-keycloak}
+      HTTP_PROXY: http://keycloak:8080
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.build_opener(u.ProxyHandler({})).open('http://localhost:8080/ping', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
     develop:
       watch:
         - path: backend/adh6
@@ -62,7 +70,7 @@ services:
       - "443:443"
       - "80:80"
     environment:
-      ADH6_URL: ${ADH6_URL:-adh6-local.minet.net}
+      ADH6_URL: ${ADH6_URL:-localhost}
       API_HOST: "backend"
       API_PORT: "8080"
       FRONTEND_HOST: "frontend"
@@ -91,9 +99,91 @@ services:
       interval: 3s
       timeout: 1s
       retries: 10
+
+  database_seed:
+    container_name: adh6_database_seed
+    image: mysql:latest
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: root
+    volumes:
+      - ./local/seed.sql:/seed/seed.sql:ro
+    entrypoint: ["sh", "-c", "mysql -h database -u root ${DATABASE_DB_NAME:-adh6} < /seed/seed.sql && echo 'Seed appliqué'"]
+
+  snmpsim:
+    container_name: adh6_snmpsim
+    build:
+      context: local/snmpsim
+    volumes:
+      - ./local/snmpsim/data:/snmpsim/data:ro
+
+  keycloak:
+    container_name: adh6_keycloak
+    image: quay.io/keycloak/keycloak:26.7.2
+    command: start-dev --import-realm
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:8180
+      KC_FEATURES: quick-theme,update-email
+      KC_SPI_USER_PROFILE_DECLARATIVE_USER_PROFILE_CONFIG_FILE: /opt/keycloak/conf/user-profile.json
+      QUARKUS_DATASOURCE_FEDERATION_JDBC_URL: jdbc:mariadb://database:3306/${DATABASE_DB_NAME:-adh6}?allowPublicKeyRetrieval=true
+      QUARKUS_DATASOURCE_FEDERATION_USERNAME: root
+      QUARKUS_DATASOURCE_FEDERATION_PASSWORD: root
+      QUARKUS_DATASOURCE_FEDERATION_JDBC_DRIVER: org.mariadb.jdbc.MariaDbDataSource
+      QUARKUS_DATASOURCE_FEDERATION_JDBC_TRANSACTIONS: xa
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ${FDPUSER_PATH:-../fdpuserstoragefederation}/target/UserStorageFederation-1.0.0.jar:/opt/keycloak/providers/UserStorageFederation.jar:ro
+      - ${FDPUSER_PATH:-../fdpuserstoragefederation}/conf/user-profile.json:/opt/keycloak/conf/user-profile.json:ro
+      - ${FDPUSER_PATH:-../fdpuserstoragefederation}/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ${KEYCLOAK_THEME_PATH:-../theme/MiNET}:/opt/keycloak/themes/MiNET:ro
+    ports:
+      - "8180:8080"
+
+  keycloak_init:
+    container_name: adh6_keycloak_init
+    image: quay.io/keycloak/keycloak:26.7.2
+    depends_on:
+      keycloak:
+        condition: service_started
+    environment:
+      ADH6_URL: ${ADH6_URL:-localhost}
+    entrypoint: ["/bin/bash", "-ec"]
+    command:
+      - |
+        kcadm=/opt/keycloak/bin/kcadm.sh
+        until $$kcadm config credentials --server http://keycloak:8080 --realm master --user admin --password admin >/dev/null 2>&1; do sleep 2; done
+        redirects='["https://'"$$ADH6_URL"'/*","https://localhost/*"]'
+        id=$$($$kcadm get clients -r MiNET -q clientId=adh6-keycloak --fields id --format csv --noquotes)
+        if [ -n "$$id" ]; then
+          $$kcadm update "clients/$$id" -r MiNET -s "redirectUris=$$redirects" -s 'webOrigins=["+"]'
+          echo "Client adh6-keycloak mis à jour"
+        else
+          $$kcadm create clients -r MiNET \
+            -s clientId=adh6-keycloak \
+            -s publicClient=true \
+            -s standardFlowEnabled=true \
+            -s directAccessGrantsEnabled=true \
+            -s "redirectUris=$$redirects" \
+            -s 'webOrigins=["+"]' \
+            -s 'attributes."post.logout.redirect.uris"=+' \
+            -s 'attributes."pkce.code.challenge.method"=S256' \
+            -s 'protocolMappers=[{"name":"groups","protocol":"openid-connect","protocolMapper":"oidc-group-membership-mapper","config":{"claim.name":"groups","full.path":"false","access.token.claim":"true","id.token.claim":"true","userinfo.token.claim":"true"}}]'
+          echo "Client adh6-keycloak créé"
+        fi
+
   # jaeger:
   #   image: jaegertracing/all-in-one:1.22
   #   environment:
   #     COLLECTOR_ZIPKIN_HOST_PORT: :9411
   #   ports:
   #     - 16686:16686
+
+volumes:
+  keycloak_data:
