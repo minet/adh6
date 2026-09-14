@@ -34,7 +34,6 @@ class Adherent(Base):
     subnet: Mapped[str | None] = mapped_column(String(255))
     ip: Mapped[str | None] = mapped_column(String(255))
     ldap_login: Mapped[str | None] = mapped_column(String(255), index=True)
-    is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     datesignedminet: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     datesignedhosting: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     mail_membership: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="1")

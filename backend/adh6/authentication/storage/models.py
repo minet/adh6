@@ -1,6 +1,7 @@
+import datetime as dt
 from typing import Any
 
-from sqlalchemy import Enum, Integer, String
+from sqlalchemy import DateTime, Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from adh6.storage import Base
@@ -25,3 +26,4 @@ class AuthenticationRoleMapping(Base):
     )  # TODO: typing
     identifier: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[Any] = mapped_column(Enum(Roles), default=Roles.USER, nullable=False)  # TODO: typing
+    expires_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)

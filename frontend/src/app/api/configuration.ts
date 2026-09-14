@@ -91,11 +91,6 @@ export class Configuration {
 
         // init default OpenIdConnect credential
         if (!this.credentials['OpenIdConnect']) {
-            this.credentials['OpenIdConnect'] = () => {
-                return typeof this.accessToken === 'function'
-                    ? this.accessToken()
-                    : this.accessToken;
-            };
         }
 
         // init default ApiKeyAdminAuth credential

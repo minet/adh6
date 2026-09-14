@@ -2,12 +2,7 @@ import {CommonModule} from "@angular/common";
 import {Component, OnInit} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {Observable} from "rxjs";
-import {
-  AuthenticationService,
-  RoleMapping,
-  Role,
-  RolePostRequest,
-} from "../api";
+import {Naina, NainaService} from "../api";
 
 @Component({
   imports: [CommonModule, FormsModule],
@@ -29,19 +24,31 @@ import {
         </div>
       </div>
     </div>
-    @if (result$ | async; as result) {
+    @if (nainas$ | async; as nainas) {
       <table class="table is-fullwidth">
         <thead>
           <tr>
             <th>Login</th>
-            <th>Role</th>
+            <th>Expire le</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          @for (mapping of result; track mapping) {
+          @for (naina of nainas; track naina.login) {
             <tr>
-              <td>{{ mapping.identifier }}</td>
-              <td>{{ mapping.role }}</td>
+              <td>{{ naina.login }}</td>
+              <td>{{ naina.expires_at | date: "dd/MM/yyyy HH:mm" }}</td>
+              <td class="has-text-right">
+                <button
+                  class="button is-danger is-small"
+                  (click)="revokeNainA(naina.login)">
+                  Révoquer
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3" class="has-text-centered">Aucun NainA actif</td>
             </tr>
           }
         </tbody>
@@ -54,31 +61,26 @@ import {
   `,
 })
 export class NainaComponent implements OnInit {
-  public result$: Observable<RoleMapping[]> = new Observable<RoleMapping[]>();
+  public nainas$: Observable<Naina[]> = new Observable<Naina[]>();
   public login = "";
 
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(private readonly nainaService: NainaService) {}
 
   ngOnInit(): void {
     this.refreshNainA();
   }
 
   public newNainA(): void {
-    this.authenticationService
-      .rolePost({
-        identifier: this.login,
-        roles: [
-          Role.AdminRead,
-          Role.AdminWrite,
-          Role.NetworkRead,
-          Role.NetworkWrite,
-        ],
-        auth: "user",
-      })
+    this.nainaService
+      .nainaPost(this.login)
       .subscribe(() => this.refreshNainA());
   }
 
+  public revokeNainA(login: string): void {
+    this.nainaService.nainaDelete(login).subscribe(() => this.refreshNainA());
+  }
+
   private refreshNainA() {
-    this.result$ = this.authenticationService.roleGet("user");
+    this.nainas$ = this.nainaService.nainaGet();
   }
 }

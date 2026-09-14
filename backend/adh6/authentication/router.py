@@ -102,7 +102,7 @@ async def create_api_key(
     """
     if get_token_info(request).get("auth_method") == "api_key":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="API keys cannot create API keys")
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(request, Roles.ADMIN_PROD.value)
     try:
         return await manager.create(login=body.login or "", roles=[r.value for r in body.roles])
     except NotFoundError:
@@ -157,7 +157,7 @@ async def create_role(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="API keys cannot create roles",
         )
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(request, Roles.ADMIN_PROD.value)
     try:
         await manager.create(
             auth=body.get("auth", "user"),
@@ -178,7 +178,7 @@ async def delete_role(
     request: Request,
 ) -> None:
     """Delete a role."""
-    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    require_role_or_ownership(request, Roles.ADMIN_PROD.value)
     try:
         await manager.delete(id=id)
     except NotFoundError as e:

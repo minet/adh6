@@ -35,6 +35,7 @@ dependencies = [
   "uvicorn[standard]>=0.35.0",
   "pydantic>=2.12.5",
   "pydantic-settings>=2.13.1",
+  "tzdata>=2025.2",
   "aiomysql>=0.3.2",
   "aiosqlite>=0.22.1",
   "aenum>=3.1.16",
