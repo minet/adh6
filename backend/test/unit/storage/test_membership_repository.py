@@ -35,9 +35,9 @@ class TestMembershipSQLRepository:
             create_at=datetime.now(),
         )
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = [m_sql]
         mock_execute_result.scalars.return_value.all.return_value = [m_sql]
         mock_session.execute = AsyncMock(return_value=mock_execute_result)
+        mock_session.scalar = AsyncMock(return_value=1)
 
         # When
         results, count = await membership_repo.search()

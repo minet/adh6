@@ -11,6 +11,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractPort, AbstractRoom, Port, Room, Switch
 from adh6.exceptions import PortNotFoundError, RoomNotFoundError, SwitchNotFoundError
 from adh6.room.storage.models import Chambre as SQLChambre
+from adh6.storage.count import count_rows
 
 from ..interfaces import PortRepository
 from .models import Port as SQLPort, Switch as SQLSwitch
@@ -57,9 +58,7 @@ class PortSQLRepository(PortRepository):
                     filter_.switch_obj = filter_.switch_obj.id
                 stmt = stmt.where(SQLPort.switch_id == filter_.switch_obj)
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(SQLPort.chambre_id.asc(), SQLPort.id.asc())

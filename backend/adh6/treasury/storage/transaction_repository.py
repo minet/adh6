@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import PaymentMethodNotFoundError
+from adh6.storage.count import count_rows
 
 from ..interfaces import TransactionRepository
 from .models import PaymentMethod, Transaction as SQLTransaction
@@ -57,9 +58,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         stmt = stmt.order_by(SQLTransaction.timestamp.desc())
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply pagination
         stmt = stmt.offset(offset).limit(limit)

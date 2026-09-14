@@ -23,8 +23,10 @@ RUN --mount=type=cache,target=/root/.yarn \
 FROM prebuild AS prodbuild
 COPY frontend/package.json frontend/angular.json frontend/tsconfig.json ./
 COPY frontend/src src
-RUN yarn build --configuration development
-RUN yarn purgecss -css dist/adh6/browser/fr/*.css --content dist/adh6/browser/fr/index.html dist/adh6/browser/fr/*.js -o dist/adh6/browser/fr
+RUN yarn ng build --configuration production
+RUN for locale in fr en; do \
+      yarn purgecss -css dist/adh6/browser/$locale/*.css --content dist/adh6/browser/$locale/index.html dist/adh6/browser/$locale/*.js -o dist/adh6/browser/$locale; \
+    done
 
 
 # TODO: test

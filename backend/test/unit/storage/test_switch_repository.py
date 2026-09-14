@@ -39,9 +39,9 @@ class TestSwitchSQLRepository:
         # Given
         sql_sw = SQLSwitch(id=1, description="SW1", ip="10.0.0.1")
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = [sql_sw]
         mock_execute_result.scalars.return_value.all.return_value = [sql_sw]
         mock_session.execute.return_value = mock_execute_result
+        mock_session.scalar.return_value = 1
 
         # When
         results, count = await switch_repo.search_by(terms="SW1")

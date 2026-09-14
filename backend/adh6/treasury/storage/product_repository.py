@@ -9,6 +9,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity.abstract_product import AbstractProduct
 from adh6.entity.product import Product
 from adh6.exceptions import ProductNotFoundError
+from adh6.storage.count import count_rows
 
 from ..interfaces import ProductRepository
 from .models import Product as SQLProduct
@@ -31,8 +32,7 @@ class ProductSQLRepository(ProductRepository):
         if terms:
             stmt = stmt.where(SQLProduct.name.contains(terms))
 
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         stmt = stmt.order_by(SQLProduct.id.asc()).offset(offset).limit(limit)
         result = await self.session.execute(stmt)

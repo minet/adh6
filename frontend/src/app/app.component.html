@@ -8,12 +8,7 @@
   <div class="column">
     <div class="hero is-fullheight">
       <div class="section">
-        <div style="position: relative">
-          <div
-            [@fadeAnimation]="outlet.isActivated ? outlet.activatedRoute : ''">
-            <router-outlet #outlet="outlet"></router-outlet>
-          </div>
-        </div>
+        <router-outlet></router-outlet>
       </div>
     </div>
   </div>

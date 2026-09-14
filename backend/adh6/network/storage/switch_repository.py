@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractSwitch, Switch
 from adh6.exceptions import SwitchNotFoundError
+from adh6.storage.count import count_rows
 
 from ..interfaces import SwitchRepository
 from .models import Switch as SQLSwitch
@@ -50,9 +51,7 @@ class SwitchSQLRepository(SwitchRepository):
             if filter_.ip is not None:
                 stmt = stmt.where(SQLSwitch.ip == filter_.ip)
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(SQLSwitch.created_at.asc()).offset(offset).limit(limit)

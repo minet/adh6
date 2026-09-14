@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.entity import AbstractMember, Member, MemberFilter
+from adh6.storage.count import count_rows
 
 from ..interfaces.member_repository import MemberRepository
 from .models import Adherent, Membership
@@ -61,9 +62,7 @@ class MemberSQLRepository(MemberRepository):
                 | (full_name_match if full_name_match is not None else False)
             )
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(Adherent.login.asc()).offset(offset).limit(limit)
