@@ -1,10 +1,7 @@
-<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+<nav class="navbar app-navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" [routerLink]="['/dashboard']">
-      <img
-        src="assets/minet.min.svg"
-        width="50"
-        class="d-inline-block align-top" />
+    <a class="navbar-item nav-brand" [routerLink]="['/dashboard']">
+      <img src="assets/minet.min.svg" alt="MiNET" />
     </a>
 
     <a
@@ -61,24 +58,43 @@
       }
     </div>
     <div class="navbar-end">
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link" i18n="@@language"> Langue </a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="/fr/">Français</a>
-          <a class="navbar-item" href="/en/">English</a>
+      <div class="navbar-item nav-actions">
+        <div class="nav-lang" role="group" i18n-aria-label="@@language" aria-label="Langue">
+          <a href="/fr/" hreflang="fr" lang="fr" [class.is-current]="!isEnglish">FR</a>
+          <a href="/en/" hreflang="en" lang="en" [class.is-current]="isEnglish">EN</a>
         </div>
+
+        @if (theme.isDark()) {
+          <button
+            type="button"
+            class="nav-btn is-icon"
+            (click)="theme.toggle()"
+            i18n-title="@@theme.toLight"
+            title="Passer en mode clair"
+            i18n-aria-label="@@theme.toLight"
+            aria-label="Passer en mode clair">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="nav-btn is-icon"
+            (click)="theme.toggle()"
+            i18n-title="@@theme.toDark"
+            title="Passer en mode sombre"
+            i18n-aria-label="@@theme.toDark"
+            aria-label="Passer en mode sombre">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>
+          </button>
+        }
+
+        @if (oidcSecurityService.isAuthenticated() | async) {
+          <button type="button" class="nav-btn nav-logout" (click)="logout()">
+            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            <span i18n="@@disconnect">Déconnexion</span>
+          </button>
+        }
       </div>
-      @if (true) {
-        <div class="navbar-item">
-          <div class="buttons">
-            @if (oidcSecurityService.isAuthenticated() | async) {
-              <a class="button is-danger" (click)="logout()" i18n="@@disconnect"
-                >Déconnexion</a
-              >
-            }
-          </div>
-        </div>
-      }
     </div>
   </div>
 </nav>

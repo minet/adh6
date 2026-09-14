@@ -1,9 +1,10 @@
 import {CommonModule} from "@angular/common";
-import {Component} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {RouterModule} from "@angular/router";
 import {map, Observable, filter} from "rxjs";
 import {Member, MiscService} from "../api";
 import {MemberDeviceModule} from "../member-device/member-device.module";
+import {ThemeService} from "../theme.service";
 
 @Component({
   imports: [CommonModule, RouterModule, MemberDeviceModule],
@@ -12,7 +13,11 @@ import {MemberDeviceModule} from "../member-device/member-device.module";
   template: `
     <div class="columns column is-centered">
       <figure>
-        <img alt="adh6 logo" src="assets/adh6.min.svg" />
+        <img
+          alt="adh6 logo"
+          [src]="
+            theme.isDark() ? 'assets/adh6-dark.min.svg' : 'assets/adh6.min.svg'
+          " />
       </figure>
     </div>
     <ng-container *ngIf="member$ | async as member">
@@ -34,6 +39,7 @@ import {MemberDeviceModule} from "../member-device/member-device.module";
   `,
 })
 export class DashboardComponent {
+  protected readonly theme = inject(ThemeService);
   public member$: Observable<Member>;
   public currentTab = "device";
 

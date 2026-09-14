@@ -1,7 +1,288 @@
 @use "bulma/sass" with (
-  $primary: #6fa3e8,
-  $danger: #e04d42,
-  $success: #72a24d,
-  $warning: #e8cc2e,
-  $card-radius: 0px
+  $scheme-h: 214,
+  $scheme-s: 30%,
+  $primary: #2e6fd1,
+  $link: #2e6fd1,
+  $info: #1b8cc0,
+  $success: #2f9464,
+  $warning: #e0a91f,
+  $danger: #d6453a,
+  $family-sans-serif: (
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif,
+  ),
+  $family-monospace: (
+    "JetBrains Mono",
+    ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace,
+  ),
+  $radius-small: 0.375rem,
+  $radius: 0.5rem,
+  $radius-medium: 0.625rem,
+  $radius-large: 0.875rem,
+  $card-radius: 0.75rem
 );
+
+$brand-blue: #6fa3e8;
+$brand-cyan: #71cff1;
+$ink: #0b1017;
+$colors: primary, link, info, success, warning, danger;
+
+// Light: cool paper ground, white sheets, navy ink text
+:root {
+  --app-ground: hsl(214 33% 96%);
+  --app-line: hsl(214 24% 88%);
+  --app-shadow: 0 1px 2px hsl(214 40% 20% / 0.06),
+    0 6px 20px -12px hsl(214 40% 20% / 0.18);
+  --app-nav: #{$ink};
+  --app-nav-raised: hsl(214 30% 12%);
+  --app-nav-text: hsl(214 22% 80%);
+  --app-selected: hsl(216 64% 50% / 0.1);
+
+  --bulma-scheme-main-bis-l: 98%;
+  --bulma-scheme-main-ter-l: 96%;
+  --bulma-background-l: 95%;
+  --bulma-border-weak-l: 92%;
+  --bulma-border-l: 86%;
+  --bulma-text-weak-l: 45%;
+  --bulma-text-l: 28%;
+  --bulma-text-strong-l: 17%;
+  --bulma-text-title-l: 12%;
+}
+
+// Dark: server-room ink ground, raised slate surfaces, logo blue as accent
+@mixin dark-tokens {
+  --app-ground: hsl(214 36% 6%);
+  --app-line: hsl(214 22% 17%);
+  --app-shadow: 0 0 0 1px hsl(214 22% 15%);
+  --app-nav-raised: hsl(214 28% 11%);
+  --app-selected: hsl(214 72% 67% / 0.14);
+
+  --bulma-scheme-main-l: 9.5%;
+  --bulma-scheme-main-bis-l: 11%;
+  --bulma-scheme-main-ter-l: 13%;
+  --bulma-background-l: 13.5%;
+  --bulma-border-weak-l: 16%;
+  --bulma-border-l: 22%;
+  --bulma-text-weak-l: 60%;
+  --bulma-text-l: 78%;
+  --bulma-text-strong-l: 91%;
+  --bulma-text-title-l: 96%;
+
+  --bulma-primary-l: 67%;
+  --bulma-primary-invert-l: 8%;
+  --bulma-link-l: 70%;
+  --bulma-link-invert-l: 8%;
+  --bulma-info-l: 62%;
+  --bulma-info-invert-l: 8%;
+  --bulma-success-l: 48%;
+  --bulma-success-invert-l: 6%;
+
+  // Soft tints become deep washes instead of pastel blocks
+  @each $name in $colors {
+    --bulma-#{$name}-light-l: 15%;
+    --bulma-#{$name}-light-invert-l: 82%;
+    --bulma-#{$name}-dark-l: 82%;
+    --bulma-#{$name}-dark-invert-l: 15%;
+  }
+
+  // Bulma hardcodes 90% here instead of using the -light-l token
+  .notification.is-light {
+    --bulma-notification-background-l: 15%;
+  }
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-tokens;
+  }
+}
+
+[data-theme="dark"] {
+  @include dark-tokens;
+}
+
+html {
+  background-color: var(--app-ground);
+}
+
+.title {
+  letter-spacing: -0.015em;
+  font-weight: 650;
+}
+
+code,
+.is-family-monospace {
+  font-family: var(--bulma-family-code);
+}
+
+code {
+  border-radius: var(--bulma-radius-small);
+  font-size: 0.85em;
+}
+
+::selection {
+  background-color: hsl(214 72% 67% / 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid $brand-blue;
+  outline-offset: 2px;
+}
+
+// Top bar stays ink in both themes, underlined by the logo gradient
+.app-navbar {
+  --bulma-navbar-background-color: var(--app-nav);
+  --bulma-navbar-h: 214;
+  --bulma-navbar-s: 30%;
+  --bulma-navbar-l: 7%;
+  --bulma-navbar-item-color: var(--app-nav-text);
+  --bulma-navbar-item-background-l: 7%;
+  --bulma-navbar-item-hover-background-l-delta: 7%;
+  --bulma-navbar-item-active-background-l-delta: 11%;
+  --bulma-navbar-item-selected-l: 90%;
+  --bulma-navbar-dropdown-arrow: var(--app-nav-text);
+  --bulma-navbar-burger-color: var(--app-nav-text);
+  --bulma-navbar-dropdown-background-color: var(--app-nav-raised);
+  --bulma-navbar-dropdown-border-color: hsl(214 22% 20%);
+  --bulma-navbar-dropdown-item-l: 7%;
+  --bulma-navbar-dropdown-item-background-l: 11%;
+  --bulma-navbar-dropdown-item-color-l: 85%;
+  --bulma-navbar-divider-background-l: 20%;
+
+  border-bottom: 1px solid hsl(214 22% 15%);
+
+  .navbar-menu {
+    background-color: var(--app-nav);
+  }
+
+  .navbar-dropdown .navbar-item {
+    color: var(--app-nav-text);
+  }
+}
+
+// App shell
+.columns.is-fullheight {
+  margin: 0;
+}
+
+.is-sidebar-menu {
+  padding: 0;
+  background-color: var(--bulma-scheme-main);
+  border-right: 1px solid var(--app-line);
+}
+
+.menu {
+  --bulma-menu-item-radius: var(--bulma-radius);
+  --bulma-menu-list-border-left: 1px solid var(--app-line);
+
+  position: sticky;
+  top: 0;
+}
+
+.menu-label {
+  padding-inline: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bulma-text-weak);
+
+  &:not(:first-child) {
+    margin-top: 1.5em;
+  }
+}
+
+.menu-list {
+  & + & {
+    margin-top: 1rem;
+  }
+
+  > li > span {
+    display: block;
+    padding: 0.5em 0.75em 0.25em;
+    font-weight: 600;
+    color: var(--bulma-text-strong);
+  }
+
+  a {
+    color: var(--bulma-text);
+  }
+
+  a:hover {
+    background-color: var(--bulma-background);
+    color: var(--bulma-text-strong);
+  }
+
+  a.is-active {
+    background-color: var(--app-selected);
+    color: var(--bulma-primary-on-scheme);
+    font-weight: 600;
+  }
+}
+
+// Surfaces
+.card,
+.box {
+  --bulma-card-shadow: var(--app-shadow);
+  --bulma-box-shadow: var(--app-shadow);
+}
+
+.card-header {
+  box-shadow: 0 1px 0 var(--app-line);
+}
+
+.card-footer,
+.card-footer-item:not(:last-child) {
+  border-color: var(--app-line);
+}
+
+.modal-background {
+  background-color: hsl(214 40% 4% / 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.table {
+  --bulma-table-cell-border-color: var(--bulma-border-weak);
+  --bulma-table-row-hover-background-color: var(--bulma-background);
+
+  th {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  thead th {
+    color: var(--bulma-text-weak);
+  }
+}
+
+.tabs {
+  --bulma-tabs-border-bottom-color: var(--app-line);
+}
+
+hr {
+  --bulma-hr-background-color: var(--app-line);
+}
+
+.footer {
+  --bulma-footer-background-color: var(--bulma-scheme-main);
+  --bulma-footer-color: var(--bulma-text-weak);
+
+  border-top: 1px solid var(--app-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+  }
+}
