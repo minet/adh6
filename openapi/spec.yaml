@@ -2695,6 +2695,70 @@ paths:
             - treasurer:read
       tags:
         - treasury
+  /naina:
+    get:
+      operationId: naina_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Naina"
+                type: array
+          description: Active NainAs
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: List active NainAs
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyNetworkAuth:
+          - network:read
+      tags:
+        - naina
+  /naina/{identifier}:
+    parameters:
+      - description: Login receiving temporary NainA roles
+        in: path
+        name: identifier
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: naina_post
+      responses:
+        "201":
+          description: NainA created until the next 20:30 Europe/Paris cutoff
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Grant temporary NainA roles
+      security:
+        - OpenIdConnect:
+          - admin:prod
+      tags:
+        - naina
+    delete:
+      operationId: naina_delete
+      responses:
+        "204":
+          description: Temporary NainA roles revoked
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Revoke temporary NainA roles
+      security:
+        - OpenIdConnect:
+          - admin:prod
+      tags:
+        - naina
   /role:
     get:
       parameters:
@@ -2774,7 +2838,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         default:
           $ref: "#/components/responses/Unexpected"
-      summary: Create a temporary role for a user
+      summary: Create a role mapping
       security: 
         - OpenIdConnect:
           - admin:write
@@ -2797,12 +2861,11 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Delete a Role
-      security: 
+      security:
         - OpenIdConnect:
-          - admin:write
           - admin:prod
         - ApiKeyAdminAuth:
-            - admin:write
+            - admin:prod
       tags:
       - authentication
   /api_keys:
@@ -2877,9 +2940,8 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Create an ApiKey
-      security: 
+      security:
         - OpenIdConnect:
-          - admin:write
           - admin:prod
       tags:
         - authentication
@@ -3910,6 +3972,19 @@ components:
           type: string
           example: "jenkins"
           nullable: false
+    Naina:
+      type: object
+      required:
+        - login
+        - expires_at
+      properties:
+        login:
+          type: string
+          example: "jenkins"
+        expires_at:
+          description: End of the temporary grant (next 20:30 Europe/Paris cutoff)
+          type: string
+          format: date-time
     Role:
       type: string
       enum:
@@ -3970,3 +4045,5 @@ tags:
     name: treasury
   - description: Miscellaneous endpoints
     name: misc
+  - description: Temporary NainA role grants
+    name: naina

@@ -131,7 +131,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -203,7 +202,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -274,7 +272,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -366,7 +363,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -444,7 +440,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -502,7 +497,7 @@ export class AuthenticationService {
     }
 
     /**
-     * Create a temporary role for a user
+     * Create a role mapping
      * @param rolePostRequest The role to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -521,7 +516,6 @@ export class AuthenticationService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;

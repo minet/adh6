@@ -30,6 +30,7 @@ export * from './memberIdWifiGet200Response';
 export * from './memberStatus';
 export * from './membership';
 export * from './modelError';
+export * from './naina';
 export * from './paymentMethod';
 export * from './pingRequest';
 export * from './pingResult';

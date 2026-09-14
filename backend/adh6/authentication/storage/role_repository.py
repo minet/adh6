@@ -1,6 +1,7 @@
+from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import and_, delete, insert, or_, select, update
+from sqlalchemy import and_, delete, insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
@@ -18,7 +19,10 @@ class RoleSQLRepository(RoleRepository):
         self.session = session
 
     async def get(self, id: int) -> Any:  # todo
-        smt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
+        smt = select(AuthenticationRoleMapping).where(
+            AuthenticationRoleMapping.id == id,
+            AuthenticationRoleMapping.expires_at.is_(None),
+        )
         result = await self.session.scalar(smt)
         return result
 
@@ -28,7 +32,7 @@ class RoleSQLRepository(RoleRepository):
         identifiers: list[str] | None = None,
         roles: list[Roles] | None = None,
     ) -> tuple[list[RoleMapping], int]:
-        smt: Select = select(AuthenticationRoleMapping)
+        smt: Select = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.expires_at.is_(None))
         if method is not None:
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
         if identifiers is not None:
@@ -58,7 +62,17 @@ class RoleSQLRepository(RoleRepository):
         if not conditions:
             return []
 
-        rows = (await self.session.execute(select(AuthenticationRoleMapping).where(or_(*conditions)))).all()
+        rows = (
+            await self.session.execute(
+                select(AuthenticationRoleMapping).where(
+                    or_(*conditions),
+                    or_(
+                        AuthenticationRoleMapping.expires_at.is_(None),
+                        AuthenticationRoleMapping.expires_at > _naive_utc_now(),
+                    ),
+                )
+            )
+        ).all()
         unique_mappings = {mapping.id: mapping for (mapping,) in rows}
         return [self._map_to_role_mapping(mapping) for mapping in unique_mappings.values()]
 
@@ -68,36 +82,7 @@ class RoleSQLRepository(RoleRepository):
         )
         await self.session.execute(smt)
 
-        # in case a NainA is created put is_naina to true for compatibility
-        if method == AuthenticationMethod.USER and (
-            len(
-                {
-                    Roles.ADMIN_WRITE,
-                    Roles.ADMIN_READ,
-                    Roles.NETWORK_WRITE,
-                    Roles.NETWORK_READ,
-                }
-                & set(roles)
-            )
-            == 4
-        ):
-            stmt = select(Adherent).where(Adherent.login == identifier)
-            adherent = await self.session.scalar(stmt)
-            if adherent:
-                smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=True)
-                await self.session.execute(smt)
-
     async def delete(self, id: int) -> None:
-        stmt = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
-        role_mapping = await self.session.scalar(stmt)
-
-        if role_mapping and role_mapping.authentication == AuthenticationMethod.USER:
-            stmt_adherent = select(Adherent).where(Adherent.login == role_mapping.identifier)
-            adherent = await self.session.scalar(stmt_adherent)
-            if adherent:
-                smt = update(Adherent).where(Adherent.id == adherent.id).values(is_naina=False)
-                await self.session.execute(smt)
-
         smt = delete(AuthenticationRoleMapping).where(AuthenticationRoleMapping.id == id)
         await self.session.execute(smt)
 
@@ -117,3 +102,7 @@ class RoleSQLRepository(RoleRepository):
             role=role.role.value,
             authentication=role.authentication.value,
         )
+
+
+def _naive_utc_now() -> datetime:
+    return datetime.now(UTC).replace(tzinfo=None)

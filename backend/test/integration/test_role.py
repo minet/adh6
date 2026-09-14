@@ -244,9 +244,9 @@ def test_role_delete_unauthorized_api_key_user(client):
     assert r.status_code == 401
 
 
-def test_role_delete_authorized_api_key_admin(client):
+def test_role_delete_unauthorized_api_key_admin_without_prod(client):
     r = client.delete(
         f"{base_url}{1}",
         headers=TEST_HEADERS_API_KEY_ADMIN,
     )
-    assert r.status_code == 204
+    assert r.status_code == 401

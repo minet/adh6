@@ -47,6 +47,7 @@ from adh6.entity.member_id_password_put_request import MemberIdPasswordPutReques
 from adh6.entity.member_id_wifi_get200_response import MemberIdWifiGet200Response
 from adh6.entity.member_status import MemberStatus
 from adh6.entity.membership import Membership
+from adh6.entity.naina import Naina
 from adh6.entity.payment_method import PaymentMethod
 from adh6.entity.ping_request import PingRequest
 from adh6.entity.ping_result import PingResult

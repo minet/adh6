@@ -125,7 +125,6 @@ export class VlanService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyNetworkAuth) required
@@ -199,7 +198,6 @@ export class VlanService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -272,7 +270,6 @@ export class VlanService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required

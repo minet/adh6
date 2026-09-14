@@ -131,7 +131,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -213,7 +212,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -308,7 +306,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -386,7 +383,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -464,7 +460,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -551,7 +546,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -635,7 +629,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -730,7 +723,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -806,7 +798,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -897,7 +888,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -984,7 +974,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -1061,7 +1050,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required
@@ -1138,7 +1126,6 @@ export class MemberService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
         // authentication (ApiKeyAdminAuth) required

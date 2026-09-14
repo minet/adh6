@@ -18,6 +18,8 @@ import { HttpClient, HttpHeaders, HttpParams,
 import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
+// @ts-ignore
+import { Naina } from '../model/naina';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -28,7 +30,7 @@ import { Configuration }                                     from '../configurat
 @Injectable({
   providedIn: 'root'
 })
-export class CharterService {
+export class NainaService {
 
     protected basePath = 'https://adh6.minet.net/api';
     public defaultHeaders = new HttpHeaders();
@@ -91,17 +93,17 @@ export class CharterService {
     }
 
     /**
-     * List of the members that have signed the charter
-     * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
+     * Revoke temporary NainA roles
+     * @param identifier Login receiving temporary NainA roles
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public charterCharterIdMemberGet(charterId: 1 | 2, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<number>>;
-    public charterCharterIdMemberGet(charterId: 1 | 2, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<number>>>;
-    public charterCharterIdMemberGet(charterId: 1 | 2, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<number>>>;
-    public charterCharterIdMemberGet(charterId: 1 | 2, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (charterId === null || charterId === undefined) {
-            throw new Error('Required parameter charterId was null or undefined when calling charterCharterIdMemberGet.');
+    public nainaDelete(identifier: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public nainaDelete(identifier: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public nainaDelete(identifier: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public nainaDelete(identifier: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (identifier === null || identifier === undefined) {
+            throw new Error('Required parameter identifier was null or undefined when calling nainaDelete.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -110,12 +112,6 @@ export class CharterService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-        }
-
-        // authentication (ApiKeyAdminAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -152,8 +148,8 @@ export class CharterService {
             }
         }
 
-        let localVarPath = `/charter/${this.configuration.encodeParam({name: "charterId", value: charterId, in: "path", style: "simple", explode: false, dataType: "1 | 2", dataFormat: undefined})}/member`;
-        return this.httpClient.request<Array<number>>('get', `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/naina/${this.configuration.encodeParam({name: "identifier", value: identifier, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        return this.httpClient.request<any>('delete', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -167,22 +163,14 @@ export class CharterService {
     }
 
     /**
-     * Retreive the signature date of the specific charter
-     * @param id The id of the resource that needs to be fetched.
-     * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
+     * List active NainAs
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public charterCharterIdMemberIdGet(id: number, charterId: 1 | 2, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public charterCharterIdMemberIdGet(id: number, charterId: 1 | 2, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public charterCharterIdMemberIdGet(id: number, charterId: 1 | 2, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public charterCharterIdMemberIdGet(id: number, charterId: 1 | 2, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling charterCharterIdMemberIdGet.');
-        }
-        if (charterId === null || charterId === undefined) {
-            throw new Error('Required parameter charterId was null or undefined when calling charterCharterIdMemberIdGet.');
-        }
+    public nainaGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Naina>>;
+    public nainaGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Naina>>>;
+    public nainaGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Naina>>>;
+    public nainaGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -192,8 +180,8 @@ export class CharterService {
         if (localVarCredential) {
         }
 
-        // authentication (ApiKeyAdminAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
+        // authentication (ApiKeyNetworkAuth) required
+        localVarCredential = this.configuration.lookupCredential('ApiKeyNetworkAuth');
         if (localVarCredential) {
             localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
         }
@@ -232,8 +220,8 @@ export class CharterService {
             }
         }
 
-        let localVarPath = `/charter/${this.configuration.encodeParam({name: "charterId", value: charterId, in: "path", style: "simple", explode: false, dataType: "1 | 2", dataFormat: undefined})}/member/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
-        return this.httpClient.request<string>('get', `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/naina`;
+        return this.httpClient.request<Array<Naina>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -247,21 +235,17 @@ export class CharterService {
     }
 
     /**
-     * Sign the specific charter
-     * @param id The id of the resource that needs to be fetched.
-     * @param charterId The unique identifier of the charter: 1 for MiNET and 2 for Hosting
+     * Grant temporary NainA roles
+     * @param identifier Login receiving temporary NainA roles
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public charterCharterIdMemberIdPost(id: number, charterId: 1 | 2, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public charterCharterIdMemberIdPost(id: number, charterId: 1 | 2, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public charterCharterIdMemberIdPost(id: number, charterId: 1 | 2, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public charterCharterIdMemberIdPost(id: number, charterId: 1 | 2, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling charterCharterIdMemberIdPost.');
-        }
-        if (charterId === null || charterId === undefined) {
-            throw new Error('Required parameter charterId was null or undefined when calling charterCharterIdMemberIdPost.');
+    public nainaPost(identifier: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public nainaPost(identifier: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public nainaPost(identifier: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public nainaPost(identifier: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (identifier === null || identifier === undefined) {
+            throw new Error('Required parameter identifier was null or undefined when calling nainaPost.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -270,12 +254,6 @@ export class CharterService {
         // authentication (OpenIdConnect) required
         localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
         if (localVarCredential) {
-        }
-
-        // authentication (ApiKeyAdminAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
         }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
@@ -312,7 +290,7 @@ export class CharterService {
             }
         }
 
-        let localVarPath = `/charter/${this.configuration.encodeParam({name: "charterId", value: charterId, in: "path", style: "simple", explode: false, dataType: "1 | 2", dataFormat: undefined})}/member/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}`;
+        let localVarPath = `/naina/${this.configuration.encodeParam({name: "identifier", value: identifier, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         return this.httpClient.request<any>('post', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
