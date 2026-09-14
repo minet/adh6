@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
 COPY frontend/src/assets ./src/assets
 RUN yarn global add svgo \
     && cd ./src/assets \
-    && svgo minet.svg minet-dark.svg adh6-logo.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg
+    && svgo minet.svg minet-dark.svg adh6-logo.svg adh6-logo-dark.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg adh6-dark.min.svg
 
 RUN --mount=type=cache,target=/root/.yarn \
     --mount=type=bind,source=frontend/package.json,target=package.json \

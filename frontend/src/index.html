@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" data-theme="light">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <base href="/" />
@@ -10,13 +10,29 @@
     <meta name="author" content="MiNET" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <script>
+      // Apply the saved theme before first paint (see ThemeService)
+      var t = null;
+      try {
+        t = localStorage.getItem("adh6-theme");
+      } catch (e) {}
+      if (t !== "light" && t !== "dark")
+        t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
       media="print"
       onload="this.media = 'all'" />
-    <meta name="theme-color" content="#003D7F" />
+    <meta name="theme-color" content="#0b1017" />
   </head>
 
   <body>

@@ -5,11 +5,13 @@
         <a href="//minet.net">
           <figure>
             <img
-              src="assets/minet-dark.min.svg"
+              [src]="
+                theme.isDark()
+                  ? 'assets/minet.min.svg'
+                  : 'assets/minet-dark.min.svg'
+              "
               width="50%"
-              class="d-inline-block align-top"
-              alt=""
-              class=".st5{fill: #000}" />
+              alt="MiNET" />
           </figure>
         </a>
         <p>

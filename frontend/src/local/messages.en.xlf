@@ -1006,6 +1006,20 @@
         <target>Download (.ods)</target>
         <note priority="1" from="description">export download button</note>
       </trans-unit>
+      <trans-unit id="theme.toDark" datatype="html">
+        <source>Passer en mode sombre</source>
+        <target>Switch to dark mode</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="theme.toLight" datatype="html">
+        <source>Passer en mode clair</source>
+        <target>Switch to light mode</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

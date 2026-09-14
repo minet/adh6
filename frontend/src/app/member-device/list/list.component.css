@@ -3,7 +3,7 @@
 
 /* Add border between device items except the last one */
 .device-item:not(.is-last) :ng-deep .card {
-  border-bottom: 1px solid #dbdbdb;
+  border-bottom: 1px solid var(--app-line);
 }
 
 /* Ensure first and last items don't have unnecessary borders */

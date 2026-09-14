@@ -1,6 +1,10 @@
 <div class="columns column is-centered">
   <figure>
-    <img src="assets/adh6.min.svg" />
+    <img
+      alt="adh6 logo"
+      [src]="
+        theme.isDark() ? 'assets/adh6-dark.min.svg' : 'assets/adh6.min.svg'
+      " />
   </figure>
 </div>
 <div class="notification is-info is-light">
