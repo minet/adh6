@@ -21,6 +21,7 @@ import {
   Validators,
 } from "@angular/forms";
 import {NotificationService} from "../../../../notification.service";
+import {environment} from "../../../../../environments/environment";
 
 interface SubscriptionForm {
   paidWith: FormControl<number | null>;
@@ -49,6 +50,8 @@ export class CotisationComponent implements OnInit, OnDestroy {
   /** Affiche un discret « Verification... » pendant l'attente. */
   public checkingCharter = false;
   private charterPoll?: ReturnType<typeof setInterval>;
+  /** Page compte Keycloak ou la charte est signee. */
+  public readonly accountUrl = `${environment.SSO_URL}/account/`;
 
   @Input() member?: AbstractMember;
   @Input() paymentMethods?: PaymentMethod[];
