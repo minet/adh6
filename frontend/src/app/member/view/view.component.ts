@@ -1,11 +1,12 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, DestroyRef, OnInit} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {Observable} from "rxjs";
 import {MemberService, AbstractMember} from "../../api";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {map, switchMap} from "rxjs/operators";
 import {CommonModule} from "@angular/common";
 import {MemberDetailService} from "./member-detail.service";
-import {Toast} from "../../notification.service";
+import {NotificationService} from "../../notification.service";
 
 @Component({
   imports: [CommonModule, RouterModule],
@@ -20,19 +21,21 @@ export class ViewComponent implements OnInit {
     public memberService: MemberService,
     private readonly route: ActivatedRoute,
     private readonly memberDetailService: MemberDetailService,
+    private readonly notificationService: NotificationService,
+    private readonly destroyRef: DestroyRef,
   ) {}
 
   ngOnInit() {
     this.refreshInfo();
-    this.memberDetailService.updateMemberInfos.subscribe({
-      next: (msg: string) => {
+    this.memberDetailService.updateMemberInfos
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((msg: string) => {
         this.refreshInfo();
-        void Toast.fire("Adhérent mis à jour", msg);
-      },
-      error: (error: any) => {
-        console.error("Error updating member info:", error);
-      },
-    });
+        this.notificationService.successNotification(
+          "Adhérent mis à jour",
+          msg,
+        );
+      });
   }
 
   refreshInfo(): void {

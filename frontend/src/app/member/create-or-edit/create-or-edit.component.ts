@@ -16,7 +16,7 @@ import {
 } from "../../api";
 import {mergeMap} from "rxjs/operators";
 import {EMPTY, of, switchMap, catchError} from "rxjs";
-import {Toast} from "../../notification.service";
+import {NotificationService} from "../../notification.service";
 
 interface MemberEditForm {
   firstName: FormControl<string>;
@@ -46,6 +46,7 @@ export class CreateOrEditComponent implements OnInit {
     public roomMemberService: RoomMembersService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
+    private readonly notificationService: NotificationService,
   ) {
     this.memberEdit = new FormGroup<MemberEditForm>({
       firstName: new FormControl("", {
@@ -71,9 +72,12 @@ export class CreateOrEditComponent implements OnInit {
       roomNumber: new FormControl<number | null>(null),
       permanent: new FormControl<boolean>(false, {nonNullable: true}),
       wifiOnly: new FormControl<boolean>(false, {nonNullable: true}),
-      preferredLanguage: new FormControl<MemberBody.PreferredLanguageEnum>("fr", {
-        nonNullable: true,
-      }),
+      preferredLanguage: new FormControl<MemberBody.PreferredLanguageEnum>(
+        "fr",
+        {
+          nonNullable: true,
+        },
+      ),
     });
   }
 
@@ -92,7 +96,9 @@ export class CreateOrEditComponent implements OnInit {
 
     const wifiOnly = v.wifiOnly;
     const roomFilter =
-      !wifiOnly && v.roomNumber != null ? {roomNumber: v.roomNumber} : undefined;
+      !wifiOnly && v.roomNumber != null
+        ? {roomNumber: v.roomNumber}
+        : undefined;
 
     const rooms$ = wifiOnly
       ? of([])
@@ -106,15 +112,28 @@ export class CreateOrEditComponent implements OnInit {
               .roomIdMemberPost(rooms[0].id, {id: this.member_id})
               .subscribe(
                 () =>
-                  void this.router.navigate(["member/view", this.member_id, "profile"]),
+                  void this.router.navigate([
+                    "member/view",
+                    this.member_id,
+                    "profile",
+                  ]),
               );
           } else {
-            void this.router.navigate(["member/view", this.member_id, "profile"]);
+            void this.router.navigate([
+              "member/view",
+              this.member_id,
+              "profile",
+            ]);
           }
         });
       } else {
         this.memberService.memberPost(body).subscribe((id) => {
-          if (!wifiOnly && rooms.length > 0 && rooms[0].id != null && id != null) {
+          if (
+            !wifiOnly &&
+            rooms.length > 0 &&
+            rooms[0].id != null &&
+            id != null
+          ) {
             this.roomMemberService
               .roomIdMemberPost(rooms[0].id, {id: id})
               .subscribe(() => void this.router.navigate(["/password", id, 1]));
@@ -129,7 +148,7 @@ export class CreateOrEditComponent implements OnInit {
   delete(): void {
     this.memberService.memberIdDelete(this.member_id).subscribe((_) => {
       void this.router.navigate(["member/search"]);
-      void Toast.fire("User suprimé", "", "success");
+      this.notificationService.successNotification("Adhérent supprimé");
     });
   }
 

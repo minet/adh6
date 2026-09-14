@@ -2,8 +2,8 @@ import {CommonModule} from "@angular/common";
 import {Component, OnInit} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {Observable} from "rxjs";
-import Swal from "sweetalert2";
 import {ApiKey, ApiKeysPostRequest, AuthenticationService, Role} from "../api";
+import {DialogService} from "../ui/dialog.service";
 
 @Component({
   imports: [CommonModule, FormsModule],
@@ -68,7 +68,10 @@ export class ApiKeyComponent implements OnInit {
   public login = "";
   public roles: string[] = [];
 
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    private readonly dialogService: DialogService,
+  ) {}
 
   ngOnInit(): void {
     this.refreshApi();
@@ -95,11 +98,11 @@ export class ApiKeyComponent implements OnInit {
         login: this.login,
         roles: roles,
       })
-      .subscribe((res) =>
-        Swal.fire({title: "Clé d'API", text: res}).then(() => {
-          this.refreshApi();
-        }),
-      );
+      .subscribe((res) => {
+        void this.dialogService
+          .alert({title: "Clé d'API", text: res})
+          .then(() => this.refreshApi());
+      });
   }
 
   private refreshApi() {

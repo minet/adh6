@@ -66,7 +66,7 @@
           class="button is-primary"
           [class.is-loading]="pinging"
           [disabled]="pinging"
-          (click)="pingSwitch()">
+          (click)="openPing()">
           <span class="icon"><i class="fas fa-satellite-dish"></i></span>
           <span>Ping depuis le commutateur</span>
         </button>
@@ -119,4 +119,123 @@
       }
     </section>
   </div>
+}
+
+@if (discoveredPorts.length > 0) {
+  <app-modal title="Nouveaux ports découverts" (closed)="closeDiscovery()">
+    <div class="table-container discovered-ports">
+      <table class="table is-fullwidth is-narrow is-striped">
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                aria-label="Tout sélectionner"
+                [checked]="selectedPorts.size === discoveredPorts.length"
+                (change)="toggleAllPorts($event)" />
+            </th>
+            <th>Nom</th>
+            <th>OID</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (port of discoveredPorts; track port.oid) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [attr.aria-label]="port.portNumber"
+                  [checked]="selectedPorts.has(port)"
+                  (change)="togglePort(port)" />
+              </td>
+              <td>{{ port.portNumber }}</td>
+              <td>{{ port.oid }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div modal-actions class="buttons">
+      <button
+        type="button"
+        class="button is-success"
+        [disabled]="selectedPorts.size === 0"
+        (click)="addDiscoveredPorts()">
+        Ajouter la sélection
+      </button>
+      <button type="button" class="button" (click)="closeDiscovery()">
+        Annuler
+      </button>
+    </div>
+  </app-modal>
+}
+
+@if (pingOpen) {
+  <app-modal title="Ping depuis le commutateur" (closed)="pingOpen = false">
+    <form id="ping-form" [formGroup]="pingForm" (ngSubmit)="pingSwitch()">
+      <div class="field">
+        <label class="label" for="ping-address">Adresse IP cible</label>
+        <input
+          id="ping-address"
+          class="input"
+          type="text"
+          formControlName="address"
+          placeholder="ex: 192.168.0.1"
+          [class.is-danger]="
+            pingForm.controls.address.touched && pingForm.controls.address.invalid
+          " />
+        @if (
+          pingForm.controls.address.touched && pingForm.controls.address.invalid
+        ) {
+          <p class="help is-danger">Adresse IPv4 invalide</p>
+        }
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label" for="ping-count">Nombre de paquets (1–15)</label>
+            <input
+              id="ping-count"
+              class="input"
+              type="number"
+              min="1"
+              max="15"
+              formControlName="count"
+              [class.is-danger]="pingForm.controls.count.invalid" />
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label" for="ping-size">Taille (64–1500)</label>
+            <input
+              id="ping-size"
+              class="input"
+              type="number"
+              min="64"
+              max="1500"
+              formControlName="size"
+              [class.is-danger]="pingForm.controls.size.invalid" />
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="ping-timeout">Délai d'attente (ms, ≥ 100)</label>
+        <input
+          id="ping-timeout"
+          class="input"
+          type="number"
+          min="100"
+          formControlName="timeoutMs"
+          [class.is-danger]="pingForm.controls.timeoutMs.invalid" />
+      </div>
+    </form>
+    <div modal-actions class="buttons">
+      <button type="submit" form="ping-form" class="button is-primary">
+        Ping
+      </button>
+      <button type="button" class="button" (click)="pingOpen = false">
+        Annuler
+      </button>
+    </div>
+  </app-modal>
 }

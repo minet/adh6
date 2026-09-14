@@ -30,7 +30,7 @@ export class VlanDashboardComponent implements OnInit {
             ...vlan,
             fillPct,
             isOverLimit: cap !== null && vlan.deviceCount > cap,
-          } as VlanRow;
+          };
         }),
       ),
     );

@@ -1,5 +1,5 @@
 import {Router} from "@angular/router";
-import {Component, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 import {Observable} from "rxjs";
 import {
   UntypedFormBuilder,
@@ -8,7 +8,14 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from "@angular/forms";
-import {AbstractSwitch, Switch, SwitchService, DiscoveredPort, PortService, AbstractPort} from "../../api";
+import {
+  AbstractSwitch,
+  Switch,
+  SwitchService,
+  DiscoveredPort,
+  PortService,
+  AbstractPort,
+} from "../../api";
 import {finalize, takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 import {CommonModule} from "@angular/common";
@@ -20,7 +27,7 @@ import {CommonModule} from "@angular/common";
   styleUrls: ["./switch-new.component.css"],
   standalone: true,
 })
-export class SwitchNewComponent implements OnInit {
+export class SwitchNewComponent {
   switchForm: UntypedFormGroup;
   disabled = false;
   step = 1;
@@ -39,17 +46,12 @@ export class SwitchNewComponent implements OnInit {
     this.switchForm = this.fb.group({
       ip: [
         "",
-        [
-          Validators.required,
-          Validators.pattern(/^(\d{1,3}\.){3}\d{1,3}$/),
-        ],
+        [Validators.required, Validators.pattern(/^(\d{1,3}\.){3}\d{1,3}$/)],
       ],
       description: ["", Validators.required],
       community: ["", Validators.required],
     });
   }
-
-  ngOnInit(): void {}
 
   onSubmitSwitch() {
     this.disabled = true;
@@ -62,61 +64,66 @@ export class SwitchNewComponent implements OnInit {
 
     this.switchService
       .switchPost(varSwitch)
-      .pipe(finalize(() => this.disabled = false))
+      .pipe(finalize(() => (this.disabled = false)))
       .subscribe({
         next: (created) => {
           this.createdSwitchId = created.id;
           this.step = 2;
           this.discoverPorts();
         },
-        error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
       });
   }
 
   discoverPorts() {
     if (!this.createdSwitchId) return;
     this.discovering = true;
-    this.switchService.switchIdDiscoverPortsGet(this.createdSwitchId)
-      .pipe(finalize(() => this.discovering = false))
+    this.switchService
+      .switchIdDiscoverPortsGet(this.createdSwitchId)
+      .pipe(finalize(() => (this.discovering = false)))
       .subscribe({
         next: (ports) => {
-          this.discoveredPorts = ports.map(p => ({...p, selected: true}));
+          this.discoveredPorts = ports.map((p) => ({...p, selected: true}));
         },
-        error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
       });
   }
 
   addSelectedPorts() {
     if (!this.createdSwitchId) return;
-    const selected = this.discoveredPorts.filter(p => p.selected);
+    const selected = this.discoveredPorts.filter((p) => p.selected);
     if (selected.length === 0) {
       void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
       return;
     }
 
-    const portsToAdd: AbstractPort[] = selected.map(p => ({
+    const portsToAdd: AbstractPort[] = selected.map((p) => ({
       switchObj: this.createdSwitchId!,
       portNumber: p.portNumber,
       oid: p.oid,
-      room: null as any // Room will be assigned later
+      room: null as any, // Room will be assigned later
     }));
 
     this.addingPorts = true;
-    this.portService.portBulkPost(portsToAdd)
-      .pipe(finalize(() => this.addingPorts = false))
+    this.portService
+      .portBulkPost(portsToAdd)
+      .pipe(finalize(() => (this.addingPorts = false)))
       .subscribe({
         next: (result) => {
           this.notificationService.successNotification(
-            `Ports ajoutés : ${result.success} succès, ${result.failed} échec(s)`
+            `Ports ajoutés : ${result.success} succès, ${result.failed} échec(s)`,
           );
           void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
         },
-        error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
       });
   }
 
   toggleAll(event: any) {
     const checked = event.target.checked;
-    this.discoveredPorts.forEach(p => p.selected = checked);
+    this.discoveredPorts.forEach((p) => (p.selected = checked));
   }
 }

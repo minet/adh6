@@ -14,7 +14,7 @@ import {
   Product,
   TreasuryService,
 } from "../../../../api";
-import {Toast} from "../../../../notification.service";
+import {NotificationService} from "../../../../notification.service";
 
 interface ProductForm {
   paidWith: FormControl<number>;
@@ -53,7 +53,10 @@ export class BuyProductComponent {
   });
   public products$: Observable<Product[]>;
 
-  constructor(private readonly treasuryService: TreasuryService) {
+  constructor(
+    private readonly treasuryService: TreasuryService,
+    private readonly notificationService: NotificationService,
+  ) {
     this.products$ = this.treasuryService
       .productGet(100, 0, undefined, "body")
       .pipe(
@@ -100,11 +103,7 @@ export class BuyProductComponent {
     }
 
     if (this.member.id == null) {
-      void Toast.fire({
-        title: "Erreur",
-        text: "Membre non valide",
-        icon: "error",
-      });
+      this.notificationService.show("danger", "Erreur", "Membre non valide");
       return;
     }
 
@@ -114,21 +113,18 @@ export class BuyProductComponent {
 
     const paymentMethod = this.productForm.value.paidWith;
     if (paymentMethod == null) {
-      void Toast.fire({
-        title: "Erreur",
-        text: "Méthode de paiement requise",
-        icon: "error",
-      });
+      this.notificationService.show(
+        "danger",
+        "Erreur",
+        "Méthode de paiement requise",
+      );
       return;
     }
 
     this.treasuryService
       .productBuyPost(this.member.id, productIds, +paymentMethod)
       .subscribe(() => {
-        void Toast.fire({
-          title: "Produit(s) acheté(s)",
-          icon: "success",
-        });
+        this.notificationService.successNotification("Produit(s) acheté(s)");
         this.productForm.controls.products.controls.forEach((e) =>
           e.controls.checked.patchValue(false),
         );

@@ -1,19 +1,39 @@
-import {Injectable} from "@angular/core";
-import Swal from "sweetalert2";
+import {Injectable, signal} from "@angular/core";
 
-export const Toast = Swal.mixin({
-  toast: true,
-  position: "bottom-end",
-  showConfirmButton: false,
-  timer: 1500,
-  timerProgressBar: true,
-});
+export type ToastKind = "success" | "danger" | "warning" | "info";
+
+export interface Toast {
+  id: number;
+  kind: ToastKind;
+  title: string;
+  text?: string;
+}
+
+const ERROR_TITLES: Record<number, string> = {
+  400: "Bad Request",
+  401: "Unauthenticated",
+  403: "Unauthorize",
+  404: "Not Found",
+  500: "Internal server Error",
+};
 
 @Injectable({
   providedIn: "root",
 })
 export class NotificationService {
-  constructor() {}
+  private nextId = 0;
+  private readonly _toasts = signal<Toast[]>([]);
+  readonly toasts = this._toasts.asReadonly();
+
+  show(kind: ToastKind, title: string, text?: string, timer = 3000): void {
+    const id = this.nextId++;
+    this._toasts.update((toasts) => [...toasts, {id, kind, title, text}]);
+    setTimeout(() => this.dismiss(id), timer);
+  }
+
+  dismiss(id: number): void {
+    this._toasts.update((toasts) => toasts.filter((t) => t.id !== id));
+  }
 
   errorNotification(
     errorCode: number,
@@ -21,41 +41,15 @@ export class NotificationService {
     message?: string,
     timer?: number,
   ): void {
-    let notifTitle = "";
-    switch (errorCode) {
-      case 400:
-        notifTitle = "Bad Request";
-        break;
-      case 401:
-        notifTitle = "Unauthenticated";
-        break;
-      case 403:
-        notifTitle = "Unauthorize";
-        break;
-      case 404:
-        notifTitle = "Not Found";
-        break;
-      case 500:
-        notifTitle = "Internal server Error";
-        break;
-      default:
-        notifTitle = "Error";
-    }
-
-    void Toast.fire({
-      title: notifTitle + (title ? " - " + title : ""),
-      text: message,
-      icon: "error",
-      timer: timer,
-    });
+    const base = ERROR_TITLES[errorCode] ?? "Error";
+    this.show("danger", base + (title ? " - " + title : ""), message, timer);
   }
 
-  successNotification(title?: string, message?: string, timer?: number): void {
-    void Toast.fire({
-      title: title,
-      text: message,
-      icon: "success",
-      timer: timer,
-    });
+  successNotification(
+    title = "Opération réussie",
+    message?: string,
+    timer?: number,
+  ): void {
+    this.show("success", title, message, timer);
   }
 }

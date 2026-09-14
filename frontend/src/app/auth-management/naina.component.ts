@@ -65,7 +65,7 @@ export class NainaComponent implements OnInit {
 
   public newNainA(): void {
     this.authenticationService
-      .rolePost(<RolePostRequest>{
+      .rolePost({
         identifier: this.login,
         roles: [
           Role.AdminRead,

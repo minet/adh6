@@ -126,3 +126,59 @@
     </div>
   </div>
 }
+
+@if (addPortOpen) {
+  <app-modal title="Ajouter un port" (closed)="addPortOpen = false">
+    <form
+      id="add-port-form"
+      [formGroup]="addPortForm"
+      (ngSubmit)="submitAddPort()">
+      <div class="field">
+        <label class="label" for="add-port-switch">Switch</label>
+        <div class="select is-fullwidth">
+          <select id="add-port-switch" formControlName="switchId">
+            @for (s of switches; track s.id) {
+              <option [ngValue]="s.id">
+                {{ s.description ?? s.ip ?? "ID " + s.id }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <p class="label">Type d'identifiant</p>
+        <div class="control">
+          <label class="radio">
+            <input type="radio" formControlName="type" value="oid" />
+            OID
+          </label>
+          <label class="radio ml-2">
+            <input type="radio" formControlName="type" value="name" />
+            Nom (Gi1/0/x)
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="add-port-value">Valeur</label>
+        <input
+          id="add-port-value"
+          class="input"
+          type="text"
+          formControlName="value"
+          placeholder="ex: 10101 ou GigabitEthernet1/0/1" />
+      </div>
+    </form>
+    <div modal-actions class="buttons">
+      <button
+        type="submit"
+        form="add-port-form"
+        class="button is-success"
+        [disabled]="addPortForm.invalid">
+        Ajouter
+      </button>
+      <button type="button" class="button" (click)="addPortOpen = false">
+        Annuler
+      </button>
+    </div>
+  </app-modal>
+}

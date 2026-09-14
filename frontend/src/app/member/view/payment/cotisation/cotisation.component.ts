@@ -20,7 +20,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import {Toast} from "../../../../notification.service";
+import {NotificationService} from "../../../../notification.service";
 
 interface SubscriptionForm {
   paidWith: FormControl<number | null>;
@@ -76,6 +76,7 @@ export class CotisationComponent implements OnInit, OnDestroy {
   constructor(
     private readonly membershipService: MembershipService,
     private readonly charterService: CharterService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -147,20 +148,23 @@ export class CotisationComponent implements OnInit, OnDestroy {
       durationIndex < 0 ||
       v.paidWith < 1
     ) {
-      void Toast.fire("Veuillez remplir tous les champs requis");
+      this.notificationService.show(
+        "warning",
+        "Veuillez remplir tous les champs requis",
+      );
       return;
     }
 
     const subscription: SubscriptionBody = {
       duration: this.subscriptionDuration.at(durationIndex)!,
-      paymentMethod: +v.paidWith!,
-      member: this.member!.id!,
+      paymentMethod: +v.paidWith,
+      member: this.member.id,
       hasRoom: !this.isWifiOnlyIndex(durationIndex),
     };
 
     if (this.isSubscriptionFinished) {
       this.membershipService
-        .memberIdSubscriptionPost(this.member!.id!, subscription, "body")
+        .memberIdSubscriptionPost(this.member.id, subscription, "body")
         .subscribe({
           next: (m) => {
             if (m.status === AbstractMembership.StatusEnum.PendingRules) {
@@ -172,27 +176,31 @@ export class CotisationComponent implements OnInit, OnDestroy {
             ) {
               this.needSignature = false;
             }
-            void Toast.fire("Inscription créée");
+            this.notificationService.successNotification("Inscription créée");
             this.updateSubscription.emit(true);
           },
           error: (error) => {
             console.error("Error creating subscription:", error);
-            void Toast.fire(
+            this.notificationService.show(
+              "danger",
               detailOf(error, "Erreur lors de la création de l'inscription"),
             );
           },
         });
     } else {
       this.membershipService
-        .memberIdSubscriptionPatch(this.member!.id!, subscription)
+        .memberIdSubscriptionPatch(this.member.id, subscription)
         .subscribe({
           next: () => {
-            void Toast.fire("Inscription mise à jour");
+            this.notificationService.successNotification(
+              "Inscription mise à jour",
+            );
             this.updateSubscription.emit(true);
           },
           error: (error) => {
             console.error("Error updating subscription:", error);
-            void Toast.fire(
+            this.notificationService.show(
+              "danger",
               detailOf(error, "Erreur lors de la mise à jour de l'inscription"),
             );
           },
