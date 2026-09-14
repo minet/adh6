@@ -17,7 +17,7 @@ class Adherent(Base):
     nom: Mapped[str | None] = mapped_column(String(255))
     prenom: Mapped[str | None] = mapped_column(String(255))
     mail: Mapped[str | None] = mapped_column(String(255))
-    login: Mapped[str | None] = mapped_column(String(255))
+    login: Mapped[str | None] = mapped_column(String(255), index=True)
     password: Mapped[str | None] = mapped_column(String(255))
     chambre_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
@@ -33,7 +33,7 @@ class Adherent(Base):
     access_token: Mapped[str | None] = mapped_column(String(255))
     subnet: Mapped[str | None] = mapped_column(String(255))
     ip: Mapped[str | None] = mapped_column(String(255))
-    ldap_login: Mapped[str | None] = mapped_column(String(255))
+    ldap_login: Mapped[str | None] = mapped_column(String(255), index=True)
     is_naina: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     datesignedminet: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
     datesignedhosting: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)

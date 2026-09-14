@@ -27,5 +27,9 @@ class RoleRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
+    async def find_for_oidc_identity(self, groups: list[str], username: str | None) -> list[RoleMapping]:
+        """Return group and user-specific roles in one database round-trip."""
+
+    @abc.abstractmethod
     async def delete(self, id: int) -> None:
         pass  # pragma: no cover
