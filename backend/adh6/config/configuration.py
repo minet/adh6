@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +26,14 @@ class Settings(BaseSettings):
     sqlalchemy_pool_size: int = 5
     sqlalchemy_max_overflow: int = 10
     sqlalchemy_pool_recycle: int = 3600 * 4
+
+    # OIDC token verification. Access-token validation uses public realm keys,
+    # so a Keycloak client secret is deliberately not required.
+    oidc_issuer: str | None = None
+    oidc_client_id: str | None = None
+    oidc_http_timeout_seconds: float = Field(default=5, gt=0)
+    oidc_jwks_cache_ttl_seconds: float = Field(default=3600, gt=0)
+    oidc_jwks_refresh_cooldown_seconds: float = Field(default=30, gt=0)
 
     @computed_field
     @property

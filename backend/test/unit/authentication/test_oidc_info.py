@@ -1,365 +1,198 @@
-"""Tests for OIDC token information extraction in FastAPI middleware."""
+"""Tests for OIDC access token verification (signature, claims and signing key cache)."""
 
-from types import SimpleNamespace
-from typing import Any, cast
-from unittest.mock import AsyncMock, MagicMock, patch
+import json
+import time
 
+import httpx
 import pytest
-from adh6.authentication.enums import Roles
-from adh6.authentication.middleware import _validate_token_with_keycloak
-from fastapi import HTTPException, status
-from jwcrypto.jwt import JWTExpired, JWTInvalidClaimFormat, JWTMissingClaim
+from adh6.authentication.oidc.token_verifier import InvalidOIDCToken, OidcProviderUnavailable, OidcTokenVerifier
+from jwcrypto import jwk, jwt
+
+ISSUER = "https://keycloak.example/realms/MiNET"
+CLIENT_ID = "adh6-keycloak"
 
 
-@pytest.fixture
-def mock_session():
-    """Create a fake async DB session."""
-    return MagicMock()
+def _rsa_key(kid: str) -> jwk.JWK:
+    return jwk.JWK.generate(kty="RSA", size=2048, kid=kid, alg="RS256", use="sig")
 
 
-@pytest.fixture
-def anyio_backend():
-    """Run anyio tests only on asyncio, matching the app runtime."""
-    return "asyncio"
+KEY = _rsa_key("key-1")
+ROTATED_KEY = _rsa_key("key-2")
 
 
-@pytest.fixture
-def mock_keycloak_client():
-    """Mock keycloak client used by middleware."""
-    with patch("adh6.authentication.middleware._get_keycloak_client") as mocked:
-        client = MagicMock()
-        mocked.return_value = client
-        yield client
-
-
-@pytest.fixture
-def mock_role_repository():
-    """Mock async role repository used during token processing."""
-    with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
-        repo = AsyncMock()
-        repo_class.return_value = repo
-        yield repo
-
-
-@pytest.fixture(autouse=True)
-def set_keycloak_client_id(monkeypatch):
-    """Ensure KEYCLOAK_CLIENT_ID is set to 'adh6-keycloak' for all tests."""
-    monkeypatch.setenv("KEYCLOAK_CLIENT_ID", "adh6-keycloak")
-
-
-@pytest.fixture
-def valid_token_data():
-    """Sample valid token data with adh6_id."""
-    return {
-        "adh6_id": 123,
+def _token(key: jwk.JWK = KEY, alg: str = "RS256", **overrides) -> str:
+    now = int(time.time())
+    claims = {
+        "iss": ISSUER,
+        "exp": now + 300,
+        "iat": now,
+        "typ": "Bearer",
+        "azp": CLIENT_ID,
+        "sub": "user-uuid",
         "preferred_username": "testuser",
-        "groups": ["/admin", "/network_admin", "/treso"],
-        "sub": "user-uuid-123",
-        "iat": 1234567890,
-        "exp": 9999999999,
-        "azp": "adh6-keycloak",
     }
+    claims.update(overrides)
+    claims = {name: value for name, value in claims.items() if value is not None}
+    token = jwt.JWT(header={"alg": alg, "kid": key.key_id}, claims=claims)
+    token.make_signed_token(key)
+    return token.serialize()
+
+
+class FakeKeycloak:
+    """Serves discovery and JWKS, and counts how often the keys are downloaded."""
+
+    def __init__(self, *keys: jwk.JWK, issuer: str = ISSUER):
+        self.keys = list(keys)
+        self.issuer = issuer
+        self.up = True
+        self.jwks_requests = 0
+
+    def handler(self, request: httpx.Request) -> httpx.Response:
+        if not self.up:
+            return httpx.Response(503)
+        if request.url.path.endswith("/.well-known/openid-configuration"):
+            return httpx.Response(200, json={"issuer": self.issuer, "jwks_uri": f"{ISSUER}/certs"})
+        self.jwks_requests += 1
+        encryption_key = {"kid": "enc", "kty": "RSA", "use": "enc", "alg": "RSA-OAEP", "n": "AQAB", "e": "AQAB"}
+        public_keys = [json.loads(key.export_public()) for key in self.keys]
+        return httpx.Response(200, json={"keys": [*public_keys, encryption_key]})
+
+
+class FakeClock:
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self) -> float:
+        return self.now
 
 
 @pytest.fixture
-def valid_token_data_no_adh6_id():
-    """Sample valid token data without adh6_id."""
-    return {
-        "preferred_username": "testuser",
-        "groups": ["/admin", "/network_admin"],
-        "sub": "user-uuid-123",
-        "iat": 1234567890,
-        "exp": 9999999999,
-        "azp": "adh6-keycloak",
-    }
+def keycloak():
+    return FakeKeycloak(KEY)
 
 
-@pytest.mark.anyio
-async def test_valid_token_with_adh6_id(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-    valid_token_data,
-):
-    """A valid token returns expected uid, groups and scope."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = valid_token_data
-
-    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
-    user_roles = [SimpleNamespace(role=Roles.USER)]
-    mock_role_repository.find.side_effect = [
-        (oidc_roles, len(oidc_roles)),
-        (user_roles, len(user_roles)),
-    ]
-
-    result = await _validate_token_with_keycloak("valid_token_123", mock_session)
-
-    assert result is not None
-    assert result["uid"] == 123
-    assert result["username"] == "testuser"
-    assert result["groups"] == ["admin", "network_admin", "treso"]
-    assert Roles.USER.value in result["scope"]
-    assert Roles.ADMIN_READ in result["scope"]
-    assert Roles.USER in result["scope"]
-
-    mock_keycloak_client.decode_token.assert_called_once_with("valid_token_123")
-    assert mock_role_repository.find.call_count == 2
+@pytest.fixture
+def clock():
+    return FakeClock()
 
 
-@pytest.mark.anyio
-async def test_valid_token_without_adh6_id(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-    valid_token_data_no_adh6_id,
-):
-    """When adh6_id is missing, user_id is resolved from username."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = valid_token_data_no_adh6_id
-
-    mock_role_repository.user_id_from_username.return_value = 456
-    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_WRITE)]
-    user_roles = [SimpleNamespace(role=Roles.USER)]
-    mock_role_repository.find.side_effect = [
-        (oidc_roles, len(oidc_roles)),
-        (user_roles, len(user_roles)),
-    ]
-
-    result = await _validate_token_with_keycloak("valid_token_456", mock_session)
-
-    assert result is not None
-    assert result["uid"] == 456
-    assert result["username"] == "testuser"
-    assert result["groups"] == ["admin", "network_admin"]
-    assert Roles.USER.value in result["scope"]
-    assert Roles.ADMIN_WRITE in result["scope"]
-
-    mock_role_repository.user_id_from_username.assert_awaited_once_with(login="testuser")
+@pytest.fixture
+def verifier(keycloak, clock):
+    return OidcTokenVerifier(
+        ISSUER,
+        CLIENT_ID,
+        http_client=httpx.AsyncClient(transport=httpx.MockTransport(keycloak.handler)),
+        cache_ttl_seconds=3600,
+        refresh_cooldown_seconds=30,
+        clock=clock,
+    )
 
 
-@pytest.mark.anyio
-async def test_invalid_token_claim_format_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Malformed tokens should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.side_effect = JWTInvalidClaimFormat("Invalid token format")
+async def test_valid_token_returns_claims(verifier):
+    claims = await verifier.verify(_token())
 
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak(cast(Any, 123), mock_session)
-
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert "Invalid OIDC token" in exc_info.value.detail
-    assert "InvalidClaimFormat" in exc_info.value.detail
+    assert claims["preferred_username"] == "testuser"
 
 
-@pytest.mark.anyio
-async def test_expired_token_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Expired tokens should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.side_effect = JWTExpired("Token has expired")
+async def test_client_can_be_in_audience_instead_of_azp(verifier):
+    claims = await verifier.verify(_token(azp="other-client", aud=["account", CLIENT_ID]))
 
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak("expired_token_123", mock_session)
-
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert "Invalid OIDC token" in exc_info.value.detail
-    assert "Expired" in exc_info.value.detail
+    assert claims["sub"] == "user-uuid"
 
 
-@pytest.mark.anyio
-async def test_missing_claim_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Tokens missing claims should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.side_effect = JWTMissingClaim("Missing required claim")
+async def test_token_without_sub_is_accepted(verifier):
+    """Keycloak 25+ only adds `sub` when the `basic` client scope is assigned."""
+    claims = await verifier.verify(_token(sub=None))
 
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak("incomplete_token_123", mock_session)
-
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert "Invalid OIDC token" in exc_info.value.detail
-    assert "MissingClaim" in exc_info.value.detail
+    assert "sub" not in claims
 
 
-@pytest.mark.anyio
-async def test_empty_token_data_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Empty token payload should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = None
-
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak("empty_token", mock_session)
-
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert exc_info.value.detail == "Invalid OIDC token: no data found"
-
-
-@pytest.mark.anyio
-async def test_azp_mismatch_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Token with wrong azp and missing aud should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = {
-        "azp": "wrong-client",
-        "aud": ["other-client"],
-        "sub": "user-uuid-123",
-    }
-
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak("token_wrong_azp", mock_session)
-
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert "azp 'wrong-client' does not match" in exc_info.value.detail
+@pytest.mark.parametrize(
+    "token",
+    [
+        pytest.param(lambda: _token(exp=int(time.time()) - 3600), id="expired"),
+        pytest.param(lambda: _token(iss="https://evil.example/realms/MiNET"), id="wrong-issuer"),
+        pytest.param(lambda: _token(azp="other-client", aud="account"), id="other-client"),
+        pytest.param(lambda: _token(typ="ID"), id="id-token"),
+        pytest.param(lambda: _token(typ="Refresh"), id="refresh-token"),
+        pytest.param(lambda: _token(key=_rsa_key("key-1")), id="forged-signature"),
+        pytest.param(lambda: _token(key=jwk.JWK.generate(kty="oct", size=256, kid="key-1"), alg="HS256"), id="hmac"),
+        pytest.param(lambda: "not.a.jwt", id="malformed"),
+        pytest.param(lambda: "", id="empty"),
+    ],
+)
+async def test_invalid_tokens_are_rejected(verifier, token):
+    with pytest.raises(InvalidOIDCToken):
+        await verifier.verify(token())
 
 
-@pytest.mark.anyio
-async def test_fallback_to_aud_when_azp_missing(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Token without azp but valid aud should be accepted."""
-    monkeypatch.delenv("TESTING", raising=False)
-    # Ensure client ID is what we expect (adh6-keycloak)
-    # This is redundant with autouse fixture but safe
-    monkeypatch.setenv("KEYCLOAK_CLIENT_ID", "adh6-keycloak")
+async def test_signing_keys_are_cached(verifier, keycloak):
+    for _ in range(5):
+        await verifier.verify(_token())
 
-    mock_keycloak_client.decode_token.return_value = {
-        # No azp
-        "aud": ["adh6-keycloak", "account"],
-        "sub": "user-uuid-123",
-        "groups": ["/admin"],
-    }
-
-    # Mock role repository to avoid errors downstream
-    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
-    mock_role_repository.find.return_value = (oidc_roles, 1)
-
-    result = await _validate_token_with_keycloak("token_valid_aud", mock_session)
-
-    assert result is not None
-    assert result["groups"] == ["admin"]
+    assert keycloak.jwks_requests == 1
 
 
-@pytest.mark.anyio
-async def test_malformed_token_data_raises_unauthorized(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Non-dict token payload should raise HTTP 401."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = "not_a_dict"
+async def test_expired_cache_is_refreshed(verifier, keycloak, clock):
+    await verifier.verify(_token())
+    clock.now += 3601
 
-    with pytest.raises(HTTPException) as exc_info:
-        await _validate_token_with_keycloak("malformed_token", mock_session)
+    await verifier.verify(_token())
 
-    assert exc_info.value.status_code == status.HTTP_401_UNAUTHORIZED
-    assert exc_info.value.detail == "Invalid OIDC token: the data is not properly formatted"
+    assert keycloak.jwks_requests == 2
 
 
-@pytest.mark.anyio
-async def test_token_without_username_or_id(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Token without uid/username still returns parsed groups and default scope."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = {
-        "groups": ["/admin"],
-        "sub": "user-uuid-123",
-        "azp": "adh6-keycloak",
-    }
+async def test_rotated_key_triggers_refresh(verifier, keycloak, clock):
+    await verifier.verify(_token())
+    # A key rotated less than one cooldown after the last download is only picked up once the cooldown ends.
+    clock.now += 31
+    keycloak.keys.append(ROTATED_KEY)
 
-    oidc_roles = [SimpleNamespace(role=Roles.ADMIN_READ)]
-    mock_role_repository.find.side_effect = [
-        (oidc_roles, len(oidc_roles)),
-    ]
+    claims = await verifier.verify(_token(key=ROTATED_KEY))
 
-    result = await _validate_token_with_keycloak("token_without_user_info", mock_session)
-
-    assert result is not None
-    assert result["uid"] is None
-    assert result["username"] is None
-    assert result["groups"] == ["admin"]
-    assert Roles.USER.value in result["scope"]
-    assert Roles.ADMIN_READ in result["scope"]
+    assert claims["typ"] == "Bearer"
+    assert keycloak.jwks_requests == 2
 
 
-@pytest.mark.anyio
-async def test_groups_stripping_leading_slash(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Leading slashes are stripped and None values are ignored."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = {
-        "adh6_id": 123,
-        "preferred_username": "testuser",
-        "groups": ["/admin", "//double_slash", "no_slash", None],
-        "azp": "adh6-keycloak",
-    }
+async def test_unknown_key_ids_do_not_hammer_keycloak(verifier, keycloak, clock):
+    await verifier.verify(_token())
+    clock.now += 31
+    unknown_key = _rsa_key("made-up")
 
-    mock_role_repository.find.return_value = ([], 0)
+    for _ in range(10):
+        with pytest.raises(InvalidOIDCToken):
+            await verifier.verify(_token(key=unknown_key))
 
-    result = await _validate_token_with_keycloak("token_with_various_groups", mock_session)
-
-    assert result is not None
-    assert result["groups"] == ["admin", "double_slash", "no_slash"]
+    assert keycloak.jwks_requests == 2
 
 
-@pytest.mark.anyio
-async def test_no_groups_in_token(
-    monkeypatch,
-    mock_session,
-    mock_keycloak_client,
-    mock_role_repository,
-):
-    """Token without groups should keep an empty groups list."""
-    monkeypatch.delenv("TESTING", raising=False)
-    mock_keycloak_client.decode_token.return_value = {
-        "adh6_id": 123,
-        "preferred_username": "testuser",
-        "azp": "adh6-keycloak",
-    }
+async def test_keycloak_down_without_cached_keys(verifier, keycloak):
+    keycloak.up = False
 
-    user_roles = [SimpleNamespace(role=Roles.USER)]
-    mock_role_repository.find.side_effect = [
-        (user_roles, len(user_roles)),
-    ]
+    with pytest.raises(OidcProviderUnavailable):
+        await verifier.verify(_token())
 
-    result = await _validate_token_with_keycloak("token_without_groups", mock_session)
 
-    assert result is not None
-    assert result["groups"] == []
-    assert Roles.USER.value in result["scope"]
+async def test_keycloak_down_keeps_expired_keys_for_one_more_ttl(verifier, keycloak, clock):
+    await verifier.verify(_token())
+    keycloak.up = False
+
+    clock.now += 3601
+    assert (await verifier.verify(_token()))["typ"] == "Bearer"
+
+    clock.now += 3600
+    with pytest.raises(OidcProviderUnavailable):
+        await verifier.verify(_token())
+
+
+async def test_discovery_issuer_mismatch_is_refused(clock):
+    keycloak = FakeKeycloak(KEY, issuer="https://keycloak.example/auth/realms/MiNET")
+    verifier = OidcTokenVerifier(
+        ISSUER,
+        CLIENT_ID,
+        http_client=httpx.AsyncClient(transport=httpx.MockTransport(keycloak.handler)),
+        clock=clock,
+    )
+
+    with pytest.raises(OidcProviderUnavailable):
+        await verifier.verify(_token())

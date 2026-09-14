@@ -8,10 +8,13 @@ import {
 } from "@angular/common/http";
 import {Observable, throwError} from "rxjs";
 import {OidcSecurityService} from "angular-auth-oidc-client";
-import {catchError, switchMap} from "rxjs/operators";
+import {catchError, finalize, shareReplay, switchMap} from "rxjs/operators";
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
+  // Requests failing with 401 at the same time share a single session refresh.
+  private refreshedToken$: Observable<string> | null = null;
+
   constructor(private readonly oidcSecurityService: OidcSecurityService) {}
 
   intercept(
@@ -25,30 +28,43 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     }
 
     return this.oidcSecurityService.getAccessToken().pipe(
-      switchMap((token) => {
-        const authReq = token
-          ? req.clone({setHeaders: {Authorization: `Bearer ${token}`}})
-          : req;
-        return next.handle(authReq).pipe(
+      switchMap((token) =>
+        next.handle(this.withToken(req, token)).pipe(
           catchError((error: HttpErrorResponse) => {
-            if (error.status === 401) {
-              return this.oidcSecurityService.forceRefreshSession().pipe(
-                switchMap(() => this.oidcSecurityService.getAccessToken()),
-                switchMap((newToken) => {
-                  const retryReq = newToken
-                    ? req.clone({
-                        setHeaders: {Authorization: `Bearer ${newToken}`},
-                      })
-                    : req;
-                  return next.handle(retryReq);
-                }),
-                catchError(() => throwError(() => error)),
-              );
+            if (error.status !== 401) {
+              return throwError(() => error);
             }
-            return throwError(() => error);
+            return this.refreshToken().pipe(
+              switchMap((newToken) =>
+                next.handle(this.withToken(req, newToken)),
+              ),
+              catchError(() => throwError(() => error)),
+            );
           }),
-        );
-      }),
+        ),
+      ),
     );
+  }
+
+  private refreshToken(): Observable<string> {
+    if (!this.refreshedToken$) {
+      this.refreshedToken$ = this.oidcSecurityService
+        .forceRefreshSession()
+        .pipe(
+          switchMap(() => this.oidcSecurityService.getAccessToken()),
+          finalize(() => (this.refreshedToken$ = null)),
+          shareReplay(1),
+        );
+    }
+    return this.refreshedToken$;
+  }
+
+  private withToken(
+    req: HttpRequest<unknown>,
+    token: string,
+  ): HttpRequest<unknown> {
+    return token
+      ? req.clone({setHeaders: {Authorization: `Bearer ${token}`}})
+      : req;
   }
 }

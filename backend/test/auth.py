@@ -2,49 +2,50 @@ from typing import Any
 
 from adh6.authentication.enums import Roles
 from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from test import (
+    SAMPLE_CLIENT,
+    SAMPLE_CLIENT_ID,
+    SAMPLE_CLIENT_TOKEN,
+    TESTING_CLIENT,
+    TESTING_CLIENT_ID,
+    TESTING_CLIENT_TOKEN,
+)
+
+_TEST_TOKENS: dict[str, dict[str, Any]] = {
+    TESTING_CLIENT_TOKEN: {
+        "uid": TESTING_CLIENT_ID,
+        "scope": [
+            Roles.USER.value,
+            Roles.ADMIN_READ.value,
+            Roles.ADMIN_WRITE.value,
+            Roles.ADMIN_PROD.value,
+            Roles.NETWORK_WRITE.value,
+            Roles.NETWORK_READ.value,
+            Roles.TRESO_READ.value,
+            Roles.TRESO_WRITE.value,
+        ],
+        "groups": ["admin", "network_admin", "treso"],
+        "username": TESTING_CLIENT,
+        "auth_method": "oidc",
+    },
+    SAMPLE_CLIENT_TOKEN: {
+        "uid": SAMPLE_CLIENT_ID,
+        "scope": [Roles.USER.value],
+        "groups": [],
+        "username": SAMPLE_CLIENT,
+        "auth_method": "oidc",
+    },
+}
 
 
-def oidc_info(token, required_scopes=None) -> dict[str, Any]:
-    """Mock OIDC info for testing environment."""
-
-    # Token-based mock logic matching test tokens
-    if token == "TEST_TOKEN":  # TESTING_CLIENT_TOKEN - admin user
-        mock_data = {
-            "uid": 28,  # TESTING_CLIENT_ID
-            "scope": [
-                Roles.USER.value,
-                Roles.ADMIN_READ.value,
-                Roles.ADMIN_WRITE.value,
-                Roles.ADMIN_PROD.value,
-                Roles.NETWORK_WRITE.value,
-                Roles.NETWORK_READ.value,
-                Roles.TRESO_READ.value,
-                Roles.TRESO_WRITE.value,
-            ],
-            "groups": ["admin", "network_admin", "treso"],
-            "username": "TestingClient",
-        }
-    elif token == "TEST_TOKEN_SAMPLE":  # SAMPLE_CLIENT_TOKEN - regular user
-        mock_data = {
-            "uid": 31,  # SAMPLE_CLIENT_ID
-            "scope": [Roles.USER.value],  # Only basic user permissions
-            "groups": [],
-            "username": "SampleMember",
-        }
-    else:
-        # For unknown tokens, deny access by default
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Unknown test token: {token}")
-
-    # Check required scopes if provided
-    if required_scopes:
-        if not isinstance(required_scopes, list):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid OIDC token: required scopes must be a list"
-            )
-        if not all(req in mock_data["scope"] for req in required_scopes):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Invalid OIDC token: missing required scopes {required_scopes}",
-            )
-
-    return mock_data
+async def validate_test_token(token: str, session: AsyncSession) -> dict[str, Any]:
+    """Stand-in for the Keycloak token validation, installed by test.integration.context."""
+    if token not in _TEST_TOKENS:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid test token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return dict(_TEST_TOKENS[token])

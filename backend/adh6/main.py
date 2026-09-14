@@ -1,17 +1,13 @@
 """FastAPI application entry point for ADH6."""
 
-import logging
-import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 
-from alembic import command
-from alembic.config import Config
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from adh6.authentication.middleware import auth_middleware
+from adh6.authentication.oidc.token_verifier import close_oidc_token_verifier, get_oidc_token_verifier
 from adh6.authentication.router import role_router, router as auth_router
 from adh6.device.router import router as device_router
 from adh6.exceptions import (
@@ -109,25 +105,16 @@ async def handle_network_manager_read_error(request: Request, exc: Exception) ->
 # ============================================================================
 
 
-_log = logging.getLogger("uvicorn")
-
-_ROOT = Path(__file__).parent.parent
-
-
-def _run_migrations() -> None:
-    cfg = Config(str(_ROOT / "alembic.ini"))
-    cfg.set_main_option("script_location", str(_ROOT / "migrations"))
-    cfg.set_main_option("version_locations", str(_ROOT / "migrations" / "versions"))
-    command.upgrade(cfg, "head")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
-    if os.environ.get("TESTING", "0") != "1":
-        _log.info("Running Alembic migrations...")
-        _run_migrations()
-    yield
+    # Built eagerly so a missing OIDC configuration fails at startup, not on the first request.
+    # The signing keys themselves are downloaded lazily.
+    get_oidc_token_verifier()
+    try:
+        yield
+    finally:
+        await close_oidc_token_verifier()
 
 
 # ============================================================================

@@ -37,17 +37,16 @@ function load(): Configuration {
 
 function initializeAuth(
   oidcSecurityService: OidcSecurityService,
-  configurationAPI: Configuration,
   miscService: MiscService,
   ability: Ability,
   router: Router,
 ): () => Promise<void> {
   return async () => {
-    const {isAuthenticated, accessToken} = await firstValueFrom(
+    // The Bearer token is attached to API calls by AuthTokenInterceptor.
+    const {isAuthenticated} = await firstValueFrom(
       oidcSecurityService.checkAuth(),
     );
     if (isAuthenticated) {
-      configurationAPI.credentials["OAuth2"] = accessToken;
       try {
         const profile = await firstValueFrom(miscService.profile());
         const {can, rules} = new AbilityBuilder(Ability);

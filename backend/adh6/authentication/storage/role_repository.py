@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, delete, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
@@ -38,6 +38,29 @@ class RoleSQLRepository(RoleRepository):
 
         all_roles = (await self.session.execute(smt)).all()
         return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
+
+    async def find_for_oidc_identity(self, groups: list[str], username: str | None) -> list[RoleMapping]:
+        conditions = []
+        if groups:
+            conditions.append(
+                and_(
+                    AuthenticationRoleMapping.authentication == AuthenticationMethod.OIDC,
+                    AuthenticationRoleMapping.identifier.in_(groups),
+                )
+            )
+        if username:
+            conditions.append(
+                and_(
+                    AuthenticationRoleMapping.authentication == AuthenticationMethod.USER,
+                    AuthenticationRoleMapping.identifier == username,
+                )
+            )
+        if not conditions:
+            return []
+
+        rows = (await self.session.execute(select(AuthenticationRoleMapping).where(or_(*conditions)))).all()
+        unique_mappings = {mapping.id: mapping for (mapping,) in rows}
+        return [self._map_to_role_mapping(mapping) for mapping in unique_mappings.values()]
 
     async def create(self, method: AuthenticationMethod, identifier: str, roles: list[Roles]) -> None:
         smt = insert(AuthenticationRoleMapping).values(
