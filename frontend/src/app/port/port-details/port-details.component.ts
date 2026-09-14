@@ -14,8 +14,8 @@ import {
   UntypedFormGroup,
   Validators,
 } from "@angular/forms";
-import Swal from "sweetalert2";
 import {NotificationService} from "../../notification.service";
+import {DialogService} from "../../ui/dialog.service";
 import {CommonModule} from "@angular/common";
 
 @Component({
@@ -60,6 +60,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly notificationService: NotificationService,
+    private readonly dialogService: DialogService,
   ) {
     this.createForm();
   }
@@ -149,15 +150,22 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   public toggleAuth(currentValue: boolean): void {
     if (currentValue) {
-      void Swal.fire({
-        title: "Entrer le VLAN",
-        icon: "question",
-        input: "number",
-        inputLabel: "VLAN 1",
-        inputPlaceholder: "Entrer le VLAN",
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.isConfirmed) {
+      void this.dialogService
+        .prompt({
+          title: "Entrer le VLAN",
+          label: "VLAN",
+          type: "number",
+          placeholder: "Entrer le VLAN",
+          validate: (value) => {
+            const n = Number(value);
+            return Number.isInteger(n) && n >= 1 && n <= 4094
+              ? null
+              : "Entrer un numéro de VLAN valide (1–4094)";
+          },
+        })
+        .then((value) => {
+          if (value === null) return;
+          const vlan = Number(value);
           this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
             finalize(() => {
               this.notificationService.successNotification(
@@ -165,17 +173,13 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
               );
             }),
           );
-          this.portService
-            .portIdVlanPut(this.portID, result.value)
-            .subscribe(() => {
-              this.notificationService.successNotification(
-                "VLAN modifié: " + result.value,
-              );
-            });
-          this.vlan$ = of(result.value);
-          return;
-        }
-      });
+          this.portService.portIdVlanPut(this.portID, vlan).subscribe(() => {
+            this.notificationService.successNotification(
+              "VLAN modifié: " + vlan,
+            );
+          });
+          this.vlan$ = of(vlan);
+        });
     } else {
       this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
         finalize(() => {

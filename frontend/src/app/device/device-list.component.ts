@@ -1,17 +1,10 @@
 import {CommonModule} from "@angular/common";
 import {Component, Input, OnInit} from "@angular/core";
 import {map, Observable, of, shareReplay, switchMap} from "rxjs";
-import {
-  AbstractDevice,
-  DeviceFilter,
-  DeviceService,
-  MemberService,
-  Device,
-} from "../api";
+import {AbstractDevice, DeviceService, MemberService, Device} from "../api";
 import {PaginationComponent} from "../pagination/pagination.component";
 import {SearchPage} from "../search-page";
 import {RouterModule, ActivatedRoute} from "@angular/router";
-import {HttpResponse} from "@angular/common/http";
 
 @Component({
   imports: [CommonModule, PaginationComponent, RouterModule],
@@ -30,20 +23,33 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
     private readonly route: ActivatedRoute,
   ) {
     super((terms, page) =>
-      (this.deviceService
+      this.deviceService
         .deviceGet(
           this.itemsPerPage,
           (page - 1) * this.itemsPerPage,
-          <DeviceFilter>{terms: terms},
-          ["id", "mac", "ipv4Address", "ipv6Address", "connectionType", "member", "name", "wifiPassword", "vendor"] as any,
+          {terms: terms},
+          [
+            "id",
+            "mac",
+            "ipv4Address",
+            "ipv6Address",
+            "connectionType",
+            "member",
+            "name",
+            "wifiPassword",
+            "vendor",
+          ] as any,
           "response",
-        ) as Observable<HttpResponse<Device[]>>)
+        )
         .pipe(
           map((response) => {
             if (response.body) {
               for (const device of response.body) {
                 if (device.member && !this.memberUsernames.has(device.id!)) {
-                  this.memberUsernames.set(device.id!, this.memberUsername$(device));
+                  this.memberUsernames.set(
+                    device.id!,
+                    this.memberUsername$(device),
+                  );
                 }
               }
             }
@@ -71,13 +77,11 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
     if (!device.member) {
       return of("");
     }
-    return this.memberService
-      .memberIdGet(device.member, ["username"])
-      .pipe(
-        shareReplay(1),
-        map((result) => {
-          return result.username || "";
-        }),
-      );
+    return this.memberService.memberIdGet(device.member, ["username"]).pipe(
+      shareReplay(1),
+      map((result) => {
+        return result.username || "";
+      }),
+    );
   }
 }

@@ -34,17 +34,13 @@
               "base": "dist/adh6"
             },
             "index": "src/index.html",
-            "polyfills": ["src/polyfills.ts", "@angular/localize/init"],
+            "polyfills": ["zone.js", "@angular/localize/init"],
             "tsConfig": "src/tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": [
-              "src/styles.scss",
-              "node_modules/sweetalert2/src/sweetalert2.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "inlineStyleLanguage": "scss",
             "scripts": [],
-            "browser": "src/main.ts",
-            "allowedCommonJsDependencies": ["sweetalert2"]
+            "browser": "src/main.ts"
           },
           "configurations": {
             "development": {
@@ -88,12 +84,7 @@
               },
               "outputHashing": "all",
               "namedChunks": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": true,
-                "hidden": true,
-                "vendor": true
-              },
+              "sourceMap": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -107,6 +98,12 @@
                   "maximumWarning": "6kb"
                 }
               ]
+            },
+            "fr": {
+              "localize": ["fr"]
+            },
+            "en": {
+              "localize": ["en"]
             }
           },
           "defaultConfiguration": "production"
@@ -125,10 +122,10 @@
               "buildTarget": "adh6:build:production"
             },
             "fr": {
-              "buildTarget": "adh6:build:fr"
+              "buildTarget": "adh6:build:development,fr"
             },
             "en": {
-              "buildTarget": "adh6:build:en"
+              "buildTarget": "adh6:build:development,en"
             }
           },
           "defaultConfiguration": "production"

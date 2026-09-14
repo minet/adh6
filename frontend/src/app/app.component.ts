@@ -4,15 +4,18 @@ import {NavbarComponent} from "./navbar/navbar.component";
 import {VerticalNavbarComponent} from "./vertical-navbar/vertical-navbar.component";
 import {FooterComponent} from "./footer/footer.component";
 import {AblePipe} from "@casl/angular";
+import {ToastsComponent} from "./ui/toasts.component";
+import {DialogComponent} from "./ui/dialog.component";
 
 @Component({
-  standalone: true,
   imports: [
     RouterOutlet,
     NavbarComponent,
     VerticalNavbarComponent,
     FooterComponent,
     AblePipe,
+    ToastsComponent,
+    DialogComponent,
   ],
   selector: "app-root",
   templateUrl: "./app.component.html",

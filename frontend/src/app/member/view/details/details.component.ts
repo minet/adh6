@@ -53,14 +53,12 @@ export class DetailsComponent {
     this.roomState$ = this.memberDetailService.member$.pipe(
       switchMap((member) => {
         if (member?.id != null) {
-          return this.roomMemberService
-            .roomMemberIdGet(member.id)
-            .pipe(
-              switchMap((roomId) => this.roomService.roomIdGet(roomId)),
-              map((room) => ({loading: false, room})),
-              catchError(() => of({loading: false, room: null})),
-              startWith({loading: true, room: null}),
-            );
+          return this.roomMemberService.roomMemberIdGet(member.id).pipe(
+            switchMap((roomId) => this.roomService.roomIdGet(roomId)),
+            map((room) => ({loading: false, room})),
+            catchError(() => of({loading: false, room: null})),
+            startWith({loading: true, room: null}),
+          );
         }
         return of({loading: false, room: null});
       }),
@@ -83,7 +81,7 @@ export class DetailsComponent {
     }
 
     this.roomService
-      .roomGet(1, 0, undefined, <AbstractRoom>{
+      .roomGet(1, 0, undefined, {
         roomNumber: roomNumber,
       })
       .subscribe((rooms) => {

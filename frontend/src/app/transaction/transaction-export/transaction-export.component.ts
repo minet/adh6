@@ -1,6 +1,12 @@
 import {Component} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import {TreasuryService} from "../../api";
 import {NotificationService} from "../../notification.service";
 
@@ -25,13 +31,23 @@ export class TransactionExportComponent {
     private readonly notificationService: NotificationService,
   ) {
     const today = new Date().toISOString().slice(0, 10);
-    const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+    const firstOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    )
       .toISOString()
       .slice(0, 10);
 
     this.exportForm = this.fb.group<ExportForm>({
-      fromDate: this.fb.control(firstOfMonth, {nonNullable: true, validators: [Validators.required]}),
-      toDate: this.fb.control(today, {nonNullable: true, validators: [Validators.required]}),
+      fromDate: this.fb.control(firstOfMonth, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      toDate: this.fb.control(today, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
     });
   }
 
@@ -51,7 +67,11 @@ export class TransactionExportComponent {
         this.loading = false;
       },
       error: () => {
-        this.notificationService.errorNotification(500, "Erreur", "Échec de l'export");
+        this.notificationService.errorNotification(
+          500,
+          "Erreur",
+          "Échec de l'export",
+        );
         this.loading = false;
       },
     });

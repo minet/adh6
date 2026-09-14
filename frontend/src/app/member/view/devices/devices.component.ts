@@ -9,12 +9,7 @@ import {
   timer,
   Subject,
 } from "rxjs";
-import {
-  switchMap,
-  map,
-  catchError,
-  takeUntil,
-} from "rxjs/operators";
+import {switchMap, map, catchError, takeUntil} from "rxjs/operators";
 import {
   MemberService,
   MemberIdLogsGet200Response,
@@ -111,7 +106,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
                 logs: this.parseLogsResponse(data?.logs || []),
                 hasMore: data?.hasMore || false,
                 total: data?.total || 0,
-              } as LogsResponse;
+              };
             }),
             catchError((error) => {
               console.error("Error loading logs:", error);
@@ -150,7 +145,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
                 hasMore: data?.hasMore || false,
                 total: data?.total || 0,
                 isLoadMore: true,
-              } as LogsResponse;
+              };
             }),
             catchError((error) => {
               console.error("Error loading more logs:", error);

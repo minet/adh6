@@ -1,4 +1,12 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {SearchPage} from "../search-page";
 import {map, Observable, shareReplay} from "rxjs";
 import {
@@ -58,6 +66,7 @@ export class TransactionListComponent
     private readonly transactionService: TransactionService,
     public appConstantsService: AppConstantsService,
     private readonly memberService: MemberService,
+    private readonly destroyRef: DestroyRef,
   ) {
     super((terms, page) => {
       const abstractTransaction: AbstractTransaction = {};
@@ -126,11 +135,13 @@ export class TransactionListComponent
       this.paymentMethods = data;
     });
     if (this.refresh) {
-      this.refresh.subscribe((e: {action: string}) => {
-        if (e.action === "refresh") {
-          this.getSearchResult();
-        }
-      });
+      this.refresh
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((e: {action: string}) => {
+          if (e.action === "refresh") {
+            this.getSearchResult();
+          }
+        });
     }
   }
 

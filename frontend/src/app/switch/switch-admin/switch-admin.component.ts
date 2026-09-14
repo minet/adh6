@@ -1,10 +1,15 @@
 import {Component, OnInit} from "@angular/core";
 import {AsyncPipe, CommonModule} from "@angular/common";
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import {finalize, Observable, shareReplay} from "rxjs";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   AbstractPort,
-  AbstractRoom,
   AbstractSwitch,
   BulkOperationResult,
   PingRequest,
@@ -14,12 +19,25 @@ import {
   DiscoveredPort,
 } from "../../api";
 import {NotificationService} from "../../notification.service";
-import Swal from "sweetalert2";
+import {DialogService} from "../../ui/dialog.service";
+import {ModalComponent} from "../../ui/modal.component";
 
 @Component({
-  imports: [CommonModule, AsyncPipe, RouterModule],
+  imports: [
+    CommonModule,
+    AsyncPipe,
+    RouterModule,
+    ReactiveFormsModule,
+    ModalComponent,
+  ],
   selector: "app-switch-admin",
   templateUrl: "./switch-admin.component.html",
+  styles: `
+    .discovered-ports {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  `,
 })
 export class SwitchAdminComponent implements OnInit {
   switchId = 0;
@@ -32,11 +50,41 @@ export class SwitchAdminComponent implements OnInit {
   pinging = false;
   discoveringNew = false;
 
+  discoveredPorts: DiscoveredPort[] = [];
+  selectedPorts = new Set<DiscoveredPort>();
+  pingOpen = false;
+  pingForm = new FormGroup({
+    address: new FormControl("", {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.pattern(/^(\d{1,3}\.){3}\d{1,3}$/),
+      ],
+    }),
+    count: new FormControl(5, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1), Validators.max(15)],
+    }),
+    size: new FormControl(100, {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.min(64),
+        Validators.max(1500),
+      ],
+    }),
+    timeoutMs: new FormControl(2000, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(100)],
+    }),
+  });
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly switchService: SwitchService,
     private readonly portService: PortService,
     private readonly notificationService: NotificationService,
+    private readonly dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {
@@ -79,107 +127,91 @@ export class SwitchAdminComponent implements OnInit {
 
   syncPortNames(): void {
     this.syncingNames = true;
-    this.switchService.switchIdSyncPortNamesPost(this.switchId)
-      .pipe(finalize(() => this.syncingNames = false))
+    this.switchService
+      .switchIdSyncPortNamesPost(this.switchId)
+      .pipe(finalize(() => (this.syncingNames = false)))
       .subscribe({
         next: (result: BulkOperationResult) => {
           this.notificationService.successNotification(
-            `Noms synchronisés : ${result.success ?? 0} succès, ${result.failed ?? 0} échec(s)`
+            `Noms synchronisés : ${result.success ?? 0} succès, ${result.failed ?? 0} échec(s)`,
           );
           this.refreshPorts();
         },
-        error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
       });
   }
 
   discoverNewPorts(): void {
     this.discoveringNew = true;
-    this.portService.portGet(500, 0, undefined, {switchObj: this.switchId}).subscribe(existingPorts => {
-      const existingOids = new Set(existingPorts.map(p => p.oid));
+    this.portService
+      .portGet(500, 0, undefined, {switchObj: this.switchId})
+      .subscribe((existingPorts) => {
+        const existingOids = new Set(existingPorts.map((p) => p.oid));
 
-      this.switchService.switchIdDiscoverPortsGet(this.switchId)
-        .pipe(finalize(() => this.discoveringNew = false))
-        .subscribe({
-          next: (discovered) => {
-            const newPorts = discovered.filter(p => p.oid && !existingOids.has(p.oid));
-            
-            if (newPorts.length === 0) {
-              void Swal.fire("Aucun nouveau port", "Tous les ports découverts sont déjà dans la base de données.", "info");
-              return;
-            }
-
-            this.showDiscoveryModal(newPorts);
-          },
-          error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
-        });
-    });
+        this.switchService
+          .switchIdDiscoverPortsGet(this.switchId)
+          .pipe(finalize(() => (this.discoveringNew = false)))
+          .subscribe({
+            next: (discovered) => {
+              const newPorts = discovered.filter(
+                (p) => p.oid && !existingOids.has(p.oid),
+              );
+              if (newPorts.length === 0) {
+                void this.dialogService.alert({
+                  title: "Aucun nouveau port",
+                  text: "Tous les ports découverts sont déjà dans la base de données.",
+                });
+                return;
+              }
+              this.discoveredPorts = newPorts;
+              this.selectedPorts = new Set(newPorts);
+            },
+            error: (err: {status: number}) =>
+              this.notificationService.errorNotification(err.status),
+          });
+      });
   }
 
-  private showDiscoveryModal(newPorts: DiscoveredPort[]): void {
-    const html = `
-      <div class="table-container" style="max-height: 300px; overflow-y: auto; text-align: left;">
-        <table class="table is-fullwidth is-narrow is-striped">
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="swal-toggle-all" checked></th>
-              <th>Nom</th>
-              <th>OID</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${newPorts.map((p, i) => `
-              <tr>
-                <td><input type="checkbox" class="swal-port-cb" data-index="${i}" checked></td>
-                <td>${p.portNumber}</td>
-                <td>${p.oid}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    void Swal.fire({
-      title: "Nouveaux ports découverts",
-      html: html,
-      showCancelButton: true,
-      confirmButtonText: "Ajouter la sélection",
-      cancelButtonText: "Annuler",
-      didOpen: () => {
-        const toggleAll = document.getElementById("swal-toggle-all") as HTMLInputElement;
-        const cbs = document.querySelectorAll(".swal-port-cb") as NodeListOf<HTMLInputElement>;
-        toggleAll.addEventListener("change", () => {
-          cbs.forEach(cb => cb.checked = toggleAll.checked);
-        });
-      },
-      preConfirm: () => {
-        const cbs = document.querySelectorAll(".swal-port-cb:checked") as NodeListOf<HTMLInputElement>;
-        return Array.from(cbs).map(cb => {
-          const idx = parseInt(cb.getAttribute("data-index")!, 10);
-          return newPorts[idx];
-        });
-      }
-    }).then(result => {
-      if (result.isConfirmed && result.value && result.value.length > 0) {
-        this.addDiscoveredPorts(result.value);
-      }
-    });
+  togglePort(port: DiscoveredPort): void {
+    if (!this.selectedPorts.delete(port)) {
+      this.selectedPorts.add(port);
+    }
   }
 
-  private addDiscoveredPorts(ports: DiscoveredPort[]): void {
-    const portsToAdd: AbstractPort[] = ports.map(p => ({
-      switchObj: this.switchId,
-      portNumber: p.portNumber,
-      oid: p.oid,
-      room: undefined
-    }));
+  toggleAllPorts(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectedPorts = new Set(checked ? this.discoveredPorts : []);
+  }
+
+  closeDiscovery(): void {
+    this.discoveredPorts = [];
+    this.selectedPorts.clear();
+  }
+
+  addDiscoveredPorts(): void {
+    const portsToAdd: AbstractPort[] = this.discoveredPorts
+      .filter((p) => this.selectedPorts.has(p))
+      .map((p) => ({
+        switchObj: this.switchId,
+        portNumber: p.portNumber,
+        oid: p.oid,
+        room: undefined,
+      }));
+    this.closeDiscovery();
+    if (portsToAdd.length === 0) {
+      return;
+    }
 
     this.portService.portBulkPost(portsToAdd).subscribe({
       next: (res) => {
-        this.notificationService.successNotification(`${res.success} ports ajoutés.`);
+        this.notificationService.successNotification(
+          `${res.success} ports ajoutés.`,
+        );
         this.refreshPorts();
       },
-      error: (err: {status: number}) => this.notificationService.errorNotification(err.status)
+      error: (err: {status: number}) =>
+        this.notificationService.errorNotification(err.status),
     });
   }
 
@@ -199,115 +231,68 @@ export class SwitchAdminComponent implements OnInit {
   }
 
   applyVlans(): void {
-    void Swal.fire({
-      title: "Entrer le numéro de VLAN",
-      icon: "question",
-      input: "number",
-      inputLabel: "Numéro de VLAN",
-      inputPlaceholder: "ex: 42",
-      inputAttributes: {min: "1", max: "4094"},
-      showCancelButton: true,
-      confirmButtonText: "Appliquer",
-      cancelButtonText: "Annuler",
-      inputValidator: (value) => {
-        const n = parseInt(value, 10);
-        if (!value || isNaN(n) || n < 1 || n > 4094) {
-          return "Entrer un numéro de VLAN valide (1–4094)";
-        }
-        return null;
-      },
-    }).then((result) => {
-      if (!result.isConfirmed) return;
-      const vlanNumber = parseInt(result.value as string, 10);
-      this.applyingVlans = true;
-      this.switchService
-        .switchIdApplyVlansPost(this.switchId, vlanNumber)
-        .pipe(finalize(() => (this.applyingVlans = false)))
-        .subscribe({
-          next: (res: BulkOperationResult) =>
-            this.notificationService.successNotification(
-              `VLANs appliqués : ${res.success ?? 0} succès, ${res.failed ?? 0} échec(s)`,
-            ),
-          error: (err: {status: number}) =>
-            this.notificationService.errorNotification(err.status),
-        });
-    });
+    void this.dialogService
+      .prompt({
+        title: "Entrer le numéro de VLAN",
+        label: "Numéro de VLAN",
+        type: "number",
+        placeholder: "ex: 42",
+        confirmText: "Appliquer",
+        validate: (value) => {
+          const n = Number(value);
+          return value && Number.isInteger(n) && n >= 1 && n <= 4094
+            ? null
+            : "Entrer un numéro de VLAN valide (1–4094)";
+        },
+      })
+      .then((value) => {
+        if (value === null) return;
+        this.applyingVlans = true;
+        this.switchService
+          .switchIdApplyVlansPost(this.switchId, Number(value))
+          .pipe(finalize(() => (this.applyingVlans = false)))
+          .subscribe({
+            next: (res: BulkOperationResult) =>
+              this.notificationService.successNotification(
+                `VLANs appliqués : ${res.success ?? 0} succès, ${res.failed ?? 0} échec(s)`,
+              ),
+            error: (err: {status: number}) =>
+              this.notificationService.errorNotification(err.status),
+          });
+      });
+  }
+
+  openPing(): void {
+    this.pingForm.reset();
+    this.pingOpen = true;
   }
 
   pingSwitch(): void {
-    void Swal.fire({
-      title: "Ping depuis le commutateur",
-      icon: "question",
-      html:
-        '<div class="field"><label class="label">Adresse IP cible</label>' +
-        '<input id="swal-ping-addr" class="input" type="text" placeholder="ex: 192.168.0.1"></div>' +
-        '<div class="columns"><div class="column"><div class="field"><label class="label">Nombre de paquets (1–15)</label>' +
-        '<input id="swal-ping-count" class="input" type="number" value="5" min="1" max="15"></div></div>' +
-        '<div class="column"><div class="field"><label class="label">Taille (64–1500)</label>' +
-        '<input id="swal-ping-size" class="input" type="number" value="100" min="64" max="1500"></div></div></div>' +
-        '<div class="field"><label class="label">Délai d\'attente (ms)</label>' +
-        '<input id="swal-ping-timeout" class="input" type="number" value="2000" min="100"></div>',
-      showCancelButton: true,
-      confirmButtonText: "Ping",
-      cancelButtonText: "Annuler",
-      focusConfirm: false,
-      preConfirm: () => {
-        const addr = (document.getElementById("swal-ping-addr") as HTMLInputElement).value.trim();
-        const count = parseInt((document.getElementById("swal-ping-count") as HTMLInputElement).value, 10);
-        const size = parseInt((document.getElementById("swal-ping-size") as HTMLInputElement).value, 10);
-        const timeoutMs = parseInt((document.getElementById("swal-ping-timeout") as HTMLInputElement).value, 10);
-
-        if (!addr) {
-          Swal.showValidationMessage("L'adresse IP est requise");
-          return false;
-        }
-        const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
-        if (!ipv4.test(addr)) {
-          Swal.showValidationMessage("Adresse IPv4 invalide");
-          return false;
-        }
-        if (isNaN(count) || count < 1 || count > 15) {
-          Swal.showValidationMessage("Le nombre de paquets doit être entre 1 et 15");
-          return false;
-        }
-        if (isNaN(size) || size < 64 || size > 1500) {
-          Swal.showValidationMessage("La taille doit être entre 64 et 1500 octets");
-          return false;
-        }
-        if (isNaN(timeoutMs) || timeoutMs < 100) {
-          Swal.showValidationMessage("Le délai d'attente doit être au moins 100 ms");
-          return false;
-        }
-        return {address: addr, count, size, timeoutMs};
-      },
-    }).then((result) => {
-      if (!result.isConfirmed || !result.value) return;
-      const req: PingRequest = {
-        address: result.value.address as string,
-        count: result.value.count as number,
-        size: result.value.size as number,
-        timeoutMs: result.value.timeoutMs as number,
-      };
-      this.pinging = true;
-      this.switchService
-        .switchIdPingPost(this.switchId, req)
-        .pipe(finalize(() => (this.pinging = false)))
-        .subscribe({
-          next: (res: PingResult) => {
-            const pct = res.sent ? Math.round(((res.received ?? 0) / res.sent) * 100) : 0;
-            const rttLine =
-              (res.received ?? 0) > 0
-                ? `<br>RTT min/avg/max : ${res.minRtt}/${res.avgRtt}/${res.maxRtt} ms`
-                : "";
-            void Swal.fire({
-              title: "Résultat du ping",
-              icon: (res.received ?? 0) > 0 ? "success" : "warning",
-              html: `Envoyés : ${res.sent ?? 0} — Reçus : ${res.received ?? 0} (${pct} %)${rttLine}`,
-            });
-          },
-          error: (err: {status: number}) =>
-            this.notificationService.errorNotification(err.status),
-        });
-    });
+    if (this.pingForm.invalid) {
+      this.pingForm.markAllAsTouched();
+      return;
+    }
+    const req: PingRequest = this.pingForm.getRawValue();
+    this.pingOpen = false;
+    this.pinging = true;
+    this.switchService
+      .switchIdPingPost(this.switchId, req)
+      .pipe(finalize(() => (this.pinging = false)))
+      .subscribe({
+        next: (res: PingResult) => {
+          const received = res.received ?? 0;
+          const pct = res.sent ? Math.round((received / res.sent) * 100) : 0;
+          const rttLine =
+            received > 0
+              ? `\nRTT min/avg/max : ${res.minRtt}/${res.avgRtt}/${res.maxRtt} ms`
+              : "";
+          void this.dialogService.alert({
+            title: "Résultat du ping",
+            text: `Envoyés : ${res.sent ?? 0} — Reçus : ${received} (${pct} %)${rttLine}`,
+          });
+        },
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
+      });
   }
 }

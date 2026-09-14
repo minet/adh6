@@ -62,7 +62,7 @@ export class PortListComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.filter = this.switchId ? <AbstractPort>{switchObj: this.switchId} : {};
+    this.filter = this.switchId ? {switchObj: this.switchId} : {};
   }
 
   handlePageChange(page: number) {
