@@ -1,51 +1,12 @@
-import {
-  animate,
-  animateChild,
-  group,
-  query,
-  style,
-  transition,
-  trigger,
-} from "@angular/animations";
 import {CommonModule} from "@angular/common";
 import {Component} from "@angular/core";
-import {RouterModule, RouterOutlet} from "@angular/router";
+import {RouterModule} from "@angular/router";
 import {map, Observable, filter} from "rxjs";
 import {Member, MiscService} from "../api";
 import {MemberDeviceModule} from "../member-device/member-device.module";
 
-export const slider = trigger("routeAnimations", [
-  transition(":increment", slideTo("right")),
-  transition(":decrement", slideTo("left")),
-]);
-
-function slideTo(direction: string) {
-  return [
-    query(":enter, :leave", [
-      style({
-        position: "absolute",
-        top: 0,
-        [direction]: 0,
-        width: "100%",
-      }),
-    ]),
-    query(":enter", [style({[direction]: "-100%"})]),
-    group([
-      query(":leave", [
-        animate("600ms ease", style({[direction]: "100%", opacity: 0})),
-      ]),
-      query(":enter", [
-        animate("600ms ease", style({[direction]: "0%", opacity: 1})),
-      ]),
-    ]),
-    query(":leave", animateChild()),
-    query(":enter", animateChild()),
-  ];
-}
-
 @Component({
   imports: [CommonModule, RouterModule, MemberDeviceModule],
-  animations: [slider],
   selector: "app-dashboard",
   styles: ["img { height: 130px; }"],
   template: `
@@ -66,11 +27,8 @@ function slideTo(direction: string) {
         </ul>
       </div>
       <div class="container">
-        <div [@routeAnimations]="prepareRoute(outlet)">
-          <router-outlet
-            #outlet="outlet"
-            (activate)="onOutletLoaded($event, member)"></router-outlet>
-        </div>
+        <router-outlet
+          (activate)="onOutletLoaded($event, member)"></router-outlet>
       </div>
     </ng-container>
   `,
@@ -88,9 +46,5 @@ export class DashboardComponent {
 
   public onOutletLoaded(component: {member?: Member}, member: Member) {
     component.member = member;
-  }
-
-  prepareRoute(outlet: RouterOutlet): string | undefined {
-    return outlet?.activatedRouteData?.["animation"] as string | undefined;
   }
 }

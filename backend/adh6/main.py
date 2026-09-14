@@ -2,11 +2,11 @@
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from adh6.authentication.middleware import auth_middleware
+from adh6.authentication.middleware import authenticate
 from adh6.authentication.oidc.token_verifier import close_oidc_token_verifier, get_oidc_token_verifier
 from adh6.authentication.router import role_router, router as auth_router
 from adh6.device.router import router as device_router
@@ -127,15 +127,8 @@ app = FastAPI(
     description="MiNET's ADH6 Platform - User, Device, and Treasury Management",
     version="2.0.0",
     lifespan=lifespan,
+    dependencies=[Depends(authenticate)],
 )
-
-
-# ============================================================================
-# Middleware
-# ============================================================================
-
-
-app.middleware("http")(auth_middleware)
 
 
 # ============================================================================

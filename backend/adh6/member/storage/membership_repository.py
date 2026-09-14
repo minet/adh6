@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
 from adh6.entity import AbstractMembership, Membership, SubscriptionBody
+from adh6.storage.count import count_rows
 
 from ..interfaces.membership_repository import MembershipRepository
 from .models import Membership as MembershipSQL
@@ -34,9 +35,7 @@ class MembershipSQLRepository(MembershipRepository):
             if filter_.member is not None:
                 stmt = stmt.where(MembershipSQL.adherent_id == filter_.member)
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(MembershipSQL.uuid).offset(offset).limit(limit)

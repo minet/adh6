@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from adh6.authentication.enums import Roles
-from adh6.authentication.middleware import _validate_api_key, _validate_token_with_keycloak, auth_middleware
+from adh6.authentication.middleware import _validate_api_key, _validate_token_with_keycloak, authenticate
 from adh6.authentication.oidc.token_verifier import InvalidOIDCToken, OidcProviderUnavailable
 from adh6.authentication.storage.models import ApiKey as ApiKeyModel
 from adh6.exceptions import MemberNotFoundError
@@ -96,29 +96,64 @@ class TestValidateTokenWithKeycloak:
         assert excinfo.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
 
-class TestAuthMiddleware:
-    @staticmethod
-    def _request(headers: dict[str, str], path: str = "/api/member/") -> Request:
-        raw_headers = [(name.lower().encode(), value.encode()) for name, value in headers.items()]
-        return Request({"type": "http", "method": "GET", "path": path, "query_string": b"", "headers": raw_headers})
+def _request(headers: dict[str, str], path: str = "/api/member/") -> Request:
+    raw_headers = [(name.lower().encode(), value.encode()) for name, value in headers.items()]
+    return Request({"type": "http", "method": "GET", "path": path, "query_string": b"", "headers": raw_headers})
 
-    async def test_request_without_credentials_passes_through(self):
-        request = self._request({})
-        call_next = AsyncMock(return_value="response")
 
-        assert await auth_middleware(request, call_next) == "response"
+class TestAuthenticate:
+    async def test_request_without_credentials_is_anonymous(self, mock_session):
+        request = _request({})
+
+        await authenticate(request, mock_session)
+
         assert not hasattr(request.state, "token_info")
 
-    async def test_unexpected_error_is_500_without_details(self):
-        request = self._request({"Authorization": "Bearer token"})
-        call_next = AsyncMock()
+    async def test_non_api_paths_are_ignored(self, mock_session, verifier):
+        request = _request({"Authorization": "Bearer abc"}, path="/ping")
 
-        with patch("adh6.authentication.middleware.async_session_factory", side_effect=RuntimeError("secret")):
-            response = await auth_middleware(request, call_next)
+        await authenticate(request, mock_session)
 
-        assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
-        assert b"secret" not in response.body
-        call_next.assert_not_awaited()
+        verifier.verify.assert_not_awaited()
+        assert not hasattr(request.state, "token_info")
+
+    async def test_bearer_token_is_resolved_with_the_request_session(self, mock_session, verifier, role_repository):
+        verifier.verify.return_value = {"adh6_id": 1}
+        request = _request({"Authorization": "Bearer abc"})
+
+        with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+            repo_class.return_value = role_repository
+            await authenticate(request, mock_session)
+
+        repo_class.assert_called_once_with(mock_session)
+        assert request.state.token_info["uid"] == 1
+
+    async def test_api_key_is_resolved_with_the_request_session(self, mock_session):
+        request = _request({"X-API-KEY": "key"})
+        token_info = {"uid": 2, "api_key_id": 7}
+
+        with patch("adh6.authentication.middleware._validate_api_key", AsyncMock(return_value=token_info)) as validate:
+            await authenticate(request, mock_session)
+
+        validate.assert_awaited_once_with("key", mock_session)
+        assert request.state.token_info == token_info
+
+    async def test_rejected_credentials_propagate(self, mock_session, verifier):
+        verifier.verify.side_effect = InvalidOIDCToken("bad")
+
+        with pytest.raises(HTTPException) as excinfo:
+            await authenticate(_request({"Authorization": "Bearer abc"}), mock_session)
+
+        assert excinfo.value.status_code == status.HTTP_401_UNAUTHORIZED
+
+    async def test_unexpected_error_is_500_without_details(self, mock_session, verifier):
+        verifier.verify.side_effect = RuntimeError("secret")
+
+        with pytest.raises(HTTPException) as excinfo:
+            await authenticate(_request({"Authorization": "Bearer abc"}), mock_session)
+
+        assert excinfo.value.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+        assert "secret" not in str(excinfo.value.detail)
 
 
 class TestValidateApiKey:

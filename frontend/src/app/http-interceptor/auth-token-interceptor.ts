@@ -9,6 +9,7 @@ import {
 import {Observable, throwError} from "rxjs";
 import {OidcSecurityService} from "angular-auth-oidc-client";
 import {catchError, finalize, shareReplay, switchMap} from "rxjs/operators";
+import {environment} from "../../environments/environment";
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
@@ -21,9 +22,11 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     req: HttpRequest<unknown>,
     next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
-    // Never attach a Bearer token to auth endpoints — they are unauthenticated
-    // by design and the backend middleware would reject an expired token.
-    if (req.url.includes("/api/auth/")) {
+    // Keycloak requests from the OIDC library and /api/auth/ must not carry the token.
+    if (
+      !req.url.startsWith(environment.API_BASE_PATH) ||
+      req.url.includes("/api/auth/")
+    ) {
       return next.handle(req);
     }
 

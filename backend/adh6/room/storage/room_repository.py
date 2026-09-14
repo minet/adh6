@@ -12,6 +12,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
 from adh6.member.storage.models import Adherent
+from adh6.storage.count import count_rows
 from adh6.subnet.storage.models import Vlan
 
 from ..interfaces import RoomRepository
@@ -86,9 +87,7 @@ class RoomSQLRepository(RoomRepository):
             if filter_.room_number is not None:
                 stmt = stmt.where(Chambre.numero == filter_.room_number)
 
-        # Count
-        count_result = await self.session.execute(stmt)
-        count = len(count_result.all())
+        count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
         stmt = stmt.order_by(Chambre.numero.asc()).offset(offset).limit(limit)

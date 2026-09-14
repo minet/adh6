@@ -60,9 +60,9 @@ class TestPortSQLRepository:
         # Given
         sql_port = create_mock_sql_port()
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = [sql_port]
         mock_execute_result.scalars.return_value.all.return_value = [sql_port]
         mock_session.execute.return_value = mock_execute_result
+        mock_session.scalar.return_value = 1
 
         # When
         results, count = await port_repo.search_by(terms="1")

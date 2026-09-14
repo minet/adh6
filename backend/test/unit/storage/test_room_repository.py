@@ -73,7 +73,6 @@ class TestRoomSQLRepository:
         # Given
         c = create_mock_chambre()
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = [c]
         mock_execute_result.scalars.return_value.all.return_value = [c]
 
         mock_vlan = MagicMock(spec=Vlan)
@@ -81,8 +80,9 @@ class TestRoomSQLRepository:
         mock_vlan_result = MagicMock()
         mock_vlan_result.first.return_value = (mock_vlan,)
 
-        # We need results for count, fetch, and mapping (vlan lookup)
-        mock_session.execute.side_effect = [mock_execute_result, mock_execute_result, mock_vlan_result]
+        # Fetch, then vlan lookup while mapping
+        mock_session.execute.side_effect = [mock_execute_result, mock_vlan_result]
+        mock_session.scalar.return_value = 1
 
         # When
         results, count = await room_repo.search_by(terms="Room")

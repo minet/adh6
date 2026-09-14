@@ -1,11 +1,10 @@
-"""Authentication middleware: resolves the caller of every /api request."""
+"""Authentication dependency: resolves the caller of every /api request."""
 
 import logging
 from hashlib import sha3_512
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +17,7 @@ from adh6.authentication.oidc.token_verifier import (
 from adh6.authentication.storage import RoleRepository
 from adh6.authentication.storage.models import ApiKey as ApiKeyModel
 from adh6.context import set_api_key_id, set_user
-from adh6.database import async_session_factory
+from adh6.database import get_session
 from adh6.exceptions import MemberNotFoundError
 
 _log = logging.getLogger(__name__)
@@ -111,37 +110,27 @@ async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
     }
 
 
-async def _authenticate(request: Request) -> dict[str, Any] | None:
-    """Return the caller's token info, or None when the request carries no credentials."""
+async def authenticate(request: Request, session: Annotated[AsyncSession, Depends(get_session)]) -> None:
+    """Attach the caller's identity to the request, in the same session as the route."""
+    if not request.url.path.startswith("/api"):
+        return
+
     auth_header = request.headers.get("Authorization", "")
     api_key_header = request.headers.get("X-API-KEY", "")
-    if not auth_header.startswith("Bearer ") and not api_key_header:
-        return None
-
-    async with async_session_factory() as session:
+    try:
         if auth_header.startswith("Bearer "):
-            return await _validate_token_with_keycloak(auth_header.removeprefix("Bearer "), session)
-        return await _validate_api_key(api_key_header, session)
+            token_info = await _validate_token_with_keycloak(auth_header.removeprefix("Bearer "), session)
+        elif api_key_header:
+            token_info = await _validate_api_key(api_key_header, session)
+        else:
+            return
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Not the caller's fault (database down, bug): a 401 would make the frontend log the user out.
+        _log.exception("Authentication failed unexpectedly")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Authentication failed") from exc
 
-
-async def auth_middleware(request: Request, call_next):
-    """Attach the caller's identity to the request; routes enforce the required roles."""
-    if request.url.path.startswith("/api"):
-        try:
-            token_info = await _authenticate(request)
-        except HTTPException as exc:
-            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
-        except Exception:
-            # Not the caller's fault (database down, bug): a 401 would make the frontend log the user out.
-            _log.exception("Authentication failed unexpectedly")
-            return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content={"detail": "Authentication failed"},
-            )
-
-        if token_info is not None:
-            request.state.token_info = token_info
-            set_user(token_info.get("uid"))
-            set_api_key_id(token_info.get("api_key_id"))
-
-    return await call_next(request)
+    request.state.token_info = token_info
+    set_user(token_info.get("uid"))
+    set_api_key_id(token_info.get("api_key_id"))

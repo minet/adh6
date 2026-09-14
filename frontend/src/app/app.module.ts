@@ -17,7 +17,6 @@ import {AblePipe} from "@casl/angular";
 import "@angular/common/locales/global/fr";
 import "@angular/common/locales/global/en";
 import {AuthConfigModule} from "./auth.module";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {OidcSecurityService} from "angular-auth-oidc-client";
 import {firstValueFrom} from "rxjs";
 import {Router} from "@angular/router";
@@ -88,7 +87,6 @@ function initializeAuth(
   declarations: [],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule,
     AppRoutingModule,
     CommonModule,
     AblePipe,

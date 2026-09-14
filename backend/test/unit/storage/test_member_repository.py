@@ -50,9 +50,9 @@ class TestMemberSQLRepository:
         # Given
         adh = Adherent(id=1, login="testuser")
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = [adh]
         mock_execute_result.scalars.return_value.all.return_value = [adh]
         mock_session.execute = AsyncMock(return_value=mock_execute_result)
+        mock_session.scalar = AsyncMock(return_value=1)
 
         # When
         results, count = await member_repo.search_by(limit=10, offset=0)
@@ -66,9 +66,9 @@ class TestMemberSQLRepository:
         # Given
         filter_ = MemberFilter(ip="127.0.0.1", since=datetime(2023, 1, 1))
         mock_execute_result = MagicMock()
-        mock_execute_result.all.return_value = []
         mock_execute_result.scalars.return_value.all.return_value = []
         mock_session.execute = AsyncMock(return_value=mock_execute_result)
+        mock_session.scalar = AsyncMock(return_value=0)
 
         # When
         await member_repo.search_by(limit=10, offset=0, filter_=filter_)
