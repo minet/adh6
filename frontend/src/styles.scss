@@ -98,6 +98,13 @@ $colors: primary, link, info, success, warning, danger;
     --bulma-notification-background-l: 15%;
   }
 
+  // Bulma uses the near-white "light" color as is-light button background
+  @each $name in $colors {
+    .button.is-#{$name}.is-light {
+      --bulma-button-background-l: var(--bulma-#{$name}-light-l);
+    }
+  }
+
   color-scheme: dark;
 }
 
