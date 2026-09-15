@@ -84,7 +84,7 @@ Les logs RADIUS et DHCP d'un adhérent sont lus dans Elasticsearch (`device/stor
 - Angular 20, composants dans `frontend/src/app/`, un dossier par fonctionnalité (`member/`, `device/`, `room/`, `switch/`, `port/`, `transaction/`…).
 - Le client de l'API (`frontend/src/app/api/`) est généré depuis la spec : il ne se modifie pas à la main.
 - Configuration par environnement dans `frontend/src/environments/` (`environment.ts` en local, `environment.prod.ts` en production).
-- Langue source : français. Traduction anglaise dans `frontend/src/local/messages.en.xlf`, extraction avec `yarn i18n:extract`.
+- Langue source : français. Traduction anglaise dans `frontend/src/local/messages.en.xlf`, extraction avec `yarn i18n:extract` (`ng-extract-i18n-merge` fusionne les nouvelles entrées dans le fichier anglais).
 
 ## Génération de code
 

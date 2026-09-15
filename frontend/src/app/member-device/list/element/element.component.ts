@@ -88,10 +88,10 @@ export class ElementComponent implements OnInit, OnChanges {
     this.device$.pipe(first()).subscribe((device: AbstractDevice) => {
       void this.dialogService
         .prompt({
-          title: "Renommer l'appareil",
+          title: $localize`:@@device.rename.title:Renommer l'appareil`,
           value: device.name ?? "",
-          placeholder: "Nom de l'appareil",
-          confirmText: "Renommer",
+          placeholder: $localize`:@@device.rename.placeholder:Nom de l'appareil`,
+          confirmText: $localize`:@@device.rename:Renommer`,
         })
         .then((name) => {
           if (name === null) return;
@@ -106,9 +106,9 @@ export class ElementComponent implements OnInit, OnChanges {
   public generateWifiPassword(): void {
     void this.dialogService
       .confirm({
-        title: "Générer un mot de passe WiFi",
-        text: "Un nouveau mot de passe WiFi sera généré pour cet appareil.",
-        confirmText: "Générer",
+        title: $localize`:@@device.wifi-password.generate.title:Générer un mot de passe WiFi`,
+        text: $localize`:@@device.wifi-password.generate.text:Un nouveau mot de passe WiFi sera généré pour cet appareil.`,
+        confirmText: $localize`:@@device.wifi-password.generate.confirm:Générer`,
       })
       .then((confirmed) => {
         if (!confirmed) return;
@@ -122,9 +122,9 @@ export class ElementComponent implements OnInit, OnChanges {
   public clearWifiPassword(): void {
     void this.dialogService
       .confirm({
-        title: "Supprimer le mot de passe WiFi",
-        text: "Le mot de passe WiFi de cet appareil sera supprimé.",
-        confirmText: "Supprimer",
+        title: $localize`:@@device.wifi-password.delete.title:Supprimer le mot de passe WiFi`,
+        text: $localize`:@@device.wifi-password.delete.text:Le mot de passe WiFi de cet appareil sera supprimé.`,
+        confirmText: $localize`:@@common.delete:Supprimer`,
         danger: true,
       })
       .then((confirmed) => {

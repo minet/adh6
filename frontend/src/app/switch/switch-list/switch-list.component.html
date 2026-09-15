@@ -6,11 +6,12 @@
       (keyup)="search(searchBox.value)"
       class="input is-fullwidth"
       placeholder="Rechercher..."
+      i18n-placeholder="@@common.search.placeholder"
       type="text" />
   </div>
   <div class="column is-narrow">
     <a [routerLink]="['../add']">
-      <button class="button is-primary">Nouveau commutateur</button>
+      <button class="button is-primary" i18n="@@switch.list.new">Nouveau commutateur</button>
     </a>
   </div>
 </div>
@@ -18,7 +19,7 @@
   <thead>
     <tr>
       <th style="width: 50%">Description</th>
-      <th style="width: 50%">Adresse IP</th>
+      <th style="width: 50%" i18n="@@common.ip-address">Adresse IP</th>
     </tr>
   </thead>
   @if (result$ | async; as result) {
@@ -36,7 +37,7 @@
     <tr>
       <td colspan="42">
         <div class="notification is-info is-light has-text-centered">
-          <h4 class="title is-4">Chargement ...</h4>
+          <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
         </div>
       </td>
     </tr>

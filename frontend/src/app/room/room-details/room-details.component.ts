@@ -225,7 +225,9 @@ export class RoomDetailsComponent implements OnInit {
 
     this.portService.portPost(port).subscribe({
       next: () => {
-        this.notificationService.successNotification("Port ajouté");
+        this.notificationService.successNotification(
+          $localize`:@@room.details.port-added:Port ajouté`,
+        );
         this.refreshInfo();
       },
       error: (err: {status: number}) =>

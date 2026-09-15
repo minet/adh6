@@ -4,7 +4,7 @@
       <div class="level-item">
         <div>
           <h1 class="title is-4 mb-1">VLANs</h1>
-          <p class="subtitle is-6 has-text-grey">Disponibilité des adresses IP par réseau</p>
+          <p class="subtitle is-6 has-text-grey" i18n="@@vlan.subtitle">Disponibilité des adresses IP par réseau</p>
         </div>
       </div>
     </div>
@@ -13,7 +13,7 @@
   @if (vlans$ | async; as vlans) {
     @if (vlans.length === 0) {
       <div class="notification is-info is-light has-text-centered">
-        <p>Aucun VLAN trouvé.</p>
+        <p i18n="@@vlan.none">Aucun VLAN trouvé.</p>
       </div>
     } @else {
       <div class="columns is-multiline is-mobile">
@@ -38,7 +38,7 @@
                       {{ vlan.deviceCount | number }} / {{ vlan.capacity | number }}
                     </span>
                   } @else {
-                    <span class="tag is-light is-medium">{{ vlan.deviceCount }} appareils</span>
+                    <span class="tag is-light is-medium" i18n="@@vlan.devices">{{ vlan.deviceCount }} appareils</span>
                   }
                 </div>
 
@@ -73,14 +73,14 @@
                   </progress>
                   <p class="is-size-7 has-text-grey has-text-right">
                     @if (vlan.isOverLimit) {
-                      <span class="has-text-danger has-text-weight-semibold">Capacité dépassée</span>
+                      <span class="has-text-danger has-text-weight-semibold" i18n="@@vlan.over-limit">Capacité dépassée</span>
                     } @else {
-                      {{ vlan.fillPct | number: '1.0-1' }}% alloué
+                      <span i18n="@@vlan.allocated">{{ vlan.fillPct | number: '1.0-1' }}% alloué</span>
                     }
                   </p>
                 } @else {
                   <div style="height: 1.5rem;"></div>
-                  <p class="is-size-7 has-text-grey has-text-right">Sous-réseau non défini</p>
+                  <p class="is-size-7 has-text-grey has-text-right" i18n="@@vlan.no-subnet">Sous-réseau non défini</p>
                 }
 
                 <!-- Over-limit devices expandable list -->
@@ -89,7 +89,7 @@
                     <summary class="is-size-7 has-text-danger has-text-weight-semibold" style="cursor: pointer; list-style: none;">
                       <span class="icon-text">
                         <span class="icon is-small"><i class="fas fa-exclamation-triangle"></i></span>
-                        <span>{{ vlan.overLimitDevices.length }} appareil(s) sans IP</span>
+                        <span i18n="@@vlan.devices-without-ip">{{ vlan.overLimitDevices.length }} appareil(s) sans IP</span>
                         <span class="icon is-small"><i class="fas fa-chevron-down"></i></span>
                       </span>
                     </summary>
@@ -98,7 +98,7 @@
                         <thead>
                           <tr>
                             <th>MAC</th>
-                            <th>Nom</th>
+                            <th i18n="@@common.name">Nom</th>
                           </tr>
                         </thead>
                         <tbody>

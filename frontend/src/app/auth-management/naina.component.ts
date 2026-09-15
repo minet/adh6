@@ -15,6 +15,7 @@ import {NotificationService} from "../notification.service";
         <input
           class="input"
           placeholder="Identifiant"
+          i18n-placeholder="@@auth.login.placeholder"
           type="text"
           [(ngModel)]="login" />
       </div>
@@ -23,7 +24,8 @@ import {NotificationService} from "../notification.service";
           <button
             class="button is-primary"
             [disabled]="login.trim() === ''"
-            (click)="newNainA()">
+            (click)="newNainA()"
+            i18n="@@naina.new">
             Nouveau NainA
           </button>
         </div>
@@ -34,7 +36,7 @@ import {NotificationService} from "../notification.service";
         <thead>
           <tr>
             <th>Login</th>
-            <th>Expire le</th>
+            <th i18n="@@naina.expires">Expire le</th>
             <th></th>
           </tr>
         </thead>
@@ -46,21 +48,22 @@ import {NotificationService} from "../notification.service";
               <td class="has-text-right">
                 <button
                   class="button is-danger is-small"
-                  (click)="revokeNainA(naina.login)">
+                  (click)="revokeNainA(naina.login)"
+                  i18n="@@naina.revoke">
                   Révoquer
                 </button>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="3" class="has-text-centered">Aucun NainA actif</td>
+              <td colspan="3" class="has-text-centered" i18n="@@naina.none">Aucun NainA actif</td>
             </tr>
           }
         </tbody>
       </table>
     } @else {
       <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
+        <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
       </div>
     }
   `,
@@ -85,7 +88,10 @@ export class NainaComponent implements OnInit {
     }
     this.nainaService.nainaPost(login).subscribe({
       next: () => {
-        this.notificationService.successNotification("NainA créé", login);
+        this.notificationService.successNotification(
+          $localize`:@@naina.created:NainA créé`,
+          login,
+        );
         this.login = "";
         this.refreshNainA();
       },
@@ -93,8 +99,8 @@ export class NainaComponent implements OnInit {
         if (err.status === 404) {
           this.notificationService.errorNotification(
             404,
-            "Utilisateur introuvable",
-            `Aucun adhérent avec le login « ${login} »`,
+            $localize`:@@naina.user-not-found:Utilisateur introuvable`,
+            $localize`:@@naina.user-not-found.desc:Aucun adhérent avec le login « ${login}:login: »`,
           );
         }
       },

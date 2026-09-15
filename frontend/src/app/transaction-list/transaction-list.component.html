@@ -5,12 +5,13 @@
       id="search-box"
       (keyup)="search(searchBox.value)"
       placeholder="Rechercher..."
+      i18n-placeholder="@@common.search.placeholder"
       class="input is-fullwidth"
       type="text" />
   </div>
   <div class="column is-narrow">
     <select class="input" (change)="onTypeFilterChange($event)">
-      <option value="">-- Tout type --</option>
+      <option value="" i18n="@@transaction.list.all-types">-- Tout type --</option>
       @for (pm of paymentMethods; track pm) {
         <option value="{{ pm.id }}">
           {{ pm.name }}
@@ -24,11 +25,11 @@
   <thead>
     <tr>
       <th>Date</th>
-      <th>Montant</th>
-      <th>Intitulé</th>
+      <th i18n="@@transaction.list.amount">Montant</th>
+      <th i18n="@@transaction.list.label">Intitulé</th>
       <th>Type</th>
-      <th>Moyen</th>
-      <th>Créé par</th>
+      <th i18n="@@transaction.list.method">Moyen</th>
+      <th i18n="@@transaction.list.author">Créé par</th>
       @if (actions.length > 0) {
         <th>Actions</th>
       }
@@ -45,7 +46,7 @@
             <small>{{ transactionResult.timestamp | date: "yyyy" }}</small>
           </td>
           <td class="text-right text-nowrap align-middle">
-            <h5>{{ transactionResult.value | number: "" : "fr" }} €</h5>
+            <h5>{{ transactionResult.value | number }} €</h5>
           </td>
           <td class="align-middle">{{ transactionResult.name }}</td>
           <td class="align-middle">{{ transactionResult.productType || "-" }}</td>
@@ -93,7 +94,7 @@
     </tbody>
   } @else {
     <div class="notification is-info is-light has-text-centered">
-      <h4 class="title is-4">Chargement ...</h4>
+      <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
     </div>
   }
 </table>

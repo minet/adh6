@@ -1,5 +1,5 @@
 <div class="container mt-5">
-  <h2 class="title is-2">Création d'un switch</h2>
+  <h2 class="title is-2" i18n="@@switch.new.title">Création d'un switch</h2>
 
   @if (step === 1) {
     <form [formGroup]="switchForm" (ngSubmit)="onSubmitSwitch()" novalidate>
@@ -15,7 +15,7 @@
       </div>
 
       <div class="field">
-        <label class="label">Adresse IP</label>
+        <label class="label" i18n="@@common.ip-address">Adresse IP</label>
         <div class="control">
           <input
             class="input"
@@ -41,7 +41,8 @@
           type="submit"
           [disabled]="disabled || switchForm.invalid"
           class="button is-primary is-fullwidth"
-          [class.is-loading]="disabled">
+          [class.is-loading]="disabled"
+          i18n="@@switch.new.submit">
           Créer et découvrir les ports
         </button>
       </div>
@@ -50,19 +51,19 @@
 
   @if (step === 2) {
     <div class="box">
-      <h3 class="title is-4">Sélection des ports à ajouter</h3>
-      
+      <h3 class="title is-4" i18n="@@switch.new.select-ports">Sélection des ports à ajouter</h3>
+
       @if (discovering) {
         <div class="has-text-centered my-5">
           <span class="icon is-large"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-          <p>Découverte des ports via SNMP...</p>
+          <p i18n="@@switch.new.discovering">Découverte des ports via SNMP...</p>
         </div>
       } @else {
         @if (discoveredPorts.length === 0) {
-          <div class="notification is-warning">
+          <div class="notification is-warning" i18n="@@switch.new.no-ports">
             Aucun port découvert. Vérifiez l'IP et la community string.
           </div>
-          <button class="button is-fullwidth" (click)="step = 1">Retour</button>
+          <button class="button is-fullwidth" (click)="step = 1" i18n="@@common.back">Retour</button>
         } @else {
           <div class="table-container" style="max-height: 400px; overflow-y: auto;">
             <table class="table is-fullwidth is-striped is-hoverable">
@@ -71,7 +72,7 @@
                   <th style="width: 40px;">
                     <input type="checkbox" (change)="toggleAll($event)" checked />
                   </th>
-                  <th>Nom du port</th>
+                  <th i18n="@@switch.new.port-name">Nom du port</th>
                   <th>OID (ifIndex)</th>
                 </tr>
               </thead>
@@ -94,10 +95,11 @@
               class="button is-primary is-fullwidth"
               [disabled]="addingPorts"
               [class.is-loading]="addingPorts"
-              (click)="addSelectedPorts()">
+              (click)="addSelectedPorts()"
+              i18n="@@switch.new.add-selected">
               Ajouter les ports sélectionnés
             </button>
-            <button class="button is-fullwidth" (click)="step = 1">
+            <button class="button is-fullwidth" (click)="step = 1" i18n="@@switch.new.back-to-config">
               Retour à la configuration
             </button>
           </div>

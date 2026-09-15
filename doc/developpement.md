@@ -39,7 +39,7 @@ Exemple d'une nouvelle route dans un module existant.
 6. **Manager** : écrire la logique métier dans `<module>/<module>_manager.py`, sans importer ni FastAPI ni SQLAlchemy.
 7. **Route** : l'ajouter dans `<module>/router.py`, vérifier les droits avec `require_role_or_ownership` et traduire les exceptions métier en codes HTTP. Le manager est construit par une fonction `get_<module>_manager`, injectée avec `Depends`.
 8. **Tests** : un test unitaire du manager avec des repositories simulés, et un test d'intégration de la route.
-9. **Frontend** : utiliser le service généré (`frontend/src/app/api/`) dans un composant, déclarer la route dans `app-routing.module.ts` si c'est une nouvelle page, puis `yarn i18n:extract` et compléter la traduction anglaise.
+9. **Frontend** : utiliser le service généré (`frontend/src/app/api/`) dans un composant, déclarer la route dans `app-routing.module.ts` si c'est une nouvelle page, puis `yarn i18n:extract` : les nouvelles entrées sont ajoutées sans `<target>` dans `messages.en.xlf`, il suffit de les compléter.
 
 Pour un **nouveau module**, reprendre la structure d'un module existant (`room/` est l'un des plus simples) et enregistrer son router dans `backend/adh6/main.py` avec `app.include_router(..., prefix="/api")`.
 

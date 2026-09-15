@@ -74,7 +74,8 @@ services:
       API_HOST: "backend"
       API_PORT: "8080"
       FRONTEND_HOST: "frontend"
-      FRONTEND_PORT: "80"
+      FRONTEND_FR_PORT: "4200"
+      FRONTEND_EN_PORT: "4201"
     command: [ 'nginx-debug', '-g', 'daemon off;' ]
   database:
     read_only: true

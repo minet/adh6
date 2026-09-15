@@ -62,8 +62,8 @@ export class NewComponent {
           ) {
             this.notificationService.errorNotification(
               404,
-              "Pas de chambre",
-              "Ce membre n'a pas de numéro de chambre assigné.",
+              $localize`:@@device.new.no-room:Pas de chambre`,
+              $localize`:@@device.new.no-room.desc:Ce membre n'a pas de numéro de chambre assigné.`,
             );
           } else {
             this.notificationService.errorNotification(err?.status ?? 500);

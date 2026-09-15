@@ -1,9 +1,9 @@
-<h2 i18n="transaction export title" class="title is-2">Export des transactions</h2>
+<h2 i18n="@@transaction.export.title" class="title is-2">Export des transactions</h2>
 <hr />
 <form [formGroup]="exportForm" (ngSubmit)="onExport()">
   <div class="field is-horizontal">
     <div class="field-label is-normal">
-      <label i18n="export from date label" class="label">Du</label>
+      <label i18n="@@transaction.export.from" class="label">Du</label>
     </div>
     <div class="field-body">
       <div class="field">
@@ -18,7 +18,7 @@
   </div>
   <div class="field is-horizontal">
     <div class="field-label is-normal">
-      <label i18n="export to date label" class="label">Au</label>
+      <label i18n="@@transaction.export.to" class="label">Au</label>
     </div>
     <div class="field-body">
       <div class="field">
@@ -38,7 +38,7 @@
         class="button is-primary"
         [class.is-loading]="loading"
         [disabled]="exportForm.invalid || loading">
-        <span i18n="export download button">Télécharger (.ods)</span>
+        <span i18n="@@transaction.export.download">Télécharger (.ods)</span>
       </button>
     </div>
   </div>

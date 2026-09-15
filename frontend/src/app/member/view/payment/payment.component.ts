@@ -40,12 +40,16 @@ export class PaymentComponent {
     this.membershipService
       .subscriptionValidate(member.id!, this.isFree)
       .subscribe(() =>
-        this.memberDetailService.updateMemberInfos.emit("Inscription finie"),
+        this.memberDetailService.updateMemberInfos.emit(
+          $localize`:@@subscription.finished:Inscription finie`,
+        ),
       );
   }
 
   public subscriptionUpdated() {
-    this.memberDetailService.updateMemberInfos.emit("Inscription mise à jour");
+    this.memberDetailService.updateMemberInfos.emit(
+      $localize`:@@subscription.updated:Inscription mise à jour`,
+    );
     this.membershipCollapse = false;
   }
 }

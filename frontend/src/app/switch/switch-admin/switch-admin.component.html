@@ -4,7 +4,7 @@
       <div class="level-left">
         <div class="level-item">
           <div>
-            <h2 class="title is-2">Administration — {{ sw.description }}</h2>
+            <h2 class="title is-2" i18n="@@switch.admin.title">Administration — {{ sw.description }}</h2>
             <p class="subtitle is-5">{{ sw.ip }}</p>
           </div>
         </div>
@@ -13,7 +13,7 @@
         <div class="level-item">
           <a class="button" [routerLink]="['/switch', 'search']">
             <span class="icon"><i class="fas fa-arrow-left"></i></span>
-            <span>Retour à la liste</span>
+            <span i18n="@@switch.admin.back">Retour à la liste</span>
           </a>
         </div>
       </div>
@@ -23,9 +23,9 @@
     <section class="box mb-5">
       <h3 class="title is-4">
         <span class="icon mr-2"><i class="fas fa-tasks"></i></span>
-        Actions groupées
+        <span i18n="@@switch.admin.bulk">Actions groupées</span>
       </h3>
-      <p class="help mb-4">
+      <p class="help mb-4" i18n="@@switch.admin.bulk.help">
         Ces actions appliquent les valeurs configurées dans la base de données à
         tous les ports du commutateur qui ont une chambre associée.
       </p>
@@ -36,7 +36,7 @@
           [disabled]="applyingDescriptions"
           (click)="applyDescriptions()">
           <span class="icon"><i class="fas fa-tag"></i></span>
-          <span>Appliquer les descriptions ports</span>
+          <span i18n="@@switch.admin.apply-descriptions">Appliquer les descriptions ports</span>
         </button>
         <button
           class="button is-warning"
@@ -44,7 +44,7 @@
           [disabled]="applyingVlans"
           (click)="applyVlans()">
           <span class="icon"><i class="fas fa-network-wired"></i></span>
-          <span>Changer les VLANs des chambres</span>
+          <span i18n="@@switch.admin.apply-vlans">Changer les VLANs des chambres</span>
         </button>
         <button
           class="button is-link"
@@ -52,7 +52,7 @@
           [disabled]="syncingNames"
           (click)="syncPortNames()">
           <span class="icon"><i class="fas fa-sync"></i></span>
-          <span>Sync noms techniques ports</span>
+          <span i18n="@@switch.admin.sync-names">Sync noms techniques ports</span>
         </button>
         <button
           class="button is-success"
@@ -60,7 +60,7 @@
           [disabled]="discoveringNew"
           (click)="discoverNewPorts()">
           <span class="icon"><i class="fas fa-search-plus"></i></span>
-          <span>Découvrir de nouveaux ports</span>
+          <span i18n="@@switch.admin.discover">Découvrir de nouveaux ports</span>
         </button>
         <button
           class="button is-primary"
@@ -68,7 +68,7 @@
           [disabled]="pinging"
           (click)="openPing()">
           <span class="icon"><i class="fas fa-satellite-dish"></i></span>
-          <span>Ping depuis le commutateur</span>
+          <span i18n="@@switch.admin.ping">Ping depuis le commutateur</span>
         </button>
       </div>
     </section>
@@ -77,11 +77,11 @@
     <section class="box">
       <h3 class="title is-4">
         <span class="icon mr-2"><i class="fas fa-plug"></i></span>
-        Ports du commutateur
+        <span i18n="@@switch.admin.ports">Ports du commutateur</span>
       </h3>
       @if (ports$ | async; as ports) {
         @if (ports.length === 0) {
-          <p class="has-text-grey-light">
+          <p class="has-text-grey-light" i18n="@@switch.admin.no-ports">
             Aucun port configuré pour ce commutateur.
           </p>
         } @else {
@@ -89,8 +89,8 @@
             <thead>
               <tr>
                 <th>Port</th>
-                <th>Chambre</th>
-                <th>Description attendue</th>
+                <th i18n="@@common.room">Chambre</th>
+                <th i18n="@@switch.admin.expected-description">Description attendue</th>
                 <th>VLAN</th>
               </tr>
             </thead>
@@ -114,7 +114,7 @@
         <p>
           <span class="icon is-small mr-1"
             ><i class="fas fa-spinner fa-spin"></i></span
-          >Chargement…
+          ><span i18n="@@common.loading.short">Chargement...</span>
         </p>
       }
     </section>
@@ -122,7 +122,7 @@
 }
 
 @if (discoveredPorts.length > 0) {
-  <app-modal title="Nouveaux ports découverts" (closed)="closeDiscovery()">
+  <app-modal title="Nouveaux ports découverts" i18n-title="@@switch.admin.discovered" (closed)="closeDiscovery()">
     <div class="table-container discovered-ports">
       <table class="table is-fullwidth is-narrow is-striped">
         <thead>
@@ -131,10 +131,11 @@
               <input
                 type="checkbox"
                 aria-label="Tout sélectionner"
+                i18n-aria-label="@@common.select-all"
                 [checked]="selectedPorts.size === discoveredPorts.length"
                 (change)="toggleAllPorts($event)" />
             </th>
-            <th>Nom</th>
+            <th i18n="@@common.name">Nom</th>
             <th>OID</th>
           </tr>
         </thead>
@@ -160,10 +161,11 @@
         type="button"
         class="button is-success"
         [disabled]="selectedPorts.size === 0"
-        (click)="addDiscoveredPorts()">
+        (click)="addDiscoveredPorts()"
+        i18n="@@switch.admin.add-selection">
         Ajouter la sélection
       </button>
-      <button type="button" class="button" (click)="closeDiscovery()">
+      <button type="button" class="button" (click)="closeDiscovery()" i18n="@@common.cancel">
         Annuler
       </button>
     </div>
@@ -171,10 +173,10 @@
 }
 
 @if (pingOpen) {
-  <app-modal title="Ping depuis le commutateur" (closed)="pingOpen = false">
+  <app-modal title="Ping depuis le commutateur" i18n-title="@@switch.admin.ping" (closed)="pingOpen = false">
     <form id="ping-form" [formGroup]="pingForm" (ngSubmit)="pingSwitch()">
       <div class="field">
-        <label class="label" for="ping-address">Adresse IP cible</label>
+        <label class="label" for="ping-address" i18n="@@switch.admin.ping.address">Adresse IP cible</label>
         <input
           id="ping-address"
           class="input"
@@ -187,13 +189,13 @@
         @if (
           pingForm.controls.address.touched && pingForm.controls.address.invalid
         ) {
-          <p class="help is-danger">Adresse IPv4 invalide</p>
+          <p class="help is-danger" i18n="@@switch.admin.ping.address.invalid">Adresse IPv4 invalide</p>
         }
       </div>
       <div class="columns">
         <div class="column">
           <div class="field">
-            <label class="label" for="ping-count">Nombre de paquets (1–15)</label>
+            <label class="label" for="ping-count" i18n="@@switch.admin.ping.count">Nombre de paquets (1–15)</label>
             <input
               id="ping-count"
               class="input"
@@ -206,7 +208,7 @@
         </div>
         <div class="column">
           <div class="field">
-            <label class="label" for="ping-size">Taille (64–1500)</label>
+            <label class="label" for="ping-size" i18n="@@switch.admin.ping.size">Taille (64–1500)</label>
             <input
               id="ping-size"
               class="input"
@@ -219,7 +221,7 @@
         </div>
       </div>
       <div class="field">
-        <label class="label" for="ping-timeout">Délai d'attente (ms, ≥ 100)</label>
+        <label class="label" for="ping-timeout" i18n="@@switch.admin.ping.timeout">Délai d'attente (ms, ≥ 100)</label>
         <input
           id="ping-timeout"
           class="input"
@@ -233,7 +235,7 @@
       <button type="submit" form="ping-form" class="button is-primary">
         Ping
       </button>
-      <button type="button" class="button" (click)="pingOpen = false">
+      <button type="button" class="button" (click)="pingOpen = false" i18n="@@common.cancel">
         Annuler
       </button>
     </div>

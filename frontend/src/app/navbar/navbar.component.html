@@ -32,13 +32,13 @@
       }
       @if ("manage" | able: "admin") {
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link"> Gestion Adhérents </a>
+          <a class="navbar-link" i18n="@@navbar.members">Gestion Adhérents</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" [routerLink]="['member/search']"
+            <a class="navbar-item" [routerLink]="['member/search']" i18n="@@navbar.members.list"
               >Adhérents</a
             >
-            <a class="navbar-item" [routerLink]="['room/search']">Chambres</a>
-            <a class="navbar-item" [routerLink]="['device/search']"
+            <a class="navbar-item" [routerLink]="['room/search']" i18n="@@navbar.rooms">Chambres</a>
+            <a class="navbar-item" [routerLink]="['device/search']" i18n="@@navbar.devices"
               >Appareils</a
             >
             <hr class="dropdown-divider" />
@@ -49,10 +49,10 @@
       }
       @if ("manage" | able: "treasury") {
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link"> Gestion Trésorerie </a>
+          <a class="navbar-link" i18n="@@navbar.treasury">Gestion Trésorerie</a>
           <div class="navbar-dropdown">
             <a class="navbar-item" [routerLink]="['transaction/add']">Transactions</a>
-            <a class="navbar-item" [routerLink]="['product/search']">Produits</a>
+            <a class="navbar-item" [routerLink]="['product/search']" i18n="@@navbar.products">Produits</a>
           </div>
         </div>
       }

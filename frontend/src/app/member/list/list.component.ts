@@ -13,6 +13,8 @@ import {
 import {PaginationComponent} from "../../pagination/pagination.component";
 import {SearchPage} from "../../search-page";
 
+const ROOM_NONE = $localize`:@@member.list.room.none:Aucune`;
+
 @Component({
   imports: [CommonModule, RouterModule, PaginationComponent],
   selector: "app-list",
@@ -59,11 +61,11 @@ export class ListComponent extends SearchPage<number> {
                     shareReplay(1),
                     switchMap((response) => {
                       if (response === undefined || response === null) {
-                        return of("No room");
+                        return of(ROOM_NONE);
                       }
                       return this.roomService
                         .roomIdGet(Number(response), ["roomNumber"])
-                        .pipe(map((r) => String(r.roomNumber) || "No room"));
+                        .pipe(map((r) => String(r.roomNumber) || ROOM_NONE));
                     }),
                   ),
                 );
@@ -95,7 +97,7 @@ export class ListComponent extends SearchPage<number> {
   }
 
   public getRoomNumber(id: number | undefined): Observable<string> {
-    if (id === undefined) return of("Aucune");
-    return this.cachedRoomNumbers.get(id) || of("Aucune");
+    if (id === undefined) return of(ROOM_NONE);
+    return this.cachedRoomNumbers.get(id) || of(ROOM_NONE);
   }
 }

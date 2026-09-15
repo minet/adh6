@@ -20,6 +20,7 @@ const KIND_CLASS: Record<ToastKind, string> = {
             type="button"
             class="delete"
             aria-label="Fermer"
+            i18n-aria-label="@@common.close"
             (click)="notifications.dismiss(toast.id)"></button>
           <strong>{{ toast.title }}</strong>
           @if (toast.text) {

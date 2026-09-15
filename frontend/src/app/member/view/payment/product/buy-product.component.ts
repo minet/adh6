@@ -103,7 +103,11 @@ export class BuyProductComponent {
     }
 
     if (this.member.id == null) {
-      this.notificationService.show("danger", "Erreur", "Membre non valide");
+      this.notificationService.show(
+        "danger",
+        $localize`:@@common.error:Erreur`,
+        $localize`:@@product.buy.invalid-member:Membre non valide`,
+      );
       return;
     }
 
@@ -115,8 +119,8 @@ export class BuyProductComponent {
     if (paymentMethod == null) {
       this.notificationService.show(
         "danger",
-        "Erreur",
-        "Méthode de paiement requise",
+        $localize`:@@common.error:Erreur`,
+        $localize`:@@product.buy.payment-method-required:Méthode de paiement requise`,
       );
       return;
     }
@@ -124,7 +128,9 @@ export class BuyProductComponent {
     this.treasuryService
       .productBuyPost(this.member.id, productIds, +paymentMethod)
       .subscribe(() => {
-        this.notificationService.successNotification("Produit(s) acheté(s)");
+        this.notificationService.successNotification(
+          $localize`:@@product.buy.success:Produit(s) acheté(s)`,
+        );
         this.productForm.controls.products.controls.forEach((e) =>
           e.controls.checked.patchValue(false),
         );

@@ -10,7 +10,7 @@
     "build:fr": "ng build --configuration=production,fr",
     "build:en": "ng build --configuration=production,en",
     "lint": "ng lint",
-    "i18n:extract": "ng extract-i18n --format=xlf --output-path src/local",
+    "i18n:extract": "ng extract-i18n",
     "prettier": "prettier . --write",
     "prettier:check": "prettier . --check"
   },
@@ -47,6 +47,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-security": "^3.0.1",
+    "ng-extract-i18n-merge": "^3.4.0",
     "prettier": "^3.6.2",
     "typescript": "~5.8.2"
   },

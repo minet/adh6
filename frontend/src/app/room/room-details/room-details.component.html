@@ -2,18 +2,18 @@
   <div class="container mt-5">
     <div class="columns">
       <div class="column is-one-quarter box">
-        <h4 class="title is-4 has-text-centered">Informations</h4>
-        <p><strong>Chambre : </strong>{{ room.roomNumber }}</p>
-        <p><strong>VLAN assigné : </strong>{{ room.vlan }}</p>
+        <h4 class="title is-4 has-text-centered" i18n="@@common.informations">Informations</h4>
+        <p><strong i18n="@@room.details.room">Chambre : </strong>{{ room.roomNumber }}</p>
+        <p><strong i18n="@@room.details.vlan">VLAN assigné : </strong>{{ room.vlan }}</p>
         <br />
         <div class="field is-grouped is-grouped-centered">
           <div class="control">
             <a [routerLink]="['/room/edit', room.id]">
-              <button class="button is-primary">Éditer</button>
+              <button class="button is-primary" i18n="@@common.edit">Éditer</button>
             </a>
           </div>
           <div class="control">
-            <button class="button is-danger" disabled>Supprimer</button>
+            <button class="button is-danger" disabled i18n="@@common.delete">Supprimer</button>
           </div>
         </div>
         <hr />
@@ -34,14 +34,15 @@
             </p>
             <a
               class="button is-primary is-fullwidth is-small"
-              [routerLink]="['/port', portRes.switchObj, portRes.id]">
+              [routerLink]="['/port', portRes.switchObj, portRes.id]"
+              i18n="@@room.details.configure">
               Configurer
             </a>
           }
         </ul>
       </div>
       <div class="column">
-        <h4 class="title is-4 has-text-centered">Adhérents</h4>
+        <h4 class="title is-4 has-text-centered" i18n="@@room.details.members">Adhérents</h4>
         <div class="box">
           @if (memberIds$ | async; as memberIds) {
             @for (memberId of memberIds; track memberId) {
@@ -58,7 +59,8 @@
                         <a [routerLink]="['/member/view', memberId, 'profile']">
                           <button
                             class="button is-primary"
-                            [disabled]="enabled">
+                            [disabled]="enabled"
+                            i18n="@@room.details.view-profile">
                             Consulter le profil
                           </button>
                         </a>
@@ -67,13 +69,14 @@
                         <button
                           class="button is-primary"
                           (click)="onDemenager(memberId)"
-                          [disabled]="enabled">
+                          [disabled]="enabled"
+                          i18n="@@room.details.move">
                           Déménager
                         </button>
                       </div>
                       <div class="control">
                         <a (click)="onRemoveFromRoom(memberId)">
-                          <button class="button is-danger" [disabled]="enabled">
+                          <button class="button is-danger" [disabled]="enabled" i18n="@@room.details.remove">
                             Supprimer de la chambre
                           </button>
                         </a>
@@ -96,13 +99,15 @@
                                 class="input is-fullwidth"
                                 type="number"
                                 formControlName="roomNumberNew"
-                                placeholder="Nouveau numéro de chambre" />
+                                placeholder="Nouveau numéro de chambre"
+                                i18n-placeholder="@@room.details.new-room-number" />
                             </div>
                             <div class="control">
                               <button
                                 type="submit"
                                 class="button is-primary"
-                                [disabled]="roomForm.status === 'INVALID'">
+                                [disabled]="roomForm.status === 'INVALID'"
+                                i18n="@@validate">
                                 Valider
                               </button>
                             </div>
@@ -116,7 +121,7 @@
               }
             }
             @if (memberIds.length === 0) {
-              <h6 class="title is-6 has-text-centered">
+              <h6 class="title is-6 has-text-centered" i18n="@@room.details.no-members">
                 Aucun adhérent dans la chambre
               </h6>
             }
@@ -128,7 +133,7 @@
 }
 
 @if (addPortOpen) {
-  <app-modal title="Ajouter un port" (closed)="addPortOpen = false">
+  <app-modal title="Ajouter un port" i18n-title="@@room.details.add-port" (closed)="addPortOpen = false">
     <form
       id="add-port-form"
       [formGroup]="addPortForm"
@@ -146,7 +151,7 @@
         </div>
       </div>
       <div class="field">
-        <p class="label">Type d'identifiant</p>
+        <p class="label" i18n="@@room.details.identifier-type">Type d'identifiant</p>
         <div class="control">
           <label class="radio">
             <input type="radio" formControlName="type" value="oid" />
@@ -154,18 +159,19 @@
           </label>
           <label class="radio ml-2">
             <input type="radio" formControlName="type" value="name" />
-            Nom (Gi1/0/x)
+            <span i18n="@@room.details.identifier-name">Nom (Gi1/0/x)</span>
           </label>
         </div>
       </div>
       <div class="field">
-        <label class="label" for="add-port-value">Valeur</label>
+        <label class="label" for="add-port-value" i18n="@@room.details.value">Valeur</label>
         <input
           id="add-port-value"
           class="input"
           type="text"
           formControlName="value"
-          placeholder="ex: 10101 ou GigabitEthernet1/0/1" />
+          placeholder="ex: 10101 ou GigabitEthernet1/0/1"
+          i18n-placeholder="@@room.details.value.placeholder" />
       </div>
     </form>
     <div modal-actions class="buttons">
@@ -173,10 +179,11 @@
         type="submit"
         form="add-port-form"
         class="button is-success"
-        [disabled]="addPortForm.invalid">
+        [disabled]="addPortForm.invalid"
+        i18n="@@common.add">
         Ajouter
       </button>
-      <button type="button" class="button" (click)="addPortOpen = false">
+      <button type="button" class="button" (click)="addPortOpen = false" i18n="@@common.cancel">
         Annuler
       </button>
     </div>

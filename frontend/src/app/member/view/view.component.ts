@@ -32,7 +32,7 @@ export class ViewComponent implements OnInit {
       .subscribe((msg: string) => {
         this.refreshInfo();
         this.notificationService.successNotification(
-          "Adhérent mis à jour",
+          $localize`:@@member.updated:Adhérent mis à jour`,
           msg,
         );
       });

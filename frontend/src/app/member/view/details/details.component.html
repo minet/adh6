@@ -10,7 +10,7 @@
         <td>{{ member.username }}</td>
       </tr>
       <tr>
-        <td>Date de départ</td>
+        <td i18n="@@member.details.departure-date">Date de départ</td>
         <td
           [class.has-text-danger]="!member.permanent && member.departureDate && member.departureDate < today"
           [style.font-weight]="!member.permanent && member.departureDate && member.departureDate < today ? 'bold' : null">
@@ -26,32 +26,36 @@
         }
       </tr>
       <tr>
-        <td>Mail</td>
+        <td i18n="@@member.details.email">Mail</td>
         <td>
           <a href="mailto:{{ member.email }}">{{ member.email }}</a>
         </td>
       </tr>
       <tr>
-        <td>Langue des mails</td>
+        <td i18n="@@member.details.language">Langue des mails</td>
         <td>
-          {{ member.preferredLanguage === "en" ? "English" : "Français" }}
+          @if (member.preferredLanguage === "en") {
+            English
+          } @else {
+            <span i18n="@@common.language.fr">Français</span>
+          }
         </td>
       </tr>
       @if (member.permanent) {
         <tr>
-          <td>Compte permanent</td>
-          <td><span class="tag is-success">Oui</span></td>
+          <td i18n="@@member.details.permanent">Compte permanent</td>
+          <td><span class="tag is-success" i18n="@@common.yes">Oui</span></td>
         </tr>
       }
       @if (member.wifiOnly) {
         <tr>
-          <td>Wi-Fi uniquement</td>
-          <td><span class="tag is-warning">Oui</span></td>
+          <td i18n="@@member.details.wifi-only">Wi-Fi uniquement</td>
+          <td><span class="tag is-warning" i18n="@@common.yes">Oui</span></td>
         </tr>
       }
       @if (!member.wifiOnly) {
         <tr>
-          <td>Chambre</td>
+          <td i18n="@@common.room">Chambre</td>
           <td>
             @if (roomState$ | async; as state) {
               @if (state.room) {
@@ -66,8 +70,9 @@
                     member.membership !== 'ABORTED' &&
                     member.membership !== 'CANCELLED' &&
                     member.membership !== 'COMPLETE'
-                  ">
-                  Emmenager
+                  "
+                  i18n="@@member.details.move-in">
+                  Emménager
                 </button>
               }
             }
@@ -83,11 +88,13 @@
           class="input is-fullwidth"
           formControlName="roomNumber"
           type="number"
-          placeholder="Numéro de chambre..." />
+          placeholder="Numéro de chambre..."
+          i18n-placeholder="@@member.details.room-number.placeholder" />
         <button
           class="button is-success is-fullwidth"
           type="submit"
-          [disabled]="roomForm.invalid">
+          [disabled]="roomForm.invalid"
+          i18n="@@validate">
           Valider
         </button>
       </form>
@@ -95,7 +102,7 @@
   }
   @if (member.comment) {
     <div>
-      <h3 class="title is-4">Commentaire</h3>
+      <h3 class="title is-4" i18n="@@member.details.comment">Commentaire</h3>
       <hr />
       <div class="notification is-primary is-light">
         <p>{{ member.comment }}</p>
@@ -103,28 +110,28 @@
       </div>
     </div>
   }
-  <h3 class="title is-4">Edition</h3>
+  <h3 class="title is-4" i18n="@@member.details.edition">Édition</h3>
   <hr />
   <div class="columns">
     <div class="column">
       <a [routerLink]="['/member/edit/', member.id]">
-        <button class="button is-primary is-fullwidth">Éditer le profil</button>
+        <button class="button is-primary is-fullwidth" i18n="@@member.details.edit-profile">Éditer le profil</button>
       </a>
     </div>
     <div class="column">
       <a [routerLink]="['comment']">
         <button class="button is-primary is-fullwidth">
-          {{
-            member.comment
-              ? "Modifier le commentaire"
-              : "Ajouter un commentaire"
-          }}
+          @if (member.comment) {
+            <span i18n="@@member.details.comment.edit">Modifier le commentaire</span>
+          } @else {
+            <span i18n="@@member.details.comment.add">Ajouter un commentaire</span>
+          }
         </button>
       </a>
     </div>
     <div class="column">
       <a [routerLink]="['/password', member.id, 0]">
-        <button class="button is-danger is-fullwidth">
+        <button class="button is-danger is-fullwidth" i18n="@@member.details.change-password">
           Changer mot de passe
         </button>
       </a>

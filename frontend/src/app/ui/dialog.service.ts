@@ -34,8 +34,8 @@ export class DialogService {
     return this.open({
       title: options.title,
       text: options.text,
-      confirmText: options.confirmText ?? "Confirmer",
-      cancelText: "Annuler",
+      confirmText: options.confirmText ?? $localize`:@@common.confirm:Confirmer`,
+      cancelText: $localize`:@@common.cancel:Annuler`,
       danger: options.danger ?? false,
     }).then((value) => value !== null);
   }
@@ -53,8 +53,8 @@ export class DialogService {
     return this.open({
       title: options.title,
       text: options.text,
-      confirmText: options.confirmText ?? "Valider",
-      cancelText: "Annuler",
+      confirmText: options.confirmText ?? $localize`:@@validate:Valider`,
+      cancelText: $localize`:@@common.cancel:Annuler`,
       danger: false,
       input: {
         type: options.type ?? "text",

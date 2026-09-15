@@ -75,12 +75,11 @@
               <button
                 [disabled]="deviceForm.status === 'INVALID'"
                 class="button is-primary is-fullwidth-mobile"
-                type="submit"
-                i18n="device new add|Add a new device">
+                type="submit">
                 <span class="icon">
                   <i class="fa fa-plus"></i>
                 </span>
-                <span>Ajouter l'appareil</span>
+                <span i18n="Add a new device@@device.new.add">Ajouter l'appareil</span>
               </button>
             </div>
           </div>
@@ -95,12 +94,11 @@
           <a
             href="//www.minet.net/{{ locale }}/tutoriels"
             target="_blank"
-            class="has-text-info"
-            i18n="device new where mac">
+            class="has-text-info">
             <span class="icon is-small">
               <i class="fa fa-question-circle"></i>
             </span>
-            <span>Où trouver mon adresse MAC ?</span>
+            <span i18n="@@device.new.where-mac">Où trouver mon adresse MAC ?</span>
           </a>
         </p>
       </div>

@@ -109,13 +109,15 @@ export class SwitchAdminComponent implements OnInit {
 
   getRoomNumber(port: AbstractPort): number | string {
     if (port.room == null) return "-";
-    if (this.isRoomError(port)) return `ID invalide (${port.room})`;
+    if (this.isRoomError(port))
+      return $localize`:@@common.invalid-id:ID invalide (${port.room}:INTERPOLATION:)`;
     return port.roomObj?.roomNumber ?? "...";
   }
 
   getRoomDescription(port: AbstractPort): string {
     if (port.room == null) return "-";
-    if (this.isRoomError(port)) return "Erreur de chargement";
+    if (this.isRoomError(port))
+      return $localize`:@@switch.admin.load-error:Erreur de chargement`;
     return port.roomObj?.description ?? "...";
   }
 
@@ -133,7 +135,7 @@ export class SwitchAdminComponent implements OnInit {
       .subscribe({
         next: (result: BulkOperationResult) => {
           this.notificationService.successNotification(
-            `Noms synchronisés : ${result.success ?? 0} succès, ${result.failed ?? 0} échec(s)`,
+            $localize`:@@switch.admin.sync-names.result:Noms synchronisés : ${result.success ?? 0}:success: succès, ${result.failed ?? 0}:failed: échec(s)`,
           );
           this.refreshPorts();
         },
@@ -159,8 +161,8 @@ export class SwitchAdminComponent implements OnInit {
               );
               if (newPorts.length === 0) {
                 void this.dialogService.alert({
-                  title: "Aucun nouveau port",
-                  text: "Tous les ports découverts sont déjà dans la base de données.",
+                  title: $localize`:@@switch.admin.no-new-ports:Aucun nouveau port`,
+                  text: $localize`:@@switch.admin.no-new-ports.desc:Tous les ports découverts sont déjà dans la base de données.`,
                 });
                 return;
               }
@@ -206,7 +208,7 @@ export class SwitchAdminComponent implements OnInit {
     this.portService.portBulkPost(portsToAdd).subscribe({
       next: (res) => {
         this.notificationService.successNotification(
-          `${res.success} ports ajoutés.`,
+          $localize`:@@switch.admin.ports-added:${res.success}:count: ports ajoutés.`,
         );
         this.refreshPorts();
       },
@@ -223,7 +225,7 @@ export class SwitchAdminComponent implements OnInit {
       .subscribe({
         next: (result: BulkOperationResult) =>
           this.notificationService.successNotification(
-            `Descriptions appliquées : ${result.success ?? 0} succès, ${result.failed ?? 0} échec(s)`,
+            $localize`:@@switch.admin.apply-descriptions.result:Descriptions appliquées : ${result.success ?? 0}:success: succès, ${result.failed ?? 0}:failed: échec(s)`,
           ),
         error: (err: {status: number}) =>
           this.notificationService.errorNotification(err.status),
@@ -233,16 +235,16 @@ export class SwitchAdminComponent implements OnInit {
   applyVlans(): void {
     void this.dialogService
       .prompt({
-        title: "Entrer le numéro de VLAN",
-        label: "Numéro de VLAN",
+        title: $localize`:@@switch.admin.vlan.prompt:Entrer le numéro de VLAN`,
+        label: $localize`:@@room.form.vlan:Numéro de VLAN`,
         type: "number",
-        placeholder: "ex: 42",
-        confirmText: "Appliquer",
+        placeholder: $localize`:@@room.form.vlan.placeholder:ex : 42`,
+        confirmText: $localize`:@@common.apply:Appliquer`,
         validate: (value) => {
           const n = Number(value);
           return value && Number.isInteger(n) && n >= 1 && n <= 4094
             ? null
-            : "Entrer un numéro de VLAN valide (1–4094)";
+            : $localize`:@@vlan.invalid:Entrer un numéro de VLAN valide (1–4094)`;
         },
       })
       .then((value) => {
@@ -254,7 +256,7 @@ export class SwitchAdminComponent implements OnInit {
           .subscribe({
             next: (res: BulkOperationResult) =>
               this.notificationService.successNotification(
-                `VLANs appliqués : ${res.success ?? 0} succès, ${res.failed ?? 0} échec(s)`,
+                $localize`:@@switch.admin.apply-vlans.result:VLANs appliqués : ${res.success ?? 0}:success: succès, ${res.failed ?? 0}:failed: échec(s)`,
               ),
             error: (err: {status: number}) =>
               this.notificationService.errorNotification(err.status),
@@ -287,8 +289,10 @@ export class SwitchAdminComponent implements OnInit {
               ? `\nRTT min/avg/max : ${res.minRtt}/${res.avgRtt}/${res.maxRtt} ms`
               : "";
           void this.dialogService.alert({
-            title: "Résultat du ping",
-            text: `Envoyés : ${res.sent ?? 0} — Reçus : ${received} (${pct} %)${rttLine}`,
+            title: $localize`:@@switch.admin.ping.result:Résultat du ping`,
+            text:
+              $localize`:@@switch.admin.ping.result.desc:Envoyés : ${res.sent ?? 0}:sent: — Reçus : ${received}:received: (${pct}:pct: %)` +
+              rttLine,
           });
         },
         error: (err: {status: number}) =>

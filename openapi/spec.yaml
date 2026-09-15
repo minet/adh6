@@ -23,18 +23,23 @@ paths:
     get:
       summary: Retrieve the health of the API server
       description: >
-        This endpoint allows for better monitoring of the state of the API.
-        **TODO**: Improve the amount of information returned
+        Public endpoint for monitoring the state of the API.
+        The result is cached for a few seconds to protect the database.
       operationId: health
       responses:
         "200":
           description: ADH6 is alive!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
         "503":
           description: Database is down.
-      security: 
-        - OpenIdConnect:
-          - admin:read
-        - ApiKeyAdminAuth: []
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+      security: []
       tags:
         - misc
   /profile:
@@ -3160,6 +3165,13 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    Health:
+      type: object
+      properties:
+        healthy:
+          type: boolean
+      required:
+        - healthy
     MemberStatus:
       type: object
       properties:

@@ -113,7 +113,7 @@ export class SwitchNewComponent {
       .subscribe({
         next: (result) => {
           this.notificationService.successNotification(
-            `Ports ajoutés : ${result.success} succès, ${result.failed} échec(s)`,
+            $localize`:@@switch.new.ports-added:Ports ajoutés : ${result.success}:success: succès, ${result.failed}:failed: échec(s)`,
           );
           void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
         },
