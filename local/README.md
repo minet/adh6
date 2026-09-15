@@ -17,6 +17,8 @@ make run-dev   # ou docker compose up, une fois le JAR Keycloak construit (make 
 
 Aucun `.env` n'est nécessaire : les valeurs par défaut sont dans `compose.yaml`.
 
+Le frontend tourne avec deux dev servers Angular, un par langue : https://localhost/fr/ et https://localhost/en/.
+
 Prérequis : cloner `fdpuserstoragefederation` et `theme` à côté de ce dépôt (Keycloak local).
 
 ## Comptes

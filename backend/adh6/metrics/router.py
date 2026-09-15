@@ -1,19 +1,20 @@
 """FastAPI router for metrics endpoints (health checks)."""
 
-import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from adh6.authentication.enums import Roles
 from adh6.database import get_session
-from adh6.security import require_role_or_ownership
+from adh6.entity import Health
 
-from .health_manager import HealthManager
+from .health_manager import HealthCache, HealthManager
 from .storage import PingRepository
 
 router = APIRouter(prefix="/health", tags=["health"])
+
+_health_cache = HealthCache()
 
 
 # ============================================================================
@@ -34,17 +35,19 @@ async def get_health_manager(
 # ============================================================================
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_class=Response)
+@router.get(
+    "",
+    response_model=Health,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_503_SERVICE_UNAVAILABLE: {"model": Health}},
+)
 async def health_check(
     manager: Annotated[HealthManager, Depends(get_health_manager)],
-    request: Request,
-) -> Response:
-    """Perform a system health check."""
-    require_role_or_ownership(request, Roles.ADMIN_READ.value)
-    is_healthy = await manager.is_healthy()
-    payload = {"healthy": is_healthy}
-    return Response(
-        content=json.dumps(payload),
-        media_type="application/json",
-        status_code=status.HTTP_200_OK,
+) -> JSONResponse:
+    """Public system health check: 200 if healthy, 503 otherwise."""
+    is_healthy = await _health_cache.is_healthy(manager)
+    return JSONResponse(
+        content={"healthy": is_healthy},
+        status_code=status.HTTP_200_OK if is_healthy else status.HTTP_503_SERVICE_UNAVAILABLE,
+        headers={"Cache-Control": "no-store"},
     )

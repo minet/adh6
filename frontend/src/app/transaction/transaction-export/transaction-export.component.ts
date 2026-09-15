@@ -69,8 +69,8 @@ export class TransactionExportComponent {
       error: () => {
         this.notificationService.errorNotification(
           500,
-          "Erreur",
-          "Échec de l'export",
+          $localize`:@@common.error:Erreur`,
+          $localize`:@@transaction.export.error:Échec de l'export`,
         );
         this.loading = false;
       },

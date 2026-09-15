@@ -101,7 +101,7 @@ export class DetailsComponent {
               this.refreshRoom();
               this.collapseMoveIn();
               this.memberDetailService.updateMemberInfos.emit(
-                "Chambre mise à jour",
+                $localize`:@@member.room-updated:Chambre mise à jour`,
               );
             });
         }

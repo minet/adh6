@@ -62,17 +62,17 @@
             @if (device.connectionType === "wireless") {
               <tr>
                 <td>
-                  <strong>Mot de passe WiFi</strong>
+                  <strong i18n="@@device.wifi-password">Mot de passe WiFi</strong>
                 </td>
                 <td>
                   @if (device.wifiPassword) {
                     <code>{{ device.wifiPassword }}</code>
-                    <a class="ml-2" (click)="clearWifiPassword()"
+                    <a class="ml-2" (click)="clearWifiPassword()" i18n="@@device.wifi-password.delete"
                       >(supprimer)</a
                     >
                   } @else {
-                    <em>Aucun</em>
-                    <a class="ml-2" (click)="generateWifiPassword()"
+                    <em i18n="@@device.wifi-password.none">Aucun</em>
+                    <a class="ml-2" (click)="generateWifiPassword()" i18n="@@device.wifi-password.generate"
                       >(générer)</a
                     >
                   }
@@ -83,10 +83,10 @@
         </table>
       </div>
       <footer class="card-footer">
-        <a class="card-footer-item button is-info is-light" (click)="rename()"
+        <a class="card-footer-item button is-info is-light" (click)="rename()" i18n="@@device.rename"
           >Renommer</a
         >
-        <a class="card-footer-item button is-danger" (click)="deviceDelete()"
+        <a class="card-footer-item button is-danger" (click)="deviceDelete()" i18n="@@common.delete"
           >Supprimer</a
         >
       </footer>

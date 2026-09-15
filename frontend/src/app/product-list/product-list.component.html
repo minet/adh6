@@ -3,6 +3,7 @@
   id="search-box"
   (keyup)="search(searchBox.value)"
   placeholder="Rechercher..."
+  i18n-placeholder="@@common.search.placeholder"
   class="input is-fullwidth"
   type="text" />
 <br />
@@ -11,9 +12,9 @@
   <table class="table is-hoverable is-striped is-fullwidth">
     <thead>
       <tr>
-        <th>Nom</th>
-        <th>Prix d'achat</th>
-        <th>Prix de vente</th>
+        <th i18n="@@common.name">Nom</th>
+        <th i18n="@@product.list.buying-price">Prix d'achat</th>
+        <th i18n="@@product.list.selling-price">Prix de vente</th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +29,6 @@
   </table>
 } @else {
   <div class="notification is-info is-light has-text-centered">
-    <h4 class="title is-4">Chargement ...</h4>
+    <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
   </div>
 }

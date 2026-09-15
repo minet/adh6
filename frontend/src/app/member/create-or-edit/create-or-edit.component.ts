@@ -148,7 +148,9 @@ export class CreateOrEditComponent implements OnInit {
   delete(): void {
     this.memberService.memberIdDelete(this.member_id).subscribe((_) => {
       void this.router.navigate(["member/search"]);
-      this.notificationService.successNotification("Adhérent supprimé");
+      this.notificationService.successNotification(
+        $localize`:@@member.deleted:Adhérent supprimé`,
+      );
     });
   }
 

@@ -100,10 +100,12 @@
               ]
             },
             "fr": {
-              "localize": ["fr"]
+              "localize": ["fr"],
+              "baseHref": "/fr/"
             },
             "en": {
-              "localize": ["en"]
+              "localize": ["en"],
+              "baseHref": "/en/"
             }
           },
           "defaultConfiguration": "production"
@@ -122,18 +124,28 @@
               "buildTarget": "adh6:build:production"
             },
             "fr": {
-              "buildTarget": "adh6:build:development,fr"
+              "buildTarget": "adh6:build:development,fr",
+              "servePath": "/fr/"
             },
             "en": {
-              "buildTarget": "adh6:build:development,en"
+              "buildTarget": "adh6:build:development,en",
+              "servePath": "/en/"
             }
           },
           "defaultConfiguration": "production"
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
+          "builder": "ng-extract-i18n-merge:ng-extract-i18n-merge",
           "options": {
-            "buildTarget": "adh6:build:production"
+            "buildTarget": "adh6:build:production",
+            "format": "xlf",
+            "outputPath": "src/local",
+            "sourceFile": "messages.xlf",
+            "targetFiles": ["messages.en.xlf"],
+            "includeContext": true,
+            "includeContextLineNumber": false,
+            "sort": "stableAppendNew",
+            "newTranslationTargetsBlank": "omit"
           }
         },
         "lint": {

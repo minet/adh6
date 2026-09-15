@@ -46,7 +46,7 @@ export class NotificationService {
   }
 
   successNotification(
-    title = "Opération réussie",
+    title = $localize`:@@notification.success:Opération réussie`,
     message?: string,
     timer?: number,
   ): void {

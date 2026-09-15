@@ -37,6 +37,7 @@ from adh6.entity.device_filter import DeviceFilter
 from adh6.entity.device_id_name_put_request import DeviceIdNamePutRequest
 from adh6.entity.discovered_port import DiscoveredPort
 from adh6.entity.error import Error
+from adh6.entity.health import Health
 from adh6.entity.mailinglist_member_id_put_request import MailinglistMemberIdPutRequest
 from adh6.entity.member import Member
 from adh6.entity.member_body import MemberBody

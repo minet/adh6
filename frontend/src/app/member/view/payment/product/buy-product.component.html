@@ -1,6 +1,6 @@
 <form (ngSubmit)="submit()" [formGroup]="productForm">
   <div class="field">
-    <label class="label">Matériel à ajouter</label>
+    <label class="label" i18n="@@product.buy.label">Matériel à ajouter</label>
     @if (products$ | async) {
       @for (
         product of productForm.controls.products.controls;
@@ -23,10 +23,10 @@
     }
   </div>
   <div class="field">
-    <label class="label">Montant : {{ amount }} €</label>
+    <label class="label" i18n="@@common.amount">Montant : {{ amount }} €</label>
     <div class="control">
       <select class="input is-fullwidth" formControlName="paidWith" type="text">
-        <option value="0">-- Moyen de paiement --</option>
+        <option value="0" i18n="@@common.payment-method.select">-- Moyen de paiement --</option>
         @for (pm of paymentMethods; track pm) {
           <option value="{{ pm.id }}">
             {{ pm.name }}
@@ -39,7 +39,8 @@
     <button
       class="button is-success is-fullwidth"
       type="submit"
-      [disabled]="productForm.invalid">
+      [disabled]="productForm.invalid"
+      i18n="@@validate">
       Valider
     </button>
   </div>

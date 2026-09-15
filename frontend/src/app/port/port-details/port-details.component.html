@@ -2,8 +2,8 @@
   <div class="container mt-5">
     <div class="columns">
       <div class="column is-one-quarter box">
-        <h4 class="title is-4 has-text-centered">Informations</h4>
-        <p><strong>Numéro : </strong>{{ port.portNumber }}</p>
+        <h4 class="title is-4 has-text-centered" i18n="@@common.informations">Informations</h4>
+        <p><strong i18n="@@port.details.number">Numéro : </strong>{{ port.portNumber }}</p>
         <p><strong>OID : </strong>{{ port.oid }}</p>
         <p>
           <strong>Switch : </strong>
@@ -12,23 +12,23 @@
           </a>
         </p>
         <p>
-          <strong>Chambre : </strong>
+          <strong i18n="@@port.details.room">Chambre : </strong>
           @if (port.room !== undefined) {
             <span>
               {{ room_number$ | async }}
             </span>
           }
           @if (port.room === undefined) {
-            <span>Aucune chambre</span>
+            <span i18n="@@common.room.none">Aucune chambre</span>
           }
         </p>
-        <p><strong>VLAN actuel : </strong>{{ vlan$ | async }}</p>
+        <p><strong i18n="@@port.details.current-vlan">VLAN actuel : </strong>{{ vlan$ | async }}</p>
         <label class="checkbox">
           <input
             type="checkbox"
             [checked]="!!port.publiclyAccessible"
             (change)="togglePubliclyAccessible(port)" />
-          <strong> Accès public</strong>
+          <strong i18n="@@port.details.public-access"> Accès public</strong>
         </label>
       </div>
       <div class="column">
@@ -43,6 +43,7 @@
                     <input
                       type="checkbox"
                       aria-label="Port ouvert"
+                      i18n-aria-label="@@port.details.open.aria"
                       [checked]="context.value"
                       (click)="$event.preventDefault(); toggleStatus()" />
                     <span class="switch__slider"></span>
@@ -56,12 +57,12 @@
                   </span>
                 </div>
               } @else {
-                <span class="port-toggle__state">Chargement...</span>
+                <span class="port-toggle__state" i18n="@@common.loading.short">Chargement...</span>
               }
             }
           </div>
           <div class="port-toggle">
-            <strong>Authentification</strong>
+            <strong i18n="@@port.details.auth">Authentification</strong>
             @if ({value: (auth$ | async)}; as context) {
               @if (context.value !== null) {
                 <div>
@@ -69,6 +70,7 @@
                     <input
                       type="checkbox"
                       aria-label="Authentification activée"
+                      i18n-aria-label="@@port.details.auth.aria"
                       [checked]="context.value"
                       (click)="
                         $event.preventDefault(); toggleAuth(context.value)
@@ -84,7 +86,7 @@
                   </span>
                 </div>
               } @else {
-                <span class="port-toggle__state">Chargement...</span>
+                <span class="port-toggle__state" i18n="@@common.loading.short">Chargement...</span>
               }
             }
           </div>
@@ -97,6 +99,7 @@
                     <input
                       type="checkbox"
                       aria-label="MAB activé"
+                      i18n-aria-label="@@port.details.mab.aria"
                       [checked]="context.value"
                       (click)="$event.preventDefault(); toggleMAB()" />
                     <span class="switch__slider"></span>
@@ -110,7 +113,7 @@
                   </span>
                 </div>
               } @else {
-                <span class="port-toggle__state">Chargement...</span>
+                <span class="port-toggle__state" i18n="@@common.loading.short">Chargement...</span>
               }
             }
           </div>
@@ -119,8 +122,8 @@
           <h4 class="title is-4 has-text-centered">Presets</h4>
           <div class="port-toggle">
             <div>
-              <strong>Mini-Routeur</strong>
-              <p class="preset-commands has-text-grey">
+              <strong i18n="@@port.details.mini-router">Mini-Routeur</strong>
+              <p class="preset-commands has-text-grey" i18n="@@port.details.mini-router.desc">
                 Voice VLAN 31, host-mode multi-auth, pas de VLAN 15 en
                 no-response
               </p>
@@ -132,6 +135,7 @@
                     <input
                       type="checkbox"
                       aria-label="Mini-Routeur activé"
+                      i18n-aria-label="@@port.details.mini-router.aria"
                       [checked]="context.value"
                       (click)="
                         $event.preventDefault(); toggleMiniRouter(context.value)
@@ -147,7 +151,7 @@
                   </span>
                 </div>
               } @else {
-                <span class="port-toggle__state">Chargement...</span>
+                <span class="port-toggle__state" i18n="@@common.loading.short">Chargement...</span>
               }
             }
           </div>

@@ -86,7 +86,7 @@ export class TransactionNewComponent implements OnInit {
         .subscribe(() => {
           this.notificationService.successNotification(
             "Ok!",
-            "Transaction supprimée avec succès !",
+            $localize`:@@transaction.deleted:Transaction supprimée avec succès !`,
           );
           this.refreshTransactions.next({action: "refresh"});
         });
@@ -116,7 +116,7 @@ export class TransactionNewComponent implements OnInit {
         this.transactionDetails.reset();
         this.notificationService.successNotification(
           "Ok!",
-          "Transaction créée avec succès !",
+          $localize`:@@transaction.created:Transaction créée avec succès !`,
         );
         this.refreshTransactions.next({action: "refresh"});
       });

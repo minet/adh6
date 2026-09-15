@@ -14,6 +14,7 @@ import {ChangeDetectionStrategy, Component, input, output} from "@angular/core";
             type="button"
             class="delete"
             aria-label="Fermer"
+            i18n-aria-label="@@common.close"
             (click)="closed.emit()"></button>
         </header>
         <section class="modal-card-body">

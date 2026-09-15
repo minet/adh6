@@ -14,6 +14,7 @@ import {DialogService} from "../ui/dialog.service";
         <input
           class="input"
           placeholder="Identifiant"
+          i18n-placeholder="@@auth.login.placeholder"
           type="text"
           [(ngModel)]="login" />
       </div>
@@ -23,12 +24,12 @@ import {DialogService} from "../ui/dialog.service";
             <select [(ngModel)]="roles" multiple size="3">
               <option value="0">Admin</option>
               <option value="1">Network</option>
-              <option value="2">Trésorerie</option>
+              <option value="2" i18n="@@api-key.role.treasury">Trésorerie</option>
             </select>
           </div>
         </div>
         <div class="level-item">
-          <button class="button is-primary" (click)="submit()">
+          <button class="button is-primary" (click)="submit()" i18n="@@api-key.new">
             Nouvelle clef
           </button>
         </div>
@@ -47,7 +48,7 @@ import {DialogService} from "../ui/dialog.service";
             <tr>
               <td>{{ key.login }}</td>
               <td>
-                <button class="button is-danger" (click)="delete(key.id)">
+                <button class="button is-danger" (click)="delete(key.id)" i18n="@@common.delete">
                   Supprimer
                 </button>
               </td>
@@ -57,7 +58,7 @@ import {DialogService} from "../ui/dialog.service";
       </table>
     } @else {
       <div class="notification is-info is-light has-text-centered">
-        <h4 class="title is-4">Chargement ...</h4>
+        <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
       </div>
     }
   `,
@@ -100,7 +101,7 @@ export class ApiKeyComponent implements OnInit {
       })
       .subscribe((res) => {
         void this.dialogService
-          .alert({title: "Clé d'API", text: res})
+          .alert({title: $localize`:@@api-key.dialog.title:Clé d'API`, text: res})
           .then(() => this.refreshApi());
       });
   }

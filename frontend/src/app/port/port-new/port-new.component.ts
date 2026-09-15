@@ -23,17 +23,17 @@ interface PortForm {
   imports: [ReactiveFormsModule],
   selector: "app-port-new",
   template: `
-    <h1 class="title is-1">Création d'un port</h1>
+    <h1 class="title is-1" i18n="@@port.new.title">Création d'un port</h1>
     <form [formGroup]="portForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="field">
-        <label>Numero du port</label>
+        <label i18n="@@port.new.port-number">Numéro du port</label>
         <input
           class="input is-fullwidth"
           formControlName="portNumber"
           type="text" />
       </div>
       <div class="field">
-        <label>Numero de chambre</label>
+        <label i18n="@@room.form.room-number">Numéro de chambre</label>
         <input
           class="input is-fullwidth"
           formControlName="roomNumber"
@@ -43,7 +43,8 @@ interface PortForm {
         <button
           type="submit"
           [disabled]="portForm.status === 'INVALID'"
-          class="button is-primary is-fullwidth">
+          class="button is-primary is-fullwidth"
+          i18n="@@common.create">
           Créer
         </button>
       </div>

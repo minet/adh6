@@ -8,7 +8,7 @@
           (ngSubmit)="update(memberId)"
           novalidate>
           <div class="field">
-            <label class="label" i18n="member new comment"
+            <label class="label" i18n="@@member.comment.new"
               >Nouveau commentaire</label
             >
             <p class="control has-icons-right">
@@ -16,13 +16,15 @@
                 class="textarea"
                 formControlName="comment"
                 maxlength="255"
-                placeholder="Commentaire max 255 caratères"></textarea>
+                placeholder="Commentaire max 255 caractères"
+                i18n-placeholder="@@member.comment.placeholder"></textarea>
             </p>
           </div>
           <button
             type="submit"
             class="button is-primary is-fullwidth"
-            [disabled]="memberComment.invalid">
+            [disabled]="memberComment.invalid"
+            i18n="@@validate">
             Valider
           </button>
         </form>

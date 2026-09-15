@@ -3,8 +3,13 @@ map $http_accept_language $lang {
   ~en en;
 }
 
-upstream adh6_frontend {
-  server ${FRONTEND_HOST}:${FRONTEND_PORT};
+# Un dev server Angular par langue
+upstream adh6_frontend_fr {
+  server ${FRONTEND_HOST}:${FRONTEND_FR_PORT};
+}
+
+upstream adh6_frontend_en {
+  server ${FRONTEND_HOST}:${FRONTEND_EN_PORT};
 }
 
 upstream adh6_api {
@@ -84,10 +89,6 @@ server {
     proxy_set_header Connection "keep-alive";
     proxy_buffering off;
   }
-  #location = / { # dosn't work
-  #  return 302 /$lang/;
-  #}
-
   location = /openapi.json {
     proxy_pass http://adh6_api;
     proxy_set_header Host $host;
@@ -100,8 +101,8 @@ server {
     proxy_buffering off;
   }
 
-  location / {    
-    proxy_pass http://adh6_frontend/;
+  location /fr/ {
+    proxy_pass http://adh6_frontend_fr;
     add_header 'Access-Control-Allow-Origin' '*';
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header Host ${ADH6_URL};
@@ -109,6 +110,21 @@ server {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection 'upgrade';
     proxy_cache_bypass $http_upgrade;
+  }
 
+  location /en/ {
+    proxy_pass http://adh6_frontend_en;
+    add_header 'Access-Control-Allow-Origin' '*';
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header Host ${ADH6_URL};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_cache_bypass $http_upgrade;
+  }
+
+  # Sans préfixe de langue : on redirige selon Accept-Language
+  location / {
+    return 302 /$lang$request_uri;
   }
 }

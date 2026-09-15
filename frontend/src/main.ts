@@ -1,3 +1,4 @@
+/// <reference types="@angular/localize" />
 import {enableProdMode, importProvidersFrom} from "@angular/core";
 import {bootstrapApplication} from "@angular/platform-browser";
 

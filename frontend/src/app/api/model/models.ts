@@ -19,6 +19,7 @@ export * from './deviceBody';
 export * from './deviceFilter';
 export * from './deviceIdNamePutRequest';
 export * from './discoveredPort';
+export * from './health';
 export * from './mailinglistMemberIdPutRequest';
 export * from './member';
 export * from './memberBody';

@@ -1,10 +1,10 @@
 @if (isPermanent) {
   <div class="notification is-info is-light">
-    <p>Ce compte est permanent et ne nécessite pas de cotisation.</p>
+    <p i18n="@@cotisation.permanent">Ce compte est permanent et ne nécessite pas de cotisation.</p>
   </div>
 } @else {
   <div class="notification">
-    <p>
+    <p i18n="@@cotisation.manual-validation">
       Dans le cas d'une cotisation ou d'une recotisation, une validation
       manuelle est nécessaire.
     </p>
@@ -16,7 +16,7 @@
   @if (member?.membership === "PENDING_RULES") {
     @if (charterSigned) {
       <div class="notification is-success is-light">
-        <p>
+        <p i18n="@@cotisation.charter.signed">
           <strong>Charte signée.</strong> Vous pouvez renseigner la durée et le
           moyen de paiement ci-dessous, puis enregistrer : la cotisation se
           débloquera.
@@ -25,33 +25,35 @@
     } @else {
       <div class="notification is-warning is-light">
         <p>
-          <strong>Cotisation en attente de la charte.</strong>
+          <strong i18n="@@cotisation.charter.pending.title">Cotisation en attente de la charte.</strong>
           @if (checkingCharter) {
-            <em style="font-weight: normal">- vérification…</em>
+            <em style="font-weight: normal" i18n="@@cotisation.charter.checking">- vérification…</em>
           }
           <br />
-          Demandez à l'adhérent de se connecter sur
-          <a [href]="accountUrl" target="_blank" rel="noopener noreferrer"
-            >son compte MiNET</a
+          <span i18n="@@cotisation.charter.pending.desc"
+            >Demandez à l'adhérent de se connecter sur
+            <a [href]="accountUrl" target="_blank" rel="noopener noreferrer"
+              >son compte MiNET</a
+            >
+            : la signature y est demandée automatiquement. Cette page le détectera
+            toute seule.</span
           >
-          : la signature y est demandée automatiquement. Cette page le détectera
-          toute seule.
         </p>
       </div>
     }
   }
   <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
     <div class="field">
-      <label class="label">Durée de cotisation</label>
+      <label class="label" i18n="@@cotisation.duration">Durée de cotisation</label>
       <div class="control">
         <select
           class="input is-fullwidth"
           formControlName="durationIndex"
           type="text">
-          <option value="-1">Pas de cotisation</option>
+          <option value="-1" i18n="@@cotisation.duration.none">Pas de cotisation</option>
           @for (opt of visibleOptions; track opt.index) {
             <option value="{{ opt.index }}">
-              {{ opt.duration === 12 ? "1 an" : opt.duration + " mois" }}
+              {{ durationLabel(opt.duration) }}
               {{ isWifiOnlyIndex(opt.index) ? "- Wi-Fi only" : "" }}
               ({{ opt.price }}€) -
               {{ formatDate(opt.duration) }}
@@ -61,13 +63,13 @@
       </div>
     </div>
     <div class="field">
-      <label class="label">Montant : {{ amount }} €</label>
+      <label class="label" i18n="@@common.amount">Montant : {{ amount }} €</label>
       <div class="control">
         <select
           class="input is-fullwidth"
           formControlName="paidWith"
           type="text">
-          <option value="-1">-- Moyen de paiement --</option>
+          <option value="-1" i18n="@@common.payment-method.select">-- Moyen de paiement --</option>
           @for (pm of paymentMethods; track pm) {
             <option value="{{ pm.id }}">
               {{ pm.name }}
@@ -80,7 +82,7 @@
          at the top of the tab, so without this the permanencier does not see it appear. -->
     @if (member?.membership === "PENDING_PAYMENT_VALIDATION") {
       <div class="notification is-success is-light">
-        <p>
+        <p i18n="@@cotisation.recorded">
           <strong>Cotisation enregistrée</strong> - {{ selectedDurationLabel }},
           {{ amount }} €.
           <br />
@@ -95,11 +97,11 @@
         class="button is-success is-fullwidth"
         type="submit"
         [disabled]="subscriptionForm.invalid">
-        {{
-          isSubscriptionFinished
-            ? "Étape 1/2 - Créer la cotisation"
-            : "Étape 1/2 - Enregistrer la cotisation"
-        }}
+        @if (isSubscriptionFinished) {
+          <span i18n="@@cotisation.submit.create">Étape 1/2 - Créer la cotisation</span>
+        } @else {
+          <span i18n="@@cotisation.submit.save">Étape 1/2 - Enregistrer la cotisation</span>
+        }
       </button>
     </div>
   </form>

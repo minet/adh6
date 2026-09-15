@@ -24,10 +24,10 @@ import {ThemeService} from "../theme.service";
       <div class="tabs is-centered is-large">
         <ul>
           <li routerLinkActive="is-active">
-            <a i18n="own devices" [routerLink]="['device']">Mes appareils</a>
+            <a i18n="@@dashboard.tab.devices" [routerLink]="['device']">Mes appareils</a>
           </li>
           <li routerLinkActive="is-active">
-            <a i18n="own account" [routerLink]="['profile']">Mon compte</a>
+            <a i18n="@@dashboard.tab.account" [routerLink]="['profile']">Mon compte</a>
           </li>
         </ul>
       </div>

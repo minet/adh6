@@ -19,6 +19,8 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
+import { Health } from '../model/health';
+// @ts-ignore
 import { Profile200Response } from '../model/profile200Response';
 
 // @ts-ignore
@@ -94,33 +96,22 @@ export class MiscService {
 
     /**
      * Retrieve the health of the API server
-     * This endpoint allows for better monitoring of the state of the API. **TODO**: Improve the amount of information returned 
+     * Public endpoint for monitoring the state of the API. The result is cached for a few seconds to protect the database. 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public health(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public health(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public health(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public health(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public health(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Health>;
+    public health(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Health>>;
+    public health(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Health>>;
+    public health(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
-
-        let localVarCredential: string | undefined;
-        // authentication (OpenIdConnect) required
-        localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
-        if (localVarCredential) {
-        }
-
-        // authentication (ApiKeyAdminAuth) required
-        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
-        if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
-        }
 
         let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
+                'application/json'
             ];
             localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -151,7 +142,7 @@ export class MiscService {
         }
 
         let localVarPath = `/health`;
-        return this.httpClient.request<any>('get', `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<Health>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

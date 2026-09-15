@@ -63,4 +63,5 @@ COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend
 COPY --chown=nodeuser:nodeuser frontend/src ./src
 COPY --chown=nodeuser:nodeuser --from=prebuild /app/frontend/src/assets ./src/assets
 
-CMD yarn start:en --watch --host 0.0.0.0 --allowed-hosts true
+CMD yarn start:fr --port 4200 --host 0.0.0.0 --allowed-hosts true & \
+    exec yarn start:en --port 4201 --host 0.0.0.0 --allowed-hosts true

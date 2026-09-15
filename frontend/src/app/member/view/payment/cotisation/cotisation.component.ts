@@ -1,6 +1,8 @@
 import {
   Component,
+  Inject,
   Input,
+  LOCALE_ID,
   Output,
   EventEmitter,
   OnDestroy,
@@ -80,6 +82,7 @@ export class CotisationComponent implements OnInit, OnDestroy {
     private readonly membershipService: MembershipService,
     private readonly charterService: CharterService,
     private readonly notificationService: NotificationService,
+    @Inject(LOCALE_ID) private readonly locale: string,
   ) {}
 
   ngOnInit(): void {
@@ -153,7 +156,7 @@ export class CotisationComponent implements OnInit, OnDestroy {
     ) {
       this.notificationService.show(
         "warning",
-        "Veuillez remplir tous les champs requis",
+        $localize`:@@common.required-fields:Veuillez remplir tous les champs requis`,
       );
       return;
     }
@@ -179,14 +182,19 @@ export class CotisationComponent implements OnInit, OnDestroy {
             ) {
               this.needSignature = false;
             }
-            this.notificationService.successNotification("Inscription créée");
+            this.notificationService.successNotification(
+              $localize`:@@subscription.created:Inscription créée`,
+            );
             this.updateSubscription.emit(true);
           },
           error: (error) => {
             console.error("Error creating subscription:", error);
             this.notificationService.show(
               "danger",
-              detailOf(error, "Erreur lors de la création de l'inscription"),
+              detailOf(
+                error,
+                $localize`:@@subscription.create.error:Erreur lors de la création de l'inscription`,
+              ),
             );
           },
         });
@@ -196,7 +204,7 @@ export class CotisationComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.notificationService.successNotification(
-              "Inscription mise à jour",
+              $localize`:@@subscription.updated:Inscription mise à jour`,
             );
             this.updateSubscription.emit(true);
           },
@@ -204,7 +212,10 @@ export class CotisationComponent implements OnInit, OnDestroy {
             console.error("Error updating subscription:", error);
             this.notificationService.show(
               "danger",
-              detailOf(error, "Erreur lors de la mise à jour de l'inscription"),
+              detailOf(
+                error,
+                $localize`:@@subscription.update.error:Erreur lors de la mise à jour de l'inscription`,
+              ),
             );
           },
         });
@@ -218,7 +229,7 @@ export class CotisationComponent implements OnInit, OnDestroy {
         ? new Date(departureDate)
         : new Date();
     date.setMonth(date.getMonth() + monthsToAdd);
-    return date.toLocaleDateString("fr-FR", this.options);
+    return date.toLocaleDateString(this.locale, this.options);
   }
 
   get isSubscriptionFinished(): boolean {
@@ -237,10 +248,15 @@ export class CotisationComponent implements OnInit, OnDestroy {
   get selectedDurationLabel(): string {
     const index = this.subscriptionForm.value.durationIndex;
     if (index == null || index < 0) {
-      return "aucune durée";
+      return $localize`:@@cotisation.duration.empty:aucune durée`;
     }
-    const months = this.subscriptionDuration.at(index);
-    return months === 12 ? "1 an" : `${months} mois`;
+    return this.durationLabel(this.subscriptionDuration.at(index) ?? 0);
+  }
+
+  public durationLabel(months: number): string {
+    return months === 12
+      ? $localize`:@@cotisation.duration.year:1 an`
+      : $localize`:@@cotisation.duration.months:${months}:months: mois`;
   }
 
   get visibleOptions(): {

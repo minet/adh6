@@ -1,27 +1,29 @@
-<h2 class="title is-2">Création d'une chambre</h2>
+<h2 class="title is-2" i18n="@@room.new.title">Création d'une chambre</h2>
 <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" novalidate>
   <div class="field">
-    <label class="label">Numéro de la chambre</label>
+    <label class="label" i18n="@@room.new.room-number">Numéro de la chambre</label>
     <div class="control">
       <input
         class="input is-fullwidth"
         formControlName="roomNumber"
         type="number"
-        placeholder="ex : 5110" />
+        placeholder="ex : 5110"
+        i18n-placeholder="@@room.new.room-number.placeholder" />
     </div>
-    <p class="help">Identifiant physique de la chambre (ex: 5110)</p>
+    <p class="help" i18n="@@room.new.room-number.help">Identifiant physique de la chambre (ex: 5110)</p>
   </div>
 
   <div class="field">
-    <label class="label">Numéro de VLAN</label>
+    <label class="label" i18n="@@room.form.vlan">Numéro de VLAN</label>
     <div class="control">
       <input
         class="input is-fullwidth"
         formControlName="vlan"
         type="number"
-        placeholder="ex : 42" />
+        placeholder="ex : 42"
+        i18n-placeholder="@@room.form.vlan.placeholder" />
     </div>
-    <p class="help">Numéro du VLAN (41–49)</p>
+    <p class="help" i18n="@@room.new.vlan.help">Numéro du VLAN (41–49)</p>
   </div>
 
   <div class="field">
@@ -31,7 +33,8 @@
         class="input is-fullwidth"
         formControlName="description"
         type="text"
-        placeholder="Chambre double" />
+        placeholder="Chambre double"
+        i18n-placeholder="@@room.new.description.placeholder" />
     </div>
   </div>
 
@@ -40,6 +43,6 @@
     [disabled]="disabled || roomForm.invalid"
     class="button is-primary is-fullwidth mt-4">
     <span class="icon"><i class="fas fa-plus"></i></span>
-    <span>Créer</span>
+    <span i18n="@@common.create">Créer</span>
   </button>
 </form>

@@ -80,20 +80,26 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
 
   getUse(state: string): string {
     return state == "authorized"
-      ? "Le port est actuellement utilisé"
-      : "Le port n'est pas actuellement utilisé";
+      ? $localize`:@@port.use.used:Le port est actuellement utilisé`
+      : $localize`:@@port.use.unused:Le port n'est pas actuellement utilisé`;
   }
   getStatus(state: boolean): string {
-    return state ? "OUVERT" : "FERMÉ";
+    return state
+      ? $localize`:@@port.status.open:OUVERT`
+      : $localize`:@@port.status.closed:FERMÉ`;
   }
   getState(state: boolean): string {
-    return state ? "ACTIVÉ" : "DÉSACTIVÉ";
+    return state
+      ? $localize`:@@port.state.enabled:ACTIVÉ`
+      : $localize`:@@port.state.disabled:DÉSACTIVÉ`;
   }
 
   public toggleStatus(): void {
     this.status$ = this.portService.portIdStatePut(this.portID).pipe(
       finalize(() => {
-        this.notificationService.successNotification("État du port modifié");
+        this.notificationService.successNotification(
+          $localize`:@@port.status.updated:État du port modifié`,
+        );
       }),
     );
   }
@@ -101,7 +107,9 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
   public toggleMAB(): void {
     this.mab$ = this.portService.portIdMabPut(this.portID).pipe(
       finalize(() => {
-        this.notificationService.successNotification("MAB modifié");
+        this.notificationService.successNotification(
+          $localize`:@@port.mab.updated:MAB modifié`,
+        );
       }),
     );
   }
@@ -111,7 +119,9 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       .portIdMiniRouterPut(this.portID, !currentValue)
       .pipe(
         finalize(() => {
-          this.notificationService.successNotification("Mini-Routeur modifié");
+          this.notificationService.successNotification(
+            $localize`:@@port.mini-router.updated:Mini-Routeur modifié`,
+          );
         }),
       );
   }
@@ -125,7 +135,9 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       .portIdPut(this.portID, updated)
       .pipe(
         finalize(() => {
-          this.notificationService.successNotification("Accès public modifié");
+          this.notificationService.successNotification(
+            $localize`:@@port.public-access.updated:Accès public modifié`,
+          );
         }),
       )
       .subscribe(() => {
@@ -152,15 +164,15 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
     if (currentValue) {
       void this.dialogService
         .prompt({
-          title: "Entrer le VLAN",
+          title: $localize`:@@port.vlan.prompt:Entrer le VLAN`,
           label: "VLAN",
           type: "number",
-          placeholder: "Entrer le VLAN",
+          placeholder: $localize`:@@port.vlan.prompt:Entrer le VLAN`,
           validate: (value) => {
             const n = Number(value);
             return Number.isInteger(n) && n >= 1 && n <= 4094
               ? null
-              : "Entrer un numéro de VLAN valide (1–4094)";
+              : $localize`:@@vlan.invalid:Entrer un numéro de VLAN valide (1–4094)`;
           },
         })
         .then((value) => {
@@ -169,13 +181,13 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
           this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
             finalize(() => {
               this.notificationService.successNotification(
-                "Authentification modifiée",
+                $localize`:@@port.auth.updated:Authentification modifiée`,
               );
             }),
           );
           this.portService.portIdVlanPut(this.portID, vlan).subscribe(() => {
             this.notificationService.successNotification(
-              "VLAN modifié: " + vlan,
+              $localize`:@@port.vlan.updated:VLAN modifié : ${vlan}:vlan:`,
             );
           });
           this.vlan$ = of(vlan);
@@ -184,7 +196,7 @@ export class PortDetailsComponent implements OnInit, OnDestroy {
       this.auth$ = this.portService.portIdAuthPut(this.portID).pipe(
         finalize(() => {
           this.notificationService.successNotification(
-            "Authentification modifiée",
+            $localize`:@@port.auth.updated:Authentification modifiée`,
           );
         }),
       );

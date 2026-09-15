@@ -7,13 +7,13 @@
             <div class="form-check">
               <label class="checkbox">
                 <input [(ngModel)]="isFree" type="checkbox" />
-                Cocher pour faire une cotisation gratuite
+                <span i18n="@@payment.free">Cocher pour faire une cotisation gratuite</span>
               </label>
             </div>
           </div>
         </div>
       }
-      <p class="help" style="margin-bottom: 8px">
+      <p class="help" style="margin-bottom: 8px" i18n="@@payment.validate.help">
         Enregistre l'encaissement, prolonge l'accès de l'adhérent et
         <strong>lui envoie son reçu par mail</strong>. Vérifiez le récapitulatif
         de la cotisation ci-dessous avant de cliquer.
@@ -21,14 +21,15 @@
       <div class="field">
         <button
           class="button is-success is-fullwidth"
-          (click)="validatePayment(member)">
+          (click)="validatePayment(member)"
+          i18n="@@payment.validate.button">
           Étape 2/2 - Valider le paiement
         </button>
       </div>
     }
     <a (click)="membershipCollapse = !membershipCollapse">
       <h3 class="title is-4">
-        Cotisation
+        <span i18n="@@payment.membership">Cotisation</span>
         <span style="position: absolute; right: 30px">
           {{ !membershipCollapse ? "&#x25bc;" : "&#x25b2;" }}
         </span>
@@ -44,7 +45,7 @@
     <br />
     <a (click)="productCollapse = !productCollapse">
       <h3 class="title is-4">
-        Produits
+        <span i18n="@@payment.products">Produits</span>
         <span style="position: absolute; right: 30px">
           {{ !productCollapse ? "&#x25bc;" : "&#x25b2;" }}
         </span>
