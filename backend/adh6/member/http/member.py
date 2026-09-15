@@ -72,7 +72,7 @@ class MemberHandler(DefaultHandler):
         member_body = MemberBody.from_dict(body)
         if member_body is None:
             raise UnauthorizedError("Invalid body")
-        await self.member_manager.update(id_, member_body)
+        await self.member_manager.update(id_, member_body, is_staff=Roles.ADMIN_WRITE.value in get_roles())
         return None, 204
 
     @with_context

@@ -164,7 +164,7 @@ class MemberManager(CRUDManager):
         return created_member
 
     @log_call
-    async def update(self, id: int, body: MemberBody) -> None:
+    async def update(self, id: int, body: MemberBody, *, is_staff: bool = False) -> None:
         member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
@@ -180,7 +180,7 @@ class MemberManager(CRUDManager):
                 (body.mail, member.email),
             )
         )
-        if identity_changed:
+        if identity_changed and not is_staff:
             latest_sub = await self.subscription_manager.latest(id)
             if not latest_sub or latest_sub.status not in [
                 MembershipStatus.CANCELLED.value,

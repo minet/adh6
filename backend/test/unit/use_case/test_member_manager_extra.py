@@ -7,12 +7,10 @@ from adh6.constants import MembershipStatus
 from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_logs_manager import DeviceLogsManager
 from adh6.entity import Member, MemberBody
-from adh6.entity.membership import Membership
 from adh6.exceptions import (
     InvalidPassword,
     MemberNotFoundError,
     NoSubnetAvailable,
-    UpdateImpossible,
 )
 from adh6.member.interfaces import MailinglistRepository, MemberRepository, MembershipRepository
 from adh6.member.interfaces.charter_repository import CharterRepository
@@ -331,60 +329,7 @@ class TestCreate:
 
 
 class TestUpdate:
-    async def test_happy_path(
-        self,
-        mock_member_repository: MemberRepository,
-        mock_membership_repository: MembershipRepository,
-        sample_member: Member,
-        member_manager: MemberManager,
-        faker,
-    ):
-        complete_membership = Membership(
-            uuid=faker.uuid4(),
-            member=sample_member.id,
-            status=MembershipStatus.COMPLETE.value,
-            hasRoom=None,
-        )
-        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_membership_repository.search = AsyncMock(return_value=([complete_membership], 1))
-        mock_member_repository.update = AsyncMock(return_value=sample_member)
-
-        body = MemberBody(username=sample_member.username, mail=sample_member.email)
-        await member_manager.update(id=sample_member.id, body=body)
-        mock_member_repository.update.assert_called_once()
-
-    async def test_not_found(
-        self,
-        mock_member_repository: MemberRepository,
-        member_manager: MemberManager,
-        sample_member: Member,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=None)
-
-        with raises(MemberNotFoundError):
-            await member_manager.update(id=sample_member.id, body=MemberBody())
-
-    async def test_update_impossible_initial_status(
-        self,
-        mock_member_repository: MemberRepository,
-        mock_membership_repository: MembershipRepository,
-        sample_member: Member,
-        member_manager: MemberManager,
-        faker,
-    ):
-        pending_membership = Membership(
-            uuid=faker.uuid4(),
-            member=sample_member.id,
-            status=MembershipStatus.PENDING_PAYMENT.value,
-            hasRoom=None,
-        )
-        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_membership_repository.search = AsyncMock(return_value=([pending_membership], 1))
-
-        with raises(UpdateImpossible):
-            await member_manager.update(id=sample_member.id, body=MemberBody(username="newusername"))
-
-    async def test_update_impossible_no_membership(
+    async def test_unchanged_identity_does_not_require_membership(
         self,
         mock_member_repository: MemberRepository,
         mock_membership_repository: MembershipRepository,
@@ -393,9 +338,12 @@ class TestUpdate:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
         mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_member_repository.update = AsyncMock(return_value=sample_member)
 
-        with raises(UpdateImpossible):
-            await member_manager.update(id=sample_member.id, body=MemberBody(mail="new@example.com"))
+        body = MemberBody(username=sample_member.username, mail=sample_member.email)
+        await member_manager.update(id=sample_member.id, body=body)
+        mock_member_repository.update.assert_awaited_once()
+        mock_membership_repository.search.assert_not_awaited()
 
 
 class TestGetLogs:

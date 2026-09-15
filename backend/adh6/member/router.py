@@ -39,7 +39,7 @@ from adh6.entity import (
 )
 from adh6.exceptions import MemberAlreadyExist, NotFoundError
 from adh6.room.storage import RoomRepository
-from adh6.security import require_role_or_ownership
+from adh6.security import get_user_roles, require_role_or_ownership
 from adh6.subnet.storage import VLANRepository
 from adh6.subnet.vlan_manager import VlanManager
 from adh6.treasury.storage import (
@@ -287,7 +287,7 @@ async def update_member(
     """Update a member."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value, id, "member")
     try:
-        await manager.update(id, body)
+        await manager.update(id, body, is_staff=Roles.ADMIN_WRITE.value in get_user_roles(request))
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
