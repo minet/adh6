@@ -2,6 +2,70 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" target-language="en" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="combobox.suggestions-error" datatype="html">
+        <source>Suggestions indisponibles. La recherche reste possible.</source>
+        <target state="final">Suggestions unavailable. You can still search.</target>
+      </trans-unit>
+      <trans-unit id="room.list.search" datatype="html">
+        <source>Recherche de chambres</source>
+        <target state="final">Search rooms</target>
+      </trans-unit>
+      <trans-unit id="member.list.search.label" datatype="html">
+        <source>Recherche de membres</source>
+        <target state="final">Search members</target>
+      </trans-unit>
+      <trans-unit id="port.list.all-rooms" datatype="html">
+        <source>Toutes les chambres</source>
+        <target state="final">All rooms</target>
+      </trans-unit>
+      <trans-unit id="port.list.all-switches" datatype="html">
+        <source>Tous les commutateurs</source>
+        <target state="final">All switches</target>
+      </trans-unit>
+      <trans-unit id="switch.select.placeholder" datatype="html">
+        <source>Sélectionner un commutateur</source>
+        <target state="final">Select a switch</target>
+      </trans-unit>
+      <trans-unit id="switch.select.load-error" datatype="html">
+        <source>Impossible de charger les commutateurs.</source>
+        <target state="final">Unable to load switches.</target>
+      </trans-unit>
+      <trans-unit id="combobox.show-options" datatype="html">
+        <source>Afficher les options</source>
+        <target state="final">Show options</target>
+      </trans-unit>
+      <trans-unit id="combobox.no-results" datatype="html">
+        <source>Aucun résultat</source>
+        <target state="final">No results</target>
+      </trans-unit>
+      <trans-unit id="combobox.invalid-option" datatype="html">
+        <source>Sélectionnez une option proposée.</source>
+        <target state="final">Select one of the available options.</target>
+      </trans-unit>
+      <trans-unit id="combobox.label" datatype="html">
+        <source>Choix</source>
+        <target state="final">Choice</target>
+      </trans-unit>
+      <trans-unit id="combobox.placeholder" datatype="html">
+        <source>Sélectionner une option</source>
+        <target state="final">Select an option</target>
+      </trans-unit>
+      <trans-unit id="room.select.label" datatype="html">
+        <source>Numéro de chambre</source>
+        <target state="final">Room number</target>
+      </trans-unit>
+      <trans-unit id="room.select.placeholder" datatype="html">
+        <source>Sélectionner une chambre</source>
+        <target state="final">Select a room</target>
+      </trans-unit>
+      <trans-unit id="room.select.load-error" datatype="html">
+        <source>Impossible de charger les chambres.</source>
+        <target state="final">Unable to load rooms.</target>
+      </trans-unit>
+      <trans-unit id="room.select.empty" datatype="html">
+        <source>Aucune chambre disponible.</source>
+        <target state="final">No rooms available.</target>
+      </trans-unit>
       <trans-unit id="auth.login.placeholder" datatype="html">
         <source>Identifiant</source>
         <target state="final">Username</target>

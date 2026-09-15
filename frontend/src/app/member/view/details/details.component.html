@@ -12,8 +12,18 @@
       <tr>
         <td i18n="@@member.details.departure-date">Date de départ</td>
         <td
-          [class.has-text-danger]="!member.permanent && member.departureDate && member.departureDate < today"
-          [style.font-weight]="!member.permanent && member.departureDate && member.departureDate < today ? 'bold' : null">
+          [class.has-text-danger]="
+            !member.permanent &&
+            member.departureDate &&
+            member.departureDate < today
+          "
+          [style.font-weight]="
+            !member.permanent &&
+            member.departureDate &&
+            member.departureDate < today
+              ? 'bold'
+              : null
+          ">
           {{ member.departureDate | date: "dd/MM/y" }}
         </td>
       </tr>
@@ -84,12 +94,7 @@
   @if (moveIn) {
     <div>
       <form (ngSubmit)="submitRoom(member)" [formGroup]="roomForm">
-        <input
-          class="input is-fullwidth"
-          formControlName="roomNumber"
-          type="number"
-          placeholder="Numéro de chambre..."
-          i18n-placeholder="@@member.details.room-number.placeholder" />
+        <app-room-select formControlName="roomNumber" />
         <button
           class="button is-success is-fullwidth"
           type="submit"
@@ -115,23 +120,33 @@
   <div class="columns">
     <div class="column">
       <a [routerLink]="['/member/edit/', member.id]">
-        <button class="button is-primary is-fullwidth" i18n="@@member.details.edit-profile">Éditer le profil</button>
+        <button
+          class="button is-primary is-fullwidth"
+          i18n="@@member.details.edit-profile">
+          Éditer le profil
+        </button>
       </a>
     </div>
     <div class="column">
       <a [routerLink]="['comment']">
         <button class="button is-primary is-fullwidth">
           @if (member.comment) {
-            <span i18n="@@member.details.comment.edit">Modifier le commentaire</span>
+            <span i18n="@@member.details.comment.edit"
+              >Modifier le commentaire</span
+            >
           } @else {
-            <span i18n="@@member.details.comment.add">Ajouter un commentaire</span>
+            <span i18n="@@member.details.comment.add"
+              >Ajouter un commentaire</span
+            >
           }
         </button>
       </a>
     </div>
     <div class="column">
       <a [routerLink]="['/password', member.id, 0]">
-        <button class="button is-danger is-fullwidth" i18n="@@member.details.change-password">
+        <button
+          class="button is-danger is-fullwidth"
+          i18n="@@member.details.change-password">
           Changer mot de passe
         </button>
       </a>

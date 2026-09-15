@@ -145,6 +145,22 @@ def test_room_filter_by_room_number_no_match(client):
     assert len(response) == 0
 
 
+@pytest.mark.parametrize("terms", ["5110", "511", " 5110 "])
+def test_room_search_by_number_or_prefix(client, sample_room1, terms):
+    r = client.get(base_url, params={"terms": terms}, headers=TEST_HEADERS)
+    assert r.status_code == 200
+    response = r.json()
+    assert [room["roomNumber"] for room in response] == [sample_room1.numero]
+    assert r.headers["x-total-count"] == "1"
+
+
+@pytest.mark.parametrize("terms", ["9999", "%", "_"])
+def test_room_search_unknown_number_or_literal_wildcard(client, terms):
+    r = client.get(base_url, params={"terms": terms}, headers=TEST_HEADERS)
+    assert r.status_code == 200
+    assert r.json() == []
+
+
 def test_room_filter_by_room_number_returns_correct_room(client, sample_room1, sample_room2):
     r = client.get(
         f"{base_url}?filter[roomNumber]={sample_room2.numero}",

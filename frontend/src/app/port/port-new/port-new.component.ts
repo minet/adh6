@@ -12,15 +12,16 @@ import {
 import {Port, PortService} from "../../api";
 import {takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
+import {RoomSelectComponent} from "../../ui/room-select.component";
 
 interface PortForm {
   portNumber: FormControl<number>;
-  roomNumber: FormControl<number>;
+  roomNumber: FormControl<number | null>;
 }
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RoomSelectComponent],
   selector: "app-port-new",
   template: `
     <h1 class="title is-1" i18n="@@port.new.title">Création d'un port</h1>
@@ -34,10 +35,7 @@ interface PortForm {
       </div>
       <div class="field">
         <label i18n="@@room.form.room-number">Numéro de chambre</label>
-        <input
-          class="input is-fullwidth"
-          formControlName="roomNumber"
-          type="number" />
+        <app-room-select formControlName="roomNumber" valueField="id" />
       </div>
       <div class="field">
         <button
@@ -68,12 +66,15 @@ export class PortNewComponent implements OnInit {
 
   createForm() {
     this.portForm = this.fb.group({
-      roomNumber: [0, [Validators.required]],
+      roomNumber: new FormControl<number | null>(null, Validators.required),
       portNumber: [0, [Validators.required]],
     });
   }
 
   onSubmit() {
+    if (this.portForm.invalid) {
+      return;
+    }
     const v = this.portForm.value;
     const port = {
       portNumber: "" + v.portNumber,

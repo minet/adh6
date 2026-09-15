@@ -1,18 +1,23 @@
 <div class="columns">
   <div class="column">
-    <input
-      #searchBox
-      id="search-box"
-      (keyup)="search(searchBox.value)"
-      class="input is-fullwidth"
+    <app-combobox
+      inputId="search-box"
+      mode="search"
+      [formControl]="roomSearch"
+      [options]="roomOptions"
+      [loading]="optionsLoading"
+      [unavailable]="optionsUnavailable"
+      label="Recherche de chambres"
+      i18n-label="@@room.list.search"
       placeholder="Rechercher..."
-      i18n-placeholder="@@common.search.placeholder"
-      type="text" />
+      i18n-placeholder="@@common.search.placeholder" />
   </div>
   <br />
   <div class="column is-narrow">
     <a [routerLink]="['/room/add']">
-      <button class="button is-primary" i18n="@@room.list.new">Nouvelle chambre</button>
+      <button class="button is-primary" i18n="@@room.list.new">
+        Nouvelle chambre
+      </button>
     </a>
   </div>
 </div>
@@ -38,12 +43,16 @@
     <tr>
       <td colspan="42">
         <div class="notification is-info is-light has-text-centered">
-          <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
+          <h4 class="title is-4" i18n="@@common.loading.title">
+            Chargement ...
+          </h4>
         </div>
       </td>
     </tr>
   }
 </table>
 <app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>

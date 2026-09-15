@@ -478,25 +478,22 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     assert_member_in_db(member_to_check)
 
 
-@pytest.mark.parametrize(
-    "key, value",
-    [
-        ("firstName", "TEST"),
-        ("lastName", "TEST"),
-        ("mail", "TEST@TEST.FR"),
-        ("username", "TESTTEST"),
-    ],
-)
-def test_member_patch_membership_pending(client, sample_member2: Adherent, key: str, value: str):
+@pytest.mark.parametrize("member_fixture", ["sample_member2", "sample_member3"])
+def test_staff_member_patch_without_valid_membership(client, request, member_fixture: str):
+    member = request.getfixturevalue(member_fixture)
     body = {
-        key: value,
+        "firstName": "TEST",
+        "lastName": "TEST",
+        "mail": "TEST@TEST.FR",
+        "username": "TESTTEST",
     }
     res = client.patch(
-        f"{base_url}{sample_member2.id}",
+        f"{base_url}{member.id}",
         json=body,
         headers=TEST_HEADERS,
     )
-    assert res.status_code == 400
+    assert res.status_code == 204
+    assert_member_in_db(body)
 
 
 def test_member_patch_unknown(client):

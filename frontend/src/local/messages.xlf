@@ -2,6 +2,54 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="combobox.suggestions-error" datatype="html">
+        <source>Suggestions indisponibles. La recherche reste possible.</source>
+      </trans-unit>
+      <trans-unit id="room.list.search" datatype="html">
+        <source>Recherche de chambres</source>
+      </trans-unit>
+      <trans-unit id="member.list.search.label" datatype="html">
+        <source>Recherche de membres</source>
+      </trans-unit>
+      <trans-unit id="port.list.all-rooms" datatype="html">
+        <source>Toutes les chambres</source>
+      </trans-unit>
+      <trans-unit id="port.list.all-switches" datatype="html">
+        <source>Tous les commutateurs</source>
+      </trans-unit>
+      <trans-unit id="switch.select.placeholder" datatype="html">
+        <source>Sélectionner un commutateur</source>
+      </trans-unit>
+      <trans-unit id="switch.select.load-error" datatype="html">
+        <source>Impossible de charger les commutateurs.</source>
+      </trans-unit>
+      <trans-unit id="combobox.show-options" datatype="html">
+        <source>Afficher les options</source>
+      </trans-unit>
+      <trans-unit id="combobox.no-results" datatype="html">
+        <source>Aucun résultat</source>
+      </trans-unit>
+      <trans-unit id="combobox.invalid-option" datatype="html">
+        <source>Sélectionnez une option proposée.</source>
+      </trans-unit>
+      <trans-unit id="combobox.label" datatype="html">
+        <source>Choix</source>
+      </trans-unit>
+      <trans-unit id="combobox.placeholder" datatype="html">
+        <source>Sélectionner une option</source>
+      </trans-unit>
+      <trans-unit id="room.select.label" datatype="html">
+        <source>Numéro de chambre</source>
+      </trans-unit>
+      <trans-unit id="room.select.placeholder" datatype="html">
+        <source>Sélectionner une chambre</source>
+      </trans-unit>
+      <trans-unit id="room.select.load-error" datatype="html">
+        <source>Impossible de charger les chambres.</source>
+      </trans-unit>
+      <trans-unit id="room.select.empty" datatype="html">
+        <source>Aucune chambre disponible.</source>
+      </trans-unit>
       <trans-unit id="auth.login.placeholder" datatype="html">
         <source>Identifiant</source>
         <context-group purpose="location">

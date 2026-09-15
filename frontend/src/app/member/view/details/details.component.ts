@@ -17,6 +17,7 @@ import {
 import {MailinglistComponent} from "../../../mailinglist/mailinglist.component";
 import {NotificationService} from "../../../notification.service";
 import {MemberDetailService} from "../member-detail.service";
+import {RoomSelectComponent} from "../../../ui/room-select.component";
 
 interface RoomForm {
   roomNumber: FormControl<number | null>;
@@ -28,6 +29,7 @@ interface RoomForm {
     RouterModule,
     MailinglistComponent,
     ReactiveFormsModule,
+    RoomSelectComponent,
   ],
   selector: "app-details",
   templateUrl: "./details.component.html",
@@ -70,6 +72,9 @@ export class DetailsComponent {
   }
 
   submitRoom(member: AbstractMember): void {
+    if (this.roomForm.invalid) {
+      return;
+    }
     const roomNumber = this.roomForm.value.roomNumber;
     if (roomNumber == null) {
       this.notificationService.errorNotification(

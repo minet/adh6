@@ -29,9 +29,13 @@ export class PaginationComponent implements OnInit, OnChanges {
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    const maxItems = changes["maxItems"];
-    if (maxItems.currentValue != maxItems.previousValue) {
-      this.numberOfPages = Math.ceil(maxItems.currentValue / this.itemsPerPage);
+    if (changes["maxItems"] || changes["itemsPerPage"]) {
+      this.numberOfPages = Math.max(
+        1,
+        Math.ceil((this.maxItems ?? 0) / this.itemsPerPage),
+      );
+      this.pagesBefore = [];
+      this.pagesAfter = [];
       for (
         let i = 2;
         i <=
@@ -43,7 +47,7 @@ export class PaginationComponent implements OnInit, OnChanges {
         this.pagesBefore.push(i);
       }
       for (
-        let i = this.numberOfPages - this.deltaPage + 1;
+        let i = Math.max(2, this.numberOfPages - this.deltaPage + 1);
         i <= this.numberOfPages - 1;
         i++
       ) {

@@ -111,6 +111,20 @@ class TestMemberHandler:
         body = {"username": faker.user_name(), "mail": faker.email()}
         result, status = await unwrap(handler.patch)(handler, id_=sample_member.id, body=body)
         assert status == 204
+        assert mock_member_manager.update.await_args is not None
+        assert mock_member_manager.update.await_args.kwargs["is_staff"] is True
+
+    async def test_patch_non_staff_has_no_exemption(self, handler, mock_member_manager, sample_member):
+        from adh6.context import set_roles
+
+        set_roles([Roles.USER.value])
+        mock_member_manager.update = AsyncMock(return_value=None)
+
+        result, status = await unwrap(handler.patch)(handler, id_=sample_member.id, body={"firstName": "Paul"})
+
+        assert status == 204
+        assert mock_member_manager.update.await_args is not None
+        assert mock_member_manager.update.await_args.kwargs["is_staff"] is False
 
     async def test_password_put_happy_path(self, handler, mock_member_manager, sample_member):
         mock_member_manager.change_password = AsyncMock(return_value=True)

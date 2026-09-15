@@ -17,6 +17,7 @@ import {
 import {mergeMap} from "rxjs/operators";
 import {EMPTY, of, switchMap, catchError} from "rxjs";
 import {NotificationService} from "../../notification.service";
+import {RoomSelectComponent} from "../../ui/room-select.component";
 
 interface MemberEditForm {
   firstName: FormControl<string>;
@@ -30,7 +31,7 @@ interface MemberEditForm {
 }
 
 @Component({
-  imports: [ReactiveFormsModule, FormsModule],
+  imports: [ReactiveFormsModule, FormsModule, RoomSelectComponent],
   selector: "app-create-edit",
   templateUrl: "./create-or-edit.component.html",
 })
@@ -82,6 +83,9 @@ export class CreateOrEditComponent implements OnInit {
   }
 
   editMember() {
+    if (this.memberEdit.invalid || this.loading) {
+      return;
+    }
     this.loading = true;
     const v = this.memberEdit.value;
     const body: MemberBody = {
@@ -100,11 +104,17 @@ export class CreateOrEditComponent implements OnInit {
         ? {roomNumber: v.roomNumber}
         : undefined;
 
-    const rooms$ = wifiOnly
-      ? of([])
-      : this.roomService.roomGet(1, 0, undefined, roomFilter);
+    const rooms$ =
+      roomFilter == null
+        ? of([])
+        : this.roomService.roomGet(1, 0, undefined, roomFilter);
 
     rooms$.subscribe((rooms) => {
+      if (roomFilter != null && rooms.length === 0) {
+        this.loading = false;
+        this.memberEdit.controls.roomNumber.setErrors({roomNotFound: true});
+        return;
+      }
       if (!this.create) {
         this.memberService.memberIdPatch(this.member_id, body).subscribe(() => {
           if (!wifiOnly && rooms.length > 0 && rooms[0].id != null) {
