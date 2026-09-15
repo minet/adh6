@@ -4,24 +4,22 @@
     <!-- Search input -->
     <div class="column">
       <div class="field">
-        <label class="label is-hidden-mobile" i18n="@@member.list.search"
+        <label
+          class="label is-hidden-mobile"
+          for="search-box"
+          i18n="@@member.list.search"
           >Recherche</label
         >
         <div class="control">
-          @if (suggestionState$ | async; as state) {
-            <app-combobox
-              inputId="search-box"
-              mode="search"
-              [formControl]="memberSearch"
-              [options]="state.options"
-              [loading]="state.loading"
-              [unavailable]="state.unavailable"
-              [filterLocally]="false"
-              label="Recherche de membres"
-              i18n-label="@@member.list.search.label"
-              placeholder="Rechercher..."
-              i18n-placeholder="@@common.search.placeholder" />
-          }
+          <input
+            id="search-box"
+            class="input is-fullwidth"
+            type="text"
+            [formControl]="memberSearch"
+            aria-label="Recherche de membres"
+            i18n-aria-label="@@member.list.search.label"
+            placeholder="Rechercher..."
+            i18n-placeholder="@@common.search.placeholder" />
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ import {HttpHeaders, HttpResponse} from "@angular/common/http";
 import {FormControl} from "@angular/forms";
 import {deepStrictEqual, equal} from "node:assert/strict";
 import {test} from "node:test";
-import {firstValueFrom, Observable, of, Subscriber} from "rxjs";
+import {firstValueFrom, of} from "rxjs";
 import {
   MemberService,
   PortService,
@@ -303,10 +303,9 @@ test("narrow member suggestions fetch only display fields and preserve the subsc
   ]);
 });
 
-test("changing a member query immediately cancels old suggestions and clears their display", async () => {
-  const requests: string[] = [];
-  const cancelled: string[] = [];
-  const responses = new Map<string, Subscriber<ComboboxOption[]>>();
+test("member search fetches only results and preserves text when subscription filters change", async () => {
+  const calls: unknown[][] = [];
+  let suggestionCalls = 0;
   const list = context(
     () =>
       new MemberListComponent(
@@ -316,39 +315,42 @@ test("changing a member query immediately cancels old suggestions and clears the
       ),
     [
       {
+        provide: MemberService,
+        useValue: {
+          memberGet: (...args: unknown[]) => {
+            calls.push(args);
+            return of(new HttpResponse({body: []}));
+          },
+        },
+      },
+      {
         provide: MemberSuggestionsService,
         useValue: {
-          search: (term: string) =>
-            new Observable<ComboboxOption[]>((observer) => {
-              requests.push(term);
-              responses.set(term, observer);
-              return () => {
-                cancelled.push(term);
-              };
-            }),
+          search: () => {
+            suggestionCalls++;
+            return of([]);
+          },
         },
       },
     ],
   );
-  const states: {options: ComboboxOption[]; loading: boolean}[] = [];
-  const subscription = list.suggestionState$.subscribe((state) =>
-    states.push(state),
-  );
-  list.memberSearch.setValue("ancien");
-  await pause(330);
-  responses.get("ancien")!.next([{value: "ancien", label: "Ancien"}]);
-  equal(states.at(-1)!.options.length, 1);
-  list.memberSearch.setValue("nouveau");
-  deepStrictEqual(cancelled, ["ancien"]);
-  deepStrictEqual(states.at(-1)!.options, []);
-  equal(states.at(-1)!.loading, true);
-  await pause(330);
-  deepStrictEqual(requests, ["ancien", "nouveau"]);
-  responses.get("ancien")!.next([{value: "stale", label: "Stale"}]);
-  deepStrictEqual(states.at(-1)!.options, []);
-  responses.get("nouveau")!.next([{value: "nouveau", label: "Nouveau"}]);
-  equal(states.at(-1)!.options[0].value, "nouveau");
-  subscription.unsubscribe();
+  list.ngOnInit();
+  list.changePage(3);
+  list.memberSearch.setValue("jean@example.org");
+  await firstValueFrom(list.result$);
+  equal(calls.length, 1);
+  equal(calls[0][2], "jean@example.org");
+  equal(calls[0][3], undefined);
+  equal(calls[0][4], "response");
+  equal(list.currentPage, 1);
+
+  list.updateSubscriptionFilter("COMPLETE");
+  await firstValueFrom(list.result$);
+  equal(calls.length, 2);
+  equal(calls[1][2], "jean@example.org");
+  deepStrictEqual(calls[1][3], {membership: "COMPLETE"});
+  equal(list.memberSearch.value, "jean@example.org");
+  equal(suggestionCalls, 0);
 });
 
 test("port filters combine room database IDs and switch IDs and reset to the first page", async () => {

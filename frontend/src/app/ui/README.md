@@ -34,7 +34,10 @@ parent pour rendre le choix obligatoire.
 Toute valeur absente des options est également invalide, même affectée par code.
 `inputId` permet d'associer un `<label for="…">` externe au champ.
 
-Pour une recherche générale, utiliser `mode="search"` : le contrôle émet le texte
+Les barres de recherche générales utilisent des champs texte natifs, sans combobox
+ni requêtes de suggestions. Les combobox restent réservées aux filtres et formulaires.
+
+Le composant propose également `mode="search"` : le contrôle émet le texte
 saisi, sans obliger à sélectionner une suggestion. Le choix d'une suggestion émet
 sa valeur et l'événement `optionSelected`. Le texte reste éditable pendant le
 chargement ; en cas d'erreur, seule l'aide par suggestions est indisponible.
@@ -42,8 +45,7 @@ chargement ; en cas d'erreur, seule l'aide par suggestions est indisponible.
 serveur, notamment lors d'une recherche par mail.
 
 `[showSuggestions]="false"` masque les suggestions et leur bouton, tout en gardant
-la saisie et l'intégration au formulaire. La recherche de chambres utilise ce mode
-car son tableau présente déjà les résultats ; les autres combobox gardent les suggestions.
+la saisie et l'intégration au formulaire.
 
 `MemberSuggestionsService` ne cherche qu'à partir de deux caractères et ne charge
 les noms que si le nombre total de résultats respecte le seuil de confidentialité

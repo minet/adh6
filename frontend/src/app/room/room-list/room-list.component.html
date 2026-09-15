@@ -1,12 +1,12 @@
 <div class="columns">
   <div class="column">
-    <app-combobox
-      inputId="search-box"
-      mode="search"
+    <input
+      id="search-box"
+      class="input is-fullwidth"
+      type="text"
       [formControl]="roomSearch"
-      [showSuggestions]="false"
-      label="Recherche de chambres"
-      i18n-label="@@room.list.search"
+      aria-label="Recherche de chambres"
+      i18n-aria-label="@@room.list.search"
       placeholder="Rechercher..."
       i18n-placeholder="@@common.search.placeholder" />
   </div>

@@ -3,19 +3,7 @@ import {Component, DestroyRef, inject} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormControl, ReactiveFormsModule} from "@angular/forms";
 import {RouterModule} from "@angular/router";
-import {
-  BehaviorSubject,
-  catchError,
-  combineLatest,
-  concat,
-  map,
-  Observable,
-  of,
-  shareReplay,
-  startWith,
-  switchMap,
-  timer,
-} from "rxjs";
+import {map, Observable, of, shareReplay, switchMap} from "rxjs";
 import {
   MemberService,
   AbstractMember,
@@ -26,8 +14,6 @@ import {
 } from "../../api";
 import {PaginationComponent} from "../../pagination/pagination.component";
 import {SearchPage} from "../../search-page";
-import {ComboboxComponent, ComboboxOption} from "../../ui/combobox.component";
-import {MemberSuggestionsService} from "../../ui/member-suggestions.service";
 
 const ROOM_NONE = $localize`:@@member.list.room.none:Aucune`;
 
@@ -37,7 +23,6 @@ const ROOM_NONE = $localize`:@@member.list.room.none:Aucune`;
     RouterModule,
     PaginationComponent,
     ReactiveFormsModule,
-    ComboboxComponent,
   ],
   selector: "app-list",
   templateUrl: "./list.component.html",
@@ -48,38 +33,7 @@ export class ListComponent extends SearchPage<number> {
   public subscriptionFilter = "";
   public subscriptionValues = Member.MembershipEnum;
   readonly memberSearch = new FormControl("", {nonNullable: true});
-  private readonly suggestionFilter$ = new BehaviorSubject<
-    MemberFilter | undefined
-  >(undefined);
-  private readonly suggestions = inject(MemberSuggestionsService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly suggestionState$: Observable<{
-    options: ComboboxOption[];
-    loading: boolean;
-    unavailable: boolean;
-  }> = combineLatest([
-    this.memberSearch.valueChanges.pipe(startWith("")),
-    this.suggestionFilter$,
-  ]).pipe(
-    // Clear old suggestions and cancel the old request as soon as the query changes.
-    switchMap(([term, filter]) =>
-      term.trim().length < 2
-        ? of({options: [], loading: false, unavailable: false})
-        : concat(
-            of({options: [], loading: true, unavailable: false}),
-            timer(300).pipe(
-              switchMap(() =>
-                this.suggestions.search(term, filter, this.itemsPerPage),
-              ),
-              map((options) => ({options, loading: false, unavailable: false})),
-              catchError(() =>
-                of({options: [], loading: false, unavailable: true}),
-              ),
-            ),
-          ),
-    ),
-    shareReplay({bufferSize: 1, refCount: true}),
-  );
 
   // GDPR privacy check - only show sensitive data when results are filtered down
   public get shouldShowSensitiveData(): boolean {
@@ -137,11 +91,6 @@ export class ListComponent extends SearchPage<number> {
 
   updateSubscriptionFilter(subscriptionType: string) {
     this.subscriptionFilter = subscriptionType;
-    this.suggestionFilter$.next(
-      subscriptionType
-        ? {membership: subscriptionType as MemberFilter.MembershipEnum}
-        : undefined,
-    );
     this.resetSearch();
     this.changePage(1);
     this.getSearchResult();

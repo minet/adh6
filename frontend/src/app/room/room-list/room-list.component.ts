@@ -6,16 +6,9 @@ import {AsyncPipe} from "@angular/common";
 import {PaginationComponent} from "../../pagination/pagination.component";
 import {AbstractRoom, RoomService} from "../../api";
 import {SearchPage} from "../../search-page";
-import {ComboboxComponent} from "../../ui/combobox.component";
 
 @Component({
-  imports: [
-    RouterModule,
-    ReactiveFormsModule,
-    AsyncPipe,
-    PaginationComponent,
-    ComboboxComponent,
-  ],
+  imports: [RouterModule, ReactiveFormsModule, AsyncPipe, PaginationComponent],
   selector: "app-rooms",
   templateUrl: "./room-list.component.html",
   standalone: true,
