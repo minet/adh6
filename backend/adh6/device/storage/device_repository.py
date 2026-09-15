@@ -2,6 +2,7 @@
 Implements everything related to actions on the SQL database.
 """
 
+import re
 from datetime import datetime
 from enum import Enum
 
@@ -39,8 +40,6 @@ class DeviceSQLRepository(DeviceRepository):
         stmt: Select = select(SQLDevice)
         terms = (device_filter.terms or "").strip().lower()
         if terms:
-            compact_mac = terms.replace("-", "").replace(":", "").replace(".", "")
-            mac_column = func.replace(func.replace(func.replace(func.lower(SQLDevice.mac), ":", ""), "-", ""), ".", "")
             matches = [
                 func.lower(column).contains(terms, autoescape=True)
                 for column in [
@@ -51,7 +50,25 @@ class DeviceSQLRepository(DeviceRepository):
                     Adherent.login,
                 ]
             ]
-            if compact_mac and all(character in "0123456789abcdef" for character in compact_mac):
+            # Normalize byte separators without collapsing IPv6 addresses into MAC fragments.
+            separated_mac = terms.replace("-", ":")
+            if (
+                ":" in separated_mac
+                and "::" not in separated_mac
+                and all(
+                    len(part) <= 2 and all(character in "0123456789abcdef" for character in part)
+                    for part in separated_mac.split(":")
+                )
+            ):
+                matches.append(
+                    func.replace(func.lower(SQLDevice.mac), "-", ":").contains(separated_mac, autoescape=True)
+                )
+            # Compact and Cisco dotted MACs have no byte separators to preserve.
+            if re.fullmatch(r"[0-9a-f]{1,12}|(?:[0-9a-f]{4}\.){1,2}[0-9a-f]{1,4}", terms):
+                compact_mac = terms.replace(".", "")
+                mac_column = func.replace(
+                    func.replace(func.replace(func.lower(SQLDevice.mac), ":", ""), "-", ""), ".", ""
+                )
                 matches.append(mac_column.contains(compact_mac, autoescape=True))
             stmt = stmt.outerjoin(Adherent, SQLDevice.adherent_id == Adherent.id).where(or_(*matches))
         if device_filter.member:
