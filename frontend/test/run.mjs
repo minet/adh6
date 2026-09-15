@@ -2,7 +2,7 @@ import {build} from "esbuild";
 
 // Use the bundler already installed with Angular to run TypeScript tests in Node.
 const result = await build({
-  entryPoints: ["test/index.ts"],
+  entryPoints: [process.argv[2] ?? "test/index.ts"],
   bundle: true,
   write: false,
   platform: "node",

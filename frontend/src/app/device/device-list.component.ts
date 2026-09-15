@@ -1,10 +1,10 @@
 import {CommonModule} from "@angular/common";
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {map, Observable, of, shareReplay, switchMap} from "rxjs";
-import {AbstractDevice, DeviceService, MemberService, Device} from "../api";
+import {DeviceService, MemberService, Device} from "../api";
 import {PaginationComponent} from "../pagination/pagination.component";
 import {SearchPage} from "../search-page";
-import {RouterModule, ActivatedRoute} from "@angular/router";
+import {RouterModule} from "@angular/router";
 
 @Component({
   imports: [CommonModule, PaginationComponent, RouterModule],
@@ -20,7 +20,6 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
   constructor(
     private readonly deviceService: DeviceService,
     private readonly memberService: MemberService,
-    private readonly route: ActivatedRoute,
   ) {
     super((terms, page) =>
       this.deviceService
@@ -60,9 +59,7 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
   }
 
   override ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
-      this.getSearchResult();
-    });
+    super.ngOnInit();
   }
 
   getUsername(id: number) {

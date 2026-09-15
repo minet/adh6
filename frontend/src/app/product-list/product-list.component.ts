@@ -1,10 +1,11 @@
 import {Component, OnInit} from "@angular/core";
 import {AsyncPipe} from "@angular/common";
 import {Product, TreasuryService} from "../api";
+import {PaginationComponent} from "../pagination/pagination.component";
 import {SearchPage} from "../search-page";
 
 @Component({
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, PaginationComponent],
   selector: "app-product-list",
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.css"],

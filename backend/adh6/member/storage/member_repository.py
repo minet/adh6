@@ -6,7 +6,7 @@ import calendar
 import ipaddress
 from datetime import date, datetime, time, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.entity import AbstractMember, Member, MemberFilter
@@ -37,29 +37,40 @@ class MemberSQLRepository(MemberRepository):
             if filter_.until:
                 stmt = stmt.where(Adherent.date_de_depart <= filter_.until)
             if filter_.membership:
-                stmt = stmt.join(Membership, Membership.adherent_id == Adherent.id).where(
-                    Membership.status == filter_.membership
+                stmt = stmt.where(
+                    select(Membership.uuid)
+                    .where(Membership.adherent_id == Adherent.id, Membership.status == filter_.membership)
+                    .exists()
                 )
 
+        terms = (terms or "").strip().lower()
         if terms:
-            terms_lower = terms.lower()
-            parts = terms_lower.split(None, 1)  # split into at most 2 words
-            full_name_match = None
-            if len(parts) == 2:
-                a, b = parts
-                # "firstname lastname" or "lastname firstname"
-                full_name_match = (func.lower(Adherent.prenom).contains(a) & func.lower(Adherent.nom).contains(b)) | (
-                    func.lower(Adherent.prenom).contains(b) & func.lower(Adherent.nom).contains(a)
-                )
+            parts = terms.split()
+            name_match = and_(
+                *[
+                    or_(
+                        func.lower(Adherent.prenom).contains(part, autoescape=True),
+                        func.lower(Adherent.nom).contains(part, autoescape=True),
+                    )
+                    for part in parts
+                ]
+            )
             stmt = stmt.where(
-                (func.lower(Adherent.nom).contains(terms_lower))
-                | (func.lower(Adherent.prenom).contains(terms_lower))
-                | (func.lower(Adherent.mail).contains(terms_lower))
-                | (func.lower(Adherent.login).contains(terms_lower))
-                | (func.lower(Adherent.commentaires).contains(terms_lower))
-                | (Adherent.ip.contains(terms))
-                | (Adherent.subnet.contains(terms))
-                | (full_name_match if full_name_match is not None else False)
+                or_(
+                    *[
+                        func.lower(column).contains(terms, autoescape=True)
+                        for column in [
+                            Adherent.nom,
+                            Adherent.prenom,
+                            Adherent.mail,
+                            Adherent.login,
+                            Adherent.commentaires,
+                            Adherent.ip,
+                            Adherent.subnet,
+                        ]
+                    ],
+                    name_match,
+                )
             )
 
         count = await count_rows(self.session, stmt)

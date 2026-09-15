@@ -74,52 +74,79 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @if (!shouldShowSensitiveData) {
+      @if (loading) {
         <tr>
-          <td colspan="3">
-            <div class="notification is-warning is-light has-text-centered">
-              <h4 class="title is-5" i18n="@@member.list.gdpr.title">
-                Protection des données personnelles
-              </h4>
-              <p i18n="@@member.list.gdpr.description">
-                Pour respecter le RGPD, les noms et numéros de chambre ne sont
-                visibles que lorsque la recherche est affinée à moins d'une page
-                complète de résultats.
-              </p>
-              <p>
-                <strong i18n="@@member.list.gdpr.results-count"
-                  >{{ maxItems }} résultats trouvés</strong
-                >
-                -
-                <span i18n="@@member.list.gdpr.refine-search"
-                  >Veuillez affiner votre recherche.</span
-                >
-              </p>
-            </div>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
+          </td>
+        </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
           </td>
         </tr>
       } @else {
-        @for (i of result; track i) {
-          @if (getMember(i) | async; as member) {
-            @if (member) {
-              <tr [routerLink]="['../view', member.id, 'profile']">
-                <td>
-                  {{ member.lastName | uppercase }}
-                  <span class="capitalize">{{
-                    member.firstName | lowercase
-                  }}</span>
-                </td>
-                <td>{{ member.username }}</td>
-                <td class="roomNumberRow">
-                  <p>
-                    @if (getRoomNumber(member.id) | async; as roomNumber) {
-                      {{ roomNumber }}
-                    } @else {
-                      <span i18n="@@member.list.room.none">Aucune</span>
-                    }
-                  </p>
-                </td>
-              </tr>
+        @if (!shouldShowSensitiveData) {
+          <tr>
+            <td colspan="3">
+              <div class="notification is-warning is-light has-text-centered">
+                <h4 class="title is-5" i18n="@@member.list.gdpr.title">
+                  Protection des données personnelles
+                </h4>
+                <p i18n="@@member.list.gdpr.description">
+                  Pour respecter le RGPD, les noms et numéros de chambre ne sont
+                  visibles que lorsque la recherche est affinée à moins d'une
+                  page complète de résultats.
+                </p>
+                <p>
+                  <strong i18n="@@member.list.gdpr.results-count"
+                    >{{ maxItems }} résultats trouvés</strong
+                  >
+                  -
+                  <span i18n="@@member.list.gdpr.refine-search"
+                    >Veuillez affiner votre recherche.</span
+                  >
+                </p>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (i of result; track i) {
+            @if (getMember(i) | async; as member) {
+              @if (member) {
+                <tr [routerLink]="['../view', member.id, 'profile']">
+                  <td>
+                    {{ member.lastName | uppercase }}
+                    <span class="capitalize">{{
+                      member.firstName | lowercase
+                    }}</span>
+                  </td>
+                  <td>{{ member.username }}</td>
+                  <td class="roomNumberRow">
+                    <p>
+                      @if (getRoomNumber(member.id) | async; as roomNumber) {
+                        {{ roomNumber }}
+                      } @else {
+                        <span i18n="@@member.list.room.none">Aucune</span>
+                      }
+                    </p>
+                  </td>
+                </tr>
+              }
             }
           }
         }

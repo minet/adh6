@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
@@ -37,14 +37,23 @@ class DeviceSQLRepository(DeviceRepository):
 
     async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         stmt: Select = select(SQLDevice)
-        if device_filter.terms:
-            stmt = stmt.join(Adherent, SQLDevice.adherent_id == Adherent.id).where(
-                (SQLDevice.mac.contains(device_filter.terms))
-                | (SQLDevice.mac.contains(device_filter.terms.replace("-", ":")))
-                | (SQLDevice.ip.contains(device_filter.terms))
-                | (SQLDevice.ipv6.contains(device_filter.terms))
-                | (Adherent.login.contains(device_filter.terms))
-            )
+        terms = (device_filter.terms or "").strip().lower()
+        if terms:
+            compact_mac = terms.replace("-", "").replace(":", "").replace(".", "")
+            mac_column = func.replace(func.replace(func.replace(func.lower(SQLDevice.mac), ":", ""), "-", ""), ".", "")
+            matches = [
+                func.lower(column).contains(terms, autoescape=True)
+                for column in [
+                    SQLDevice.mac,
+                    SQLDevice.ip,
+                    SQLDevice.ipv6,
+                    SQLDevice.name,
+                    Adherent.login,
+                ]
+            ]
+            if compact_mac and all(character in "0123456789abcdef" for character in compact_mac):
+                matches.append(mac_column.contains(compact_mac, autoescape=True))
+            stmt = stmt.outerjoin(Adherent, SQLDevice.adherent_id == Adherent.id).where(or_(*matches))
         if device_filter.member:
             stmt = stmt.where(SQLDevice.adherent_id == device_filter.member)
         if device_filter.connection_type:
@@ -53,7 +62,7 @@ class DeviceSQLRepository(DeviceRepository):
         count_stmt = select(func.count()).select_from(stmt.subquery())
         count = int((await self.session.execute(count_stmt)).scalar_one())
 
-        rows = await self.session.scalars(stmt.offset(offset).limit(limit))
+        rows = await self.session.scalars(stmt.order_by(SQLDevice.id.asc()).offset(offset).limit(limit))
         devices = rows.all()
 
         return list(map(_map_device_sql_to_entity, devices)), count

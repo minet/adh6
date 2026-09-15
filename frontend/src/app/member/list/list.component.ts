@@ -92,8 +92,6 @@ export class ListComponent extends SearchPage<number> {
   updateSubscriptionFilter(subscriptionType: string) {
     this.subscriptionFilter = subscriptionType;
     this.resetSearch();
-    this.changePage(1);
-    this.getSearchResult();
   }
 
   onSubscriptionFilterChange(event: Event) {

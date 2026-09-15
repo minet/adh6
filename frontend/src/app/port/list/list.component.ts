@@ -129,15 +129,15 @@ export class PortListComponent
 
   ngOnChanges(): void {
     if (this.initialized) {
-      this.filters.controls.switchObj.setValue(this.switchId ?? null);
+      this.filters.controls.switchObj.setValue(this.switchId ?? null, {
+        emitEvent: false,
+      });
       this.refreshFilters();
     }
   }
 
   private refreshFilters(): void {
     this.resetSearch();
-    this.changePage(1);
-    this.getSearchResult();
   }
 
   handlePageChange(page: number) {

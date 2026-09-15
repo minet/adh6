@@ -11,7 +11,6 @@ import {SearchPage} from "../search-page";
 import {map, Observable, shareReplay} from "rxjs";
 import {
   PaymentMethod,
-  Transaction,
   TransactionService,
   AbstractTransaction,
   MemberService,
@@ -24,7 +23,7 @@ class Action {
   name = "";
   buttonIcon = "";
   class = "";
-  condition: (transaction: Transaction) => boolean = () => true;
+  condition: (transaction: AbstractTransaction) => boolean = () => true;
 }
 
 @Component({
@@ -41,13 +40,12 @@ export class TransactionListComponent
 
   @Output() whenOnAction: EventEmitter<{
     name: string;
-    transaction: Transaction;
+    transaction: AbstractTransaction;
   }> = new EventEmitter<{
     name: string;
-    transaction: Transaction;
+    transaction: AbstractTransaction;
   }>();
 
-  public override result$: Observable<Transaction[]> = new Observable();
   public paymentMethods: PaymentMethod[] = [];
   public filterType = "";
 
@@ -120,7 +118,7 @@ export class TransactionListComponent
 
   updateTypeFilter(type: string) {
     this.filterType = type;
-    this.getSearchResult();
+    this.resetSearch();
   }
 
   onTypeFilterChange(event: Event) {
@@ -130,10 +128,12 @@ export class TransactionListComponent
 
   override ngOnInit() {
     super.ngOnInit();
-    this.getSearchResult();
-    this.appConstantsService.getPaymentMethods().subscribe((data) => {
-      this.paymentMethods = data;
-    });
+    this.appConstantsService
+      .getPaymentMethods()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.paymentMethods = data;
+      });
     if (this.refresh) {
       this.refresh
         .pipe(takeUntilDestroyed(this.destroyRef))

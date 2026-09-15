@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -41,8 +41,12 @@ class SwitchSQLRepository(SwitchRepository):
     ) -> tuple[list[Switch], int]:
         stmt = select(SQLSwitch)
 
+        terms = (terms or "").strip().lower()
         if terms:
-            stmt = stmt.where((SQLSwitch.description.contains(terms)) | (SQLSwitch.ip.contains(terms)))
+            stmt = stmt.where(
+                func.lower(SQLSwitch.description).contains(terms, autoescape=True)
+                | func.lower(SQLSwitch.ip).contains(terms, autoescape=True)
+            )
         if filter_:
             if filter_.id:
                 stmt = stmt.where(SQLSwitch.id == filter_.id)
@@ -54,7 +58,7 @@ class SwitchSQLRepository(SwitchRepository):
         count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
-        stmt = stmt.order_by(SQLSwitch.created_at.asc()).offset(offset).limit(limit)
+        stmt = stmt.order_by(SQLSwitch.created_at.asc(), SQLSwitch.id.asc()).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         r = result.scalars().all()
 

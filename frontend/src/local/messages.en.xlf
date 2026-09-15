@@ -2619,6 +2619,18 @@
           <context context-type="sourcefile">src/app/vlan/vlan-dashboard.component.html</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="search.error" datatype="html">
+        <source>Impossible de charger les résultats.</source>
+        <target>Unable to load results.</target>
+      </trans-unit>
+      <trans-unit id="search.retry" datatype="html">
+        <source>Réessayer</source>
+        <target>Retry</target>
+      </trans-unit>
+      <trans-unit id="search.empty" datatype="html">
+        <source>Aucun résultat.</source>
+        <target>No results.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

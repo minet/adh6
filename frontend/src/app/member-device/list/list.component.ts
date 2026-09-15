@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, OnChanges} from "@angular/core";
 import {AbstractDevice, DeviceService, Device} from "../../api";
 import {SearchPage} from "../../search-page";
 import {CommonModule, AsyncPipe} from "@angular/common";
@@ -10,7 +10,10 @@ import {ElementComponent} from "./element/element.component";
   templateUrl: "./list.component.html",
   styleUrls: ["./list.component.css"],
 })
-export class MemberDeviceListComponent extends SearchPage<Device> {
+export class MemberDeviceListComponent
+  extends SearchPage<Device>
+  implements OnChanges
+{
   @Input() abstractDeviceFilter: AbstractDevice = {};
 
   constructor(public deviceService: DeviceService) {
@@ -39,7 +42,11 @@ export class MemberDeviceListComponent extends SearchPage<Device> {
     );
   }
 
+  ngOnChanges(): void {
+    this.resetSearch();
+  }
+
   updateSearch() {
-    this.getSearchResult();
+    this.resetSearch();
   }
 }

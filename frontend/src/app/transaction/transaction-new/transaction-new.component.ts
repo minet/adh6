@@ -11,7 +11,12 @@ import {
 
 import {takeWhile} from "rxjs/operators";
 
-import {PaymentMethod, Transaction, TransactionService} from "../../api";
+import {
+  PaymentMethod,
+  Transaction,
+  AbstractTransaction,
+  TransactionService,
+} from "../../api";
 import {TransactionListComponent} from "../../transaction-list/transaction-list.component";
 
 import {AppConstantsService} from "../../app-constants.service";
@@ -43,7 +48,7 @@ export class TransactionNewComponent implements OnInit {
       name: "delete",
       class: "is-danger",
       buttonIcon: "trash-bin",
-      condition: (_transaction: Transaction) => true,
+      condition: (_transaction: AbstractTransaction) => true,
     },
   ];
   public paymentMethods: PaymentMethod[] = [];
@@ -78,7 +83,7 @@ export class TransactionNewComponent implements OnInit {
     });
   }
 
-  useTransaction(event: {name: string; transaction: Transaction}) {
+  useTransaction(event: {name: string; transaction: AbstractTransaction}) {
     if (event.name === "delete") {
       this.transactionService
         .transactionIdDelete(event.transaction.id ?? 0)

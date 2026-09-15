@@ -2263,6 +2263,15 @@
           <context context-type="sourcefile">src/app/vlan/vlan-dashboard.component.html</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="search.error" datatype="html">
+        <source>Impossible de charger les résultats.</source>
+      </trans-unit>
+      <trans-unit id="search.retry" datatype="html">
+        <source>Réessayer</source>
+      </trans-unit>
+      <trans-unit id="search.empty" datatype="html">
+        <source>Aucun résultat.</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

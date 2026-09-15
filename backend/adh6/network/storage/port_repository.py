@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import String, cast, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -38,9 +38,22 @@ class PortSQLRepository(PortRepository):
         stmt = select(SQLPort).join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
         stmt = stmt.outerjoin(SQLChambre, SQLChambre.id == SQLPort.chambre_id)
 
+        terms = (terms or "").strip().lower()
         if terms:
             stmt = stmt.where(
-                (SQLPort.numero.contains(terms)) | (SQLPort.oid.contains(terms)) | (SQLPort.numero.contains(terms))
+                or_(
+                    *[
+                        func.lower(column).contains(terms, autoescape=True)
+                        for column in [
+                            SQLPort.numero,
+                            SQLPort.oid,
+                            SQLSwitch.description,
+                            SQLSwitch.ip,
+                            SQLChambre.description,
+                        ]
+                    ],
+                    cast(SQLChambre.numero, String).startswith(terms, autoescape=True),
+                )
             )
         if filter_:
             if filter_.id is not None:

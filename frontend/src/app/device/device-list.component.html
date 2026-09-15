@@ -3,7 +3,7 @@
   id="search-box"
   placeholder="Rechercher..."
   i18n-placeholder="@@common.search.placeholder"
-  (keyup)="search(searchBox.value)"
+  (input)="search(searchBox.value)"
   class="input is-fullwidth"
   type="text" />
 <br />
@@ -18,31 +18,62 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (device of result; track device.id) {
-        <tr [routerLink]="['/member/view', device.member, 'profile']">
-          <td>
-            @if (getUsername(device.id!) | async; as username) {
-              {{ username }}
-            } @else {
-              <span i18n="@@common.loading.lower">chargement...</span>
-            }
+      @if (loading) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
           </td>
-          <td>{{ device.mac }}</td>
-          <td>{{ device.connectionType }}</td>
-          <td>{{ device.vendor || "-" }}</td>
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (device of result; track device.id) {
+          <tr [routerLink]="['/member/view', device.member, 'profile']">
+            <td>
+              @if (getUsername(device.id!) | async; as username) {
+                {{ username }}
+              } @else {
+                <span i18n="@@common.loading.lower">chargement...</span>
+              }
+            </td>
+            <td>{{ device.mac }}</td>
+            <td>{{ device.connectionType }}</td>
+            <td>{{ device.vendor || "-" }}</td>
+          </tr>
+        }
       }
     </tbody>
   } @else {
     <tr>
       <td colspan="42">
         <div class="notification is-info is-light has-text-centered">
-          <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
+          <h4 class="title is-4" i18n="@@common.loading.title">
+            Chargement ...
+          </h4>
         </div>
       </td>
     </tr>
   }
 </table>
 <app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>

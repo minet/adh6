@@ -3,7 +3,7 @@
     <input
       #searchBox
       id="search-box"
-      (keyup)="search(searchBox.value)"
+      (input)="search(searchBox.value)"
       placeholder="Rechercher..."
       i18n-placeholder="@@common.search.placeholder"
       class="input is-fullwidth"
@@ -11,7 +11,9 @@
   </div>
   <div class="column is-narrow">
     <select class="input" (change)="onTypeFilterChange($event)">
-      <option value="" i18n="@@transaction.list.all-types">-- Tout type --</option>
+      <option value="" i18n="@@transaction.list.all-types">
+        -- Tout type --
+      </option>
       @for (pm of paymentMethods; track pm) {
         <option value="{{ pm.id }}">
           {{ pm.name }}
@@ -37,59 +39,89 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (transactionResult of result; track transactionResult) {
+      @if (loading) {
         <tr>
-          <td class="text-center align-middle">
-            <h6 class="mb-0">
-              {{ transactionResult.timestamp | date: "dd/MM" }}
-            </h6>
-            <small>{{ transactionResult.timestamp | date: "yyyy" }}</small>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
           </td>
-          <td class="text-right text-nowrap align-middle">
-            <h5>{{ transactionResult.value | number }} €</h5>
-          </td>
-          <td class="align-middle">{{ transactionResult.name }}</td>
-          <td class="align-middle">{{ transactionResult.productType || "-" }}</td>
-          <td class="align-middle">
-            {{
-              cachedPaymentMethodName.get(transactionResult.paymentMethod || 0)
-                | async
-            }}
-          </td>
-          <td class="align-middle">
-            {{
-              transactionResult.author
-                ? (cachedMemberUsername.get(transactionResult.author) | async)
-                : "-"
-            }}
-          </td>
-          @if (actions) {
-            <td class="text-right align-middle">
-              <div class="field is-grouped">
-                @for (action of actions; track action) {
-                  <p class="control">
-                    @if (action.condition(transactionResult)) {
-                      <button
-                        type="button"
-                        class="button {{ action.class }}"
-                        (click)="
-                          whenOnAction.emit({
-                            name: action.name,
-                            transaction: transactionResult,
-                          })
-                        ">
-                        <img
-                          src="assets/icons/{{ action.buttonIcon }}.svg"
-                          width="25"
-                          height="25" />
-                      </button>
-                    }
-                  </p>
-                }
-              </div>
-            </td>
-          }
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (transactionResult of result; track transactionResult) {
+          <tr>
+            <td class="text-center align-middle">
+              <h6 class="mb-0">
+                {{ transactionResult.timestamp | date: "dd/MM" }}
+              </h6>
+              <small>{{ transactionResult.timestamp | date: "yyyy" }}</small>
+            </td>
+            <td class="text-right text-nowrap align-middle">
+              <h5>{{ transactionResult.value | number }} €</h5>
+            </td>
+            <td class="align-middle">{{ transactionResult.name }}</td>
+            <td class="align-middle">
+              {{ transactionResult.productType || "-" }}
+            </td>
+            <td class="align-middle">
+              {{
+                cachedPaymentMethodName.get(
+                  transactionResult.paymentMethod || 0
+                ) | async
+              }}
+            </td>
+            <td class="align-middle">
+              {{
+                transactionResult.author
+                  ? (cachedMemberUsername.get(transactionResult.author) | async)
+                  : "-"
+              }}
+            </td>
+            @if (actions) {
+              <td class="text-right align-middle">
+                <div class="field is-grouped">
+                  @for (action of actions; track action) {
+                    <p class="control">
+                      @if (action.condition(transactionResult)) {
+                        <button
+                          type="button"
+                          class="button {{ action.class }}"
+                          (click)="
+                            whenOnAction.emit({
+                              name: action.name,
+                              transaction: transactionResult,
+                            })
+                          ">
+                          <img
+                            src="assets/icons/{{ action.buttonIcon }}.svg"
+                            width="25"
+                            height="25" />
+                        </button>
+                      }
+                    </p>
+                  }
+                </div>
+              </td>
+            }
+          </tr>
+        }
       }
     </tbody>
   } @else {
@@ -99,5 +131,7 @@
   }
 </table>
 <app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>

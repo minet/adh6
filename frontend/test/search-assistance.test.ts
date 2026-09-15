@@ -12,14 +12,20 @@ import {HttpHeaders, HttpResponse} from "@angular/common/http";
 import {FormControl} from "@angular/forms";
 import {deepStrictEqual, equal} from "node:assert/strict";
 import {test} from "node:test";
-import {firstValueFrom, of} from "rxjs";
+import {filter, firstValueFrom, of} from "rxjs";
 import {
   MemberService,
   PortService,
   RoomMembersService,
   RoomService,
   SwitchService,
+  TransactionService,
+  DeviceService,
 } from "../src/app/api";
+import {AppConstantsService} from "../src/app/app-constants.service";
+import {TransactionListComponent} from "../src/app/transaction-list/transaction-list.component";
+import {MemberDeviceListComponent} from "../src/app/member-device/list/list.component";
+import {TestScheduler} from "rxjs/testing";
 import {ListComponent as MemberListComponent} from "../src/app/member/list/list.component";
 import {PortListComponent} from "../src/app/port/list/list.component";
 import {PaginationComponent} from "../src/app/pagination/pagination.component";
@@ -95,7 +101,7 @@ test("room search fetches only search results, without preloading all suggested 
   list.ngOnInit();
   equal(calls.length, 0);
   list.roomSearch.setValue("511");
-  await firstValueFrom(list.result$);
+  await firstValueFrom(list.result$.pipe(filter(() => !list.loading)));
   equal(calls.length, 1);
   equal(calls[0][2], "511");
   equal(calls[0][5], "response");
@@ -337,7 +343,7 @@ test("member search fetches only results and preserves text when subscription fi
   list.ngOnInit();
   list.changePage(3);
   list.memberSearch.setValue("jean@example.org");
-  await firstValueFrom(list.result$);
+  await firstValueFrom(list.result$.pipe(filter(() => !list.loading)));
   equal(calls.length, 1);
   equal(calls[0][2], "jean@example.org");
   equal(calls[0][3], undefined);
@@ -345,7 +351,7 @@ test("member search fetches only results and preserves text when subscription fi
   equal(list.currentPage, 1);
 
   list.updateSubscriptionFilter("COMPLETE");
-  await firstValueFrom(list.result$);
+  await firstValueFrom(list.result$.pipe(filter(() => !list.loading)));
   equal(calls.length, 2);
   equal(calls[1][2], "jean@example.org");
   deepStrictEqual(calls[1][3], {membership: "COMPLETE"});
@@ -383,7 +389,7 @@ test("port filters combine room database IDs and switch IDs and reset to the fir
   list.changePage(3);
   list.filters.patchValue({room: 42, switchObj: 7});
   await pause(10);
-  await firstValueFrom(list.result$);
+  await firstValueFrom(list.result$.pipe(filter(() => !list.loading)));
   equal(list.currentPage, 1);
   equal(calls.at(-1)![1], 0);
   deepStrictEqual(calls.at(-1)![3], {room: 42, switchObj: 7});
@@ -425,12 +431,15 @@ test("invalid typed port filters do not fall back to an unfiltered backend reque
   );
   combo.search("9999");
   await pause(10);
-  deepStrictEqual(await firstValueFrom(list.result$), []);
+  deepStrictEqual(
+    await firstValueFrom(list.result$.pipe(filter(() => !list.loading))),
+    [],
+  );
   equal(calls.length, 0);
   combo.search("");
   list.filters.controls.switchObj.setValue(99);
   await pause(10);
-  await firstValueFrom(list.result$);
+  await firstValueFrom(list.result$.pipe(filter(() => !list.loading)));
   deepStrictEqual(calls.at(-1)![3], {switchObj: 7});
 });
 
@@ -443,7 +452,7 @@ test("a new text search resets the requested page and the displayed page", async
   page.ngOnInit();
   page.changePage(3);
   page.search("5110");
-  await firstValueFrom(page.result$);
+  await firstValueFrom(page.result$.pipe(filter(() => !page.loading)));
   equal(page.currentPage, 1);
   deepStrictEqual(calls.at(-1), {term: "5110", page: 1});
 });
@@ -464,4 +473,90 @@ test("pagination handles a page-only update and rebuilds ranges after filters ch
   pagination.maxItems = 0;
   pagination.ngOnChanges({maxItems: new SimpleChange(40, 0, false)});
   equal(pagination.numberOfPages, 1);
+});
+
+test("transaction type filters and refresh events reload the current text without stale pages", () => {
+  const scheduler = new TestScheduler(deepStrictEqual);
+  scheduler.run(() => {
+    const calls: unknown[][] = [];
+    const list = context(
+      () =>
+        new TransactionListComponent(
+          inject(TransactionService),
+          inject(AppConstantsService),
+          inject(MemberService),
+          inject(DestroyRef),
+        ),
+      [
+        {
+          provide: AppConstantsService,
+          useValue: {getPaymentMethods: () => of([])},
+        },
+        {
+          provide: TransactionService,
+          useValue: {
+            transactionGet: (...args: unknown[]) => {
+              calls.push(args);
+              return of(
+                new HttpResponse({
+                  body: [],
+                  headers: new HttpHeaders({"x-total-count": "100"}),
+                }),
+              );
+            },
+          },
+        },
+      ],
+    );
+    list.ngOnInit();
+    const subscription = list.result$.subscribe();
+    scheduler.schedule(() => list.search("cotisation"), 350);
+    scheduler.schedule(() => list.changePage(3), 650);
+    scheduler.schedule(() => list.updateTypeFilter("2"), 700);
+    scheduler.schedule(() => list.refresh.emit({action: "refresh"}), 750);
+    scheduler.schedule(() => {
+      deepStrictEqual(
+        calls.map((args) => args.slice(1, 4)),
+        [
+          [0, "", {}],
+          [0, "cotisation", {}],
+          [20, "cotisation", {}],
+          [0, "cotisation", {paymentMethod: 2}],
+          [0, "cotisation", {paymentMethod: 2}],
+        ],
+      );
+      equal(list.currentPage, 1);
+      subscription.unsubscribe();
+    }, 751);
+  });
+});
+
+test("member device filters and deletion refresh update the existing result subscription", () => {
+  const members: (number | undefined)[] = [];
+  const list = context(
+    () => new MemberDeviceListComponent(inject(DeviceService)),
+    [
+      {
+        provide: DeviceService,
+        useValue: {
+          deviceGet: (
+            _limit: number,
+            _offset: number,
+            filter: {member?: number},
+          ) => {
+            members.push(filter.member);
+            return of(new HttpResponse({body: []}));
+          },
+        },
+      },
+    ],
+  );
+  list.abstractDeviceFilter = {member: 1};
+  list.ngOnInit();
+  const subscription = list.result$.subscribe();
+  list.abstractDeviceFilter = {member: 2};
+  list.ngOnChanges();
+  list.updateSearch();
+  deepStrictEqual(members, [1, 2, 2]);
+  subscription.unsubscribe();
 });

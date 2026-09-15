@@ -77,11 +77,8 @@ class TestRoomSQLRepository:
 
         mock_vlan = MagicMock(spec=Vlan)
         mock_vlan.numero = 41
-        mock_vlan_result = MagicMock()
-        mock_vlan_result.first.return_value = (mock_vlan,)
-
-        # Fetch, then vlan lookup while mapping
-        mock_session.execute.side_effect = [mock_execute_result, mock_vlan_result]
+        c.vlan = mock_vlan
+        mock_session.execute.return_value = mock_execute_result
         mock_session.scalar.return_value = 1
 
         # When
@@ -90,6 +87,8 @@ class TestRoomSQLRepository:
         # Then
         assert count == 1
         assert len(results) == 1
+        assert results[0].vlan == 41
+        mock_session.execute.assert_called_once()
 
     async def test_create(self, room_repo, mock_session):
         # Given

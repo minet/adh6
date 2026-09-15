@@ -2,7 +2,7 @@
 Implements everything related to actions on the SQL database.
 """
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -39,8 +39,9 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
                 stmt = stmt.where(SQLPaymentMethod.id == filter_.id)
             if filter_.name:
                 stmt = stmt.where(SQLPaymentMethod.name.contains(filter_.name))
+        terms = (terms or "").strip().lower()
         if terms:
-            stmt = stmt.where(SQLPaymentMethod.name.contains(terms))
+            stmt = stmt.where(func.lower(SQLPaymentMethod.name).contains(terms, autoescape=True))
 
         count = await count_rows(self.session, stmt)
 

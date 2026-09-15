@@ -29,12 +29,39 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (room of result; track room) {
-        <tr [routerLink]="['/room/view', room.id]">
-          <td>{{ room.roomNumber }}</td>
-          <td>{{ room.description }}</td>
-          <td>{{ room.vlan }}</td>
+      @if (loading) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
+          </td>
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (room of result; track room) {
+          <tr [routerLink]="['/room/view', room.id]">
+            <td>{{ room.roomNumber }}</td>
+            <td>{{ room.description }}</td>
+            <td>{{ room.vlan }}</td>
+          </tr>
+        }
       }
     </tbody>
   } @else {

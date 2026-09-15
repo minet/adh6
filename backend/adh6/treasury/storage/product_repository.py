@@ -2,7 +2,7 @@
 Implements everything related to actions on the SQL database.
 """
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -29,8 +29,9 @@ class ProductSQLRepository(ProductRepository):
     ) -> tuple[list[Product], int]:
         stmt = select(SQLProduct)
 
+        terms = (terms or "").strip().lower()
         if terms:
-            stmt = stmt.where(SQLProduct.name.contains(terms))
+            stmt = stmt.where(func.lower(SQLProduct.name).contains(terms, autoescape=True))
 
         count = await count_rows(self.session, stmt)
 

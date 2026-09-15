@@ -4,7 +4,7 @@ Implements everything related to actions on the SQL database.
 
 from datetime import date, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -53,10 +53,11 @@ class TransactionSQLRepository(TransactionRepository):
         if to_date is not None:
             stmt = stmt.where(SQLTransaction.timestamp <= datetime.combine(to_date, datetime.max.time()))
 
+        terms = (terms or "").strip().lower()
         if terms:
-            stmt = stmt.where(SQLTransaction.name.like(f"%{terms}%"))
+            stmt = stmt.where(func.lower(SQLTransaction.name).contains(terms, autoescape=True))
 
-        stmt = stmt.order_by(SQLTransaction.timestamp.desc())
+        stmt = stmt.order_by(SQLTransaction.timestamp.desc(), SQLTransaction.id.desc())
 
         count = await count_rows(self.session, stmt)
 

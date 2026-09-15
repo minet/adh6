@@ -1,7 +1,7 @@
 <input
   #searchBox
   id="search-box"
-  (keyup)="search(searchBox.value)"
+  (input)="search(searchBox.value)"
   placeholder="Rechercher..."
   i18n-placeholder="@@common.search.placeholder"
   class="input is-fullwidth"
@@ -18,12 +18,43 @@
       </tr>
     </thead>
     <tbody>
-      @for (productResult of result; track productResult) {
+      @if (loading) {
         <tr>
-          <td class="align-middle">{{ productResult.name }}</td>
-          <td class="align-middle">{{ (productResult.buyingPrice || 0) * 0.01 }}</td>
-          <td class="align-middle">{{ (productResult.sellingPrice || 0) * 0.01 }}</td>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
+          </td>
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (productResult of result; track productResult) {
+          <tr>
+            <td class="align-middle">{{ productResult.name }}</td>
+            <td class="align-middle">
+              {{ (productResult.buyingPrice || 0) * 0.01 }}
+            </td>
+            <td class="align-middle">
+              {{ (productResult.sellingPrice || 0) * 0.01 }}
+            </td>
+          </tr>
+        }
       }
     </tbody>
   </table>
@@ -32,3 +63,9 @@
     <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
   </div>
 }
+
+<app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
+  [maxItems]="maxItems"
+  (pageChange)="handlePageChange($event)" />

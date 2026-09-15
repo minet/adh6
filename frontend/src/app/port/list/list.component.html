@@ -1,7 +1,7 @@
 <input
   #searchBox
   id="search-box"
-  (keyup)="search(searchBox.value)"
+  (input)="search(searchBox.value)"
   class="input is-fullwidth"
   type="text"
   placeholder="Rechercher..."
@@ -16,7 +16,7 @@
       placeholder="Toutes les chambres"
       i18n-placeholder="@@port.list.all-rooms" />
   </div>
-  @if (switchId == null) {
+  @if (switchId === undefined || switchId === null) {
     <div class="column">
       <label class="label" for="port-switch-filter" i18n="@@common.switch"
         >Commutateur</label
@@ -49,39 +49,66 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (port of result; track port) {
-        <tr
-          [routerLink]="['/port', port.switchObj, port.id]"
-          routerLinkActive="router-link-active">
-          <td class="center">
-            @if (
-              port.switchObj
-                ? (cachedSwitchDescription.get(port.switchObj) | async)
-                : null;
-              as description
-            ) {
-              {{ description }}
-            } @else {
-              <span i18n="@@common.loading.short">Chargement...</span>
-            }
-          </td>
-          <td class="center">{{ port.portNumber }}</td>
-          <td class="center">
-            @if (port.roomObj) {
-              <a [routerLink]="['/room/view', port.room]">
-                {{ port.roomObj.roomNumber }}
-              </a>
-            } @else if (port.room !== undefined && port.room !== null) {
-              <a
-                [routerLink]="['/room/view', port.room]"
-                i18n="@@common.invalid-id">
-                ID invalide ({{ port.room }})
-              </a>
-            } @else {
-              <a i18n="@@common.room.none">Aucune chambre</a>
-            }
+      @if (loading) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
           </td>
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (port of result; track port) {
+          <tr
+            [routerLink]="['/port', port.switchObj, port.id]"
+            routerLinkActive="router-link-active">
+            <td class="center">
+              @if (
+                port.switchObj
+                  ? (cachedSwitchDescription.get(port.switchObj) | async)
+                  : null;
+                as description
+              ) {
+                {{ description }}
+              } @else {
+                <span i18n="@@common.loading.short">Chargement...</span>
+              }
+            </td>
+            <td class="center">{{ port.portNumber }}</td>
+            <td class="center">
+              @if (port.roomObj) {
+                <a [routerLink]="['/room/view', port.room]">
+                  {{ port.roomObj.roomNumber }}
+                </a>
+              } @else if (port.room !== undefined && port.room !== null) {
+                <a
+                  [routerLink]="['/room/view', port.room]"
+                  i18n="@@common.invalid-id">
+                  ID invalide ({{ port.room }})
+                </a>
+              } @else {
+                <a i18n="@@common.room.none">Aucune chambre</a>
+              }
+            </td>
+          </tr>
+        }
       }
     </tbody>
   } @else {

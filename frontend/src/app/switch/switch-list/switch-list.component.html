@@ -3,7 +3,7 @@
     <input
       #searchBox
       id="search-box"
-      (keyup)="search(searchBox.value)"
+      (input)="search(searchBox.value)"
       class="input is-fullwidth"
       placeholder="Rechercher..."
       i18n-placeholder="@@common.search.placeholder"
@@ -11,7 +11,9 @@
   </div>
   <div class="column is-narrow">
     <a [routerLink]="['../add']">
-      <button class="button is-primary" i18n="@@switch.list.new">Nouveau commutateur</button>
+      <button class="button is-primary" i18n="@@switch.list.new">
+        Nouveau commutateur
+      </button>
     </a>
   </div>
 </div>
@@ -24,25 +26,56 @@
   </thead>
   @if (result$ | async; as result) {
     <tbody>
-      @for (switchResult of result; track switchResult) {
-        <tr [routerLink]="['/switch', switchResult.id, 'admin']">
-          <td>
-            {{ switchResult.description }}
+      @if (loading) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@common.loading.title">
+            Chargement ...
           </td>
-          <td>{{ switchResult.ip }}</td>
         </tr>
+      } @else if (searchFailed) {
+        <tr>
+          <td colspan="42" role="alert">
+            <p i18n="@@search.error">Impossible de charger les résultats.</p>
+            <button
+              class="button is-small"
+              type="button"
+              (click)="retrySearch()"
+              i18n="@@search.retry">
+              Réessayer
+            </button>
+          </td>
+        </tr>
+      } @else if (result.length === 0) {
+        <tr>
+          <td colspan="42" role="status" i18n="@@search.empty">
+            Aucun résultat.
+          </td>
+        </tr>
+      } @else {
+        @for (switchResult of result; track switchResult) {
+          <tr [routerLink]="['/switch', switchResult.id, 'admin']">
+            <td>
+              {{ switchResult.description }}
+            </td>
+            <td>{{ switchResult.ip }}</td>
+          </tr>
+        }
       }
     </tbody>
   } @else {
     <tr>
       <td colspan="42">
         <div class="notification is-info is-light has-text-centered">
-          <h4 class="title is-4" i18n="@@common.loading.title">Chargement ...</h4>
+          <h4 class="title is-4" i18n="@@common.loading.title">
+            Chargement ...
+          </h4>
         </div>
       </td>
     </tr>
   }
 </table>
 <app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
   [maxItems]="maxItems"
   (pageChange)="handlePageChange($event)"></app-pagination>

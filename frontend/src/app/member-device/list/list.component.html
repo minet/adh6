@@ -1,6 +1,19 @@
 @if (result$ | async; as result) {
   <div>
-    @if (result.length === 0) {
+    @if (loading) {
+      <p role="status" i18n="@@common.loading.title">Chargement ...</p>
+    } @else if (searchFailed) {
+      <div role="alert">
+        <p i18n="@@search.error">Impossible de charger les résultats.</p>
+        <button
+          class="button is-small"
+          type="button"
+          (click)="retrySearch()"
+          i18n="@@search.retry">
+          Réessayer
+        </button>
+      </div>
+    } @else if (result.length === 0) {
       <p
         class="title"
         i18n="Tells the user they have no registered devices@@device.list.none">

@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 from collections.abc import Sequence
 from datetime import datetime
 
-from sqlalchemy import String, cast, delete, insert, or_, select, update
+from sqlalchemy import String, cast, delete, func, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -76,11 +76,11 @@ class RoomSQLRepository(RoomRepository):
     ) -> tuple[list[Room], int]:
         stmt = select(Chambre)
 
+        terms = (terms or "").strip().lower()
         if terms:
-            terms = terms.strip()
             stmt = stmt.where(
                 or_(
-                    Chambre.description.contains(terms, autoescape=True),
+                    func.lower(Chambre.description).contains(terms, autoescape=True),
                     cast(Chambre.numero, String).startswith(terms, autoescape=True),
                 )
             )
@@ -96,11 +96,21 @@ class RoomSQLRepository(RoomRepository):
         count = await count_rows(self.session, stmt)
 
         # Apply ordering and pagination
-        stmt = stmt.order_by(Chambre.numero.asc()).offset(offset).limit(limit)
+        stmt = stmt.order_by(Chambre.numero.asc(), Chambre.id.asc()).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         r = result.scalars().all()
 
-        return [await _map_room_sql_to_entity(room, self.session) for room in r], count
+        # Chambre.vlan is loaded in bulk by the selectin relationship.
+        # Reuse it instead of querying the VLAN again for every search result.
+        return [
+            Room(
+                id=room.id,
+                roomNumber=room.numero or 0,
+                description=room.description,
+                vlan=(room.vlan.numero or 0) if room.vlan else 0,
+            )
+            for room in r
+        ], count
 
     async def create(self, abstract_room: Room) -> Room:
         now = datetime.now()
