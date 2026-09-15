@@ -2,6 +2,18 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="fr" datatype="plaintext" original="ng2.template">
     <body>
+      <trans-unit id="room.delete.title" datatype="html">
+        <source>Supprimer la chambre</source>
+      </trans-unit>
+      <trans-unit id="room.delete.confirm" datatype="html">
+        <source>Voulez-vous vraiment supprimer la chambre <x id="roomNumber" equiv-text="room.roomNumber"/> ? Cette action est irréversible.</source>
+      </trans-unit>
+      <trans-unit id="room.deleted" datatype="html">
+        <source>Chambre supprimée</source>
+      </trans-unit>
+      <trans-unit id="room.delete.error" datatype="html">
+        <source>Impossible de supprimer la chambre.</source>
+      </trans-unit>
       <trans-unit id="combobox.suggestions-error" datatype="html">
         <source>Suggestions indisponibles. La recherche reste possible.</source>
       </trans-unit>

@@ -50,7 +50,7 @@ let nextComboboxId = 0;
       position: relative;
       min-width: 12rem;
     }
-    .input {
+    .input.has-suggestions {
       padding-right: 2.5rem;
     }
     .combobox-toggle {
@@ -95,22 +95,25 @@ let nextComboboxId = 0;
       <input
         #searchInput
         class="input is-fullwidth"
+        [class.has-suggestions]="showSuggestions"
         [class.is-danger]="invalidSearch"
         [id]="fieldId"
         type="text"
-        role="combobox"
+        [attr.role]="showSuggestions ? 'combobox' : null"
         autocomplete="off"
         [value]="query"
         [placeholder]="placeholder"
         [disabled]="selection.disabled"
         [attr.aria-label]="label"
         [attr.aria-busy]="loading"
-        aria-autocomplete="list"
-        aria-haspopup="listbox"
-        [attr.aria-expanded]="open"
-        [attr.aria-controls]="listId"
+        [attr.aria-autocomplete]="showSuggestions ? 'list' : null"
+        [attr.aria-haspopup]="showSuggestions ? 'listbox' : null"
+        [attr.aria-expanded]="showSuggestions ? open : null"
+        [attr.aria-controls]="showSuggestions ? listId : null"
         [attr.aria-activedescendant]="
-          open && activeIndex >= 0 ? listId + '-' + activeIndex : null
+          showSuggestions && open && activeIndex >= 0
+            ? listId + '-' + activeIndex
+            : null
         "
         [attr.aria-invalid]="invalidSearch"
         [attr.aria-describedby]="invalidSearch ? fieldId + '-error' : null"
@@ -118,19 +121,21 @@ let nextComboboxId = 0;
         (focus)="openOptions()"
         (keydown)="onKeydown($event)"
         (blur)="onBlur()" />
-      <button
-        type="button"
-        class="combobox-toggle"
-        tabindex="-1"
-        aria-label="Afficher les options"
-        i18n-aria-label="@@combobox.show-options"
-        [disabled]="selection.disabled"
-        (mousedown)="$event.preventDefault()"
-        (click)="toggleOptions(searchInput)">
-        <span aria-hidden="true">▾</span>
-      </button>
+      @if (showSuggestions) {
+        <button
+          type="button"
+          class="combobox-toggle"
+          tabindex="-1"
+          aria-label="Afficher les options"
+          i18n-aria-label="@@combobox.show-options"
+          [disabled]="selection.disabled"
+          (mousedown)="$event.preventDefault()"
+          (click)="toggleOptions(searchInput)">
+          <span aria-hidden="true">▾</span>
+        </button>
+      }
     </div>
-    @if (open && selection.enabled) {
+    @if (showSuggestions && open && selection.enabled) {
       <ul
         [id]="listId"
         class="combobox-options"
@@ -165,7 +170,7 @@ let nextComboboxId = 0;
         Sélectionnez une option proposée.
       </p>
     }
-    @if (mode === "search" && unavailable) {
+    @if (showSuggestions && mode === "search" && unavailable) {
       <p class="help is-danger" i18n="@@combobox.suggestions-error">
         Suggestions indisponibles. La recherche reste possible.
       </p>
@@ -184,6 +189,7 @@ export class ComboboxComponent
   @Input() unavailable = false;
   @Input() mode: "select" | "search" = "select";
   @Input() filterLocally = true;
+  @Input() showSuggestions = true;
   @Output() optionSelected = new EventEmitter<ComboboxOption>();
   readonly selection = new FormControl<ComboboxValue | null>(null);
   query = "";
@@ -234,6 +240,9 @@ export class ComboboxComponent
   }
 
   ngOnChanges(): void {
+    if (!this.showSuggestions) {
+      this.open = false;
+    }
     if (!this.editing && this.mode === "select") {
       this.syncQuery();
     }
@@ -299,8 +308,9 @@ export class ComboboxComponent
     }
     this.query = query;
     this.editing = true;
-    this.open = true;
-    this.activeIndex = this.filteredOptions.length > 0 ? 0 : -1;
+    this.open = this.showSuggestions;
+    this.activeIndex =
+      this.showSuggestions && this.filteredOptions.length > 0 ? 0 : -1;
     const matches = this.options.filter(
       (option) =>
         option.label.toLocaleLowerCase() === query.trim().toLocaleLowerCase(),
@@ -332,7 +342,7 @@ export class ComboboxComponent
   }
 
   openOptions(): void {
-    if (this.selection.disabled) {
+    if (this.selection.disabled || !this.showSuggestions) {
       return;
     }
     this.open = true;
@@ -365,7 +375,7 @@ export class ComboboxComponent
   }
 
   onKeydown(event: Pick<KeyboardEvent, "key" | "preventDefault">): void {
-    if (this.selection.disabled) {
+    if (this.selection.disabled || !this.showSuggestions) {
       return;
     }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
