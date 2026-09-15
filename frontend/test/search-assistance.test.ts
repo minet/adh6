@@ -24,6 +24,7 @@ import {ListComponent as MemberListComponent} from "../src/app/member/list/list.
 import {PortListComponent} from "../src/app/port/list/list.component";
 import {PaginationComponent} from "../src/app/pagination/pagination.component";
 import {SearchPage} from "../src/app/search-page";
+import {RoomListComponent} from "../src/app/room/room-list/room-list.component";
 import {
   ComboboxComponent,
   ComboboxOption,
@@ -50,6 +51,55 @@ function context<T>(factory: () => T, providers: Provider[] = []): T {
 
 const pause = (milliseconds: number) =>
   new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+test("suggestions can be hidden without changing search input or intercepting navigation keys", () => {
+  const combo = context(() => new ComboboxComponent());
+  combo.mode = "search";
+  combo.showSuggestions = false;
+  combo.options = [{value: "5110", label: "5110"}];
+  combo.openOptions();
+  combo.search("511");
+  equal(combo.open, false);
+  equal(combo.activeIndex, -1);
+  equal(combo.selection.value, "511");
+  let prevented = false;
+  for (const key of ["ArrowDown", "ArrowUp", "Enter", "Escape"]) {
+    combo.onKeydown({
+      key,
+      preventDefault: () => {
+        prevented = true;
+      },
+    });
+  }
+  equal(prevented, false);
+  equal(combo.open, false);
+  equal(context(() => new ComboboxComponent()).showSuggestions, true);
+});
+
+test("room search fetches only search results, without preloading all suggested rooms", async () => {
+  const calls: unknown[][] = [];
+  const list = context(
+    () => new RoomListComponent(inject(RoomService)),
+    [
+      {
+        provide: RoomService,
+        useValue: {
+          roomGet: (...args: unknown[]) => {
+            calls.push(args);
+            return of(new HttpResponse({body: []}));
+          },
+        },
+      },
+    ],
+  );
+  list.ngOnInit();
+  equal(calls.length, 0);
+  list.roomSearch.setValue("511");
+  await firstValueFrom(list.result$);
+  equal(calls.length, 1);
+  equal(calls[0][2], "511");
+  equal(calls[0][5], "response");
+});
 
 test("search mode preserves arbitrary text and keeps editing possible during source loading/failure", () => {
   const combo = context(() => new ComboboxComponent());

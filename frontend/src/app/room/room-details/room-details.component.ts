@@ -1,7 +1,8 @@
 import {Component, DestroyRef, inject, OnInit} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {AsyncPipe} from "@angular/common";
-import {Observable} from "rxjs";
+import {HttpErrorResponse} from "@angular/common/http";
+import {firstValueFrom, Observable} from "rxjs";
 import {
   FormControl,
   FormGroup,
@@ -27,6 +28,7 @@ import {ModalComponent} from "../../ui/modal.component";
 import {RoomSelectComponent} from "../../ui/room-select.component";
 import {ComboboxComponent, ComboboxOption} from "../../ui/combobox.component";
 import {loadSwitchOptions} from "../../ui/entity-options";
+import {DialogService} from "../../ui/dialog.service";
 
 @Component({
   imports: [
@@ -49,6 +51,7 @@ export class RoomDetailsComponent implements OnInit {
   public EmmenagerForm!: UntypedFormGroup;
   public isDemenager = false;
   public enabled = false;
+  public deleting = false;
   public ref!: number;
   public cachedMemberUsernames: Map<number, Observable<AbstractMember>> =
     new Map();
@@ -56,6 +59,7 @@ export class RoomDetailsComponent implements OnInit {
   public switchesLoading = false;
   public switchesUnavailable = false;
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogService = inject(DialogService);
   public addPortOpen = false;
   public addPortForm = new FormGroup({
     switchId: new FormControl<number | null>(null, Validators.required),
@@ -100,6 +104,50 @@ export class RoomDetailsComponent implements OnInit {
   onDemenager(memberId: number) {
     this.ref = memberId;
     this.isDemenager = !this.isDemenager;
+  }
+
+  async deleteRoom(room: AbstractRoom): Promise<void> {
+    const roomId = room.id;
+    if (
+      roomId == null ||
+      !Number.isSafeInteger(roomId) ||
+      roomId <= 0 ||
+      this.deleting ||
+      this.destroyRef.destroyed
+    ) {
+      return;
+    }
+    this.deleting = true;
+    try {
+      const confirmed = await this.dialogService.confirm({
+        title: $localize`:@@room.delete.title:Supprimer la chambre`,
+        text: $localize`:@@room.delete.confirm:Voulez-vous vraiment supprimer la chambre ${room.roomNumber}:roomNumber: ? Cette action est irréversible.`,
+        confirmText: $localize`:@@common.delete:Supprimer`,
+        danger: true,
+      });
+      if (!confirmed || this.destroyRef.destroyed) {
+        return;
+      }
+      await firstValueFrom(
+        this.roomService
+          .roomIdDelete(roomId)
+          .pipe(takeUntilDestroyed(this.destroyRef)),
+      );
+      this.notificationService.successNotification(
+        $localize`:@@room.deleted:Chambre supprimée`,
+      );
+      void this.router.navigate(["/room/search"]);
+    } catch (error) {
+      if (!this.destroyRef.destroyed) {
+        this.notificationService.errorNotification(
+          error instanceof HttpErrorResponse ? error.status : 500,
+          undefined,
+          $localize`:@@room.delete.error:Impossible de supprimer la chambre.`,
+        );
+      }
+    } finally {
+      this.deleting = false;
+    }
   }
 
   refreshInfo() {

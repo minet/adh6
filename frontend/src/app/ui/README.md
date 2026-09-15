@@ -41,6 +41,10 @@ chargement ; en cas d'erreur, seule l'aide par suggestions est indisponible.
 `[filterLocally]="false"` permet d'afficher les suggestions déjà filtrées par le
 serveur, notamment lors d'une recherche par mail.
 
+`[showSuggestions]="false"` masque les suggestions et leur bouton, tout en gardant
+la saisie et l'intégration au formulaire. La recherche de chambres utilise ce mode
+car son tableau présente déjà les résultats ; les autres combobox gardent les suggestions.
+
 `MemberSuggestionsService` ne cherche qu'à partir de deux caractères et ne charge
 les noms que si le nombre total de résultats respecte le seuil de confidentialité
 de la liste. Le consommateur temporise la saisie et annule les requêtes précédentes.
