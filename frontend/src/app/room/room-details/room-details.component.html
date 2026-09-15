@@ -2,18 +2,30 @@
   <div class="container mt-5">
     <div class="columns">
       <div class="column is-one-quarter box">
-        <h4 class="title is-4 has-text-centered" i18n="@@common.informations">Informations</h4>
-        <p><strong i18n="@@room.details.room">Chambre : </strong>{{ room.roomNumber }}</p>
-        <p><strong i18n="@@room.details.vlan">VLAN assigné : </strong>{{ room.vlan }}</p>
+        <h4 class="title is-4 has-text-centered" i18n="@@common.informations">
+          Informations
+        </h4>
+        <p>
+          <strong i18n="@@room.details.room">Chambre : </strong
+          >{{ room.roomNumber }}
+        </p>
+        <p>
+          <strong i18n="@@room.details.vlan">VLAN assigné : </strong
+          >{{ room.vlan }}
+        </p>
         <br />
         <div class="field is-grouped is-grouped-centered">
           <div class="control">
             <a [routerLink]="['/room/edit', room.id]">
-              <button class="button is-primary" i18n="@@common.edit">Éditer</button>
+              <button class="button is-primary" i18n="@@common.edit">
+                Éditer
+              </button>
             </a>
           </div>
           <div class="control">
-            <button class="button is-danger" disabled i18n="@@common.delete">Supprimer</button>
+            <button class="button is-danger" disabled i18n="@@common.delete">
+              Supprimer
+            </button>
           </div>
         </div>
         <hr />
@@ -42,7 +54,9 @@
         </ul>
       </div>
       <div class="column">
-        <h4 class="title is-4 has-text-centered" i18n="@@room.details.members">Adhérents</h4>
+        <h4 class="title is-4 has-text-centered" i18n="@@room.details.members">
+          Adhérents
+        </h4>
         <div class="box">
           @if (memberIds$ | async; as memberIds) {
             @for (memberId of memberIds; track memberId) {
@@ -76,7 +90,10 @@
                       </div>
                       <div class="control">
                         <a (click)="onRemoveFromRoom(memberId)">
-                          <button class="button is-danger" [disabled]="enabled" i18n="@@room.details.remove">
+                          <button
+                            class="button is-danger"
+                            [disabled]="enabled"
+                            i18n="@@room.details.remove">
                             Supprimer de la chambre
                           </button>
                         </a>
@@ -95,12 +112,8 @@
                           novalidate>
                           <div class="field has-addons has-addons-fullwidth">
                             <div class="control">
-                              <input
-                                class="input is-fullwidth"
-                                type="number"
-                                formControlName="roomNumberNew"
-                                placeholder="Nouveau numéro de chambre"
-                                i18n-placeholder="@@room.details.new-room-number" />
+                              <app-room-select
+                                formControlName="roomNumberNew" />
                             </div>
                             <div class="control">
                               <button
@@ -121,7 +134,9 @@
               }
             }
             @if (memberIds.length === 0) {
-              <h6 class="title is-6 has-text-centered" i18n="@@room.details.no-members">
+              <h6
+                class="title is-6 has-text-centered"
+                i18n="@@room.details.no-members">
                 Aucun adhérent dans la chambre
               </h6>
             }
@@ -133,25 +148,36 @@
 }
 
 @if (addPortOpen) {
-  <app-modal title="Ajouter un port" i18n-title="@@room.details.add-port" (closed)="addPortOpen = false">
+  <app-modal
+    title="Ajouter un port"
+    i18n-title="@@room.details.add-port"
+    (closed)="addPortOpen = false">
     <form
       id="add-port-form"
       [formGroup]="addPortForm"
       (ngSubmit)="submitAddPort()">
       <div class="field">
         <label class="label" for="add-port-switch">Switch</label>
-        <div class="select is-fullwidth">
-          <select id="add-port-switch" formControlName="switchId">
-            @for (s of switches; track s.id) {
-              <option [ngValue]="s.id">
-                {{ s.description ?? s.ip ?? "ID " + s.id }}
-              </option>
-            }
-          </select>
-        </div>
+        <app-combobox
+          inputId="add-port-switch"
+          formControlName="switchId"
+          [options]="switchOptions"
+          [loading]="switchesLoading"
+          [unavailable]="switchesUnavailable"
+          label="Commutateur"
+          i18n-label="@@common.switch"
+          placeholder="Sélectionner un commutateur"
+          i18n-placeholder="@@switch.select.placeholder" />
+        @if (switchesUnavailable) {
+          <p class="help is-danger" i18n="@@switch.select.load-error">
+            Impossible de charger les commutateurs.
+          </p>
+        }
       </div>
       <div class="field">
-        <p class="label" i18n="@@room.details.identifier-type">Type d'identifiant</p>
+        <p class="label" i18n="@@room.details.identifier-type">
+          Type d'identifiant
+        </p>
         <div class="control">
           <label class="radio">
             <input type="radio" formControlName="type" value="oid" />
@@ -164,7 +190,9 @@
         </div>
       </div>
       <div class="field">
-        <label class="label" for="add-port-value" i18n="@@room.details.value">Valeur</label>
+        <label class="label" for="add-port-value" i18n="@@room.details.value"
+          >Valeur</label
+        >
         <input
           id="add-port-value"
           class="input"
@@ -183,7 +211,11 @@
         i18n="@@common.add">
         Ajouter
       </button>
-      <button type="button" class="button" (click)="addPortOpen = false" i18n="@@common.cancel">
+      <button
+        type="button"
+        class="button"
+        (click)="addPortOpen = false"
+        i18n="@@common.cancel">
         Annuler
       </button>
     </div>

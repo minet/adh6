@@ -24,6 +24,7 @@ export class SearchPage<T> implements OnInit {
     Observable<T[]>
   >();
   public maxItems = 1;
+  public currentPage = 1;
   public itemsPerPage: number = +PagingConf.item_count;
   public result$: Observable<T[]> = new Observable();
 
@@ -84,9 +85,11 @@ export class SearchPage<T> implements OnInit {
   public search(term: string): void {
     this.resetSearch();
     this.searchTerm$.next(term);
+    this.changePage(1);
   }
 
   public changePage(page: number): void {
+    this.currentPage = page;
     this.pageNumber$.next(page);
   }
 }

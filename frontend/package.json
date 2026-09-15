@@ -9,6 +9,7 @@
     "build": "ng build --configuration production",
     "build:fr": "ng build --configuration=production,fr",
     "build:en": "ng build --configuration=production,en",
+    "test": "node test/run.mjs",
     "lint": "ng lint",
     "i18n:extract": "ng extract-i18n",
     "prettier": "prettier . --write",

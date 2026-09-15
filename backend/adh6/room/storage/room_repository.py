@@ -5,7 +5,7 @@ Implements everything related to actions on the SQL database.
 from collections.abc import Sequence
 from datetime import datetime
 
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import String, cast, delete, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -77,7 +77,13 @@ class RoomSQLRepository(RoomRepository):
         stmt = select(Chambre)
 
         if terms:
-            stmt = stmt.where(Chambre.description.contains(terms))
+            terms = terms.strip()
+            stmt = stmt.where(
+                or_(
+                    Chambre.description.contains(terms, autoescape=True),
+                    cast(Chambre.numero, String).startswith(terms, autoescape=True),
+                )
+            )
 
         if filter_:
             if filter_.id is not None:

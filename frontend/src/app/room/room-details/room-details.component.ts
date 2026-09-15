@@ -1,4 +1,5 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, DestroyRef, inject, OnInit} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 import {
@@ -13,7 +14,6 @@ import {ActivatedRoute, Router, RouterModule} from "@angular/router";
 import {
   AbstractMember,
   AbstractPort,
-  AbstractSwitch,
   MemberService,
   PortService,
   RoomService,
@@ -21,12 +21,22 @@ import {
   RoomMembersService,
   SwitchService,
 } from "../../api";
-import {map, shareReplay, take} from "rxjs/operators";
+import {map, shareReplay} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 import {ModalComponent} from "../../ui/modal.component";
+import {RoomSelectComponent} from "../../ui/room-select.component";
+import {ComboboxComponent, ComboboxOption} from "../../ui/combobox.component";
+import {loadSwitchOptions} from "../../ui/entity-options";
 
 @Component({
-  imports: [RouterModule, AsyncPipe, ReactiveFormsModule, ModalComponent],
+  imports: [
+    RouterModule,
+    AsyncPipe,
+    ReactiveFormsModule,
+    ModalComponent,
+    RoomSelectComponent,
+    ComboboxComponent,
+  ],
   selector: "app-room-details",
   templateUrl: "./room-details.component.html",
 })
@@ -42,7 +52,10 @@ export class RoomDetailsComponent implements OnInit {
   public ref!: number;
   public cachedMemberUsernames: Map<number, Observable<AbstractMember>> =
     new Map();
-  public switches: AbstractSwitch[] = [];
+  public switchOptions: ComboboxOption[] = [];
+  public switchesLoading = false;
+  public switchesUnavailable = false;
+  private readonly destroyRef = inject(DestroyRef);
   public addPortOpen = false;
   public addPortForm = new FormGroup({
     switchId: new FormControl<number | null>(null, Validators.required),
@@ -70,10 +83,7 @@ export class RoomDetailsComponent implements OnInit {
   createForm() {
     this.ngOnInit();
     this.roomForm = this.fb.group({
-      roomNumberNew: [
-        "",
-        [Validators.min(-1), Validators.max(9999), Validators.required],
-      ],
+      roomNumberNew: [null, Validators.required],
     });
     this.EmmenagerForm = this.fb.group({
       username: [
@@ -139,6 +149,9 @@ export class RoomDetailsComponent implements OnInit {
   }
 
   onSubmitMoveRoom(memberId: number) {
+    if (this.roomForm.invalid) {
+      return;
+    }
     const v = this.roomForm.value;
 
     this.roomService
@@ -159,7 +172,7 @@ export class RoomDetailsComponent implements OnInit {
             .subscribe(() => {
               this.refreshInfo();
               this.onDemenager(memberId);
-              void this.router.navigate(["room", "view", v.roomNumberNew]);
+              void this.router.navigate(["room", "view", room.id]);
               this.notificationService.successNotification();
             });
         } else {
@@ -193,21 +206,37 @@ export class RoomDetailsComponent implements OnInit {
   }
 
   addPort(): void {
-    this.switchService
-      .switchGet(100, 0)
-      .pipe(take(1))
-      .subscribe((switches) => {
-        this.switches = switches.filter((s) => s.id != null);
-        this.addPortForm.reset({
-          switchId: this.switches[0]?.id ?? null,
-          type: "oid",
-          value: "",
-        });
-        this.addPortOpen = true;
+    this.addPortForm.reset({switchId: null, type: "oid", value: ""});
+    this.switchOptions = [];
+    this.switchesLoading = true;
+    this.switchesUnavailable = false;
+    this.addPortOpen = true;
+    loadSwitchOptions(this.switchService)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (options) => {
+          this.switchOptions = options;
+          this.switchesLoading = false;
+          const firstId = options[0]?.value;
+          this.addPortForm.controls.switchId.setValue(
+            typeof firstId === "number" ? firstId : null,
+          );
+        },
+        error: () => {
+          this.switchesLoading = false;
+          this.switchesUnavailable = true;
+        },
       });
   }
 
   submitAddPort(): void {
+    if (
+      this.addPortForm.invalid ||
+      this.switchesLoading ||
+      this.switchesUnavailable
+    ) {
+      return;
+    }
     const {switchId, type, value} = this.addPortForm.getRawValue();
     const trimmed = value.trim();
     if (switchId == null || !trimmed) {
