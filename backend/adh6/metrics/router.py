@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.database import get_session
+from adh6.entity import Health
 
 from .health_manager import HealthCache, HealthManager
 from .storage import PingRepository
@@ -34,7 +35,12 @@ async def get_health_manager(
 # ============================================================================
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_class=JSONResponse)
+@router.get(
+    "",
+    response_model=Health,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_503_SERVICE_UNAVAILABLE: {"model": Health}},
+)
 async def health_check(
     manager: Annotated[HealthManager, Depends(get_health_manager)],
 ) -> JSONResponse:
