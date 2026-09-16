@@ -345,9 +345,11 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         community = await self.switch_repository.get_community(switch_id=switch_id)
         if switch is None or switch.ip is None:
             raise SwitchNotFoundError(switch_id)
-
-        # Walk ifDescr to get names and OIDs (suffixes)
-        discovered = await walk_snmp(community, switch.ip, "IF-MIB", "ifDescr")
+        
+        try:
+            discovered = await walk_snmp(community, switch.ip, "IF-MIB", "ifDescr")
+        except Exception as e:
+            raise NetworkManagerReadError(f"SNMP port discovery failed on switch {switch_id}: {e}") from e
 
         return [{"portNumber": name, "oid": suffix} for suffix, name in discovered if name]
 

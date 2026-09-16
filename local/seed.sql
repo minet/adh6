@@ -44,6 +44,12 @@ FROM switches s
 WHERE s.ip = 'snmpsim'
   AND NOT EXISTS (SELECT 1 FROM ports p WHERE p.switch_id = s.id AND p.numero = '0/0/1');
 
+INSERT INTO ports (numero, oid, switch_id, chambre_id)
+SELECT '0/0/2', '10102', s.id, NULL
+FROM switches s
+WHERE s.ip = 'snmpsim'
+  AND NOT EXISTS (SELECT 1 FROM ports p WHERE p.switch_id = s.id AND (p.oid = '10102' OR p.numero = '0/0/2'));
+
 -- Moyens de paiement
 INSERT INTO payment_methods (name)
 SELECT p.name

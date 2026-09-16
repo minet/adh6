@@ -3,4 +3,5 @@ from adh6.entity import AbstractPort, Port
 
 
 class PortRepository(CRUDRepository[Port, AbstractPort]):
-    pass
+    async def assign_room(self, port_id: int, room_id: int | None, expected_room: int | None) -> Port:
+        raise NotImplementedError

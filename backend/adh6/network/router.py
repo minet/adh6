@@ -28,9 +28,10 @@ from adh6.entity import (
     PingRequest,
     PingResult,
     Port,
+    PortRoomAssignment,
     Switch,
 )
-from adh6.exceptions import NetworkManagerReadError, NotFoundError
+from adh6.exceptions import NetworkManagerReadError, NotFoundError, PortAlreadyExists, PortAssignmentConflict
 from adh6.room.storage import RoomRepository as RoomStorageRepository
 from adh6.security import require_role_or_ownership
 from adh6.utils.filter_wrapper import (
@@ -88,7 +89,8 @@ async def get_port_manager(
 ) -> PortManager:
     """Dependency: Inject Port Manager."""
     repo = PortRepository(session)
-    return PortManager(repo)
+    network = SwitchNetworkManager(repo, SwitchRepository(session))
+    return PortManager(repo, network)
 
 
 async def get_switch_manager(
@@ -157,7 +159,10 @@ async def create_port(
 ) -> Port:
     """Create a network port."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    port = await manager.create(body)
+    try:
+        port = await manager.create(body)
+    except PortAlreadyExists as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     return port
 
 
@@ -198,8 +203,25 @@ async def update_port(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
         await manager.update(id, body)
+    except PortAlreadyExists as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@port_router.patch("/{id}/room", response_model=Port)
+async def assign_port_room(
+    id: int,
+    body: PortRoomAssignment,
+    manager: Annotated[PortManager, Depends(get_port_manager)],
+    request: Request,
+) -> Port:
+    """Assign an existing port without changing its identity or configuration."""
+    require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
+    try:
+        return await manager.assign_room(id, body.room, body.expected_room)
+    except PortAssignmentConflict as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @port_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

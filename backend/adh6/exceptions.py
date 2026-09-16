@@ -202,6 +202,16 @@ class DeviceAlreadyExists(AlreadyExistsError):
         super().__init__(what)
 
 
+class PortAlreadyExists(AlreadyExistsError):
+    def __init__(self, switch_id: int, oid: str):
+        super().__init__(f"Port {oid} on switch {switch_id}")
+
+
+class PortAssignmentConflict(UserInputError):
+    def __init__(self):
+        super().__init__("The port's room assignment has changed. Reload before confirming the transfer.")
+
+
 class MembershipPending(AlreadyExistsError):
     def __init__(self, what: str = "membership"):
         super().__init__("membership " + what + " is not finished")

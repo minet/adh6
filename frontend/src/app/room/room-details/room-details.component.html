@@ -46,7 +46,7 @@
           </div>
         </div>
         <ul>
-          @for (portRes of ports$ | async; track portRes) {
+          @for (portRes of ports$ | async; track portRes.id) {
             <p>
               <strong>{{ portRes.portNumber }}</strong>
             </p>
@@ -56,6 +56,15 @@
               i18n="@@room.details.configure">
               Configurer
             </a>
+            <button
+              type="button"
+              class="button is-warning is-light is-fullwidth is-small mt-1 mb-3"
+              [disabled]="detachingPortIds.has(portRes.id!)"
+              [class.is-loading]="detachingPortIds.has(portRes.id!)"
+              (click)="detachPort(portRes)"
+              i18n="@@room.details.detach-port.action">
+              Retirer de la chambre
+            </button>
           }
         </ul>
       </div>
@@ -158,65 +167,8 @@
     title="Ajouter un port"
     i18n-title="@@room.details.add-port"
     (closed)="addPortOpen = false">
-    <form
-      id="add-port-form"
-      [formGroup]="addPortForm"
-      (ngSubmit)="submitAddPort()">
-      <div class="field">
-        <label class="label" for="add-port-switch">Switch</label>
-        <app-combobox
-          inputId="add-port-switch"
-          formControlName="switchId"
-          [options]="switchOptions"
-          [loading]="switchesLoading"
-          [unavailable]="switchesUnavailable"
-          label="Commutateur"
-          i18n-label="@@common.switch"
-          placeholder="Sélectionner un commutateur"
-          i18n-placeholder="@@switch.select.placeholder" />
-        @if (switchesUnavailable) {
-          <p class="help is-danger" i18n="@@switch.select.load-error">
-            Impossible de charger les commutateurs.
-          </p>
-        }
-      </div>
-      <div class="field">
-        <p class="label" i18n="@@room.details.identifier-type">
-          Type d'identifiant
-        </p>
-        <div class="control">
-          <label class="radio">
-            <input type="radio" formControlName="type" value="oid" />
-            OID
-          </label>
-          <label class="radio ml-2">
-            <input type="radio" formControlName="type" value="name" />
-            <span i18n="@@room.details.identifier-name">Nom (Gi1/0/x)</span>
-          </label>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label" for="add-port-value" i18n="@@room.details.value"
-          >Valeur</label
-        >
-        <input
-          id="add-port-value"
-          class="input"
-          type="text"
-          formControlName="value"
-          placeholder="ex: 10101 ou GigabitEthernet1/0/1"
-          i18n-placeholder="@@room.details.value.placeholder" />
-      </div>
-    </form>
+    <app-port-picker [roomId]="room_id" (saved)="onPortAdded()" />
     <div modal-actions class="buttons">
-      <button
-        type="submit"
-        form="add-port-form"
-        class="button is-success"
-        [disabled]="addPortForm.invalid"
-        i18n="@@common.add">
-        Ajouter
-      </button>
       <button
         type="button"
         class="button"

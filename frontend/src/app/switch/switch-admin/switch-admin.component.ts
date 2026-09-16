@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import {finalize, Observable, shareReplay} from "rxjs";
+import {finalize, map, Observable, shareReplay, switchMap} from "rxjs";
 import {ActivatedRoute, RouterModule} from "@angular/router";
 import {
   AbstractPort,
@@ -21,6 +21,8 @@ import {
 import {NotificationService} from "../../notification.service";
 import {DialogService} from "../../ui/dialog.service";
 import {ModalComponent} from "../../ui/modal.component";
+import {loadAllPages} from "../../ui/entity-options";
+import {missingDiscoveredPorts} from "../../port/port-discovery";
 
 @Component({
   imports: [
@@ -96,9 +98,11 @@ export class SwitchAdminComponent implements OnInit {
   }
 
   refreshPorts(): void {
-    this.ports$ = this.portService
-      .portGet(500, 0, undefined, {switchObj: this.switchId})
-      .pipe(shareReplay(1));
+    this.ports$ = loadAllPages((limit, offset) =>
+      this.portService.portGet(limit, offset, undefined, {
+        switchObj: this.switchId,
+      }),
+    ).pipe(shareReplay(1));
   }
 
   isRoomError(port: AbstractPort): boolean {
@@ -145,33 +149,39 @@ export class SwitchAdminComponent implements OnInit {
   }
 
   discoverNewPorts(): void {
+    if (this.discoveringNew) return;
     this.discoveringNew = true;
-    this.portService
-      .portGet(500, 0, undefined, {switchObj: this.switchId})
-      .subscribe((existingPorts) => {
-        const existingOids = new Set(existingPorts.map((p) => p.oid));
-
-        this.switchService
-          .switchIdDiscoverPortsGet(this.switchId)
-          .pipe(finalize(() => (this.discoveringNew = false)))
-          .subscribe({
-            next: (discovered) => {
-              const newPorts = discovered.filter(
-                (p) => p.oid && !existingOids.has(p.oid),
-              );
-              if (newPorts.length === 0) {
-                void this.dialogService.alert({
-                  title: $localize`:@@switch.admin.no-new-ports:Aucun nouveau port`,
-                  text: $localize`:@@switch.admin.no-new-ports.desc:Tous les ports découverts sont déjà dans la base de données.`,
-                });
-                return;
-              }
-              this.discoveredPorts = newPorts;
-              this.selectedPorts = new Set(newPorts);
-            },
-            error: (err: {status: number}) =>
-              this.notificationService.errorNotification(err.status),
-          });
+    loadAllPages((limit, offset) =>
+      this.portService.portGet(limit, offset, undefined, {
+        switchObj: this.switchId,
+      }),
+    )
+      .pipe(
+        switchMap((existingPorts) =>
+          this.switchService
+            .switchIdDiscoverPortsGet(this.switchId)
+            .pipe(
+              map((discovered) =>
+                missingDiscoveredPorts(existingPorts, discovered),
+              ),
+            ),
+        ),
+        finalize(() => (this.discoveringNew = false)),
+      )
+      .subscribe({
+        next: (newPorts) => {
+          if (newPorts.length === 0) {
+            void this.dialogService.alert({
+              title: $localize`:@@switch.admin.no-new-ports:Aucun nouveau port`,
+              text: $localize`:@@switch.admin.no-new-ports.desc:Tous les ports découverts sont déjà dans la base de données.`,
+            });
+            return;
+          }
+          this.discoveredPorts = newPorts;
+          this.selectedPorts = new Set(newPorts);
+        },
+        error: (err: {status: number}) =>
+          this.notificationService.errorNotification(err.status),
       });
   }
 
@@ -291,7 +301,7 @@ export class SwitchAdminComponent implements OnInit {
           void this.dialogService.alert({
             title: $localize`:@@switch.admin.ping.result:Résultat du ping`,
             text:
-              $localize`:@@switch.admin.ping.result.desc:Envoyés : ${res.sent ?? 0}:sent: — Reçus : ${received}:received: (${pct}:pct: %)` +
+              $localize`:@@switch.admin.ping.result.desc:Envoyés : ${res.sent ?? 0}:sent: ; Reçus : ${received}:received: (${pct}:pct: %)` +
               rttLine,
           });
         },

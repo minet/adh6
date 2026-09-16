@@ -4,8 +4,6 @@ import {AsyncPipe} from "@angular/common";
 import {HttpErrorResponse} from "@angular/common/http";
 import {firstValueFrom, Observable} from "rxjs";
 import {
-  FormControl,
-  FormGroup,
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
@@ -26,8 +24,7 @@ import {map, shareReplay} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 import {ModalComponent} from "../../ui/modal.component";
 import {RoomSelectComponent} from "../../ui/room-select.component";
-import {ComboboxComponent, ComboboxOption} from "../../ui/combobox.component";
-import {loadSwitchOptions} from "../../ui/entity-options";
+import {PortPickerComponent} from "../../port/port-picker.component";
 import {DialogService} from "../../ui/dialog.service";
 
 @Component({
@@ -37,7 +34,7 @@ import {DialogService} from "../../ui/dialog.service";
     ReactiveFormsModule,
     ModalComponent,
     RoomSelectComponent,
-    ComboboxComponent,
+    PortPickerComponent,
   ],
   selector: "app-room-details",
   templateUrl: "./room-details.component.html",
@@ -46,29 +43,19 @@ export class RoomDetailsComponent implements OnInit {
   public room$!: Observable<AbstractRoom>;
   public ports$!: Observable<AbstractPort[]>;
   public memberIds$!: Observable<number[]>;
-  private room_id!: number;
+  public room_id!: number;
   public roomForm!: UntypedFormGroup;
   public EmmenagerForm!: UntypedFormGroup;
   public isDemenager = false;
   public enabled = false;
   public deleting = false;
+  public detachingPortIds = new Set<number>();
   public ref!: number;
   public cachedMemberUsernames: Map<number, Observable<AbstractMember>> =
     new Map();
-  public switchOptions: ComboboxOption[] = [];
-  public switchesLoading = false;
-  public switchesUnavailable = false;
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogService = inject(DialogService);
   public addPortOpen = false;
-  public addPortForm = new FormGroup({
-    switchId: new FormControl<number | null>(null, Validators.required),
-    type: new FormControl<"oid" | "name">("oid", {nonNullable: true}),
-    value: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
 
   constructor(
     private readonly notificationService: NotificationService,
@@ -147,6 +134,56 @@ export class RoomDetailsComponent implements OnInit {
       }
     } finally {
       this.deleting = false;
+    }
+  }
+
+  async detachPort(port: AbstractPort): Promise<void> {
+    const portId = port.id;
+    const roomId = this.room_id;
+    if (
+      portId == null ||
+      port.room !== roomId ||
+      this.detachingPortIds.has(portId) ||
+      this.destroyRef.destroyed
+    )
+      return;
+    this.detachingPortIds.add(portId);
+    try {
+      const confirmed = await this.dialogService.confirm({
+        title: $localize`:@@room.details.detach-port.title:Retirer le port de la chambre`,
+        text: $localize`:@@room.details.detach-port.confirm:Retirer le port ${port.portNumber}:portNumber: de cette chambre ? Il restera enregistré sur le switch.`,
+        confirmText: $localize`:@@room.details.detach-port.action:Retirer de la chambre`,
+      });
+      if (!confirmed || this.destroyRef.destroyed || this.room_id !== roomId)
+        return;
+      await firstValueFrom(
+        this.portService
+          .portIdRoomPatch(portId, {room: null, expectedRoom: roomId})
+          .pipe(takeUntilDestroyed(this.destroyRef)),
+      );
+      if (this.destroyRef.destroyed) return;
+      this.notificationService.successNotification(
+        $localize`:@@room.details.detach-port.success:Port retiré de la chambre`,
+      );
+      this.refreshInfo();
+    } catch (error) {
+      if (this.destroyRef.destroyed) return;
+      if (error instanceof HttpErrorResponse && error.status === 409) {
+        this.refreshInfo();
+        this.notificationService.errorNotification(
+          409,
+          undefined,
+          $localize`:@@room.details.detach-port.conflict:L’affectation du port a changé. La liste a été actualisée.`,
+        );
+      } else {
+        this.notificationService.errorNotification(
+          error instanceof HttpErrorResponse ? error.status : 500,
+          undefined,
+          $localize`:@@room.details.detach-port.error:Impossible de retirer le port de la chambre.`,
+        );
+      }
+    } finally {
+      this.detachingPortIds.delete(portId);
     }
   }
 
@@ -244,6 +281,7 @@ export class RoomDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
+      this.addPortOpen = false;
       this.room_id = +params["room_id"];
       this.refreshInfo();
     });
@@ -254,61 +292,11 @@ export class RoomDetailsComponent implements OnInit {
   }
 
   addPort(): void {
-    this.addPortForm.reset({switchId: null, type: "oid", value: ""});
-    this.switchOptions = [];
-    this.switchesLoading = true;
-    this.switchesUnavailable = false;
     this.addPortOpen = true;
-    loadSwitchOptions(this.switchService)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (options) => {
-          this.switchOptions = options;
-          this.switchesLoading = false;
-          const firstId = options[0]?.value;
-          this.addPortForm.controls.switchId.setValue(
-            typeof firstId === "number" ? firstId : null,
-          );
-        },
-        error: () => {
-          this.switchesLoading = false;
-          this.switchesUnavailable = true;
-        },
-      });
   }
 
-  submitAddPort(): void {
-    if (
-      this.addPortForm.invalid ||
-      this.switchesLoading ||
-      this.switchesUnavailable
-    ) {
-      return;
-    }
-    const {switchId, type, value} = this.addPortForm.getRawValue();
-    const trimmed = value.trim();
-    if (switchId == null || !trimmed) {
-      return;
-    }
+  onPortAdded(): void {
     this.addPortOpen = false;
-
-    const port: AbstractPort = {
-      switchObj: switchId,
-      room: this.room_id,
-      // Without discovery the OID can't be resolved from a name
-      oid: trimmed,
-      portNumber: type === "name" ? trimmed : `Port ${trimmed}`,
-    };
-
-    this.portService.portPost(port).subscribe({
-      next: () => {
-        this.notificationService.successNotification(
-          $localize`:@@room.details.port-added:Port ajouté`,
-        );
-        this.refreshInfo();
-      },
-      error: (err: {status: number}) =>
-        this.notificationService.errorNotification(err.status),
-    });
+    this.refreshInfo();
   }
 }

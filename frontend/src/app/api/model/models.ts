@@ -36,6 +36,7 @@ export * from './paymentMethod';
 export * from './pingRequest';
 export * from './pingResult';
 export * from './port';
+export * from './portRoomAssignment';
 export * from './product';
 export * from './profile200Response';
 export * from './role';

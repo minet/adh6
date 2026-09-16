@@ -1,4 +1,5 @@
 import json
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from adh6.network.storage.models import Port, Switch
@@ -36,6 +37,13 @@ async def client(
     yield _test_client
 
     await cleanup_test_data()
+
+
+@pytest.fixture(autouse=True)
+def discovered_ports():
+    with patch("adh6.network.snmp.SwitchNetworkManager.discover_ports", new_callable=AsyncMock) as discover:
+        discover.return_value = [{"portNumber": "1/0/4", "oid": "10104"}]
+        yield discover
 
 
 def assert_port_in_db(body):
@@ -234,6 +242,8 @@ def test_port_put_update_port(
 
     if key is not None:
         body[key] = value
+        if key == "switchObj":
+            body["oid"] = "10104"
 
     r = client.put(
         f"{base_url}{port_id}",
@@ -258,3 +268,96 @@ def test_port_delete_port(client, port_id: int, status_code: int):
         q = s.query(Port)
         q = q.filter(Port.id == port_id)
         assert not s.query(q.exists()).scalar()
+
+
+def test_duplicate_create_returns_conflict(client, sample_switch1, discovered_ports):
+    body = {"switchObj": sample_switch1.id, "oid": "10104", "portNumber": "wrong name", "room": None}
+    first = client.post(base_url, json=body, headers=TEST_HEADERS)
+    assert first.status_code == 201
+    assert first.json()["portNumber"] == "1/0/4"
+    duplicate = client.post(base_url, json=body, headers=TEST_HEADERS)
+    assert duplicate.status_code == 409
+
+
+@pytest.mark.parametrize("oid", ["Gi1/0/1", "0", "1.2.3", "10105"])
+def test_invalid_or_undiscovered_oid_is_rejected(client, sample_switch1, oid):
+    response = client.post(
+        base_url, json={"switchObj": sample_switch1.id, "oid": oid, "portNumber": "Gi1/0/1"}, headers=TEST_HEADERS
+    )
+    assert response.status_code == 400
+
+
+def test_discovery_failure_does_not_block_assignment_of_existing_port(
+    client, sample_port1, sample_room1, discovered_ports
+):
+    from adh6.exceptions import NetworkManagerReadError
+
+    discovered_ports.side_effect = NetworkManagerReadError("unreachable")
+    response = client.patch(
+        f"{base_url}{sample_port1.id}/room",
+        json={"room": sample_room1.id, "expectedRoom": sample_room1.id},
+        headers=TEST_HEADERS,
+    )
+    assert response.status_code == 200
+    assert response.json()["oid"] == sample_port1.oid
+    discovered_ports.assert_not_awaited()
+    response = client.post(base_url, json={"switchObj": 1, "oid": "10104", "portNumber": "1/0/4"}, headers=TEST_HEADERS)
+    assert response.status_code == 502
+
+
+def test_bulk_duplicate_does_not_rollback_other_ports(client):
+    body = {"switchObj": 1, "oid": "10104", "portNumber": "1/0/4"}
+    response = client.post(f"{base_url}bulk", json=[body, body], headers=TEST_HEADERS)
+    assert response.status_code == 200
+    assert response.json()["success"] == 1
+    assert response.json()["failed"] == 1
+    ports = client.get(base_url, headers=TEST_HEADERS).json()
+    assert len([port for port in ports if port["oid"] == "10104"]) == 1
+
+
+def test_repeated_assignment_to_same_room_is_idempotent(client, sample_port1, sample_room1):
+    response = client.patch(
+        f"{base_url}{sample_port1.id}/room", json={"room": sample_room1.id, "expectedRoom": None}, headers=TEST_HEADERS
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("body", [{"room": 1}, {"room": 0, "expectedRoom": None}, {"room": 1, "expectedRoom": 0}])
+def test_assignment_requires_valid_target_and_expected_room(client, sample_port1, body):
+    response = client.patch(f"{base_url}{sample_port1.id}/room", json=body, headers=TEST_HEADERS)
+    assert response.status_code == 400
+
+
+async def test_transfer_conflict_then_confirmed_transfer(client, sample_port1, sample_room1):
+    from adh6.room.storage.models import Chambre
+
+    from .conftest import add_test_fixtures
+
+    await add_test_fixtures([Chambre(id=900, numero=5900)])
+    url = f"{base_url}{sample_port1.id}/room"
+    stale = client.patch(url, json={"room": 900, "expectedRoom": None}, headers=TEST_HEADERS)
+    assert stale.status_code == 409
+    assert client.get(f"{base_url}{sample_port1.id}", headers=TEST_HEADERS).json()["room"] == sample_room1.id
+    transfer = client.patch(url, json={"room": 900, "expectedRoom": sample_room1.id}, headers=TEST_HEADERS)
+    assert transfer.status_code == 200
+    assert transfer.json()["room"] == 900
+    assert transfer.json()["roomObj"]["roomNumber"] == 5900
+    assert transfer.json()["oid"] == sample_port1.oid
+    assert transfer.json()["portNumber"] == sample_port1.numero
+
+
+def test_detach_preserves_port_and_does_not_require_snmp(client, sample_port1, sample_room1, discovered_ports):
+    from adh6.exceptions import NetworkManagerReadError
+
+    discovered_ports.side_effect = NetworkManagerReadError("unreachable")
+    response = client.patch(
+        f"{base_url}{sample_port1.id}/room", json={"room": None, "expectedRoom": sample_room1.id}, headers=TEST_HEADERS
+    )
+    assert response.status_code == 200
+    assert response.json()["room"] is None
+    stored = client.get(f"{base_url}{sample_port1.id}", headers=TEST_HEADERS)
+    assert stored.status_code == 200
+    assert stored.json()["oid"] == sample_port1.oid
+    assert stored.json()["switchObj"] == sample_port1.switch_id
+    assert stored.json()["room"] is None
+    discovered_ports.assert_not_awaited()
