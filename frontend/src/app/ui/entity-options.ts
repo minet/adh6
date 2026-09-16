@@ -51,6 +51,8 @@ export function loadSwitchOptions(
           label:
             [item.description, item.ip].filter(Boolean).join(" : ") ||
             `ID ${item.id}`,
+          displayLabel: item.description || item.ip || `ID ${item.id}`,
+          description: item.description ? (item.ip ?? undefined) : undefined,
         }))
         .sort((a, b) =>
           a.label.localeCompare(b.label, undefined, {numeric: true}),

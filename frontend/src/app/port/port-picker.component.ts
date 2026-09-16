@@ -33,6 +33,20 @@ import {missingDiscoveredPorts} from "./port-discovery";
 @Component({
   selector: "app-port-picker",
   imports: [ReactiveFormsModule, ComboboxComponent],
+  styles: `
+    :host {
+      display: block;
+    }
+    .field:not(:last-child) {
+      margin-bottom: 1.25rem;
+    }
+    .button {
+      height: auto;
+      min-height: 2.5em;
+      white-space: normal;
+      text-align: left;
+    }
+  `,
   template: `
     <form [formGroup]="form" (ngSubmit)="submit()">
       @if (switchId === null) {
@@ -43,6 +57,7 @@ import {missingDiscoveredPorts} from "./port-discovery";
           <app-combobox
             inputId="port-picker-switch"
             formControlName="switchId"
+            [inlineOptions]="true"
             [options]="switchOptions"
             [loading]="switchesLoading"
             [unavailable]="switchesUnavailable"
@@ -73,6 +88,7 @@ import {missingDiscoveredPorts} from "./port-discovery";
           <app-combobox
             inputId="port-picker-port"
             formControlName="portKey"
+            [inlineOptions]="true"
             [options]="portOptions"
             [loading]="portsLoading"
             [unavailable]="portsUnavailable"
@@ -284,6 +300,12 @@ export class PortPickerComponent implements OnInit {
             .filter((port) => port.id != null && port.room !== this.roomId)
             .map((port) => ({
               value: `existing:${port.id}`,
+              displayLabel: port.portNumber ?? undefined,
+              description: `OID ${port.oid} · ${
+                port.room == null
+                  ? $localize`:@@port.picker.unassigned:Sans chambre`
+                  : $localize`:@@port.picker.room:Chambre ${port.roomObj?.roomNumber ?? port.room}:roomNumber:`
+              }`,
               label: `${port.portNumber} ; OID ${port.oid} ; ${
                 port.room == null
                   ? $localize`:@@port.picker.unassigned:Sans chambre`
@@ -292,6 +314,8 @@ export class PortPickerComponent implements OnInit {
             }))),
       ...this.discoveredPorts.map((port) => ({
         value: `discovered:${port.oid}`,
+        displayLabel: port.portNumber,
+        description: `OID ${port.oid} · ${$localize`:@@port.picker.new:Nouveau port découvert`}`,
         label: `${port.portNumber} — OID ${port.oid} — ${$localize`:@@port.picker.new:Nouveau port découvert`}`,
       })),
     ];
