@@ -11,6 +11,7 @@ import {Router} from "@angular/router";
 import {Observable, throwError} from "rxjs";
 import {catchError} from "rxjs/operators";
 import {NotificationService} from "../notification.service";
+import {detailOf} from "../shared/http-error";
 
 interface ApiError {
   code: number;
@@ -40,7 +41,7 @@ export class NotifInterceptor implements HttpInterceptor {
         if (errorBody?.code === undefined) {
           err = {
             code: response.status,
-            message: response.statusText,
+            message: detailOf(response, response.statusText),
           };
         } else {
           err = errorBody as ApiError;

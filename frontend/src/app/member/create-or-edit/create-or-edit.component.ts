@@ -14,10 +14,11 @@ import {
   RoomMembersService,
   RoomService,
 } from "../../api";
-import {mergeMap} from "rxjs/operators";
+import {map, mergeMap} from "rxjs/operators";
 import {EMPTY, of, switchMap, catchError} from "rxjs";
 import {NotificationService} from "../../notification.service";
 import {RoomSelectComponent} from "../../ui/room-select.component";
+import {detailOf} from "../../shared/http-error";
 
 interface MemberEditForm {
   firstName: FormControl<string>;
@@ -38,6 +39,7 @@ interface MemberEditForm {
 export class CreateOrEditComponent implements OnInit {
   create = false;
   loading = false;
+  submitError: string | null = null;
   public memberEdit: FormGroup<MemberEditForm>;
   private member_id!: number;
 
@@ -87,6 +89,7 @@ export class CreateOrEditComponent implements OnInit {
       return;
     }
     this.loading = true;
+    this.submitError = null;
     const v = this.memberEdit.value;
     const permanent = this.create ? false : v.permanent;
     const wifiOnly = this.create ? false : v.wifiOnly;
@@ -110,50 +113,53 @@ export class CreateOrEditComponent implements OnInit {
         ? of([])
         : this.roomService.roomGet(1, 0, undefined, roomFilter);
 
-    rooms$.subscribe((rooms) => {
-      if (roomFilter != null && rooms.length === 0) {
-        this.loading = false;
-        this.memberEdit.controls.roomNumber.setErrors({roomNotFound: true});
-        return;
-      }
-      if (!this.create) {
-        this.memberService.memberIdPatch(this.member_id, body).subscribe(() => {
-          if (!wifiOnly && rooms.length > 0 && rooms[0].id != null) {
-            this.roomMemberService
-              .roomIdMemberPost(rooms[0].id, {id: this.member_id})
-              .subscribe(
-                () =>
-                  void this.router.navigate([
-                    "member/view",
-                    this.member_id,
-                    "profile",
-                  ]),
-              );
-          } else {
-            void this.router.navigate([
-              "member/view",
-              this.member_id,
-              "profile",
-            ]);
-          }
+    rooms$.subscribe({
+      next: (rooms) => {
+        if (roomFilter != null && rooms.length === 0) {
+          this.loading = false;
+          this.memberEdit.controls.roomNumber.setErrors({roomNotFound: true});
+          return;
+        }
+        const roomId = !wifiOnly && rooms.length > 0 ? rooms[0].id : undefined;
+        const save$ = this.create
+          ? this.memberService.memberPost(body)
+          : this.memberService
+              .memberIdPatch(this.member_id, body)
+              .pipe(map(() => this.member_id));
+        save$.subscribe({
+          next: (id) => this.assignRoomThenLeave(id, roomId),
+          error: (error: unknown) => this.onSubmitError(error),
         });
-      } else {
-        this.memberService.memberPost(body).subscribe((id) => {
-          if (
-            !wifiOnly &&
-            rooms.length > 0 &&
-            rooms[0].id != null &&
-            id != null
-          ) {
-            this.roomMemberService
-              .roomIdMemberPost(rooms[0].id, {id: id})
-              .subscribe(() => void this.router.navigate(["/password", id, 1]));
-          } else {
-            void this.router.navigate(["/password", id, 1]);
-          }
-        });
-      }
+      },
+      error: (error: unknown) => this.onSubmitError(error),
     });
+  }
+
+  private assignRoomThenLeave(id: number, roomId: number | undefined) {
+    const leave = () =>
+      void this.router.navigate(
+        this.create ? ["/password", id, 1] : ["member/view", id, "profile"],
+      );
+    if (roomId == null) {
+      leave();
+      return;
+    }
+    this.roomMemberService
+      .roomIdMemberPost(roomId, {id})
+      .subscribe({next: leave, error: leave});
+  }
+
+  private onSubmitError(error: unknown) {
+    this.loading = false;
+    const status = (error as {status?: number})?.status;
+    const detail = detailOf(error, "");
+    if (status === 400 && detail.endsWith("already exists")) {
+      this.memberEdit.controls.username.setErrors({taken: true});
+      return;
+    }
+    this.submitError =
+      detail ||
+      $localize`:@@member.form.submit.error:Erreur lors de l'enregistrement du membre.`;
   }
 
   delete(): void {

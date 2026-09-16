@@ -36,6 +36,11 @@
             Le nom d'utilisateur doit contenir moins de 8 caractères.
           </span>
         }
+        @if (memberEdit.controls.username.errors?.taken) {
+          <span class="invalid" i18n="@@member.form.username.taken">
+            Ce nom d'utilisateur est déjà utilisé.
+          </span>
+        }
       </p>
     }
   </div>
@@ -79,6 +84,9 @@
       </select>
     </div>
   </div>
+  @if (submitError) {
+    <p class="help is-danger mb-3" role="alert">{{ submitError }}</p>
+  }
   <button
     type="submit"
     [disabled]="memberEdit.invalid || loading"
