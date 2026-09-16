@@ -56,7 +56,9 @@ import {NotificationService} from "../notification.service";
             </tr>
           } @empty {
             <tr>
-              <td colspan="3" class="has-text-centered" i18n="@@naina.none">Aucun NainA actif</td>
+              <td colspan="3" class="has-text-centered" i18n="@@naina.none">
+                Aucun NainA actif
+              </td>
             </tr>
           }
         </tbody>

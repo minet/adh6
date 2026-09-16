@@ -345,7 +345,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         community = await self.switch_repository.get_community(switch_id=switch_id)
         if switch is None or switch.ip is None:
             raise SwitchNotFoundError(switch_id)
-        
+
         try:
             discovered = await walk_snmp(community, switch.ip, "IF-MIB", "ifDescr")
         except Exception as e:

@@ -34,7 +34,8 @@ export class DialogService {
     return this.open({
       title: options.title,
       text: options.text,
-      confirmText: options.confirmText ?? $localize`:@@common.confirm:Confirmer`,
+      confirmText:
+        options.confirmText ?? $localize`:@@common.confirm:Confirmer`,
       cancelText: $localize`:@@common.cancel:Annuler`,
       danger: options.danger ?? false,
     }).then((value) => value !== null);

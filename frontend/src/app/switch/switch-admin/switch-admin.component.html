@@ -4,7 +4,9 @@
       <div class="level-left">
         <div class="level-item">
           <div>
-            <h2 class="title is-2" i18n="@@switch.admin.title">Administration : {{ sw.description }}</h2>
+            <h2 class="title is-2" i18n="@@switch.admin.title">
+              Administration : {{ sw.description }}
+            </h2>
             <p class="subtitle is-5">{{ sw.ip }}</p>
           </div>
         </div>
@@ -36,7 +38,9 @@
           [disabled]="applyingDescriptions"
           (click)="applyDescriptions()">
           <span class="icon"><i class="fas fa-tag"></i></span>
-          <span i18n="@@switch.admin.apply-descriptions">Appliquer les descriptions ports</span>
+          <span i18n="@@switch.admin.apply-descriptions"
+            >Appliquer les descriptions ports</span
+          >
         </button>
         <button
           class="button is-warning"
@@ -44,7 +48,9 @@
           [disabled]="applyingVlans"
           (click)="applyVlans()">
           <span class="icon"><i class="fas fa-network-wired"></i></span>
-          <span i18n="@@switch.admin.apply-vlans">Changer les VLANs des chambres</span>
+          <span i18n="@@switch.admin.apply-vlans"
+            >Changer les VLANs des chambres</span
+          >
         </button>
         <button
           class="button is-link"
@@ -52,7 +58,9 @@
           [disabled]="syncingNames"
           (click)="syncPortNames()">
           <span class="icon"><i class="fas fa-sync"></i></span>
-          <span i18n="@@switch.admin.sync-names">Sync noms techniques ports</span>
+          <span i18n="@@switch.admin.sync-names"
+            >Sync noms techniques ports</span
+          >
         </button>
         <button
           class="button is-success"
@@ -60,7 +68,9 @@
           [disabled]="discoveringNew"
           (click)="discoverNewPorts()">
           <span class="icon"><i class="fas fa-search-plus"></i></span>
-          <span i18n="@@switch.admin.discover">Découvrir de nouveaux ports</span>
+          <span i18n="@@switch.admin.discover"
+            >Découvrir de nouveaux ports</span
+          >
         </button>
         <button
           class="button is-primary"
@@ -90,7 +100,9 @@
               <tr>
                 <th>Port</th>
                 <th i18n="@@common.room">Chambre</th>
-                <th i18n="@@switch.admin.expected-description">Description attendue</th>
+                <th i18n="@@switch.admin.expected-description">
+                  Description attendue
+                </th>
                 <th>VLAN</th>
               </tr>
             </thead>
@@ -122,7 +134,10 @@
 }
 
 @if (discoveredPorts.length > 0) {
-  <app-modal title="Nouveaux ports découverts" i18n-title="@@switch.admin.discovered" (closed)="closeDiscovery()">
+  <app-modal
+    title="Nouveaux ports découverts"
+    i18n-title="@@switch.admin.discovered"
+    (closed)="closeDiscovery()">
     <div class="table-container discovered-ports">
       <table class="table is-fullwidth is-narrow is-striped">
         <thead>
@@ -165,7 +180,11 @@
         i18n="@@switch.admin.add-selection">
         Ajouter la sélection
       </button>
-      <button type="button" class="button" (click)="closeDiscovery()" i18n="@@common.cancel">
+      <button
+        type="button"
+        class="button"
+        (click)="closeDiscovery()"
+        i18n="@@common.cancel">
         Annuler
       </button>
     </div>
@@ -173,10 +192,18 @@
 }
 
 @if (pingOpen) {
-  <app-modal title="Ping depuis le commutateur" i18n-title="@@switch.admin.ping" (closed)="pingOpen = false">
+  <app-modal
+    title="Ping depuis le commutateur"
+    i18n-title="@@switch.admin.ping"
+    (closed)="pingOpen = false">
     <form id="ping-form" [formGroup]="pingForm" (ngSubmit)="pingSwitch()">
       <div class="field">
-        <label class="label" for="ping-address" i18n="@@switch.admin.ping.address">Adresse IP cible</label>
+        <label
+          class="label"
+          for="ping-address"
+          i18n="@@switch.admin.ping.address"
+          >Adresse IP cible</label
+        >
         <input
           id="ping-address"
           class="input"
@@ -184,18 +211,26 @@
           formControlName="address"
           placeholder="ex: 192.168.0.1"
           [class.is-danger]="
-            pingForm.controls.address.touched && pingForm.controls.address.invalid
+            pingForm.controls.address.touched &&
+            pingForm.controls.address.invalid
           " />
         @if (
           pingForm.controls.address.touched && pingForm.controls.address.invalid
         ) {
-          <p class="help is-danger" i18n="@@switch.admin.ping.address.invalid">Adresse IPv4 invalide</p>
+          <p class="help is-danger" i18n="@@switch.admin.ping.address.invalid">
+            Adresse IPv4 invalide
+          </p>
         }
       </div>
       <div class="columns">
         <div class="column">
           <div class="field">
-            <label class="label" for="ping-count" i18n="@@switch.admin.ping.count">Nombre de paquets (1–15)</label>
+            <label
+              class="label"
+              for="ping-count"
+              i18n="@@switch.admin.ping.count"
+              >Nombre de paquets (1–15)</label
+            >
             <input
               id="ping-count"
               class="input"
@@ -208,7 +243,9 @@
         </div>
         <div class="column">
           <div class="field">
-            <label class="label" for="ping-size" i18n="@@switch.admin.ping.size">Taille (64–1500)</label>
+            <label class="label" for="ping-size" i18n="@@switch.admin.ping.size"
+              >Taille (64–1500)</label
+            >
             <input
               id="ping-size"
               class="input"
@@ -221,7 +258,12 @@
         </div>
       </div>
       <div class="field">
-        <label class="label" for="ping-timeout" i18n="@@switch.admin.ping.timeout">Délai d'attente (ms, ≥ 100)</label>
+        <label
+          class="label"
+          for="ping-timeout"
+          i18n="@@switch.admin.ping.timeout"
+          >Délai d'attente (ms, ≥ 100)</label
+        >
         <input
           id="ping-timeout"
           class="input"
@@ -235,7 +277,11 @@
       <button type="submit" form="ping-form" class="button is-primary">
         Ping
       </button>
-      <button type="button" class="button" (click)="pingOpen = false" i18n="@@common.cancel">
+      <button
+        type="button"
+        class="button"
+        (click)="pingOpen = false"
+        i18n="@@common.cancel">
         Annuler
       </button>
     </div>

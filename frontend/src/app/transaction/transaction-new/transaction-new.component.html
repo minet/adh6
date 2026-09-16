@@ -22,11 +22,15 @@
     </div>
   </div>
   <div class="field">
-    <label class="label" i18n="@@transaction.new.payment-method">Moyen de paiement</label>
+    <label class="label" i18n="@@transaction.new.payment-method"
+      >Moyen de paiement</label
+    >
     <div class="control">
       <div class="select">
         <select formControlName="paymentMethod">
-          <option value="0" i18n="@@transaction.new.pay-with">-- Payer par --</option>
+          <option value="0" i18n="@@transaction.new.pay-with">
+            -- Payer par --
+          </option>
           @for (pm of paymentMethods; track pm) {
             <option [value]="pm.id">{{ pm.name }}</option>
           }
@@ -47,7 +51,9 @@
   </div>
 </form>
 <br />
-<h3 class="title is-3" i18n="@@transaction.new.recent">Transactions récentes</h3>
+<h3 class="title is-3" i18n="@@transaction.new.recent">
+  Transactions récentes
+</h3>
 <app-transaction-list
   [refresh]="refreshTransactions"
   (whenOnAction)="useTransaction($event)"

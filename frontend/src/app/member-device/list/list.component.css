@@ -1,6 +1,5 @@
 /* Device list container with rounded corners */
 
-
 /* Add border between device items except the last one */
 .device-item:not(.is-last) :ng-deep .card {
   border-bottom: 1px solid var(--app-line);
