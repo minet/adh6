@@ -66,6 +66,12 @@ function initializeAuth(
         ) {
           can("manage", "prod");
         }
+        if (profile.roles?.indexOf("network:read") !== -1) {
+          can("read", "network");
+          if (profile.roles?.indexOf("network:write") !== -1) {
+            can("manage", "network");
+          }
+        }
         if (profile.roles?.indexOf("treasurer:write") !== -1) {
           can("free", "Membership");
         }

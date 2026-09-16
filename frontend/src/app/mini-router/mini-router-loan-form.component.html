@@ -1,0 +1,134 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="field">
+    <label class="label" for="loan-member" i18n="@@mini-router.member"
+      >Adhérent</label
+    >
+    @if (isEdit) {
+      <p>{{ loan?.memberName ?? loan?.member }}</p>
+    } @else {
+      <app-combobox
+        inputId="loan-member"
+        mode="search"
+        formControlName="member"
+        [options]="memberOptions"
+        [filterLocally]="false"
+        label="Adhérent"
+        i18n-label="@@mini-router.member"
+        placeholder="Login, nom ou prénom"
+        i18n-placeholder="@@mini-router.loan.member.placeholder" />
+      <p class="help" i18n="@@mini-router.loan.member.help">
+        Choisir l'adhérent dans les suggestions. S'il n'apparaît pas, préciser
+        la recherche (login complet par exemple).
+      </p>
+    }
+  </div>
+  <div class="columns">
+    <div class="column field">
+      <label
+        class="label"
+        for="loan-started-at"
+        i18n="@@mini-router.loan.started-at"
+        >Début</label
+      >
+      <input
+        id="loan-started-at"
+        class="input"
+        type="date"
+        formControlName="startedAt" />
+    </div>
+    <div class="column field">
+      <label
+        class="label"
+        for="loan-due-date"
+        i18n="@@mini-router.loan.due-date"
+        >Retour prévu</label
+      >
+      <input
+        id="loan-due-date"
+        class="input"
+        type="date"
+        formControlName="dueDate" />
+    </div>
+    @if (loan?.returnedAt) {
+      <div class="column field">
+        <label
+          class="label"
+          for="loan-returned-at"
+          i18n="@@mini-router.return.date"
+          >Date de retour</label
+        >
+        <input
+          id="loan-returned-at"
+          class="input"
+          type="date"
+          formControlName="returnedAt" />
+      </div>
+    }
+  </div>
+  @if (form.hasError("returnBeforeStart")) {
+    <p class="help is-danger mb-3" i18n="@@mini-router.loan.dates-error">
+      La date de retour ne peut pas précéder le début du prêt.
+    </p>
+  }
+  <div class="columns">
+    <div class="column field">
+      <label
+        class="label"
+        for="loan-deposit"
+        i18n="@@mini-router.loan.deposit-amount"
+        >Caution (€)</label
+      >
+      <input
+        id="loan-deposit"
+        class="input"
+        type="number"
+        min="0"
+        step="0.01"
+        formControlName="depositAmount" />
+    </div>
+    <div class="column field">
+      <label
+        class="label"
+        for="loan-payment-method"
+        i18n="@@mini-router.loan.payment-method"
+        >Moyen de paiement</label
+      >
+      <div class="select is-fullwidth">
+        <select id="loan-payment-method" formControlName="paymentMethod">
+          <option [ngValue]="null">—</option>
+          @for (method of paymentMethods; track method.id) {
+            <option [ngValue]="method.id">{{ method.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    @if (isEdit) {
+      <div class="column field">
+        <label
+          class="label"
+          for="loan-deposit-status"
+          i18n="@@mini-router.loan.deposit-status"
+          >Statut</label
+        >
+        <div class="select is-fullwidth">
+          <select id="loan-deposit-status" formControlName="depositStatus">
+            @for (status of depositStatuses; track status[0]) {
+              <option [value]="status[0]">{{ status[1] }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    }
+  </div>
+  <button
+    type="submit"
+    class="button is-success is-fullwidth"
+    [disabled]="form.invalid || submitting"
+    [class.is-loading]="submitting">
+    @if (isEdit) {
+      <span i18n="@@common.save">Enregistrer</span>
+    } @else {
+      <span i18n="@@mini-router.details.loan">Prêter</span>
+    }
+  </button>
+</form>

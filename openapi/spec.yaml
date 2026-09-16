@@ -1838,6 +1838,281 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - treasury
+  /mini_router:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/searchTerm"
+        - description: Only mini-routers currently loaned (true) or available (false)
+          in: query
+          name: loaned
+          required: false
+          schema:
+            type: boolean
+        - description: Only mini-routers whose current loan is past its due date
+          in: query
+          name: overdue
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/MiniRouter"
+                type: array
+          description: Success
+          headers:
+            X-Total-Count:
+              description: Total count of filtered entities
+              schema:
+                type: integer
+                example: 25
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Filter mini-routers
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiniRouter"
+        description: The mini-router to create
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiniRouter"
+          description: The created mini-router
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Create a mini-router
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+  /mini_router/loan:
+    get:
+      parameters:
+        - description: The member whose loans are listed
+          in: query
+          name: member
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/MiniRouterLoan"
+                type: array
+          description: Loans of this member, most recent first
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: List the mini-router loans of a member
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+  /mini_router/{id}:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiniRouter"
+          description: Success
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Retrieve a mini-router
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiniRouter"
+        description: The new values for this mini-router
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiniRouter"
+          description: Updated
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Update a mini-router
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+    delete:
+      responses:
+        "204":
+          description: Deleted
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Delete a mini-router
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+  /mini_router/{id}/loan:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/MiniRouterLoan"
+                type: array
+          description: Loans of this mini-router, most recent first
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: List the loans of a mini-router
+      security:
+        - OpenIdConnect:
+          - network:read
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiniRouterLoan"
+        description: The loan to create
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiniRouterLoan"
+          description: The created loan
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Loan a mini-router to a member
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
+  /mini_router/loan/{id}:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MiniRouterLoan"
+        description: The new values for this loan
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MiniRouterLoan"
+          description: Updated
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Update a loan (return, deposit status)
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - mini_router
   /room:
     get:
       parameters:
@@ -3196,6 +3471,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    Conflict:
+      description: The request conflicts with the current state of the resource
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     Unexpected:
       description: The request encountered an unexpected error
       content:
@@ -3766,6 +4047,168 @@ components:
             - description
             - roomNumber
             - vlan
+      type: object
+    AbstractMiniRouter:
+      type: object
+      properties:
+        id:
+          description: The unique identifier of this mini-router
+          example: 0
+          readOnly: true
+          type: integer
+        hardwareMac:
+          description: The factory MAC address of the mini-router
+          example: 94:83:C4:1C:01:6E
+          type: string
+        number:
+          description: The MiNET number of the mini-router, from which its addresses are derived
+          example: 115
+          minimum: 1
+          maximum: 254
+          nullable: true
+          type: integer
+        ipWireguard:
+          description: The WireGuard IPv4 address (10.31.0.N)
+          example: 10.31.0.115
+          nullable: true
+          readOnly: true
+          type: string
+        ipVlan31:
+          description: The IPv4 address on VLAN 31 (172.30.0.N)
+          example: 172.30.0.115
+          nullable: true
+          readOnly: true
+          type: string
+        macAccept:
+          description: The accepted MAC address (00:00:36:00:0X:YZ, where XYZ is the number on 3 digits)
+          example: 00:00:36:00:01:15
+          nullable: true
+          readOnly: true
+          type: string
+        macDeny:
+          description: The denied MAC address (36:36:36:00:0X:YZ, where XYZ is the number on 3 digits)
+          example: 36:36:36:00:01:15
+          nullable: true
+          readOnly: true
+          type: string
+        model:
+          description: The hardware model
+          type: string
+          enum:
+            - beryl_giga
+            - ar750_fast
+        configState:
+          description: Whether the MiNET configuration is applied
+          type: string
+          enum:
+            - pimped
+            - not_pimped
+        comment:
+          description: Free comment
+          nullable: true
+          type: string
+        roomId:
+          description: The room of the member of the current loan
+          nullable: true
+          readOnly: true
+          type: integer
+        roomNumber:
+          description: The room number of the member of the current loan
+          nullable: true
+          readOnly: true
+          type: integer
+        depositToRefund:
+          description: Whether a returned loan still has its deposit held
+          readOnly: true
+          type: boolean
+        currentLoan:
+          allOf:
+            - $ref: "#/components/schemas/MiniRouterLoan"
+          description: The loan in progress, if any
+          nullable: true
+          readOnly: true
+    MiniRouter:
+      allOf:
+        - $ref: "#/components/schemas/AbstractMiniRouter"
+        - required:
+            - hardwareMac
+            - model
+            - configState
+      type: object
+    AbstractMiniRouterLoan:
+      type: object
+      properties:
+        id:
+          description: The unique identifier of this loan
+          example: 0
+          readOnly: true
+          type: integer
+        miniRouter:
+          description: The loaned mini-router
+          readOnly: true
+          type: integer
+        miniRouterHardwareMac:
+          description: The factory MAC address of the loaned mini-router
+          readOnly: true
+          type: string
+        member:
+          description: The member the mini-router is loaned to
+          type: integer
+        memberName:
+          description: The first and last name of the member
+          nullable: true
+          readOnly: true
+          type: string
+        startedAt:
+          description: The start date of the loan
+          type: string
+          format: date
+        dueDate:
+          description: The date the mini-router must be returned
+          nullable: true
+          type: string
+          format: date
+        returnedAt:
+          description: The date the mini-router was returned, null while the loan is in progress
+          nullable: true
+          type: string
+          format: date
+        depositAmount:
+          description: The deposit amount
+          example: 80
+          minimum: 0
+          type: number
+        paymentMethod:
+          description: The payment method of the deposit
+          nullable: true
+          type: integer
+        depositStatus:
+          description: The status of the deposit, always held when the loan is created
+          type: string
+          enum:
+            - held
+            - refunded
+            - kept
+        author:
+          description: The member who created the loan and collected the deposit
+          readOnly: true
+          type: integer
+        authorName:
+          description: The first and last name of the author
+          nullable: true
+          readOnly: true
+          type: string
+        overdue:
+          description: Whether the loan is in progress and past its due date
+          readOnly: true
+          type: boolean
+    MiniRouterLoan:
+      allOf:
+        - $ref: "#/components/schemas/AbstractMiniRouterLoan"
+        - required:
+            - member
+            - startedAt
+            - depositAmount
       type: object
     AbstractPort:
       type: object

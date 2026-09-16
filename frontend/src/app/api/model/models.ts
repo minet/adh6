@@ -3,6 +3,8 @@
 export * from './abstractDevice';
 export * from './abstractMember';
 export * from './abstractMembership';
+export * from './abstractMiniRouter';
+export * from './abstractMiniRouterLoan';
 export * from './abstractPaymentMethod';
 export * from './abstractPort';
 export * from './abstractProduct';
@@ -30,6 +32,8 @@ export * from './memberIdPasswordPutRequest';
 export * from './memberIdWifiGet200Response';
 export * from './memberStatus';
 export * from './membership';
+export * from './miniRouter';
+export * from './miniRouterLoan';
 export * from './modelError';
 export * from './naina';
 export * from './paymentMethod';

@@ -18,6 +18,8 @@ import {MailinglistComponent} from "../../../mailinglist/mailinglist.component";
 import {NotificationService} from "../../../notification.service";
 import {MemberDetailService} from "../member-detail.service";
 import {RoomSelectComponent} from "../../../ui/room-select.component";
+import {MemberMiniRoutersComponent} from "../../../mini-router/member-mini-routers.component";
+import {AblePipe} from "@casl/angular";
 
 interface RoomForm {
   roomNumber: FormControl<number | null>;
@@ -30,6 +32,8 @@ interface RoomForm {
     MailinglistComponent,
     ReactiveFormsModule,
     RoomSelectComponent,
+    MemberMiniRoutersComponent,
+    AblePipe,
   ],
   selector: "app-details",
   templateUrl: "./details.component.html",

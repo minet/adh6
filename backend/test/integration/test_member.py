@@ -662,3 +662,37 @@ def test_member_comment_too_long(client, sample_member):
         headers={"Content-Type": "application/json", **TEST_HEADERS},
     )
     assert result.status_code == 400
+
+
+def test_member_cannot_grant_self_permanent(client, sample_member: Adherent):
+    r = client.patch(
+        f"{base_url}{sample_member.id}",
+        data=json.dumps({"permanent": True}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+    )
+    assert r.status_code == 400
+
+    r = client.get(f"{base_url}{sample_member.id}", headers=TEST_HEADERS)
+    assert r.json().get("permanent") is False
+
+
+def test_member_cannot_change_own_wifi_only(client, sample_member: Adherent):
+    r = client.patch(
+        f"{base_url}{sample_member.id}",
+        data=json.dumps({"wifiOnly": True}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+    )
+    assert r.status_code == 400
+
+    r = client.get(f"{base_url}{sample_member.id}", headers=TEST_HEADERS)
+    assert r.json().get("wifiOnly") is False
+
+
+def test_member_can_resend_unchanged_flags(client, sample_member: Adherent):
+    # The edit form always sends both flags, with their current values.
+    r = client.patch(
+        f"{base_url}{sample_member.id}",
+        data=json.dumps({"permanent": False, "wifiOnly": False}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+    )
+    assert r.status_code == 204

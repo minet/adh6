@@ -24,6 +24,7 @@ from adh6.member.router import (
     router as member_router,
 )
 from adh6.metrics.router import router as metrics_router
+from adh6.mini_router.router import router as mini_router_router
 from adh6.misc.router import router as misc_router
 from adh6.naina.router import router as naina_router
 from adh6.network.router import port_router, switch_router
@@ -168,6 +169,7 @@ app.include_router(naina_router, prefix="/api")
 app.include_router(port_router, prefix="/api")
 app.include_router(switch_router, prefix="/api")
 app.include_router(room_router, prefix="/api")
+app.include_router(mini_router_router, prefix="/api")
 app.include_router(subnet_router, prefix="/api")
 app.include_router(vlans_router, prefix="/api")
 

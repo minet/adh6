@@ -2809,6 +2809,596 @@
           <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="mini-router.config-state.pimped" datatype="html">
+        <source>Pimpé</source>
+        <target state="final">Customized</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.config-state.not-pimped" datatype="html">
+        <source>Pas pimpé</source>
+        <target state="final">Not customized</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.deposit.held" datatype="html">
+        <source>Retenue</source>
+        <target state="final">Held</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.deposit.refunded" datatype="html">
+        <source>Rendue</source>
+        <target state="final">Refunded</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.deposit.kept" datatype="html">
+        <source>Encaissée</source>
+        <target state="final">Kept</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.deposit.to-refund" datatype="html">
+        <source>À rendre</source>
+        <target state="final">To refund</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.hardware-mac" datatype="html">
+        <source>MAC constructeur :</source>
+        <target state="final">Factory MAC: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.model" datatype="html">
+        <source>Modèle :</source>
+        <target state="final">Model: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.config-state" datatype="html">
+        <source>État config :</source>
+        <target state="final">Config state: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.current-loan" datatype="html">
+        <source>Prêt en cours</source>
+        <target state="final">Current loan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.member" datatype="html">
+        <source>Adhérent :</source>
+        <target state="final">Member: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.location" datatype="html">
+        <source>Lieu :</source>
+        <target state="final">Location: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.no-room" datatype="html">
+        <source>Aucune chambre</source>
+        <target state="final">No room</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.started-at" datatype="html">
+        <source>Depuis le :</source>
+        <target state="final">Since: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.due-date" datatype="html">
+        <source>Retour prévu :</source>
+        <target state="final">Due back: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.deposit" datatype="html">
+        <source>Caution :</source>
+        <target state="final">Deposit: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.return" datatype="html">
+        <source>Terminer le prêt</source>
+        <target state="final">End the loan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.available" datatype="html">
+        <source>Ce mini-routeur n&apos;est pas prêté.</source>
+        <target state="final">This mini-router is not loaned.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.loan" datatype="html">
+        <source>Prêter</source>
+        <target state="final">Loan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.history" datatype="html">
+        <source>Historique des prêts</source>
+        <target state="final">Loan history</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.no-loans" datatype="html">
+        <source>Aucun prêt.</source>
+        <target state="final">No loans.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.member" datatype="html">
+        <source>Adhérent</source>
+        <target state="final">Member</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.period" datatype="html">
+        <source>Période</source>
+        <target state="final">Period</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.deposit" datatype="html">
+        <source>Caution</source>
+        <target state="final">Deposit</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.in-progress" datatype="html">
+        <source>en cours</source>
+        <target state="final">in progress</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.refund" datatype="html">
+        <source>Rendue</source>
+        <target state="final">Refunded</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.keep" datatype="html">
+        <source>Encaissée</source>
+        <target state="final">Kept</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.edit" datatype="html">
+        <source>Modifier le mini-routeur</source>
+        <target state="final">Edit the mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.title" datatype="html">
+        <source>Prêter le mini-routeur</source>
+        <target state="final">Loan the mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.member.placeholder" datatype="html">
+        <source>Login, nom ou prénom</source>
+        <target state="final">Username, first or last name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.started-at" datatype="html">
+        <source>Début</source>
+        <target state="final">Start</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.due-date" datatype="html">
+        <source>Retour prévu</source>
+        <target state="final">Due back</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.deposit-amount" datatype="html">
+        <source>Caution (€)</source>
+        <target state="final">Deposit (€)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.payment-method" datatype="html">
+        <source>Moyen de paiement</source>
+        <target state="final">Payment method</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.deposit-status" datatype="html">
+        <source>Statut</source>
+        <target state="final">Status</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.return.date" datatype="html">
+        <source>Date de retour</source>
+        <target state="final">Return date</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.already-loaned" datatype="html">
+        <source>Ce mini-routeur est déjà prêté.</source>
+        <target state="final">This mini-router is already loaned.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.error" datatype="html">
+        <source>Impossible d&apos;enregistrer le prêt.</source>
+        <target state="final">Unable to save the loan.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.delete.title" datatype="html">
+        <source>Supprimer le mini-routeur</source>
+        <target state="final">Delete the mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.delete.confirm" datatype="html">
+        <source>Supprimer <x id="hardwareMac" equiv-text="miniRouter.hardwareMac"/> et tout son historique de prêts ? Cette action est irréversible.</source>
+        <target state="final">Delete <x id="hardwareMac" equiv-text="miniRouter.hardwareMac"/> and its whole loan history? This cannot be undone.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.delete.blocked" datatype="html">
+        <source>Impossible de supprimer un mini-routeur prêté ou dont une caution n&apos;est pas rendue.</source>
+        <target state="final">A mini-router that is loaned or has a deposit not yet refunded cannot be deleted.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.delete.error" datatype="html">
+        <source>Impossible de supprimer le mini-routeur.</source>
+        <target state="final">Unable to delete the mini-router.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.hardware-mac" datatype="html">
+        <source>MAC constructeur</source>
+        <target state="final">Factory MAC</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.form.hardware-mac.help" datatype="html">
+        <source>Adresse MAC constructeur, sur l&apos;étiquette du boîtier.</source>
+        <target state="final">Factory MAC address, printed on the device label.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.model" datatype="html">
+        <source>Modèle</source>
+        <target state="final">Model</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.config-state" datatype="html">
+        <source>État config</source>
+        <target state="final">Config state</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.comment" datatype="html">
+        <source>Commentaire</source>
+        <target state="final">Comment</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.form.duplicate" datatype="html">
+        <source>Un mini-routeur utilise déjà cette MAC constructeur ou ce numéro.</source>
+        <target state="final">A mini-router already uses this factory MAC or this number.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.form.error" datatype="html">
+        <source>Impossible d&apos;enregistrer le mini-routeur.</source>
+        <target state="final">Unable to save the mini-router.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.search" datatype="html">
+        <source>Recherche de mini-routeurs</source>
+        <target state="final">Search mini-routers</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.search.placeholder" datatype="html">
+        <source>Numéro, IP, MAC, adhérent ou chambre...</source>
+        <target state="final">Number, IP, MAC, member or room...</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.filter" datatype="html">
+        <source>Filtrer par prêt</source>
+        <target state="final">Filter by loan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.filter.all" datatype="html">
+        <source>Tous</source>
+        <target state="final">All</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.filter.loaned" datatype="html">
+        <source>Prêtés</source>
+        <target state="final">Loaned</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.filter.available" datatype="html">
+        <source>Disponibles</source>
+        <target state="final">Available</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.new" datatype="html">
+        <source>Nouveau mini-routeur</source>
+        <target state="final">New mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.location" datatype="html">
+        <source>Lieu</source>
+        <target state="final">Location</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.new.title" datatype="html">
+        <source>Nouveau mini-routeur</source>
+        <target state="final">New mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-new.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="navbar.mini-routers" datatype="html">
+        <source>Mini-routeurs</source>
+        <target state="final">Mini-routers</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/navbar/navbar.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sidebar.mini-routers" datatype="html">
+        <source>Mini-routeurs</source>
+        <target state="final">Mini-routers</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/vertical-navbar/vertical-navbar.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.overdue" datatype="html">
+        <source>En retard</source>
+        <target state="final">Overdue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.member-profile.title" datatype="html">
+        <source>Mini-routeur</source>
+        <target state="final">Mini-router</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.author" datatype="html">
+        <source>Encaissée par :</source>
+        <target state="final">Collected by: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.edit-loan" datatype="html">
+        <source>Corriger le prêt</source>
+        <target state="final">Correct the loan</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.author" datatype="html">
+        <source>Encaissée par</source>
+        <target state="final">Collected by</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.edit-loan.short" datatype="html">
+        <source>Corriger</source>
+        <target state="final">Correct</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.return.deposit-help" datatype="html">
+        <source>Laisser « Retenue » si la caution n&apos;a pas encore été rendue.</source>
+        <target state="final">Keep “Held” if the deposit has not been refunded yet.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.dates-error" datatype="html">
+        <source>La date de retour ne peut pas précéder le début du prêt.</source>
+        <target state="final">The return date cannot be before the start of the loan.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.ts</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.list.filter.overdue" datatype="html">
+        <source>En retard</source>
+        <target state="final">Overdue</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.due-date" datatype="html">
+        <source>Échéance</source>
+        <target state="final">Due date</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.loan.member.help" datatype="html">
+        <source>Choisir l&apos;adhérent dans les suggestions. S&apos;il n&apos;apparaît pas, préciser la recherche (login complet par exemple).</source>
+        <target state="final">Pick the member from the suggestions. If they do not appear, refine the search (full username for example).</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-loan-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.member-profile.returned-tag" datatype="html">
+        <source>Rendu</source>
+        <target state="final">Returned</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.member-profile.started-at" datatype="html">
+        <source>Prêté le</source>
+        <target state="final">Loaned on</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.member-profile.returned-at" datatype="html">
+        <source>Rendu le</source>
+        <target state="final">Returned on</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.number" datatype="html">
+        <source>Numéro :</source>
+        <target state="final">Number: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.number" datatype="html">
+        <source>Numéro</source>
+        <target state="final">Number</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.form.number.help" datatype="html">
+        <source>Entre <x id="INTERPOLATION" equiv-text="{{ minNumber }}"/> et <x id="INTERPOLATION_1" equiv-text="{{ maxNumber }}"/>. Les IP et MAC en sont déduites.</source>
+        <target state="final">Between <x id="INTERPOLATION" equiv-text="{{ minNumber }}"/> and <x id="INTERPOLATION_1" equiv-text="{{ maxNumber }}"/>. The IP and MAC addresses are derived from it.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

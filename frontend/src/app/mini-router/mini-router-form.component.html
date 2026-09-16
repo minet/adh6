@@ -1,0 +1,95 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="columns is-multiline">
+    <div class="column is-full field">
+      <label
+        class="label"
+        for="mr-hardware-mac"
+        i18n="@@mini-router.hardware-mac"
+        >MAC constructeur</label
+      >
+      <input
+        id="mr-hardware-mac"
+        class="input is-family-monospace"
+        [class.is-danger]="
+          form.controls.hardwareMac.invalid && form.controls.hardwareMac.touched
+        "
+        formControlName="hardwareMac"
+        placeholder="94:83:C4:1C:01:6E" />
+      <p class="help" i18n="@@mini-router.form.hardware-mac.help">
+        Adresse MAC constructeur, sur l'étiquette du boîtier.
+      </p>
+    </div>
+    <div class="column is-full field">
+      <label class="label" for="mr-number" i18n="@@mini-router.number"
+        >Numéro</label
+      >
+      <input
+        id="mr-number"
+        class="input"
+        type="number"
+        [min]="minNumber"
+        [max]="maxNumber"
+        step="1"
+        [class.is-danger]="form.controls.number.invalid"
+        formControlName="number"
+        placeholder="115" />
+      <p
+        class="help"
+        [class.is-danger]="form.controls.number.invalid"
+        i18n="@@mini-router.form.number.help">
+        Entre {{ minNumber }} et {{ maxNumber }}. Les IP et MAC en sont
+        déduites.
+      </p>
+      @if (preview; as addresses) {
+        <div class="box is-shadowless mt-3 mb-0">
+          <app-mini-router-addresses [addresses]="addresses" />
+        </div>
+      }
+    </div>
+    <div class="column is-half field">
+      <label class="label" for="mr-model" i18n="@@mini-router.model"
+        >Modèle</label
+      >
+      <div class="select is-fullwidth">
+        <select id="mr-model" formControlName="model">
+          @for (model of models; track model[0]) {
+            <option [value]="model[0]">{{ model[1] }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="column is-half field">
+      <label
+        class="label"
+        for="mr-config-state"
+        i18n="@@mini-router.config-state"
+        >État config</label
+      >
+      <div class="select is-fullwidth">
+        <select id="mr-config-state" formControlName="configState">
+          @for (state of configStates; track state[0]) {
+            <option [value]="state[0]">{{ state[1] }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="column is-full field">
+      <label class="label" for="mr-comment" i18n="@@mini-router.comment"
+        >Commentaire</label
+      >
+      <textarea
+        id="mr-comment"
+        class="textarea"
+        rows="2"
+        formControlName="comment"></textarea>
+    </div>
+  </div>
+  <button
+    type="submit"
+    class="button is-primary is-fullwidth"
+    [disabled]="form.invalid || submitting"
+    [class.is-loading]="submitting"
+    i18n="@@common.save">
+    Enregistrer
+  </button>
+</form>
