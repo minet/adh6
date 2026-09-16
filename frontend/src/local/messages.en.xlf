@@ -2824,7 +2824,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.deposit.held" datatype="html">
-        <source>Encaissée</source>
+        <source>Retenue</source>
         <target state="final">Held</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
@@ -2838,7 +2838,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.deposit.kept" datatype="html">
-        <source>Retenue</source>
+        <source>Encaissée</source>
         <target state="final">Kept</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/labels.ts</context>
@@ -3010,7 +3010,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.details.keep" datatype="html">
-        <source>Retenue</source>
+        <source>Encaissée</source>
         <target state="final">Kept</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
@@ -3320,7 +3320,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.return.deposit-help" datatype="html">
-        <source>Laisser « Encaissée » si la caution n&apos;a pas encore été rendue.</source>
+        <source>Laisser « Retenue » si la caution n&apos;a pas encore été rendue.</source>
         <target state="final">Keep “Held” if the deposit has not been refunded yet.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>

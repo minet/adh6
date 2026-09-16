@@ -6,7 +6,6 @@
       </h3>
       <hr />
       @for (loan of loans; track loan.id) {
-        @let badge = depositBadge(loan);
         <article class="loan" [class.is-overdue]="loan.overdue">
           <div class="loan-head">
             <a
@@ -57,9 +56,6 @@
                 @if (paymentMethodName(loan.paymentMethod); as method) {
                   <span class="has-text-weight-normal"> · {{ method }}</span>
                 }
-                <span class="tag {{ badge.cssClass }} ml-1">{{
-                  badge.label
-                }}</span>
               </dd>
             </div>
             <div>

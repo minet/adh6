@@ -14,9 +14,9 @@ export const DEPOSIT_STATUS_LABELS: Record<
   MiniRouterLoan.DepositStatusEnum,
   string
 > = {
-  held: $localize`:@@mini-router.deposit.held:Encaissée`,
+  held: $localize`:@@mini-router.deposit.held:Retenue`,
   refunded: $localize`:@@mini-router.deposit.refunded:Rendue`,
-  kept: $localize`:@@mini-router.deposit.kept:Retenue`,
+  kept: $localize`:@@mini-router.deposit.kept:Encaissée`,
 };
 
 export const OVERDUE_LABEL = $localize`:@@mini-router.overdue:En retard`;

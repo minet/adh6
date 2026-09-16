@@ -4,7 +4,7 @@ import {RouterModule} from "@angular/router";
 import {catchError, map, Observable, of} from "rxjs";
 import {MiniRouterLoan, MiniRouterService, PaymentMethod} from "../api";
 import {AppConstantsService} from "../app-constants.service";
-import {depositBadge, OVERDUE_LABEL} from "./labels";
+import {OVERDUE_LABEL} from "./labels";
 
 /** Loans in progress and deposits still held by a member, for the member profile. */
 @Component({
@@ -55,7 +55,6 @@ import {depositBadge, OVERDUE_LABEL} from "./labels";
 export class MemberMiniRoutersComponent implements OnChanges {
   @Input({required: true}) memberId!: number;
 
-  readonly depositBadge = depositBadge;
   readonly overdueLabel = OVERDUE_LABEL;
   loans$: Observable<MiniRouterLoan[]> = of([]);
   paymentMethods: PaymentMethod[] = [];
