@@ -18,12 +18,11 @@
         </p>
         <p>
           <strong i18n="@@port.details.room">Chambre : </strong>
-          @if (port.room !== undefined) {
-            <span>
+          @if (port.room !== null) {
+            <a [routerLink]="['/room/view/', port.room]">
               {{ room_number$ | async }}
-            </span>
-          }
-          @if (port.room === undefined) {
+            </a>
+          } @else {
             <span i18n="@@common.room.none">Aucune chambre</span>
           }
         </p>

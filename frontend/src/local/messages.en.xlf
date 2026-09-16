@@ -713,22 +713,22 @@
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.first-name" datatype="html">
-        <source>Prénom / First name :</source>
+        <source>Prénom:</source>
         <target state="final">First name:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.last-name" datatype="html">
-        <source>Nom / Last name :</source>
+        <source>Nom:</source>
         <target state="final">Last name:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.login" datatype="html">
-        <source>Login :</source>
-        <target state="final">Login:</target>
+        <source>Username:</source>
+        <target state="final">Username:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
@@ -748,14 +748,14 @@
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.email" datatype="html">
-        <source>Mail :</source>
-        <target state="final">Email:</target>
+        <source>Adresse E-mail:</source>
+        <target state="final">E-mail address:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.room-number" datatype="html">
-        <source>Numéro de chambre / Room number :</source>
+        <source>Numéro de chambre:</source>
         <target state="final">Room number:</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>

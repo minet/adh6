@@ -88,17 +88,18 @@ export class CreateOrEditComponent implements OnInit {
     }
     this.loading = true;
     const v = this.memberEdit.value;
+    const permanent = this.create ? false : v.permanent;
+    const wifiOnly = this.create ? false : v.wifiOnly;
     const body: MemberBody = {
       mail: v.email!,
       firstName: v.firstName!,
       lastName: v.lastName!,
       username: v.username!,
-      permanent: v.permanent,
-      wifiOnly: v.wifiOnly,
+      permanent,
+      wifiOnly,
       preferredLanguage: v.preferredLanguage,
     };
 
-    const wifiOnly = v.wifiOnly;
     const roomFilter =
       !wifiOnly && v.roomNumber != null
         ? {roomNumber: v.roomNumber}

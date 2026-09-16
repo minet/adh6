@@ -82,10 +82,18 @@
           role="group"
           i18n-aria-label="@@language"
           aria-label="Langue">
-          <a href="/fr/" hreflang="fr" lang="fr" [class.is-current]="!isEnglish"
+          <a
+            [href]="languageUrl('fr')"
+            hreflang="fr"
+            lang="fr"
+            [class.is-current]="!isEnglish"
             >FR</a
           >
-          <a href="/en/" hreflang="en" lang="en" [class.is-current]="isEnglish"
+          <a
+            [href]="languageUrl('en')"
+            hreflang="en"
+            lang="en"
+            [class.is-current]="isEnglish"
             >EN</a
           >
         </div>
