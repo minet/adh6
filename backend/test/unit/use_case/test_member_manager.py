@@ -136,14 +136,16 @@ class TestNewMember:
         member_manager: MemberManager,
     ):
         # Given...
-        mock_member_repository.get_by_login = AsyncMock(return_value=(sample_member))
+        mock_member_repository.is_username_taken = AsyncMock(return_value=True)
+        mock_member_repository.create = AsyncMock()
 
         # When...
         with pytest.raises(MemberAlreadyExist):
             await member_manager.create(body=MemberBody(username=sample_member.username))
 
         # Expect...
-        mock_member_repository.get_by_login.assert_called_once_with(sample_member.username)
+        mock_member_repository.is_username_taken.assert_called_once_with(sample_member.username)
+        mock_member_repository.create.assert_not_awaited()
 
 
 class TestCreateOrUpdate:
@@ -183,7 +185,7 @@ class TestCreateOrUpdate:
 
         # Expect...
         mock_member_repository.update.assert_called_once_with(req, override=True)
-        mock_member_repository.create.assert_not_called()  # Do not create any member!
+        mock_member_repository.create.assert_not_awaited()  # Do not create any member!
 
 
 class TestUpdatePartially:

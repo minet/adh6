@@ -27,6 +27,7 @@ def member_repository():
     repository = MagicMock(spec=MemberRepository)
     repository.get_by_id = AsyncMock(return_value=member)
     repository.update = AsyncMock(return_value=member)
+    repository.is_username_taken = AsyncMock(return_value=False)
     return repository
 
 

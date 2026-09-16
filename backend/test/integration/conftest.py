@@ -519,6 +519,7 @@ def sample_member2(sample_room1):
         prenom="Edouard",
         mail="bgdu78@hotmail.fr",
         login="reignier",
+        ldap_login="psders",
         commentaires="Desauthent pour routeur",
         password="a",
         chambre_id=sample_room1.id,

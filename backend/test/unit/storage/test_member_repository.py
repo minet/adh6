@@ -46,6 +46,15 @@ class TestMemberSQLRepository:
         # Then
         assert result.username == "testuser"
 
+    @pytest.mark.parametrize(("found", "expected"), [(3, True), (None, False)])
+    async def test_is_username_taken(self, member_repo, mock_session, found, expected):
+        mock_session.scalar = AsyncMock(return_value=found)
+
+        assert await member_repo.is_username_taken("testuser", exclude_id=1) is expected
+        stmt = str(mock_session.scalar.call_args.args[0])
+        assert "ldap_login" in stmt
+        assert "adherents.id !=" in stmt
+
     async def test_search_by_basic(self, member_repo, mock_session):
         # Given
         adh = Adherent(id=1, login="testuser")
