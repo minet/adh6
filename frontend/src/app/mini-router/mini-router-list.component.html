@@ -6,7 +6,7 @@
       [formControl]="search$"
       aria-label="Recherche de mini-routeurs"
       i18n-aria-label="@@mini-router.list.search"
-      placeholder="MAC, IP, adhérent ou chambre..."
+      placeholder="Numéro, IP, MAC, adhérent ou chambre..."
       i18n-placeholder="@@mini-router.list.search.placeholder" />
   </div>
   <div class="column is-narrow">
@@ -44,8 +44,8 @@
     <thead>
       <tr>
         <th i18n="@@mini-router.hardware-mac">MAC constructeur</th>
-        <th>MAC</th>
-        <th>IP</th>
+        <th>IP (WG / VLAN31)</th>
+        <th>MAC (Accept / Deny)</th>
         <th i18n="@@mini-router.model">Modèle</th>
         <th i18n="@@mini-router.config-state">État config</th>
         <th i18n="@@mini-router.member">Adhérent</th>
@@ -86,8 +86,16 @@
           @for (miniRouter of result; track miniRouter.id) {
             <tr [routerLink]="['/mini-router/view', miniRouter.id]">
               <td class="is-family-monospace">{{ miniRouter.hardwareMac }}</td>
-              <td class="is-family-monospace">{{ miniRouter.mac }}</td>
-              <td class="is-family-monospace">{{ miniRouter.ip }}</td>
+              <td class="is-family-monospace">
+                @if (miniRouter.number) {
+                  {{ miniRouter.ipWireguard }}<br />{{ miniRouter.ipVlan31 }}
+                }
+              </td>
+              <td class="is-family-monospace">
+                @if (miniRouter.number) {
+                  {{ miniRouter.macAccept }}<br />{{ miniRouter.macDeny }}
+                }
+              </td>
               <td>{{ modelLabels[miniRouter.model] }}</td>
               <td>{{ configStateLabels[miniRouter.configState] }}</td>
               @if (miniRouter.currentLoan; as loan) {

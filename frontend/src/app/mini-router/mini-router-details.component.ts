@@ -36,6 +36,7 @@ import {
   MODEL_LABELS,
   OVERDUE_LABEL,
 } from "./labels";
+import {MiniRouterAddressesComponent} from "./mini-router-addresses.component";
 import {MiniRouterFormComponent} from "./mini-router-form.component";
 import {
   MiniRouterLoanFormComponent,
@@ -51,6 +52,7 @@ import {
     RouterModule,
     ReactiveFormsModule,
     ModalComponent,
+    MiniRouterAddressesComponent,
     MiniRouterFormComponent,
     MiniRouterLoanFormComponent,
   ],

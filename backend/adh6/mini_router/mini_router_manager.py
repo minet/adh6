@@ -1,11 +1,8 @@
-from ipaddress import AddressValueError, IPv4Address
-
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call
 from adh6.entity import MiniRouter, MiniRouterLoan
 from adh6.exceptions import (
     IntMustBePositive,
-    InvalidIPv4,
     InvalidLoanDates,
     InvalidMACAddress,
     MemberNotFoundError,
@@ -30,13 +27,6 @@ def normalize_mac(value: str) -> str:
     if not is_mac_address(value):
         raise InvalidMACAddress(value)
     return value.upper().replace("-", ":")
-
-
-def normalize_ip(value: str) -> str:
-    try:
-        return str(IPv4Address(value))
-    except AddressValueError as e:
-        raise InvalidIPv4(value) from e
 
 
 class MiniRouterManager:
@@ -134,15 +124,13 @@ class MiniRouterManager:
         return await self.mini_router_repository.update_loan(loan_id, loan)
 
     async def _validate(self, mini_router: MiniRouter, exclude_id: int | None = None) -> None:
-        """Normalize the addresses in place and check they are not used by another mini-router."""
+        """Normalize the factory MAC in place and check no other mini-router uses it or the number."""
         mini_router.hardware_mac = normalize_mac(mini_router.hardware_mac)
-        mini_router.mac = normalize_mac(mini_router.mac) if mini_router.mac else None
-        mini_router.ip = normalize_ip(mini_router.ip) if mini_router.ip else None
 
-        for field in ("hardware_mac", "mac", "ip"):
+        for field in ("hardware_mac", "number"):
             value = getattr(mini_router, field)
-            if value and await self.mini_router_repository.is_taken(field, value, exclude_id):
-                raise MiniRouterAlreadyExists(field, value)
+            if value is not None and await self.mini_router_repository.is_taken(field, value, exclude_id):
+                raise MiniRouterAlreadyExists(field, str(value))
 
     async def _validate_loan(self, loan: MiniRouterLoan) -> None:
         if loan.returned_at is not None and loan.started_at is not None and loan.returned_at < loan.started_at:

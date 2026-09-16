@@ -13,8 +13,7 @@ class MiniRouter(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     hardware_mac: Mapped[str] = mapped_column(String(17), nullable=False, unique=True)
-    mac: Mapped[str | None] = mapped_column(String(17), unique=True)
-    ip: Mapped[str | None] = mapped_column(String(15), unique=True)
+    number: Mapped[int | None] = mapped_column(Integer, unique=True)
     model: Mapped[str] = mapped_column(String(20), nullable=False)
     config_state: Mapped[str] = mapped_column(String(20), nullable=False)
     comment: Mapped[str | None] = mapped_column(Text)

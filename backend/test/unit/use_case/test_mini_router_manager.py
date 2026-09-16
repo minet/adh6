@@ -4,7 +4,6 @@ from unittest.mock import AsyncMock, MagicMock
 from adh6.entity import MiniRouter, MiniRouterLoan
 from adh6.exceptions import (
     IntMustBePositive,
-    InvalidIPv4,
     InvalidLoanDates,
     InvalidMACAddress,
     MemberNotFoundError,
@@ -57,8 +56,7 @@ def make_mini_router(**kwargs) -> MiniRouter:
     values = {
         "id": 1,
         "hardwareMac": "94:83:c4:1c:01:6e",
-        "mac": "00-00-36-00-01-15",
-        "ip": "10.30.0.115",
+        "number": 115,
         "model": "beryl_giga",
         "configState": "pimped",
     }
@@ -97,29 +95,26 @@ class TestSearch:
 
 
 class TestCreate:
-    async def test_normalizes_addresses(self, manager, mini_router_repository):
+    async def test_normalizes_hardware_mac(self, manager, mini_router_repository):
         mini_router_repository.create = AsyncMock(side_effect=lambda m: m)
-        created = await manager.create(make_mini_router())
+        created = await manager.create(make_mini_router(hardwareMac="94-83-c4-1c-01-6e"))
         assert created.hardware_mac == "94:83:C4:1C:01:6E"
-        assert created.mac == "00:00:36:00:01:15"
-        assert created.ip == "10.30.0.115"
 
-    async def test_empty_optional_addresses(self, manager, mini_router_repository):
+    async def test_without_number(self, manager, mini_router_repository):
         mini_router_repository.create = AsyncMock(side_effect=lambda m: m)
-        created = await manager.create(make_mini_router(mac="", ip=""))
-        assert created.mac is None
-        assert created.ip is None
+        await manager.create(make_mini_router(number=None))
+        assert [call.args[0] for call in mini_router_repository.is_taken.await_args_list] == ["hardware_mac"]
 
     async def test_invalid_hardware_mac(self, manager):
         with raises(InvalidMACAddress):
             await manager.create(make_mini_router(hardwareMac="not a mac"))
 
-    async def test_invalid_ip(self, manager):
-        with raises(InvalidIPv4):
-            await manager.create(make_mini_router(ip="10.30.0.300"))
+    def test_number_out_of_range(self):
+        with raises(ValueError):
+            make_mini_router(number=255)
 
     async def test_duplicate(self, manager, mini_router_repository):
-        mini_router_repository.is_taken = AsyncMock(side_effect=lambda field, value, exclude_id: field == "ip")
+        mini_router_repository.is_taken = AsyncMock(side_effect=lambda field, value, exclude_id: field == "number")
         with raises(MiniRouterAlreadyExists):
             await manager.create(make_mini_router())
 

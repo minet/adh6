@@ -4060,15 +4060,36 @@ components:
           description: The factory MAC address of the mini-router
           example: 94:83:C4:1C:01:6E
           type: string
-        mac:
-          description: The MAC address assigned by MiNET
+        number:
+          description: The MiNET number of the mini-router, from which its addresses are derived
+          example: 115
+          minimum: 1
+          maximum: 254
+          nullable: true
+          type: integer
+        ipWireguard:
+          description: The WireGuard IPv4 address (10.31.0.N)
+          example: 10.31.0.115
+          nullable: true
+          readOnly: true
+          type: string
+        ipVlan31:
+          description: The IPv4 address on VLAN 31 (172.30.0.N)
+          example: 172.30.0.115
+          nullable: true
+          readOnly: true
+          type: string
+        macAccept:
+          description: The accepted MAC address (00:00:36:00:0X:YZ, where XYZ is the number on 3 digits)
           example: 00:00:36:00:01:15
           nullable: true
+          readOnly: true
           type: string
-        ip:
-          description: The IPv4 address of the mini-router
-          example: 10.30.0.115
+        macDeny:
+          description: The denied MAC address (36:36:36:00:0X:YZ, where XYZ is the number on 3 digits)
+          example: 36:36:36:00:01:15
           nullable: true
+          readOnly: true
           type: string
         model:
           description: The hardware model

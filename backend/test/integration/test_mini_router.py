@@ -18,8 +18,7 @@ def loaned_mini_router():
     return MiniRouter(
         id=1,
         hardware_mac="94:83:C4:1C:01:6E",
-        mac="00:00:36:00:01:15",
-        ip="10.30.0.115",
+        number=115,
         model="beryl_giga",
         config_state="pimped",
     )
@@ -80,8 +79,7 @@ async def client(
 def new_mini_router(**kwargs):
     body = {
         "hardwareMac": "94-83-c4-1b-ef-22",
-        "mac": "00:00:36:00:01:17",
-        "ip": "10.30.0.117",
+        "number": 117,
         "model": "beryl_giga",
         "configState": "pimped",
     }
@@ -107,6 +105,10 @@ class TestSearch:
         assert loaned["roomNumber"] == sample_room1.numero
         assert loaned["currentLoan"]["overdue"] is True
         assert loaned["currentLoan"]["miniRouterHardwareMac"] == "94:83:C4:1C:01:6E"
+        assert loaned["ipWireguard"] == "10.31.0.115"
+        assert loaned["ipVlan31"] == "172.30.0.115"
+        assert loaned["macAccept"] == "00:00:36:00:01:15"
+        assert loaned["macDeny"] == "36:36:36:00:01:15"
 
     @pytest.mark.parametrize(
         ("query", "expected_id"), [("loaned=true", 1), ("loaned=false", 2), ("overdue=true", 1), ("overdue=false", 2)]
@@ -117,7 +119,16 @@ class TestSearch:
         assert [m["id"] for m in r.json()] == [expected_id]
 
     @pytest.mark.parametrize(
-        ("terms", "expected_ids"), [("d8:31", [2]), ("94-83", [1, 2]), ("dubois", [1]), ("5110", [1])]
+        ("terms", "expected_ids"),
+        [
+            ("d8:31", [2]),
+            ("94-83", [1, 2]),
+            ("dubois", [1]),
+            ("5110", [1]),
+            ("115", [1]),
+            ("172.30.0.115", [1]),
+            ("36-36-36-00-01-15", [1]),
+        ],
     )
     def test_terms(self, client, terms, expected_ids):
         r = client.get(base_url, params={"terms": terms}, headers=TEST_HEADERS)
@@ -137,13 +148,19 @@ class TestCrud:
 
     @pytest.mark.parametrize(
         "body",
-        [new_mini_router(hardwareMac="94:83:c4:1c:01:6e"), new_mini_router(ip="10.30.0.115")],
+        [new_mini_router(hardwareMac="94:83:c4:1c:01:6e"), new_mini_router(number=115)],
     )
     def test_create_duplicate(self, client, body):
         assert client.post(base_url, json=body, headers=TEST_HEADERS).status_code == 409
 
     @pytest.mark.parametrize(
-        "body", [new_mini_router(mac="nope"), new_mini_router(ip="999.1.1.1"), new_mini_router(model="other")]
+        "body",
+        [
+            new_mini_router(hardwareMac="nope"),
+            new_mini_router(number=0),
+            new_mini_router(number=255),
+            new_mini_router(model="other"),
+        ],
     )
     def test_create_invalid(self, client, body):
         assert client.post(base_url, json=body, headers=TEST_HEADERS).status_code == 400
@@ -155,11 +172,11 @@ class TestCrud:
         assert client.get(f"{base_url}/999", headers=TEST_HEADERS).status_code == 404
 
     def test_update(self, client):
-        body = new_mini_router(hardwareMac="94:83:C4:1E:D8:31", comment="ok", mac=None, ip=None)
+        body = new_mini_router(hardwareMac="94:83:C4:1E:D8:31", comment="ok", number=None)
         r = client.put(f"{base_url}/2", json=body, headers=TEST_HEADERS)
         assert r.status_code == 200
         assert r.json()["comment"] == "ok"
-        assert r.json().get("ip") is None
+        assert r.json().get("ipWireguard") is None
 
     def test_update_duplicate(self, client):
         body = new_mini_router(hardwareMac="94:83:C4:1C:01:6E")

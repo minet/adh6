@@ -22,6 +22,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from adh6.entity.mini_router_loan import MiniRouterLoan
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,8 +33,11 @@ class AbstractMiniRouter(BaseModel):
     """ # noqa: E501
     id: Optional[StrictInt] = Field(default=None, description="The unique identifier of this mini-router")
     hardware_mac: Optional[StrictStr] = Field(default=None, description="The factory MAC address of the mini-router", alias="hardwareMac")
-    mac: Optional[StrictStr] = Field(default=None, description="The MAC address assigned by MiNET")
-    ip: Optional[StrictStr] = Field(default=None, description="The IPv4 address of the mini-router")
+    number: Optional[Annotated[int, Field(le=254, strict=True, ge=1)]] = Field(default=None, description="The MiNET number of the mini-router, from which its addresses are derived")
+    ip_wireguard: Optional[StrictStr] = Field(default=None, description="The WireGuard IPv4 address (10.31.0.N)", alias="ipWireguard")
+    ip_vlan31: Optional[StrictStr] = Field(default=None, description="The IPv4 address on VLAN 31 (172.30.0.N)", alias="ipVlan31")
+    mac_accept: Optional[StrictStr] = Field(default=None, description="The accepted MAC address (00:00:36:00:0X:YZ, where XYZ is the number on 3 digits)", alias="macAccept")
+    mac_deny: Optional[StrictStr] = Field(default=None, description="The denied MAC address (36:36:36:00:0X:YZ, where XYZ is the number on 3 digits)", alias="macDeny")
     model: Optional[StrictStr] = Field(default=None, description="The hardware model")
     config_state: Optional[StrictStr] = Field(default=None, description="Whether the MiNET configuration is applied", alias="configState")
     comment: Optional[StrictStr] = Field(default=None, description="Free comment")
@@ -41,7 +45,7 @@ class AbstractMiniRouter(BaseModel):
     room_number: Optional[StrictInt] = Field(default=None, description="The room number of the member of the current loan", alias="roomNumber")
     deposit_to_refund: Optional[StrictBool] = Field(default=None, description="Whether a returned loan still has its deposit held", alias="depositToRefund")
     current_loan: Optional[MiniRouterLoan] = Field(default=None, description="The loan in progress, if any", alias="currentLoan")
-    __properties: ClassVar[List[str]] = ["id", "hardwareMac", "mac", "ip", "model", "configState", "comment", "roomId", "roomNumber", "depositToRefund", "currentLoan"]
+    __properties: ClassVar[List[str]] = ["id", "hardwareMac", "number", "ipWireguard", "ipVlan31", "macAccept", "macDeny", "model", "configState", "comment", "roomId", "roomNumber", "depositToRefund", "currentLoan"]
 
     @field_validator('model')
     def model_validate_enum(cls, value):
@@ -98,9 +102,17 @@ class AbstractMiniRouter(BaseModel):
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
             "id",
+            "ip_wireguard",
+            "ip_vlan31",
+            "mac_accept",
+            "mac_deny",
             "room_id",
             "room_number",
             "deposit_to_refund",
@@ -115,15 +127,30 @@ class AbstractMiniRouter(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of current_loan
         if self.current_loan:
             _dict['currentLoan'] = self.current_loan.to_dict()
-        # set to None if mac (nullable) is None
+        # set to None if number (nullable) is None
         # and model_fields_set contains the field
-        if self.mac is None and "mac" in self.model_fields_set:
-            _dict['mac'] = None
+        if self.number is None and "number" in self.model_fields_set:
+            _dict['number'] = None
 
-        # set to None if ip (nullable) is None
+        # set to None if ip_wireguard (nullable) is None
         # and model_fields_set contains the field
-        if self.ip is None and "ip" in self.model_fields_set:
-            _dict['ip'] = None
+        if self.ip_wireguard is None and "ip_wireguard" in self.model_fields_set:
+            _dict['ipWireguard'] = None
+
+        # set to None if ip_vlan31 (nullable) is None
+        # and model_fields_set contains the field
+        if self.ip_vlan31 is None and "ip_vlan31" in self.model_fields_set:
+            _dict['ipVlan31'] = None
+
+        # set to None if mac_accept (nullable) is None
+        # and model_fields_set contains the field
+        if self.mac_accept is None and "mac_accept" in self.model_fields_set:
+            _dict['macAccept'] = None
+
+        # set to None if mac_deny (nullable) is None
+        # and model_fields_set contains the field
+        if self.mac_deny is None and "mac_deny" in self.model_fields_set:
+            _dict['macDeny'] = None
 
         # set to None if comment (nullable) is None
         # and model_fields_set contains the field
@@ -159,8 +186,11 @@ class AbstractMiniRouter(BaseModel):
         _obj = cls.model_validate({
             "id": obj.get("id"),
             "hardwareMac": obj.get("hardwareMac"),
-            "mac": obj.get("mac"),
-            "ip": obj.get("ip"),
+            "number": obj.get("number"),
+            "ipWireguard": obj.get("ipWireguard"),
+            "ipVlan31": obj.get("ipVlan31"),
+            "macAccept": obj.get("macAccept"),
+            "macDeny": obj.get("macDeny"),
             "model": obj.get("model"),
             "configState": obj.get("configState"),
             "comment": obj.get("comment"),

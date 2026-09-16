@@ -20,8 +20,7 @@ def upgrade():
         "mini_routers",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("hardware_mac", sa.String(length=17), nullable=False),
-        sa.Column("mac", sa.String(length=17), nullable=True),
-        sa.Column("ip", sa.String(length=15), nullable=True),
+        sa.Column("number", sa.Integer(), nullable=True),
         sa.Column("model", sa.String(length=20), nullable=False),
         sa.Column("config_state", sa.String(length=20), nullable=False),
         sa.Column("comment", sa.Text(), nullable=True),
@@ -29,8 +28,7 @@ def upgrade():
         sa.Column("updated_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("hardware_mac"),
-        sa.UniqueConstraint("mac"),
-        sa.UniqueConstraint("ip"),
+        sa.UniqueConstraint("number"),
     )
     op.create_table(
         "mini_router_loans",

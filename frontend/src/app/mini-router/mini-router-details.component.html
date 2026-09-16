@@ -10,13 +10,14 @@
           <span class="is-family-monospace">{{ miniRouter.hardwareMac }}</span>
         </p>
         <p>
-          <strong>MAC : </strong>
-          <span class="is-family-monospace">{{ miniRouter.mac ?? "—" }}</span>
+          <strong i18n="@@mini-router.details.number">Numéro : </strong
+          >{{ miniRouter.number ?? "—" }}
         </p>
-        <p>
-          <strong>IP : </strong>
-          <span class="is-family-monospace">{{ miniRouter.ip ?? "—" }}</span>
-        </p>
+        @if (miniRouter.number) {
+          <div class="my-3">
+            <app-mini-router-addresses [addresses]="miniRouter" />
+          </div>
+        }
         <p>
           <strong i18n="@@mini-router.details.model">Modèle : </strong
           >{{ modelLabels[miniRouter.model] }}

@@ -22,13 +22,25 @@ export interface AbstractMiniRouter {
      */
     hardwareMac?: string;
     /**
-     * The MAC address assigned by MiNET
+     * The MiNET number of the mini-router, from which its addresses are derived
      */
-    mac?: string | null;
+    number?: number | null;
     /**
-     * The IPv4 address of the mini-router
+     * The WireGuard IPv4 address (10.31.0.N)
      */
-    ip?: string | null;
+    readonly ipWireguard?: string | null;
+    /**
+     * The IPv4 address on VLAN 31 (172.30.0.N)
+     */
+    readonly ipVlan31?: string | null;
+    /**
+     * The accepted MAC address (00:00:36:00:0X:YZ, where XYZ is the number on 3 digits)
+     */
+    readonly macAccept?: string | null;
+    /**
+     * The denied MAC address (36:36:36:00:0X:YZ, where XYZ is the number on 3 digits)
+     */
+    readonly macDeny?: string | null;
     /**
      * The hardware model
      */

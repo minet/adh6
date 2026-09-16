@@ -21,7 +21,7 @@ class MiniRouterRepository(abc.ABC):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def is_taken(self, field: str, value: str, exclude_id: int | None = None) -> bool:
+    async def is_taken(self, field: str, value: str | int, exclude_id: int | None = None) -> bool:
         """Whether another mini-router already uses this value for a unique field."""
         # pragma: no cover
 

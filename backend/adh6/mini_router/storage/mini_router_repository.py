@@ -16,13 +16,13 @@ from adh6.member.storage.models import Adherent
 from adh6.room.storage.models import Chambre, RoomMemberLink
 from adh6.storage.count import count_rows
 
+from ..addresses import addresses_of, number_from_terms
 from ..interfaces import MiniRouterRepository
 from .models import MiniRouter as SQLMiniRouter, MiniRouterLoan as SQLMiniRouterLoan
 
 UNIQUE_FIELDS = {
     "hardware_mac": SQLMiniRouter.hardware_mac,
-    "mac": SQLMiniRouter.mac,
-    "ip": SQLMiniRouter.ip,
+    "number": SQLMiniRouter.number,
 }
 
 Author = aliased(Adherent)
@@ -63,16 +63,15 @@ class MiniRouterSQLRepository(MiniRouterRepository):
                 Chambre.id == RoomMemberLink.room_id,
                 cast(Chambre.numero, String).startswith(terms, autoescape=True),
             )
-            mac_terms = terms.replace("-", ":")
-            stmt = stmt.where(
-                or_(
-                    func.lower(SQLMiniRouter.hardware_mac).contains(mac_terms, autoescape=True),
-                    func.lower(SQLMiniRouter.mac).contains(mac_terms, autoescape=True),
-                    SQLMiniRouter.ip.contains(terms, autoescape=True),
-                    matching_member,
-                    matching_room,
-                )
-            )
+            criteria = [
+                func.lower(SQLMiniRouter.hardware_mac).contains(terms.replace("-", ":"), autoescape=True),
+                matching_member,
+                matching_room,
+            ]
+            number = number_from_terms(terms)
+            if number is not None:
+                criteria.append(SQLMiniRouter.number == number)
+            stmt = stmt.where(or_(*criteria))
 
         if loaned is not None:
             has_loan = exists().where(current_loan)
@@ -94,7 +93,7 @@ class MiniRouterSQLRepository(MiniRouterRepository):
             return None
         return (await self._map_mini_routers([mini_router]))[0]
 
-    async def is_taken(self, field: str, value: str, exclude_id: int | None = None) -> bool:
+    async def is_taken(self, field: str, value: str | int, exclude_id: int | None = None) -> bool:
         stmt = select(SQLMiniRouter.id).where(UNIQUE_FIELDS[field] == value)
         if exclude_id is not None:
             stmt = stmt.where(SQLMiniRouter.id != exclude_id)
@@ -193,12 +192,16 @@ class MiniRouterSQLRepository(MiniRouterRepository):
         for m in mini_routers:
             loan = loans.get(m.id)
             room = rooms.get(loan.member) if loan and loan.member is not None else None
+            addresses = addresses_of(m.number) if m.number is not None else None
             result.append(
                 MiniRouter(
                     id=m.id,
                     hardwareMac=m.hardware_mac,
-                    mac=m.mac,
-                    ip=m.ip,
+                    number=m.number,
+                    ipWireguard=addresses.ip_wireguard if addresses else None,
+                    ipVlan31=addresses.ip_vlan31 if addresses else None,
+                    macAccept=addresses.mac_accept if addresses else None,
+                    macDeny=addresses.mac_deny if addresses else None,
                     model=m.model,
                     configState=m.config_state,
                     comment=m.comment,
@@ -222,8 +225,7 @@ def _select_loans() -> Select[tuple[SQLMiniRouterLoan, Adherent, Adherent, str]]
 
 def _merge_mini_router(sql_mini_router: SQLMiniRouter, mini_router: MiniRouter) -> None:
     sql_mini_router.hardware_mac = mini_router.hardware_mac
-    sql_mini_router.mac = mini_router.mac
-    sql_mini_router.ip = mini_router.ip
+    sql_mini_router.number = mini_router.number
     sql_mini_router.model = mini_router.model
     sql_mini_router.config_state = mini_router.config_state
     sql_mini_router.comment = mini_router.comment

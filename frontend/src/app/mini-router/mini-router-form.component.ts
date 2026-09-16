@@ -17,16 +17,16 @@ import {finalize} from "rxjs/operators";
 import {MiniRouter, MiniRouterService} from "../api";
 import {NotificationService} from "../notification.service";
 import {detailOf} from "../shared/http-error";
+import {addressesOf, MAX_NUMBER, MIN_NUMBER} from "./addresses";
 import {CONFIG_STATE_LABELS, MODEL_LABELS} from "./labels";
+import {MiniRouterAddressesComponent} from "./mini-router-addresses.component";
 
 const MAC_PATTERN = /^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/;
-const IPV4_PATTERN =
-  /^((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)$/;
 
 /** Creates a mini-router, or updates it when one is given. */
 @Component({
   selector: "app-mini-router-form",
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MiniRouterAddressesComponent],
   templateUrl: "./mini-router-form.component.html",
 })
 export class MiniRouterFormComponent implements OnChanges {
@@ -40,14 +40,11 @@ export class MiniRouterFormComponent implements OnChanges {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(MAC_PATTERN)],
     }),
-    mac: new FormControl("", {
-      nonNullable: true,
-      validators: Validators.pattern(MAC_PATTERN),
-    }),
-    ip: new FormControl("", {
-      nonNullable: true,
-      validators: Validators.pattern(IPV4_PATTERN),
-    }),
+    number: new FormControl<number | null>(null, [
+      Validators.min(MIN_NUMBER),
+      Validators.max(MAX_NUMBER),
+      Validators.pattern(/^\d+$/),
+    ]),
     model: new FormControl<MiniRouter.ModelEnum>("beryl_giga", {
       nonNullable: true,
     }),
@@ -56,7 +53,16 @@ export class MiniRouterFormComponent implements OnChanges {
     }),
     comment: new FormControl("", {nonNullable: true}),
   });
+  readonly minNumber = MIN_NUMBER;
+  readonly maxNumber = MAX_NUMBER;
   submitting = false;
+
+  get preview() {
+    const number = this.form.controls.number;
+    return number.value != null && number.valid
+      ? addressesOf(number.value)
+      : null;
+  }
 
   private readonly miniRouterService = inject(MiniRouterService);
   private readonly notificationService = inject(NotificationService);
@@ -65,8 +71,7 @@ export class MiniRouterFormComponent implements OnChanges {
     if (this.miniRouter) {
       this.form.reset({
         hardwareMac: this.miniRouter.hardwareMac,
-        mac: this.miniRouter.mac ?? "",
-        ip: this.miniRouter.ip ?? "",
+        number: this.miniRouter.number ?? null,
         model: this.miniRouter.model,
         configState: this.miniRouter.configState,
         comment: this.miniRouter.comment ?? "",
@@ -79,8 +84,7 @@ export class MiniRouterFormComponent implements OnChanges {
     const v = this.form.getRawValue();
     const body: MiniRouter = {
       hardwareMac: v.hardwareMac.trim(),
-      mac: v.mac.trim() || null,
-      ip: v.ip.trim() || null,
+      number: v.number ?? null,
       model: v.model,
       configState: v.configState,
       comment: v.comment.trim() || null,
@@ -99,7 +103,7 @@ export class MiniRouterFormComponent implements OnChanges {
       error: (error: HttpErrorResponse) => {
         const message =
           error.status === 409
-            ? $localize`:@@mini-router.form.duplicate:Un mini-routeur utilise déjà cette adresse MAC ou IP.`
+            ? $localize`:@@mini-router.form.duplicate:Un mini-routeur utilise déjà cette MAC constructeur ou ce numéro.`
             : detailOf(
                 error,
                 $localize`:@@mini-router.form.error:Impossible d'enregistrer le mini-routeur.`,

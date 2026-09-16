@@ -19,25 +19,32 @@
         Adresse MAC constructeur, sur l'étiquette du boîtier.
       </p>
     </div>
-    <div class="column is-half field">
-      <label class="label" for="mr-mac">MAC</label>
+    <div class="column is-full field">
+      <label class="label" for="mr-number" i18n="@@mini-router.number"
+        >Numéro</label
+      >
       <input
-        id="mr-mac"
-        class="input is-family-monospace"
-        [class.is-danger]="
-          form.controls.mac.invalid && form.controls.mac.touched
-        "
-        formControlName="mac"
-        placeholder="00:00:36:00:01:15" />
-    </div>
-    <div class="column is-half field">
-      <label class="label" for="mr-ip">IP</label>
-      <input
-        id="mr-ip"
-        class="input is-family-monospace"
-        [class.is-danger]="form.controls.ip.invalid && form.controls.ip.touched"
-        formControlName="ip"
-        placeholder="10.30.0.115" />
+        id="mr-number"
+        class="input"
+        type="number"
+        [min]="minNumber"
+        [max]="maxNumber"
+        step="1"
+        [class.is-danger]="form.controls.number.invalid"
+        formControlName="number"
+        placeholder="115" />
+      <p
+        class="help"
+        [class.is-danger]="form.controls.number.invalid"
+        i18n="@@mini-router.form.number.help">
+        Entre {{ minNumber }} et {{ maxNumber }}. Les IP et MAC en sont
+        déduites.
+      </p>
+      @if (preview; as addresses) {
+        <div class="box is-shadowless mt-3 mb-0">
+          <app-mini-router-addresses [addresses]="addresses" />
+        </div>
+      }
     </div>
     <div class="column is-half field">
       <label class="label" for="mr-model" i18n="@@mini-router.model"

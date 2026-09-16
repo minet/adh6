@@ -3184,8 +3184,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.form.duplicate" datatype="html">
-        <source>Un mini-routeur utilise déjà cette adresse MAC ou IP.</source>
-        <target state="final">A mini-router already uses this MAC or IP address.</target>
+        <source>Un mini-routeur utilise déjà cette MAC constructeur ou ce numéro.</source>
+        <target state="final">A mini-router already uses this factory MAC or this number.</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.ts</context>
         </context-group>
@@ -3205,8 +3205,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="mini-router.list.search.placeholder" datatype="html">
-        <source>MAC, IP, adhérent ou chambre...</source>
-        <target state="final">MAC, IP, member or room...</target>
+        <source>Numéro, IP, MAC, adhérent ou chambre...</source>
+        <target state="final">Number, IP, MAC, member or room...</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/mini-router-list.component.html</context>
         </context-group>
@@ -3376,6 +3376,27 @@
         <target state="final">Returned on</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/mini-router/member-mini-routers.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.details.number" datatype="html">
+        <source>Numéro :</source>
+        <target state="final">Number: </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.number" datatype="html">
+        <source>Numéro</source>
+        <target state="final">Number</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mini-router.form.number.help" datatype="html">
+        <source>Entre <x id="INTERPOLATION" equiv-text="{{ minNumber }}"/> et <x id="INTERPOLATION_1" equiv-text="{{ maxNumber }}"/>. Les IP et MAC en sont déduites.</source>
+        <target state="final">Between <x id="INTERPOLATION" equiv-text="{{ minNumber }}"/> and <x id="INTERPOLATION_1" equiv-text="{{ maxNumber }}"/>. The IP and MAC addresses are derived from it.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
         </context-group>
       </trans-unit>
     </body>
