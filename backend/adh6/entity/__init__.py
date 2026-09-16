@@ -20,6 +20,8 @@
 from adh6.entity.abstract_device import AbstractDevice
 from adh6.entity.abstract_member import AbstractMember
 from adh6.entity.abstract_membership import AbstractMembership
+from adh6.entity.abstract_mini_router import AbstractMiniRouter
+from adh6.entity.abstract_mini_router_loan import AbstractMiniRouterLoan
 from adh6.entity.abstract_payment_method import AbstractPaymentMethod
 from adh6.entity.abstract_port import AbstractPort
 from adh6.entity.abstract_product import AbstractProduct
@@ -48,6 +50,8 @@ from adh6.entity.member_id_password_put_request import MemberIdPasswordPutReques
 from adh6.entity.member_id_wifi_get200_response import MemberIdWifiGet200Response
 from adh6.entity.member_status import MemberStatus
 from adh6.entity.membership import Membership
+from adh6.entity.mini_router import MiniRouter
+from adh6.entity.mini_router_loan import MiniRouterLoan
 from adh6.entity.naina import Naina
 from adh6.entity.payment_method import PaymentMethod
 from adh6.entity.ping_request import PingRequest

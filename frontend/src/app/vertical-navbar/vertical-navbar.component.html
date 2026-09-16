@@ -58,6 +58,16 @@
                 Ports
               </a>
             </li>
+            @if ("read" | able: "network") {
+              <li>
+                <a
+                  routerLinkActive="is-active"
+                  [routerLink]="['mini-router']"
+                  i18n="@@sidebar.mini-routers">
+                  Mini-routeurs
+                </a>
+              </li>
+            }
             @if ("manage" | able: "admin") {
               <li>
                 <a routerLinkActive="is-active" [routerLink]="['vlan']"

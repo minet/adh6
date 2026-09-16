@@ -40,6 +40,10 @@ const routes: Routes = [
     loadChildren: () => import("./room/room.module").then((m) => m.RoomModule),
   },
   {
+    path: "mini-router",
+    loadChildren: () => import("./mini-router/routes").then((m) => m.ROUTES),
+  },
+  {
     path: "transaction",
     loadChildren: () =>
       import("./transaction/transaction.module").then(

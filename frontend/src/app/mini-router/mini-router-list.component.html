@@ -1,0 +1,150 @@
+<div class="columns">
+  <div class="column">
+    <input
+      class="input is-fullwidth"
+      type="text"
+      [formControl]="search$"
+      aria-label="Recherche de mini-routeurs"
+      i18n-aria-label="@@mini-router.list.search"
+      placeholder="MAC, IP, adhérent ou chambre..."
+      i18n-placeholder="@@mini-router.list.search.placeholder" />
+  </div>
+  <div class="column is-narrow">
+    <div class="select">
+      <select
+        [formControl]="loanedFilter"
+        aria-label="Filtrer par prêt"
+        i18n-aria-label="@@mini-router.list.filter">
+        <option value="all" i18n="@@mini-router.list.filter.all">Tous</option>
+        <option value="loaned" i18n="@@mini-router.list.filter.loaned">
+          Prêtés
+        </option>
+        <option value="available" i18n="@@mini-router.list.filter.available">
+          Disponibles
+        </option>
+        <option value="overdue" i18n="@@mini-router.list.filter.overdue">
+          En retard
+        </option>
+      </select>
+    </div>
+  </div>
+  @if ("manage" | able: "network") {
+    <div class="column is-narrow">
+      <a
+        class="button is-primary"
+        [routerLink]="['/mini-router/add']"
+        i18n="@@mini-router.list.new">
+        Nouveau mini-routeur
+      </a>
+    </div>
+  }
+</div>
+<div class="table-container">
+  <table class="table is-hoverable is-striped is-fullwidth is-clickable">
+    <thead>
+      <tr>
+        <th i18n="@@mini-router.hardware-mac">MAC constructeur</th>
+        <th>MAC</th>
+        <th>IP</th>
+        <th i18n="@@mini-router.model">Modèle</th>
+        <th i18n="@@mini-router.config-state">État config</th>
+        <th i18n="@@mini-router.member">Adhérent</th>
+        <th i18n="@@mini-router.location">Lieu</th>
+        <th i18n="@@mini-router.due-date">Échéance</th>
+        <th i18n="@@mini-router.deposit">Caution</th>
+        <th i18n="@@mini-router.comment">Commentaire</th>
+      </tr>
+    </thead>
+    @if (result$ | async; as result) {
+      <tbody>
+        @if (loading) {
+          <tr>
+            <td colspan="42" role="status" i18n="@@common.loading.title">
+              Chargement ...
+            </td>
+          </tr>
+        } @else if (searchFailed) {
+          <tr>
+            <td colspan="42" role="alert">
+              <p i18n="@@search.error">Impossible de charger les résultats.</p>
+              <button
+                class="button is-small"
+                type="button"
+                (click)="retrySearch()"
+                i18n="@@search.retry">
+                Réessayer
+              </button>
+            </td>
+          </tr>
+        } @else if (result.length === 0) {
+          <tr>
+            <td colspan="42" role="status" i18n="@@search.empty">
+              Aucun résultat.
+            </td>
+          </tr>
+        } @else {
+          @for (miniRouter of result; track miniRouter.id) {
+            <tr [routerLink]="['/mini-router/view', miniRouter.id]">
+              <td class="is-family-monospace">{{ miniRouter.hardwareMac }}</td>
+              <td class="is-family-monospace">{{ miniRouter.mac }}</td>
+              <td class="is-family-monospace">{{ miniRouter.ip }}</td>
+              <td>{{ modelLabels[miniRouter.model] }}</td>
+              <td>{{ configStateLabels[miniRouter.configState] }}</td>
+              @if (miniRouter.currentLoan; as loan) {
+                <td>
+                  <a
+                    [routerLink]="['/member/view', loan.member, 'profile']"
+                    (click)="$event.stopPropagation()"
+                    >{{ loan.memberName ?? loan.member }}</a
+                  >
+                </td>
+                <td>
+                  @if (miniRouter.roomId) {
+                    <a
+                      [routerLink]="['/room/view', miniRouter.roomId]"
+                      (click)="$event.stopPropagation()"
+                      >{{ miniRouter.roomNumber }}</a
+                    >
+                  }
+                </td>
+                <td>
+                  @if (loan.dueDate) {
+                    {{ loan.dueDate | date: "dd/MM/y" }}
+                  }
+                  @if (loan.overdue) {
+                    <span class="tag is-danger">{{ overdueLabel }}</span>
+                  }
+                </td>
+                <td>
+                  @let badge = depositBadge(loan);
+                  <span class="tag {{ badge.cssClass }}">
+                    {{ loan.depositAmount }} € · {{ badge.label }}
+                  </span>
+                </td>
+              } @else {
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                  @if (miniRouter.depositToRefund) {
+                    <span
+                      class="tag is-danger"
+                      i18n="@@mini-router.deposit.to-refund">
+                      À rendre
+                    </span>
+                  }
+                </td>
+              }
+              <td>{{ miniRouter.comment }}</td>
+            </tr>
+          }
+        }
+      </tbody>
+    }
+  </table>
+</div>
+<app-pagination
+  [page]="currentPage"
+  [itemsPerPage]="itemsPerPage"
+  [maxItems]="maxItems"
+  (pageChange)="changePage($event)"></app-pagination>

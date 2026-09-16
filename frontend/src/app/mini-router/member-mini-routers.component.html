@@ -1,0 +1,74 @@
+@if (loans$ | async; as loans) {
+  @if (loans.length > 0) {
+    <section class="mb-5">
+      <h3 class="title is-4" i18n="@@mini-router.member-profile.title">
+        Mini-routeur
+      </h3>
+      <hr />
+      @for (loan of loans; track loan.id) {
+        @let badge = depositBadge(loan);
+        <article class="loan" [class.is-overdue]="loan.overdue">
+          <div class="loan-head">
+            <a
+              class="loan-title"
+              [routerLink]="['/mini-router/view', loan.miniRouter]">
+              <span class="icon"><i class="fas fa-wifi"></i></span>
+              <span class="is-family-monospace has-text-weight-semibold">{{
+                loan.miniRouterHardwareMac
+              }}</span>
+            </a>
+            <div class="tags mb-0">
+              @if (loan.overdue) {
+                <span class="tag is-danger mb-0">{{ overdueLabel }}</span>
+              }
+              @if (loan.returnedAt) {
+                <span
+                  class="tag mb-0"
+                  i18n="@@mini-router.member-profile.returned-tag"
+                  >Rendu</span
+                >
+              }
+            </div>
+          </div>
+          <dl class="loan-facts">
+            <div>
+              <dt i18n="@@mini-router.member-profile.started-at">Prêté le</dt>
+              <dd>{{ loan.startedAt | date: "dd/MM/y" }}</dd>
+            </div>
+            @if (loan.returnedAt) {
+              <div>
+                <dt i18n="@@mini-router.member-profile.returned-at">
+                  Rendu le
+                </dt>
+                <dd>{{ loan.returnedAt | date: "dd/MM/y" }}</dd>
+              </div>
+            } @else {
+              <div>
+                <dt i18n="@@mini-router.loan.due-date">Retour prévu</dt>
+                <dd [class.has-text-danger]="loan.overdue">
+                  {{ loan.dueDate ? (loan.dueDate | date: "dd/MM/y") : "—" }}
+                </dd>
+              </div>
+            }
+            <div>
+              <dt i18n="@@mini-router.deposit">Caution</dt>
+              <dd>
+                {{ loan.depositAmount }} €
+                @if (paymentMethodName(loan.paymentMethod); as method) {
+                  <span class="has-text-weight-normal"> · {{ method }}</span>
+                }
+                <span class="tag {{ badge.cssClass }} ml-1">{{
+                  badge.label
+                }}</span>
+              </dd>
+            </div>
+            <div>
+              <dt i18n="@@mini-router.author">Encaissée par</dt>
+              <dd>{{ loan.authorName ?? loan.author }}</dd>
+            </div>
+          </dl>
+        </article>
+      }
+    </section>
+  }
+}

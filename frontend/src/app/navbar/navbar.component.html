@@ -55,6 +55,14 @@
             <hr class="dropdown-divider" />
             <a class="navbar-item" [routerLink]="['switch/search']">Switches</a>
             <a class="navbar-item" [routerLink]="['port/search']">Ports</a>
+            @if ("read" | able: "network") {
+              <a
+                class="navbar-item"
+                [routerLink]="['mini-router/search']"
+                i18n="@@navbar.mini-routers"
+                >Mini-routeurs</a
+              >
+            }
           </div>
         </div>
       }

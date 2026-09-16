@@ -11,6 +11,7 @@ export class MemberSuggestionsService {
     terms: string,
     filter: MemberFilter | undefined,
     maxResults: number,
+    valueField: "username" | "id" = "username",
   ): Observable<ComboboxOption[]> {
     const query = terms.trim();
     if (query.length < 2) {
@@ -36,18 +37,16 @@ export class MemberSuggestionsService {
           }
           return forkJoin(
             ids.map((id) =>
-              this.memberService.memberIdGet(id, [
-                "username",
-                "firstName",
-                "lastName",
-              ]),
+              this.memberService
+                .memberIdGet(id, ["username", "firstName", "lastName"])
+                .pipe(map((member) => ({...member, id}))),
             ),
           ).pipe(
             map((members) =>
               members
                 .filter((member) => Boolean(member.username))
                 .map((member) => ({
-                  value: member.username!,
+                  value: valueField === "id" ? member.id : member.username!,
                   label: [
                     member.username,
                     [member.firstName, member.lastName]

@@ -1,0 +1,319 @@
+@if (miniRouter$ | async; as miniRouter) {
+  <div class="columns mt-4">
+    <div class="column is-one-third">
+      <div class="box">
+        <h4 class="title is-4" i18n="@@common.informations">Informations</h4>
+        <p>
+          <strong i18n="@@mini-router.details.hardware-mac"
+            >MAC constructeur :
+          </strong>
+          <span class="is-family-monospace">{{ miniRouter.hardwareMac }}</span>
+        </p>
+        <p>
+          <strong>MAC : </strong>
+          <span class="is-family-monospace">{{ miniRouter.mac ?? "—" }}</span>
+        </p>
+        <p>
+          <strong>IP : </strong>
+          <span class="is-family-monospace">{{ miniRouter.ip ?? "—" }}</span>
+        </p>
+        <p>
+          <strong i18n="@@mini-router.details.model">Modèle : </strong
+          >{{ modelLabels[miniRouter.model] }}
+        </p>
+        <p>
+          <strong i18n="@@mini-router.details.config-state"
+            >État config : </strong
+          >{{ configStateLabels[miniRouter.configState] }}
+        </p>
+        @if (miniRouter.comment) {
+          <p class="mt-2" style="white-space: pre-line">
+            {{ miniRouter.comment }}
+          </p>
+        }
+        @if ("manage" | able: "network") {
+          <div class="buttons mt-4">
+            <button
+              type="button"
+              class="button is-primary"
+              (click)="editOpen = true"
+              i18n="@@common.edit">
+              Éditer
+            </button>
+            <button
+              type="button"
+              class="button is-danger"
+              [disabled]="deleting"
+              [class.is-loading]="deleting"
+              (click)="deleteMiniRouter(miniRouter)"
+              i18n="@@common.delete">
+              Supprimer
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="column">
+      <div class="box">
+        <h4 class="title is-4" i18n="@@mini-router.details.current-loan">
+          Prêt en cours
+        </h4>
+        @if (miniRouter.currentLoan; as loan) {
+          <p>
+            <strong i18n="@@mini-router.details.member">Adhérent : </strong>
+            <a [routerLink]="['/member/view', loan.member, 'profile']">{{
+              loan.memberName ?? loan.member
+            }}</a>
+          </p>
+          <p>
+            <strong i18n="@@mini-router.details.location">Lieu : </strong>
+            @if (miniRouter.roomId) {
+              <a [routerLink]="['/room/view', miniRouter.roomId]">{{
+                miniRouter.roomNumber
+              }}</a>
+            } @else {
+              <span i18n="@@mini-router.details.no-room">Aucune chambre</span>
+            }
+          </p>
+          <p>
+            <strong i18n="@@mini-router.details.started-at">Depuis le : </strong
+            >{{ loan.startedAt | date: "dd/MM/y" }}
+          </p>
+          <p>
+            <strong i18n="@@mini-router.details.due-date"
+              >Retour prévu : </strong
+            >{{ loan.dueDate ? (loan.dueDate | date: "dd/MM/y") : "—" }}
+            @if (loan.overdue) {
+              <span class="tag is-danger">{{ overdueLabel }}</span>
+            }
+          </p>
+          <p>
+            <strong i18n="@@mini-router.details.deposit">Caution : </strong>
+            {{ loan.depositAmount }} €
+            @if (paymentMethodName(loan.paymentMethod); as method) {
+              ({{ method }})
+            }
+            @let badge = depositBadge(loan);
+            <span class="tag {{ badge.cssClass }}">{{ badge.label }}</span>
+          </p>
+          <p>
+            <strong i18n="@@mini-router.details.author">Encaissée par : </strong
+            >{{ loan.authorName ?? loan.author }}
+          </p>
+          @if ("manage" | able: "network") {
+            <div class="buttons mt-4">
+              <button
+                type="button"
+                class="button is-warning"
+                (click)="openReturn(loan)"
+                i18n="@@mini-router.details.return">
+                Terminer le prêt
+              </button>
+              <button
+                type="button"
+                class="button"
+                (click)="editedLoan = loan"
+                i18n="@@mini-router.details.edit-loan">
+                Corriger le prêt
+              </button>
+            </div>
+          }
+        } @else {
+          <p i18n="@@mini-router.details.available">
+            Ce mini-routeur n'est pas prêté.
+          </p>
+          @if ("manage" | able: "network") {
+            <button
+              type="button"
+              class="button is-success mt-4"
+              (click)="loanOpen = true"
+              i18n="@@mini-router.details.loan">
+              Prêter
+            </button>
+          }
+        }
+      </div>
+
+      <div class="box">
+        <h4 class="title is-4" i18n="@@mini-router.details.history">
+          Historique des prêts
+        </h4>
+        @if (loans$ | async; as loans) {
+          @if (loans.length === 0) {
+            <p i18n="@@mini-router.details.no-loans">Aucun prêt.</p>
+          } @else {
+            <div class="table-container">
+              <table class="table is-fullwidth is-striped">
+                <thead>
+                  <tr>
+                    <th i18n="@@mini-router.member">Adhérent</th>
+                    <th i18n="@@mini-router.details.period">Période</th>
+                    <th i18n="@@mini-router.deposit">Caution</th>
+                    <th i18n="@@mini-router.author">Encaissée par</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (loan of loans; track loan.id) {
+                    <tr>
+                      <td>
+                        <a
+                          [routerLink]="[
+                            '/member/view',
+                            loan.member,
+                            'profile',
+                          ]"
+                          >{{ loan.memberName ?? loan.member }}</a
+                        >
+                      </td>
+                      <td>
+                        {{ loan.startedAt | date: "dd/MM/y" }} →
+                        @if (loan.returnedAt) {
+                          {{ loan.returnedAt | date: "dd/MM/y" }}
+                        } @else {
+                          <span i18n="@@mini-router.details.in-progress"
+                            >en cours</span
+                          >
+                          @if (loan.overdue) {
+                            <span class="tag is-danger">{{
+                              overdueLabel
+                            }}</span>
+                          }
+                        }
+                      </td>
+                      <td>
+                        @let badge = depositBadge(loan);
+                        {{ loan.depositAmount }} €
+                        <span class="tag {{ badge.cssClass }}">{{
+                          badge.label
+                        }}</span>
+                      </td>
+                      <td>{{ loan.authorName ?? loan.author }}</td>
+                      <td>
+                        @if ("manage" | able: "network") {
+                          <div class="buttons are-small">
+                            @if (
+                              loan.returnedAt && loan.depositStatus === "held"
+                            ) {
+                              <button
+                                type="button"
+                                class="button is-success"
+                                [disabled]="submitting"
+                                (click)="settleDeposit(loan, 'refunded')"
+                                i18n="@@mini-router.details.refund">
+                                Rendue
+                              </button>
+                              <button
+                                type="button"
+                                class="button is-warning"
+                                [disabled]="submitting"
+                                (click)="settleDeposit(loan, 'kept')"
+                                i18n="@@mini-router.details.keep">
+                                Retenue
+                              </button>
+                            }
+                            <button
+                              type="button"
+                              class="button"
+                              (click)="editedLoan = loan"
+                              i18n="@@mini-router.details.edit-loan.short">
+                              Corriger
+                            </button>
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (editOpen) {
+    <app-modal
+      title="Modifier le mini-routeur"
+      i18n-title="@@mini-router.details.edit"
+      (closed)="editOpen = false">
+      <app-mini-router-form [miniRouter]="miniRouter" (saved)="onEdited()" />
+    </app-modal>
+  }
+}
+
+@if (loanOpen) {
+  <app-modal
+    title="Prêter le mini-routeur"
+    i18n-title="@@mini-router.loan.title"
+    (closed)="loanOpen = false">
+    <app-mini-router-loan-form
+      [miniRouterId]="miniRouterId"
+      (saved)="onLoanSaved()" />
+  </app-modal>
+}
+
+@if (editedLoan) {
+  <app-modal
+    title="Corriger le prêt"
+    i18n-title="@@mini-router.details.edit-loan"
+    (closed)="editedLoan = null">
+    <app-mini-router-loan-form
+      [miniRouterId]="miniRouterId"
+      [loan]="editedLoan"
+      (saved)="onLoanSaved()" />
+  </app-modal>
+}
+
+@if (returnLoan) {
+  <app-modal
+    title="Terminer le prêt"
+    i18n-title="@@mini-router.details.return"
+    (closed)="returnLoan = null">
+    <form [formGroup]="returnForm" (ngSubmit)="submitReturn()" novalidate>
+      <div class="columns">
+        <div class="column field">
+          <label
+            class="label"
+            for="return-date"
+            i18n="@@mini-router.return.date"
+            >Date de retour</label
+          >
+          <input
+            id="return-date"
+            class="input"
+            type="date"
+            formControlName="returnedAt" />
+        </div>
+        <div class="column field">
+          <label
+            class="label"
+            for="return-deposit-status"
+            i18n="@@mini-router.loan.deposit-status"
+            >Statut</label
+          >
+          <div class="select is-fullwidth">
+            <select id="return-deposit-status" formControlName="depositStatus">
+              @for (status of depositStatuses; track status[0]) {
+                <option [value]="status[0]">{{ status[1] }}</option>
+              }
+            </select>
+          </div>
+          <p class="help" i18n="@@mini-router.return.deposit-help">
+            Laisser « Encaissée » si la caution n'a pas encore été rendue.
+          </p>
+        </div>
+      </div>
+      <button
+        type="submit"
+        class="button is-warning is-fullwidth"
+        [disabled]="returnForm.invalid || submitting"
+        [class.is-loading]="submitting"
+        i18n="@@mini-router.details.return">
+        Terminer le prêt
+      </button>
+    </form>
+  </app-modal>
+}

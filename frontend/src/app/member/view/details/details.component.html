@@ -105,8 +105,11 @@
       </form>
     </div>
   }
+  @if (member.id !== undefined && ("read" | able: "network")) {
+    <app-member-mini-routers [memberId]="member.id" />
+  }
   @if (member.comment) {
-    <div>
+    <div class="mb-5">
       <h3 class="title is-4" i18n="@@member.details.comment">Commentaire</h3>
       <hr />
       <div class="notification is-primary is-light">

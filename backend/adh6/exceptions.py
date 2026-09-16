@@ -41,6 +41,11 @@ class InvalidMACAddress(ValidationError):
         super().__init__(f'"{v}" is not a valid MAC address')
 
 
+class InvalidLoanDates(ValidationError):
+    def __init__(self):
+        super().__init__("returnedAt cannot be before startedAt")
+
+
 class InvalidMembershipDuration(ValidationError):
     def __init__(self, v):
         super().__init__(f'"{v}" is not a valid membership duration')
@@ -147,6 +152,16 @@ class VLANNotFoundError(NotFoundError):
         super().__init__("VLAN", f"id={v}")
 
 
+class MiniRouterNotFoundError(NotFoundError):
+    def __init__(self, v=None):
+        super().__init__("mini_router", v)
+
+
+class MiniRouterLoanNotFoundError(NotFoundError):
+    def __init__(self, v=None):
+        super().__init__("mini_router_loan", v)
+
+
 class PaymentMethodNotFoundError(NotFoundError):
     def __init__(self, v=None):
         super().__init__("payment_method", v)
@@ -202,6 +217,11 @@ class DeviceAlreadyExists(AlreadyExistsError):
         super().__init__(what)
 
 
+class MiniRouterAlreadyExists(AlreadyExistsError):
+    def __init__(self, field: str, value: str):
+        super().__init__(f"mini_router with {field} {value}")
+
+
 class PortAlreadyExists(AlreadyExistsError):
     def __init__(self, switch_id: int, oid: str):
         super().__init__(f"Port {oid} on switch {switch_id}")
@@ -217,6 +237,16 @@ class MembershipPending(AlreadyExistsError):
         super().__init__("membership " + what + " is not finished")
 
     # OTHER KIND OF ERRORS.
+
+
+class MiniRouterAlreadyLoaned(UserInputError):
+    def __init__(self, mini_router_id: int):
+        super().__init__(f"mini_router {mini_router_id} already has a loan in progress")
+
+
+class MiniRouterDeletionBlocked(UserInputError):
+    def __init__(self, mini_router_id: int):
+        super().__init__(f"mini_router {mini_router_id} has a loan in progress or a deposit still held")
 
 
 class DevicesLimitReached(UserInputError):
