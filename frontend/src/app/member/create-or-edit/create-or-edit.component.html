@@ -6,20 +6,16 @@
 }
 <form [formGroup]="memberEdit" (ngSubmit)="editMember()" novalidate>
   <div class="field">
-    <label class="label" i18n="@@member.form.first-name"
-      >Prénom / First name :</label
-    >
+    <label class="label" i18n="@@member.form.first-name">Prénom:</label>
     <input class="input is-fullwidth" type="text" formControlName="firstName" />
   </div>
   <div class="field">
-    <label class="label" i18n="@@member.form.last-name"
-      >Nom / Last name :</label
-    >
+    <label class="label" i18n="@@member.form.last-name">Nom:</label>
     <input class="input is-fullwidth" type="text" formControlName="lastName" />
   </div>
 
   <div class="field">
-    <label class="label" i18n="@@member.form.login">Login :</label>
+    <label class="label" i18n="@@member.form.login">Nom d'utilisateur:</label>
     <input
       class="input is-fullwidth"
       type="text"
@@ -44,38 +40,38 @@
     }
   </div>
   <div class="field">
-    <label class="label" i18n="@@member.form.email">Mail :</label>
+    <label class="label" i18n="@@member.form.email">Adresse E-mail:</label>
     <input class="input is-fullwidth" type="email" formControlName="email" />
   </div>
   @if (!memberEdit.controls.wifiOnly.value) {
     <div class="field">
       <label class="label" i18n="@@member.form.room-number"
-        >Numéro de chambre / Room number :</label
+        >Numéro de chambre:</label
       >
       <app-room-select formControlName="roomNumber" />
     </div>
   }
+  @if (!create) {
+    <div class="field">
+      <label class="checkbox">
+        <input type="checkbox" formControlName="permanent" />
+        <span i18n="@@member.form.permanent"
+          >Compte permanent (pas d'expiration, toujours actif)</span
+        >
+      </label>
+    </div>
+    <div class="field">
+      <label class="checkbox">
+        <input type="checkbox" formControlName="wifiOnly" />
+        <span i18n="@@member.form.wifi-only"
+          >Compte Wi-Fi uniquement (pas d'appareils filaires, pas de chambre,
+          abonnement non modifiable)</span
+        >
+      </label>
+    </div>
+  }
   <div class="field">
-    <label class="checkbox">
-      <input type="checkbox" formControlName="permanent" />
-      <span i18n="@@member.form.permanent"
-        >Compte permanent (pas d'expiration, toujours actif)</span
-      >
-    </label>
-  </div>
-  <div class="field">
-    <label class="checkbox">
-      <input type="checkbox" formControlName="wifiOnly" />
-      <span i18n="@@member.form.wifi-only"
-        >Compte Wi-Fi uniquement (pas d'appareils filaires, pas de chambre,
-        abonnement non modifiable)</span
-      >
-    </label>
-  </div>
-  <div class="field">
-    <label class="label" i18n="@@member.form.language"
-      >Langue des mails / Email language :</label
-    >
+    <label class="label" i18n="@@member.form.language">Langue des mails:</label>
     <div class="select is-fullwidth">
       <select formControlName="preferredLanguage">
         <option value="fr" i18n="@@common.language.fr">Français</option>

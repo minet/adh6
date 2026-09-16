@@ -617,19 +617,19 @@
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.first-name" datatype="html">
-        <source>Prénom / First name :</source>
+        <source>Prénom:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.last-name" datatype="html">
-        <source>Nom / Last name :</source>
+        <source>Nom:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.login" datatype="html">
-        <source>Login :</source>
+        <source>Nom d'utilisateur:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
@@ -647,13 +647,13 @@
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.email" datatype="html">
-        <source>Mail :</source>
+        <source>Adresse E-mail:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.room-number" datatype="html">
-        <source>Numéro de chambre / Room number :</source>
+        <source>Numéro de chambre:</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
