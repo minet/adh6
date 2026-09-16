@@ -175,6 +175,17 @@ class MemberManager(CRUDManager):
         ):
             raise MemberAlreadyExist(body.username)
 
+        # permanent grants network access regardless of payment in RADIUS: staff only.
+        flags_changed = any(
+            value is not None and value != current_value
+            for value, current_value in (
+                (body.permanent, member.permanent),
+                (body.wifi_only, member.wifi_only),
+            )
+        )
+        if flags_changed and not is_staff:
+            raise UpdateImpossible(f"member {member.username}", "permanent and wifiOnly can only be changed by staff")
+
         wifi_only_room_id = await self._get_wifi_only_room_id() if body.wifi_only else None
 
         identity_changed = any(

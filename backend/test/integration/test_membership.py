@@ -5,7 +5,7 @@ from adh6.constants import MembershipDuration
 from adh6.member.storage.models import Adherent
 from adh6.treasury.storage.models import PaymentMethod
 
-from test.integration.resource import TEST_HEADERS_API_KEY_ADMIN, base_url as host_url
+from test.integration.resource import TEST_HEADERS_API_KEY_ADMIN, TEST_HEADERS_SAMPLE, base_url as host_url
 
 
 def base_url(id) -> str:
@@ -178,3 +178,14 @@ def test_membership_multiple_subscription(
         headers={"Content-Type": "application/json", **TEST_HEADERS_API_KEY_ADMIN},
     )
     assert result.status_code == 400
+
+
+def test_member_cannot_create_membership_for_another_member(client, sample_member, sample_member_admin):
+    body = {"duration": 12, "member": sample_member_admin.id, "hasRoom": False}
+    result = client.post(
+        base_url(sample_member.id),
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS_SAMPLE},
+    )
+    assert result.status_code == 200
+    assert result.json()["member"] == sample_member.id

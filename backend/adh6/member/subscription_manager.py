@@ -126,6 +126,8 @@ class SubscriptionManager:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
+        # The repository writes body.member: never trust the one sent by the client.
+        body = body.model_copy(update={"member": member_id})
 
         latest_subscription = await self.latest(member_id=member_id)
 
