@@ -109,9 +109,8 @@ class MemberManager(CRUDManager):
 
     @log_call
     async def create(self, body: MemberBody) -> Member:
-        fetched_member = await self.member_repository.get_by_login(body.username or "")
-        if fetched_member:
-            raise MemberAlreadyExist(fetched_member.username)
+        if await self.member_repository.is_username_taken(body.username or ""):
+            raise MemberAlreadyExist(body.username or "")
 
         wifi_only_room_id = await self._get_wifi_only_room_id() if body.wifi_only else None
 
@@ -168,6 +167,13 @@ class MemberManager(CRUDManager):
         member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
+
+        if (
+            body.username
+            and body.username != member.username
+            and await self.member_repository.is_username_taken(body.username, exclude_id=id)
+        ):
+            raise MemberAlreadyExist(body.username)
 
         wifi_only_room_id = await self._get_wifi_only_room_id() if body.wifi_only else None
 

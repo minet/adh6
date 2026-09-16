@@ -433,6 +433,22 @@ def test_member_post_member_same_login(client):
     assert res.status_code == 400
 
 
+@pytest.mark.parametrize("username", ["reignier", "psders"])
+def test_member_post_member_login_used_by_other_federation(client, username):
+    body = {
+        "firstName": "John",
+        "lastName": "Doe",
+        "mail": "john.doe@gmail.com",
+        "username": username,
+    }
+    res = client.post(
+        f"{base_url}",
+        data=json.dumps(body),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert res.status_code == 400
+
+
 def test_member_post_unauthorized(client):
     body = {
         "firstName": "John",
@@ -494,6 +510,16 @@ def test_staff_member_patch_without_valid_membership(client, request, member_fix
     )
     assert res.status_code == 204
     assert_member_in_db(body)
+
+
+@pytest.mark.parametrize("username", ["reignier", "psders"])
+def test_member_patch_username_already_used(client, sample_member: Adherent, username: str):
+    res = client.patch(
+        f"{base_url}{sample_member.id}",
+        json={"username": username},
+        headers=TEST_HEADERS,
+    )
+    assert res.status_code == 400
 
 
 def test_member_patch_unknown(client):

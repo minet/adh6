@@ -9,6 +9,7 @@ from adh6.device.device_logs_manager import DeviceLogsManager
 from adh6.entity import Member, MemberBody
 from adh6.exceptions import (
     InvalidPassword,
+    MemberAlreadyExist,
     MemberNotFoundError,
     NoSubnetAvailable,
 )
@@ -312,7 +313,7 @@ class TestCreate:
         member_manager: MemberManager,
         faker,
     ):
-        mock_member_repository.get_by_login = AsyncMock(return_value=None)
+        mock_member_repository.is_username_taken = AsyncMock(return_value=False)
         mock_member_repository.create = AsyncMock(return_value=sample_member)
         mock_mailinglist_repository.update_from_member = AsyncMock(return_value=None)
         mock_membership_repository.search = AsyncMock(return_value=([], 0))
@@ -329,6 +330,21 @@ class TestCreate:
 
 
 class TestUpdate:
+    async def test_username_already_taken(
+        self,
+        mock_member_repository: MemberRepository,
+        sample_member: Member,
+        member_manager: MemberManager,
+    ):
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_member_repository.is_username_taken = AsyncMock(return_value=True)
+        mock_member_repository.update = AsyncMock()
+
+        with raises(MemberAlreadyExist):
+            await member_manager.update(id=sample_member.id, body=MemberBody(username="taken"), is_staff=True)
+        mock_member_repository.is_username_taken.assert_awaited_once_with("taken", exclude_id=sample_member.id)
+        mock_member_repository.update.assert_not_called()
+
     async def test_unchanged_identity_does_not_require_membership(
         self,
         mock_member_repository: MemberRepository,

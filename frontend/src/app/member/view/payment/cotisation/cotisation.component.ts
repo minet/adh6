@@ -24,21 +24,11 @@ import {
 } from "@angular/forms";
 import {NotificationService} from "../../../../notification.service";
 import {environment} from "../../../../../environments/environment";
+import {detailOf} from "../../../../shared/http-error";
 
 interface SubscriptionForm {
   paidWith: FormControl<number | null>;
   durationIndex: FormControl<number | null>;
-}
-
-/**
- * Reads the reason the backend gave, instead of showing a generic message.
- *
- * adh6 returns precise details -- "charter not signed yet", "no price defined for that duration" --
- * and they were all being dropped into the console. The permanencier saw a form fail with no clue.
- */
-function detailOf(error: unknown, fallback: string): string {
-  const detail = (error as {error?: {detail?: unknown}})?.error?.detail;
-  return typeof detail === "string" && detail.length > 0 ? detail : fallback;
 }
 
 @Component({

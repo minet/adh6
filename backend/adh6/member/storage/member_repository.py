@@ -92,6 +92,12 @@ class MemberSQLRepository(MemberRepository):
         adh = await self.session.scalar(stmt)
         return _map_member_sql_to_entity(adh) if adh else None
 
+    async def is_username_taken(self, username: str, exclude_id: int | None = None) -> bool:
+        stmt = select(Adherent.id).where((Adherent.login == username) | (Adherent.ldap_login == username))
+        if exclude_id is not None:
+            stmt = stmt.where(Adherent.id != exclude_id)
+        return await self.session.scalar(stmt.limit(1)) is not None
+
     async def create(self, object_to_create: Member) -> object:
         now = datetime.now()
         member: Adherent = Adherent(

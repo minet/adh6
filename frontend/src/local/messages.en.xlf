@@ -747,6 +747,20 @@
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="member.form.username.taken" datatype="html">
+        <source> Ce nom d&apos;utilisateur est déjà utilisé. </source>
+        <target state="final"> This username is already taken. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="member.form.submit.error" datatype="html">
+        <source>Erreur lors de l&apos;enregistrement du membre.</source>
+        <target state="final">Error while saving the member.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.ts</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="member.form.email" datatype="html">
         <source>Adresse E-mail:</source>
         <target state="final">E-mail address:</target>

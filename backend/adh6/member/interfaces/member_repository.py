@@ -25,6 +25,10 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
+    async def is_username_taken(self, username: str, exclude_id: int | None = None) -> bool:
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
     async def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         pass  # pragma: no cover
 
