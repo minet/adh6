@@ -143,7 +143,7 @@ export class MemberPasswordEditComponent implements OnInit {
         if (!creation) {
           this.location.back();
         } else {
-          void this.router.navigate(["/member/view", member_id]);
+          void this.router.navigate(["/member/view", member_id, "profile"]);
         }
       });
   }
