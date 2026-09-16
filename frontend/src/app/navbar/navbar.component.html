@@ -34,11 +34,22 @@
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link" i18n="@@navbar.members">Gestion Adhérents</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" [routerLink]="['member/search']" i18n="@@navbar.members.list"
+            <a
+              class="navbar-item"
+              [routerLink]="['member/search']"
+              i18n="@@navbar.members.list"
               >Adhérents</a
             >
-            <a class="navbar-item" [routerLink]="['room/search']" i18n="@@navbar.rooms">Chambres</a>
-            <a class="navbar-item" [routerLink]="['/device']" i18n="@@navbar.devices"
+            <a
+              class="navbar-item"
+              [routerLink]="['room/search']"
+              i18n="@@navbar.rooms"
+              >Chambres</a
+            >
+            <a
+              class="navbar-item"
+              [routerLink]="['/device']"
+              i18n="@@navbar.devices"
               >Appareils</a
             >
             <hr class="dropdown-divider" />
@@ -51,17 +62,32 @@
         <div class="navbar-item has-dropdown is-hoverable">
           <a class="navbar-link" i18n="@@navbar.treasury">Gestion Trésorerie</a>
           <div class="navbar-dropdown">
-            <a class="navbar-item" [routerLink]="['transaction/add']">Transactions</a>
-            <a class="navbar-item" [routerLink]="['product/search']" i18n="@@navbar.products">Produits</a>
+            <a class="navbar-item" [routerLink]="['transaction/add']"
+              >Transactions</a
+            >
+            <a
+              class="navbar-item"
+              [routerLink]="['product/search']"
+              i18n="@@navbar.products"
+              >Produits</a
+            >
           </div>
         </div>
       }
     </div>
     <div class="navbar-end">
       <div class="navbar-item nav-actions">
-        <div class="nav-lang" role="group" i18n-aria-label="@@language" aria-label="Langue">
-          <a href="/fr/" hreflang="fr" lang="fr" [class.is-current]="!isEnglish">FR</a>
-          <a href="/en/" hreflang="en" lang="en" [class.is-current]="isEnglish">EN</a>
+        <div
+          class="nav-lang"
+          role="group"
+          i18n-aria-label="@@language"
+          aria-label="Langue">
+          <a href="/fr/" hreflang="fr" lang="fr" [class.is-current]="!isEnglish"
+            >FR</a
+          >
+          <a href="/en/" hreflang="en" lang="en" [class.is-current]="isEnglish"
+            >EN</a
+          >
         </div>
 
         @if (theme.isDark()) {
@@ -90,7 +116,9 @@
 
         @if (oidcSecurityService.isAuthenticated() | async) {
           <button type="button" class="nav-btn nav-logout" (click)="logout()">
-            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            <i
+              class="fa-solid fa-arrow-right-from-bracket"
+              aria-hidden="true"></i>
             <span i18n="@@disconnect">Déconnexion</span>
           </button>
         }

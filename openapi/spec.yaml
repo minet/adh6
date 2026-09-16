@@ -1156,7 +1156,7 @@ paths:
         description: The port to create
         required: true
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
@@ -1168,8 +1168,13 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+        "409":
+          description: A port with this SNMP ifIndex already exists on the switch
+        "502":
+          description: SNMP discovery failed; no port was created
         default:
           $ref: "#/components/responses/Unexpected"
+      description: Creates a port only if its positive SNMP ifIndex is discovered on the switch. The name is obtained from SNMP. Duplicate switch + ifIndex pairs are rejected.
       summary: Create a port
       security: 
         - OpenIdConnect:
@@ -1279,6 +1284,39 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - port
+  /port/{id}/room:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    patch:
+      summary: Assign or remove an existing port from a room
+      description: Changes only the room; a null target removes its room assignment. Returns a conflict if the current room differs from expectedRoom, unless the port is already assigned to the target room.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortRoomAssignment"
+      responses:
+        "200":
+          description: Assigned port
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Port"
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: The port's room assignment has changed; reload before confirming a transfer
+      security:
+        - OpenIdConnect:
+          - network:write
+        - ApiKeyAdminAuth: []
+      tags:
+        - port
   /port/{id}/mab:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -3803,6 +3841,22 @@ components:
             - description
             - ip
       type: object
+    PortRoomAssignment:
+      type: object
+      required:
+        - room
+        - expectedRoom
+      properties:
+        room:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: The target room's database identifier, or null to remove the assignment
+        expectedRoom:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: The current room's database identifier, or null for an unassigned port
     DiscoveredPort:
       type: object
       properties:

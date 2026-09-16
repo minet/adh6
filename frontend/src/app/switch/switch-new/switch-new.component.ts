@@ -19,6 +19,7 @@ import {
 import {finalize, takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
 import {CommonModule} from "@angular/common";
+import {missingDiscoveredPorts} from "../../port/port-discovery";
 
 @Component({
   imports: [ReactiveFormsModule, CommonModule, FormsModule],
@@ -84,7 +85,10 @@ export class SwitchNewComponent {
       .pipe(finalize(() => (this.discovering = false)))
       .subscribe({
         next: (ports) => {
-          this.discoveredPorts = ports.map((p) => ({...p, selected: true}));
+          this.discoveredPorts = missingDiscoveredPorts([], ports).map((p) => ({
+            ...p,
+            selected: true,
+          }));
         },
         error: (err: {status: number}) =>
           this.notificationService.errorNotification(err.status),
@@ -92,7 +96,7 @@ export class SwitchNewComponent {
   }
 
   addSelectedPorts() {
-    if (!this.createdSwitchId) return;
+    if (!this.createdSwitchId || this.addingPorts || this.discovering) return;
     const selected = this.discoveredPorts.filter((p) => p.selected);
     if (selected.length === 0) {
       void this.router.navigate(["/switch", this.createdSwitchId, "admin"]);
@@ -103,7 +107,7 @@ export class SwitchNewComponent {
       switchObj: this.createdSwitchId!,
       portNumber: p.portNumber,
       oid: p.oid,
-      room: null as any, // Room will be assigned later
+      room: null, // Room will be assigned later
     }));
 
     this.addingPorts = true;

@@ -11,14 +11,18 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
     <div class="box has-text-centered">
       @if (isDepartureDateFuture) {
         <h4
-          i18n="Describes until when a subscription is active@@dashboard.subscription.active">
+          i18n="
+            Describes until when a subscription is
+            active@@dashboard.subscription.active">
           Votre abonnement est actif jusqu'au
           <strong>{{ member.departureDate | date }}</strong>
         </h4>
       } @else {
         <h4
           class="text-danger"
-          i18n="Describes when a subscription has expired@@dashboard.subscription.expired">
+          i18n="
+            Describes when a subscription has
+            expired@@dashboard.subscription.expired">
           Votre abonnement a expiré le
           <strong>{{ member.departureDate | date }}</strong>
         </h4>
@@ -49,7 +53,8 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
     <div class="box has-text-centered">
       <hr />
       <p>
-        <span i18n="@@dashboard.email">mail</span> : <code>{{ member.email }}</code>
+        <span i18n="@@dashboard.email">mail</span> :
+        <code>{{ member.email }}</code>
       </p>
       @if (member.ip !== null && member.subnet !== null) {
         <hr />
@@ -61,7 +66,8 @@ import {MailinglistComponent} from "../mailinglist/mailinglist.component";
         </p>
         <p>
           <span
-            i18n="Shows a user their private IPv4 subnet@@dashboard.private-subnet"
+            i18n="
+              Shows a user their private IPv4 subnet@@dashboard.private-subnet"
             >Votre sous-réseau IPv4 privé est :</span
           >
           <code>{{ member.subnet }}</code>

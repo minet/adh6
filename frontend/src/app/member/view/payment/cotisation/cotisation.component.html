@@ -1,6 +1,8 @@
 @if (isPermanent) {
   <div class="notification is-info is-light">
-    <p i18n="@@cotisation.permanent">Ce compte est permanent et ne nécessite pas de cotisation.</p>
+    <p i18n="@@cotisation.permanent">
+      Ce compte est permanent et ne nécessite pas de cotisation.
+    </p>
   </div>
 } @else {
   <div class="notification">
@@ -25,9 +27,13 @@
     } @else {
       <div class="notification is-warning is-light">
         <p>
-          <strong i18n="@@cotisation.charter.pending.title">Cotisation en attente de la charte.</strong>
+          <strong i18n="@@cotisation.charter.pending.title"
+            >Cotisation en attente de la charte.</strong
+          >
           @if (checkingCharter) {
-            <em style="font-weight: normal" i18n="@@cotisation.charter.checking">- vérification…</em>
+            <em style="font-weight: normal" i18n="@@cotisation.charter.checking"
+              >- vérification…</em
+            >
           }
           <br />
           <span i18n="@@cotisation.charter.pending.desc"
@@ -35,8 +41,8 @@
             <a [href]="accountUrl" target="_blank" rel="noopener noreferrer"
               >son compte MiNET</a
             >
-            : la signature y est demandée automatiquement. Cette page le détectera
-            toute seule.</span
+            : la signature y est demandée automatiquement. Cette page le
+            détectera toute seule.</span
           >
         </p>
       </div>
@@ -44,13 +50,17 @@
   }
   <form (ngSubmit)="submitSubscription()" [formGroup]="subscriptionForm">
     <div class="field">
-      <label class="label" i18n="@@cotisation.duration">Durée de cotisation</label>
+      <label class="label" i18n="@@cotisation.duration"
+        >Durée de cotisation</label
+      >
       <div class="control">
         <select
           class="input is-fullwidth"
           formControlName="durationIndex"
           type="text">
-          <option value="-1" i18n="@@cotisation.duration.none">Pas de cotisation</option>
+          <option value="-1" i18n="@@cotisation.duration.none">
+            Pas de cotisation
+          </option>
           @for (opt of visibleOptions; track opt.index) {
             <option value="{{ opt.index }}">
               {{ durationLabel(opt.duration) }}
@@ -63,13 +73,17 @@
       </div>
     </div>
     <div class="field">
-      <label class="label" i18n="@@common.amount">Montant : {{ amount }} €</label>
+      <label class="label" i18n="@@common.amount"
+        >Montant : {{ amount }} €</label
+      >
       <div class="control">
         <select
           class="input is-fullwidth"
           formControlName="paidWith"
           type="text">
-          <option value="-1" i18n="@@common.payment-method.select">-- Moyen de paiement --</option>
+          <option value="-1" i18n="@@common.payment-method.select">
+            -- Moyen de paiement --
+          </option>
           @for (pm of paymentMethods; track pm) {
             <option value="{{ pm.id }}">
               {{ pm.name }}
@@ -98,9 +112,13 @@
         type="submit"
         [disabled]="subscriptionForm.invalid">
         @if (isSubscriptionFinished) {
-          <span i18n="@@cotisation.submit.create">Étape 1/2 - Créer la cotisation</span>
+          <span i18n="@@cotisation.submit.create"
+            >Étape 1/2 - Créer la cotisation</span
+          >
         } @else {
-          <span i18n="@@cotisation.submit.save">Étape 1/2 - Enregistrer la cotisation</span>
+          <span i18n="@@cotisation.submit.save"
+            >Étape 1/2 - Enregistrer la cotisation</span
+          >
         }
       </button>
     </div>

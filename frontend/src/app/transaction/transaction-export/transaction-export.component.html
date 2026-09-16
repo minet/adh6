@@ -1,4 +1,6 @@
-<h2 i18n="@@transaction.export.title" class="title is-2">Export des transactions</h2>
+<h2 i18n="@@transaction.export.title" class="title is-2">
+  Export des transactions
+</h2>
 <hr />
 <form [formGroup]="exportForm" (ngSubmit)="onExport()">
   <div class="field is-horizontal">
@@ -8,10 +10,7 @@
     <div class="field-body">
       <div class="field">
         <div class="control">
-          <input
-            type="date"
-            class="input"
-            formControlName="fromDate" />
+          <input type="date" class="input" formControlName="fromDate" />
         </div>
       </div>
     </div>
@@ -23,10 +22,7 @@
     <div class="field-body">
       <div class="field">
         <div class="control">
-          <input
-            type="date"
-            class="input"
-            formControlName="toDate" />
+          <input type="date" class="input" formControlName="toDate" />
         </div>
       </div>
     </div>

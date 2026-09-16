@@ -51,26 +51,42 @@
 
   @if (step === 2) {
     <div class="box">
-      <h3 class="title is-4" i18n="@@switch.new.select-ports">Sélection des ports à ajouter</h3>
+      <h3 class="title is-4" i18n="@@switch.new.select-ports">
+        Sélection des ports à ajouter
+      </h3>
 
       @if (discovering) {
         <div class="has-text-centered my-5">
-          <span class="icon is-large"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-          <p i18n="@@switch.new.discovering">Découverte des ports via SNMP...</p>
+          <span class="icon is-large"
+            ><i class="fas fa-spinner fa-pulse fa-2x"></i
+          ></span>
+          <p i18n="@@switch.new.discovering">
+            Découverte des ports via SNMP...
+          </p>
         </div>
       } @else {
         @if (discoveredPorts.length === 0) {
           <div class="notification is-warning" i18n="@@switch.new.no-ports">
             Aucun port découvert. Vérifiez l'IP et la community string.
           </div>
-          <button class="button is-fullwidth" (click)="step = 1" i18n="@@common.back">Retour</button>
+          <button
+            class="button is-fullwidth"
+            (click)="step = 1"
+            i18n="@@common.back">
+            Retour
+          </button>
         } @else {
-          <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+          <div
+            class="table-container"
+            style="max-height: 400px; overflow-y: auto">
             <table class="table is-fullwidth is-striped is-hoverable">
               <thead>
                 <tr>
-                  <th style="width: 40px;">
-                    <input type="checkbox" (change)="toggleAll($event)" checked />
+                  <th style="width: 40px">
+                    <input
+                      type="checkbox"
+                      (change)="toggleAll($event)"
+                      checked />
                   </th>
                   <th i18n="@@switch.new.port-name">Nom du port</th>
                   <th>OID (ifIndex)</th>
@@ -99,7 +115,10 @@
               i18n="@@switch.new.add-selected">
               Ajouter les ports sélectionnés
             </button>
-            <button class="button is-fullwidth" (click)="step = 1" i18n="@@switch.new.back-to-config">
+            <button
+              class="button is-fullwidth"
+              (click)="step = 1"
+              i18n="@@switch.new.back-to-config">
               Retour à la configuration
             </button>
           </div>

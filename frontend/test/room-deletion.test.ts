@@ -5,7 +5,7 @@ import {
   TmplAstNode,
   TmplAstText,
 } from "@angular/compiler";
-import {equal, ok} from "node:assert/strict";
+import {deepStrictEqual, equal, ok} from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
 import {inject, Injector, runInInjectionContext} from "@angular/core";
@@ -29,6 +29,7 @@ function setup(
   response: () => Observable<unknown> = () => of(null),
 ) {
   const deletedIds: number[] = [];
+  const portChanges: {id: number; body: unknown}[] = [];
   const navigations: unknown[][] = [];
   const successes: unknown[][] = [];
   const errors: unknown[][] = [];
@@ -73,7 +74,16 @@ function setup(
       },
       {provide: RoomMembersService, useValue: {}},
       {provide: MemberService, useValue: {}},
-      {provide: PortService, useValue: {portGet: () => of([])}},
+      {
+        provide: PortService,
+        useValue: {
+          portGet: () => of([]),
+          portIdRoomPatch: (id: number, body: unknown) => {
+            portChanges.push({id, body});
+            return response();
+          },
+        },
+      },
       {provide: SwitchService, useValue: {}},
       {provide: UntypedFormBuilder, useValue: new UntypedFormBuilder()},
     ],
@@ -96,6 +106,7 @@ function setup(
   return {
     component,
     deletedIds,
+    portChanges,
     navigations,
     successes,
     errors,
@@ -209,4 +220,75 @@ test("room deletion button is not permanently disabled and has a click handler",
     button.outputs.some((output) => output.name === "click"),
     "Deletion must be wired to a click handler",
   );
+});
+
+test("port removal clears only the room assignment and refreshes the list", async () => {
+  const state = setup();
+  await state.component.detachPort({
+    id: 7,
+    room: 42,
+    switchObj: 1,
+    oid: "10101",
+    portNumber: "Gi1/0/1",
+  });
+  deepStrictEqual(state.portChanges, [
+    {id: 7, body: {room: null, expectedRoom: 42}},
+  ]);
+  equal(state.deletedIds.length, 0);
+  equal(state.successes.length, 1);
+  equal(state.component.detachingPortIds.size, 0);
+  state.destroy();
+});
+
+test("cancelled port removal keeps the assignment", async () => {
+  const state = setup(() => Promise.resolve(false));
+  await state.component.detachPort({id: 7, room: 42});
+  equal(state.portChanges.length, 0);
+  equal(state.successes.length, 0);
+  state.destroy();
+});
+
+test("failed port removal reports the error and allows retry", async () => {
+  const state = setup(
+    () => Promise.resolve(true),
+    () => throwError(() => new HttpErrorResponse({status: 409})),
+  );
+  await state.component.detachPort({id: 7, room: 42});
+  equal(state.errors[0][0], 409);
+  equal(state.successes.length, 0);
+  equal(state.component.detachingPortIds.size, 0);
+  state.destroy();
+});
+
+test("port removal cannot be submitted twice while confirmation is pending", async () => {
+  let confirm!: (value: boolean) => void;
+  const state = setup(
+    () =>
+      new Promise((resolve) => {
+        confirm = resolve;
+      }),
+  );
+  const first = state.component.detachPort({id: 7, room: 42});
+  await state.component.detachPort({id: 7, room: 42});
+  equal(state.confirmations(), 1);
+  confirm(true);
+  await first;
+  equal(state.portChanges.length, 1);
+  state.destroy();
+});
+
+test("port removal is cancelled if the user switches rooms while confirming", async () => {
+  let confirm!: (value: boolean) => void;
+  const state = setup(
+    () =>
+      new Promise((resolve) => {
+        confirm = resolve;
+      }),
+  );
+  const pending = state.component.detachPort({id: 7, room: 42});
+  state.component.room_id = 43;
+  confirm(true);
+  await pending;
+  equal(state.portChanges.length, 0);
+  state.destroy();
 });

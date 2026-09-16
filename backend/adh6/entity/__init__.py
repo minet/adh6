@@ -53,6 +53,7 @@ from adh6.entity.payment_method import PaymentMethod
 from adh6.entity.ping_request import PingRequest
 from adh6.entity.ping_result import PingResult
 from adh6.entity.port import Port
+from adh6.entity.port_room_assignment import PortRoomAssignment
 from adh6.entity.product import Product
 from adh6.entity.profile200_response import Profile200Response
 from adh6.entity.role import Role

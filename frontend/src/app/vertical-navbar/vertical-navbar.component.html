@@ -4,7 +4,10 @@
       <p i18n="@@sidebar.section.general" class="menu-label">Général</p>
       <ul class="menu-list">
         <li>
-          <a routerLinkActive="is-active" [routerLink]="['dashboard']" i18n="@@sidebar.my-account">
+          <a
+            routerLinkActive="is-active"
+            [routerLink]="['dashboard']"
+            i18n="@@sidebar.my-account">
             Mon Compte
           </a>
         </li>
@@ -14,17 +17,26 @@
           <span i18n="@@sidebar.group.members">Gestion Adhérents</span>
           <ul>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['member']" i18n="@@sidebar.members">
+              <a
+                routerLinkActive="is-active"
+                [routerLink]="['member']"
+                i18n="@@sidebar.members">
                 Adhérents
               </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['device']" i18n="@@sidebar.devices">
+              <a
+                routerLinkActive="is-active"
+                [routerLink]="['device']"
+                i18n="@@sidebar.devices">
                 Appareils
               </a>
             </li>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['room']" i18n="@@sidebar.rooms">
+              <a
+                routerLinkActive="is-active"
+                [routerLink]="['room']"
+                i18n="@@sidebar.rooms">
                 Chambres
               </a>
             </li>
@@ -34,7 +46,10 @@
           <span i18n="@@sidebar.group.network">Gestion réseau</span>
           <ul>
             <li>
-              <a routerLinkActive="is-active" [routerLink]="['switch/search']" i18n="@@sidebar.switches">
+              <a
+                routerLinkActive="is-active"
+                [routerLink]="['switch/search']"
+                i18n="@@sidebar.switches">
                 Commutateurs
               </a>
             </li>
@@ -45,7 +60,9 @@
             </li>
             @if ("manage" | able: "admin") {
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['vlan']">VLANs</a>
+                <a routerLinkActive="is-active" [routerLink]="['vlan']"
+                  >VLANs</a
+                >
               </li>
             }
           </ul>
@@ -60,7 +77,10 @@
                 </a>
               </li>
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['auth/api-key']" i18n="@@sidebar.api-key">
+                <a
+                  routerLinkActive="is-active"
+                  [routerLink]="['auth/api-key']"
+                  i18n="@@sidebar.api-key">
                   Clef d'API
                 </a>
               </li>
@@ -74,19 +94,27 @@
             <span>Transactions</span>
             <ul>
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['transaction/add']" i18n="@@sidebar.new-transaction">
+                <a
+                  routerLinkActive="is-active"
+                  [routerLink]="['transaction/add']"
+                  i18n="@@sidebar.new-transaction">
                   Nouvelle transaction
                 </a>
               </li>
               <li>
-                <a routerLinkActive="is-active" [routerLink]="['transaction/export']">
+                <a
+                  routerLinkActive="is-active"
+                  [routerLink]="['transaction/export']">
                   Export
                 </a>
               </li>
             </ul>
           </li>
           <li>
-            <a routerLinkActive="is-active" [routerLink]="['product/search']" i18n="@@sidebar.products">
+            <a
+              routerLinkActive="is-active"
+              [routerLink]="['product/search']"
+              i18n="@@sidebar.products">
               Produits
             </a>
           </li>

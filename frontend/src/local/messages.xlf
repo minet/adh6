@@ -2272,6 +2272,147 @@
       <trans-unit id="search.empty" datatype="html">
         <source>Aucun résultat.</source>
       </trans-unit>
+      <trans-unit id="common.retry" datatype="html">
+        <source> Réessayer </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.assign" datatype="html">
+        <source>Rattacher à la chambre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.conflict" datatype="html">
+        <source>Le port existe déjà ou son affectation a changé. La liste a été actualisée ; sélectionnez à nouveau le port.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.create" datatype="html">
+        <source>Créer le port découvert</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.discover" datatype="html">
+        <source> Découvrir les ports manquants via SNMP </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.discovery-error" datatype="html">
+        <source> La découverte SNMP a échoué. Les ports enregistrés restent disponibles ; aucun port manquant ne peut être ajouté. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.empty" datatype="html">
+        <source> Aucun port disponible. Lancez une découverte SNMP pour rechercher les ports manquants. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.load-error" datatype="html">
+        <source> Impossible de charger les ports. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.new" datatype="html">
+        <source>Nouveau port découvert</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.placeholder" datatype="html">
+        <source>Sélectionner un port</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.room" datatype="html">
+        <source>Chambre <x id="roomNumber" equiv-text="port.roomObj?.roomNumber ?? port.room"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.save-error" datatype="html">
+        <source>Impossible d’ajouter le port. Vérifiez la connexion et réessayez.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.select" datatype="html">
+        <source>Port</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.transfer.action" datatype="html">
+        <source>Transférer</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.transfer.confirm" datatype="html">
+        <source>Le port <x id="portNumber" equiv-text="existing.portNumber"/> est affecté à la chambre <x id="roomNumber" equiv-text="currentRoom"/>. Confirmer son transfert vers cette chambre ?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.transfer.title" datatype="html">
+        <source>Transférer le port</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.picker.unassigned" datatype="html">
+        <source>Sans chambre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-picker.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.action" datatype="html">
+        <source> Retirer de la chambre </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.html</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.confirm" datatype="html">
+        <source>Retirer le port <x id="portNumber" equiv-text="port.portNumber"/> de cette chambre ? Il restera enregistré sur le switch.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.conflict" datatype="html">
+        <source>L’affectation du port a changé. La liste a été actualisée.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.error" datatype="html">
+        <source>Impossible de retirer le port de la chambre.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.success" datatype="html">
+        <source>Port retiré de la chambre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="room.details.detach-port.title" datatype="html">
+        <source>Retirer le port de la chambre</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/room/room-details/room-details.component.ts</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

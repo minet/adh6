@@ -1,7 +1,9 @@
 <h2 class="title is-2" i18n="@@room.new.title">Création d'une chambre</h2>
 <form [formGroup]="roomForm" (ngSubmit)="onSubmit()" novalidate>
   <div class="field">
-    <label class="label" i18n="@@room.new.room-number">Numéro de la chambre</label>
+    <label class="label" i18n="@@room.new.room-number"
+      >Numéro de la chambre</label
+    >
     <div class="control">
       <input
         class="input is-fullwidth"
@@ -10,7 +12,9 @@
         placeholder="ex : 5110"
         i18n-placeholder="@@room.new.room-number.placeholder" />
     </div>
-    <p class="help" i18n="@@room.new.room-number.help">Identifiant physique de la chambre (ex: 5110)</p>
+    <p class="help" i18n="@@room.new.room-number.help">
+      Identifiant physique de la chambre (ex: 5110)
+    </p>
   </div>
 
   <div class="field">

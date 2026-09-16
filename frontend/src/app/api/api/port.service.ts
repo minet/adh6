@@ -24,6 +24,8 @@ import { AbstractPort } from '../model/abstractPort';
 import { BulkOperationResult } from '../model/bulkOperationResult';
 // @ts-ignore
 import { Port } from '../model/port';
+// @ts-ignore
+import { PortRoomAssignment } from '../model/portRoomAssignment';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -1078,6 +1080,97 @@ export class PortService {
     }
 
     /**
+     * Assign or remove an existing port from a room
+     * Changes only the room; a null target removes its room assignment. Returns a conflict if the current room differs from expectedRoom, unless the port is already assigned to the target room.
+     * @param id The id of the resource that needs to be fetched.
+     * @param portRoomAssignment
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public portIdRoomPatch(id: number, portRoomAssignment: PortRoomAssignment, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Port>;
+    public portIdRoomPatch(id: number, portRoomAssignment: PortRoomAssignment, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Port>>;
+    public portIdRoomPatch(id: number, portRoomAssignment: PortRoomAssignment, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Port>>;
+    public portIdRoomPatch(id: number, portRoomAssignment: PortRoomAssignment, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling portIdRoomPatch.');
+        }
+        if (portRoomAssignment === null || portRoomAssignment === undefined) {
+            throw new Error('Required parameter portRoomAssignment was null or undefined when calling portIdRoomPatch.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        let localVarCredential: string | undefined;
+        // authentication (OpenIdConnect) required
+        localVarCredential = this.configuration.lookupCredential('OpenIdConnect');
+        if (localVarCredential) {
+        }
+
+        // authentication (ApiKeyAdminAuth) required
+        localVarCredential = this.configuration.lookupCredential('ApiKeyAdminAuth');
+        if (localVarCredential) {
+            localVarHeaders = localVarHeaders.set('X-API-KEY', localVarCredential);
+        }
+
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (localVarHttpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
+        if (localVarHttpContext === undefined) {
+            localVarHttpContext = new HttpContext();
+        }
+
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
+        if (localVarTransferCache === undefined) {
+            localVarTransferCache = true;
+        }
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/port/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: undefined})}/room`;
+        return this.httpClient.request<Port>('patch', `${this.configuration.basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: portRoomAssignment,
+                responseType: <any>responseType_,
+                withCredentials: this.configuration.withCredentials,
+                headers: localVarHeaders,
+                observe: observe,
+                transferCache: localVarTransferCache,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Update the state of a port
      * @param id The id of the resource that needs to be fetched.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -1245,6 +1338,7 @@ export class PortService {
 
     /**
      * Create a port
+     * Creates a port only if its positive SNMP ifIndex is discovered on the switch. The name is obtained from SNMP. Duplicate switch + ifIndex pairs are rejected.
      * @param abstractPort The port to create
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

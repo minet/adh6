@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.entity import AbstractPort, Port
-from adh6.network.storage.models import Port as SQLPort, Switch as SQLSwitch
+from adh6.network.storage.models import Port as SQLPort
 from adh6.network.storage.port_repository import PortSQLRepository
 from adh6.room.storage.models import Chambre as SQLChambre
 
@@ -73,11 +73,10 @@ class TestPortSQLRepository:
 
     async def test_create(self, port_repo, mock_session):
         # Given
-        sw = SQLSwitch(id=1)
         room = SQLChambre(id=1)
-        mock_session.scalar.side_effect = [room, sw]
+        mock_session.scalar.side_effect = [1, room]
 
-        p = Port(id=None, portNumber="2", oid="1.2", room=1, switchObj=1)
+        p = Port(id=None, portNumber="2", oid="102", room=1, switchObj=1)
 
         # When
         _ = await port_repo.create(p)

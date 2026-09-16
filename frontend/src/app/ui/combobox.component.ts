@@ -25,6 +25,8 @@ export type ComboboxValue = string | number;
 export interface ComboboxOption {
   value: ComboboxValue;
   label: string;
+  displayLabel?: string;
+  description?: string;
 }
 
 let nextComboboxId = 0;
@@ -32,6 +34,7 @@ let nextComboboxId = 0;
 /** Editable suggestions, with strict selection by default and optional free-text search. */
 @Component({
   selector: "app-combobox",
+  host: {"[class.inline-options]": "inlineOptions"},
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -48,7 +51,7 @@ let nextComboboxId = 0;
     :host {
       display: block;
       position: relative;
-      min-width: 12rem;
+      min-width: 0;
     }
     .input.has-suggestions {
       padding-right: 2.5rem;
@@ -70,24 +73,45 @@ let nextComboboxId = 0;
       width: 100%;
       max-height: 15rem;
       overflow-y: auto;
-      margin: 0;
-      padding: 0.25rem 0;
+      overscroll-behavior: contain;
+      margin: 0.375rem 0 0;
+      padding: 0.375rem;
       list-style: none;
       border: 1px solid var(--bulma-border);
-      border-radius: 0.375rem;
+      border-radius: 0.625rem;
       background: var(--bulma-scheme-main);
       box-shadow: 0 0.25rem 0.5rem #0002;
     }
     .combobox-options li {
-      padding: 0.5rem 0.75rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.375rem;
+      overflow-wrap: anywhere;
+    }
+    :host(.inline-options) .combobox-options {
+      position: static;
+      max-height: clamp(6rem, calc(100dvh - 26rem), 12rem);
+      box-shadow: none;
+    }
+    .option-label {
+      display: block;
+      font-weight: 500;
+    }
+    .option-description {
+      display: block;
+      margin-top: 0.125rem;
+      font-size: 0.8125rem;
+      color: var(--bulma-text-weak);
     }
     [role="option"] {
       cursor: pointer;
     }
     [role="option"]:hover,
     [role="option"].active {
-      background: var(--bulma-primary);
-      color: var(--bulma-primary-invert);
+      background: var(--app-selected);
+      color: var(--bulma-text-strong);
+    }
+    [role="option"][aria-selected="true"] .option-label {
+      color: var(--bulma-primary-on-scheme);
     }
   `,
   template: `
@@ -153,7 +177,12 @@ let nextComboboxId = 0;
             [attr.aria-selected]="selection.value === option.value"
             (mousedown)="$event.preventDefault()"
             (click)="choose(option)">
-            {{ option.label }}
+            <span class="option-label">{{
+              option.displayLabel ?? option.label
+            }}</span>
+            @if (option.description) {
+              <span class="option-description">{{ option.description }}</span>
+            }
           </li>
         } @empty {
           <li role="presentation" i18n="@@combobox.no-results">
@@ -190,6 +219,7 @@ export class ComboboxComponent
   @Input() mode: "select" | "search" = "select";
   @Input() filterLocally = true;
   @Input() showSuggestions = true;
+  @Input() inlineOptions = false;
   @Output() optionSelected = new EventEmitter<ComboboxOption>();
   readonly selection = new FormControl<ComboboxValue | null>(null);
   query = "";

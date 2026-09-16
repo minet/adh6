@@ -19,7 +19,9 @@
         t = localStorage.getItem("adh6-theme");
       } catch (e) {}
       if (t !== "light" && t !== "dark")
-        t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        t = matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
       document.documentElement.setAttribute("data-theme", t);
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
