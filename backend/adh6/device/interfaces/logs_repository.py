@@ -14,7 +14,7 @@ class LogsRepository(abc.ABC):
     async def get(
         self,
         member: Member,
-        devices: list[Device] = [],
+        devices: list[Device] | None = None,
         limit: int = LOG_DEFAULT_LIMIT,
         offset: int = 0,
         dhcp: bool = False,

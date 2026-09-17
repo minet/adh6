@@ -3,7 +3,7 @@ Logs repository.
 """
 
 import dateutil.parser
-from elasticsearch import Elasticsearch
+from elasticsearch import AsyncElasticsearch
 
 from adh6.config.configuration import settings
 from adh6.constants import LOG_DEFAULT_LIMIT
@@ -26,14 +26,20 @@ class ElasticsearchLogsRepository(LogsRepository):
 
         es_kwargs = {}
         if settings.elk_user and settings.elk_secret:
-            es_kwargs["http_auth"] = (settings.elk_user, settings.elk_secret)
+            es_kwargs["basic_auth"] = (settings.elk_user, settings.elk_secret)
 
-        self.es = Elasticsearch(settings.elk_hosts.split(","), **es_kwargs)
+        hosts = [host.strip() for host in settings.elk_hosts.split(",") if host.strip()]
+        self.es = AsyncElasticsearch(hosts, **es_kwargs)
+
+    async def close(self) -> None:
+        """Close connections owned by the shared Elasticsearch client."""
+        if self.elk_enabled:
+            await self.es.close()
 
     async def get(
         self,
         member: Member,
-        devices: list[Device] = [],
+        devices: list[Device] | None = None,
         limit: int = LOG_DEFAULT_LIMIT,
         offset: int = 0,
         dhcp: bool = False,
@@ -60,96 +66,27 @@ class ElasticsearchLogsRepository(LogsRepository):
             paginated_logs = mock_logs[offset : offset + limit]
             return paginated_logs, len(mock_logs)
 
-        if dhcp:
-            count_query = {
-                "query": {
-                    "constant_score": {
-                        "filter": {
-                            "bool": {
-                                "should": [],
-                                "minimum_should_match": 1,
-                            },
-                        },
-                    },
-                },
-            }
-        else:
-            count_query = {
-                "query": {
-                    "constant_score": {
-                        "filter": {
-                            "bool": {
-                                "filter": {"match": {"program": "radiusd"}},
-                                "should": [],
-                                "minimum_should_match": 1,
-                            },
-                        },
-                    },
-                },
-            }
+        should = [
+            {"match_phrase": {"src_mac": variation}}
+            for device in devices or []
+            for variation in get_mac_variations(device.mac)
+        ]
+        bool_query = {"should": should, "minimum_should_match": 1}
+        if not dhcp:
+            bool_query["filter"] = {"match": {"program": "radiusd"}}
 
-        # Add the macs to the count query
-        for d in devices:
-            addr = d.mac
-            variations = [{"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr)]
-            should_list = count_query["query"]["constant_score"]["filter"]["bool"]["should"]
-            if isinstance(should_list, list):
-                should_list.extend(variations)
-
-        # Get total count
-        total_count = self.es.count(index="", body=count_query)["count"]
-
-        # Prepare the elasticsearch query for actual logs...
-        if dhcp:
-            query = {
-                "sort": {
-                    "@timestamp": "desc",  # Sort by time
-                },
-                "query": {
-                    "constant_score": {
-                        "filter": {
-                            "bool": {
-                                "should": [],
-                                "minimum_should_match": 1,
-                            },
-                        },
-                    },
-                },
-                "_source": ["@timestamp", "message", "program", "src_mac"],
-                # discard any other field than timestamp & message
-                "size": limit,
-                "from": offset,
-            }
-        else:
-            query = {
-                "sort": {
-                    "@timestamp": "desc",  # Sort by time
-                },
-                "query": {
-                    "constant_score": {
-                        "filter": {
-                            "bool": {
-                                "filter": {"match": {"program": "radiusd"}},
-                                "should": [],
-                                "minimum_should_match": 1,
-                            },
-                        },
-                    },
-                },
-                "_source": ["@timestamp", "message", "program", "src_mac"],
-                # discard any other field than timestamp & message
-                "size": limit,
-                "from": offset,
-            }
-
-        # Add the macs to the "should"
-        for d in devices:
-            addr = d.mac
-            variations = ({"match_phrase": {"src_mac": x}} for x in get_mac_variations(addr))
-            # noinspection PyTypeChecker
-            query["query"]["constant_score"]["filter"]["bool"]["should"] += list(variations)
-
-        res = self.es.search(index="", body=query)["hits"]["hits"]
-
-        logs = [[dateutil.parser.parse(x["_source"]["@timestamp"]), x["_source"]["message"]] for x in res]
+        response = await self.es.search(
+            index="*",
+            query={"constant_score": {"filter": {"bool": bool_query}}},
+            sort={"@timestamp": "desc"},
+            source=["@timestamp", "message", "program", "src_mac"],
+            size=limit,
+            from_=offset,
+            track_total_hits=True,
+        )
+        hits = response["hits"]
+        total_count = hits["total"]["value"]
+        logs = [
+            [dateutil.parser.parse(hit["_source"]["@timestamp"]), hit["_source"]["message"]] for hit in hits["hits"]
+        ]
         return logs, total_count

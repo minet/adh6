@@ -120,6 +120,14 @@ def get_logs_repository() -> LogsRepository:
     return LogsRepository()
 
 
+async def close_logs_repository() -> None:
+    """Close and discard the cached Elasticsearch repository, if initialized."""
+    if get_logs_repository.cache_info().currsize:
+        repository = get_logs_repository()
+        await repository.close()
+        get_logs_repository.cache_clear()
+
+
 @lru_cache(maxsize=1)
 def build_transaction_manager(session: AsyncSession) -> TransactionManager:
     """Build transaction manager for the current DB session."""
