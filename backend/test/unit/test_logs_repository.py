@@ -39,8 +39,10 @@ async def test_elasticsearch_repository_uses_async_modern_client(monkeypatch):
         ["http://one:9200", "http://two:9200"],
         basic_auth=("user", "secret"),
     )
-    assert client.search.await_args.kwargs["track_total_hits"] is True
-    assert "body" not in client.search.await_args.kwargs
+    search_call = client.search.await_args
+    assert search_call is not None
+    assert search_call.kwargs["track_total_hits"] is True
+    assert "body" not in search_call.kwargs
     assert total == 1
     assert logs[0][1] == "connected"
     client.close.assert_awaited_once()

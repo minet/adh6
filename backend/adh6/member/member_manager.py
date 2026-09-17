@@ -96,7 +96,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    async def get_profile(self) -> tuple[AbstractMember, list[str]]:
+    async def get_profile(self) -> tuple[Member, list[str]]:
         from adh6.context import get_roles, get_user
 
         user_id = get_user()

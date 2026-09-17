@@ -100,13 +100,13 @@ class DeviceSQLRepository(DeviceRepository):
         await self.session.flush()
         return _map_device_sql_to_entity(device)
 
-    async def update(self, abstract_device: AbstractDevice, override: bool = False) -> Device:
-        stmt = select(SQLDevice).where(SQLDevice.id == abstract_device.id)
+    async def update(self, object_to_update: AbstractDevice, override: bool = False) -> Device:
+        stmt = select(SQLDevice).where(SQLDevice.id == object_to_update.id)
         device = await self.session.scalar(stmt)
         if device is None:
-            raise ValueError(f"Device {abstract_device.id} not found")
+            raise ValueError(f"Device {object_to_update.id} not found")
 
-        new_device = _merge_sql_with_entity(abstract_device, device, override)
+        new_device = _merge_sql_with_entity(object_to_update, device, override)
         await self.session.flush()
         return _map_device_sql_to_entity(new_device)
 

@@ -79,7 +79,7 @@ class ElasticsearchLogsRepository(LogsRepository):
             index="*",
             query={"constant_score": {"filter": {"bool": bool_query}}},
             sort={"@timestamp": "desc"},
-            source=["@timestamp", "message", "program", "src_mac"],
+            source_includes=["@timestamp", "message", "program", "src_mac"],
             size=limit,
             from_=offset,
             track_total_hits=True,

@@ -4,13 +4,10 @@ from pydantic import BaseModel
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.decorator import log_call, with_context
-from adh6.default.crud_manager import CRUDManager
 
 
 class DefaultHandler:
-    def __init__(
-        self, entity_class: type[BaseModel], abstract_entity_class: type[BaseModel], main_manager: CRUDManager
-    ):
+    def __init__(self, entity_class: type[BaseModel], abstract_entity_class: type[BaseModel], main_manager: Any):
         self.entity_class = entity_class
         self.abstract_entity_class = abstract_entity_class
         self.main_manager = main_manager
