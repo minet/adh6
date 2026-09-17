@@ -96,7 +96,7 @@ class MemberManager(CRUDManager):
         return member
 
     @log_call
-    async def get_profile(self) -> tuple[AbstractMember, list[str]]:
+    async def get_profile(self) -> tuple[Member, list[str]]:
         from adh6.context import get_roles, get_user
 
         user_id = get_user()
@@ -105,7 +105,7 @@ class MemberManager(CRUDManager):
         m = await self.member_repository.get_by_id(user_id)
         if not m:
             raise MemberNotFoundError(user_id)
-        return m, get_roles()  # type: ignore  # TODO: typing is baaaaad
+        return m, get_roles()
 
     @log_call
     async def create(self, body: MemberBody) -> Member:
@@ -379,13 +379,13 @@ class MemberManager(CRUDManager):
                         continue
                     all_statuses.append(object)
         except LogFetchError:
-            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
+            logger.warning("log_fetch_failed")
             return []  # We fail open here.
         else:
             return all_statuses
 
     @log_call
-    async def change_password(self, member_id, password: str, hashed_password):
+    async def change_password(self, member_id: int, password: str, hashed_password: str | None) -> bool:
         # Check that the user exists in the system.
         member = await self.member_repository.get_by_id(member_id)
         if not member:
@@ -401,7 +401,7 @@ class MemberManager(CRUDManager):
         # TODO: check for better hashing for security purpose
         pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
 
-        await self.member_repository.update_password(member_id, pw)  # type: ignore  # TODO: typing
+        await self.member_repository.update_password(member_id, pw)
 
         return True
 

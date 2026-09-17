@@ -300,8 +300,9 @@ def test_device_post_create_multiple_wireless(
 
         res = r.json()
         subnet = sample_member.subnet if d["member"] == SAMPLE_CLIENT_ID else sample_member_admin.subnet
-        subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
-        subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
+        assert subnet is not None
+        subnet_header = ".".join(subnet.split(".")[:3])
+        subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
         start_number_v6 = [2, 5]
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
         assert (
@@ -448,8 +449,9 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1, sampl
         )
         res = r.json()
         subnet = sample_member_admin.subnet
-        subnet_header = ".".join(subnet.split(".")[:3])  # type: ignore  # TODO: fix typing
-        subnet_start = int(str(subnet).split(".")[3].split("/")[0]) + 1
+        assert subnet is not None
+        subnet_header = ".".join(subnet.split(".")[:3])
+        subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
         assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % device_number), 'x')}"
 

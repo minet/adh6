@@ -3,7 +3,13 @@
 from datetime import date, datetime, timedelta
 from unittest.mock import MagicMock
 
-from adh6.entity import Member
+from adh6.entity import AbstractDevice, Member
+
+
+def test_generated_entity_to_json_preserves_explicit_null_and_omits_unset_fields():
+    device = AbstractDevice(id=42, ipv4Address=None)
+
+    assert device.to_json() == '{"id":42,"ipv4Address":null}'
 
 
 # ===========================================================================

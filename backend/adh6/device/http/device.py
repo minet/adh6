@@ -44,7 +44,7 @@ class DeviceHandler(DefaultHandler):
     async def get(self, id_: int, only: list[str] | None = None):
         try:
             device = await self.device_manager.get_by_id(id=id_)
-            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():
                 raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
 
             def remove(entity: t.Any) -> t.Any:
@@ -81,7 +81,7 @@ class DeviceHandler(DefaultHandler):
         """Return the vendor associated with the given device"""
         try:
             device = await self.device_manager.get_by_id(id=id_)
-            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():  # type: ignore  # TODO: typing
+            if get_user() != device.member and Roles.ADMIN_READ.value not in get_roles():
                 raise UnauthorizedError("Unauthorize to access this resource")  # noqa: TRY301
             return await self.device_manager.get_mac_vendor(id=id_), 200
         except Exception as e:

@@ -214,8 +214,9 @@ def test_member_filter_terms_nonexistant(client):
 
 
 def test_member_filter_terms_test_upper_case(client, sample_member: Adherent):
+    assert sample_member.login is not None
     r = client.get(
-        f"{base_url}?terms={sample_member.login.upper()}",  # type: ignore  # TODO: fix typing
+        f"{base_url}?terms={sample_member.login.upper()}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200

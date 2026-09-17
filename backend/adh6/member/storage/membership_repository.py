@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipStatus
+from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus
 from adh6.entity import AbstractMembership, Membership, SubscriptionBody
 from adh6.storage.count import count_rows
 
@@ -85,7 +85,7 @@ class MembershipSQLRepository(MembershipRepository):
             raise MembershipNotFoundError(uuid)
 
         if body.duration:
-            membership.duration = body.duration
+            membership.duration = MembershipDuration(body.duration)
         if body.payment_method:
             membership.payment_method_id = body.payment_method
         if body.has_room is not None:

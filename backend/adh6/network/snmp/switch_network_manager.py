@@ -9,6 +9,7 @@ from adh6.decorator import log_call
 from adh6.entity import AbstractPort
 from adh6.exceptions import (
     NetworkManagerReadError,
+    PortNotFoundError,
     SwitchNotFoundError,
 )
 
@@ -387,12 +388,14 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
     @log_call
     async def get_oid_switch_ipand_community_from_port_id(self, port_id) -> tuple[str, str, str]:
         port = await self.port_repository.get_by_id(object_id=port_id)
-        if port.oid is None or not isinstance(port.oid, str):  # type: ignore  # TODO: typing
+        if port is None:
+            raise PortNotFoundError(port_id)
+        if not port.oid:
             raise NetworkManagerReadError(f"oidc for port {port_id} is unknown")
-        if port.switch_obj is None:  # type: ignore  # TODO: typing
-            raise SwitchNotFoundError(port.switch_obj)  # type: ignore  # TODO: typing
-        switch = await self.switch_repository.get_by_id(object_id=port.switch_obj)  # type: ignore  # TODO: typing
-        community = await self.switch_repository.get_community(switch_id=port.switch_obj)  # type: ignore  # TODO: typing
-        if switch.ip is None or not isinstance(switch.ip, str):  # type: ignore  # TODO: typing
-            raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")  # type: ignore  # TODO: typing
-        return port.oid, switch.ip, community  # type: ignore  # TODO: typing
+        switch = await self.switch_repository.get_by_id(object_id=port.switch_obj)
+        if switch is None:
+            raise SwitchNotFoundError(port.switch_obj)
+        community = await self.switch_repository.get_community(switch_id=port.switch_obj)
+        if not switch.ip:
+            raise NetworkManagerReadError(f"ip for switch {port.switch_obj} is unknown")
+        return port.oid, switch.ip, community

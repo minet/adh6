@@ -1,23 +1,26 @@
-FROM node:22-alpine AS prebuild
+# syntax=docker/dockerfile:1
+
+FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS prebuild
 WORKDIR /app/frontend
 
 # Install packages
 ENV YARN_CACHE_FOLDER=/root/.yarn
-RUN --mount=type=cache,target=/var/cache/apk \
+RUN --mount=type=cache,target=/var/cache/apk,sharing=locked \
     apk add python3 make g++ openssl
 
-COPY frontend/src/assets ./src/assets
-RUN yarn global add svgo \
-    && cd ./src/assets \
-    && svgo minet.svg minet-dark.svg adh6-logo.svg adh6-logo-dark.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg adh6-dark.min.svg
-
-RUN --mount=type=cache,target=/root/.yarn \
+RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
     --mount=type=bind,source=frontend/package.json,target=package.json \
     --mount=type=bind,source=frontend/yarn.lock,target=yarn.lock \
     yarn install --frozen-lockfile
 
+RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
+    yarn global add svgo@4.1.0
 
-# TODO: remake for prod also
+COPY frontend/src/assets ./src/assets
+RUN cd ./src/assets \
+    && svgo minet.svg minet-dark.svg adh6-logo.svg adh6-logo-dark.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg adh6-dark.min.svg
+
+
 FROM prebuild AS prodbuild
 COPY frontend/package.json frontend/angular.json frontend/tsconfig.json ./
 COPY frontend/src src
@@ -27,8 +30,7 @@ RUN ./node_modules/.bin/ng build --configuration production \
     done
 
 
-# TODO: test
-FROM nginx:alpine@sha256:455c39afebd4d98ef26dd70284aa86e6810b0485af5f4f222b19b89758cabf1e AS prod
+FROM nginx:alpine-slim@sha256:688240d46d75f73c320b93657b5fc1d3500589fc11fd122eefdfa9e8d4d7dbc7 AS prod
 
 # Permissions set before copying the build so this layer stays cached
 RUN mkdir -p /var/cache/nginx/client_temp \
@@ -42,12 +44,11 @@ RUN mkdir -p /var/cache/nginx/client_temp \
 
 COPY frontend/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --chown=nginx:nginx --from=prodbuild /app/frontend/dist/adh6/browser/ /usr/share/nginx/html/
-COPY --chown=nginx:nginx --from=prodbuild /app/frontend/src/assets /usr/share/nginx/html/assets
 
 USER nginx
 
 
-FROM node:22-alpine AS dev
+FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS dev
 
 # Create a non-root user for Node.js
 RUN addgroup -g 1001 -S nodeuser && \
@@ -63,5 +64,4 @@ COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend
 COPY --chown=nodeuser:nodeuser frontend/src ./src
 COPY --chown=nodeuser:nodeuser --from=prebuild /app/frontend/src/assets ./src/assets
 
-CMD yarn start:fr --port 4200 --host 0.0.0.0 --allowed-hosts true & \
-    exec yarn start:en --port 4201 --host 0.0.0.0 --allowed-hosts true
+CMD ["sh", "-c", "trap 'kill \"$fr_pid\" \"$en_pid\" 2>/dev/null; wait' INT TERM EXIT; yarn start:fr --port 4200 --host 0.0.0.0 --allowed-hosts true & fr_pid=$!; yarn start:en --port 4201 --host 0.0.0.0 --allowed-hosts true & en_pid=$!; wait -n \"$fr_pid\" \"$en_pid\""]

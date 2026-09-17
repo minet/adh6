@@ -1083,7 +1083,7 @@ export class PortService {
      * Assign or remove an existing port from a room
      * Changes only the room; a null target removes its room assignment. Returns a conflict if the current room differs from expectedRoom, unless the port is already assigned to the target room.
      * @param id The id of the resource that needs to be fetched.
-     * @param portRoomAssignment
+     * @param portRoomAssignment 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

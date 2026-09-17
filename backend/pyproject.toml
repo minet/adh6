@@ -10,27 +10,21 @@
 dependencies = [
   # faire le lien entre la spec OpenAPI et les handlers Flask
   "sqlalchemy[asyncio]",
-  "mysqlclient", # TODO: vérifier qu'il s'agisse bien du driver
+  "mysqlclient",
   "python-dateutil", # Un ensemble d'utilitaires pour gérer une base de donnée
-  "pyasn1<0.6.0",
-  "pysnmp==7.1.22", # communiquer avec les switches
-  "elasticsearch>=7,<9", # TODO: deprecated
-  "requests", # TODO: remplacer par httpx
-  "Flask-Migrate",
-  "authlib", # TODO: vérifier qu'il s'agisse du support du CAS
-  "cryptography", # TODO: vérifier de quoi il s'agit
-  "jinja2", # TODO: devrait être inclus avec flask
-  "bcrypt", # TODO: vérifier de quoi il s'agit
-  "Faker", # TODO: vérifier de quoi il s'agit / si c'est du test-time only
+  "pyasn1<0.6.5",
+  "pysnmp==7.1.29", # communiquer avec les switches
+  "elasticsearch[async]>=9.5.1,<10",
+  "alembic",
+  "jinja2",
   "opentelemetry-instrumentation-flask",
   "opentelemetry-instrumentation-requests",
   "opentelemetry-api",
   "opentelemetry-sdk",
   "opentelemetry-exporter-jaeger",
-  "flask-alembic>=3.1.1",
   "pycryptodome", #Used to replace hashlib as it no longer supports MD4. Can be removed when we switch off MD4.
   "httpx>=0.28.1",
-  "rpds-py<0.25.0",
+  "rpds-py<2026.6.4",
   "fastapi>=0.135.1",
   "uvicorn[standard]>=0.35.0",
   "pydantic>=2.12.5",
@@ -68,6 +62,7 @@ dev = [
 lint = ["pyright", "ruff"]
 tests = [
   #
+  "Faker",
   "pytest<8",
   "pytest-cov",
   "pytest-cases",

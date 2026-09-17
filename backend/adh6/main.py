@@ -20,6 +20,7 @@ from adh6.exceptions import (
 )
 from adh6.member.router import (
     charter_router,
+    close_logs_repository,
     mailinglist_router,
     router as member_router,
 )
@@ -116,6 +117,7 @@ async def lifespan(app: FastAPI):
     try:
         yield
     finally:
+        await close_logs_repository()
         await close_oidc_token_verifier()
 
 

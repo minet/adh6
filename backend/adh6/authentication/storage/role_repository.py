@@ -5,7 +5,7 @@ from sqlalchemy import and_, delete, insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from adh6.entity import RoleMapping
+from adh6.entity import Role, RoleMapping
 from adh6.member.storage.models import Adherent
 
 from ...exceptions import MemberNotFoundError
@@ -99,7 +99,7 @@ class RoleSQLRepository(RoleRepository):
         return RoleMapping(
             id=role.id,
             identifier=role.identifier,
-            role=role.role.value,
+            role=Role(role.role.value),
             authentication=role.authentication.value,
         )
 

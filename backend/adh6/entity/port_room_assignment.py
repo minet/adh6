@@ -5,7 +5,7 @@
 """
     ADH6 API
 
-    This is the specification for **MiNET**'s ADH6 plaform. Its aim is to manage our users, devices and treasury.
+    This is the specification for **MiNET**'s ADH6 plaform. Its aim is to manage our users, devices and treasury. 
 
     The version of the OpenAPI document: 2.0.0
     Contact: equipe@minet.net
@@ -47,8 +47,7 @@ class PortRoomAssignment(BaseModel):
 
     def to_json(self) -> str:
         """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return self.model_dump_json(by_alias=True, exclude_none=True)
+        return self.model_dump_json(by_alias=True, exclude_unset=True)
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
@@ -99,3 +98,5 @@ class PortRoomAssignment(BaseModel):
             "expectedRoom": obj.get("expectedRoom")
         })
         return _obj
+
+
