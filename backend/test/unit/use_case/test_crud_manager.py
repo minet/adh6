@@ -1,7 +1,6 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractPaymentMethod, AbstractPort, AbstractSwitch
 from adh6.exceptions import IntMustBePositive, NotFoundError
 from adh6.network.interfaces.port_repository import PortRepository
@@ -108,7 +107,7 @@ class TestUpdateOrCreate:
         assert result is False
         mock_repo.update.assert_called_once_with(mock_object, override=True)
 
-    async def test_happy_path_update_non_existing(self, mock_repo: CRUDRepository, mock_object, mock_manager):
+    async def test_happy_path_update_non_existing(self, mock_repo: MagicMock, mock_object, mock_manager):
         mock_repo.get_by_id = AsyncMock(return_value=(None), side_effect=NotFoundError(""))
         mock_id = mock_object.id
 
@@ -116,8 +115,8 @@ class TestUpdateOrCreate:
             await mock_manager.update_or_create(mock_object, id=mock_id)
 
         mock_repo.get_by_id.assert_called_once_with(mock_id)
-        mock_repo.update.assert_not_called()  # type: ignore  # TODO: typing (generics)
-        mock_repo.create.assert_not_called()  # type: ignore  # TODO: typing (generics)
+        mock_repo.update.assert_not_called()
+        mock_repo.create.assert_not_called()
 
 
 class TestPartiallyUpdate:

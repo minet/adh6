@@ -1,5 +1,4 @@
 import datetime as dt
-from typing import Any
 
 from sqlalchemy import Boolean, Date, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -47,17 +46,17 @@ class Membership(Base):
     __tablename__ = "membership"
 
     uuid: Mapped[str] = mapped_column(String(36), primary_key=True)
-    duration: Mapped[Any] = mapped_column(
+    duration: Mapped[MembershipDuration] = mapped_column(
         Enum(MembershipDuration), default=MembershipDuration.NONE, nullable=False
-    )  # TODO: typing
+    )
     has_room: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     first_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     adherent_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
     payment_method_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     products: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    status: Mapped[Any] = mapped_column(
+    status: Mapped[MembershipStatus] = mapped_column(
         Enum(MembershipStatus), default=MembershipStatus.INITIAL, nullable=False
-    )  # TODO: typing
+    )
     create_at: Mapped[dt.datetime] = mapped_column(
         DateTime, nullable=False, default=func.now(), server_default=func.now()
     )

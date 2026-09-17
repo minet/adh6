@@ -91,7 +91,7 @@ class DeviceSQLRepository(DeviceRepository):
             created_at=now,
             updated_at=now,
             last_seen=now,
-            type=DeviceType[obj.connection_type].value,  # type: ignore[index]  # TODO: typing is baaaaad
+            type=DeviceType[obj.connection_type].value,
             adherent_id=obj.member,
             ip="En attente",
             ipv6="En attente",

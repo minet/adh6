@@ -24,8 +24,8 @@ class CharterSQLRepository(CharterRepository):
             Adherent.datesignedminet.isnot(None) if charter_id == 1 else Adherent.datesignedhosting.isnot(None)
         )
         result = await self.session.execute(smt)
-        r = result.scalars().all()
-        return r, len(r)  # type: ignore  # TODO: fix typing
+        members = list(result.scalars().all())
+        return members, len(members)
 
     async def update(self, charter_id: int, member_id: int) -> None:
         smt = update(Adherent).where(Adherent.id == member_id)

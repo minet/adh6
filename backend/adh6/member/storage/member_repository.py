@@ -145,7 +145,7 @@ class MemberSQLRepository(MemberRepository):
             raise ValueError(f"Member {member_id} not found")
         await self.session.delete(member)
 
-    async def update_password(self, member_id, hashed_password):
+    async def update_password(self, member_id: int, hashed_password: str) -> None:
         stmt = select(Adherent).where(Adherent.id == member_id)
         adherent = await self.session.scalar(stmt)
 
@@ -202,9 +202,9 @@ def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, overrid
     if entity.last_name is not None or override:
         adherent.nom = entity.last_name
     if entity.ip is not None or override:
-        adherent.ip = entity.ip if entity.ip != "" else None  # type: ignore  # TODO: typing
+        adherent.ip = entity.ip or None
     if entity.subnet is not None or override:
-        adherent.subnet = entity.subnet if entity.subnet != "" else None  # type: ignore  # TODO: typing
+        adherent.subnet = entity.subnet or None
     if entity.comment is not None or override:
         adherent.commentaires = entity.comment
     if "permanent" in entity.model_fields_set and (entity.permanent is not None):
