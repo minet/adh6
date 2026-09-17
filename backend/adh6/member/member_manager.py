@@ -379,7 +379,7 @@ class MemberManager(CRUDManager):
                         continue
                     all_statuses.append(object)
         except LogFetchError:
-            logging.warning("log_fetch_failed")  # noqa: LOG015  # TODO: use a proper logger
+            logger.warning("log_fetch_failed")
             return []  # We fail open here.
         else:
             return all_statuses
