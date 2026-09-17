@@ -11,7 +11,7 @@
  */
 
 
-export interface PortRoomAssignment {
+export interface PortRoomAssignment { 
     /**
      * The target room\'s database identifier, or null to remove the assignment
      */
@@ -21,3 +21,4 @@ export interface PortRoomAssignment {
      */
     expectedRoom: number | null;
 }
+

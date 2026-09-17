@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
 # Petit script utilitaire pour générer le code python et javascript depuis la spec OpenAPI.
 
 # On utilise OpenAPI pour écrire une spec avec tous les endpoints API.
@@ -19,11 +21,11 @@ then
     exit
 fi
 
-if [[ "$1" == "--backend-only" ]]; then
+if [[ "${1:-}" == "--backend-only" ]]; then
     echo "Generating code for backend only..."
     generate_backend=true
     generate_frontend=false
-elif [[ "$1" == "--frontend-only" ]]; then
+elif [[ "${1:-}" == "--frontend-only" ]]; then
     echo "Generating code for frontend only..."
     generate_backend=false
     generate_frontend=true
@@ -41,7 +43,12 @@ echo "[BACKEND] Temporary directory created in $backend_tmp"
 
 echo "[BACKEND] Generating code in $backend_tmp"
 # Comme openapi-generator-cli a besoin de java pour fonctionner, et qu'on ne veut pas forcément installer java sur notre système juste pour ADH6 (fuck Java), on utilise Docker !
-docker run --rm -v $backend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g python -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+docker run --rm --user "$(id -u):$(id -g)" -v "$backend_tmp:/local" -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g python -o /local --additional-properties packageName=adh6 --additional-properties=modelPackage=entity
+
+if [[ ! -f "$backend_tmp/adh6/entity/__init__.py" ]]; then
+    echo "[BACKEND] Generation failed: expected entity package was not produced." >&2
+    exit 1
+fi
 
 echo "[BACKEND] Generation complete. Checking what was generated..."
 ls -la $backend_tmp/
@@ -71,9 +78,11 @@ for file in $backend_tmp/adh6/entity/**/*.py $backend_tmp/adh6/typing_utils.py $
     echo "[BACKEND] Patching $dest..."
     # Fix import paths occasionally generated with the legacy package name.
     sed -i.bak -e 's/from adh6\.models\./from adh6.entity./g' "$dest" && rm -f "$dest.bak"
-    # Replace         return json.dumps(self.to_dict())
-    # With         return self.model_dump_json(by_alias=True, exclude_none=True)
-    sed -i.bak -e 's/return json.dumps(self.to_dict())/return self.model_dump_json(by_alias=True, exclude_none=True)/g' "$dest" && rm -f "$dest.bak" 
+    # Use Pydantic v2's native serializer while preserving explicitly set null fields.
+    sed -i.bak \
+        -e '/pydantic v2: use \.model_dump_json(by_alias=True, exclude_unset=True) instead/d' \
+        -e 's/return json.dumps(self.to_dict())/return self.model_dump_json(by_alias=True, exclude_unset=True)/g' \
+        "$dest" && rm -f "$dest.bak"
 done
 
 echo "[BACKEND] Add notice file..."
@@ -91,7 +100,7 @@ frontend_tmp=$(mktemp -d -t adh6_frontend_XXXX)
 echo "[FRONTEND] Temporary directory created in $frontend_tmp"
 
 echo "[FRONTEND] Generating code in $frontend_tmp"
-docker run --rm  -v $frontend_tmp:/local -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g typescript-angular -o "/local" --additional-properties=queryParamObjectFormat=key > /dev/null
+docker run --rm --user "$(id -u):$(id -g)" -v "$frontend_tmp:/local" -v ./openapi/spec.yaml:/spec.yaml openapitools/openapi-generator-cli:$OPENAPI_GENERATOR_CLI_VERSION generate -i /spec.yaml -g typescript-angular -o "/local" --additional-properties=queryParamObjectFormat=key > /dev/null
 
 echo "[FRONTEND] Removing current api in $FRONTEND_DIR/src/app/api..."
 rm -r $FRONTEND_DIR/src/app/api
