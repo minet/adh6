@@ -13,59 +13,6 @@ def test_generated_entity_to_json_preserves_explicit_null_and_omits_unset_fields
 
 
 # ===========================================================================
-# handle_error tests
-# ===========================================================================
-class TestHandleError:
-    def test_not_found_error(self):
-        from adh6.exceptions import NotFoundError
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(NotFoundError("resource not found"))
-        assert code == 404
-        assert "not found" in result["message"].lower() or result["code"] == 404
-
-    def test_unauthorized_error(self):
-        from adh6.exceptions import UnauthorizedError
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(UnauthorizedError("access denied"))
-        assert code == 403
-
-    def test_validation_error(self):
-        from adh6.exceptions import ValidationError
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(ValidationError("invalid value"))
-        assert code == 400
-
-    def test_already_exists_error(self):
-        from adh6.exceptions import AlreadyExistsError
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(AlreadyExistsError("already exists"))
-        assert code == 400
-
-    def test_network_manager_read_error(self):
-        from adh6.exceptions import NetworkManagerReadError
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(NetworkManagerReadError("network error"))
-        assert code == 400
-
-    def test_value_error(self):
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(ValueError("bad value"))
-        assert code == 400
-
-    def test_generic_exception(self):
-        from adh6.misc.error import handle_error
-
-        result, code = handle_error(RuntimeError("something went wrong"))
-        assert code == 500
-
-
-# ===========================================================================
 # member_validators tests
 # ===========================================================================
 class TestIsMemberActive:

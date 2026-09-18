@@ -5,7 +5,7 @@ from sqlalchemy import DECIMAL, Date, DateTime, ForeignKey, Integer, String, Tex
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from adh6.storage import Base
+from adh6.storage.base import Base
 
 
 class MiniRouter(Base):

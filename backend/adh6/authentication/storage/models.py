@@ -3,7 +3,7 @@ import datetime as dt
 from sqlalchemy import DateTime, Enum, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from adh6.storage import Base
+from adh6.storage.base import Base
 
 from ..enums import AuthenticationMethod, Roles
 

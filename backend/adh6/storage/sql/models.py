@@ -1,12 +1,10 @@
 import datetime as dt
 
 from sqlalchemy import Column, DateTime, Integer, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-
-class Base(DeclarativeBase):
-    pass
+from adh6.storage.base import Base
 
 
 # Suppression of this model from adh6 because it is unused yet do not do the migration yet

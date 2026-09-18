@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from adh6.room.storage.models import Chambre
-from adh6.storage import Base
+from adh6.storage.base import Base
 
 
 class Switch(Base):

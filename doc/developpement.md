@@ -53,7 +53,7 @@ uv run alembic revision -m "description"   # crée une migration vide à complé
 uv run alembic upgrade head
 ```
 
-**Attention à `--autogenerate`** : `migrations/env.py` ne charge que les anciens modèles communs (6 tables), pas ceux des modules. Une migration autogénérée proposerait de supprimer la plupart des tables. Écrivez la migration à la main, ou relisez chaque ligne du fichier généré.
+`migrations/env.py` charge tous les modèles via `adh6.storage.metadata`, ce qui permet d'utiliser `alembic revision --autogenerate`. Relisez néanmoins toujours la migration générée avant de l'appliquer.
 
 Une migration doit fonctionner à la fois sur **MySQL** (local) et sur **MariaDB** (production). Par exemple, `DROP INDEX IF EXISTS` n'existe pas en MySQL : vérifiez l'existence de l'index avec `sa.inspect()`.
 
@@ -105,7 +105,7 @@ Ces dossiers ne se modifient jamais à la main : toute modification serait perdu
 | Dossier | Rôle |
 |---|---|
 | `default/` | Bases réutilisables : `CRUDManager` et `CRUDRepository` |
-| `storage/` | Base SQLAlchemy commune (`Base`), `count_rows` pour les compteurs de pagination, anciens modèles partagés, et une façade synchrone gardée pour d'anciens tests |
+| `storage/` | Base et métadonnées SQLAlchemy communes, `count_rows` pour les compteurs de pagination, anciens modèles partagés, et une façade synchrone gardée pour d'anciens tests |
 | `decorator/` | Décorateur de journalisation `log_call` |
 | `misc/` | Profil de l'utilisateur connecté, validateurs (MAC…) |
 | `utils/` | Filtres et validateurs partagés |
