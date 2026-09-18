@@ -44,7 +44,7 @@ async def get_health_manager(
 async def health_check(
     manager: Annotated[HealthManager, Depends(get_health_manager)],
 ) -> JSONResponse:
-    """Public system health check: 200 if healthy, 503 otherwise."""
+    """Readiness check: 200 when dependencies are ready, 503 otherwise."""
     is_healthy = await _health_cache.is_healthy(manager)
     return JSONResponse(
         content={"healthy": is_healthy},

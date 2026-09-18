@@ -1,4 +1,3 @@
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 
@@ -10,13 +9,5 @@ class PingSQLRepository(PingRepository):
         self.session = session
 
     async def ping(self) -> bool:
-        try:
-            result = await self.session.execute(text("SELECT 42 AS result"))
-            rows = result.fetchall()
-            if len(rows) != 1:
-                return False
-
-        except SQLAlchemyError:
-            return False
-        else:
-            return rows == [(42,)]
+        result = await self.session.execute(text("SELECT 1"))
+        return result.scalar_one() == 1
