@@ -14,7 +14,6 @@ Exemple avec `device/` :
 | `device_manager.py` | Logique métier (validation de la MAC, limites, attribution d'IP) |
 | `interfaces/` | Interfaces abstraites des dépendances du manager (`DeviceRepository`, `LogsRepository`…) |
 | `storage/` | Implémentations : modèles SQLAlchemy (`models.py`) et repositories |
-| `http/` | Anciens handlers |
 
 Les entités échangées entre couches (`backend/adh6/entity/`) sont des modèles Pydantic générés depuis la spec OpenAPI.
 

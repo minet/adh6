@@ -20,8 +20,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,9 +29,8 @@ class MemberIdPasswordPutRequest(BaseModel):
     """
     MemberIdPasswordPutRequest
     """ # noqa: E501
-    password: Optional[SecretStr] = Field(default=None, description="The plaintext password to use")
-    hashed_password: Optional[StrictStr] = Field(default=None, description="The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication... WARNING. Hashing the password client-side essentially nullifies the purpose of hashing the password.", alias="hashedPassword")
-    __properties: ClassVar[List[str]] = ["password", "hashedPassword"]
+    password: SecretStr = Field(description="New password to apply to the member account")
+    __properties: ClassVar[List[str]] = ["password"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -83,8 +82,7 @@ class MemberIdPasswordPutRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "password": obj.get("password"),
-            "hashedPassword": obj.get("hashedPassword")
+            "password": obj.get("password")
         })
         return _obj
 

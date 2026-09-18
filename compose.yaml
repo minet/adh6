@@ -39,6 +39,10 @@ services:
       DATABASE_DB_NAME: ${DATABASE_DB_NAME:-adh6}
       OIDC_ISSUER: ${OIDC_ISSUER:-http://localhost:8180/realms/MiNET}
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-adh6-keycloak}
+      KEYCLOAK_ADMIN_URL: ${KEYCLOAK_ADMIN_URL:-http://keycloak:8080}
+      KEYCLOAK_ADMIN_REALM: ${KEYCLOAK_ADMIN_REALM:-MiNET}
+      KEYCLOAK_ADMIN_CLIENT_ID: ${KEYCLOAK_ADMIN_CLIENT_ID:-adh6-service}
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-adh6-service-dev-secret}
       HTTP_PROXY: http://keycloak:8080
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.build_opener(u.ProxyHandler({})).open('http://localhost:8080/ping', timeout=3)"]
@@ -155,6 +159,7 @@ services:
         condition: service_started
     environment:
       ADH6_URL: ${ADH6_URL:-localhost}
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-adh6-service-dev-secret}
     entrypoint: ["/bin/bash", "-ec"]
     command:
       - |
@@ -178,6 +183,28 @@ services:
             -s 'protocolMappers=[{"name":"groups","protocol":"openid-connect","protocolMapper":"oidc-group-membership-mapper","config":{"claim.name":"groups","full.path":"false","access.token.claim":"true","id.token.claim":"true","userinfo.token.claim":"true"}}]'
           echo "Client adh6-keycloak créé"
         fi
+
+        service_id=$$($$kcadm get clients -r MiNET -q clientId=adh6-service --fields id --format csv --noquotes)
+        if [ -n "$$service_id" ]; then
+          $$kcadm update "clients/$$service_id" -r MiNET \
+            -s serviceAccountsEnabled=true \
+            -s publicClient=false \
+            -s 'secret='"$$KEYCLOAK_ADMIN_CLIENT_SECRET"
+        else
+          $$kcadm create clients -r MiNET \
+            -s clientId=adh6-service \
+            -s enabled=true \
+            -s serviceAccountsEnabled=true \
+            -s publicClient=false \
+            -s standardFlowEnabled=false \
+            -s directAccessGrantsEnabled=false \
+            -s 'secret='"$$KEYCLOAK_ADMIN_CLIENT_SECRET"
+        fi
+        $$kcadm add-roles -r MiNET \
+          --uusername service-account-adh6-service \
+          --cclientid realm-management \
+          --rolename manage-users
+        echo "Service account adh6-service configuré"
 
   # jaeger:
   #   image: jaegertracing/all-in-one:1.22

@@ -13,13 +13,8 @@
 
 export interface MemberIdPasswordPutRequest { 
     /**
-     * The plaintext password to use
+     * New password to apply to the member account
      */
-    password?: string;
-    /**
-     * The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication... WARNING. Hashing the password client-side essentially nullifies the purpose of hashing the password.
-     * @deprecated
-     */
-    hashedPassword?: string;
+    password: string;
 }
 

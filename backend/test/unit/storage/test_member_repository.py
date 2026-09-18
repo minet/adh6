@@ -96,17 +96,6 @@ class TestMemberSQLRepository:
         # Then
         assert adh.commentaires == "New comment"
 
-    async def test_update_password(self, member_repo, mock_session):
-        # Given
-        adh = Adherent(id=1, password="old")
-        mock_session.scalar = AsyncMock(return_value=adh)
-
-        # When
-        await member_repo.update_password(1, "new_hashed")
-
-        # Then
-        assert adh.password == "new_hashed"
-
     async def test_used_wireless_public_ips(self, member_repo, mock_session):
         # Given
         mock_execute_result = MagicMock()

@@ -18,6 +18,12 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.authentication.enums import Roles
+from adh6.authentication.keycloak_admin import (
+    KeycloakAdminClient,
+    KeycloakAdminError,
+    KeycloakPasswordPolicyError,
+    get_keycloak_admin_client,
+)
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.database import get_session
 from adh6.device import DeviceIpManager, DeviceLogsManager
@@ -32,6 +38,7 @@ from adh6.entity import (
     MemberBody,
     MemberFilter,
     MemberIdLogsGet200Response,
+    MemberIdPasswordPutRequest,
     MemberIdWifiGet200Response,
     Membership,
     MemberStatus,
@@ -63,6 +70,14 @@ from .subscription_manager import SubscriptionManager
 router = APIRouter(prefix="/member", tags=["member"])
 mailinglist_router = APIRouter(prefix="/mailinglist", tags=["mailinglist"])
 charter_router = APIRouter(prefix="/charter", tags=["charter"])
+
+
+def get_password_action_client() -> KeycloakAdminClient:
+    """Translate deployment misconfiguration into a controlled service response."""
+    try:
+        return get_keycloak_admin_client()
+    except KeycloakAdminError as error:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(error)) from error
 
 
 def _is_valid_email(email: str | None) -> bool:
@@ -395,21 +410,43 @@ async def get_member_logs(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.put("/{id}/password", status_code=status.HTTP_204_NO_CONTENT)
-async def set_member_password(
+@router.post("/{id}/password-reset", status_code=status.HTTP_204_NO_CONTENT)
+async def send_member_password_reset(
     id: int,
-    body: dict,
     manager: Annotated[MemberManager, Depends(get_member_manager)],
+    keycloak: Annotated[KeycloakAdminClient, Depends(get_password_action_client)],
     request: Request,
 ) -> None:
-    """Set the password of a member."""
-    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, id, "password")
+    """Ask Keycloak to email a short-lived UPDATE_PASSWORD action to the member."""
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, id, "password reset")
     try:
-        password = body.get("password")
-        hashed_password = body.get("hashedPassword")
-        await manager.change_password(id, password or "", hashed_password)
+        member = await manager.get_by_id(id)
+        await keycloak.send_update_password_email(member.username)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except KeycloakAdminError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+
+
+@router.put("/{id}/password", status_code=status.HTTP_204_NO_CONTENT)
+async def administratively_set_member_password(
+    id: int,
+    body: MemberIdPasswordPutRequest,
+    manager: Annotated[MemberManager, Depends(get_member_manager)],
+    keycloak: Annotated[KeycloakAdminClient, Depends(get_password_action_client)],
+    request: Request,
+) -> None:
+    """Forward an admin-selected password to Keycloak; ADH6 never persists or hashes it."""
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, resource_name="password")
+    try:
+        member = await manager.get_by_id(id)
+        await keycloak.reset_password(member.username, body.password.get_secret_value())
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except KeycloakPasswordPolicyError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except KeycloakAdminError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
 
 @router.get("/{id}/statuses", response_model=list[MemberStatus])

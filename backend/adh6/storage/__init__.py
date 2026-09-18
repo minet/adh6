@@ -1,7 +1,6 @@
-"""Storage module with async SQLAlchemy and cache configurations."""
+"""Shared SQLAlchemy infrastructure."""
 
-from .cache import cache
+from .base import Base
 from .db import db
-from .sql.models import Base
 
-__all__ = ["Base", "cache", "db"]
+__all__ = ["Base", "db"]

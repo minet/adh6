@@ -8,7 +8,6 @@ from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_logs_manager import DeviceLogsManager
 from adh6.entity import Member, MemberBody
 from adh6.exceptions import (
-    InvalidPassword,
     MemberAlreadyExist,
     MemberNotFoundError,
     NoSubnetAvailable,
@@ -383,73 +382,6 @@ class TestGetLogs:
         assert "total" in result
         assert "hasMore" in result
         assert result["total"] == 1
-
-
-class TestChangePassword:
-    async def test_happy_path(
-        self,
-        mock_member_repository: MemberRepository,
-        sample_member: Member,
-        member_manager: MemberManager,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_member_repository.update_password = AsyncMock(return_value=None)
-
-        result = await member_manager.change_password(
-            member_id=sample_member.id,
-            password="ValidPass1!",
-            hashed_password=None,
-        )
-        assert result is True
-        mock_member_repository.update_password.assert_called_once()
-
-    async def test_member_not_found(
-        self,
-        mock_member_repository: MemberRepository,
-        member_manager: MemberManager,
-        sample_member: Member,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=None)
-
-        with raises(MemberNotFoundError):
-            await member_manager.change_password(
-                member_id=sample_member.id,
-                password="ValidPass1!",
-                hashed_password=None,
-            )
-
-    async def test_invalid_password(
-        self,
-        mock_member_repository: MemberRepository,
-        sample_member: Member,
-        member_manager: MemberManager,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-
-        with raises(InvalidPassword):
-            await member_manager.change_password(
-                member_id=sample_member.id,
-                password="short",
-                hashed_password=None,
-            )
-
-    async def test_with_hashed_password(
-        self,
-        mock_member_repository: MemberRepository,
-        sample_member: Member,
-        member_manager: MemberManager,
-    ):
-        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_member_repository.update_password = AsyncMock(return_value=None)
-
-        result = await member_manager.change_password(
-            member_id=sample_member.id,
-            password="ValidPass1!",
-            hashed_password="prehashedvalue",
-        )
-        assert result is True
-        # Should use the provided hashed_password, not compute a new one
-        mock_member_repository.update_password.assert_called_once_with(sample_member.id, "prehashedvalue")
 
 
 class TestUpdateSubnet:

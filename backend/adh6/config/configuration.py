@@ -35,6 +35,14 @@ class Settings(BaseSettings):
     oidc_jwks_cache_ttl_seconds: float = Field(default=3600, gt=0)
     oidc_jwks_refresh_cooldown_seconds: float = Field(default=30, gt=0)
 
+    # Dedicated confidential client used only to request Keycloak password-action emails.
+    # Keep it separate from the public OIDC client used by the browser.
+    keycloak_admin_url: str | None = None
+    keycloak_admin_realm: str = "MiNET"
+    keycloak_admin_client_id: str | None = None
+    keycloak_admin_client_secret: str | None = None
+    keycloak_password_action_lifespan_seconds: int = Field(default=900, ge=60, le=86400)
+
     @computed_field
     @property
     def database_url(self) -> str:

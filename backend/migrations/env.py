@@ -1,18 +1,13 @@
+from adh6.config.configuration import settings
+from adh6.storage.metadata import Base
 from alembic import context
 from sqlalchemy import create_engine
-
-from adh6.config.configuration import settings
-from adh6.storage import Base
 
 target_metadata = Base.metadata
 
 
 def _sync_url() -> str:
-    return (
-        settings.database_url
-        .replace("+aiosqlite", "")
-        .replace("+aiomysql", "+pymysql")
-    )
+    return settings.database_url.replace("+aiosqlite", "").replace("+aiomysql", "+pymysql")
 
 
 def run_migrations_offline() -> None:

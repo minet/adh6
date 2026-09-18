@@ -1,4 +1,6 @@
-import {Component, OnInit} from "@angular/core";
+import {Location} from "@angular/common";
+import {PureAbility} from "@casl/ability";
+import {Component} from "@angular/core";
 import {
   AbstractControl,
   ReactiveFormsModule,
@@ -8,26 +10,19 @@ import {
   Validators,
 } from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
-import {finalize, map} from "rxjs/operators";
+import {Observable} from "rxjs";
+import {finalize} from "rxjs/operators";
 import {MemberService} from "../api";
-import {Location} from "@angular/common";
 import {NotificationService} from "../notification.service";
 
-function passwordConfirming(c: AbstractControl): ValidationErrors | null {
-  if (!c?.value) {
-    return null;
-  }
-  const formValue = c.value as {password?: string; password_confirm?: string};
-  const pwd = formValue["password"];
-  const cpwd = formValue["password_confirm"];
-
-  if (!pwd || !cpwd) {
-    return null;
-  }
-  if (pwd !== cpwd) {
-    return {invalid: true};
-  }
-  return null;
+function matchingPasswords(control: AbstractControl): ValidationErrors | null {
+  const password = control.get("password")?.value as string | undefined;
+  const confirmation = control.get("passwordConfirm")?.value as
+    | string
+    | undefined;
+  return password && confirmation && password !== confirmation
+    ? {passwordMismatch: true}
+    : null;
 }
 
 @Component({
@@ -35,116 +30,78 @@ function passwordConfirming(c: AbstractControl): ValidationErrors | null {
   selector: "app-member-password-edit",
   templateUrl: "./member-password-edit.component.html",
 })
-export class MemberPasswordEditComponent implements OnInit {
-  public showPassword = false;
-  public showConfirmPassword = false;
+export class MemberPasswordEditComponent {
+  disabled = false;
+  readonly isAdmin: boolean;
+  readonly passwordForm: UntypedFormGroup;
 
   constructor(
-    private readonly fb: UntypedFormBuilder,
+    formBuilder: UntypedFormBuilder,
+    ability: PureAbility,
     private readonly notificationService: NotificationService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly memberService: MemberService,
     private readonly location: Location,
-  ) {}
-
-  disabled = false;
-  memberPassword!: UntypedFormGroup;
-
-  /*
-  Taken from https://stackoverflow.com/a/37597001
-   */
-  strEncodeUTF16(str: string) {
-    const buf = new ArrayBuffer(str.length * 2);
-    const bufView = new Uint16Array(buf);
-    for (let i = 0, strLen = str.length; i < strLen; i++) {
-      bufView.set([str.charCodeAt(i)], i);
-    }
-    return bufView;
-  }
-
-  ngOnInit() {
-    this.createForm();
-  }
-
-  createForm(): void {
-    // These checks or run on the frontend to give instant feedback to the user and on the backend as a HTTP request could be sent with an invalid password.
-    // nosemgrep: ajinabraham.njsscan.generic.hardcoded_secrets.node_password
-    // A regex literal, not a string. As a string, `\-` collapsed to `-` before the regex engine
-    // ever saw it, turning `+\-=` into the character RANGE + (0x2B) to = (0x3D) -- which covers
-    // +,-./0123456789:;<= and therefore every digit. "Abcdefg1", with no special character at all,
-    // passed this check and was then rejected by the API with a 400. Same pattern as payment's
-    // signup.component.ts, which was already a literal and therefore correct.
-    const passwordValidationRegex =
-      /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*["'#!@$%^&(){}[\]:;<>,.*?/~_+\-=|]).*$/;
-    /***
-     * ^ - Start of string
-     * (?=.*[0-9]) - At least one digit
-     * (?=.*[a-z]) - At least one lowercase letter
-     * (?=.*[A-Z]) - At least one uppercase letter
-     * (?=.*["'#!@...|]) - At least one special character from the set
-     * .* - Any character (except for line terminators) zero or more times
-     * $ - End of string
-     *
-     * Length is enforced separately by minLength(8) and maxLength(64) below, which is why the
-     * pattern ends with `.*$` and not `.{8,}$`.
-     */
-    this.memberPassword = this.fb.group(
+  ) {
+    this.isAdmin = ability.can("manage", "admin");
+    this.passwordForm = formBuilder.group(
       {
-        password: [
-          "",
-          [
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(64),
-            Validators.pattern.bind(Validators)(passwordValidationRegex),
-          ],
-        ],
-        password_confirm: ["", [Validators.required]],
+        password: ["", [Validators.required]],
+        passwordConfirm: ["", [Validators.required]],
       },
-      {
-        validator: passwordConfirming.bind(this),
-      },
+      {validators: matchingPasswords},
     );
   }
 
-  changePassword(): void {
-    const password: string = this.memberPassword.value.password as string;
-    this.route.paramMap
-      .pipe(
-        map((params) => {
-          const memberIdParam = params.get("member_id");
-          const creationParam = params.get("creation");
-
-          if (!memberIdParam) {
-            throw new Error("member_id parameter is required");
-          }
-
-          const member_id = +memberIdParam;
-          const isCreation = creationParam ? +creationParam === 1 : false;
-
-          console.log(isCreation);
-          this.updatePasswordOfUser(member_id, password, isCreation);
-        }),
-        finalize(() => (this.disabled = false)), // danura 07/08/2025 does nothing as this.disabled is never set to true
-      )
-      .subscribe(() => {});
+  sendPasswordLink(): void {
+    const memberId = this.memberId();
+    if (memberId === null) return;
+    this.runRequest(
+      this.memberService.memberIdPasswordResetPost(memberId, "response"),
+      $localize`:@@password.email.sent:Lien de définition du mot de passe envoyé`,
+      memberId,
+    );
   }
 
-  private updatePasswordOfUser(
-    member_id: number,
-    PasswordVar: string,
-    creation: boolean,
+  setPassword(): void {
+    const memberId = this.memberId();
+    if (memberId === null || !this.isAdmin || this.passwordForm.invalid) return;
+    const password = this.passwordForm.value.password as string;
+    this.runRequest(
+      this.memberService.memberIdPasswordPut(memberId, {password}, "response"),
+      $localize`:@@password.updated:Mot de passe modifié`,
+      memberId,
+    );
+  }
+
+  private memberId(): number | null {
+    const memberId = Number(this.route.snapshot.paramMap.get("member_id"));
+    if (!Number.isInteger(memberId) || memberId <= 0) {
+      this.notificationService.errorNotification(400);
+      return null;
+    }
+    return memberId;
+  }
+
+  private runRequest(
+    request: Observable<unknown>,
+    successMessage: string,
+    memberId: number,
   ): void {
-    this.memberService
-      .memberIdPasswordPut(+member_id, {password: PasswordVar}, "response")
-      .subscribe(() => {
-        this.notificationService.successNotification();
-        if (!creation) {
-          this.location.back();
+    this.disabled = true;
+    request.pipe(finalize(() => (this.disabled = false))).subscribe({
+      next: () => {
+        this.passwordForm.reset();
+        this.notificationService.successNotification(successMessage);
+        if (this.route.snapshot.paramMap.get("creation") === "1") {
+          void this.router.navigate(["/member/view", memberId, "profile"]);
         } else {
-          void this.router.navigate(["/member/view", member_id, "profile"]);
+          this.location.back();
         }
-      });
+      },
+      error: (error: {status?: number}) =>
+        this.notificationService.errorNotification(error.status ?? 500),
+    });
   }
 }

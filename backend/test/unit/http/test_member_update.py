@@ -8,7 +8,7 @@ from adh6.entity import Member, Membership
 from adh6.main import app
 from adh6.member.interfaces import MemberRepository, MembershipRepository
 from adh6.member.member_manager import MemberManager
-from adh6.member.router import get_member_manager
+from adh6.member.router import get_member_manager, get_password_action_client
 from adh6.member.subscription_manager import SubscriptionManager
 from fastapi import Request
 from fastapi.testclient import TestClient
@@ -44,7 +44,14 @@ def token_info():
 
 
 @pytest.fixture
-def client(monkeypatch, member_repository, membership_repository, token_info):
+def keycloak_admin():
+    client = MagicMock()
+    client.send_update_password_email = AsyncMock()
+    return client
+
+
+@pytest.fixture
+def client(monkeypatch, member_repository, membership_repository, token_info, keycloak_admin):
     subscription_manager = SubscriptionManager(
         member_repository, membership_repository, MagicMock(), MagicMock(), MagicMock()
     )
@@ -57,8 +64,25 @@ def client(monkeypatch, member_repository, membership_repository, token_info):
 
     monkeypatch.setitem(app.dependency_overrides, authenticate, fake_authentication)
     monkeypatch.setitem(app.dependency_overrides, get_member_manager, lambda: member_manager)
+    monkeypatch.setitem(app.dependency_overrides, get_password_action_client, lambda: keycloak_admin)
     with TestClient(app, raise_server_exceptions=False) as test_client:
         yield test_client
+
+
+def test_password_reset_is_delegated_to_keycloak(client, keycloak_admin):
+    response = client.post("/api/member/67/password-reset")
+
+    assert response.status_code == 204, response.text
+    keycloak_admin.send_update_password_email.assert_awaited_once_with("psders")
+
+
+def test_admin_password_update_is_delegated_to_keycloak(client, keycloak_admin):
+    keycloak_admin.reset_password = AsyncMock()
+
+    response = client.put("/api/member/67/password", json={"password": "ValidPassword1!"})
+
+    assert response.status_code == 204, response.text
+    keycloak_admin.reset_password.assert_awaited_once_with("psders", "ValidPassword1!")
 
 
 def set_membership(repository, state):

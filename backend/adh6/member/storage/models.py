@@ -6,7 +6,7 @@ from sqlalchemy.sql import func, text
 from sqlalchemy.sql.sqltypes import Enum
 
 from adh6.constants import MembershipDuration, MembershipStatus
-from adh6.storage import Base
+from adh6.storage.base import Base
 
 
 class Adherent(Base):

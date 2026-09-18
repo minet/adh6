@@ -86,13 +86,6 @@ class WifiOnlyRestrictionError(ValidationError):
         super().__init__(msg)
 
 
-class InvalidPassword(ValidationError):
-    def __init__(self):
-        super().__init__(
-            "Password is not valid. It must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
-        )
-
-
 # NOT FOUND ERROR.
 class NotFoundError(UserInputError):
     """

@@ -1,0 +1,139 @@
+"""Minimal Keycloak Admin API client for password lifecycle operations."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import cast
+
+import httpx
+
+from adh6.config.configuration import settings
+
+
+class KeycloakAdminError(RuntimeError):
+    """Keycloak could not accept a password-action request."""
+
+
+class KeycloakPasswordPolicyError(KeycloakAdminError):
+    """The proposed credential does not satisfy Keycloak's password policy."""
+
+
+@dataclass(frozen=True)
+class KeycloakAdminConfig:
+    base_url: str
+    realm: str
+    client_id: str
+    client_secret: str
+    action_lifespan_seconds: int
+    timeout_seconds: float
+
+
+class KeycloakAdminClient:
+    """Use a narrowly-scoped service account for password lifecycle operations."""
+
+    def __init__(self, config: KeycloakAdminConfig, transport: httpx.AsyncBaseTransport | None = None):
+        self.config = config
+        self.transport = transport
+
+    async def send_update_password_email(self, username: str) -> None:
+        try:
+            await self._send_update_password_email(username)
+        except (httpx.HTTPError, ValueError, TypeError) as error:
+            raise KeycloakAdminError("Keycloak is unavailable or returned an invalid response") from error
+
+    async def reset_password(self, username: str, password: str) -> None:
+        """Forward an admin-selected password to Keycloak without storing or hashing it in ADH6."""
+        try:
+            await self._reset_password(username, password)
+        except (httpx.HTTPError, ValueError, TypeError) as error:
+            raise KeycloakAdminError("Keycloak is unavailable or returned an invalid response") from error
+
+    async def _send_update_password_email(self, username: str) -> None:
+        base_url = self.config.base_url.rstrip("/")
+        realm = self.config.realm
+        timeout = httpx.Timeout(self.config.timeout_seconds)
+        async with httpx.AsyncClient(base_url=base_url, timeout=timeout, transport=self.transport) as client:
+            headers, user_id = await self._authenticate_and_find_user(client, username)
+
+            action_response = await client.put(
+                f"/admin/realms/{realm}/users/{user_id}/execute-actions-email",
+                params={"lifespan": self.config.action_lifespan_seconds},
+                json=["UPDATE_PASSWORD"],
+                headers=headers,
+            )
+            if action_response.status_code != httpx.codes.NO_CONTENT:
+                raise KeycloakAdminError("Keycloak refused the password-action email")
+
+    async def _reset_password(self, username: str, password: str) -> None:
+        base_url = self.config.base_url.rstrip("/")
+        realm = self.config.realm
+        timeout = httpx.Timeout(self.config.timeout_seconds)
+        async with httpx.AsyncClient(base_url=base_url, timeout=timeout, transport=self.transport) as client:
+            headers, user_id = await self._authenticate_and_find_user(client, username)
+            response = await client.put(
+                f"/admin/realms/{realm}/users/{user_id}/reset-password",
+                json={"type": "password", "value": password, "temporary": False},
+                headers=headers,
+            )
+            if response.status_code == httpx.codes.BAD_REQUEST:
+                raise KeycloakPasswordPolicyError("Password rejected by Keycloak's password policy")
+            if response.status_code != httpx.codes.NO_CONTENT:
+                raise KeycloakAdminError("Keycloak refused the password update")
+
+    async def _authenticate_and_find_user(self, client: httpx.AsyncClient, username: str) -> tuple[dict[str, str], str]:
+        realm = self.config.realm
+        token_response = await client.post(
+            f"/realms/{realm}/protocol/openid-connect/token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": self.config.client_id,
+                "client_secret": self.config.client_secret,
+            },
+        )
+        if token_response.status_code != httpx.codes.OK:
+            raise KeycloakAdminError("Keycloak service-account authentication failed")
+
+        access_token = token_response.json().get("access_token")
+        if not isinstance(access_token, str) or not access_token:
+            raise KeycloakAdminError("Keycloak returned an invalid service-account token")
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        users_response = await client.get(
+            f"/admin/realms/{realm}/users",
+            params={"username": username, "exact": "true", "max": 2},
+            headers=headers,
+        )
+        if users_response.status_code != httpx.codes.OK:
+            raise KeycloakAdminError("Keycloak user lookup failed")
+
+        users = users_response.json()
+        matches = [user for user in users if user.get("username") == username and isinstance(user.get("id"), str)]
+        if len(matches) != 1:
+            raise KeycloakAdminError("The member does not map to exactly one Keycloak user")
+        return headers, matches[0]["id"]
+
+
+def get_keycloak_admin_client() -> KeycloakAdminClient:
+    required = {
+        "KEYCLOAK_ADMIN_URL": settings.keycloak_admin_url,
+        "KEYCLOAK_ADMIN_CLIENT_ID": settings.keycloak_admin_client_id,
+        "KEYCLOAK_ADMIN_CLIENT_SECRET": settings.keycloak_admin_client_secret,
+    }
+    missing = [name for name, value in required.items() if not value]
+    if missing:
+        raise KeycloakAdminError(f"Missing Keycloak administration configuration: {', '.join(missing)}")
+
+    base_url = cast(str, settings.keycloak_admin_url)
+    client_id = cast(str, settings.keycloak_admin_client_id)
+    client_secret = cast(str, settings.keycloak_admin_client_secret)
+
+    return KeycloakAdminClient(
+        KeycloakAdminConfig(
+            base_url=base_url,
+            realm=settings.keycloak_admin_realm,
+            client_id=client_id,
+            client_secret=client_secret,
+            action_lifespan_seconds=settings.keycloak_password_action_lifespan_seconds,
+            timeout_seconds=settings.oidc_http_timeout_seconds,
+        )
+    )
