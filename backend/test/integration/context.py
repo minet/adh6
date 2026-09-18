@@ -9,4 +9,6 @@ os.environ["OIDC_CLIENT_ID"] = "adh6-testing"
 # Import FastAPI app
 from adh6.main import app  # noqa
 
-tomorrow = datetime.now().date() + timedelta(days=1)
+# Keep date-based fixtures in the future even when the test suite crosses
+# midnight. They must still remain within the "next week" filter window.
+tomorrow = datetime.now().date() + timedelta(days=2)
