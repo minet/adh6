@@ -104,9 +104,8 @@ Ces dossiers ne se modifient jamais à la main : toute modification serait perdu
 
 | Dossier | Rôle |
 |---|---|
-| `default/` | Bases réutilisables : `CRUDManager`, `CRUDRepository`, et `DefaultHandler` pour les anciens handlers |
+| `default/` | Bases réutilisables : `CRUDManager` et `CRUDRepository` |
 | `storage/` | Base SQLAlchemy commune (`Base`), `count_rows` pour les compteurs de pagination, anciens modèles partagés, et une façade synchrone gardée pour d'anciens tests |
-| `decorator/` | `log_call` et `with_context` |
+| `decorator/` | Décorateur de journalisation `log_call` |
 | `misc/` | Profil de l'utilisateur connecté, validateurs (MAC…) |
 | `utils/` | Filtres et validateurs partagés |
-| `*/http/` | Anciens handlers de l'époque Connexion, que les routes FastAPI n'utilisent plus |
