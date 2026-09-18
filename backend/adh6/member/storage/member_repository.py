@@ -145,15 +145,6 @@ class MemberSQLRepository(MemberRepository):
             raise ValueError(f"Member {member_id} not found")
         await self.session.delete(member)
 
-    async def update_password(self, member_id: int, hashed_password: str) -> None:
-        stmt = select(Adherent).where(Adherent.id == member_id)
-        adherent = await self.session.scalar(stmt)
-
-        if not adherent:
-            raise ValueError(f"Member {member_id} not found")
-
-        adherent.password = hashed_password
-
     async def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
         now = date.today()
 

@@ -3,12 +3,7 @@ import re
 from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
 
-from Crypto.Hash import MD4
-
 from adh6 import mail
-
-# import hashlib # Keep these 2 libs. See comment in change_password method below
-# from binascii import hexlify
 from adh6.constants import (
     DEFAULT_LIMIT,
     DEFAULT_OFFSET,
@@ -30,7 +25,6 @@ from adh6.entity import (
     SubscriptionBody,
 )
 from adh6.exceptions import (
-    InvalidPassword,
     LogFetchError,
     MemberAlreadyExist,
     MemberNotFoundError,
@@ -39,7 +33,7 @@ from adh6.exceptions import (
     UpdateImpossible,
 )
 from adh6.room.interfaces import RoomRepository
-from adh6.utils.validators.member_validators import is_member_active, is_password_valid
+from adh6.utils.validators.member_validators import is_member_active
 
 from .interfaces import MailinglistRepository, MemberRepository
 from .subscription_manager import SubscriptionManager
@@ -383,27 +377,6 @@ class MemberManager(CRUDManager):
             return []  # We fail open here.
         else:
             return all_statuses
-
-    @log_call
-    async def change_password(self, member_id: int, password: str, hashed_password: str | None) -> bool:
-        # Check that the user exists in the system.
-        member = await self.member_repository.get_by_id(member_id)
-        if not member:
-            raise MemberNotFoundError(member_id)
-
-        if not is_password_valid(password):
-            raise InvalidPassword
-
-        # MD4 is not supported by hashlib so we use pycryptodome instead. This code is keep for reference for when we switch to a more secure hashing algorithm for wifi. We will prefer to use hashlib as it is more standard and widely used and is already used in the rest of the codebase.
-        #
-        # pw = hashed_password or hexlify(hashlib.new("md4", password.encode("utf-16le")).digest())  # TODO: check for better hashing for security purpose
-
-        # TODO: check for better hashing for security purpose
-        pw = hashed_password or MD4.new(password.encode("utf-16le")).hexdigest()  # noqa: S303
-
-        await self.member_repository.update_password(member_id, pw)
-
-        return True
 
     @log_call
     async def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:

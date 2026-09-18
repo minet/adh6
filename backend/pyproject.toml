@@ -22,7 +22,6 @@ dependencies = [
   "opentelemetry-api",
   "opentelemetry-sdk",
   "opentelemetry-exporter-jaeger",
-  "pycryptodome", #Used to replace hashlib as it no longer supports MD4. Can be removed when we switch off MD4.
   "httpx>=0.28.1",
   "rpds-py<2026.6.4",
   "fastapi>=0.135.1",

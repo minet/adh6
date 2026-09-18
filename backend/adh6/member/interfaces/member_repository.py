@@ -33,10 +33,6 @@ class MemberRepository(CRUDRepository[Member, AbstractMember]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def update_password(self, member_id: int, hashed_password: str) -> None:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
     async def used_wireless_public_ips(self) -> list[ipaddress.IPv4Address]:
         pass  # pragma: no cover
 

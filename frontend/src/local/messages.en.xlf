@@ -3399,6 +3399,11 @@
           <context context-type="sourcefile">src/app/mini-router/mini-router-form.component.html</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="password.email.sent" datatype="html"><source>Lien de définition du mot de passe envoyé</source><target state="final">Password setup link sent</target></trans-unit>
+      <trans-unit id="password.updated" datatype="html"><source>Mot de passe modifié</source><target state="final">Password updated</target></trans-unit>
+      <trans-unit id="password.define.title" datatype="html"><source>Définir le mot de passe</source><target state="final">Set password</target></trans-unit>
+      <trans-unit id="password.define.expiration" datatype="html"><source>Un lien personnel à durée limitée sera envoyé à votre adresse e-mail.</source><target state="final">A personal, time-limited link will be sent to your email address.</target></trans-unit>
+      <trans-unit id="password.email.send" datatype="html"><source>Envoyer le lien sécurisé</source><target state="final">Send secure link</target></trans-unit>
     </body>
   </file>
 </xliff>

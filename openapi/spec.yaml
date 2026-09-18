@@ -65,7 +65,7 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         default:
           $ref: '#/components/responses/Unexpected'      
-      security: 
+      security:
         - OpenIdConnect:
           - user
         - OpenIdConnect:
@@ -106,7 +106,7 @@ paths:
         default:
           $ref: "#/components/responses/Unexpected"
       summary: Return the list of the device ids
-      security: 
+      security:
         - OpenIdConnect:
           - user
         - OpenIdConnect:
@@ -612,6 +612,31 @@ paths:
         - ApiKeyAdminAuth: []
       tags:
       - member
+  /member/{id}/password-reset:
+    parameters:
+      - $ref: "#/components/parameters/idPath"
+    post:
+      responses:
+        "204":
+          description: Modified
+        "400":
+          $ref: "#/components/responses/Invalid"
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Send a short-lived password reset email
+      security:
+        - OpenIdConnect:
+          - user
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth:
+            - admin:write
+      tags:
+        - member
   /member/{id}/password:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -620,20 +645,14 @@ paths:
         content:
           application/json:
             schema:
+              type: object
+              required:
+                - password
               properties:
                 password:
-                  example: "&<Hs8XK/H+dT{7d7:=bxN~9;EqhwtW-;"
                   type: string
                   format: password
-                  description: The plaintext password to use
-                hashedPassword:
-                  example: "de6a3b882c1cff12af8616e1f6bf5b6c"
-                  type: string
-                  format: md4
-                  description: The md4-hashed password to use. MD4 is obv. long-deprecated but we use NTLM for PEAP authentication... WARNING. Hashing the password client-side essentially nullifies the purpose of hashing the password.
-                  deprecated: true
-              type: object
-        description: The new value for the password in plaintext
+                  description: New password to apply to the member account
         required: true
       responses:
         "204":
@@ -646,14 +665,12 @@ paths:
           $ref: "#/components/responses/NotFound"
         default:
           $ref: "#/components/responses/Unexpected"
-      summary: Update the password of a member
-      security: 
-        - OpenIdConnect:
-          - user
+      summary: Administratively replace a member password
+      security:
         - OpenIdConnect:
           - admin:write
         - ApiKeyAdminAuth:
-            - admin:write
+          - admin:write
       tags:
         - member
   /member/{id}/charter/{charter_id}:
