@@ -12,4 +12,4 @@ async def test_log_fetch_error_returns_service_unavailable():
 
     assert response.status_code == 503
     assert response.headers["retry-after"] == "30"
-    assert json.loads(response.body) == {"detail": "Log service temporarily unavailable"}
+    assert json.loads(bytes(response.body)) == {"detail": "Log service temporarily unavailable"}
