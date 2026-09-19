@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
 
 COPY frontend/src/assets ./src/assets
 RUN cd ./src/assets \
-    && svgo minet.svg minet-dark.svg adh6-logo.svg adh6-logo-dark.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg adh6-dark.min.svg
+    && svgo minet.svg minet-dark.svg adh67-logo.svg adh67-logo-dark.svg -o minet.min.svg minet-dark.min.svg adh6.min.svg adh6-dark.min.svg
 
 
 FROM prebuild AS prodbuild
