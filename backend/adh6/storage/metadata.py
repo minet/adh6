@@ -1,3 +1,5 @@
+# pyright: reportUnusedImport=false
+
 """Complete SQLAlchemy metadata used by Alembic and schema tooling."""
 
 from adh6.authentication.storage import models as authentication_models  # noqa: F401

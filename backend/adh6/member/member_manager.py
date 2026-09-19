@@ -2,6 +2,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
+from typing import Any
 
 from adh6 import mail
 from adh6.constants import (
@@ -11,6 +12,7 @@ from adh6.constants import (
     WIFI_ONLY_ROOM_NUMBER,
     MembershipStatus,
 )
+from adh6.datetime_utils import utc_now_naive
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
@@ -40,6 +42,12 @@ from .subscription_manager import SubscriptionManager
 
 logger = logging.getLogger(__name__)
 
+_TLS_ALERT_LOG_PATTERN = re.compile(
+    r"TLS Alert (?:read|write).*?\):\s*\[[^]]*].*?\bcli "
+    r"(?P<mac>[0-9a-f]{2}(?:[:-][0-9a-f]{2}){5})\)",
+    re.IGNORECASE,
+)
+
 
 class MemberManager(CRUDManager):
     def __init__(
@@ -64,8 +72,9 @@ class MemberManager(CRUDManager):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: str = "",
+        terms: str | None = None,
         filter_: MemberFilter | None = None,
+        **_kwargs: Any,
     ) -> tuple[list[int], int]:
         result, count = await self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
         return [r.id for r in result if r.id], count
@@ -115,7 +124,7 @@ class MemberManager(CRUDManager):
                 firstName=body.first_name,
                 lastName=body.last_name,
                 email=body.mail,
-                departureDate=datetime.now() - timedelta(days=1),
+                departureDate=utc_now_naive() - timedelta(days=1),
                 ip="",
                 subnet="",
                 comment="",
@@ -136,7 +145,7 @@ class MemberManager(CRUDManager):
             body=SubscriptionBody(member=created_member.id),
         )
 
-        if wifi_only_room_id is not None and created_member.id is not None:
+        if wifi_only_room_id is not None:
             await self._move_to_room(created_member.id, wifi_only_room_id)
 
         # After every write, and never inside a try that would roll them back: a delivery failure
@@ -157,7 +166,9 @@ class MemberManager(CRUDManager):
         return created_member
 
     @log_call
-    async def update(self, id: int, body: MemberBody, *, is_staff: bool = False) -> None:
+    async def update(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, id: int, body: MemberBody, *, is_staff: bool = False
+    ) -> None:
         member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
@@ -263,7 +274,7 @@ class MemberManager(CRUDManager):
         await self.room_repository.add_member(room_id, member_id)
 
     @log_call
-    async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
+    async def get_logs(self, member_id: int, limit: int = 10, offset: int = 0, dhcp: bool = False) -> dict[str, object]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -279,24 +290,23 @@ class MemberManager(CRUDManager):
         member = await self.member_repository.get_by_id(member_id)
         if member is None:
             raise MemberNotFoundError(member_id)
-        else:
-            logs, total_count = await self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
+        logs, total_count = await self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
 
-            # Format logs with separate timestamp and message
-            formatted_logs = [
-                {
-                    "timestamp": (x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])),
-                    "message": str(x[1]),
-                }
-                for x in logs
-            ]
+        # Format logs with separate timestamp and message
+        formatted_logs = [
+            {
+                "timestamp": (x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])),
+                "message": str(x[1]),
+            }
+            for x in logs
+        ]
 
-            has_more = (offset + limit) < total_count
+        has_more = (offset + limit) < total_count
 
-            return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
+        return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
 
     @log_call
-    async def get_statuses(self, member_id) -> list[MemberStatus]:
+    async def get_statuses(self, member_id: int) -> list[MemberStatus]:
         # Check that the user exists in the system.
         member = await self.member_repository.get_by_id(member_id)
         if not member:
@@ -305,16 +315,21 @@ class MemberManager(CRUDManager):
         # Do the actual log fetching.
         try:
             logs, _total_count = await self.device_logs_manager.get(member=member, dhcp=False)
-            device_to_statuses = {}
-            last_ok_login_mac = {}
+            device_to_statuses: dict[str, dict[str, MemberStatus]] = {}
+            last_ok_login_mac: dict[str, datetime] = {}
 
-            def add_to_statuses(status, timestamp, mac):
+            def add_to_statuses(status: str, timestamp: datetime, mac: str) -> None:
                 if mac not in device_to_statuses:
                     device_to_statuses[mac] = {}
-                if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
+                previous_status = device_to_statuses[mac].get(status)
+                if (
+                    previous_status is None
+                    or previous_status.last_timestamp is None
+                    or previous_status.last_timestamp < timestamp
+                ):
                     device_to_statuses[mac][status] = MemberStatus(status=status, lastTimestamp=timestamp, comment=mac)
 
-            prev_log = ["", ""]
+            prev_log = None
             for log in logs:
                 if "Login OK" in log[1]:
                     match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
@@ -324,7 +339,8 @@ class MemberManager(CRUDManager):
                         if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
                             last_ok_login_mac[mac] = log[0]
                 if (
-                    "EAP sub-module failed" in prev_log[1]
+                    prev_log is not None
+                    and "EAP sub-module failed" in prev_log[1]
                     and "mschap: MS-CHAP2-Response is incorrect" in log[1]
                     and (prev_log[0] - log[0]).total_seconds() < 1
                 ):
@@ -349,29 +365,21 @@ class MemberManager(CRUDManager):
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
-                    # @TODO a read access denied means the user is validating the certificate
-                    # @TODO a read/write protocol version is ???
-                    # @TODO a write unknown CA means the user is validating the certificate
-                    # @TODO a write decryption failed is ???
-                    # @TODO a read internal error is most likely not user-related
-                    # @TODO a write unexpected_message is ???
-                    match = re.search(
-                        r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*",
-                        log[1],
-                    )
-                    if match is not None:
-                        login: str = match.group(1)
-                        mac: str = match.group(2).upper()
-                        add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
+                if match := _TLS_ALERT_LOG_PATTERN.search(log[1]):
+                    mac = match.group("mac").replace(":", "-").upper()
+                    add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
                 prev_log = log
 
-            all_statuses = []
+            all_statuses: list[MemberStatus] = []
             for mac, statuses in device_to_statuses.items():
-                for object in statuses.values():
-                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
+                for member_status in statuses.values():
+                    if (
+                        mac in last_ok_login_mac
+                        and member_status.last_timestamp is not None
+                        and member_status.last_timestamp < last_ok_login_mac[mac]
+                    ):
                         continue
-                    all_statuses.append(object)
+                    all_statuses.append(member_status)
         except LogFetchError:
             logger.warning("log_fetch_failed")
             return []  # We fail open here.
@@ -379,13 +387,13 @@ class MemberManager(CRUDManager):
             return all_statuses
 
     @log_call
-    async def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:
+    async def update_subnet(self, member_id: int) -> tuple[IPv4Network, IPv4Address | None] | None:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
 
         if not is_member_active(member):
-            return
+            return None
 
         used_wireles_public_ips = await self.member_repository.used_wireless_public_ips()
 
@@ -412,7 +420,7 @@ class MemberManager(CRUDManager):
         await self.device_ip_manager.unallocate_ips(member=member)
 
     @log_call
-    async def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
+    async def ethernet_vlan_changed(self, member_id: int, vlan_number: int) -> None:
         member = await self.get_by_id(id=member_id)
         await self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
 

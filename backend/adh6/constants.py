@@ -69,7 +69,7 @@ WIFI_IPV6_RESERVED_HOSTS = 100
 
 def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:
     # These are perfectly valid addresses, but we exclude them to avoid confusion
-    excluded_addresses = [
+    excluded_addresses: list[str] = [
         "157.159.192.0",
         "157.159.192.1",
         "157.159.192.255",
@@ -80,14 +80,14 @@ def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipadd
         "157.159.194.1",
         "157.159.194.255",
     ]
-    hosts = []
+    hosts: list[ipaddress.IPv4Address] = []
     for r in PUBLIC_RANGE:
         hosts.extend(list(r.hosts()))
 
     private_range = ipaddress.IPv4Network("10.42.0.0/16").subnets(new_prefix=28)
 
     mappings: dict[ipaddress.IPv4Address, ipaddress.IPv4Network] = {}
-    for subnet, ip in zip(private_range, hosts):
+    for subnet, ip in zip(private_range, hosts, strict=False):
         if str(ip) in excluded_addresses:
             continue
         mappings[ip] = subnet

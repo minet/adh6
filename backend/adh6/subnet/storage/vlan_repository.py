@@ -14,8 +14,8 @@ from adh6.entity import AbstractDevice, AbstractVlan, VlanStats
 from adh6.exceptions import VLANNotFoundError
 from adh6.member.storage.models import Adherent as AdherentSQL
 from adh6.room.storage.models import Chambre as ChambreSQL
+from adh6.subnet.interfaces import VlanRepository
 
-from ..interfaces import VlanRepository
 from .models import Vlan as VlanSQL
 
 
@@ -50,7 +50,6 @@ class VLANSQLRepository(VlanRepository):
                 and_(
                     DeviceSQL.adherent_id == AdherentSQL.id,
                     DeviceSQL.ip.isnot(None),
-                    DeviceSQL.ip != "En attente",
                     DeviceSQL.type != DeviceType.wireless.value,  # Wireless devices are on a private IP
                 ),
             )
@@ -64,7 +63,7 @@ class VLANSQLRepository(VlanRepository):
             .join(ChambreSQL, ChambreSQL.vlan_id == VlanSQL.id)
             .join(AdherentSQL, AdherentSQL.chambre_id == ChambreSQL.id)
             .join(DeviceSQL, DeviceSQL.adherent_id == AdherentSQL.id)
-            .where((DeviceSQL.ip.is_(None)) | (DeviceSQL.ip == "En attente"))
+            .where(DeviceSQL.ip.is_(None))
         )
 
         wifi_stmt = select(func.count(AdherentSQL.id)).where(AdherentSQL.ip.isnot(None), AdherentSQL.ip != "")
@@ -76,7 +75,7 @@ class VLANSQLRepository(VlanRepository):
         for vlan_id, device in no_ip_rows:
             over_limit_by_vlan.setdefault(vlan_id, []).append(_map_device_sql_to_abstract(device))
 
-        result = []
+        result: list[VlanStats] = []
         for vlan, device_count in count_rows:
             ipv4_network = vlan.adresses
             if vlan.numero == WIFI_VLAN_NUMBER:

@@ -1,8 +1,9 @@
+# pyright: reportUnnecessaryComparison=false
+
 """
 Implements everything related to actions on the SQL database.
 """
 
-from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import Select, String, and_, cast, exists, func, or_, select
@@ -10,14 +11,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.datetime_utils import utc_today
 from adh6.entity import MiniRouter, MiniRouterLoan
 from adh6.exceptions import MiniRouterLoanNotFoundError, MiniRouterNotFoundError
 from adh6.member.storage.models import Adherent
+from adh6.mini_router.addresses import addresses_of, number_from_terms
+from adh6.mini_router.interfaces import MiniRouterRepository
 from adh6.room.storage.models import Chambre, RoomMemberLink
 from adh6.storage.count import count_rows
 
-from ..addresses import addresses_of, number_from_terms
-from ..interfaces import MiniRouterRepository
 from .models import MiniRouter as SQLMiniRouter, MiniRouterLoan as SQLMiniRouterLoan
 
 UNIQUE_FIELDS = {
@@ -78,7 +80,7 @@ class MiniRouterSQLRepository(MiniRouterRepository):
             stmt = stmt.where(has_loan if loaned else ~has_loan)
 
         if overdue is not None:
-            late_loan = exists().where(current_loan, SQLMiniRouterLoan.due_date < date.today())
+            late_loan = exists().where(current_loan, SQLMiniRouterLoan.due_date < utc_today())
             stmt = stmt.where(late_loan if overdue else ~late_loan)
 
         count = await count_rows(self.session, stmt)
@@ -188,7 +190,7 @@ class MiniRouterSQLRepository(MiniRouterRepository):
                 )
                 rooms = dict((await self.session.execute(room_stmt)).tuples().all())
 
-        result = []
+        result: list[MiniRouter] = []
         for m in mini_routers:
             loan = loans.get(m.id)
             room = rooms.get(loan.member) if loan and loan.member is not None else None
@@ -264,5 +266,5 @@ def _map_loan(
         depositStatus=loan.deposit_status,
         author=loan.author_id,
         authorName=_full_name(author),
-        overdue=loan.returned_at is None and loan.due_date is not None and loan.due_date < date.today(),
+        overdue=loan.returned_at is None and loan.due_date is not None and loan.due_date < utc_today(),
     )

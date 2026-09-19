@@ -75,8 +75,6 @@ CMD ["python", "-Xfrozen_modules=off", "-m", "debugpy", "--wait-for-client", "--
 
 # Test stage (CI/CD)
 # Inherits the compiled prod .venv from build so mysqlclient/thrift are not recompiled.
-# Dev-only packages (ruff, pyright, pytest…) are all pre-built wheels — no compiler needed.
-# The .tox/ci env is pre-baked so CI jobs skip the uv-sync step entirely.
 FROM base AS test
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
@@ -87,7 +85,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
 COPY --from=build /app/.venv /app/.venv
-COPY backend/pyproject.toml backend/uv.lock ./
+COPY backend/pyproject.toml backend/pyright-tests.json backend/uv.lock ./
 # Extend the inherited prod venv with dev packages; pre-bake .tox/ci env
 RUN --mount=type=cache,target=/var/cache/apk \
     --mount=type=cache,target=/root/.cache/uv \
@@ -95,8 +93,14 @@ RUN --mount=type=cache,target=/var/cache/apk \
     git \
     mariadb-connector-c \
     nodejs \
+    && apk add --update --virtual .test-build-deps \
+    build-base \
+    libffi-dev \
+    mariadb-dev \
+    pkgconf \
     && uv sync --locked --group dev \
-    && uv run tox -e ci --notest
+    && uv run tox -e ci --notest \
+    && apk del .test-build-deps
 RUN mkdir /openapi
 COPY openapi/spec.yaml /openapi/spec.yaml
 COPY openapi/spec.yaml openapi/spec.yaml
@@ -104,5 +108,3 @@ COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh 
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY backend/test/ test/
-
-

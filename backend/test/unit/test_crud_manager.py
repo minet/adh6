@@ -5,6 +5,10 @@ from adh6.default.crud_manager import CRUDManager
 from adh6.default.crud_repository import CRUDRepository
 
 
+class RepositoryNotFoundError(Exception):
+    pass
+
+
 @pytest.fixture
 def mock_repository():
     return MagicMock(spec=CRUDRepository)
@@ -12,7 +16,7 @@ def mock_repository():
 
 @pytest.fixture
 def crud_manager(mock_repository):
-    return CRUDManager(repository=mock_repository, not_found_exception=Exception)
+    return CRUDManager(repository=mock_repository, not_found_exception=RepositoryNotFoundError)
 
 
 class TestDelete:
@@ -33,5 +37,5 @@ class TestDelete:
         mock_repository.get_by_id = AsyncMock(return_value=None)
 
         # When / Then
-        with pytest.raises(Exception):
+        with pytest.raises(RepositoryNotFoundError):
             await crud_manager.delete(999)

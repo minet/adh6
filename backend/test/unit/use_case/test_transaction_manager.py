@@ -6,6 +6,7 @@ from adh6.entity.transaction import Transaction
 from adh6.exceptions import IntMustBePositive, NotFoundError, TransactionNotFoundError, ValidationError
 from adh6.treasury.interfaces.transaction_repository import TransactionRepository
 from adh6.treasury.transaction_manager import TransactionManager
+from pydantic import ValidationError as PydanticValidationError
 from pytest import fixture, raises
 
 
@@ -109,7 +110,7 @@ class TestCreateOrUpdate:
             await transaction_manager.update_or_create(req)
 
     async def test_negative_value(self, transaction_manager: TransactionManager):
-        with raises(Exception):
+        with raises(PydanticValidationError):
             req = AbstractTransaction(name="test", value=-1, paymentMethod=1)
             await transaction_manager.update_or_create(req)
 

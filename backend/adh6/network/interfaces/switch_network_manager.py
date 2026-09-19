@@ -4,6 +4,26 @@ Switch network manager interface.
 
 import abc
 from collections.abc import Callable
+from typing import TypedDict
+
+
+class BulkOperationData(TypedDict):
+    success: int
+    failed: int
+    errors: list[str]
+
+
+class DiscoveredPortData(TypedDict):
+    portNumber: str
+    oid: str
+
+
+class PingResultData(TypedDict):
+    sent: int
+    received: int
+    minRtt: int
+    avgRtt: int
+    maxRtt: int
 
 
 class SwitchNetworkManager(abc.ABC):
@@ -12,7 +32,7 @@ class SwitchNetworkManager(abc.ABC):
     """
 
     @abc.abstractmethod
-    async def get_port_status(self, port_id: int) -> bool:
+    async def get_port_status(self, port_id: int) -> str:
         """
         Retrieve the status of a port.
 
@@ -30,7 +50,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def get_port_auth(self, port_id: int) -> bool:
+    async def get_port_auth(self, port_id: int) -> str:
         """
         Retrieve the status of a port.
 
@@ -48,7 +68,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def get_port_vlan(self, port_id: int) -> int:
+    async def get_port_vlan(self, port_id: int) -> str:
         """
         Get the VLAN assigned to a port.
 
@@ -57,7 +77,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def update_port_vlan(self, port_id: int, elevated: Callable, vlan: int = 1) -> str:
+    async def update_port_vlan(self, port_id: int, elevated: Callable[[], object], vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 
@@ -66,7 +86,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def get_port_mab(self, port_id: int) -> bool:
+    async def get_port_mab(self, port_id: int) -> str:
         """
         Retrieve whether MAB is active on a port.
 
@@ -102,7 +122,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def get_port_use(self, port_id: int) -> bool:
+    async def get_port_use(self, port_id: int) -> str:
         """
         Get the usage of a port.
 
@@ -120,7 +140,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def get_port_speed(self, port_id: int) -> int:
+    async def get_port_speed(self, port_id: int) -> str:
         """
         Get the speed of a port.
 
@@ -138,7 +158,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def discover_ports(self, switch_id: int) -> list[dict]:
+    async def discover_ports(self, switch_id: int) -> list[DiscoveredPortData]:
         """
         Discover ports on a switch via SNMP.
         Returns a list of dicts with 'portNumber' and 'oid'.
@@ -149,7 +169,7 @@ class SwitchNetworkManager(abc.ABC):
         # pragma: no cover
 
     @abc.abstractmethod
-    async def sync_port_names(self, switch_id: int) -> dict:
+    async def sync_port_names(self, switch_id: int) -> BulkOperationData:
         """
         Sync port names from switch technical names (ifDescr) via SNMP.
         Updates the database.
@@ -162,7 +182,7 @@ class SwitchNetworkManager(abc.ABC):
     @abc.abstractmethod
     async def ping_from_switch(
         self, switch_id: int, address: str, count: int = 5, timeout_ms: int = 2000, size: int = 100
-    ) -> dict:
+    ) -> PingResultData:
         """
         Run an ICMP ping from the switch via Cisco SNMP Ping MIB (CISCO-PING-MIB).
 

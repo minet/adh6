@@ -1,3 +1,5 @@
+# pyright: reportMissingTypeStubs=false, reportUnnecessaryComparison=false, reportUnnecessaryIsInstance=false
+
 """
 Implements everything related to SNMP-related actions
 """
@@ -12,8 +14,15 @@ from adh6.exceptions import (
     PortNotFoundError,
     SwitchNotFoundError,
 )
+from adh6.network.interfaces import (
+    BulkOperationData,
+    DiscoveredPortData,
+    PingResultData,
+    PortRepository,
+    SwitchNetworkManager,
+    SwitchRepository,
+)
 
-from ..interfaces import PortRepository, SwitchNetworkManager, SwitchRepository
 from .util.snmp_helper import (
     get_snmp_value,
     get_snmp_value_raw,
@@ -45,7 +54,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         self.port_repository = port_repository
 
     @log_call
-    async def get_port_status(self, port_id: int) -> bool:
+    async def get_port_status(self, port_id: int) -> str:
         """
         Retrieve the status of a port.
 
@@ -65,11 +74,10 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         port_state = await get_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid)
         if port_state == "up":
             return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 2)
-        else:
-            return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 1)
+        return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 1)
 
     @log_call
-    async def get_port_vlan(self, port_id: int) -> int:
+    async def get_port_vlan(self, port_id: int) -> str:
         """
         Get the VLAN assigned to a port.
 
@@ -79,7 +87,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return await get_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid)
 
     @log_call
-    async def update_port_vlan(self, port_id: int, elevated: Callable, vlan: int = 1) -> str:
+    async def update_port_vlan(self, port_id: int, elevated: Callable[[], object], vlan: int = 1) -> str:
         """
         Update the VLAN assigned to a port.
 
@@ -94,7 +102,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid, vlan)
 
     @log_call
-    async def get_port_mab(self, port_id: int) -> bool:
+    async def get_port_mab(self, port_id: int) -> str:
         """
         Retrieve whether MAB is active on a port.
 
@@ -114,11 +122,10 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         mab_state = await get_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid)
         if mab_state == "false":
             return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 1)
-        else:
-            return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 2)
+        return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 2)
 
     @log_call
-    async def get_port_auth(self, port_id: int) -> bool:
+    async def get_port_auth(self, port_id: int) -> str:
         """
         Retrieve whether MAB is active on a port.
 
@@ -128,7 +135,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return await get_snmp_value(community, ip, "IEEE8021-PAE-MIB", "dot1xAuthAuthControlledPortControl", oid)
 
     @log_call
-    async def update_port_auth(self, port_id: int) -> None:
+    async def update_port_auth(self, port_id: int) -> str:
         """
         Update whether MAB should be active on a port.
 
@@ -145,16 +152,15 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                 oid,
                 3,
             )
-        else:
-            await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid, 1)
-            return await set_snmp_value(
-                community,
-                ip,
-                "IEEE8021-PAE-MIB",
-                "dot1xAuthAuthControlledPortControl",
-                oid,
-                2,
-            )
+        await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid, 1)
+        return await set_snmp_value(
+            community,
+            ip,
+            "IEEE8021-PAE-MIB",
+            "dot1xAuthAuthControlledPortControl",
+            oid,
+            2,
+        )
 
     @log_call
     async def get_port_mini_router(self, port_id: int) -> bool:
@@ -205,7 +211,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         await set_snmp_values_raw(community, ip, values)
 
     @log_call
-    async def get_port_use(self, port_id: int) -> bool:
+    async def get_port_use(self, port_id: int) -> str:
         """
         Retrieve usage of a port.
 
@@ -215,7 +221,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return await get_snmp_value(community, ip, "IEEE8021-PAE-MIB", "dot1xAuthAuthControlledPortStatus", oid)
 
     @log_call
-    async def get_port_speed(self, port_id: int) -> int:
+    async def get_port_speed(self, port_id: int) -> str:
         """
         Retrieve speed of a port.
 
@@ -252,7 +258,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         count: int = 5,
         timeout_ms: int = 2000,
         size: int = 100,
-    ) -> dict:
+    ) -> PingResultData:
         """
         Run an ICMP ping from the switch using Cisco SNMP Ping MIB (1.3.6.1.4.1.9.9.16).
 
@@ -310,7 +316,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                 break
 
         # Read result columns; fall back to -1 on any error
-        result: dict = {
+        result: PingResultData = {
             "sent": count,
             "received": -1,
             "minRtt": -1,
@@ -338,7 +344,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return result
 
     @log_call
-    async def discover_ports(self, switch_id: int) -> list[dict]:
+    async def discover_ports(self, switch_id: int) -> list[DiscoveredPortData]:
         """
         Discover ports on a switch via SNMP walking IF-MIB::ifDescr.
         """
@@ -355,7 +361,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return [{"portNumber": name, "oid": suffix} for suffix, name in discovered if name]
 
     @log_call
-    async def sync_port_names(self, switch_id: int) -> dict:
+    async def sync_port_names(self, switch_id: int) -> BulkOperationData:
         """
         Sync port names from switch technical names (ifDescr) via SNMP.
         """
@@ -370,6 +376,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         ports, _ = await self.port_repository.search_by(filter_=AbstractPort(switchObj=switch_id), limit=1000)
 
         success, failed, errors = 0, 0, []
+        errors: list[str]
         for port in ports:
             if port.oid in name_map:
                 try:
@@ -386,7 +393,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         return {"success": success, "failed": failed, "errors": errors}
 
     @log_call
-    async def get_oid_switch_ipand_community_from_port_id(self, port_id) -> tuple[str, str, str]:
+    async def get_oid_switch_ipand_community_from_port_id(self, port_id: int) -> tuple[str, str, str]:
         port = await self.port_repository.get_by_id(object_id=port_id)
         if port is None:
             raise PortNotFoundError(port_id)

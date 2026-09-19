@@ -10,8 +10,8 @@ from adh6.entity.abstract_product import AbstractProduct
 from adh6.entity.product import Product
 from adh6.exceptions import ProductNotFoundError
 from adh6.storage.count import count_rows
+from adh6.treasury.interfaces import ProductRepository
 
-from ..interfaces import ProductRepository
 from .models import Product as SQLProduct
 
 
@@ -25,7 +25,7 @@ class ProductSQLRepository(ProductRepository):
         return _map_product_sql_to_entity(obj) if obj else obj
 
     async def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[Product], int]:
         stmt = select(SQLProduct)
 

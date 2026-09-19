@@ -1,7 +1,7 @@
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from adh6.datetime_utils import utc_now_naive
 from adh6.member.storage.charter_repository import CharterSQLRepository
 
 
@@ -18,7 +18,7 @@ def charter_repo(mock_session):
 class TestCharterSQLRepository:
     async def test_get_minet(self, charter_repo, mock_session):
         # Given
-        dt = datetime.now()
+        dt = utc_now_naive()
         mock_result = MagicMock()
         mock_result.scalar_one.return_value = dt
         mock_session.execute = AsyncMock(return_value=mock_result)
@@ -32,7 +32,7 @@ class TestCharterSQLRepository:
 
     async def test_get_hosting(self, charter_repo, mock_session):
         # Given
-        dt = datetime.now()
+        dt = utc_now_naive()
         mock_result = MagicMock()
         mock_result.scalar_one.return_value = dt
         mock_session.execute = AsyncMock(return_value=mock_result)

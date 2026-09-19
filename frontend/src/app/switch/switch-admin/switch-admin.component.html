@@ -13,6 +13,14 @@
       </div>
       <div class="level-right">
         <div class="level-item">
+          <a
+            class="button is-primary is-light"
+            [routerLink]="['/switch', switchId, 'edit']">
+            <span class="icon"><i class="fas fa-edit"></i></span>
+            <span i18n="@@switch.admin.edit">Modifier</span>
+          </a>
+        </div>
+        <div class="level-item">
           <a class="button" [routerLink]="['/switch', 'search']">
             <span class="icon"><i class="fas fa-arrow-left"></i></span>
             <span i18n="@@switch.admin.back">Retour à la liste</span>

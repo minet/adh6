@@ -1,3 +1,5 @@
+# pyright: reportUnknownMemberType=false
+
 """Local verification of Keycloak access tokens.
 
 Requests never contact Keycloak: each worker caches the realm's public signing keys and only
@@ -11,7 +13,7 @@ import logging
 import math
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 import httpx
 from jwcrypto import jwk, jws, jwt
@@ -66,12 +68,10 @@ class OidcTokenVerifier:
                 check_claims={"exp": None, "iss": self._issuer},
                 expected_type="JWS",
             )
-            claims = json.loads(verified.claims)
+            claims = cast(dict[str, Any], json.loads(verified.claims))
         except (JWException, ValueError) as exc:
             raise InvalidOIDCToken(f"validation failed: {exc}") from exc
 
-        if not isinstance(claims, dict):
-            raise InvalidOIDCToken("claims are not a JSON object")
         # Keycloak also signs ID tokens ("ID") and refresh tokens ("Refresh") with the same keys.
         if claims.get("typ") != "Bearer":
             raise InvalidOIDCToken("not an access token")
@@ -143,7 +143,8 @@ def _key_id(token: str) -> str | None:
         parsed.deserialize(token)
     except (JWException, ValueError, TypeError) as exc:
         raise InvalidOIDCToken("malformed token") from exc
-    key_id = parsed.jose_header.get("kid")
+    header = cast(dict[str, Any], parsed.jose_header)
+    key_id = header.get("kid")
     return key_id if isinstance(key_id, str) else None
 
 

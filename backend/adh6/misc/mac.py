@@ -1,13 +1,11 @@
 import string
 
 
-def get_mac_variations(addr):
-    addr = filter(lambda x: x in string.hexdigits, addr)
-    addr = "".join(addr)
-    addr = addr.lower()
-    variations = []
-    variations += ["{}:{}:{}:{}:{}:{}".format(*(addr[i * 2 : (i + 1) * 2] for i in range(6)))]
-    variations += ["{}-{}-{}-{}-{}-{}".format(*(addr[i * 2 : (i + 1) * 2] for i in range(6)))]
-    variations += ["{}.{}.{}".format(*(addr[i * 4 : (i + 1) * 4] for i in range(3)))]
+def get_mac_variations(addr: str) -> list[str]:
+    normalized = "".join(character for character in addr if character in string.hexdigits).lower()
+    variations: list[str] = []
+    variations += ["{}:{}:{}:{}:{}:{}".format(*(normalized[i * 2 : (i + 1) * 2] for i in range(6)))]
+    variations += ["{}-{}-{}-{}-{}-{}".format(*(normalized[i * 2 : (i + 1) * 2] for i in range(6)))]
+    variations += ["{}.{}.{}".format(*(normalized[i * 4 : (i + 1) * 4] for i in range(3)))]
     variations += [x.upper() for x in variations]
     return variations

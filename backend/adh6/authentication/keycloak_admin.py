@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import cast
+from typing import Any, cast
 
 import httpx
 
@@ -111,10 +111,13 @@ def _password_policy_error_message(response: httpx.Response) -> str:
     except (ValueError, TypeError):
         return _GENERIC_CREDENTIAL_POLICY_ERROR
 
-    if not isinstance(body, dict) or body.get("error") not in _PASSWORD_POLICY_ERROR_CODES:
+    if not isinstance(body, dict):
+        return _GENERIC_CREDENTIAL_POLICY_ERROR
+    typed_body = cast(dict[str, Any], body)
+    if typed_body.get("error") not in _PASSWORD_POLICY_ERROR_CODES:
         return _GENERIC_CREDENTIAL_POLICY_ERROR
 
-    description = body.get("error_description")
+    description = typed_body.get("error_description")
     if isinstance(description, str) and 0 < len(description) <= 500:
         return description
     return _GENERIC_CREDENTIAL_POLICY_ERROR
@@ -170,7 +173,7 @@ class KeycloakAdminClient:
                 json=["UPDATE_PASSWORD"],
                 headers=headers,
             )
-            if action_response.status_code != httpx.codes.NO_CONTENT:
+            if action_response.status_code != 204:
                 raise KeycloakAdminError("Keycloak refused the password-action email")
 
     async def _reset_password(self, username: str, password: str) -> None:
@@ -184,9 +187,9 @@ class KeycloakAdminClient:
                 json={"type": "password", "value": password, "temporary": False},
                 headers=headers,
             )
-            if response.status_code == httpx.codes.BAD_REQUEST:
+            if response.status_code == 400:
                 raise KeycloakPasswordPolicyError(_password_policy_error_message(response))
-            if response.status_code != httpx.codes.NO_CONTENT:
+            if response.status_code != 204:
                 raise KeycloakAdminError("Keycloak refused the password update")
 
     async def _get_password_policy(self) -> list[dict[str, str]]:
@@ -196,14 +199,14 @@ class KeycloakAdminClient:
         async with httpx.AsyncClient(base_url=base_url, timeout=timeout, transport=self.transport) as client:
             headers = await self._authenticate(client)
             response = await client.get(f"/admin/realms/{realm}", headers=headers)
-            if response.status_code != httpx.codes.OK:
+            if response.status_code != 200:
                 raise KeycloakAdminError("Keycloak password policy lookup failed")
 
-            body = response.json()
+            body: object = response.json()
             if not isinstance(body, dict):
                 raise KeycloakAdminError("Keycloak returned an invalid password policy")
 
-            policy = body.get("passwordPolicy")
+            policy = cast(dict[str, object], body).get("passwordPolicy")
             if policy is None:
                 return []
             if not isinstance(policy, str):
@@ -218,10 +221,10 @@ class KeycloakAdminClient:
             params={"username": username, "exact": "true", "max": 2},
             headers=headers,
         )
-        if users_response.status_code != httpx.codes.OK:
+        if users_response.status_code != 200:
             raise KeycloakAdminError("Keycloak user lookup failed")
 
-        users = users_response.json()
+        users = cast(list[dict[str, Any]], users_response.json())
         matches = [user for user in users if user.get("username") == username and isinstance(user.get("id"), str)]
         if len(matches) != 1:
             raise KeycloakAdminError("The member does not map to exactly one Keycloak user")
@@ -237,10 +240,10 @@ class KeycloakAdminClient:
                 "client_secret": self.config.client_secret,
             },
         )
-        if token_response.status_code != httpx.codes.OK:
+        if token_response.status_code != 200:
             raise KeycloakAdminError("Keycloak service-account authentication failed")
 
-        access_token = token_response.json().get("access_token")
+        access_token = cast(dict[str, Any], token_response.json()).get("access_token")
         if not isinstance(access_token, str) or not access_token:
             raise KeycloakAdminError("Keycloak returned an invalid service-account token")
         return {"Authorization": f"Bearer {access_token}"}

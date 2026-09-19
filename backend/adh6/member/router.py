@@ -250,7 +250,7 @@ async def create_member(
     try:
         member = await manager.create(body)
     except MemberAlreadyExist as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
     # Commit before publishing the id. The repository only flushes, so without this the response
     # announces an auto-increment id for a row that is not durable yet -- and a caller that chains
@@ -268,17 +268,16 @@ async def search_members(
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     response: Response,
+    filter_: Annotated[MemberFilter, MemberFilterWrapper()],
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str, Query()] = "",
-    filter_: Annotated[MemberFilter, MemberFilterWrapper()] = MemberFilter(),
 ) -> list[int]:
     """Search members with optional filter."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await manager.search(limit=limit, offset=offset, terms=terms, filter_=filter_)
     response.headers["X-Total-Count"] = str(_count)
     response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
-    # result = [await manager.get_by_id(member_id) for member_id in result]
     return result
 
 
@@ -292,7 +291,7 @@ async def get_password_policy(
     try:
         return [PasswordPolicyRule.model_validate(rule) for rule in await keycloak.get_password_policy()]
     except KeycloakAdminError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e
 
 
 @router.get("/{id}", response_model=Member)
@@ -307,7 +306,7 @@ async def get_member(
     try:
         result = await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
     if only:
         return JSONResponse(content=_apply_only_projection(_member_to_response_dict(result), only))
@@ -326,7 +325,7 @@ async def update_member(
     try:
         await manager.update(id, body, is_staff=Roles.ADMIN_WRITE.value in get_user_roles(request))
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -340,7 +339,7 @@ async def delete_member(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.get("/{id}/wifi")
@@ -354,7 +353,7 @@ async def get_member_wifi_status(
     try:
         member = await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     return MemberIdWifiGet200Response(wifiOnly=bool(member.model_dump(by_alias=True).get("wifiOnly", False)))
 
 
@@ -369,7 +368,7 @@ async def get_member_comment(
     try:
         return await manager.get_comment(id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.put("/{id}/comment", status_code=status.HTTP_204_NO_CONTENT)
@@ -398,8 +397,7 @@ async def create_subscription(
 ) -> Membership:
     """Add a membership record for a member."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value, id, "subscription")
-    membership = await manager.create(id, body)
-    return membership
+    return await manager.create(id, body)
 
 
 # ============================================================================
@@ -421,7 +419,7 @@ async def get_member_logs(
     try:
         return await manager.get_logs(id, limit=limit, offset=offset, dhcp=dhcp)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.post("/{id}/password-reset", status_code=status.HTTP_204_NO_CONTENT)
@@ -437,9 +435,9 @@ async def send_member_password_reset(
         member = await manager.get_by_id(id)
         await keycloak.send_update_password_email(member.username)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except KeycloakAdminError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e
 
 
 @router.put("/{id}/password", status_code=status.HTTP_204_NO_CONTENT)
@@ -456,11 +454,11 @@ async def administratively_set_member_password(
         member = await manager.get_by_id(id)
         await keycloak.reset_password(member.username, body.password.get_secret_value())
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except KeycloakPasswordPolicyError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except KeycloakAdminError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e
 
 
 @router.get("/{id}/statuses", response_model=list[MemberStatus])
@@ -474,7 +472,7 @@ async def get_member_statuses(
     try:
         return await manager.get_statuses(id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -528,7 +526,7 @@ async def get_member_charter_by_id(
             return signed_at.isoformat()
         return "" if signed_at is None else str(signed_at)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.put("/{id}/charter/{charter_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -543,7 +541,7 @@ async def sign_specific_charter(
     try:
         await manager.sign(charter_id=charter_id, member_id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -577,7 +575,7 @@ async def get_mailinglist_member_value(
 @mailinglist_router.put("/member/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_mailinglist_member_value(
     id: int,
-    body: dict,
+    body: dict[str, int],
     manager: Annotated[MailinglistManager, Depends(get_mailinglist_manager)],
     request: Request,
 ) -> None:

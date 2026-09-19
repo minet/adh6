@@ -172,14 +172,14 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
     limit = 10
 
     # Create a lot of devices
-    for _ in range(limit * 2):
-        suffix = "{0:04X}"
+    for index in range(limit * 2):
+        suffix = f"{index:04X}"
         dev = Device(
             adherent_id=sample_member.id,
             mac="00-00-00-00-" + suffix[:2] + "-" + suffix[2:],
             type=DeviceType.wired.value,
-            ip="127.0.0.1",
-            ipv6="::1",
+            ip=f"127.0.0.{index + 1}",
+            ipv6=f"2001:db8::{index + 1}",
         )
         s.add(dev)
     s.commit()

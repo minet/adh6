@@ -72,8 +72,10 @@ tox = ["tox", "tox-uv"]
 # Docs:
 # - pyright: https://microsoft.github.io/pyright/#/
 [tool.pyright]
-include = ["adh6", "test"] 
-typeCheckingMode = "basic" # TODO: passer en strict
+include = ["adh6"]
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
 # exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
 ignore = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"] #, "migrations/*.py"]
 
@@ -91,6 +93,7 @@ commands = [
   ["ruff", "format"],
   ["ruff", "check", "--fix"],
   ["pyright"],
+  ["pyright", "--project", "pyright-tests.json"],
   ["pytest"],
 ]
 description = "Fix all auto-fixable issues and run tests (local dev)"
@@ -100,6 +103,7 @@ commands = [
   ["ruff", "format", "--diff"],
   ["ruff", "check", "--output-format=gitlab", "--output-file=code-quality-report.json"],
   ["pyright"],
+  ["pyright", "--project", "pyright-tests.json"],
   ["pytest", "--junitxml={toxinidir}/report.xml", "--cov-report=xml:{toxinidir}/coverage.xml"],
 ]
 description = "CI: lint and test suite"
@@ -145,7 +149,17 @@ select = [
   "PERF", # Perflint
   "FURB", # refurb
   "LOG", # flake8-logging
-  "RUF", # Ruff-specific-rules  # "ERA",   # locate commented codes  # "FIX",   # locate TODOs and FIXME  # "PTH",   # flake8-use-pathlib (maybe todo ?)  # "TID",   # flake8-tidy-imports (maybe todo ?)  # "SLF",   # flake8-self  (managed by pyright)  # "RET",   # flake8-return  # "Q",     # flake8-quotes  # "T20",   # flake8-print  # "DTZ",   # flake8-datetimez (TODO)  # "B",     # flake8-bugbear
+  "RUF", # Ruff-specific rules
+  "ERA", # eradicate: locate commented-out code
+  "FIX", # flake8-fixme: locate TODOs and FIXMEs
+  "PTH", # flake8-use-pathlib
+  "TID", # flake8-tidy-imports
+  "SLF", # flake8-self
+  "RET", # flake8-return
+  "Q", # flake8-quotes
+  "T20", # flake8-print
+  "DTZ", # flake8-datetimez
+  "B", # flake8-bugbear
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]

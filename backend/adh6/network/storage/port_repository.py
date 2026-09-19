@@ -1,8 +1,9 @@
+# pyright: reportIncompatibleMethodOverride=false, reportUnusedFunction=false
+
 """
 Implements everything related to actions on the SQL database.
 """
 
-from datetime import datetime
 from typing import cast as typing_cast
 
 from sqlalchemy import String, cast, func, or_, select, update
@@ -10,6 +11,7 @@ from sqlalchemy.engine import CursorResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractPort, AbstractRoom, Port, Room, Switch
 from adh6.exceptions import (
     PortAlreadyExists,
@@ -20,11 +22,11 @@ from adh6.exceptions import (
     UpdateImpossible,
     ValidationError,
 )
+from adh6.network.interfaces import PortRepository
+from adh6.network.port_identity import normalize_port_oid
 from adh6.room.storage.models import Chambre as SQLChambre
 from adh6.storage.count import count_rows
 
-from ..interfaces import PortRepository
-from ..port_identity import normalize_port_oid
 from .models import Port as SQLPort, Switch as SQLSwitch
 
 
@@ -41,9 +43,9 @@ class PortSQLRepository(PortRepository):
 
     async def search_by(
         self,
-        limit=DEFAULT_LIMIT,
-        offset=DEFAULT_OFFSET,
-        terms=None,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: str | None = None,
         filter_: AbstractPort | None = None,
     ) -> tuple[list[Port], int]:
         stmt = select(SQLPort).join(SQLSwitch, SQLSwitch.id == SQLPort.switch_id)
@@ -117,7 +119,7 @@ class PortSQLRepository(PortRepository):
                 raise PortAlreadyExists(switch_id, existing_oid)
 
     async def create(self, abstract_port: AbstractPort) -> Port:
-        now = datetime.now()
+        now = utc_now_naive()
         room = None
 
         oid = abstract_port.oid
@@ -145,11 +147,9 @@ class PortSQLRepository(PortRepository):
             self.session.add(port)
             await self.session.flush()
         # Map to entity while still in session context
-        result = _map_port_sql_to_entity(port)
+        return _map_port_sql_to_entity(port)
 
-        return result
-
-    async def update(self, object_to_update: AbstractPort, override=False) -> object:
+    async def update(self, object_to_update: AbstractPort, override: bool = False) -> Port:
         stmt = select(SQLPort).where(SQLPort.id == object_to_update.id)
         port = await self.session.scalar(stmt)
         if port is None:
@@ -174,9 +174,7 @@ class PortSQLRepository(PortRepository):
             object_to_update.oid = oid
         new_port = await _merge_sql_with_entity(object_to_update, port, self.session, override)
         await self.session.flush()
-        mapped_port = _map_port_sql_to_entity(new_port)
-
-        return mapped_port
+        return _map_port_sql_to_entity(new_port)
 
     async def assign_room(self, port_id: int, room_id: int | None, expected_room: int | None) -> Port:
         if room_id is not None:
@@ -187,10 +185,10 @@ class PortSQLRepository(PortRepository):
         result = await self.session.execute(
             update(SQLPort)
             .where(SQLPort.id == port_id, SQLPort.chambre_id == expected_room)
-            .values(chambre_id=room_id, updated_at=datetime.now())
+            .values(chambre_id=room_id, updated_at=utc_now_naive())
             .execution_options(synchronize_session=False)
         )
-        if typing_cast(CursorResult, result).rowcount == 0:
+        if typing_cast(CursorResult[tuple[object]], result).rowcount == 0:
             current = await self.session.scalar(select(SQLPort).where(SQLPort.id == port_id).with_for_update())
             if current is None:
                 raise PortNotFoundError(port_id)
@@ -203,7 +201,7 @@ class PortSQLRepository(PortRepository):
             raise PortNotFoundError(port_id)
         return _map_port_sql_to_entity(port)
 
-    async def delete(self, object_id) -> None:
+    async def delete(self, object_id: int) -> None:
         stmt = select(SQLPort).where(SQLPort.id == object_id)
         port = await self.session.scalar(stmt)
         if port is None:
@@ -213,9 +211,9 @@ class PortSQLRepository(PortRepository):
 
 
 async def _merge_sql_with_entity(
-    entity: AbstractPort, sql_object: SQLPort, session: AsyncSession, override=False
+    entity: AbstractPort, sql_object: SQLPort, session: AsyncSession, override: bool = False
 ) -> SQLPort:
-    now = datetime.now()
+    now = utc_now_naive()
     port = sql_object
     if entity.oid is not None or override:
         port.oid = entity.oid or ""

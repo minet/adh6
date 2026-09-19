@@ -69,13 +69,12 @@ def _records_contains_fields(record: LogRecord, fields: dict):
     if not fields:
         return True
 
-    try:
-        record.extra  # type: ignore
-    except AttributeError:
+    extra = getattr(record, "extra", None)
+    if extra is None:
         return False
 
     for k, v in fields.items():
-        if k not in record.extra:  # type: ignore
+        if k not in extra:
             return False
 
         if record.extra[k] != v:  # type: ignore

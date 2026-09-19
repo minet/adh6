@@ -10,7 +10,7 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice, int]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def create(self, obj: DeviceBody) -> Device:
+    async def create(self, obj: DeviceBody) -> Device:  # pyright: ignore[reportIncompatibleMethodOverride]
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -18,11 +18,17 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice, int]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def delete(self, object_id: int):
+    async def set_ip_addresses(self, device_id: int, ipv4: str | None, ipv6: str | None) -> Device:
+        """Replace both assigned IP addresses, including clearing them with ``None``."""
+
+    @abc.abstractmethod
+    async def delete(self, object_id: int) -> Device | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
+    async def search_by(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, limit: int, offset: int, device_filter: DeviceFilter
+    ) -> tuple[list[Device], int]:
         pass  # pragma: no cover
 
     @abc.abstractmethod

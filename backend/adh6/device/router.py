@@ -88,9 +88,9 @@ async def create_device(
     try:
         device = await manager.create(body)
     except (MemberNotFoundError, RoomNotFoundError) as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except (ValidationError, DevicesLimitReached, DeviceAlreadyExists, ValueError) as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     if device.id is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -104,7 +104,7 @@ async def search_devices(
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
     response: Response,
-    filter_: Annotated[DeviceFilter, DeviceFilterWrapper()] = DeviceFilter(),
+    filter_: Annotated[DeviceFilter, DeviceFilterWrapper()],
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     only: Annotated[str | None, Query()] = None,
@@ -142,7 +142,7 @@ async def get_device(
         require_role_or_ownership(
             request, Roles.NETWORK_READ.value
         )  # Check if user has read access to reveal existence of the resource
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
     if only:
         return JSONResponse(content=_apply_only_projection(_device_to_response_dict(result), only))
@@ -163,7 +163,7 @@ async def delete_device(
         require_role_or_ownership(
             request, Roles.NETWORK_READ.value
         )  # Check if user has read access to reveal existence of the resource
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -183,7 +183,7 @@ async def get_device_vendor(
         vendor = await manager.get_mac_vendor(id=id)
     except NotFoundError as e:
         require_role_or_ownership(request, Roles.NETWORK_READ.value)
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     return vendor
 
 
@@ -203,20 +203,20 @@ async def get_device_member(
                 detail=f"Owner for device {id} not found",
             )
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     return owner
 
 
 @router.put("/{id}/name", status_code=status.HTTP_204_NO_CONTENT)
 async def rename_device(
     id: int,
-    body: dict,
+    body: dict[str, str],
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
 ) -> None:
     """Rename a device."""
     name = body.get("name")
-    if not name or not isinstance(name, str):
+    if not name:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="name is required")
     try:
         require_role_or_ownership(
@@ -229,7 +229,7 @@ async def rename_device(
         require_role_or_ownership(
             request, Roles.NETWORK_READ.value
         )  # Check if user has read access to reveal existence of the resource
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.post("/{id}/wifi_password", response_model=str)
@@ -247,7 +247,7 @@ async def generate_wifi_password(
     try:
         return await manager.generate_wifi_password(device_id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.delete("/{id}/wifi_password", status_code=status.HTTP_204_NO_CONTENT)
@@ -265,4 +265,4 @@ async def clear_wifi_password(
     try:
         await manager.clear_wifi_password(device_id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

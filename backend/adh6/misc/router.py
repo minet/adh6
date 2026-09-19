@@ -65,7 +65,7 @@ async def get_profile(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication token",
-        )
+        ) from None
 
     member = await member_repository.get_by_id(member_id)
     if member is None:

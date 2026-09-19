@@ -3425,6 +3425,22 @@
       <trans-unit id="password.policy.expiration" datatype="html"><source>Devra être changé après <x id="count" equiv-text="value"/> jours.</source><target state="final">Will have to be changed after <x id="count" equiv-text="value"/> days.</target></trans-unit>
       <trans-unit id="password.policy.additional-with-value" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> » : <x id="value" equiv-text="rule.value"/>.</source><target state="final">Additional Keycloak rule “<x id="name" equiv-text="rule.name"/>”: <x id="value" equiv-text="rule.value"/>.</target></trans-unit>
       <trans-unit id="password.policy.additional" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> ».</source><target state="final">Additional Keycloak rule “<x id="name" equiv-text="rule.name"/>”.</target></trans-unit>
+      <trans-unit id="switch.admin.edit" datatype="html"><source>Modifier</source><target state="final">Edit</target></trans-unit>
+      <trans-unit id="switch.edit.title" datatype="html"><source> Modification du commutateur </source><target state="final"> Edit switch </target></trans-unit>
+      <trans-unit id="switch.edit.back" datatype="html"><source>Retour à l&apos;administration</source><target state="final">Back to administration</target></trans-unit>
+      <trans-unit id="switch.edit.description.required" datatype="html"><source> La description est obligatoire. </source><target state="final"> Description is required. </target></trans-unit>
+      <trans-unit id="switch.edit.ip.invalid" datatype="html"><source> Saisissez une adresse IPv4 valide. </source><target state="final"> Enter a valid IPv4 address. </target></trans-unit>
+      <trans-unit id="switch.edit.community.help" datatype="html"><source> Laissez ce champ vide pour conserver la valeur actuelle. </source><target state="final"> Leave this field blank to keep the current value. </target></trans-unit>
+      <trans-unit id="switch.edit.load-error" datatype="html"><source>Impossible de charger le commutateur.</source><target state="final">Unable to load the switch.</target></trans-unit>
+      <trans-unit id="switch.edit.saved" datatype="html"><source>Commutateur modifié</source><target state="final">Switch updated</target></trans-unit>
+      <trans-unit id="switch.edit.save-error" datatype="html"><source>Impossible de modifier le commutateur.</source><target state="final">Unable to update the switch.</target></trans-unit>
+      <trans-unit id="switch.delete.title" datatype="html"><source>Supprimer le commutateur</source><target state="final">Delete switch</target></trans-unit>
+      <trans-unit id="switch.delete.confirm" datatype="html"><source>Voulez-vous vraiment supprimer ce commutateur ? Cette action est irréversible.</source><target state="final">Are you sure you want to delete this switch? This action cannot be undone.</target></trans-unit>
+      <trans-unit id="switch.deleted" datatype="html"><source>Commutateur supprimé</source><target state="final">Switch deleted</target></trans-unit>
+      <trans-unit id="switch.delete.error" datatype="html"><source>Impossible de supprimer le commutateur.</source><target state="final">Unable to delete the switch.</target></trans-unit>
+      <trans-unit id="switch.form.description" datatype="html"><source> Description </source><target state="final"> Description </target></trans-unit>
+      <trans-unit id="switch.form.ip.placeholder" datatype="html"><source>ex : 192.168.102.211</source><target state="final">e.g. 192.168.102.211</target></trans-unit>
+      <trans-unit id="switch.form.community" datatype="html"><source> Chaîne de communauté SNMP </source><target state="final"> SNMP community string </target></trans-unit>
     </body>
   </file>
 </xliff>

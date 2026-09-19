@@ -1,7 +1,7 @@
 from adh6.decorator import log_call
 from adh6.entity import DeviceFilter, Member
 
-from .interfaces import DeviceRepository, LogsRepository
+from .interfaces import DeviceRepository, LogEntry, LogsRepository
 
 
 class DeviceLogsManager:
@@ -10,7 +10,9 @@ class DeviceLogsManager:
         self.device_repository = device_repository
 
     @log_call
-    async def get(self, member: Member, limit: int = 10, offset: int = 0, dhcp: bool = False):
+    async def get(
+        self, member: Member, limit: int = 10, offset: int = 0, dhcp: bool = False
+    ) -> tuple[list[LogEntry], int]:
         devices, _ = await self.device_repository.search_by(
             limit=20, offset=0, device_filter=DeviceFilter(member=member.id)
         )

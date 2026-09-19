@@ -1,5 +1,5 @@
 from .device_repository import DeviceRepository
 from .ip_allocator import IpAllocator
-from .logs_repository import LogsRepository
+from .logs_repository import LogEntry, LogsRepository
 
-__all__ = ["DeviceRepository", "IpAllocator", "LogsRepository"]
+__all__ = ["DeviceRepository", "IpAllocator", "LogEntry", "LogsRepository"]

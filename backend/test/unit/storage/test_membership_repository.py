@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.constants import MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractMembership
 from adh6.exceptions import MembershipNotFoundError
 from adh6.member.storage.membership_repository import MembershipSQLRepository
@@ -34,7 +34,7 @@ class TestMembershipSQLRepository:
             has_room=True,
             first_time=True,
             payment_method_id=1,
-            create_at=datetime.now(),
+            create_at=utc_now_naive(),
         )
         mock_execute_result = MagicMock()
         mock_execute_result.scalars.return_value.all.return_value = [m_sql]
@@ -80,7 +80,7 @@ class TestMembershipSQLRepository:
             has_room=True,
             first_time=True,
             payment_method_id=1,
-            create_at=datetime.now(),
+            create_at=utc_now_naive(),
         )
         mock_session.scalar = AsyncMock(return_value=m_sql)
         membership = AbstractMembership(uuid=u, duration=6, status=MembershipStatus.COMPLETE.value)
@@ -103,7 +103,7 @@ class TestMembershipSQLRepository:
                 duration=12,
                 has_room=True,
                 first_time=True,
-                create_at=datetime.now(),
+                create_at=utc_now_naive(),
             )
         )
 
@@ -121,7 +121,7 @@ class TestMembershipSQLRepository:
             duration=12,
             has_room=True,
             first_time=True,
-            create_at=datetime.now(),
+            create_at=utc_now_naive(),
         )
         mock_session.scalar = AsyncMock(return_value=membership)
 

@@ -1,8 +1,10 @@
 import abc
-import typing as t
+from datetime import datetime
 
 from adh6.constants import LOG_DEFAULT_LIMIT
 from adh6.entity import Device, Member
+
+LogEntry = tuple[datetime, str]
 
 
 class LogsRepository(abc.ABC):
@@ -18,7 +20,7 @@ class LogsRepository(abc.ABC):
         limit: int = LOG_DEFAULT_LIMIT,
         offset: int = 0,
         dhcp: bool = False,
-    ) -> tuple[list[t.Any], int]:
+    ) -> tuple[list[LogEntry], int]:
         """
         Get all the logs concerning the provided username and MAC addresses.
 

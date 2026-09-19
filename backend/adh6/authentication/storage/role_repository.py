@@ -3,14 +3,14 @@ from typing import Any
 
 from sqlalchemy import and_, delete, insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import ColumnElement, Select
 
+from adh6.authentication.enums import AuthenticationMethod, Roles
+from adh6.authentication.interfaces import RoleRepository
 from adh6.entity import Role, RoleMapping
+from adh6.exceptions import MemberNotFoundError
 from adh6.member.storage.models import Adherent
 
-from ...exceptions import MemberNotFoundError
-from ..enums import AuthenticationMethod, Roles
-from ..interfaces import RoleRepository
 from .models import AuthenticationRoleMapping
 
 
@@ -18,13 +18,12 @@ class RoleSQLRepository(RoleRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get(self, id: int) -> Any:  # todo
+    async def get(self, id: int) -> Any:
         smt = select(AuthenticationRoleMapping).where(
             AuthenticationRoleMapping.id == id,
             AuthenticationRoleMapping.expires_at.is_(None),
         )
-        result = await self.session.scalar(smt)
-        return result
+        return await self.session.scalar(smt)
 
     async def find(
         self,
@@ -32,7 +31,9 @@ class RoleSQLRepository(RoleRepository):
         identifiers: list[str] | None = None,
         roles: list[Roles] | None = None,
     ) -> tuple[list[RoleMapping], int]:
-        smt: Select = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.expires_at.is_(None))
+        smt: Select[tuple[AuthenticationRoleMapping]] = select(AuthenticationRoleMapping).where(
+            AuthenticationRoleMapping.expires_at.is_(None)
+        )
         if method is not None:
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
         if identifiers is not None:
@@ -40,11 +41,12 @@ class RoleSQLRepository(RoleRepository):
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
 
-        all_roles = (await self.session.execute(smt)).all()
-        return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
+        rows = (await self.session.execute(smt)).all()
+        unique_roles = {row[0].id: row[0] for row in rows}
+        return [self._map_to_role_mapping(role) for role in unique_roles.values()], len(rows)
 
     async def find_for_oidc_identity(self, groups: list[str], username: str | None) -> list[RoleMapping]:
-        conditions = []
+        conditions: list[ColumnElement[bool]] = []
         if groups:
             conditions.append(
                 and_(

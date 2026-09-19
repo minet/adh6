@@ -1,18 +1,21 @@
+# pyright: reportIncompatibleMethodOverride=false, reportUnusedFunction=false
+
 """
 Implements everything related to actions on the SQL database.
 """
 
 import calendar
 import ipaddress
-from datetime import date, datetime, time, timedelta
+from datetime import datetime, time, timedelta
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from adh6.datetime_utils import utc_now_naive, utc_today
 from adh6.entity import AbstractMember, Member, MemberFilter
+from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.storage.count import count_rows
 
-from ..interfaces.member_repository import MemberRepository
 from .models import Adherent, Membership
 
 
@@ -98,8 +101,8 @@ class MemberSQLRepository(MemberRepository):
             stmt = stmt.where(Adherent.id != exclude_id)
         return await self.session.scalar(stmt.limit(1)) is not None
 
-    async def create(self, object_to_create: Member) -> object:
-        now = datetime.now()
+    async def create(self, object_to_create: Member) -> Member:
+        now = utc_now_naive()
         member: Adherent = Adherent(
             nom=object_to_create.last_name,
             prenom=object_to_create.first_name,
@@ -120,11 +123,9 @@ class MemberSQLRepository(MemberRepository):
         self.session.add(member)
         await self.session.flush()  # Ensure the member gets an ID
         # Map to entity while still in session context
-        result = _map_member_sql_to_entity(member)
+        return _map_member_sql_to_entity(member)
 
-        return result
-
-    async def update(self, abstract_member: AbstractMember, override=False) -> object:
+    async def update(self, abstract_member: AbstractMember, override: bool = False) -> Member:
         stmt = select(Adherent).where(Adherent.id == abstract_member.id)
         adherent = await self.session.scalar(stmt)
         if adherent is None:
@@ -134,11 +135,9 @@ class MemberSQLRepository(MemberRepository):
 
         new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
         await self.session.flush()
-        mapped_member = _map_member_sql_to_entity(new_adherent)
+        return _map_member_sql_to_entity(new_adherent)
 
-        return mapped_member
-
-    async def delete(self, member_id) -> None:
+    async def delete(self, member_id: int) -> None:
         stmt = select(Adherent).where(Adherent.id == member_id)
         member = await self.session.scalar(stmt)
         if not member:
@@ -146,7 +145,7 @@ class MemberSQLRepository(MemberRepository):
         await self.session.delete(member)
 
     async def add_duration(self, member_id: int, duration_in_mounth: int) -> None:
-        now = date.today()
+        now = utc_today()
 
         stmt = select(Adherent).where(Adherent.id == member_id)
         adherent = await self.session.scalar(stmt)
@@ -181,8 +180,8 @@ class MemberSQLRepository(MemberRepository):
         adherent.commentaires = comment
 
 
-def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
-    now = datetime.now()
+def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override: bool = False) -> Adherent:
+    now = utc_now_naive()
     adherent = sql_object
     if entity.email is not None or override:
         adherent.mail = entity.email

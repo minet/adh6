@@ -2,7 +2,7 @@
 
 import logging
 from hashlib import sha3_512
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy import select
@@ -63,7 +63,9 @@ async def _validate_token_with_keycloak(token: str, session: AsyncSession) -> di
     # Groups returned by keycloak start with /
     raw_groups = claims.get("groups")
     groups = (
-        [group.lstrip("/") for group in raw_groups if isinstance(group, str)] if isinstance(raw_groups, list) else []
+        [group.lstrip("/") for group in cast(list[object], raw_groups) if isinstance(group, str)]
+        if isinstance(raw_groups, list)
+        else []
     )
 
     role_mappings = await role_repository.find_for_oidc_identity(groups=groups, username=username)

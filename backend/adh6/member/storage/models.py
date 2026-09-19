@@ -18,6 +18,7 @@ class Adherent(Base):
     mail: Mapped[str | None] = mapped_column(String(255))
     login: Mapped[str | None] = mapped_column(String(255), index=True)
     password: Mapped[str | None] = mapped_column(String(255))
+    password_argon2: Mapped[str | None] = mapped_column(String(255))
     chambre_id: Mapped[int | None] = mapped_column(Integer, index=True)
 
     created_at: Mapped[dt.datetime] = mapped_column(

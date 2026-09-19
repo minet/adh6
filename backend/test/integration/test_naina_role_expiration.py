@@ -71,7 +71,7 @@ async def test_expired_naina_roles_are_excluded_from_authentication(session, man
     monkeypatch.setattr(naina_manager_module, "_utc_now", lambda: before_cutoff)
     await manager.create(identifier="temporary-admin")
 
-    after_cutoff = datetime(2026, 9, 14, 18, 30)
+    after_cutoff = datetime(2026, 9, 14, 18, 30, tzinfo=UTC).replace(tzinfo=None)
     monkeypatch.setattr(role_repository_module, "_naive_utc_now", lambda: after_cutoff)
 
     roles = await RoleSQLRepository(session).find_for_oidc_identity(groups=[], username="temporary-admin")
@@ -107,7 +107,7 @@ async def test_permanent_oidc_roles_do_not_expire(session, monkeypatch):
     repository = RoleSQLRepository(session)
     await repository.create(AuthenticationMethod.OIDC, "network-team", [Roles.NETWORK_READ])
 
-    much_later = datetime(2036, 9, 14, 12)
+    much_later = datetime(2036, 9, 14, 12, tzinfo=UTC).replace(tzinfo=None)
     monkeypatch.setattr(role_repository_module, "_naive_utc_now", lambda: much_later)
 
     roles = await repository.find_for_oidc_identity(groups=["network-team"], username=None)
@@ -119,7 +119,7 @@ async def test_direct_user_role_is_not_treated_as_a_naina(session, monkeypatch):
     repository = RoleSQLRepository(session)
     await repository.create(AuthenticationMethod.USER, "temporary-admin", [Roles.ADMIN_READ])
 
-    much_later = datetime(2036, 9, 14, 12)
+    much_later = datetime(2036, 9, 14, 12, tzinfo=UTC).replace(tzinfo=None)
     monkeypatch.setattr(role_repository_module, "_naive_utc_now", lambda: much_later)
 
     roles = await repository.find_for_oidc_identity(groups=[], username="temporary-admin")

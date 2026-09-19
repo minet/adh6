@@ -343,7 +343,7 @@ def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample
                     (Device.adherent_id == sample_member.id) & (Device.type == DeviceType.wired.value)
                 )
             ).scalar()
-            == "En attente"
+            is None
         )
     r = client.post(
         f"{base_url}{sample_room2.id}/member/",

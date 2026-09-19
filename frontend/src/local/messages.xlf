@@ -2451,6 +2451,22 @@
       <trans-unit id="password.policy.expiration" datatype="html"><source>Devra être changé après <x id="count" equiv-text="value"/> jours.</source></trans-unit>
       <trans-unit id="password.policy.additional-with-value" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> » : <x id="value" equiv-text="rule.value"/>.</source></trans-unit>
       <trans-unit id="password.policy.additional" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> ».</source></trans-unit>
+      <trans-unit id="switch.admin.edit" datatype="html"><source>Modifier</source></trans-unit>
+      <trans-unit id="switch.edit.title" datatype="html"><source> Modification du commutateur </source></trans-unit>
+      <trans-unit id="switch.edit.back" datatype="html"><source>Retour à l&apos;administration</source></trans-unit>
+      <trans-unit id="switch.edit.description.required" datatype="html"><source> La description est obligatoire. </source></trans-unit>
+      <trans-unit id="switch.edit.ip.invalid" datatype="html"><source> Saisissez une adresse IPv4 valide. </source></trans-unit>
+      <trans-unit id="switch.edit.community.help" datatype="html"><source> Laissez ce champ vide pour conserver la valeur actuelle. </source></trans-unit>
+      <trans-unit id="switch.edit.load-error" datatype="html"><source>Impossible de charger le commutateur.</source></trans-unit>
+      <trans-unit id="switch.edit.saved" datatype="html"><source>Commutateur modifié</source></trans-unit>
+      <trans-unit id="switch.edit.save-error" datatype="html"><source>Impossible de modifier le commutateur.</source></trans-unit>
+      <trans-unit id="switch.delete.title" datatype="html"><source>Supprimer le commutateur</source></trans-unit>
+      <trans-unit id="switch.delete.confirm" datatype="html"><source>Voulez-vous vraiment supprimer ce commutateur ? Cette action est irréversible.</source></trans-unit>
+      <trans-unit id="switch.deleted" datatype="html"><source>Commutateur supprimé</source></trans-unit>
+      <trans-unit id="switch.delete.error" datatype="html"><source>Impossible de supprimer le commutateur.</source></trans-unit>
+      <trans-unit id="switch.form.description" datatype="html"><source> Description </source></trans-unit>
+      <trans-unit id="switch.form.ip.placeholder" datatype="html"><source>ex : 192.168.102.211</source></trans-unit>
+      <trans-unit id="switch.form.community" datatype="html"><source> Chaîne de communauté SNMP </source></trans-unit>
     </body>
   </file>
 </xliff>

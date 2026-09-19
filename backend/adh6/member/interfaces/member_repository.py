@@ -7,10 +7,10 @@ from adh6.entity import AbstractMember, Member, MemberFilter
 
 class MemberRepository(CRUDRepository[Member, AbstractMember, int]):
     @abc.abstractmethod
-    async def search_by(
+    async def search_by(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
-        limit: int,
-        offset: int,
+        limit: int = 100,
+        offset: int = 0,
         terms: str | None = None,
         filter_: MemberFilter | None = None,
     ) -> tuple[list[Member], int]:

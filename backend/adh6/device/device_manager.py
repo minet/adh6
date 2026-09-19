@@ -1,3 +1,4 @@
+import logging
 import secrets
 from pathlib import Path
 
@@ -21,6 +22,8 @@ from adh6.room.interfaces import RoomRepository
 from .device_ip_manager import DeviceIpManager
 from .interfaces import DeviceRepository
 
+logger = logging.getLogger(__name__)
+
 
 class DeviceManager(CRUDManager):
     """
@@ -33,21 +36,21 @@ class DeviceManager(CRUDManager):
         device_ip_manager: DeviceIpManager,
         member_repository: MemberRepository,
         room_repository: RoomRepository,
-    ):
+    ) -> None:
         super().__init__(device_repository, DeviceNotFoundError)
         self.device_repository = device_repository
         self.device_ip_manager = device_ip_manager
         self.member_repository = member_repository
         self.room_repository = room_repository
-        self.oui_repository = {}
+        self.oui_repository: dict[str, str] = {}
         self.load_mac_oui_dict()
 
-    def load_mac_oui_dict(self):
+    def load_mac_oui_dict(self) -> None:
         file = Path("OUIs.txt")
         if not file.exists():
-            print("OUIs.txt not found, skipping loading MAC OUI dictionary.")
+            logger.warning("OUIs.txt not found, skipping loading MAC OUI dictionary")
             return
-        with open(file, encoding="utf-8") as f:
+        with file.open(encoding="utf-8") as f:
             line = f.readline()
             while line != "":
                 oui, company = line.split("\t")
@@ -55,7 +58,9 @@ class DeviceManager(CRUDManager):
                 line = f.readline()
 
     @log_call
-    async def search(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
+    async def search(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, limit: int, offset: int, device_filter: DeviceFilter
+    ) -> tuple[list[Device], int]:
         result, count = await self.device_repository.search_by(limit=limit, offset=offset, device_filter=device_filter)
         for device in result:
             device.vendor = self.get_vendor_from_mac(device.mac)
@@ -85,13 +90,11 @@ class DeviceManager(CRUDManager):
             return "-"
 
         mac_address = device.mac[:8].replace(":", "-")
-        vendor = self.oui_repository.get(mac_address, "-")
-
-        return vendor
+        return self.oui_repository.get(mac_address, "-")
 
     @log_call
     async def create(self, body: DeviceBody) -> Device:
-        if body.mac is None or not is_mac_address(body.mac):
+        if not is_mac_address(body.mac):
             raise InvalidMACAddress(body.mac)
 
         if body.member is None:
@@ -119,7 +122,7 @@ class DeviceManager(CRUDManager):
         )
         if d:
             raise DeviceAlreadyExists
-        elif count >= 20:
+        if count >= 20:
             raise DevicesLimitReached
 
         device = await self.device_repository.create(body)

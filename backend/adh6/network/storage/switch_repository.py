@@ -1,18 +1,19 @@
+# pyright: reportIncompatibleMethodOverride=false, reportUnusedFunction=false
+
 """
 Implements everything related to actions on the SQL database.
 """
-
-from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractSwitch, Switch
 from adh6.exceptions import SwitchNotFoundError
+from adh6.network.interfaces import SwitchRepository
 from adh6.storage.count import count_rows
 
-from ..interfaces import SwitchRepository
 from .models import Switch as SQLSwitch
 
 
@@ -65,7 +66,7 @@ class SwitchSQLRepository(SwitchRepository):
         return [_map_switch_sql_to_entity(item) for item in r], count
 
     async def create(self, abstract_switch: Switch) -> Switch:
-        now = datetime.now()
+        now = utc_now_naive()
 
         switch = SQLSwitch(
             ip=abstract_switch.ip,
@@ -78,22 +79,18 @@ class SwitchSQLRepository(SwitchRepository):
         self.session.add(switch)
         await self.session.flush()  # Ensure the switch gets an ID
         # Map to entity while still in session context
-        result = _map_switch_sql_to_entity(switch)
+        return _map_switch_sql_to_entity(switch)
 
-        return result
-
-    async def update(self, object_to_update: AbstractSwitch, override=False) -> object:
+    async def update(self, object_to_update: AbstractSwitch, override: bool = False) -> Switch:
         stmt = select(SQLSwitch).where(SQLSwitch.id == object_to_update.id)
         switch = await self.session.scalar(stmt)
         if switch is None:
             raise SwitchNotFoundError(str(object_to_update.id))
         new_switch = _merge_sql_with_entity(object_to_update, switch, override)
         await self.session.flush()
-        mapped_switch = _map_switch_sql_to_entity(new_switch)
+        return _map_switch_sql_to_entity(new_switch)
 
-        return mapped_switch
-
-    async def delete(self, object_id) -> None:
+    async def delete(self, object_id: int) -> None:
         stmt = select(SQLSwitch).where(SQLSwitch.id == object_id)
         switch = await self.session.scalar(stmt)
         if switch is None:
@@ -102,8 +99,8 @@ class SwitchSQLRepository(SwitchRepository):
         await self.session.delete(switch)
 
 
-def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
-    now = datetime.now()
+def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override: bool = False) -> SQLSwitch:
+    now = utc_now_naive()
     switch = sql_object
     if entity.ip is not None or override:
         switch.ip = entity.ip

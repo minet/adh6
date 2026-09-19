@@ -1,4 +1,3 @@
-# from datetime import datetime
 import re
 
 MAC_REGEX = re.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")

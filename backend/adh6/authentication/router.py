@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import TypedDict
 
 from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -22,6 +23,12 @@ router = APIRouter(prefix="/api_keys", tags=["api_keys"])
 role_router = APIRouter(prefix="/role", tags=["authentication"])
 
 
+class RoleCreateBody(TypedDict, total=False):
+    auth: str
+    identifier: str
+    roles: list[str]
+
+
 # ============================================================================
 # Dependency Injection Chain
 # ============================================================================
@@ -33,7 +40,7 @@ class _MemberManagerShim(MemberManager):
     def __init__(self, member_repo: MemberRepository):
         self._member_repo = member_repo
 
-    async def get_by_login(self, login: str):
+    async def get_by_login(self, login: str):  # pyright: ignore[reportIncompatibleMethodOverride]
         return await self._member_repo.get_by_login(login)
 
 
@@ -106,9 +113,9 @@ async def create_api_key(
     try:
         return await manager.create(login=body.login or "", roles=[r.value for r in body.roles])
     except NotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found") from None
     except ValidationError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation Error")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation Error") from None
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -124,7 +131,7 @@ async def delete_api_key(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -147,7 +154,7 @@ async def search_roles(
 
 @role_router.post("", status_code=status.HTTP_201_CREATED, response_class=Response)
 async def create_role(
-    body: dict,
+    body: RoleCreateBody,
     manager: Annotated[RoleManager, Depends(get_role_manager)],
     request: Request,
 ) -> Response:
@@ -165,9 +172,9 @@ async def create_role(
             roles=body.get("roles", []),
         )
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except (ValueError, KeyError) as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     return Response(status_code=status.HTTP_201_CREATED)
 
 
@@ -182,4 +189,4 @@ async def delete_role(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

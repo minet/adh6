@@ -1,9 +1,10 @@
 """Extended tests for MemberManager to increase coverage."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 from adh6.constants import MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.device.device_ip_manager import DeviceIpManager
 from adh6.device.device_logs_manager import DeviceLogsManager
 from adh6.entity import Member, MemberBody
@@ -20,7 +21,7 @@ from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
 from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
-from pytest import fixture, raises
+from pytest import fixture, mark, raises
 
 
 @fixture(autouse=True)
@@ -53,7 +54,7 @@ def sample_member(faker) -> Member:
         email=faker.email(),
         firstName=faker.first_name(),
         lastName=faker.last_name(),
-        departureDate=datetime.now() + timedelta(days=30),
+        departureDate=utc_now_naive() + timedelta(days=30),
         comment=faker.sentence(),
     )
 
@@ -66,7 +67,7 @@ def sample_member_inactive(faker) -> Member:
         email=faker.email(),
         firstName=faker.first_name(),
         lastName=faker.last_name(),
-        departureDate=datetime.now() - timedelta(days=1),
+        departureDate=utc_now_naive() - timedelta(days=1),
         comment=faker.sentence(),
     )
 
@@ -372,7 +373,7 @@ class TestGetLogs:
     ):
         from datetime import datetime as dt
 
-        logs = [(dt(2024, 1, 15, 10, 30), "Login OK: [user] cli aa-bb-cc-dd-ee-ff)")]
+        logs = [(dt(2024, 1, 15, 10, 30, tzinfo=UTC), "Login OK: [user] cli aa-bb-cc-dd-ee-ff)")]
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
         mock_device_logs_manager.get = AsyncMock(return_value=(logs, 1))
 
@@ -576,9 +577,7 @@ class TestGetStatuses:
         member_manager: MemberManager,
         sample_member: Member,
     ):
-        from datetime import datetime
-
-        ts = datetime(2024, 1, 1, 12, 0, 0)
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
         mac = "AA-BB-CC-DD-EE-FF"
         login_ok_msg = f"TLS Login OK: [{sample_member.username}] (from client cli {mac.lower()}-port1)"
         logs = [[ts, login_ok_msg]]
@@ -595,9 +594,7 @@ class TestGetStatuses:
         member_manager: MemberManager,
         sample_member: Member,
     ):
-        from datetime import datetime
-
-        ts = datetime(2024, 1, 1, 12, 0, 0)
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
         mac = "AA-BB-CC-DD-EE-FF"
         msg = f"rlm_python: Fail {sample_member.username} {mac} with MAC not found and not association period"
         logs = [[ts, msg]]
@@ -613,9 +610,7 @@ class TestGetStatuses:
         member_manager: MemberManager,
         sample_member: Member,
     ):
-        from datetime import datetime
-
-        ts = datetime(2024, 1, 1, 12, 0, 0)
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
         mac = "AA-BB-CC-DD-EE-FF"
         msg = f"rlm_python: Fail {sample_member.username} {mac} with Adherent not found"
         logs = [[ts, msg]]
@@ -624,23 +619,52 @@ class TestGetStatuses:
         result = await member_manager.get_statuses(member_id=sample_member.id)
         assert any(s.status == "LOGIN_INCORRECT_WRONG_USER" for s in result)
 
+    @mark.parametrize(
+        ("direction", "reason", "mac"),
+        [
+            ("read", "unknown CA", "aa-bb-cc-dd-ee-ff"),
+            ("write", "protocol version", "AA:BB:CC:DD:EE:FF"),
+            ("read", "internal error", "aa-bb-cc-dd-ee-ff"),
+            ("write", "unexpected_message", "AA:BB:CC:DD:EE:FF"),
+        ],
+    )
     async def test_tls_alert_log(
         self,
         mock_member_repository: MemberRepository,
         mock_device_logs_manager: DeviceLogsManager,
         member_manager: MemberManager,
         sample_member: Member,
+        direction: str,
+        reason: str,
+        mac: str,
     ):
-        from datetime import datetime
-
-        ts = datetime(2024, 1, 1, 12, 0, 0)
-        mac = "aa-bb-cc-dd-ee-ff"
-        msg = f"TLS Alert read (protocol version): [{sample_member.username}] (from client cli {mac})"
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
+        msg = f"TLS Alert {direction} ({reason}): [{sample_member.username}] (from client cli {mac})"
         logs = [[ts, msg]]
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
         mock_device_logs_manager.get = AsyncMock(return_value=(logs, 1))
+
         result = await member_manager.get_statuses(member_id=sample_member.id)
-        assert any(s.status == "LOGIN_INCORRECT_SSL_ERROR" for s in result)
+
+        assert len(result) == 1
+        assert result[0].status == "LOGIN_INCORRECT_SSL_ERROR"
+        assert result[0].comment == "AA-BB-CC-DD-EE-FF"
+
+    async def test_malformed_tls_alert_log_is_ignored(
+        self,
+        mock_member_repository: MemberRepository,
+        mock_device_logs_manager: DeviceLogsManager,
+        member_manager: MemberManager,
+        sample_member: Member,
+    ):
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
+        logs = [[ts, "TLS Alert found in unrelated diagnostic output"]]
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_device_logs_manager.get = AsyncMock(return_value=(logs, 1))
+
+        result = await member_manager.get_statuses(member_id=sample_member.id)
+
+        assert result == []
 
     async def test_mschap_fail_wrong_password(
         self,
@@ -649,10 +673,10 @@ class TestGetStatuses:
         member_manager: MemberManager,
         sample_member: Member,
     ):
-        from datetime import datetime, timedelta
+        from datetime import timedelta
 
-        ts1 = datetime(2024, 1, 1, 12, 0, 0)
-        ts2 = datetime(2024, 1, 1, 12, 0, 0) + timedelta(milliseconds=500)
+        ts1 = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
+        ts2 = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC) + timedelta(milliseconds=500)
         mac = "aa-bb-cc-dd-ee-ff"
         msg1 = f"EAP sub-module failed): [{sample_member.username}] (from client cli {mac})"
         msg2 = "Auth: mschap: MS-CHAP2-Response is incorrect"

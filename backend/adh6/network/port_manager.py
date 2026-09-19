@@ -5,12 +5,12 @@ from adh6.entity.port import Port
 from adh6.exceptions import NetworkManagerReadError, NotFoundError, PortNotFoundError, ValidationError
 
 from .interfaces.port_repository import PortRepository
-from .interfaces.switch_network_manager import SwitchNetworkManager
+from .interfaces.switch_network_manager import BulkOperationData, DiscoveredPortData, SwitchNetworkManager
 from .port_identity import normalize_port_oid
 
 
 class PortManager(CRUDManager):
-    def __init__(self, port_repository: PortRepository, network: SwitchNetworkManager | None = None):
+    def __init__(self, port_repository: PortRepository, network: SwitchNetworkManager | None = None) -> None:
         super().__init__(port_repository, PortNotFoundError)
         self.port_repository = port_repository
         self.network = network
@@ -21,10 +21,11 @@ class PortManager(CRUDManager):
         return await self.port_repository.create(self._validate_creation(await self._from_discovery(body, {})))
 
     @log_call
-    async def bulk_create(self, bodies: list[AbstractPort]) -> dict:
+    async def bulk_create(self, bodies: list[AbstractPort]) -> BulkOperationData:
         """Bulk create ports."""
         success, failed, errors = 0, 0, []
-        cache = {}
+        errors: list[str]
+        cache: dict[int, list[DiscoveredPortData] | Exception] = {}
         for body in sorted(bodies, key=lambda port: port.switch_obj if port.switch_obj is not None else -1):
             try:
                 await self.port_repository.create(self._validate_creation(await self._from_discovery(body, cache)))
@@ -35,7 +36,9 @@ class PortManager(CRUDManager):
         return {"success": success, "failed": failed, "errors": errors}
 
     @log_call
-    async def update(self, id: int, body: AbstractPort) -> None:
+    async def update(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, id: int, body: AbstractPort
+    ) -> None:
         """Update an existing port."""
         # Check if port exists
         port = await self.port_repository.get_by_id(id)
@@ -64,7 +67,9 @@ class PortManager(CRUDManager):
     async def assign_room(self, id: int, room_id: int | None, expected_room: int | None) -> Port:
         return await self.port_repository.assign_room(id, room_id, expected_room)
 
-    async def _from_discovery(self, body: AbstractPort, cache: dict) -> AbstractPort:
+    async def _from_discovery(
+        self, body: AbstractPort, cache: dict[int, list[DiscoveredPortData] | Exception]
+    ) -> AbstractPort:
         if self.network is None:
             return body
         oid = normalize_port_oid(body.oid)

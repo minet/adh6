@@ -7,7 +7,7 @@ from adh6.constants import (
     WIFI_IPV6_RESERVED_HOSTS,
 )
 from adh6.decorator import log_call
-from adh6.entity import AbstractDevice, AbstractVlan, Device, DeviceFilter, Member
+from adh6.entity import AbstractVlan, Device, DeviceFilter, Member
 from adh6.subnet.vlan_manager import VlanManager
 
 from .interfaces import DeviceRepository, IpAllocator
@@ -101,13 +101,12 @@ class DeviceIpManager:
             else None
         )
 
-        await self.device_repository.update(
-            AbstractDevice(id=device.id, ipv4Address=ipv4, ipv6Address=ipv6),
-        )
+        if device.id is None:
+            raise ValueError("Cannot allocate IPs to a device without an id")
+        await self.device_repository.set_ip_addresses(device.id, ipv4, ipv6)
 
     @log_call
     async def unallocate_ip(self, device: Device) -> None:
-        await self.device_repository.update(
-            object_to_update=AbstractDevice(id=device.id, ipv4Address="En attente", ipv6Address="En attente"),
-            override=False,
-        )
+        if device.id is None:
+            raise ValueError("Cannot unallocate IPs from a device without an id")
+        await self.device_repository.set_ip_addresses(device.id, None, None)
