@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import cast
 
@@ -39,6 +40,68 @@ _PASSWORD_POLICY_ERROR_CODES = frozenset(
         "invalidPasswordRegexPatternMessage",
     }
 )
+
+_INTERNAL_PASSWORD_POLICY_PROVIDERS = frozenset(
+    {
+        "argon2Iterations",
+        "argon2Memory",
+        "argon2Parallelism",
+        "hashAlgorithm",
+        "hashIterations",
+        "maxAuthAge",
+        "recoveryCodesWarningThreshold",
+    }
+)
+
+
+def _split_password_policy(policy: str) -> list[str]:
+    """Split Keycloak's ``provider(value) and ...`` representation safely."""
+    clauses: list[str] = []
+    clause_start = 0
+    depth = 0
+    escaped = False
+    in_character_class = False
+    index = 0
+
+    while index < len(policy):
+        character = policy[index]
+        if escaped:
+            escaped = False
+        elif character == "\\":
+            escaped = True
+        elif character == "[":
+            in_character_class = True
+        elif character == "]":
+            in_character_class = False
+        elif not in_character_class:
+            if character == "(":
+                depth += 1
+            elif character == ")" and depth:
+                depth -= 1
+            elif depth == 0 and policy.startswith(" and ", index):
+                clauses.append(policy[clause_start:index].strip())
+                index += len(" and ")
+                clause_start = index
+                continue
+        index += 1
+
+    clauses.append(policy[clause_start:].strip())
+    return [clause for clause in clauses if clause]
+
+
+def _parse_password_policy(policy: str) -> list[dict[str, str]]:
+    """Turn the realm policy into user-relevant provider/value pairs."""
+    rules: list[dict[str, str]] = []
+    for clause in _split_password_policy(policy):
+        match = re.fullmatch(r"([A-Za-z][A-Za-z0-9_-]*)(?:\((.*)\))?", clause, flags=re.DOTALL)
+        if match is None:
+            rules.append({"name": clause, "value": ""})
+            continue
+
+        name, value = match.groups()
+        if name not in _INTERNAL_PASSWORD_POLICY_PROVIDERS:
+            rules.append({"name": name, "value": value or ""})
+    return rules
 
 
 def _password_policy_error_message(response: httpx.Response) -> str:
@@ -87,6 +150,13 @@ class KeycloakAdminClient:
         except (httpx.HTTPError, ValueError, TypeError) as error:
             raise KeycloakAdminError("Keycloak is unavailable or returned an invalid response") from error
 
+    async def get_password_policy(self) -> list[dict[str, str]]:
+        """Return the realm's user-facing password constraints."""
+        try:
+            return await self._get_password_policy()
+        except (httpx.HTTPError, ValueError, TypeError) as error:
+            raise KeycloakAdminError("Keycloak is unavailable or returned an invalid response") from error
+
     async def _send_update_password_email(self, username: str) -> None:
         base_url = self.config.base_url.rstrip("/")
         realm = self.config.realm
@@ -119,7 +189,45 @@ class KeycloakAdminClient:
             if response.status_code != httpx.codes.NO_CONTENT:
                 raise KeycloakAdminError("Keycloak refused the password update")
 
+    async def _get_password_policy(self) -> list[dict[str, str]]:
+        base_url = self.config.base_url.rstrip("/")
+        realm = self.config.realm
+        timeout = httpx.Timeout(self.config.timeout_seconds)
+        async with httpx.AsyncClient(base_url=base_url, timeout=timeout, transport=self.transport) as client:
+            headers = await self._authenticate(client)
+            response = await client.get(f"/admin/realms/{realm}", headers=headers)
+            if response.status_code != httpx.codes.OK:
+                raise KeycloakAdminError("Keycloak password policy lookup failed")
+
+            body = response.json()
+            if not isinstance(body, dict):
+                raise KeycloakAdminError("Keycloak returned an invalid password policy")
+
+            policy = body.get("passwordPolicy")
+            if policy is None:
+                return []
+            if not isinstance(policy, str):
+                raise KeycloakAdminError("Keycloak returned an invalid password policy")
+            return _parse_password_policy(policy)
+
     async def _authenticate_and_find_user(self, client: httpx.AsyncClient, username: str) -> tuple[dict[str, str], str]:
+        headers = await self._authenticate(client)
+        realm = self.config.realm
+        users_response = await client.get(
+            f"/admin/realms/{realm}/users",
+            params={"username": username, "exact": "true", "max": 2},
+            headers=headers,
+        )
+        if users_response.status_code != httpx.codes.OK:
+            raise KeycloakAdminError("Keycloak user lookup failed")
+
+        users = users_response.json()
+        matches = [user for user in users if user.get("username") == username and isinstance(user.get("id"), str)]
+        if len(matches) != 1:
+            raise KeycloakAdminError("The member does not map to exactly one Keycloak user")
+        return headers, matches[0]["id"]
+
+    async def _authenticate(self, client: httpx.AsyncClient) -> dict[str, str]:
         realm = self.config.realm
         token_response = await client.post(
             f"/realms/{realm}/protocol/openid-connect/token",
@@ -135,21 +243,7 @@ class KeycloakAdminClient:
         access_token = token_response.json().get("access_token")
         if not isinstance(access_token, str) or not access_token:
             raise KeycloakAdminError("Keycloak returned an invalid service-account token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-
-        users_response = await client.get(
-            f"/admin/realms/{realm}/users",
-            params={"username": username, "exact": "true", "max": 2},
-            headers=headers,
-        )
-        if users_response.status_code != httpx.codes.OK:
-            raise KeycloakAdminError("Keycloak user lookup failed")
-
-        users = users_response.json()
-        matches = [user for user in users if user.get("username") == username and isinstance(user.get("id"), str)]
-        if len(matches) != 1:
-            raise KeycloakAdminError("The member does not map to exactly one Keycloak user")
-        return headers, matches[0]["id"]
+        return {"Authorization": f"Bearer {access_token}"}
 
 
 def get_keycloak_admin_client() -> KeycloakAdminClient:

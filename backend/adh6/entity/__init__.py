@@ -53,6 +53,7 @@ from adh6.entity.membership import Membership
 from adh6.entity.mini_router import MiniRouter
 from adh6.entity.mini_router_loan import MiniRouterLoan
 from adh6.entity.naina import Naina
+from adh6.entity.password_policy_rule import PasswordPolicyRule
 from adh6.entity.payment_method import PaymentMethod
 from adh6.entity.ping_request import PingRequest
 from adh6.entity.ping_result import PingResult

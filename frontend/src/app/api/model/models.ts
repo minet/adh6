@@ -36,6 +36,7 @@ export * from './miniRouter';
 export * from './miniRouterLoan';
 export * from './modelError';
 export * from './naina';
+export * from './passwordPolicyRule';
 export * from './paymentMethod';
 export * from './pingRequest';
 export * from './pingResult';

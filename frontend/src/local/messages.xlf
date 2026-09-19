@@ -2430,6 +2430,27 @@
       <trans-unit id="password.define.title" datatype="html"><source>Définir le mot de passe</source></trans-unit>
       <trans-unit id="password.define.expiration" datatype="html"><source>Un lien personnel à durée limitée sera envoyé à votre adresse e-mail.</source></trans-unit>
       <trans-unit id="password.email.send" datatype="html"><source>Envoyer le lien sécurisé</source></trans-unit>
+      <trans-unit id="password.policy.title" datatype="html"><source>Contraintes du mot de passe</source></trans-unit>
+      <trans-unit id="password.policy.loading" datatype="html"><source>Chargement des règles Keycloak…</source></trans-unit>
+      <trans-unit id="password.policy.load-error" datatype="html"><source>Impossible de charger les contraintes. Keycloak vérifiera tout de même le mot de passe lors de la validation.</source></trans-unit>
+      <trans-unit id="password.policy.empty" datatype="html"><source>Aucune contrainte particulière n’est configurée dans Keycloak.</source></trans-unit>
+      <trans-unit id="password.policy.intro" datatype="html"><source>Le nouveau mot de passe doit respecter toutes les règles suivantes :</source></trans-unit>
+      <trans-unit id="password.policy.min-length" datatype="html"><source>Au moins <x id="count" equiv-text="value"/> caractères.</source></trans-unit>
+      <trans-unit id="password.policy.max-length" datatype="html"><source>Au maximum <x id="count" equiv-text="value"/> caractères.</source></trans-unit>
+      <trans-unit id="password.policy.digits" datatype="html"><source>Au moins <x id="count" equiv-text="value"/> chiffres.</source></trans-unit>
+      <trans-unit id="password.policy.lowercase" datatype="html"><source>Au moins <x id="count" equiv-text="value"/> lettres minuscules.</source></trans-unit>
+      <trans-unit id="password.policy.uppercase" datatype="html"><source>Au moins <x id="count" equiv-text="value"/> lettres majuscules.</source></trans-unit>
+      <trans-unit id="password.policy.special-chars" datatype="html"><source>Au moins <x id="count" equiv-text="value"/> caractères spéciaux.</source></trans-unit>
+      <trans-unit id="password.policy.not-username" datatype="html"><source>Ne doit pas être identique au nom d’utilisateur.</source></trans-unit>
+      <trans-unit id="password.policy.not-contains-username" datatype="html"><source>Ne doit pas contenir le nom d’utilisateur.</source></trans-unit>
+      <trans-unit id="password.policy.not-email" datatype="html"><source>Ne doit pas être identique à l’adresse e-mail.</source></trans-unit>
+      <trans-unit id="password.policy.regex" datatype="html"><source>Doit respecter l’expression régulière suivante : <x id="pattern" equiv-text="value"/>.</source></trans-unit>
+      <trans-unit id="password.policy.history" datatype="html"><source>Ne doit pas faire partie des <x id="count" equiv-text="value"/> derniers mots de passe.</source></trans-unit>
+      <trans-unit id="password.policy.history-days" datatype="html"><source>Ne doit pas avoir été utilisé durant les <x id="count" equiv-text="value"/> derniers jours.</source></trans-unit>
+      <trans-unit id="password.policy.blacklist" datatype="html"><source>Ne doit pas figurer dans la liste des mots de passe interdits.</source></trans-unit>
+      <trans-unit id="password.policy.expiration" datatype="html"><source>Devra être changé après <x id="count" equiv-text="value"/> jours.</source></trans-unit>
+      <trans-unit id="password.policy.additional-with-value" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> » : <x id="value" equiv-text="rule.value"/>.</source></trans-unit>
+      <trans-unit id="password.policy.additional" datatype="html"><source>Règle Keycloak supplémentaire « <x id="name" equiv-text="rule.name"/> ».</source></trans-unit>
     </body>
   </file>
 </xliff>
