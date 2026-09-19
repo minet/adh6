@@ -91,6 +91,7 @@ class Settings(BaseSettings):
     elk_hosts: str = "http://localhost:9200"
     elk_user: str | None = None
     elk_secret: str | None = None
+    elk_request_timeout_seconds: float = Field(default=5, gt=0)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore")
 

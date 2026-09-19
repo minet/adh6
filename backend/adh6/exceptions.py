@@ -271,11 +271,10 @@ class BadSubnetError(IPAssignError):
 
 
 class LogFetchError(RuntimeError):
-    """
-    Cannot fetch the logs error.
-    """
+    """The external log service could not answer the request."""
 
-    # pragma: no cover
+    def __init__(self, message: str = "Log service temporarily unavailable") -> None:
+        super().__init__(message)
 
 
 class NetworkManagerReadError(RuntimeError):

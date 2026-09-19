@@ -13,6 +13,7 @@ from adh6.device.router import router as device_router
 from adh6.exceptions import (
     AlreadyExistsError,
     IntMustBePositive,
+    LogFetchError,
     NetworkManagerReadError,
     NotFoundError,
     UnauthorizedError,
@@ -103,6 +104,15 @@ async def handle_network_manager_read_error(request: Request, exc: Exception) ->
     )
 
 
+async def handle_log_fetch_error(request: Request, exc: Exception) -> JSONResponse:
+    """Report temporary Elasticsearch failures without exposing transport details."""
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"detail": "Log service temporarily unavailable"},
+        headers={"Retry-After": "30"},
+    )
+
+
 # ============================================================================
 # Lifespan Events
 # ============================================================================
@@ -147,6 +157,7 @@ app.add_exception_handler(NotFoundError, handle_not_found_error)
 app.add_exception_handler(UnauthorizedError, handle_unauthorized_error)
 app.add_exception_handler(IntMustBePositive, handle_int_must_be_positive_error)
 app.add_exception_handler(NetworkManagerReadError, handle_network_manager_read_error)
+app.add_exception_handler(LogFetchError, handle_log_fetch_error)
 
 
 # ============================================================================

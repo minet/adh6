@@ -9,7 +9,7 @@ class IpAllocator(abc.ABC):
     @abc.abstractmethod
     async def available_ip(
         self,
-        ip_range: str = "",
+        ip_range: str,
         member_id: int | None = None,
         reserved_hosts: int = 1,
     ) -> str:

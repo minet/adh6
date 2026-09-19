@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import DateTime, Integer, String
+from sqlalchemy import DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -9,6 +9,10 @@ from adh6.storage.base import Base
 
 class Device(Base):
     __tablename__ = "devices"
+    __table_args__ = (
+        UniqueConstraint("ip", name="uq_devices_ip"),
+        UniqueConstraint("ipv6", name="uq_devices_ipv6"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     mac: Mapped[str | None] = mapped_column(String(255))

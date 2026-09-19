@@ -5,12 +5,14 @@ Implements everything related to actions on the SQL database.
 import re
 from datetime import datetime
 from enum import Enum
+from ipaddress import IPv4Address, IPv6Address, ip_address
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
+from adh6.exceptions import InvalidIPv4, InvalidIPv6
 from adh6.member.storage.models import Adherent
 
 from ..interfaces import DeviceRepository
@@ -93,8 +95,8 @@ class DeviceSQLRepository(DeviceRepository):
             last_seen=now,
             type=DeviceType[obj.connection_type].value,
             adherent_id=obj.member,
-            ip="En attente",
-            ipv6="En attente",
+            ip=None,
+            ipv6=None,
         )
         self.session.add(device)
         await self.session.flush()
@@ -109,6 +111,17 @@ class DeviceSQLRepository(DeviceRepository):
         new_device = _merge_sql_with_entity(object_to_update, device, override)
         await self.session.flush()
         return _map_device_sql_to_entity(new_device)
+
+    async def set_ip_addresses(self, device_id: int, ipv4: str | None, ipv6: str | None) -> Device:
+        device = await self.session.get(SQLDevice, device_id)
+        if device is None:
+            raise ValueError(f"Device {device_id} not found")
+
+        device.ip = _normalize_ip_address(ipv4, IPv4Address)
+        device.ipv6 = _normalize_ip_address(ipv6, IPv6Address)
+        device.updated_at = datetime.now()
+        await self.session.flush()
+        return _map_device_sql_to_entity(device)
 
     async def delete(self, object_id: int) -> None:
         stmt = select(SQLDevice).where(SQLDevice.id == object_id)
@@ -150,11 +163,24 @@ def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, overri
         device.adherent_id = entity.member
 
     if entity.ipv4_address is not None or override:
-        device.ip = entity.ipv4_address
+        device.ip = _normalize_ip_address(entity.ipv4_address, IPv4Address)
     if entity.ipv6_address is not None or override:
-        device.ipv6 = entity.ipv6_address
+        device.ipv6 = _normalize_ip_address(entity.ipv6_address, IPv6Address)
     device.updated_at = now
     return device
+
+
+def _normalize_ip_address(value: str | None, expected_type: type[IPv4Address] | type[IPv6Address]) -> str | None:
+    if value is None:
+        return None
+    error_type = InvalidIPv4 if expected_type is IPv4Address else InvalidIPv6
+    try:
+        address = ip_address(value.strip())
+    except ValueError as exc:
+        raise error_type(value) from exc
+    if not isinstance(address, expected_type):
+        raise error_type(value)
+    return str(address)
 
 
 def _map_device_sql_to_entity(d: SQLDevice) -> Device:
@@ -166,10 +192,8 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         mac=d.mac or "",
         member=d.adherent_id,
         connectionType=DeviceType(d.type).name,
-        ipv4Address=(d.ip if d.ip != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
-        ipv6Address=(d.ipv6 if d.ipv6 != "En attente" else None),  # @TODO retrocompatibilite ADH5, a retirer a terme
+        ipv4Address=d.ip,
+        ipv6Address=d.ipv6,
         name=d.name,
         wifiPassword=d.wifi_password,
-        # @TODO 08/03/2026 liteapp: je vois toujours des entrées comme ça dans la db, donc il faudrait creuser pour voir d'où elles viennent
-        # Je parierais sur Jenkins ou un bail comme ça
     )

@@ -74,6 +74,8 @@ tox = ["tox", "tox-uv"]
 [tool.pyright]
 include = ["adh6", "test"] 
 typeCheckingMode = "basic" # TODO: passer en strict
+venvPath = "."
+venv = ".venv"
 # exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
 ignore = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"] #, "migrations/*.py"]
 

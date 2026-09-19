@@ -18,6 +18,10 @@ class DeviceRepository(CRUDRepository[Device, AbstractDevice, int]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
+    async def set_ip_addresses(self, device_id: int, ipv4: str | None, ipv6: str | None) -> Device:
+        """Replace both assigned IP addresses, including clearing them with ``None``."""
+
+    @abc.abstractmethod
     async def delete(self, object_id: int):
         pass  # pragma: no cover
 

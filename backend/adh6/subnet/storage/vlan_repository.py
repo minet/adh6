@@ -50,7 +50,6 @@ class VLANSQLRepository(VlanRepository):
                 and_(
                     DeviceSQL.adherent_id == AdherentSQL.id,
                     DeviceSQL.ip.isnot(None),
-                    DeviceSQL.ip != "En attente",
                     DeviceSQL.type != DeviceType.wireless.value,  # Wireless devices are on a private IP
                 ),
             )
@@ -64,7 +63,7 @@ class VLANSQLRepository(VlanRepository):
             .join(ChambreSQL, ChambreSQL.vlan_id == VlanSQL.id)
             .join(AdherentSQL, AdherentSQL.chambre_id == ChambreSQL.id)
             .join(DeviceSQL, DeviceSQL.adherent_id == AdherentSQL.id)
-            .where((DeviceSQL.ip.is_(None)) | (DeviceSQL.ip == "En attente"))
+            .where(DeviceSQL.ip.is_(None))
         )
 
         wifi_stmt = select(func.count(AdherentSQL.id)).where(AdherentSQL.ip.isnot(None), AdherentSQL.ip != "")

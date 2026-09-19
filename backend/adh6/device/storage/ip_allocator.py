@@ -1,4 +1,4 @@
-from ipaddress import AddressValueError, IPv4Network, ip_network
+from ipaddress import IPv4Network, ip_network
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,37 +15,28 @@ class IPSQLAllocator(IpAllocator):
 
     async def available_ip(
         self,
-        ip_range: str = "",
+        ip_range: str,
         member_id: int | None = None,
         reserved_hosts: int = 1,
     ) -> str:
-        if ip_range == "":
-            return "En attente"
-
         try:
             network = ip_network(ip_range)
-        except AddressValueError:
-            raise BadSubnetError("Unknown ip subnet")
+        except ValueError as exc:
+            raise BadSubnetError("Unknown ip subnet") from exc
 
         if isinstance(network, IPv4Network):
-            smt = select(Device.ip).where(
-                (Device.ip.is_not(None)) & (Device.ip != "En attente")
-            )  # @TODO retrocompatibilité ADH5, à retirer à terme)
+            smt = select(Device.ip).where(Device.ip.is_not(None))
         else:
-            smt = select(Device.ipv6).where(
-                (Device.ipv6.is_not(None)) & (Device.ipv6 != "En attente")
-            )  # @TODO retrocompatibilité ADH5, à retirer à terme)
+            smt = select(Device.ipv6).where(Device.ipv6.is_not(None))
 
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        ips = (await self.session.execute(smt)).scalars().all()
+        ips = set((await self.session.execute(smt)).scalars().all())
 
         for index, host in enumerate(network.hosts()):
             if index < reserved_hosts:
                 continue
-            if host == network.broadcast_address:
-                break
             if str(host) not in ips:
                 return str(host)
         raise NoMoreIPAvailableException(ip_range)

@@ -2,15 +2,21 @@
 Logs repository.
 """
 
+import logging
+
 import dateutil.parser
+from elastic_transport import ConnectionError as ElasticsearchConnectionError, ConnectionTimeout
 from elasticsearch import AsyncElasticsearch
 
 from adh6.config.configuration import settings
 from adh6.constants import LOG_DEFAULT_LIMIT
 from adh6.entity import Device, Member
+from adh6.exceptions import LogFetchError
 from adh6.misc import get_mac_variations
 
 from ..interfaces.logs_repository import LogsRepository
+
+logger = logging.getLogger(__name__)
 
 
 class ElasticsearchLogsRepository(LogsRepository):
@@ -29,7 +35,11 @@ class ElasticsearchLogsRepository(LogsRepository):
             es_kwargs["basic_auth"] = (settings.elk_user, settings.elk_secret)
 
         hosts = [host.strip() for host in settings.elk_hosts.split(",") if host.strip()]
-        self.es = AsyncElasticsearch(hosts, **es_kwargs)
+        self.es = AsyncElasticsearch(
+            hosts,
+            request_timeout=settings.elk_request_timeout_seconds,
+            **es_kwargs,
+        )
 
     async def close(self) -> None:
         """Close connections owned by the shared Elasticsearch client."""
@@ -75,15 +85,19 @@ class ElasticsearchLogsRepository(LogsRepository):
         if not dhcp:
             bool_query["filter"] = {"match": {"program": "radiusd"}}
 
-        response = await self.es.search(
-            index="*",
-            query={"constant_score": {"filter": {"bool": bool_query}}},
-            sort={"@timestamp": "desc"},
-            source_includes=["@timestamp", "message", "program", "src_mac"],
-            size=limit,
-            from_=offset,
-            track_total_hits=True,
-        )
+        try:
+            response = await self.es.search(
+                index="*",
+                query={"constant_score": {"filter": {"bool": bool_query}}},
+                sort={"@timestamp": "desc"},
+                source_includes=["@timestamp", "message", "program", "src_mac"],
+                size=limit,
+                from_=offset,
+                track_total_hits=True,
+            )
+        except (ElasticsearchConnectionError, ConnectionTimeout) as exc:
+            logger.warning("Elasticsearch is unavailable while fetching member logs", exc_info=True)
+            raise LogFetchError from exc
         hits = response["hits"]
         total_count = hits["total"]["value"]
         logs = [

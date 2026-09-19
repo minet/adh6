@@ -64,6 +64,8 @@ async def _db_setup(_app):
     from adh6.storage.sql.models import Base
 
     async with engine.begin() as conn:
+        # Recover cleanly from an interrupted previous test run.
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     yield
@@ -78,10 +80,9 @@ def _test_client(_app, _db_setup):
     """Session-scoped TestClient instance."""
     from starlette.testclient import TestClient
 
-    # TestClient handles async/sync internally - don't use as context manager for session scope
-    client = TestClient(_app)
-    yield client
-    client.close()
+    # The context manager runs the FastAPI lifespan in TestClient's event loop.
+    with TestClient(_app) as client:
+        yield client
 
 
 async def add_test_fixtures(*fixtures):
