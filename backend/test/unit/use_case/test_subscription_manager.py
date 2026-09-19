@@ -236,7 +236,9 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([sample_membership_pending_payment_initial], 1)
+        )
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
@@ -258,7 +260,9 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([sample_membership_pending_payment_initial], 1)
+        )
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
@@ -313,7 +317,9 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0), side_effect=MembershipNotFoundError(""))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([], 0), side_effect=MembershipNotFoundError("")
+        )
         assert sample_member.id is not None
 
         with pytest.raises(MembershipNotFoundError):
