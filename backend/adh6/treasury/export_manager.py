@@ -1,8 +1,11 @@
+# pyright: reportUnknownMemberType=false, reportUnnecessaryComparison=false
+
 """Export transactions as ODS spreadsheet."""
 
 import asyncio
 import io
 from datetime import date
+from typing import Any
 
 from odf.opendocument import OpenDocumentSpreadsheet  # type: ignore[import-untyped]
 from odf.style import Style, TableCellProperties, TextProperties  # type: ignore[import-untyped]
@@ -21,7 +24,7 @@ class ExportManager:
         payment_method_repository: PaymentMethodRepository,
         member_repository: MemberRepository,
         membership_repository: MembershipRepository,
-    ):
+    ) -> None:
         self.transaction_repository = transaction_repository
         self.payment_method_repository = payment_method_repository
         self.member_repository = member_repository
@@ -86,7 +89,7 @@ class ExportManager:
             header_row.addElement(cell)
         table.addElement(header_row)
 
-        def add_cell(row, value: str) -> None:
+        def add_cell(row: Any, value: str) -> None:
             cell = TableCell(valuetype="string")
             cell.addElement(P(text=str(value) if value is not None else ""))
             row.addElement(cell)

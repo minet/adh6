@@ -1,6 +1,7 @@
 """Jinja environment shared by every mail sent from adh6."""
 
 from pathlib import Path
+from typing import Any, cast
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -18,7 +19,8 @@ jinja_env = Environment(
 
 # Month names handed to the templates: strftime("%B") would depend on the container locale, which
 # is English in the python-alpine image.
-jinja_env.globals["MONTHS_FR"] = [
+template_globals = cast(dict[str, Any], jinja_env.globals)
+template_globals["MONTHS_FR"] = [
     "janvier",
     "février",
     "mars",
@@ -32,7 +34,7 @@ jinja_env.globals["MONTHS_FR"] = [
     "novembre",
     "décembre",
 ]
-jinja_env.globals["MONTHS_EN"] = [
+template_globals["MONTHS_EN"] = [
     "January",
     "February",
     "March",

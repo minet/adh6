@@ -368,7 +368,7 @@ async def patch_transaction(
     request: Request,
 ) -> None:
     require_role_or_ownership(request, Roles.TRESO_WRITE.value)
-    await manager.update_or_create(abstract_transaction=body, id=id)
+    await manager.update_or_create(obj=body, id=id)
 
 
 @transaction_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

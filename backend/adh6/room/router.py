@@ -56,7 +56,7 @@ async def search_rooms(
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
     only: Annotated[str | None, Query()] = None,
-) -> list[Room] | list[dict]:
+) -> list[Room] | list[dict[str, object]]:
     """Search rooms with pagination."""
     require_role_or_ownership(request, Roles.NETWORK_READ.value)
     result, _count = await repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
@@ -75,17 +75,18 @@ async def search_rooms(
             )
 
         only_fields = {"id", *requested_fields}
-        result = [
+        projected: list[dict[str, object]] = [
             {k: v for k, v in item.model_dump(mode="json", by_alias=True).items() if k in only_fields}
             for item in result
         ]
+        return projected
 
-    return result  # type: ignore[return-value]
+    return result
 
 
 @router.post("", response_model=Room, status_code=status.HTTP_201_CREATED)
 async def create_room(
-    body: Room,
+    body: AbstractRoom,
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
 ) -> Room:
@@ -122,7 +123,7 @@ async def list_room_members(
 @router.post("/{id}/member", status_code=status.HTTP_204_NO_CONTENT)
 async def add_member_to_room(
     id: int,
-    body: dict,
+    body: dict[str, int],
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     member_repository: Annotated[MemberRepository, Depends(get_member_repository)],
     member_manager: Annotated[MemberManager, Depends(get_member_manager)],
@@ -144,9 +145,8 @@ async def add_member_to_room(
         # Keep legacy side-effects: member subnet and device allocations depend on room assignment.
         if not previous_room:
             await member_manager.update_subnet(member_id=member_id)
-            if room.vlan is not None:
-                await member_manager.ethernet_vlan_changed(member_id, room.vlan)
-        elif previous_room.vlan != room.vlan and room.vlan is not None:
+            await member_manager.ethernet_vlan_changed(member_id, room.vlan)
+        elif previous_room.vlan != room.vlan:
             await member_manager.ethernet_vlan_changed(member_id, room.vlan)
     except WifiOnlyRestrictionError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
@@ -166,7 +166,7 @@ async def update_room(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
         old_room = await repository.get_by_id(id)
-        updated_room = await repository.update(id=id, abstract_room=body)
+        updated_room = await repository.update(body.model_copy(update={"id": id}))
         if body.vlan is not None and old_room.vlan != updated_room.vlan:
             member_ids = await repository.get_members(id)
             for member_id in member_ids:
@@ -185,7 +185,7 @@ async def delete_room(
     """Delete a room."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     try:
-        await repository.delete(id=id)
+        await repository.delete(id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
@@ -220,7 +220,7 @@ async def remove_member_from_room(
 @router.patch("/{id}/member/add", status_code=status.HTTP_204_NO_CONTENT)
 async def add_member_to_room_patch(
     id: int,
-    body: dict,
+    body: dict[str, int],
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     member_repository: Annotated[MemberRepository, Depends(get_member_repository)],
     member_manager: Annotated[MemberManager, Depends(get_member_manager)],
@@ -242,16 +242,15 @@ async def add_member_to_room_patch(
 
     if not previous_room:
         await member_manager.update_subnet(member_id=member_id)
-        if room.vlan is not None:
-            await member_manager.ethernet_vlan_changed(member_id, room.vlan)
-    elif previous_room.vlan != room.vlan and room.vlan is not None:
+        await member_manager.ethernet_vlan_changed(member_id, room.vlan)
+    elif previous_room.vlan != room.vlan:
         await member_manager.ethernet_vlan_changed(member_id, room.vlan)
 
 
 @router.patch("/{id}/member/del", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member_from_room_patch(
     id: int,
-    body: dict,
+    body: dict[str, int],
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
 ) -> None:

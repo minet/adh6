@@ -1,3 +1,5 @@
+# pyright: reportIncompatibleMethodOverride=false, reportUnusedFunction=false
+
 """
 Implements everything related to actions on the SQL database.
 """
@@ -99,7 +101,7 @@ class MemberSQLRepository(MemberRepository):
             stmt = stmt.where(Adherent.id != exclude_id)
         return await self.session.scalar(stmt.limit(1)) is not None
 
-    async def create(self, object_to_create: Member) -> object:
+    async def create(self, object_to_create: Member) -> Member:
         now = utc_now_naive()
         member: Adherent = Adherent(
             nom=object_to_create.last_name,
@@ -123,7 +125,7 @@ class MemberSQLRepository(MemberRepository):
         # Map to entity while still in session context
         return _map_member_sql_to_entity(member)
 
-    async def update(self, abstract_member: AbstractMember, override=False) -> object:
+    async def update(self, abstract_member: AbstractMember, override: bool = False) -> Member:
         stmt = select(Adherent).where(Adherent.id == abstract_member.id)
         adherent = await self.session.scalar(stmt)
         if adherent is None:
@@ -135,7 +137,7 @@ class MemberSQLRepository(MemberRepository):
         await self.session.flush()
         return _map_member_sql_to_entity(new_adherent)
 
-    async def delete(self, member_id) -> None:
+    async def delete(self, member_id: int) -> None:
         stmt = select(Adherent).where(Adherent.id == member_id)
         member = await self.session.scalar(stmt)
         if not member:
@@ -178,7 +180,7 @@ class MemberSQLRepository(MemberRepository):
         adherent.commentaires = comment
 
 
-def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override=False) -> Adherent:
+def _merge_sql_with_entity(entity: AbstractMember, sql_object: Adherent, override: bool = False) -> Adherent:
     now = utc_now_naive()
     adherent = sql_object
     if entity.email is not None or override:

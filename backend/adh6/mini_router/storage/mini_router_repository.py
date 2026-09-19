@@ -1,3 +1,5 @@
+# pyright: reportUnnecessaryComparison=false
+
 """
 Implements everything related to actions on the SQL database.
 """
@@ -188,7 +190,7 @@ class MiniRouterSQLRepository(MiniRouterRepository):
                 )
                 rooms = dict((await self.session.execute(room_stmt)).tuples().all())
 
-        result = []
+        result: list[MiniRouter] = []
         for m in mini_routers:
             loan = loans.get(m.id)
             room = rooms.get(loan.member) if loan and loan.member is not None else None

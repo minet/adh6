@@ -1,8 +1,8 @@
+# pyright: reportIncompatibleMethodOverride=false
+
 """
 Implements everything related to actions on the SQL database.
 """
-
-from collections.abc import Sequence
 
 from sqlalchemy import String, cast, delete, func, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -33,10 +33,10 @@ class RoomSQLRepository(RoomRepository):
         result = await self.session.scalar(stmt)
         return await _map_room_sql_to_entity(result, self.session) if result else None
 
-    async def get_members(self, room_id: int) -> Sequence[int]:
+    async def get_members(self, room_id: int) -> list[int]:
         stmt = select(RoomMemberLink.member_id).where(RoomMemberLink.room_id == room_id)
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def remove_member(self, member_id: int) -> None:
         stmt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
@@ -69,9 +69,9 @@ class RoomSQLRepository(RoomRepository):
 
     async def search_by(
         self,
-        limit=DEFAULT_LIMIT,
-        offset=DEFAULT_OFFSET,
-        terms=None,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: str | None = None,
         filter_: AbstractRoom | None = None,
     ) -> tuple[list[Room], int]:
         stmt = select(Chambre)
@@ -112,7 +112,7 @@ class RoomSQLRepository(RoomRepository):
             for room in r
         ], count
 
-    async def create(self, abstract_room: Room) -> Room:
+    async def create(self, abstract_room: AbstractRoom) -> Room:
         now = utc_now_naive()
 
         vlan = None
@@ -135,7 +135,10 @@ class RoomSQLRepository(RoomRepository):
         # Map to entity while still in session context
         return await _map_room_sql_to_entity(room, self.session)
 
-    async def update(self, id: int, abstract_room: AbstractRoom, override=False) -> Room:
+    async def update(self, abstract_room: AbstractRoom, override: bool = False) -> Room:
+        if abstract_room.id is None:
+            raise RoomNotFoundError("missing room id")
+        id = abstract_room.id
         stmt = select(Chambre).where(Chambre.id == id)
         room = await self.session.scalar(stmt)
         if room is None:
@@ -144,16 +147,17 @@ class RoomSQLRepository(RoomRepository):
         await self.session.flush()
         return await _map_room_sql_to_entity(new_chambre, self.session)
 
-    async def delete(self, id) -> None:
-        stmt = select(Chambre).where(Chambre.id == id)
+    async def delete(self, object_id: int) -> Room | None:
+        stmt = select(Chambre).where(Chambre.id == object_id)
         room = await self.session.scalar(stmt)
         if room is None:
-            raise RoomNotFoundError(id)
+            raise RoomNotFoundError(object_id)
         await self.session.delete(room)
+        return None
 
 
 async def _merge_sql_with_entity(
-    entity: AbstractRoom, sql_object: Chambre, session: AsyncSession, override=False
+    entity: AbstractRoom, sql_object: Chambre, session: AsyncSession, override: bool = False
 ) -> Chambre:
     now = utc_now_naive()
     chambre = sql_object
@@ -170,18 +174,6 @@ async def _merge_sql_with_entity(
 
     chambre.updated_at = now
     return chambre
-
-
-async def _map_room_sql_to_abstract_entity(r: Chambre, session: AsyncSession) -> AbstractRoom:
-    stmt = select(Vlan).where(Vlan.id == r.vlan_id)
-    result = await session.execute(stmt)
-    vlan = result.first()
-    return AbstractRoom(
-        id=r.id,
-        roomNumber=r.numero,
-        description=r.description,
-        vlan=vlan[0].numero if vlan else None,
-    )
 
 
 async def _map_room_sql_to_entity(r: Chambre, session: AsyncSession) -> Room:

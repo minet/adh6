@@ -1,3 +1,5 @@
+# pyright: reportIncompatibleMethodOverride=false, reportUnusedFunction=false
+
 """
 Implements everything related to actions on the SQL database.
 """
@@ -79,7 +81,7 @@ class SwitchSQLRepository(SwitchRepository):
         # Map to entity while still in session context
         return _map_switch_sql_to_entity(switch)
 
-    async def update(self, object_to_update: AbstractSwitch, override=False) -> object:
+    async def update(self, object_to_update: AbstractSwitch, override: bool = False) -> Switch:
         stmt = select(SQLSwitch).where(SQLSwitch.id == object_to_update.id)
         switch = await self.session.scalar(stmt)
         if switch is None:
@@ -88,7 +90,7 @@ class SwitchSQLRepository(SwitchRepository):
         await self.session.flush()
         return _map_switch_sql_to_entity(new_switch)
 
-    async def delete(self, object_id) -> None:
+    async def delete(self, object_id: int) -> None:
         stmt = select(SQLSwitch).where(SQLSwitch.id == object_id)
         switch = await self.session.scalar(stmt)
         if switch is None:
@@ -97,7 +99,7 @@ class SwitchSQLRepository(SwitchRepository):
         await self.session.delete(switch)
 
 
-def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override=False) -> SQLSwitch:
+def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override: bool = False) -> SQLSwitch:
     now = utc_now_naive()
     switch = sql_object
     if entity.ip is not None or override:

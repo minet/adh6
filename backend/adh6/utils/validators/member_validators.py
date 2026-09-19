@@ -5,7 +5,7 @@ from adh6.datetime_utils import utc_today
 from adh6.entity import Member
 
 
-def is_member_active(member: Member):
+def is_member_active(member: Member) -> bool:
     if member.permanent:
         return True
 
@@ -36,3 +36,6 @@ def is_password_valid(password: str) -> bool:
 
 def has_member_subnet(member: Member):
     return member.ip is not None and member.subnet is not None
+
+
+# pyright: reportUnnecessaryIsInstance=false

@@ -5,7 +5,7 @@ class UserInputError(ValueError):
 
 
 class UndecalredVariableInTemplate(UserInputError):
-    def __init__(self, undefined_variables: set):
+    def __init__(self, undefined_variables: set[str]):
         super().__init__(f"There are {undefined_variables} undefined variables in template")
 
 
@@ -22,22 +22,22 @@ class UpdateImpossible(ValidationError):
 
 
 class MissingRequiredField(ValidationError):
-    def __init__(self, msg):
+    def __init__(self, msg: object):
         super().__init__(f"{msg} is missing")
 
 
 class InvalidIPv6(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid IPv6 address')
 
 
 class InvalidIPv4(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid IPv4 address')
 
 
 class InvalidMACAddress(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid MAC address')
 
 
@@ -47,42 +47,42 @@ class InvalidLoanDates(ValidationError):
 
 
 class InvalidMembershipDuration(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid membership duration')
 
 
 class IntMustBePositive(ValidationError):
-    def __init__(self, msg):
+    def __init__(self, msg: object):
         super().__init__(f"{msg} must be positive")
 
 
 class MemberTransactionAmountMustBeGreaterThan(ValidationError):
-    def __init__(self, msg):
+    def __init__(self, msg: object):
         super().__init__(f"Amount {msg} for the member transaction must be greater than 900 cents")
 
 
 class NoPriceAssignedToThatDuration(ValidationError):
-    def __init__(self, duration):
+    def __init__(self, duration: object):
         super().__init__(f"there is no price assigned to that duration ({duration} mounths)")
 
 
 class InvalidCharterID(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid charter id')
 
 
 class CharterAlreadySigned(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" charter has already be signed')
 
 
 class CharterNotSigned(ValidationError):
-    def __init__(self, v):
+    def __init__(self, v: object):
         super().__init__(f'"{v}" charter not signed yet')
 
 
 class WifiOnlyRestrictionError(ValidationError):
-    def __init__(self, msg="wifi-only accounts are restricted"):
+    def __init__(self, msg: str = "wifi-only accounts are restricted"):
         super().__init__(msg)
 
 
@@ -92,81 +92,81 @@ class NotFoundError(UserInputError):
     Error thrown when something is not found.
     """
 
-    def __init__(self, what, v: str | None = None):
+    def __init__(self, what: str, v: object | None = None):
         err_msg = what + " " + str(v) + " was not found"
         super().__init__(err_msg)
 
 
 class AccountNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("account", v)
 
 
 class MemberNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("member", v)
 
 
 class MembershipNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("membership", v)
 
 
 class TransactionNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("transaction", v)
 
 
 class DeviceNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("device", v)
 
 
 class RoomNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("room", v)
 
 
 class SwitchNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         v = v or "?"
         super().__init__("switch", f"id={v}")
 
 
 class PortNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         v = v or "?"
         super().__init__("port", f"id={v}")
 
 
 class VLANNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         v = v or "?"
         super().__init__("VLAN", f"id={v}")
 
 
 class MiniRouterNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("mini_router", v)
 
 
 class MiniRouterLoanNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("mini_router_loan", v)
 
 
 class PaymentMethodNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("payment_method", v)
 
 
 class AccountTypeNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("account_type", v)
 
 
 class ProductNotFoundError(NotFoundError):
-    def __init__(self, v=None):
+    def __init__(self, v: object | None = None):
         super().__init__("product", v)
 
 
@@ -186,27 +186,27 @@ class AlreadyExistsError(UserInputError):
     Error thrown when the user tries to create something that already exists.
     """
 
-    def __init__(self, what):
+    def __init__(self, what: str):
         super().__init__(f"{what} already exists")
 
 
 class MemberAlreadyExist(AlreadyExistsError):
-    def __init__(self, what="member"):
+    def __init__(self, what: str = "member"):
         super().__init__(what)
 
 
 class MembershipAlreadyExist(AlreadyExistsError):
-    def __init__(self, what="membership"):
+    def __init__(self, what: str = "membership"):
         super().__init__(what)
 
 
 class RoomAlreadyExists(AlreadyExistsError):
-    def __init__(self, what="room"):
+    def __init__(self, what: str = "room"):
         super().__init__(what)
 
 
 class DeviceAlreadyExists(AlreadyExistsError):
-    def __init__(self, what="device"):
+    def __init__(self, what: str = "device"):
         super().__init__(what)
 
 
@@ -252,7 +252,7 @@ class UnknownPaymentMethod(UserInputError):
 
 
 class MembershipStatusNotAllowed(ValidationError):
-    def __init__(self, msg, msg_2):
+    def __init__(self, msg: object, msg_2: object):
         super().__init__(f"{msg} not allowed: {msg_2}")
 
 
@@ -284,10 +284,10 @@ class NetworkManagerReadError(RuntimeError):
 
 
 class UnauthorizedError(PermissionError):
-    def __init__(self, msg="Unauthorized"):
+    def __init__(self, msg: str = "Unauthorized"):
         super().__init__(msg)
 
 
 class UnauthenticatedError(PermissionError):
-    def __init__(self, msg="Authentication required."):
+    def __init__(self, msg: str = "Authentication required."):
         super().__init__(msg)

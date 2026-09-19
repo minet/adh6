@@ -484,7 +484,7 @@ async def delete_switch(
 @switch_router.post("/{id}/apply-descriptions", response_model=BulkOperationResult)
 async def apply_port_descriptions(
     id: int,
-    deps: Annotated[tuple, Depends(get_switch_bulk_deps)],
+    deps: Annotated[tuple[SwitchNetworkManager, PortManager, RoomStorageRepository], Depends(get_switch_bulk_deps)],
     request: Request,
 ) -> BulkOperationResult:
     """Set each port SNMP alias (IF-MIB::ifAlias) to its linked room description."""
@@ -497,6 +497,7 @@ async def apply_port_descriptions(
 
     ports, _ = await port_manager.search(limit=500, offset=0, terms="", filter_=AbstractPort(switchObj=id))
     success, failed, errors = 0, 0, []
+    errors: list[str]
     for port in ports:
         if port.room is None:
             continue
@@ -515,7 +516,7 @@ async def apply_port_descriptions(
 async def apply_port_vlans(
     id: int,
     vlan: Annotated[int, Body()],
-    deps: Annotated[tuple, Depends(get_switch_bulk_deps)],
+    deps: Annotated[tuple[SwitchNetworkManager, PortManager, RoomStorageRepository], Depends(get_switch_bulk_deps)],
     request: Request,
 ) -> BulkOperationResult:
     """Assign a VLAN number to all rooms linked to ports on this switch (database only, no SNMP)."""
@@ -530,12 +531,13 @@ async def apply_port_vlans(
     # Deduplicate room IDs so each room is updated exactly once
     seen_rooms: set[int] = set()
     success, failed, errors = 0, 0, []
+    errors: list[str]
     for port in ports:
         if port.room is None or port.room in seen_rooms:
             continue
         seen_rooms.add(port.room)
         try:
-            await room_repo.update(port.room, AbstractRoom(vlan=vlan))
+            await room_repo.update(AbstractRoom(id=port.room, vlan=vlan))
             success += 1
         except Exception as e:
             failed += 1

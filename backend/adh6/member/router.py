@@ -575,7 +575,7 @@ async def get_mailinglist_member_value(
 @mailinglist_router.put("/member/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_mailinglist_member_value(
     id: int,
-    body: dict,
+    body: dict[str, int],
     manager: Annotated[MailinglistManager, Depends(get_mailinglist_manager)],
     request: Request,
 ) -> None:

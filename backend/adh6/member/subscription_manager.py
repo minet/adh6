@@ -206,9 +206,9 @@ class SubscriptionManager:
             raise MembershipNotFoundError
 
         if subscription.status in [
-            MembershipStatus.COMPLETE,
-            MembershipStatus.CANCELLED,
-            MembershipStatus.ABORTED,
+            MembershipStatus.COMPLETE.value,
+            MembershipStatus.CANCELLED.value,
+            MembershipStatus.ABORTED.value,
         ]:
             raise MembershipStatusNotAllowed(
                 subscription.status,

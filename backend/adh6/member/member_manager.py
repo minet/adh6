@@ -1,7 +1,8 @@
 import logging
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
+from typing import Any
 
 from adh6 import mail
 from adh6.constants import (
@@ -71,8 +72,9 @@ class MemberManager(CRUDManager):
         self,
         limit: int = DEFAULT_LIMIT,
         offset: int = DEFAULT_OFFSET,
-        terms: str = "",
+        terms: str | None = None,
         filter_: MemberFilter | None = None,
+        **_kwargs: Any,
     ) -> tuple[list[int], int]:
         result, count = await self.member_repository.search_by(limit=limit, offset=offset, terms=terms, filter_=filter_)
         return [r.id for r in result if r.id], count
@@ -143,7 +145,7 @@ class MemberManager(CRUDManager):
             body=SubscriptionBody(member=created_member.id),
         )
 
-        if wifi_only_room_id is not None and created_member.id is not None:
+        if wifi_only_room_id is not None:
             await self._move_to_room(created_member.id, wifi_only_room_id)
 
         # After every write, and never inside a try that would roll them back: a delivery failure
@@ -164,7 +166,9 @@ class MemberManager(CRUDManager):
         return created_member
 
     @log_call
-    async def update(self, id: int, body: MemberBody, *, is_staff: bool = False) -> None:
+    async def update(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, id: int, body: MemberBody, *, is_staff: bool = False
+    ) -> None:
         member = await self.member_repository.get_by_id(id)
         if not member:
             raise MemberNotFoundError(id)
@@ -270,7 +274,7 @@ class MemberManager(CRUDManager):
         await self.room_repository.add_member(room_id, member_id)
 
     @log_call
-    async def get_logs(self, member_id, limit=10, offset=0, dhcp=False) -> dict:
+    async def get_logs(self, member_id: int, limit: int = 10, offset: int = 0, dhcp: bool = False) -> dict[str, object]:
         """
         User story: As an admin, I can retrieve the logs of a member, so I can help him troubleshoot their connection
         issues.
@@ -302,7 +306,7 @@ class MemberManager(CRUDManager):
         return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
 
     @log_call
-    async def get_statuses(self, member_id) -> list[MemberStatus]:
+    async def get_statuses(self, member_id: int) -> list[MemberStatus]:
         # Check that the user exists in the system.
         member = await self.member_repository.get_by_id(member_id)
         if not member:
@@ -311,16 +315,21 @@ class MemberManager(CRUDManager):
         # Do the actual log fetching.
         try:
             logs, _total_count = await self.device_logs_manager.get(member=member, dhcp=False)
-            device_to_statuses = {}
-            last_ok_login_mac = {}
+            device_to_statuses: dict[str, dict[str, MemberStatus]] = {}
+            last_ok_login_mac: dict[str, datetime] = {}
 
-            def add_to_statuses(status, timestamp, mac):
+            def add_to_statuses(status: str, timestamp: datetime, mac: str) -> None:
                 if mac not in device_to_statuses:
                     device_to_statuses[mac] = {}
-                if status not in device_to_statuses[mac] or device_to_statuses[mac][status].last_timestamp < timestamp:
+                previous_status = device_to_statuses[mac].get(status)
+                if (
+                    previous_status is None
+                    or previous_status.last_timestamp is None
+                    or previous_status.last_timestamp < timestamp
+                ):
                     device_to_statuses[mac][status] = MemberStatus(status=status, lastTimestamp=timestamp, comment=mac)
 
-            prev_log = ["", ""]
+            prev_log = None
             for log in logs:
                 if "Login OK" in log[1]:
                     match = re.search(r".*?Login OK:\s*\[(.*?)\].*?cli ([a-f0-9|-]+)\).*", log[1])
@@ -330,7 +339,8 @@ class MemberManager(CRUDManager):
                         if mac not in last_ok_login_mac or last_ok_login_mac[mac] < log[0]:
                             last_ok_login_mac[mac] = log[0]
                 if (
-                    "EAP sub-module failed" in prev_log[1]
+                    prev_log is not None
+                    and "EAP sub-module failed" in prev_log[1]
                     and "mschap: MS-CHAP2-Response is incorrect" in log[1]
                     and (prev_log[0] - log[0]).total_seconds() < 1
                 ):
@@ -360,12 +370,16 @@ class MemberManager(CRUDManager):
                     add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
                 prev_log = log
 
-            all_statuses = []
+            all_statuses: list[MemberStatus] = []
             for mac, statuses in device_to_statuses.items():
-                for object in statuses.values():
-                    if mac in last_ok_login_mac and object.last_timestamp < last_ok_login_mac[mac]:
+                for member_status in statuses.values():
+                    if (
+                        mac in last_ok_login_mac
+                        and member_status.last_timestamp is not None
+                        and member_status.last_timestamp < last_ok_login_mac[mac]
+                    ):
                         continue
-                    all_statuses.append(object)
+                    all_statuses.append(member_status)
         except LogFetchError:
             logger.warning("log_fetch_failed")
             return []  # We fail open here.
@@ -373,7 +387,7 @@ class MemberManager(CRUDManager):
             return all_statuses
 
     @log_call
-    async def update_subnet(self, member_id) -> tuple[IPv4Network, IPv4Address | None] | None:
+    async def update_subnet(self, member_id: int) -> tuple[IPv4Network, IPv4Address | None] | None:
         member = await self.member_repository.get_by_id(member_id)
         if not member:
             raise MemberNotFoundError(member_id)
@@ -406,7 +420,7 @@ class MemberManager(CRUDManager):
         await self.device_ip_manager.unallocate_ips(member=member)
 
     @log_call
-    async def ethernet_vlan_changed(self, member_id: int, vlan_number: int):
+    async def ethernet_vlan_changed(self, member_id: int, vlan_number: int) -> None:
         member = await self.get_by_id(id=member_id)
         await self.device_ip_manager.allocate_ips(member=member, vlan_number=vlan_number)
 

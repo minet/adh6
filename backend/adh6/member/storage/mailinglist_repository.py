@@ -1,5 +1,3 @@
-from collections.abc import Sequence
-
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +19,7 @@ class MailinglistSQLReposiroty(MailinglistRepository):
         smt = update(Adherent).where(Adherent.id == member_id).values(mail_membership=value)
         await self.session.execute(smt)
 
-    async def list_members(self, value: int) -> Sequence[int]:
+    async def list_members(self, value: int) -> list[int]:
         smt = select(Adherent.id).where(Adherent.mail_membership == value)
         result = await self.session.execute(smt)
-        return result.scalars().all()
+        return list(result.scalars().all())

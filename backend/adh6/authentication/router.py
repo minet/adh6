@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import TypedDict
 
 from adh6.authentication.enums import Roles
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
@@ -22,6 +23,12 @@ router = APIRouter(prefix="/api_keys", tags=["api_keys"])
 role_router = APIRouter(prefix="/role", tags=["authentication"])
 
 
+class RoleCreateBody(TypedDict, total=False):
+    auth: str
+    identifier: str
+    roles: list[str]
+
+
 # ============================================================================
 # Dependency Injection Chain
 # ============================================================================
@@ -33,7 +40,7 @@ class _MemberManagerShim(MemberManager):
     def __init__(self, member_repo: MemberRepository):
         self._member_repo = member_repo
 
-    async def get_by_login(self, login: str):
+    async def get_by_login(self, login: str):  # pyright: ignore[reportIncompatibleMethodOverride]
         return await self._member_repo.get_by_login(login)
 
 
@@ -147,7 +154,7 @@ async def search_roles(
 
 @role_router.post("", status_code=status.HTTP_201_CREATED, response_class=Response)
 async def create_role(
-    body: dict,
+    body: RoleCreateBody,
     manager: Annotated[RoleManager, Depends(get_role_manager)],
     request: Request,
 ) -> Response:

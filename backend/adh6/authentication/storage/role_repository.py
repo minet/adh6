@@ -3,7 +3,7 @@ from typing import Any
 
 from sqlalchemy import and_, delete, insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import Select
+from sqlalchemy.sql import ColumnElement, Select
 
 from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.interfaces import RoleRepository
@@ -31,7 +31,9 @@ class RoleSQLRepository(RoleRepository):
         identifiers: list[str] | None = None,
         roles: list[Roles] | None = None,
     ) -> tuple[list[RoleMapping], int]:
-        smt: Select = select(AuthenticationRoleMapping).where(AuthenticationRoleMapping.expires_at.is_(None))
+        smt: Select[tuple[AuthenticationRoleMapping]] = select(AuthenticationRoleMapping).where(
+            AuthenticationRoleMapping.expires_at.is_(None)
+        )
         if method is not None:
             smt = smt.where(AuthenticationRoleMapping.authentication == method)
         if identifiers is not None:
@@ -39,11 +41,12 @@ class RoleSQLRepository(RoleRepository):
         if roles is not None:
             smt = smt.where(AuthenticationRoleMapping.role.in_(roles))
 
-        all_roles = (await self.session.execute(smt)).all()
-        return [self._map_to_role_mapping(i[0]) for i in set(all_roles)], len(all_roles)
+        rows = (await self.session.execute(smt)).all()
+        unique_roles = {row[0].id: row[0] for row in rows}
+        return [self._map_to_role_mapping(role) for role in unique_roles.values()], len(rows)
 
     async def find_for_oidc_identity(self, groups: list[str], username: str | None) -> list[RoleMapping]:
-        conditions = []
+        conditions: list[ColumnElement[bool]] = []
         if groups:
             conditions.append(
                 and_(

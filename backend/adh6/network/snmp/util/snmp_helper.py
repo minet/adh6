@@ -1,3 +1,5 @@
+# pyright: reportMissingTypeStubs=false, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownVariableType=false
+
 from typing import Any
 
 from adh6.exceptions import NetworkManagerReadError
@@ -14,7 +16,7 @@ from pysnmp.hlapi.v3arch.asyncio import (
 )
 
 
-async def get_snmp_value(community, ip, mib, obj, oid):
+async def get_snmp_value(community: str, ip: str, mib: str, obj: str, oid: str) -> str:
     """Performs an SNMP RO request and retrieves the respons"""
     transport_target = await UdpTransportTarget.create((ip, 161))
     error_indication, error_status, error_index, var_binds = await get_cmd(
@@ -42,7 +44,7 @@ async def get_snmp_value(community, ip, mib, obj, oid):
 async def walk_snmp(community: str, ip: str, mib: str, obj: str) -> list[tuple[str, str]]:
     """Performs an SNMP WALK (NEXT) and returns a list of (oid_suffix, value)."""
     transport_target = await UdpTransportTarget.create((ip, 161))
-    results = []
+    results: list[tuple[str, str]] = []
     engine = SnmpEngine()
     context = ContextData()
     auth = CommunityData(community)
@@ -52,7 +54,7 @@ async def walk_snmp(community: str, ip: str, mib: str, obj: str) -> list[tuple[s
     current_object_type = ObjectType(initial_oid)
 
     while True:
-        error_indication, error_status, error_index, var_binds = await next_cmd(
+        error_indication, error_status, _error_index, var_binds = await next_cmd(
             engine,
             auth,
             transport_target,
@@ -155,7 +157,7 @@ async def set_snmp_values_raw(community: str, ip: str, oid_values: list[tuple[st
         )
 
 
-async def set_snmp_value(community, ip, mib, obj, oid, value):
+async def set_snmp_value(community: str, ip: str, mib: str, obj: str, oid: str, value: Any) -> str:
     """Performs an SNMP RW request and sets the given oid to the given value"""
     transport_target = await UdpTransportTarget.create((ip, 161))
     error_indication, error_status, error_index, var_binds = await set_cmd(

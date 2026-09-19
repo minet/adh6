@@ -210,13 +210,13 @@ async def get_device_member(
 @router.put("/{id}/name", status_code=status.HTTP_204_NO_CONTENT)
 async def rename_device(
     id: int,
-    body: dict,
+    body: dict[str, str],
     manager: Annotated[DeviceManager, Depends(get_device_manager)],
     request: Request,
 ) -> None:
     """Rename a device."""
     name = body.get("name")
-    if not name or not isinstance(name, str):
+    if not name:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="name is required")
     try:
         require_role_or_ownership(

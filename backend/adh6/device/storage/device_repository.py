@@ -39,7 +39,7 @@ class DeviceSQLRepository(DeviceRepository):
         return _map_device_sql_to_entity(obj) if obj else None
 
     async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
-        stmt: Select = select(SQLDevice)
+        stmt: Select[tuple[SQLDevice]] = select(SQLDevice)
         terms = (device_filter.terms or "").strip().lower()
         if terms:
             matches = [
@@ -123,12 +123,13 @@ class DeviceSQLRepository(DeviceRepository):
         await self.session.flush()
         return _map_device_sql_to_entity(device)
 
-    async def delete(self, object_id: int) -> None:
+    async def delete(self, object_id: int) -> Device | None:
         stmt = select(SQLDevice).where(SQLDevice.id == object_id)
         device = await self.session.scalar(stmt)
         if device is None:
-            return
+            return None
         await self.session.delete(device)
+        return None
 
     async def owner(self, id: int) -> int | None:
         stmt = select(SQLDevice.adherent_id).where(SQLDevice.id == id)

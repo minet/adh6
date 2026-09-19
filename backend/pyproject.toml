@@ -72,8 +72,8 @@ tox = ["tox", "tox-uv"]
 # Docs:
 # - pyright: https://microsoft.github.io/pyright/#/
 [tool.pyright]
-include = ["adh6", "test"] 
-typeCheckingMode = "basic" # TODO: passer en strict
+include = ["adh6"]
+typeCheckingMode = "strict"
 venvPath = "."
 venv = ".venv"
 # exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
@@ -93,6 +93,7 @@ commands = [
   ["ruff", "format"],
   ["ruff", "check", "--fix"],
   ["pyright"],
+  ["pyright", "--project", "pyright-tests.json"],
   ["pytest"],
 ]
 description = "Fix all auto-fixable issues and run tests (local dev)"
@@ -102,6 +103,7 @@ commands = [
   ["ruff", "format", "--diff"],
   ["ruff", "check", "--output-format=gitlab", "--output-file=code-quality-report.json"],
   ["pyright"],
+  ["pyright", "--project", "pyright-tests.json"],
   ["pytest", "--junitxml={toxinidir}/report.xml", "--cov-report=xml:{toxinidir}/coverage.xml"],
 ]
 description = "CI: lint and test suite"

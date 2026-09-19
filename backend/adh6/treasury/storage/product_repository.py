@@ -25,7 +25,7 @@ class ProductSQLRepository(ProductRepository):
         return _map_product_sql_to_entity(obj) if obj else obj
 
     async def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms: str | None = None
+        self, limit: int = DEFAULT_LIMIT, offset: int = DEFAULT_OFFSET, terms: str | None = None
     ) -> tuple[list[Product], int]:
         stmt = select(SQLProduct)
 

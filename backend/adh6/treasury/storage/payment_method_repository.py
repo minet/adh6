@@ -52,17 +52,17 @@ class PaymentMethodSQLRepository(PaymentMethodRepository):
 
         return list(map(_map_payment_method_sql_to_entity, r)), count
 
-    def create(self, object_to_create: PaymentMethod) -> PaymentMethod:
+    async def create(self, object_to_create: PaymentMethod) -> PaymentMethod:
         raise NotImplementedError  # pragma: no cover
 
-    def update(self, object_to_update: PaymentMethod, override: bool = False) -> PaymentMethod:
+    async def update(self, object_to_update: PaymentMethod, override: bool = False) -> PaymentMethod:
         raise NotImplementedError  # pragma: no cover
 
-    def delete(self, object_id: int) -> PaymentMethod:
+    async def delete(self, object_id: int) -> PaymentMethod:
         raise NotImplementedError  # pragma: no cover
 
 
-def _map_payment_method_sql_to_entity(a) -> PaymentMethod:
+def _map_payment_method_sql_to_entity(a: SQLPaymentMethod) -> PaymentMethod:
     """
     Map an PaymentMethod object from SQLAlchemy to an PaymentMethod (from the entity folder/layer).
     """

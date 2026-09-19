@@ -22,7 +22,11 @@ class MembershipSQLRepository(MembershipRepository):
         return _map_membership_sql_to_entity(membership) if membership else None
 
     async def search_by(
-        self, limit=DEFAULT_LIMIT, offset=DEFAULT_OFFSET, terms=None, filter_: AbstractMembership | None = None
+        self,
+        limit: int = DEFAULT_LIMIT,
+        offset: int = DEFAULT_OFFSET,
+        terms: str | None = None,
+        filter_: AbstractMembership | None = None,
     ) -> tuple[list[Membership], int]:
         stmt = select(MembershipSQL)
 

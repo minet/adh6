@@ -1,3 +1,5 @@
+# pyright: reportIncompatibleMethodOverride=false
+
 """
 Implements everything related to actions on the SQL database.
 """
@@ -69,7 +71,7 @@ class TransactionSQLRepository(TransactionRepository):
 
         return [_map_transaction_sql_to_entity(i) for i in r], count
 
-    async def create(self, abstract_transaction: AbstractTransaction) -> object:
+    async def create(self, abstract_transaction: AbstractTransaction) -> Transaction:
         now = utc_now_naive()
 
         method_id = None
@@ -97,14 +99,15 @@ class TransactionSQLRepository(TransactionRepository):
 
         return _map_transaction_sql_to_entity(transaction)
 
-    def update(self, abstract_transaction: AbstractTransaction, override=False) -> object:
+    async def update(self, abstract_transaction: AbstractTransaction, override: bool = False) -> Transaction:
         raise NotImplementedError
 
-    async def delete(self, object_id) -> None:
+    async def delete(self, object_id: int) -> None:
         stmt = select(SQLTransaction).where(SQLTransaction.id == object_id)
         transaction = await self.session.scalar(stmt)
 
-        await self.session.delete(transaction)
+        if transaction is not None:
+            await self.session.delete(transaction)
 
     async def search_for_export(
         self,

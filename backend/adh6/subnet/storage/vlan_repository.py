@@ -75,7 +75,7 @@ class VLANSQLRepository(VlanRepository):
         for vlan_id, device in no_ip_rows:
             over_limit_by_vlan.setdefault(vlan_id, []).append(_map_device_sql_to_abstract(device))
 
-        result = []
+        result: list[VlanStats] = []
         for vlan, device_count in count_rows:
             ipv4_network = vlan.adresses
             if vlan.numero == WIFI_VLAN_NUMBER:

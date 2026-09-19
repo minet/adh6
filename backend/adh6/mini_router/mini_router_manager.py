@@ -140,3 +140,6 @@ class MiniRouterManager:
             and await self.payment_method_repository.get_by_id(loan.payment_method) is None
         ):
             raise PaymentMethodNotFoundError(loan.payment_method)
+
+
+# pyright: reportUnnecessaryComparison=false
