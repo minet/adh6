@@ -39,6 +39,8 @@ services:
       DATABASE_DB_NAME: ${DATABASE_DB_NAME:-adh6}
       OIDC_ISSUER: ${OIDC_ISSUER:-http://localhost:8180/realms/MiNET}
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-adh6-keycloak}
+      ADH6_URL: ${ADH6_URL:-localhost}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me}
       KEYCLOAK_ADMIN_URL: ${KEYCLOAK_ADMIN_URL:-http://keycloak:8080}
       KEYCLOAK_ADMIN_REALM: ${KEYCLOAK_ADMIN_REALM:-MiNET}
       KEYCLOAK_ADMIN_CLIENT_ID: ${KEYCLOAK_ADMIN_CLIENT_ID:-adh6-service}

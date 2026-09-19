@@ -1,78 +1,82 @@
 import {NgModule} from "@angular/core";
 import {RouterModule, Routes} from "@angular/router";
+import {authGuard} from "./auth/auth.guard";
 
 const routes: Routes = [
   {path: "", redirectTo: "dashboard", pathMatch: "full"},
   {
-    path: "portail",
-    loadComponent: () =>
-      import("./portail/portail.component").then((m) => m.PortailComponent),
-  },
-  {
-    path: "password/:member_id/:creation",
-    loadComponent: () =>
-      import("./member-password-edit/member-password-edit.component").then(
-        (m) => m.MemberPasswordEditComponent,
-      ),
-  },
-  {
-    path: "product",
-    loadChildren: () =>
-      import("./product-list/product-list.module").then(
-        (m) => m.ProductListModule,
-      ),
-  },
-  {
-    path: "dashboard",
-    loadChildren: () => import("./dashboard/routes").then((m) => m.ROUTES),
-  },
-  {
-    path: "switch",
-    loadChildren: () =>
-      import("./switch/switch.module").then((m) => m.SwitchModule),
-  },
-  {
-    path: "port",
-    loadChildren: () => import("./port/routes").then((m) => m.ROUTES),
-  },
-  {
-    path: "room",
-    loadChildren: () => import("./room/room.module").then((m) => m.RoomModule),
-  },
-  {
-    path: "mini-router",
-    loadChildren: () => import("./mini-router/routes").then((m) => m.ROUTES),
-  },
-  {
-    path: "transaction",
-    loadChildren: () =>
-      import("./transaction/transaction.module").then(
-        (m) => m.TransactionModule,
-      ),
-  },
-  {
-    path: "member",
-    loadChildren: () =>
-      import("./member/member.module").then((m) => m.MemberModule),
-  },
-  {
-    path: "device",
-    loadComponent: () =>
-      import("./device/device-list.component").then(
-        (m) => m.DeviceListComponent,
-      ),
-  },
-  {
-    path: "vlan",
-    loadComponent: () =>
-      import("./vlan/vlan-dashboard.component").then(
-        (m) => m.VlanDashboardComponent,
-      ),
-  },
-  {
-    path: "auth",
-    loadChildren: () =>
-      import("./auth-management/routes").then((m) => m.ROUTES),
+    path: "",
+    canActivateChild: [authGuard],
+    children: [
+      {
+        path: "password/:member_id/:creation",
+        loadComponent: () =>
+          import("./member-password-edit/member-password-edit.component").then(
+            (m) => m.MemberPasswordEditComponent,
+          ),
+      },
+      {
+        path: "product",
+        loadChildren: () =>
+          import("./product-list/product-list.module").then(
+            (m) => m.ProductListModule,
+          ),
+      },
+      {
+        path: "dashboard",
+        loadChildren: () => import("./dashboard/routes").then((m) => m.ROUTES),
+      },
+      {
+        path: "switch",
+        loadChildren: () =>
+          import("./switch/switch.module").then((m) => m.SwitchModule),
+      },
+      {
+        path: "port",
+        loadChildren: () => import("./port/routes").then((m) => m.ROUTES),
+      },
+      {
+        path: "room",
+        loadChildren: () =>
+          import("./room/room.module").then((m) => m.RoomModule),
+      },
+      {
+        path: "mini-router",
+        loadChildren: () =>
+          import("./mini-router/routes").then((m) => m.ROUTES),
+      },
+      {
+        path: "transaction",
+        loadChildren: () =>
+          import("./transaction/transaction.module").then(
+            (m) => m.TransactionModule,
+          ),
+      },
+      {
+        path: "member",
+        loadChildren: () =>
+          import("./member/member.module").then((m) => m.MemberModule),
+      },
+      {
+        path: "device",
+        loadComponent: () =>
+          import("./device/device-list.component").then(
+            (m) => m.DeviceListComponent,
+          ),
+      },
+      {
+        path: "vlan",
+        loadComponent: () =>
+          import("./vlan/vlan-dashboard.component").then(
+            (m) => m.VlanDashboardComponent,
+          ),
+      },
+      {
+        path: "auth",
+        loadChildren: () =>
+          import("./auth-management/routes").then((m) => m.ROUTES),
+      },
+    ],
   },
   {path: "**", redirectTo: "dashboard"},
 ];

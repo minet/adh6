@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from ipaddress import IPv4Network, ip_network
 
 from sqlalchemy import select
@@ -18,6 +19,7 @@ class IPSQLAllocator(IpAllocator):
         ip_range: str,
         member_id: int | None = None,
         reserved_hosts: int = 1,
+        excluded: Collection[str] = (),
     ) -> str:
         try:
             network = ip_network(ip_range)
@@ -32,7 +34,7 @@ class IPSQLAllocator(IpAllocator):
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)
 
-        ips = set((await self.session.execute(smt)).scalars().all())
+        ips = set((await self.session.execute(smt)).scalars().all()) | set(excluded)
 
         for index, host in enumerate(network.hosts()):
             if index < reserved_hosts:

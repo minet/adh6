@@ -5,6 +5,7 @@ os.environ.setdefault("ENVIRONMENT", "testing")
 os.environ.setdefault("TESTING", "1")
 os.environ.setdefault("OIDC_ISSUER", "https://keycloak.minet.net/realms/MiNET")
 os.environ.setdefault("OIDC_CLIENT_ID", "adh6-testing")
+os.environ.setdefault("SESSION_SECRET", "adh6-testing-session-secret")
 
 TESTING_CLIENT_TOKEN = "TEST_TOKEN"
 SAMPLE_CLIENT_TOKEN = "TEST_TOKEN_SAMPLE"

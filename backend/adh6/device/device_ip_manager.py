@@ -8,10 +8,13 @@ from adh6.constants import (
 )
 from adh6.decorator import log_call
 from adh6.entity import AbstractVlan, Device, DeviceFilter, Member
+from adh6.exceptions import IPAlreadyAssignedError, NoNetworkToAllocateFromError
 from adh6.subnet.vlan_manager import VlanManager
 
 from .interfaces import DeviceRepository, IpAllocator
 from .storage.device_repository import DeviceType
+
+MAX_ALLOCATION_ATTEMPTS = 5
 
 
 class DeviceIpManager:
@@ -40,7 +43,7 @@ class DeviceIpManager:
         devices, _ = await self.device_repository.search_by(
             limit=DEFAULT_LIMIT,
             offset=DEFAULT_OFFSET,
-            device_filter=DeviceFilter(member=member.id, connectionType=device_type if device_type else None),
+            device_filter=DeviceFilter(member=member.id, connectionType=device_type or None),
         )
         for d in devices:
             await self.allocate_ip_with_vlan(device=d, member=member, vlan=vlan)
@@ -77,7 +80,14 @@ class DeviceIpManager:
             ipv6_network = vlan.ipv6_network or ""
 
         if not ipv4_network:
-            raise ValueError("Cannot allocate IP without network")
+            missing = (
+                "a VLAN (is the member's room assigned one?)"
+                if device.connection_type == DeviceType.wired.name
+                else "a subnet"
+            )
+            raise NoNetworkToAllocateFromError(
+                f"Cannot allocate an IP address: a {device.connection_type} device needs {missing}"
+            )
 
         await self._allocate_ip(
             device=device,
@@ -94,16 +104,25 @@ class DeviceIpManager:
         ipv6_network: str = "",
         ipv6_reserved_hosts: int = 1,
     ) -> None:
-        ipv4 = await self.ip_allocator.available_ip(ipv4_network)
-        ipv6 = (
-            await self.ip_allocator.available_ip(ipv6_network, reserved_hosts=ipv6_reserved_hosts)
-            if ipv6_network
-            else None
-        )
-
         if device.id is None:
             raise ValueError("Cannot allocate IPs to a device without an id")
-        await self.device_repository.set_ip_addresses(device.id, ipv4, ipv6)
+
+        taken: set[str] = set()
+        for attempt in range(1, MAX_ALLOCATION_ATTEMPTS + 1):
+            ipv4 = await self.ip_allocator.available_ip(ipv4_network, excluded=taken)
+            ipv6 = (
+                await self.ip_allocator.available_ip(ipv6_network, reserved_hosts=ipv6_reserved_hosts, excluded=taken)
+                if ipv6_network
+                else None
+            )
+            try:
+                await self.device_repository.set_ip_addresses(device.id, ipv4, ipv6)
+            except IPAlreadyAssignedError:
+                if attempt == MAX_ALLOCATION_ATTEMPTS:
+                    raise
+                taken.update(ip for ip in (ipv4, ipv6) if ip)
+            else:
+                return
 
     @log_call
     async def unallocate_ip(self, device: Device) -> None:

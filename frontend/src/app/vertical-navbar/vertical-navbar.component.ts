@@ -1,14 +1,13 @@
-import {Component} from "@angular/core";
-import {AsyncPipe} from "@angular/common";
+import {Component, inject} from "@angular/core";
 import {RouterModule} from "@angular/router";
-import {OidcSecurityService} from "angular-auth-oidc-client";
 import {AblePipe} from "@casl/angular";
+import {AuthService} from "../auth/auth.service";
 
 @Component({
-  imports: [AsyncPipe, RouterModule, AblePipe],
+  imports: [RouterModule, AblePipe],
   selector: "app-vertical-navbar",
   templateUrl: "./vertical-navbar.component.html",
 })
 export class VerticalNavbarComponent {
-  constructor(public oidcSecurityService: OidcSecurityService) {}
+  protected readonly auth = inject(AuthService);
 }

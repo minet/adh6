@@ -102,9 +102,11 @@ class SwitchSQLRepository(SwitchRepository):
 def _merge_sql_with_entity(entity: AbstractSwitch, sql_object: SQLSwitch, override: bool = False) -> SQLSwitch:
     now = utc_now_naive()
     switch = sql_object
-    if entity.ip is not None or override:
+    # A field the client left out is kept; one it sent as null is cleared.
+    sent = entity.model_fields_set
+    if entity.ip is not None or override or "ip" in sent:
         switch.ip = entity.ip
-    if entity.community is not None or override:
+    if entity.community is not None or override or "community" in sent:
         switch.communaute = entity.community.get_secret_value() if entity.community else None
     if entity.description is not None:
         switch.description = entity.description

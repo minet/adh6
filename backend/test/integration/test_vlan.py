@@ -115,9 +115,9 @@ def test_vlans_get_requires_admin(client):
 
 
 def test_vlans_get_unauthenticated(client):
-    # No credentials → auth middleware returns 403
+    # No credentials → 401, so that a browser whose session expired knows to renew it
     r = client.get(f"{base_url}/vlans")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ─── GET /vlans/stats ────────────────────────────────────────────────────────
@@ -211,6 +211,6 @@ def test_vlans_stats_requires_admin(client):
 
 
 def test_vlans_stats_unauthenticated(client):
-    # No credentials → auth middleware returns 403
+    # No credentials → 401, so that a browser whose session expired knows to renew it
     r = client.get(f"{base_url}/vlans/stats")
-    assert r.status_code == 403
+    assert r.status_code == 401

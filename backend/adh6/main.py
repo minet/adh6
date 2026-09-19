@@ -7,8 +7,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from adh6.authentication.middleware import authenticate
+from adh6.authentication.oidc.client import close_oidc_client, get_oidc_client
 from adh6.authentication.oidc.token_verifier import close_oidc_token_verifier, get_oidc_token_verifier
 from adh6.authentication.router import role_router, router as auth_router
+from adh6.authentication.session.router import router as session_router
+from adh6.config.configuration import settings
 from adh6.device.router import router as device_router
 from adh6.exceptions import (
     AlreadyExistsError,
@@ -124,11 +127,15 @@ async def lifespan(app: FastAPI):
     # Built eagerly so a missing OIDC configuration fails at startup, not on the first request.
     # The signing keys themselves are downloaded lazily.
     get_oidc_token_verifier()
+    get_oidc_client()
+    if settings.session_secret is None:
+        raise ValueError("SESSION_SECRET must be set")
     try:
         yield
     finally:
         await close_logs_repository()
         await close_oidc_token_verifier()
+        await close_oidc_client()
 
 
 # ============================================================================
@@ -170,6 +177,7 @@ app.include_router(misc_router, prefix="/api")
 
 # Authentication routers
 app.include_router(auth_router, prefix="/api")
+app.include_router(session_router, prefix="/api")
 app.include_router(role_router, prefix="/api")
 
 # Domain routers

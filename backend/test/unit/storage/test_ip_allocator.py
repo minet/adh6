@@ -46,3 +46,9 @@ async def test_available_ip_raises_when_subnet_is_full(allocator, mock_session):
 
     with pytest.raises(NoMoreIPAvailableException):
         await allocator.available_ip("192.0.2.0/30")
+
+
+async def test_available_ip_never_returns_an_excluded_address(allocator):
+    address = await allocator.available_ip("192.0.2.0/29", excluded={"192.0.2.2", "192.0.2.3"})
+
+    assert address == "192.0.2.4"

@@ -130,7 +130,7 @@
           </button>
         }
 
-        @if (oidcSecurityService.isAuthenticated() | async) {
+        @if (auth.isAuthenticated()) {
           <button type="button" class="nav-btn nav-logout" (click)="logout()">
             <i
               class="fa-solid fa-arrow-right-from-bracket"
