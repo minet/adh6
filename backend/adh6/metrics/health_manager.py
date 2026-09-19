@@ -5,25 +5,26 @@ from collections.abc import Callable
 
 from .interfaces.ping_repository import PingRepository
 
+logger = logging.getLogger(__name__)
+
 
 class HealthManager:
-    """
-    Response to health requests.
-    """
+    """Check whether the application is ready to serve requests."""
 
     def __init__(self, ping_repository: PingRepository):
-        self.health_repository = ping_repository
+        self._ping_repository = ping_repository
 
     async def is_healthy(self) -> bool:
-        db_health = await self.health_repository.ping()
-        if not db_health:
-            logging.error("health_check_db_not_healthy")  # noqa: LOG015  # TODO: use scoped logger ?
+        try:
+            is_database_healthy = await self._ping_repository.ping()
+        except Exception:
+            logger.exception("health_check_db_failed")
             return False
 
-        # TODO: add more health checks?
+        if not is_database_healthy:
+            logger.warning("health_check_db_not_healthy")
 
-        logging.debug("health_check_success")  # noqa: LOG015  # TODO: use scoped logger ?
-        return True
+        return is_database_healthy
 
 
 class HealthCache:
@@ -44,7 +45,10 @@ class HealthCache:
                     async with asyncio.timeout(self.timeout):
                         self._healthy = await manager.is_healthy()
                 except TimeoutError:
-                    logging.warning("health_check_timeout")  # noqa: LOG015
+                    logger.warning("health_check_timeout", extra={"timeout_seconds": self.timeout})
+                    self._healthy = False
+                except Exception:
+                    logger.exception("health_check_failed")
                     self._healthy = False
                 self._checked_at = self._clock()
             return self._healthy

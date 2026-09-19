@@ -4,7 +4,7 @@ from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractRoom, Room
 
 
-class RoomRepository(CRUDRepository[Room, AbstractRoom]):
+class RoomRepository(CRUDRepository[Room, AbstractRoom, int]):
     @abc.abstractmethod
     async def get_from_member(self, member_id: int) -> Room | None:
         pass  # pragma: no cover

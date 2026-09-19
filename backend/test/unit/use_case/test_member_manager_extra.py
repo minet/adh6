@@ -221,7 +221,7 @@ class TestGetByLogin:
         member_manager: MemberManager,
     ):
         mock_member_repository.get_by_login = AsyncMock(return_value=sample_member)
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
 
         result = await member_manager.get_by_login(login=sample_member.username)
 
@@ -315,7 +315,7 @@ class TestCreate:
         mock_member_repository.is_username_taken = AsyncMock(return_value=False)
         mock_member_repository.create = AsyncMock(return_value=sample_member)
         mock_mailinglist_repository.update_from_member = AsyncMock(return_value=None)
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
         mock_membership_repository.create = AsyncMock(return_value=MagicMock(status=MembershipStatus.INITIAL.value))
 
         body = MemberBody(
@@ -352,13 +352,13 @@ class TestUpdate:
         member_manager: MemberManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
         mock_member_repository.update = AsyncMock(return_value=sample_member)
 
         body = MemberBody(username=sample_member.username, mail=sample_member.email)
         await member_manager.update(id=sample_member.id, body=body)
         mock_member_repository.update.assert_awaited_once()
-        mock_membership_repository.search.assert_not_awaited()
+        mock_membership_repository.search_by.assert_not_awaited()
 
 
 class TestGetLogs:
@@ -459,7 +459,7 @@ class TestEthernetVlanChanged:
         member_manager: MemberManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
         mock_device_ip_manager.allocate_ips = AsyncMock(return_value=None)
 
         await member_manager.ethernet_vlan_changed(member_id=sample_member.id, vlan_number=41)

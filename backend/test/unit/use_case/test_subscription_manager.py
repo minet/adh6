@@ -49,7 +49,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value="")
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, sample_subscription_empty)
@@ -64,7 +64,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, SubscriptionBody())
@@ -79,7 +79,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
@@ -97,7 +97,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
@@ -128,7 +128,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
         )
@@ -148,7 +148,7 @@ class TestNewMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         sample_subscription_empty.duration = 5
         assert sample_member.id is not None
@@ -169,13 +169,13 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_empty)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
 
@@ -190,13 +190,13 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
 
@@ -213,14 +213,14 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
         mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
@@ -236,13 +236,15 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([sample_membership_pending_payment_initial], 1)
+        )
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_not_called()  # type: ignore[attr-defined]
 
@@ -258,13 +260,15 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment_initial], 1))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([sample_membership_pending_payment_initial], 1)
+        )
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
@@ -280,13 +284,13 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_payment], 1))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
         mock_subscription_repository.update.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
@@ -313,7 +317,9 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0), side_effect=MembershipNotFoundError(""))
+        mock_subscription_repository.search_by = AsyncMock(
+            return_value=([], 0), side_effect=MembershipNotFoundError("")
+        )
         assert sample_member.id is not None
 
         with pytest.raises(MembershipNotFoundError):
@@ -332,7 +338,7 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
@@ -342,7 +348,7 @@ class TestPatchMembership:
         with pytest.raises(PaymentMethodNotFoundError):
             await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
         mock_payment_method_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
@@ -359,7 +365,7 @@ class TestPatchMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
         sample_subscription_duration_payment_method.duration = 5
         assert sample_member.id is not None
@@ -367,7 +373,7 @@ class TestPatchMembership:
         with pytest.raises(NoPriceAssignedToThatDuration):
             await subscription_manager.update(sample_member.id, sample_subscription_duration_payment_method)
 
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
         mock_charter_repository.get.assert_called_once()  # type: ignore[attr-defined]
         mock_subscription_repository.update.assert_not_called()  # type: ignore[attr-defined]
@@ -394,14 +400,14 @@ class TestValidateMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([], 0))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         assert sample_member.id is not None
 
         with pytest.raises(MembershipNotFoundError):
             await subscription_manager.validate(sample_member.id, False)
 
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
 
     async def test_pending_rules_without_a_signature_names_the_charter(
         self,
@@ -414,7 +420,7 @@ class TestValidateMembership:
     ):
         """ "PENDING_RULES not allowed" said nothing about the charter to whoever read the error mail."""
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=None)
         assert sample_member.id is not None
 
@@ -435,7 +441,7 @@ class TestValidateMembership:
         signed and still sit in PENDING_RULES -- telling them the charter is missing would be a lie.
         """
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_rules], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
         mock_charter_repository.get = AsyncMock(return_value=datetime.datetime(2026, 8, 24, 10, 0))
         assert sample_member.id is not None
 
@@ -482,13 +488,13 @@ class TestValidateMembership:
         subscription_manager: SubscriptionManager,
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_subscription_repository.search = AsyncMock(return_value=([sample_membership_pending_payment], 1))
+        mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_payment], 1))
         assert sample_member.id is not None
 
         with pytest.raises(MembershipStatusNotAllowed):
             await subscription_manager.validate(sample_member.id, False)
 
-        mock_subscription_repository.search.assert_called_once()  # type: ignore[attr-defined]
+        mock_subscription_repository.search_by.assert_called_once()  # type: ignore[attr-defined]
         mock_member_repository.get_by_id.assert_called_once()  # type: ignore[attr-defined]
 
 

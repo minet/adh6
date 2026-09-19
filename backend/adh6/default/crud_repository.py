@@ -5,11 +5,12 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 
 T = TypeVar("T")
 AbstractT = TypeVar("AbstractT")
+IdentifierT = TypeVar("IdentifierT")
 
 
-class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
+class CRUDRepository(abc.ABC, Generic[T, AbstractT, IdentifierT]):
     @abc.abstractmethod
-    async def get_by_id(self, object_id: int) -> T | None:
+    async def get_by_id(self, object_id: IdentifierT) -> T | None:
         pass  # pragma: no cover
 
     @abc.abstractmethod
@@ -31,5 +32,5 @@ class CRUDRepository(abc.ABC, Generic[T, AbstractT]):
         pass  # pragma: no cover
 
     @abc.abstractmethod
-    async def delete(self, object_id: int) -> T:
+    async def delete(self, object_id: IdentifierT) -> T | None:
         pass  # pragma: no cover

@@ -18,6 +18,45 @@ class KeycloakPasswordPolicyError(KeycloakAdminError):
     """The proposed credential does not satisfy Keycloak's password policy."""
 
 
+_GENERIC_CREDENTIAL_POLICY_ERROR = "Password rejected by Keycloak's password policy"
+
+# Only descriptions attached to known password-policy errors are safe and useful
+# to expose. Other Keycloak 400 responses may contain implementation details.
+_PASSWORD_POLICY_ERROR_CODES = frozenset(
+    {
+        "invalidPasswordBlacklistedMessage",
+        "invalidPasswordGenericMessage",
+        "invalidPasswordHistoryMessage",
+        "invalidPasswordMaxLengthMessage",
+        "invalidPasswordMinDigitsMessage",
+        "invalidPasswordMinLengthMessage",
+        "invalidPasswordMinLowerCaseCharsMessage",
+        "invalidPasswordMinSpecialCharsMessage",
+        "invalidPasswordMinUpperCaseCharsMessage",
+        "invalidPasswordNotContainsUsernameMessage",
+        "invalidPasswordNotEmailMessage",
+        "invalidPasswordNotUsernameMessage",
+        "invalidPasswordRegexPatternMessage",
+    }
+)
+
+
+def _password_policy_error_message(response: httpx.Response) -> str:
+    """Return Keycloak's user-facing policy description, if recognized."""
+    try:
+        body = response.json()
+    except (ValueError, TypeError):
+        return _GENERIC_CREDENTIAL_POLICY_ERROR
+
+    if not isinstance(body, dict) or body.get("error") not in _PASSWORD_POLICY_ERROR_CODES:
+        return _GENERIC_CREDENTIAL_POLICY_ERROR
+
+    description = body.get("error_description")
+    if isinstance(description, str) and 0 < len(description) <= 500:
+        return description
+    return _GENERIC_CREDENTIAL_POLICY_ERROR
+
+
 @dataclass(frozen=True)
 class KeycloakAdminConfig:
     base_url: str
@@ -76,7 +115,7 @@ class KeycloakAdminClient:
                 headers=headers,
             )
             if response.status_code == httpx.codes.BAD_REQUEST:
-                raise KeycloakPasswordPolicyError("Password rejected by Keycloak's password policy")
+                raise KeycloakPasswordPolicyError(_password_policy_error_message(response))
             if response.status_code != httpx.codes.NO_CONTENT:
                 raise KeycloakAdminError("Keycloak refused the password update")
 

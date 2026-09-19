@@ -39,6 +39,14 @@ class TestIsHealthy:
         assert result is False
         mock_ping_repository.ping.assert_called_once()
 
+    async def test_repository_exception_is_unhealthy(self, health_manager, mock_ping_repository):
+        mock_ping_repository.ping = AsyncMock(side_effect=RuntimeError("database unavailable"))
+
+        result = await health_manager.is_healthy()
+
+        assert result is False
+        mock_ping_repository.ping.assert_called_once()
+
 
 class TestHealthCache:
     async def test_reuses_result_within_ttl(self, health_manager, mock_ping_repository):
@@ -83,3 +91,10 @@ class TestHealthCache:
         cache = HealthCache(timeout=0.01)
 
         assert await cache.is_healthy(health_manager) is False
+
+    async def test_unexpected_manager_exception_is_unhealthy(self):
+        manager = MagicMock(spec=HealthManager)
+        manager.is_healthy = AsyncMock(side_effect=RuntimeError("unexpected failure"))
+        cache = HealthCache()
+
+        assert await cache.is_healthy(manager) is False

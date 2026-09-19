@@ -86,7 +86,7 @@ class SubscriptionManager:
     @log_call
     async def latest(self, member_id: int) -> Membership | None:
         """Get the latest subscription of a member, if it exists."""
-        subscriptions, _ = await self.membership_repository.search(filter_=AbstractMembership(member=member_id))
+        subscriptions, _ = await self.membership_repository.search_by(filter_=AbstractMembership(member=member_id))
         if not subscriptions:
             return None
 
@@ -164,7 +164,14 @@ class SubscriptionManager:
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
         try:
-            membership_created = await self.membership_repository.create(body, state)
+            membership_to_create = AbstractMembership.model_validate(
+                {
+                    **body.model_dump(exclude_unset=True),
+                    "member": member_id,
+                    "status": state.value,
+                }
+            )
+            membership_created = await self.membership_repository.create(membership_to_create)
         except UnknownPaymentMethod:
             logger.warning("create_membership_record_unknown_payment_method")
             raise
@@ -237,7 +244,18 @@ class SubscriptionManager:
             logger.debug("create_membership_record_switch_status_to_pending_payment_validation")
             state = MembershipStatus.PENDING_PAYMENT_VALIDATION
 
-        await self.membership_repository.update(subscription.uuid, body, state)
+        updated_fields = body.model_dump(exclude_unset=True)
+        # A membership's owner is immutable; the path member_id identifies the owner.
+        updated_fields.pop("member", None)
+        await self.membership_repository.update(
+            AbstractMembership.model_validate(
+                {
+                    **updated_fields,
+                    "uuid": subscription.uuid,
+                    "status": state.value,
+                }
+            )
+        )
 
     @log_call
     async def validate(self, member_id: int, free: bool) -> None:

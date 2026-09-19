@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.authentication.enums import Roles
+from adh6.authentication.keycloak_admin import KeycloakPasswordPolicyError
 from adh6.authentication.middleware import authenticate
 from adh6.constants import MembershipStatus
 from adh6.entity import Member, Membership
@@ -34,7 +35,7 @@ def member_repository():
 @pytest.fixture
 def membership_repository():
     repository = MagicMock(spec=MembershipRepository)
-    repository.search = AsyncMock(return_value=([], 0))
+    repository.search_by = AsyncMock(return_value=([], 0))
     return repository
 
 
@@ -85,9 +86,20 @@ def test_admin_password_update_is_delegated_to_keycloak(client, keycloak_admin):
     keycloak_admin.reset_password.assert_awaited_once_with("psders", "ValidPassword1!")
 
 
+def test_admin_password_update_returns_keycloak_policy_description(client, keycloak_admin):
+    keycloak_admin.reset_password = AsyncMock(
+        side_effect=KeycloakPasswordPolicyError("Invalid password: minimum length 12.")
+    )
+
+    response = client.put("/api/member/67/password", json={"password": "weak"})
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid password: minimum length 12."}
+
+
 def set_membership(repository, state):
     memberships = [] if state is None else [Membership(uuid="test", member=67, status=state, hasRoom=None)]
-    repository.search.return_value = (memberships, len(memberships))
+    repository.search_by.return_value = (memberships, len(memberships))
 
 
 @pytest.mark.parametrize(
@@ -105,7 +117,7 @@ def test_staff_can_edit_identity_without_valid_membership(client, member_reposit
     for field, value in IDENTITY_EDIT.items():
         entity_field = "email" if field == "mail" else field
         assert updated_member.model_dump(by_alias=True)[entity_field] == value
-    membership_repository.search.assert_not_awaited()
+    membership_repository.search_by.assert_not_awaited()
 
 
 @pytest.mark.parametrize("state", [None, MembershipStatus.PENDING_RULES.value])

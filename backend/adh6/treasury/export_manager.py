@@ -9,7 +9,7 @@ from odf.style import Style, TableCellProperties, TextProperties  # type: ignore
 from odf.table import Table, TableCell, TableRow  # type: ignore[import-untyped]
 from odf.text import P  # type: ignore[import-untyped]
 
-from adh6.entity import AbstractMembership, Member, Membership
+from adh6.entity import Member, Membership
 from adh6.member.interfaces import MemberRepository, MembershipRepository
 from adh6.treasury.interfaces import PaymentMethodRepository, TransactionRepository
 
@@ -33,8 +33,7 @@ class ExportManager:
 
     async def _fetch_memberships(self, uuids: set[str]) -> dict[str, Membership]:
         async def _get(uuid: str) -> Membership | None:
-            items, _ = await self.membership_repository.search(limit=1, filter_=AbstractMembership(uuid=uuid))
-            return items[0] if items else None
+            return await self.membership_repository.get_by_id(uuid)
 
         results = await asyncio.gather(*[_get(u) for u in uuids])
         return {m.uuid: m for m in results if m is not None}

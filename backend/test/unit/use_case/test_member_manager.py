@@ -77,7 +77,7 @@ class TestGetByID:
     ):
         # Given...
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
 
         # When...
         result = await member_manager.get_by_id(id=sample_member.id)
@@ -259,7 +259,7 @@ class TestGetLogs:
                         member_manager: MemberManager):
         # Given...
         mock_member_repository.search_by = AsyncMock(return_value=([sample_member], 1))
-        mock_membership_repository.search = AsyncMock(return_value=([], 0))
+        mock_membership_repository.search_by = AsyncMock(return_value=([], 0))
         mock_logs_repository.get_logs = AsyncMock(return_value=([FAKE_LOGS]))
 
         # When...

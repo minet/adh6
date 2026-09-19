@@ -94,16 +94,39 @@ async def test_admin_password_is_forwarded_to_keycloak():
 
 
 @pytest.mark.asyncio
-async def test_password_policy_rejection_is_distinct():
+async def test_password_policy_rejection_exposes_its_safe_description():
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path.endswith("/token"):
             return httpx.Response(200, json={"access_token": "access-token"})
         if request.method == "GET":
             return httpx.Response(200, json=[{"id": "user-id", "username": "alice"}])
-        return httpx.Response(400, text="upstream policy details")
+        return httpx.Response(
+            400,
+            json={
+                "error": "invalidPasswordMinLengthMessage",
+                "error_description": "Invalid password: minimum length 12.",
+            },
+        )
+
+    client = KeycloakAdminClient(config(), transport=httpx.MockTransport(handler))
+    with pytest.raises(KeycloakPasswordPolicyError, match="minimum length 12"):
+        await client.reset_password("alice", "weak")
+
+
+@pytest.mark.asyncio
+async def test_password_policy_rejection_does_not_expose_unrecognized_error_details():
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/token"):
+            return httpx.Response(200, json={"access_token": "access-token"})
+        if request.method == "GET":
+            return httpx.Response(200, json=[{"id": "user-id", "username": "alice"}])
+        return httpx.Response(
+            400,
+            json={"error": "unexpectedError", "error_description": "sensitive upstream details"},
+        )
 
     client = KeycloakAdminClient(config(), transport=httpx.MockTransport(handler))
     with pytest.raises(KeycloakPasswordPolicyError, match="password policy") as error:
         await client.reset_password("alice", "weak")
 
-    assert "upstream" not in str(error.value)
+    assert "sensitive" not in str(error.value)

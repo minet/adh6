@@ -100,8 +100,7 @@ export class MemberPasswordEditComponent {
           this.location.back();
         }
       },
-      error: (error: {status?: number}) =>
-        this.notificationService.errorNotification(error.status ?? 500),
+      error: () => undefined,
     });
   }
 }

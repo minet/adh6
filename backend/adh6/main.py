@@ -205,7 +205,7 @@ async def root():
 
 @app.get("/ping", tags=["health"])
 async def ping():
-    """Simple ping endpoint for health checks."""
+    """Liveness check that does not depend on external services."""
     return {"status": "ok"}
 
 
