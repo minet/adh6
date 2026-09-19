@@ -251,7 +251,11 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
         if device_to_add["connectionType"] == "wireless"
         else res["ipv4Address"] == "192.168.42.2"
     )
-    assert res["ipv6Address"] == "fe80:42::2"
+    assert (
+        res["ipv6Address"] == "2001:660:3203:435::65"
+        if device_to_add["connectionType"] == "wireless"
+        else res["ipv6Address"] == "fe80:42::2"
+    )
 
 
 def test_device_post_create_multiple_wireless(
@@ -303,12 +307,8 @@ def test_device_post_create_multiple_wireless(
         assert subnet is not None
         subnet_header = ".".join(subnet.split(".")[:3])
         subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
-        start_number_v6 = [2, 5]
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        assert (
-            res["ipv6Address"]
-            == f"fe80:{42 if d['member'] == TESTING_CLIENT_ID else 69}::{format(start_number_v6[i // device_number] + (i % device_number), 'x')}"
-        )
+        assert res["ipv6Address"] == f"2001:660:3203:435::{format(0x66 + i, 'x')}"
 
 
 def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_room2):
@@ -354,7 +354,7 @@ def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_r
         )
         res = r.json()
         start_number_v4 = [2, 4]
-        start_number_v6 = [2, 5]
+        start_number_v6 = [2, 4]
         assert (
             res["ipv4Address"]
             == f"192.168.{42 if d['member'] == TESTING_CLIENT_ID else 69}.{start_number_v4[i // device_number] + (i % device_number)}"
@@ -453,7 +453,7 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1, sampl
         subnet_header = ".".join(subnet.split(".")[:3])
         subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % device_number), 'x')}"
+        assert res["ipv6Address"] == f"2001:660:3203:435::{format(0x65 + i, 'x')}"
 
     d = {
         "mac": faker.mac_address(),

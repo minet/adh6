@@ -42,6 +42,7 @@ from adh6.entity import (
     MemberIdWifiGet200Response,
     Membership,
     MemberStatus,
+    PasswordPolicyRule,
     SubscriptionBody,
 )
 from adh6.exceptions import MemberAlreadyExist, NotFoundError
@@ -279,6 +280,19 @@ async def search_members(
     response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
     # result = [await manager.get_by_id(member_id) for member_id in result]
     return result
+
+
+@router.get("/password-policy", response_model=list[PasswordPolicyRule])
+async def get_password_policy(
+    keycloak: Annotated[KeycloakAdminClient, Depends(get_password_action_client)],
+    request: Request,
+) -> list[PasswordPolicyRule]:
+    """Retrieve the Keycloak realm's user-facing password constraints."""
+    require_role_or_ownership(request, Roles.ADMIN_WRITE.value, resource_name="password policy")
+    try:
+        return [PasswordPolicyRule.model_validate(rule) for rule in await keycloak.get_password_policy()]
+    except KeycloakAdminError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
 
 
 @router.get("/{id}", response_model=Member)

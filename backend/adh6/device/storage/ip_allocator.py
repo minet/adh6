@@ -13,7 +13,12 @@ class IPSQLAllocator(IpAllocator):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def available_ip(self, ip_range: str = "", member_id: int | None = None) -> str:
+    async def available_ip(
+        self,
+        ip_range: str = "",
+        member_id: int | None = None,
+        reserved_hosts: int = 1,
+    ) -> str:
         if ip_range == "":
             return "En attente"
 
@@ -37,8 +42,10 @@ class IPSQLAllocator(IpAllocator):
         ips = (await self.session.execute(smt)).scalars().all()
 
         for index, host in enumerate(network.hosts()):
-            if index == 0:
+            if index < reserved_hosts:
                 continue
+            if host == network.broadcast_address:
+                break
             if str(host) not in ips:
                 return str(host)
         raise NoMoreIPAvailableException(ip_range)

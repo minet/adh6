@@ -204,6 +204,10 @@ services:
           --uusername service-account-adh6-service \
           --cclientid realm-management \
           --rolename manage-users
+        $$kcadm add-roles -r MiNET \
+          --uusername service-account-adh6-service \
+          --cclientid realm-management \
+          --rolename view-realm
         echo "Service account adh6-service configuré"
 
   # jaeger:

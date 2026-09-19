@@ -7,9 +7,14 @@ class IpAllocator(abc.ABC):
     """
 
     @abc.abstractmethod
-    async def available_ip(self, ip_range: str = "", member_id: int | None = None) -> str:
+    async def available_ip(
+        self,
+        ip_range: str = "",
+        member_id: int | None = None,
+        reserved_hosts: int = 1,
+    ) -> str:
         """
-        Allocates a new unused IP address.
+        Allocates a new unused IP address after the reserved first hosts.
 
         :raise NoMoreIPAvailable
         """

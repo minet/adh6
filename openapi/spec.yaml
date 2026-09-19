@@ -637,6 +637,29 @@ paths:
             - admin:write
       tags:
         - member
+  /member/password-policy:
+    get:
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PasswordPolicyRule"
+          description: User-facing password constraints configured on the Keycloak realm
+        "403":
+          $ref: "#/components/responses/Unauthorized"
+        default:
+          $ref: "#/components/responses/Unexpected"
+      summary: Retrieve the Keycloak password policy
+      security:
+        - OpenIdConnect:
+          - admin:write
+        - ApiKeyAdminAuth:
+          - admin:write
+      tags:
+        - member
   /member/{id}/password:
     parameters:
       - $ref: "#/components/parameters/idPath"
@@ -3501,6 +3524,20 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    PasswordPolicyRule:
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+          description: Keycloak password-policy provider identifier
+          example: length
+        value:
+          type: string
+          description: Configured provider value, or an empty string for a value-less rule
+          example: "12"
     Health:
       type: object
       properties:

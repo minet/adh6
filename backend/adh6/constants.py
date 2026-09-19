@@ -63,6 +63,8 @@ PUBLIC_RANGE = list(
 # The wifi VLAN: its public IPs are held by members (Adherent.ip), not by devices.
 WIFI_VLAN_NUMBER = 35
 WIFI_PUBLIC_NETWORKS = sorted(n for r in PUBLIC_RANGE for n in r.subnets(new_prefix=24))  # 192, 193, 194
+WIFI_IPV6_NETWORK = "2001:660:3203:435::/64"
+WIFI_IPV6_RESERVED_HOSTS = 100
 
 
 def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipaddress.IPv4Network]:

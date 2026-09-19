@@ -19,10 +19,12 @@ lien `UPDATE_PASSWORD` à durée limitée. Les LDAP avec `admin:write` peuvent e
 
 ### Administrateur
 
-1. Le frontend appelle `PUT /member/{id}/password` avec le nouveau mot de passe via HTTPS.
-2. La route exige `admin:write`.
-3. ADH6 transmet le secret à Keycloak sur `reset-password`.
-4. Keycloak applique sa politique puis appelle le provider fédéré existant.
+1. À l'ouverture du formulaire, le frontend appelle `GET /member/password-policy` et affiche les contraintes
+   configurées sur le realm.
+2. Le frontend appelle `PUT /member/{id}/password` avec le nouveau mot de passe via HTTPS.
+3. Les deux routes exigent `admin:write`.
+4. ADH6 transmet le secret à Keycloak sur `reset-password`.
+5. Keycloak applique sa politique puis appelle le provider fédéré existant.
 
 ## Configuration de production
 
@@ -31,7 +33,7 @@ Dans la console d'administration Keycloak :
 1. Créer un client `adh6-service` dans le realm `MiNET`.
 2. Activer **Client authentication** et **Service accounts roles**.
 3. Désactiver Standard flow et Direct access grants.
-4. Donner la permission `realm-management/manage-users` au client.
+4. Donner les permissions `realm-management/manage-users` et `realm-management/view-realm` au client.
 5. Configurer et tester le SMTP du realm.
 6. Placer le client secret dans le env :
 

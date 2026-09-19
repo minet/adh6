@@ -48,6 +48,7 @@ def token_info():
 def keycloak_admin():
     client = MagicMock()
     client.send_update_password_email = AsyncMock()
+    client.get_password_policy = AsyncMock(return_value=[])
     return client
 
 
@@ -95,6 +96,31 @@ def test_admin_password_update_returns_keycloak_policy_description(client, keycl
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid password: minimum length 12."}
+
+
+def test_password_policy_is_loaded_from_keycloak(client, keycloak_admin):
+    keycloak_admin.get_password_policy.return_value = [
+        {"name": "length", "value": "12"},
+        {"name": "notUsername", "value": ""},
+    ]
+
+    response = client.get("/api/member/password-policy")
+
+    assert response.status_code == 200, response.text
+    assert response.json() == [
+        {"name": "length", "value": "12"},
+        {"name": "notUsername", "value": ""},
+    ]
+    keycloak_admin.get_password_policy.assert_awaited_once_with()
+
+
+def test_password_policy_requires_admin_write(client, keycloak_admin, token_info):
+    token_info["scope"] = [Roles.USER.value]
+
+    response = client.get("/api/member/password-policy")
+
+    assert response.status_code == 403
+    keycloak_admin.get_password_policy.assert_not_awaited()
 
 
 def set_membership(repository, state):

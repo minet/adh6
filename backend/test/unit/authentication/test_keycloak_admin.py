@@ -94,6 +94,64 @@ async def test_admin_password_is_forwarded_to_keycloak():
 
 
 @pytest.mark.asyncio
+async def test_get_password_policy_returns_user_facing_rules():
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path.endswith("/token"):
+            return httpx.Response(200, json={"access_token": "access-token"})
+        assert request.url.path == "/admin/realms/MiNET"
+        return httpx.Response(
+            200,
+            json={
+                "passwordPolicy": (
+                    "length(12) and digits(2) and notUsername and "
+                    "regexPattern(^[A-Z](foo and bar)[0-9]+$) and hashAlgorithm(argon2)"
+                )
+            },
+        )
+
+    client = KeycloakAdminClient(config(), transport=httpx.MockTransport(handler))
+
+    assert await client.get_password_policy() == [
+        {"name": "length", "value": "12"},
+        {"name": "digits", "value": "2"},
+        {"name": "notUsername", "value": ""},
+        {"name": "regexPattern", "value": "^[A-Z](foo and bar)[0-9]+$"},
+    ]
+    assert [request.method for request in requests] == ["POST", "GET"]
+    assert requests[-1].headers["authorization"] == "Bearer access-token"
+
+
+@pytest.mark.asyncio
+async def test_get_password_policy_accepts_an_unconfigured_realm():
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/token"):
+            return httpx.Response(200, json={"access_token": "access-token"})
+        return httpx.Response(200, json={"realm": "MiNET"})
+
+    client = KeycloakAdminClient(config(), transport=httpx.MockTransport(handler))
+
+    assert await client.get_password_policy() == []
+
+
+@pytest.mark.asyncio
+async def test_get_password_policy_reports_a_controlled_upstream_error():
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/token"):
+            return httpx.Response(200, json={"access_token": "access-token"})
+        return httpx.Response(403, text="sensitive upstream details")
+
+    client = KeycloakAdminClient(config(), transport=httpx.MockTransport(handler))
+
+    with pytest.raises(KeycloakAdminError, match="policy lookup failed") as error:
+        await client.get_password_policy()
+
+    assert "sensitive" not in str(error.value)
+
+
+@pytest.mark.asyncio
 async def test_password_policy_rejection_exposes_its_safe_description():
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path.endswith("/token"):
