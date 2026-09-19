@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.authentication.enums import Roles
+from adh6.authentication.keycloak_admin import KeycloakPasswordPolicyError
 from adh6.authentication.middleware import authenticate
 from adh6.constants import MembershipStatus
 from adh6.entity import Member, Membership
@@ -83,6 +84,17 @@ def test_admin_password_update_is_delegated_to_keycloak(client, keycloak_admin):
 
     assert response.status_code == 204, response.text
     keycloak_admin.reset_password.assert_awaited_once_with("psders", "ValidPassword1!")
+
+
+def test_admin_password_update_returns_keycloak_policy_description(client, keycloak_admin):
+    keycloak_admin.reset_password = AsyncMock(
+        side_effect=KeycloakPasswordPolicyError("Invalid password: minimum length 12.")
+    )
+
+    response = client.put("/api/member/67/password", json={"password": "weak"})
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid password: minimum length 12."}
 
 
 def set_membership(repository, state):
