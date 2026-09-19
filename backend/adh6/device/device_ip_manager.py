@@ -1,6 +1,11 @@
 import typing as t
 
-from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.constants import (
+    DEFAULT_LIMIT,
+    DEFAULT_OFFSET,
+    WIFI_IPV6_NETWORK,
+    WIFI_IPV6_RESERVED_HOSTS,
+)
 from adh6.decorator import log_call
 from adh6.entity import AbstractDevice, AbstractVlan, Device, DeviceFilter, Member
 from adh6.subnet.vlan_manager import VlanManager
@@ -64,7 +69,11 @@ class DeviceIpManager:
             ipv4_network = member.subnet
 
         ipv6_network = ""
-        if vlan:
+        ipv6_reserved_hosts = 1
+        if device.connection_type == DeviceType.wireless.name:
+            ipv6_network = WIFI_IPV6_NETWORK
+            ipv6_reserved_hosts = WIFI_IPV6_RESERVED_HOSTS
+        elif vlan:
             ipv6_network = vlan.ipv6_network or ""
 
         if not ipv4_network:
@@ -74,12 +83,23 @@ class DeviceIpManager:
             device=device,
             ipv4_network=ipv4_network,
             ipv6_network=ipv6_network,
+            ipv6_reserved_hosts=ipv6_reserved_hosts,
         )
 
     @log_call
-    async def _allocate_ip(self, device: Device, ipv4_network: str = "", ipv6_network: str = "") -> None:
+    async def _allocate_ip(
+        self,
+        device: Device,
+        ipv4_network: str = "",
+        ipv6_network: str = "",
+        ipv6_reserved_hosts: int = 1,
+    ) -> None:
         ipv4 = await self.ip_allocator.available_ip(ipv4_network)
-        ipv6 = await self.ip_allocator.available_ip(ipv6_network) if ipv6_network else None
+        ipv6 = (
+            await self.ip_allocator.available_ip(ipv6_network, reserved_hosts=ipv6_reserved_hosts)
+            if ipv6_network
+            else None
+        )
 
         await self.device_repository.update(
             AbstractDevice(id=device.id, ipv4Address=ipv4, ipv6Address=ipv6),
