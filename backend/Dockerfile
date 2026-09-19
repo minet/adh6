@@ -87,7 +87,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
 COPY --from=build /app/.venv /app/.venv
-COPY backend/pyproject.toml backend/uv.lock ./
+COPY backend/pyproject.toml backend/pyright-tests.json backend/uv.lock ./
 # Extend the inherited prod venv with dev packages; pre-bake .tox/ci env
 RUN --mount=type=cache,target=/var/cache/apk \
     --mount=type=cache,target=/root/.cache/uv \
@@ -104,5 +104,4 @@ COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh 
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY backend/test/ test/
-
 
