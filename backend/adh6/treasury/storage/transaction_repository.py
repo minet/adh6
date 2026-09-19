@@ -8,11 +8,12 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractTransaction, Transaction
 from adh6.exceptions import PaymentMethodNotFoundError
 from adh6.storage.count import count_rows
+from adh6.treasury.interfaces import TransactionRepository
 
-from ..interfaces import TransactionRepository
 from .models import PaymentMethod, Transaction as SQLTransaction
 
 
@@ -69,7 +70,7 @@ class TransactionSQLRepository(TransactionRepository):
         return [_map_transaction_sql_to_entity(i) for i in r], count
 
     async def create(self, abstract_transaction: AbstractTransaction) -> object:
-        now = datetime.now()
+        now = utc_now_naive()
 
         method_id = None
         if abstract_transaction.payment_method is not None:

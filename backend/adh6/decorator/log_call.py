@@ -3,11 +3,13 @@ Log function call decorator.
 """
 
 import asyncio
+import logging
 from functools import wraps
 
 from opentelemetry import trace
 
 tracer = trace.get_tracer(__name__)
+logger = logging.getLogger(__name__)
 
 
 def log_call(f):
@@ -22,9 +24,7 @@ def log_call(f):
             """
             Wrap http_api function.
             """
-            import logging
-
-            logging.debug("%s_%s_called | %s | %s", type(cls).__name__, f.__name__, args, kwargs)  # noqa: LOG015  # TODO: use local logger
+            logger.debug("%s_%s_called | %s | %s", type(cls).__name__, f.__name__, args, kwargs)
             with tracer.start_as_current_span(f"{type(cls).__name__}.{f.__name__}"):
                 return await f(cls, *args, **kwargs)
 
@@ -35,9 +35,7 @@ def log_call(f):
         """
         Wrap http_api function.
         """
-        import logging
-
-        logging.debug("%s_%s_called | %s | %s", type(cls).__name__, f.__name__, args, kwargs)  # noqa: LOG015  # TODO: use local logger
+        logger.debug("%s_%s_called | %s | %s", type(cls).__name__, f.__name__, args, kwargs)
         with tracer.start_as_current_span(f"{type(cls).__name__}.{f.__name__}"):
             return f(cls, *args, **kwargs)
 

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -73,7 +73,7 @@ class TestMemberSQLRepository:
 
     async def test_search_by_with_filter(self, member_repo, mock_session):
         # Given
-        filter_ = MemberFilter(ip="127.0.0.1", since=datetime(2023, 1, 1))
+        filter_ = MemberFilter(ip="127.0.0.1", since=datetime(2023, 1, 1, tzinfo=UTC))
         mock_execute_result = MagicMock()
         mock_execute_result.scalars.return_value.all.return_value = []
         mock_session.execute = AsyncMock(return_value=mock_execute_result)

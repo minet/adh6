@@ -22,7 +22,7 @@ class ApiKeyManager:
         try:
             roles_ = [Roles(r) for r in roles]
         except Exception:
-            raise ValidationError
+            raise ValidationError from None
 
         t = await self.member_manager.get_by_login(login)
         if not t:

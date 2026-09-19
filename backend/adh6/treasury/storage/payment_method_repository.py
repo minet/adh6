@@ -9,8 +9,8 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.entity import PaymentMethod
 from adh6.exceptions import PaymentMethodNotFoundError
 from adh6.storage.count import count_rows
+from adh6.treasury.interfaces import PaymentMethodRepository
 
-from ..interfaces import PaymentMethodRepository
 from .models import PaymentMethod as SQLPaymentMethod
 
 

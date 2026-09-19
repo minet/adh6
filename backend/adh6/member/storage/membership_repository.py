@@ -1,15 +1,15 @@
 import uuid
-from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET, MembershipDuration, MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractMembership, Membership
 from adh6.exceptions import MembershipNotFoundError
+from adh6.member.interfaces.membership_repository import MembershipRepository
 from adh6.storage.count import count_rows
 
-from ..interfaces.membership_repository import MembershipRepository
 from .models import Membership as MembershipSQL
 
 
@@ -58,7 +58,7 @@ class MembershipSQLRepository(MembershipRepository):
         if object_to_create.member is None:
             raise ValueError("A membership must have a member")
 
-        now = datetime.now()
+        now = utc_now_naive()
 
         # Check if this is the first membership for the member
         count_stmt = (
@@ -81,14 +81,13 @@ class MembershipSQLRepository(MembershipRepository):
         self.session.add(to_add)
         await self.session.flush()  # Ensure the membership gets an ID
         # Map to entity while still in session context
-        result = _map_membership_sql_to_entity(to_add)
-        return result
+        return _map_membership_sql_to_entity(to_add)
 
     async def update(self, object_to_update: AbstractMembership, override: bool = False) -> Membership:
         if object_to_update.uuid is None:
             raise MembershipNotFoundError(None)
 
-        now = datetime.now()
+        now = utc_now_naive()
 
         stmt = select(MembershipSQL).where(MembershipSQL.uuid == object_to_update.uuid)
         membership = await self.session.scalar(stmt)
@@ -111,9 +110,7 @@ class MembershipSQLRepository(MembershipRepository):
 
         membership.update_at = now
         await self.session.flush()
-        mapped_membership = _map_membership_sql_to_entity(membership)
-
-        return mapped_membership
+        return _map_membership_sql_to_entity(membership)
 
     async def delete(self, object_id: str) -> Membership:
         stmt = select(MembershipSQL).where(MembershipSQL.uuid == object_id)
@@ -131,7 +128,7 @@ class MembershipSQLRepository(MembershipRepository):
         if membership is None:
             raise MembershipNotFoundError(uuid)
         membership.status = MembershipStatus.COMPLETE
-        membership.update_at = datetime.now()
+        membership.update_at = utc_now_naive()
         await self.session.flush()
 
 

@@ -10,8 +10,8 @@ from adh6.entity.abstract_product import AbstractProduct
 from adh6.entity.product import Product
 from adh6.exceptions import ProductNotFoundError
 from adh6.storage.count import count_rows
+from adh6.treasury.interfaces import ProductRepository
 
-from ..interfaces import ProductRepository
 from .models import Product as SQLProduct
 
 

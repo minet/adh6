@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -6,6 +6,7 @@ import pytest
 from adh6.authentication.enums import AuthenticationMethod, Roles
 from adh6.authentication.storage.models import ApiKey, AuthenticationRoleMapping
 from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.device.storage.device_repository import DeviceType
 from adh6.device.storage.models import Device
 from adh6.member.storage.models import Adherent, Membership
@@ -214,7 +215,7 @@ def sample_member_admin():
         prenom="test",
         password="",
         mail_membership=1,
-        date_de_depart=datetime.now() - timedelta(days=1),
+        date_de_depart=utc_now_naive() - timedelta(days=1),
         subnet="10.42.0.16/28",
         ip="157.159.40.1",
     )
@@ -465,13 +466,13 @@ def sample_complete_membership(
 ):
     yield Membership(
         uuid=str(uuid4()),
-        create_at=datetime.now(),
+        create_at=utc_now_naive(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
         first_time=True,
         adherent_id=sample_member.id,
         status=MembershipStatus.COMPLETE,
-        update_at=datetime.now(),
+        update_at=utc_now_naive(),
         products="[]",
         payment_method_id=sample_payment_method.id,
     )
@@ -482,13 +483,13 @@ def sample_pending_validation_membership(sample_member2: Adherent):
     """Membership that is not completed"""
     yield Membership(
         uuid=str(uuid4()),
-        create_at=datetime.now(),
+        create_at=utc_now_naive(),
         duration=MembershipDuration.ONE_YEAR,
         has_room=True,
         first_time=True,
         adherent_id=sample_member2.id,
         status=MembershipStatus.PENDING_PAYMENT_VALIDATION,
-        update_at=datetime.now(),
+        update_at=utc_now_naive(),
         products="[]",
     )
 
@@ -505,7 +506,7 @@ def sample_member(faker, sample_room1):
         password="a",
         chambre_id=sample_room1.id,
         date_de_depart=tomorrow,
-        datesignedminet=datetime.now(),
+        datesignedminet=utc_now_naive(),
         ip=faker.ipv4_public(),
         subnet="10.42.172.16/28",
         mail_membership=249,

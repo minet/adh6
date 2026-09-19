@@ -12,8 +12,8 @@ from adh6.exceptions import (
     PortNotFoundError,
     SwitchNotFoundError,
 )
+from adh6.network.interfaces import PortRepository, SwitchNetworkManager, SwitchRepository
 
-from ..interfaces import PortRepository, SwitchNetworkManager, SwitchRepository
 from .util.snmp_helper import (
     get_snmp_value,
     get_snmp_value_raw,
@@ -65,8 +65,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         port_state = await get_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid)
         if port_state == "up":
             return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 2)
-        else:
-            return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 1)
+        return await set_snmp_value(community, ip, "IF-MIB", "ifAdminStatus", oid, 1)
 
     @log_call
     async def get_port_vlan(self, port_id: int) -> int:
@@ -114,8 +113,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         mab_state = await get_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid)
         if mab_state == "false":
             return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 1)
-        else:
-            return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 2)
+        return await set_snmp_value(community, ip, "CISCO-MAC-AUTH-BYPASS-MIB", "cmabIfAuthEnabled", oid, 2)
 
     @log_call
     async def get_port_auth(self, port_id: int) -> bool:
@@ -145,16 +143,15 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
                 oid,
                 3,
             )
-        else:
-            await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid, 1)
-            return await set_snmp_value(
-                community,
-                ip,
-                "IEEE8021-PAE-MIB",
-                "dot1xAuthAuthControlledPortControl",
-                oid,
-                2,
-            )
+        await set_snmp_value(community, ip, "CISCO-VLAN-MEMBERSHIP-MIB", "vmVlan", oid, 1)
+        return await set_snmp_value(
+            community,
+            ip,
+            "IEEE8021-PAE-MIB",
+            "dot1xAuthAuthControlledPortControl",
+            oid,
+            2,
+        )
 
     @log_call
     async def get_port_mini_router(self, port_id: int) -> bool:

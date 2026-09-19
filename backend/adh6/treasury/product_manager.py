@@ -36,7 +36,11 @@ class ProductManager(CRUDManager):
         self.member_repository = member_repository
 
     @log_call
-    async def buy(self, member_id: int, payment_method_id: int, author_id: int, product_ids: list[int] = []) -> None:
+    async def buy(
+        self, member_id: int, payment_method_id: int, author_id: int, product_ids: list[int] | None = None
+    ) -> None:
+        if product_ids is None:
+            product_ids = []
         if not product_ids:
             raise ProductNotFoundError("None")
 

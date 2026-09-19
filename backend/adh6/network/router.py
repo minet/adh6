@@ -59,7 +59,7 @@ def _validate_ipv4(ip: str | None) -> None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid IPv4 address: {ip}",
-        )
+        ) from None
 
 
 def _to_public_dict(obj: Any) -> dict[str, Any]:
@@ -128,7 +128,7 @@ async def search_ports(
     manager: Annotated[PortManager, Depends(get_port_manager)],
     request: Request,
     response: Response,
-    filter_: Annotated[AbstractPort, AbstractPortFilterHandler()] = AbstractPort(),
+    filter_: Annotated[AbstractPort, AbstractPortFilterHandler()],
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -189,7 +189,7 @@ async def get_port(
     try:
         return await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @port_router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -206,7 +206,7 @@ async def update_port(
     except PortAlreadyExists as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @port_router.patch("/{id}/room", response_model=Port)
@@ -235,7 +235,7 @@ async def delete_port(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @port_router.get("/{id}/state", response_model=bool)
@@ -390,7 +390,7 @@ async def search_switches(
     manager: Annotated[SwitchManager, Depends(get_switch_manager)],
     request: Request,
     response: Response,
-    filter_: Annotated[AbstractSwitch, AbstractSwitchFilterHandler()] = AbstractSwitch(),
+    filter_: Annotated[AbstractSwitch, AbstractSwitchFilterHandler()],
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
@@ -429,8 +429,7 @@ async def create_switch(
     """Create a network switch."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     _validate_ipv4(body.ip)
-    switch = await manager.create(body)
-    return switch
+    return await manager.create(body)
 
 
 @switch_router.get("/{id}", response_model=Switch)
@@ -444,7 +443,7 @@ async def get_switch(
     try:
         return await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @switch_router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -460,7 +459,7 @@ async def update_switch(
     try:
         await manager.update(id, body)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @switch_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -474,7 +473,7 @@ async def delete_switch(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -494,7 +493,7 @@ async def apply_port_descriptions(
     try:
         await net_manager.switch_repository.get_by_id(object_id=id)  # type: ignore[attr-defined]
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
     ports, _ = await port_manager.search(limit=500, offset=0, terms="", filter_=AbstractPort(switchObj=id))
     success, failed, errors = 0, 0, []
@@ -525,7 +524,7 @@ async def apply_port_vlans(
     try:
         await net_manager.switch_repository.get_by_id(object_id=id)  # type: ignore[attr-defined]
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
     ports, _ = await port_manager.search(limit=500, offset=0, terms="", filter_=AbstractPort(switchObj=id))
     # Deduplicate room IDs so each room is updated exactly once
@@ -563,9 +562,9 @@ async def ping_switch(
             size=body.size or 100,
         )
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except NetworkManagerReadError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e
     return PingResult(**data)
 
 
@@ -581,9 +580,9 @@ async def discover_ports(
         data = await manager.discover_ports(switch_id=id)
         return [DiscoveredPort(**item) for item in data]
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except NetworkManagerReadError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e
 
 
 @switch_router.post("/{id}/sync-port-names", response_model=BulkOperationResult)
@@ -598,6 +597,6 @@ async def sync_port_names(
         data = await manager.sync_port_names(switch_id=id)
         return BulkOperationResult(**data)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except NetworkManagerReadError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)) from e

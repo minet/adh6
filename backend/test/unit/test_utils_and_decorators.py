@@ -1,8 +1,9 @@
 """Tests for pure Python utility functions to increase coverage."""
 
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 from unittest.mock import MagicMock
 
+from adh6.datetime_utils import utc_now_naive, utc_today
 from adh6.entity import AbstractDevice, Member
 
 
@@ -29,7 +30,7 @@ class TestIsMemberActive:
 
         member = MagicMock(spec=Member)
         member.permanent = False
-        member.departure_date = date.today() + timedelta(days=365)
+        member.departure_date = utc_today() + timedelta(days=365)
         assert is_member_active(member) is True
 
     def test_past_departure_date(self):
@@ -37,7 +38,7 @@ class TestIsMemberActive:
 
         member = MagicMock(spec=Member)
         member.permanent = False
-        member.departure_date = date.today() - timedelta(days=1)
+        member.departure_date = utc_today() - timedelta(days=1)
         assert is_member_active(member) is False
 
     def test_departure_date_as_datetime(self):
@@ -45,7 +46,7 @@ class TestIsMemberActive:
 
         member = MagicMock(spec=Member)
         member.permanent = False
-        member.departure_date = datetime.now() + timedelta(days=365)
+        member.departure_date = utc_now_naive() + timedelta(days=365)
         assert is_member_active(member) is True
 
     def test_past_departure_date_as_datetime(self):
@@ -53,7 +54,7 @@ class TestIsMemberActive:
 
         member = MagicMock(spec=Member)
         member.permanent = False
-        member.departure_date = datetime.now() - timedelta(days=1)
+        member.departure_date = utc_now_naive() - timedelta(days=1)
         assert is_member_active(member) is False
 
     def test_permanent_member(self):

@@ -9,7 +9,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 
 _current_user: ContextVar[int | None] = ContextVar("adh6_current_user", default=None)
-_current_roles: ContextVar[list[str]] = ContextVar("adh6_current_roles", default=[])
+_current_roles: ContextVar[tuple[str, ...]] = ContextVar("adh6_current_roles", default=())
 _current_api_key_id: ContextVar[int | None] = ContextVar("adh6_current_api_key_id", default=None)
 
 
@@ -20,7 +20,7 @@ def get_user() -> int | None:
 
 def get_roles() -> list[str]:
     """Return the current role list for legacy code paths."""
-    return _current_roles.get()
+    return list(_current_roles.get())
 
 
 def get_api_key_id() -> int | None:
@@ -35,7 +35,7 @@ def set_user(user_id: int | None) -> None:
 
 def set_roles(roles: list[str]) -> None:
     """Set current role list in context."""
-    _current_roles.set(roles)
+    _current_roles.set(tuple(roles))
 
 
 def set_api_key_id(api_key_id: int | None) -> None:

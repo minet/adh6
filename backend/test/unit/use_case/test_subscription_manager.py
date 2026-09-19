@@ -5,6 +5,7 @@ import pytest
 from adh6 import mail
 from adh6.constants import MembershipDuration, MembershipStatus
 from adh6.context import set_api_key_id
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import Member, Membership, PaymentMethod, SubscriptionBody
 from adh6.exceptions import (
     CharterNotSigned,
@@ -65,7 +66,7 @@ class TestNewMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, SubscriptionBody())
         mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
@@ -80,7 +81,7 @@ class TestNewMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, SubscriptionBody(duration=1))
         mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
@@ -99,7 +100,7 @@ class TestNewMembership:
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
         await subscription_manager.create(sample_member.id, sample_subscription_duration_payment_method)
         mock_subscription_repository.create.assert_called_once()  # type: ignore[attr-defined]
@@ -132,7 +133,7 @@ class TestNewMembership:
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
         )
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
 
         with pytest.raises(PaymentMethodNotFoundError):
@@ -149,7 +150,7 @@ class TestNewMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([], 0))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         sample_subscription_empty.duration = 5
         assert sample_member.id is not None
 
@@ -170,7 +171,7 @@ class TestPatchMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_empty)
@@ -191,7 +192,7 @@ class TestPatchMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
@@ -214,7 +215,7 @@ class TestPatchMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         mock_payment_method_repository.get_by_id = AsyncMock(return_value=(sample_payment_method))
         assert sample_member.id is not None
 
@@ -239,7 +240,7 @@ class TestPatchMembership:
         mock_subscription_repository.search_by = AsyncMock(
             return_value=([sample_membership_pending_payment_initial], 1)
         )
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         assert sample_member.id is not None
 
         await subscription_manager.update(sample_member.id, sample_subscription_duration_no_payment_method)
@@ -339,7 +340,7 @@ class TestPatchMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         mock_payment_method_repository.get_by_id = AsyncMock(
             return_value=(None), side_effect=PaymentMethodNotFoundError("")
         )
@@ -366,7 +367,7 @@ class TestPatchMembership:
     ):
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=str(datetime.datetime.today()))
+        mock_charter_repository.get = AsyncMock(return_value=str(utc_now_naive()))
         sample_subscription_duration_payment_method.duration = 5
         assert sample_member.id is not None
 
@@ -442,7 +443,9 @@ class TestValidateMembership:
         """
         mock_member_repository.get_by_id = AsyncMock(return_value=(sample_member))
         mock_subscription_repository.search_by = AsyncMock(return_value=([sample_membership_pending_rules], 1))
-        mock_charter_repository.get = AsyncMock(return_value=datetime.datetime(2026, 8, 24, 10, 0))
+        mock_charter_repository.get = AsyncMock(
+            return_value=datetime.datetime(2026, 8, 24, 10, 0, tzinfo=datetime.UTC).replace(tzinfo=None)
+        )
         assert sample_member.id is not None
 
         with pytest.raises(MembershipStatusNotAllowed) as error:
@@ -473,7 +476,7 @@ class TestValidateMembership:
 
         set_api_key_id(4242)
         try:
-            await subscription_manager._send_receipt(sample_member, sample_membership_pending_payment_validation, False)
+            await subscription_manager.send_receipt(sample_member, sample_membership_pending_payment_validation, False)
         finally:
             set_api_key_id(None)
 

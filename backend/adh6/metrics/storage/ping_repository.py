@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 
-from ..interfaces import PingRepository
+from adh6.metrics.interfaces import PingRepository
 
 
 class PingSQLRepository(PingRepository):

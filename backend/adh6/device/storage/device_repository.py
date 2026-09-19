@@ -3,7 +3,6 @@ Implements everything related to actions on the SQL database.
 """
 
 import re
-from datetime import datetime
 from enum import Enum
 from ipaddress import IPv4Address, IPv6Address, ip_address
 
@@ -11,11 +10,12 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
+from adh6.datetime_utils import utc_now_naive
+from adh6.device.interfaces import DeviceRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.exceptions import InvalidIPv4, InvalidIPv6
 from adh6.member.storage.models import Adherent
 
-from ..interfaces import DeviceRepository
 from .models import Device as SQLDevice
 
 
@@ -87,7 +87,7 @@ class DeviceSQLRepository(DeviceRepository):
         return list(map(_map_device_sql_to_entity, devices)), count
 
     async def create(self, obj: DeviceBody) -> Device:
-        now = datetime.now()
+        now = utc_now_naive()
         device = SQLDevice(
             mac=obj.mac,
             created_at=now,
@@ -119,7 +119,7 @@ class DeviceSQLRepository(DeviceRepository):
 
         device.ip = _normalize_ip_address(ipv4, IPv4Address)
         device.ipv6 = _normalize_ip_address(ipv6, IPv6Address)
-        device.updated_at = datetime.now()
+        device.updated_at = utc_now_naive()
         await self.session.flush()
         return _map_device_sql_to_entity(device)
 
@@ -140,7 +140,7 @@ class DeviceSQLRepository(DeviceRepository):
         if device is None:
             raise ValueError(f"Device {id} not found")
         device.name = name
-        device.updated_at = datetime.now()
+        device.updated_at = utc_now_naive()
 
     async def set_wifi_password(self, id: int, password: str | None) -> None:
         stmt = select(SQLDevice).where(SQLDevice.id == id)
@@ -148,11 +148,11 @@ class DeviceSQLRepository(DeviceRepository):
         if device is None:
             raise ValueError(f"Device {id} not found")
         device.wifi_password = password
-        device.updated_at = datetime.now()
+        device.updated_at = utc_now_naive()
 
 
 def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, override: bool = False) -> SQLDevice:
-    now = datetime.now()
+    now = utc_now_naive()
     device = sql_object
 
     if entity.connection_type is not None or override:

@@ -1,3 +1,4 @@
+import logging
 import secrets
 from pathlib import Path
 
@@ -20,6 +21,8 @@ from adh6.room.interfaces import RoomRepository
 
 from .device_ip_manager import DeviceIpManager
 from .interfaces import DeviceRepository
+
+logger = logging.getLogger(__name__)
 
 
 class DeviceManager(CRUDManager):
@@ -45,9 +48,9 @@ class DeviceManager(CRUDManager):
     def load_mac_oui_dict(self):
         file = Path("OUIs.txt")
         if not file.exists():
-            print("OUIs.txt not found, skipping loading MAC OUI dictionary.")
+            logger.warning("OUIs.txt not found, skipping loading MAC OUI dictionary")
             return
-        with open(file, encoding="utf-8") as f:
+        with file.open(encoding="utf-8") as f:
             line = f.readline()
             while line != "":
                 oui, company = line.split("\t")
@@ -85,9 +88,7 @@ class DeviceManager(CRUDManager):
             return "-"
 
         mac_address = device.mac[:8].replace(":", "-")
-        vendor = self.oui_repository.get(mac_address, "-")
-
-        return vendor
+        return self.oui_repository.get(mac_address, "-")
 
     @log_call
     async def create(self, body: DeviceBody) -> Device:
@@ -119,7 +120,7 @@ class DeviceManager(CRUDManager):
         )
         if d:
             raise DeviceAlreadyExists
-        elif count >= 20:
+        if count >= 20:
             raise DevicesLimitReached
 
         device = await self.device_repository.create(body)

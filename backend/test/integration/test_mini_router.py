@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 import pytest
+from adh6.datetime_utils import utc_today
 from adh6.mini_router.storage.models import MiniRouter, MiniRouterLoan
 
 from test import TESTING_CLIENT_ID
@@ -42,7 +43,7 @@ def current_loan(loaned_mini_router, sample_member, sample_payment_method):
         mini_router_id=loaned_mini_router.id,
         member_id=sample_member.id,
         started_at=date(2026, 9, 1),
-        due_date=date.today() - timedelta(days=1),
+        due_date=utc_today() - timedelta(days=1),
         deposit_amount=80,
         payment_method_id=sample_payment_method.id,
         deposit_status="held",

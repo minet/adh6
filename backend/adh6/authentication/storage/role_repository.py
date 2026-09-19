@@ -5,12 +5,12 @@ from sqlalchemy import and_, delete, insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
+from adh6.authentication.enums import AuthenticationMethod, Roles
+from adh6.authentication.interfaces import RoleRepository
 from adh6.entity import Role, RoleMapping
+from adh6.exceptions import MemberNotFoundError
 from adh6.member.storage.models import Adherent
 
-from ...exceptions import MemberNotFoundError
-from ..enums import AuthenticationMethod, Roles
-from ..interfaces import RoleRepository
 from .models import AuthenticationRoleMapping
 
 
@@ -18,13 +18,12 @@ class RoleSQLRepository(RoleRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get(self, id: int) -> Any:  # todo
+    async def get(self, id: int) -> Any:
         smt = select(AuthenticationRoleMapping).where(
             AuthenticationRoleMapping.id == id,
             AuthenticationRoleMapping.expires_at.is_(None),
         )
-        result = await self.session.scalar(smt)
-        return result
+        return await self.session.scalar(smt)
 
     async def find(
         self,

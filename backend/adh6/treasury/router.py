@@ -154,7 +154,7 @@ async def get_payment_method(
     try:
         return await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -198,7 +198,7 @@ async def get_product(
     try:
         return await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @product_router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -212,7 +212,7 @@ async def update_product(
     try:
         await manager.product_repository.update(body, id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @product_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -225,7 +225,7 @@ async def delete_product(
     try:
         await manager.product_repository.delete(id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @product_router.post("/buy", status_code=status.HTTP_204_NO_CONTENT)
@@ -252,7 +252,7 @@ async def buy_product(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid product list: {products!r}. Expected comma-separated integers.",
-        )
+        ) from None
     if not product_ids:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -357,7 +357,7 @@ async def get_transaction(
     try:
         return await manager.get_by_id(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @transaction_router.patch("/{id}", status_code=status.HTTP_204_NO_CONTENT)

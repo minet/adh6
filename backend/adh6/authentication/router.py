@@ -106,9 +106,9 @@ async def create_api_key(
     try:
         return await manager.create(login=body.login or "", roles=[r.value for r in body.roles])
     except NotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found") from None
     except ValidationError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation Error")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Validation Error") from None
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -124,7 +124,7 @@ async def delete_api_key(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 # ============================================================================
@@ -165,9 +165,9 @@ async def create_role(
             roles=body.get("roles", []),
         )
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except (ValueError, KeyError) as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     return Response(status_code=status.HTTP_201_CREATED)
 
 
@@ -182,4 +182,4 @@ async def delete_role(
     try:
         await manager.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

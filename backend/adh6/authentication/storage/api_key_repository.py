@@ -4,9 +4,9 @@ from hashlib import sha3_512
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from adh6.authentication.interfaces import ApiKeyRepository
 from adh6.entity import ApiKey
 
-from ..interfaces import ApiKeyRepository
 from .models import ApiKey as SQLApiKey
 
 

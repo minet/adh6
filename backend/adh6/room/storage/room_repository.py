@@ -3,19 +3,19 @@ Implements everything related to actions on the SQL database.
 """
 
 from collections.abc import Sequence
-from datetime import datetime
 
 from sqlalchemy import String, cast, delete, func, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
 from adh6.member.storage.models import Adherent
+from adh6.room.interfaces import RoomRepository
 from adh6.storage.count import count_rows
 from adh6.subnet.storage.models import Vlan
 
-from ..interfaces import RoomRepository
 from .models import Chambre, RoomMemberLink
 
 
@@ -113,7 +113,7 @@ class RoomSQLRepository(RoomRepository):
         ], count
 
     async def create(self, abstract_room: Room) -> Room:
-        now = datetime.now()
+        now = utc_now_naive()
 
         vlan = None
         if abstract_room.vlan is not None:
@@ -133,9 +133,7 @@ class RoomSQLRepository(RoomRepository):
         self.session.add(room)
         await self.session.flush()  # Ensure the room gets an ID
         # Map to entity while still in session context
-        result = await _map_room_sql_to_entity(room, self.session)
-
-        return result
+        return await _map_room_sql_to_entity(room, self.session)
 
     async def update(self, id: int, abstract_room: AbstractRoom, override=False) -> Room:
         stmt = select(Chambre).where(Chambre.id == id)
@@ -144,9 +142,7 @@ class RoomSQLRepository(RoomRepository):
             raise RoomNotFoundError(str(abstract_room.id))
         new_chambre = await _merge_sql_with_entity(abstract_room, room, self.session, override)
         await self.session.flush()
-        mapped_room = await _map_room_sql_to_entity(new_chambre, self.session)
-
-        return mapped_room
+        return await _map_room_sql_to_entity(new_chambre, self.session)
 
     async def delete(self, id) -> None:
         stmt = select(Chambre).where(Chambre.id == id)
@@ -159,7 +155,7 @@ class RoomSQLRepository(RoomRepository):
 async def _merge_sql_with_entity(
     entity: AbstractRoom, sql_object: Chambre, session: AsyncSession, override=False
 ) -> Chambre:
-    now = datetime.now()
+    now = utc_now_naive()
     chambre = sql_object
     if entity.description is not None or override:
         chambre.description = entity.description

@@ -1,11 +1,12 @@
 """Tests for permanent and wifi_only member flags."""
 
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 from uuid import uuid4
 
 import pytest
 from adh6.constants import MembershipDuration, MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.member.storage.models import Adherent, Membership
 from adh6.room.storage.models import Chambre, RoomMemberLink
 
@@ -63,7 +64,7 @@ def permanent_member():
         mail="permanent@test.net",
         login="permanent_test",
         password="a",
-        date_de_depart=datetime.now() - timedelta(days=365),  # expired
+        date_de_depart=utc_now_naive() - timedelta(days=365),  # expired
         mail_membership=1,
         permanent=True,
     )

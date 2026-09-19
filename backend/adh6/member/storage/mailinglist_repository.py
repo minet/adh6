@@ -3,7 +3,8 @@ from collections.abc import Sequence
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..interfaces.mailinglist_repository import MailinglistRepository
+from adh6.member.interfaces.mailinglist_repository import MailinglistRepository
+
 from .models import Adherent
 
 

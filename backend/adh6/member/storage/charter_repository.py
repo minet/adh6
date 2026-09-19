@@ -3,7 +3,9 @@ from datetime import datetime
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..interfaces.charter_repository import CharterRepository
+from adh6.datetime_utils import utc_now_naive
+from adh6.member.interfaces.charter_repository import CharterRepository
+
 from .models import Adherent
 
 
@@ -30,7 +32,7 @@ class CharterSQLRepository(CharterRepository):
     async def update(self, charter_id: int, member_id: int) -> None:
         smt = update(Adherent).where(Adherent.id == member_id)
         if charter_id == 1:
-            smt = smt.values(datesignedminet=datetime.now())
+            smt = smt.values(datesignedminet=utc_now_naive())
         else:
-            smt = smt.values(datesignedhosting=datetime.now())
+            smt = smt.values(datesignedhosting=utc_now_naive())
         await self.session.execute(smt)

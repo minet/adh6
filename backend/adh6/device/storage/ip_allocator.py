@@ -3,9 +3,9 @@ from ipaddress import IPv4Network, ip_network
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from adh6.device.interfaces import IpAllocator
 from adh6.exceptions import BadSubnetError, NoMoreIPAvailableException
 
-from ..interfaces import IpAllocator
 from .models import Device
 
 

@@ -29,7 +29,7 @@ PURCHASE_ADMIN = {
     "total": "3.00",
     "payment_method": "Espèces",
     "author": "tim.cormier",
-    "paid_at": dt.datetime(2026, 8, 24, 18, 42),
+    "paid_at": dt.datetime(2026, 8, 24, 18, 42, tzinfo=dt.UTC),
 }
 
 SUBSCRIPTION_ADMIN = {
@@ -40,7 +40,7 @@ SUBSCRIPTION_ADMIN = {
     "date_fin": dt.date(2027, 8, 24),
     "payment_method": "Espèces",
     "author": "tim.cormier",
-    "paid_at": dt.datetime(2026, 8, 24, 18, 42),
+    "paid_at": dt.datetime(2026, 8, 24, 18, 42, tzinfo=dt.UTC),
 }
 
 ALL_TEMPLATES = [

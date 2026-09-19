@@ -51,10 +51,10 @@ async def search_rooms(
     repository: Annotated[RoomRepository, Depends(get_room_repository)],
     request: Request,
     response: Response,
+    filter_: Annotated[AbstractRoom, AbstractRoomFilterWrapper()],
     limit: Annotated[int, Query(ge=0)] = DEFAULT_LIMIT,
     offset: Annotated[int, Query(ge=0)] = DEFAULT_OFFSET,
     terms: Annotated[str | None, Query()] = None,
-    filter_: Annotated[AbstractRoom, AbstractRoomFilterWrapper()] = AbstractRoom(),
     only: Annotated[str | None, Query()] = None,
 ) -> list[Room] | list[dict]:
     """Search rooms with pagination."""
@@ -91,8 +91,7 @@ async def create_room(
 ) -> Room:
     """Create a room."""
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
-    room = await repository.create(body)
-    return room
+    return await repository.create(body)
 
 
 @router.get("/{id}", response_model=Room)
@@ -106,7 +105,7 @@ async def get_room(
     try:
         return await repository.get_by_id(id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.get("/{id}/member", response_model=list[int])
@@ -150,9 +149,9 @@ async def add_member_to_room(
         elif previous_room.vlan != room.vlan and room.vlan is not None:
             await member_manager.ethernet_vlan_changed(member_id, room.vlan)
     except WifiOnlyRestrictionError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.put("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -174,7 +173,7 @@ async def update_room(
                 with contextlib.suppress(MemberNotFoundError):
                     await member_manager.ethernet_vlan_changed(member_id, updated_room.vlan)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -188,7 +187,7 @@ async def delete_room(
     try:
         await repository.delete(id=id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 
 
 @router.delete("/{id}/member", status_code=status.HTTP_204_NO_CONTENT)
@@ -207,7 +206,7 @@ async def remove_member_from_room(
     try:
         await repository.get_by_id(id)
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     member = await member_repository.get_by_id(member_id)
     if member is None:
         raise HTTPException(

@@ -18,7 +18,7 @@ def sample_transaction(sample_member, sample_payment_method):
         id=91,
         name="description",
         value=200,
-        timestamp=datetime.datetime(2005, 7, 14, 12, 30),
+        timestamp=datetime.datetime(2005, 7, 14, 12, 30, tzinfo=datetime.UTC).replace(tzinfo=None),
         type=sample_payment_method.id,
         author_id=sample_member.id,
     )
@@ -30,7 +30,7 @@ def sample_transaction_pending(sample_member, sample_payment_method):
         id=92,
         name="description 2",
         value=230,
-        timestamp=datetime.datetime(2005, 7, 14, 12, 31),
+        timestamp=datetime.datetime(2005, 7, 14, 12, 31, tzinfo=datetime.UTC).replace(tzinfo=None),
         type=sample_payment_method.id,
         author_id=sample_member.id,
     )

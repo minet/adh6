@@ -14,8 +14,8 @@ from adh6.entity import AbstractDevice, AbstractVlan, VlanStats
 from adh6.exceptions import VLANNotFoundError
 from adh6.member.storage.models import Adherent as AdherentSQL
 from adh6.room.storage.models import Chambre as ChambreSQL
+from adh6.subnet.interfaces import VlanRepository
 
-from ..interfaces import VlanRepository
 from .models import Vlan as VlanSQL
 
 

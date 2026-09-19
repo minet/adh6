@@ -11,6 +11,7 @@ from adh6.constants import (
     MembershipStatus,
 )
 from adh6.context import get_api_key_id, get_user
+from adh6.datetime_utils import MIN_UTC_NAIVE
 from adh6.decorator import log_call
 from adh6.entity import (
     AbstractMembership,
@@ -98,7 +99,7 @@ class SubscriptionManager:
             None,
         ):
             return n
-        subscriptions.sort(key=lambda r: r.created_at or datetime.min, reverse=True)
+        subscriptions.sort(key=lambda r: r.created_at or MIN_UTC_NAIVE, reverse=True)
         return subscriptions[0]
 
     @log_call
@@ -289,7 +290,7 @@ class SubscriptionManager:
             raise MembershipNotFoundError(None)
         await self.member_repository.add_duration(subscription.member, subscription.duration)
 
-        await self._send_receipt(member, subscription, free)
+        await self.send_receipt(member, subscription, free)
 
     async def _author_label(self) -> str:
         """Who took the money.
@@ -306,7 +307,7 @@ class SubscriptionManager:
             return str(author_id)
         return author.username if author else str(author_id)
 
-    async def _send_receipt(self, member: Member, subscription: Membership, free: bool) -> None:
+    async def send_receipt(self, member: Member, subscription: Membership, free: bool) -> None:
         """Receipt for a subscription recorded at the desk.
 
         Members paying online already get one from payment; those paying cash at the desk got

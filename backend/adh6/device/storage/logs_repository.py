@@ -10,11 +10,10 @@ from elasticsearch import AsyncElasticsearch
 
 from adh6.config.configuration import settings
 from adh6.constants import LOG_DEFAULT_LIMIT
+from adh6.device.interfaces.logs_repository import LogsRepository
 from adh6.entity import Device, Member
 from adh6.exceptions import LogFetchError
 from adh6.misc import get_mac_variations
-
-from ..interfaces.logs_repository import LogsRepository
 
 logger = logging.getLogger(__name__)
 

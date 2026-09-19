@@ -86,33 +86,33 @@ class ExportManager:
             header_row.addElement(cell)
         table.addElement(header_row)
 
+        def add_cell(row, value: str) -> None:
+            cell = TableCell(valuetype="string")
+            cell.addElement(P(text=str(value) if value is not None else ""))
+            row.addElement(cell)
+
         for t in transactions:
             row = TableRow()
-
-            def add_cell(value: str) -> None:
-                cell = TableCell(valuetype="string")
-                cell.addElement(P(text=str(value) if value is not None else ""))
-                row.addElement(cell)
 
             member = members_map.get(t.author) if t.author is not None else None
             membership = memberships_map.get(t.membership_uuid) if t.membership_uuid else None
 
-            add_cell(t.timestamp.strftime("%Y-%m-%d %H:%M:%S") if t.timestamp else "")
-            add_cell(t.name or "")
-            add_cell(str(t.value) if t.value is not None else "")
-            add_cell(pm_map.get(t.payment_method, str(t.payment_method)) if t.payment_method else "")
-            add_cell(t.product_type or "")
-            add_cell(str(t.product_id) if t.product_id is not None else "")
-            add_cell(member.username if member else "")
-            add_cell(f"{member.first_name} {member.last_name}" if member else "")
-            add_cell(str(t.api_key_id) if t.api_key_id is not None else "")
-            add_cell(t.membership_uuid or "")
-            add_cell(membership.status if membership else "")
-            add_cell(str(membership.duration) if membership and membership.duration is not None else "")
-            add_cell("Oui" if membership and membership.has_room else ("Non" if membership else ""))
-            add_cell("Oui" if membership and membership.first_time else ("Non" if membership else ""))
+            add_cell(row, t.timestamp.strftime("%Y-%m-%d %H:%M:%S") if t.timestamp else "")
+            add_cell(row, t.name or "")
+            add_cell(row, str(t.value) if t.value is not None else "")
+            add_cell(row, pm_map.get(t.payment_method, str(t.payment_method)) if t.payment_method else "")
+            add_cell(row, t.product_type or "")
+            add_cell(row, str(t.product_id) if t.product_id is not None else "")
+            add_cell(row, member.username if member else "")
+            add_cell(row, f"{member.first_name} {member.last_name}" if member else "")
+            add_cell(row, str(t.api_key_id) if t.api_key_id is not None else "")
+            add_cell(row, t.membership_uuid or "")
+            add_cell(row, membership.status if membership else "")
+            add_cell(row, str(membership.duration) if membership and membership.duration is not None else "")
+            add_cell(row, "Oui" if membership and membership.has_room else ("Non" if membership else ""))
+            add_cell(row, "Oui" if membership and membership.first_time else ("Non" if membership else ""))
             add_cell(
-                membership.created_at.strftime("%Y-%m-%d %H:%M:%S") if membership and membership.created_at else ""
+                row, membership.created_at.strftime("%Y-%m-%d %H:%M:%S") if membership and membership.created_at else ""
             )
 
             table.addElement(row)

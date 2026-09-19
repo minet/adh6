@@ -1,6 +1,6 @@
 import logging
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 from ipaddress import IPv4Address, IPv4Network
 
 from adh6 import mail
@@ -11,6 +11,7 @@ from adh6.constants import (
     WIFI_ONLY_ROOM_NUMBER,
     MembershipStatus,
 )
+from adh6.datetime_utils import utc_now_naive
 from adh6.decorator import log_call
 from adh6.default import CRUDManager
 from adh6.device import DeviceIpManager, DeviceLogsManager
@@ -115,7 +116,7 @@ class MemberManager(CRUDManager):
                 firstName=body.first_name,
                 lastName=body.last_name,
                 email=body.mail,
-                departureDate=datetime.now() - timedelta(days=1),
+                departureDate=utc_now_naive() - timedelta(days=1),
                 ip="",
                 subnet="",
                 comment="",
@@ -279,21 +280,20 @@ class MemberManager(CRUDManager):
         member = await self.member_repository.get_by_id(member_id)
         if member is None:
             raise MemberNotFoundError(member_id)
-        else:
-            logs, total_count = await self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
+        logs, total_count = await self.device_logs_manager.get(member=member, limit=limit, offset=offset, dhcp=dhcp)
 
-            # Format logs with separate timestamp and message
-            formatted_logs = [
-                {
-                    "timestamp": (x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])),
-                    "message": str(x[1]),
-                }
-                for x in logs
-            ]
+        # Format logs with separate timestamp and message
+        formatted_logs = [
+            {
+                "timestamp": (x[0].isoformat() if hasattr(x[0], "isoformat") else str(x[0])),
+                "message": str(x[1]),
+            }
+            for x in logs
+        ]
 
-            has_more = (offset + limit) < total_count
+        has_more = (offset + limit) < total_count
 
-            return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
+        return {"logs": formatted_logs, "total": total_count, "hasMore": has_more}
 
     @log_call
     async def get_statuses(self, member_id) -> list[MemberStatus]:
@@ -385,7 +385,7 @@ class MemberManager(CRUDManager):
             raise MemberNotFoundError(member_id)
 
         if not is_member_active(member):
-            return
+            return None
 
         used_wireles_public_ips = await self.member_repository.used_wireless_public_ips()
 

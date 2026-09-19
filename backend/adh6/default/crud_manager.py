@@ -47,9 +47,8 @@ class CRUDManager:
 
         if current_object is None:
             return await self.repository.create(obj), True
-        else:
-            obj.id = current_object.id
-            return await self.repository.update(obj, override=True), False
+        obj.id = current_object.id
+        return await self.repository.update(obj, override=True), False
 
     @log_call
     async def partially_update(self, obj, id: int, override=False):

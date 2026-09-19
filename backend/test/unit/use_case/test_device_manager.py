@@ -64,7 +64,7 @@ class TestUpdateOrCreate:
 
         # Expect...
         assert device is not None
-        # mock_device_repository.create.assert_called_once_with(sample_device)
+        mock_device_repository.create.assert_called_once()
 
     async def test_invalid_mac(self, mock_device_repository: MagicMock, device_manager: DeviceManager):
         # When...

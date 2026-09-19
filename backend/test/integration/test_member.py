@@ -1,7 +1,8 @@
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
+from adh6.datetime_utils import utc_now_naive
 from adh6.member.storage.models import Adherent
 from adh6.storage import db
 
@@ -105,7 +106,7 @@ def test_member_filter_by_ip(client, sample_member: Adherent):
 
 def test_member_filter_by_departure_date_since_now(client):
     r = client.get(
-        f"{base_url}?filter[since]={datetime.now().isoformat()}",
+        f"{base_url}?filter[since]={utc_now_naive().isoformat()}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -116,7 +117,7 @@ def test_member_filter_by_departure_date_since_now(client):
 
 def test_member_filter_by_departure_date_since_previous_week(client):
     r = client.get(
-        f"{base_url}?filter[since]={(datetime.now() + timedelta(days=-7)).isoformat()}",
+        f"{base_url}?filter[since]={(utc_now_naive() + timedelta(days=-7)).isoformat()}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -127,7 +128,7 @@ def test_member_filter_by_departure_date_since_previous_week(client):
 
 def test_member_filter_by_departure_date_until_now(client):
     r = client.get(
-        f"{base_url}?filter[until]={datetime.now().isoformat()}",
+        f"{base_url}?filter[until]={utc_now_naive().isoformat()}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -138,7 +139,7 @@ def test_member_filter_by_departure_date_until_now(client):
 
 def test_member_filter_by_departure_date_until_next_week(client):
     r = client.get(
-        f"{base_url}?filter[until]={(datetime.now() + timedelta(days=7)).isoformat()}",
+        f"{base_url}?filter[until]={(utc_now_naive() + timedelta(days=7)).isoformat()}",
         headers=TEST_HEADERS,
     )
     assert r.status_code == 200
@@ -487,7 +488,6 @@ def test_member_patch(client, sample_member: Adherent, key: str, value: str):
     member_to_check = {
         "firstName": sample_member.prenom,
         "lastName": sample_member.nom,
-        # "comment": sample_member.commentaires,
         "mail": sample_member.mail,
         "username": sample_member.login,
     }

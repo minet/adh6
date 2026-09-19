@@ -63,7 +63,7 @@ async def create_mini_router(
     try:
         return await manager.create(body)
     except CONFLICT_ERRORS as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @router.get("/loan", response_model=list[MiniRouterLoan])
@@ -100,7 +100,7 @@ async def update_mini_router(
     try:
         return await manager.update(id, body)
     except CONFLICT_ERRORS as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -114,7 +114,7 @@ async def delete_mini_router(
     try:
         await manager.delete(id)
     except CONFLICT_ERRORS as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @router.get("/{id}/loan", response_model=list[MiniRouterLoan])
@@ -143,7 +143,7 @@ async def create_mini_router_loan(
     try:
         return await manager.create_loan(id, body, author_id)
     except CONFLICT_ERRORS as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
 
 
 @router.put("/loan/{id}", response_model=MiniRouterLoan)
@@ -158,4 +158,4 @@ async def update_mini_router_loan(
     try:
         return await manager.update_loan(id, body)
     except CONFLICT_ERRORS as e:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e

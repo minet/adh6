@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+from adh6.datetime_utils import utc_today
 from adh6.entity import Member
 
 
@@ -15,7 +16,7 @@ def is_member_active(member: Member):
         member_departure = member.departure_date.date()
     else:
         member_departure = member.departure_date
-    return member_departure > datetime.now().date()
+    return member_departure > utc_today()
 
 
 def is_password_valid(password: str) -> bool:

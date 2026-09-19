@@ -87,7 +87,7 @@ def dictionnary_subnet_public_ip_wireless() -> dict[ipaddress.IPv4Address, ipadd
     private_range = ipaddress.IPv4Network("10.42.0.0/16").subnets(new_prefix=28)
 
     mappings: dict[ipaddress.IPv4Address, ipaddress.IPv4Network] = {}
-    for subnet, ip in zip(private_range, hosts):
+    for subnet, ip in zip(private_range, hosts, strict=False):
         if str(ip) in excluded_addresses:
             continue
         mappings[ip] = subnet

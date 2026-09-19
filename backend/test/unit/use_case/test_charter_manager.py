@@ -1,8 +1,8 @@
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from adh6.constants import MembershipStatus
+from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractMembership, Member
 from adh6.exceptions import MemberNotFoundError, ValidationError
 from adh6.member.charter_manager import CharterManager
@@ -32,7 +32,7 @@ def charter_manager(mock_charter_repo, mock_member_repo, mock_membership_repo):
 class TestCharterManager:
     async def test_get_happy_path(self, charter_manager, mock_member_repo, mock_charter_repo):
         # Given
-        dt = datetime.now()
+        dt = utc_now_naive()
         mock_member_repo.get_by_id = AsyncMock(return_value=MagicMock(spec=Member))
         mock_charter_repo.get = AsyncMock(return_value=dt)
 
