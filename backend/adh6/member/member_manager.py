@@ -41,6 +41,12 @@ from .subscription_manager import SubscriptionManager
 
 logger = logging.getLogger(__name__)
 
+_TLS_ALERT_LOG_PATTERN = re.compile(
+    r"TLS Alert (?:read|write).*?\):\s*\[[^]]*].*?\bcli "
+    r"(?P<mac>[0-9a-f]{2}(?:[:-][0-9a-f]{2}){5})\)",
+    re.IGNORECASE,
+)
+
 
 class MemberManager(CRUDManager):
     def __init__(
@@ -349,21 +355,9 @@ class MemberManager(CRUDManager):
                             add_to_statuses("LOGIN_INCORRECT_WRONG_MAC", log[0], mac)
                         if "Adherent not found" in reason:
                             add_to_statuses("LOGIN_INCORRECT_WRONG_USER", log[0], mac)
-                if "TLS Alert" in log[1]:  # @TODO Difference between TLS Alert read and TLS Alert write ??
-                    # @TODO a read access denied means the user is validating the certificate
-                    # @TODO a read/write protocol version is ???
-                    # @TODO a write unknown CA means the user is validating the certificate
-                    # @TODO a write decryption failed is ???
-                    # @TODO a read internal error is most likely not user-related
-                    # @TODO a write unexpected_message is ???
-                    match = re.search(
-                        r".*?TLS Alert .*?\):\s*\[(.*?)\].*?cli ([a-f0-9\-]+)\).*",
-                        log[1],
-                    )
-                    if match is not None:
-                        login: str = match.group(1)
-                        mac: str = match.group(2).upper()
-                        add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
+                if match := _TLS_ALERT_LOG_PATTERN.search(log[1]):
+                    mac = match.group("mac").replace(":", "-").upper()
+                    add_to_statuses("LOGIN_INCORRECT_SSL_ERROR", log[0], mac)
                 prev_log = log
 
             all_statuses = []

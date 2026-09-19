@@ -21,7 +21,7 @@ from adh6.room.interfaces import RoomRepository
 from adh6.subnet.interfaces import VlanRepository
 from adh6.treasury.interfaces import PaymentMethodRepository
 from adh6.treasury.transaction_manager import TransactionManager
-from pytest import fixture, raises
+from pytest import fixture, mark, raises
 
 
 @fixture(autouse=True)
@@ -619,7 +619,38 @@ class TestGetStatuses:
         result = await member_manager.get_statuses(member_id=sample_member.id)
         assert any(s.status == "LOGIN_INCORRECT_WRONG_USER" for s in result)
 
+    @mark.parametrize(
+        ("direction", "reason", "mac"),
+        [
+            ("read", "unknown CA", "aa-bb-cc-dd-ee-ff"),
+            ("write", "protocol version", "AA:BB:CC:DD:EE:FF"),
+            ("read", "internal error", "aa-bb-cc-dd-ee-ff"),
+            ("write", "unexpected_message", "AA:BB:CC:DD:EE:FF"),
+        ],
+    )
     async def test_tls_alert_log(
+        self,
+        mock_member_repository: MemberRepository,
+        mock_device_logs_manager: DeviceLogsManager,
+        member_manager: MemberManager,
+        sample_member: Member,
+        direction: str,
+        reason: str,
+        mac: str,
+    ):
+        ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
+        msg = f"TLS Alert {direction} ({reason}): [{sample_member.username}] (from client cli {mac})"
+        logs = [[ts, msg]]
+        mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
+        mock_device_logs_manager.get = AsyncMock(return_value=(logs, 1))
+
+        result = await member_manager.get_statuses(member_id=sample_member.id)
+
+        assert len(result) == 1
+        assert result[0].status == "LOGIN_INCORRECT_SSL_ERROR"
+        assert result[0].comment == "AA-BB-CC-DD-EE-FF"
+
+    async def test_malformed_tls_alert_log_is_ignored(
         self,
         mock_member_repository: MemberRepository,
         mock_device_logs_manager: DeviceLogsManager,
@@ -627,13 +658,13 @@ class TestGetStatuses:
         sample_member: Member,
     ):
         ts = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
-        mac = "aa-bb-cc-dd-ee-ff"
-        msg = f"TLS Alert read (protocol version): [{sample_member.username}] (from client cli {mac})"
-        logs = [[ts, msg]]
+        logs = [[ts, "TLS Alert found in unrelated diagnostic output"]]
         mock_member_repository.get_by_id = AsyncMock(return_value=sample_member)
         mock_device_logs_manager.get = AsyncMock(return_value=(logs, 1))
+
         result = await member_manager.get_statuses(member_id=sample_member.id)
-        assert any(s.status == "LOGIN_INCORRECT_SSL_ERROR" for s in result)
+
+        assert result == []
 
     async def test_mschap_fail_wrong_password(
         self,
