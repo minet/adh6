@@ -57,7 +57,7 @@ class TestCharterManager:
         sub = MagicMock(spec=AbstractMembership)
         sub.status = MembershipStatus.PENDING_RULES.value
         sub.uuid = "some-uuid"
-        mock_membership_repo.search = AsyncMock(return_value=([sub], 1))
+        mock_membership_repo.search_by = AsyncMock(return_value=([sub], 1))
 
         # When
         await charter_manager.sign(1, 123)
@@ -77,7 +77,7 @@ class TestCharterManager:
         """
         # Given
         mock_member_repo.get_by_id = AsyncMock(return_value=MagicMock(spec=Member))
-        mock_membership_repo.search = AsyncMock(return_value=([], 0))
+        mock_membership_repo.search_by = AsyncMock(return_value=([], 0))
 
         # When
         await charter_manager.sign(1, 123)

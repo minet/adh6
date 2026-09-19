@@ -4,7 +4,7 @@ from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 
 
-class DeviceRepository(CRUDRepository[Device, AbstractDevice]):
+class DeviceRepository(CRUDRepository[Device, AbstractDevice, int]):
     @abc.abstractmethod
     async def get_by_id(self, object_id: int) -> Device | None:
         pass  # pragma: no cover

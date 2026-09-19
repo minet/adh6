@@ -5,7 +5,7 @@ from adh6.default.crud_repository import CRUDRepository
 from adh6.entity import AbstractMember, Member, MemberFilter
 
 
-class MemberRepository(CRUDRepository[Member, AbstractMember]):
+class MemberRepository(CRUDRepository[Member, AbstractMember, int]):
     @abc.abstractmethod
     async def search_by(
         self,

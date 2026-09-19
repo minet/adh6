@@ -34,7 +34,7 @@ def member_repository():
 @pytest.fixture
 def membership_repository():
     repository = MagicMock(spec=MembershipRepository)
-    repository.search = AsyncMock(return_value=([], 0))
+    repository.search_by = AsyncMock(return_value=([], 0))
     return repository
 
 
@@ -87,7 +87,7 @@ def test_admin_password_update_is_delegated_to_keycloak(client, keycloak_admin):
 
 def set_membership(repository, state):
     memberships = [] if state is None else [Membership(uuid="test", member=67, status=state, hasRoom=None)]
-    repository.search.return_value = (memberships, len(memberships))
+    repository.search_by.return_value = (memberships, len(memberships))
 
 
 @pytest.mark.parametrize(
@@ -105,7 +105,7 @@ def test_staff_can_edit_identity_without_valid_membership(client, member_reposit
     for field, value in IDENTITY_EDIT.items():
         entity_field = "email" if field == "mail" else field
         assert updated_member.model_dump(by_alias=True)[entity_field] == value
-    membership_repository.search.assert_not_awaited()
+    membership_repository.search_by.assert_not_awaited()
 
 
 @pytest.mark.parametrize("state", [None, MembershipStatus.PENDING_RULES.value])

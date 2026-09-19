@@ -2,7 +2,6 @@ from datetime import datetime
 
 from adh6.constants import MembershipStatus
 from adh6.entity.abstract_membership import AbstractMembership
-from adh6.entity.subscription_body import SubscriptionBody
 from adh6.exceptions import (
     MemberNotFoundError,
     ValidationError,
@@ -40,7 +39,7 @@ class CharterManager:
         m = await self.member_repository.get_by_id(member_id)
         if not m:
             raise MemberNotFoundError(member_id)
-        subscriptions, _ = await self.membership_repository.search(
+        subscriptions, _ = await self.membership_repository.search_by(
             limit=1,
             filter_=AbstractMembership(member=member_id, status=MembershipStatus.PENDING_RULES.value),
         )
@@ -56,9 +55,10 @@ class CharterManager:
         # re-check of the status was dead code.
         if subscriptions:
             await self.membership_repository.update(
-                subscriptions[0].uuid,
-                SubscriptionBody(),
-                MembershipStatus.PENDING_PAYMENT_INITIAL,
+                AbstractMembership(
+                    uuid=subscriptions[0].uuid,
+                    status=MembershipStatus.PENDING_PAYMENT_INITIAL.value,
+                )
             )
 
     async def get_members(self, charter_id: int) -> tuple[list[int], int]:
