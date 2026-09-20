@@ -214,10 +214,9 @@ function serviceSetup(
     url?: string;
     profile?: () => Observable<unknown>;
     retry?: boolean;
-    keepStorage?: boolean;
   } = {},
 ) {
-  if (!options.keepStorage) sessionStorage.clear();
+  sessionStorage.clear();
   const url = new URL(options.url ?? "https://adh6.test/en/switch/3");
   const assigned: string[] = [];
   const replaced: string[] = [];
@@ -380,17 +379,11 @@ test("a lost session signs the user in again on the current page", () => {
   deepStrictEqual(assigned, [loginUrl("/en/switch/3")]);
 });
 
-test("a login that is immediately rejected by the API stops instead of looping", async () => {
-  serviceSetup().service.requireLogin("/switch/3");
-
-  // Back from Keycloak in a new page load, and the API still refuses the session.
-  const back = serviceSetup({keepStorage: true});
+test("a login that is rejected by the API redirects to Keycloak again", () => {
+  const back = serviceSetup();
   back.service.expireSession();
-  await back.settled();
-
-  equal(back.assigned.length, 0);
-  equal(back.dialogs.length, 1);
-  ok(back.dialogs[0].text?.includes("refusé"));
+  deepStrictEqual(back.assigned, [loginUrl("/en/switch/3")]);
+  equal(back.dialogs.length, 0);
 });
 
 test("logging out closes the session here, then in Keycloak", () => {
@@ -403,6 +396,20 @@ test("logging out closes the session here, then in Keycloak", () => {
   deepStrictEqual(assigned, ["https://keycloak.test/logout"]);
   ok(!ability.can("manage", "admin"));
   equal(service.isAuthenticated(), false);
+});
+
+test("logging in again after logout redirects to Keycloak", () => {
+  const {service, assigned, dialogs} = serviceSetup();
+  sessionStorage.setItem("adh6-login-time", String(Date.now()));
+
+  service.logout();
+  service.requireLogin("/member/12");
+
+  deepStrictEqual(assigned, [
+    "https://keycloak.test/logout",
+    loginUrl("/en/member/12"),
+  ]);
+  equal(dialogs.length, 0);
 });
 
 test("concurrent renewals share one request", () => {

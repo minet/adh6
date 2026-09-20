@@ -3380,10 +3380,6 @@
         <source>Le serveur est momentanément indisponible. Réessayez dans quelques instants.</source>
         <target state="final">The server is temporarily unavailable. Please try again in a few moments.</target>
       </trans-unit>
-      <trans-unit id="auth.failure.access-denied" datatype="html">
-        <source>Vous êtes connecté, mais le serveur a refusé l'accès. Si le problème persiste, contactez MiNET.</source>
-        <target state="final">You are logged in, but the server denied access. If the problem persists, contact MiNET.</target>
-      </trans-unit>
       <trans-unit id="auth.failure.retry" datatype="html">
         <source>Réessayer</source>
         <target state="final">Try again</target>

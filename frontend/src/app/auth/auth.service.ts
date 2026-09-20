@@ -7,13 +7,7 @@ import {MiscService} from "../api";
 import {DialogService} from "../ui/dialog.service";
 import {AppAbility, abilityRulesFor} from "./ability";
 
-// Survives the round trip to Keycloak, unlike anything held in memory.
-const LOGIN_TIME_KEY = "adh6-login-time";
-
-// A login followed by another one this quickly means signing in does not help.
-const LOGIN_LOOP_WINDOW_MS = 30_000;
-
-type Failure = "login-failed" | "unavailable" | "unreachable" | "access-denied";
+type Failure = "login-failed" | "unavailable" | "unreachable";
 
 @Injectable({providedIn: "root"})
 export class AuthService {
@@ -89,14 +83,12 @@ export class AuthService {
 
   private requireLoginAt(path: string): void {
     if (this.stopped || this.redirecting) return;
-    if (loggedInRecently()) this.fail("access-denied");
-    else this.startLogin(path);
+    this.startLogin(path);
   }
 
   private startLogin(path: string): void {
     this.stopped = false;
     this.redirecting = true;
-    markLogin();
     this.navigate(
       `${environment.API_BASE_PATH}/auth/login?return_to=${encodeURIComponent(path)}`,
     );
@@ -114,7 +106,6 @@ export class AuthService {
       "login-failed": $localize`:@@auth.failure.login-failed:La connexion a échoué. Veuillez réessayer.`,
       unavailable: $localize`:@@auth.failure.unavailable:Le service de connexion est momentanément indisponible. Réessayez dans quelques instants.`,
       unreachable: $localize`:@@auth.failure.unreachable:Le serveur est momentanément indisponible. Réessayez dans quelques instants.`,
-      "access-denied": $localize`:@@auth.failure.access-denied:Vous êtes connecté, mais le serveur a refusé l'accès. Si le problème persiste, contactez MiNET.`,
     }[failure];
     void this.dialogs
       .confirm({
@@ -151,22 +142,5 @@ export class AuthService {
 
   private navigate(url: string): void {
     this.document.location.assign(url);
-  }
-}
-
-function markLogin(): void {
-  try {
-    sessionStorage.setItem(LOGIN_TIME_KEY, String(Date.now()));
-  } catch {
-    // Without storage, sign-in loops cannot be detected.
-  }
-}
-
-function loggedInRecently(): boolean {
-  try {
-    const time = Number(sessionStorage.getItem(LOGIN_TIME_KEY));
-    return time > 0 && Date.now() - time < LOGIN_LOOP_WINDOW_MS;
-  } catch {
-    return false;
   }
 }
