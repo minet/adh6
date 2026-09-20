@@ -457,7 +457,7 @@ async def update_switch(
     require_role_or_ownership(request, Roles.NETWORK_WRITE.value)
     _validate_ipv4(body.ip)
     try:
-        await manager.update(id, body)
+        await manager.update(id, body, override=False)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
 

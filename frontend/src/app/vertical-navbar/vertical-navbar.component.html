@@ -1,4 +1,4 @@
-@if (oidcSecurityService.isAuthenticated() | async) {
+@if (auth.isAuthenticated()) {
   <div class="p-3">
     <aside class="menu">
       <p i18n="@@sidebar.section.general" class="menu-label">Général</p>

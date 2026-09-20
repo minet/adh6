@@ -40,7 +40,7 @@ def require_role_or_ownership(
     """
     Check that user has the required role or owns the resource.
 
-    Raises HTTPException (403 Forbidden) if user lacks both role and ownership.
+    Raises HTTPException (401 if nobody is signed in, 403 if the user lacks both role and ownership).
 
     Args:
         request: FastAPI request object
@@ -60,8 +60,14 @@ def require_role_or_ownership(
         if user_id is not None and user_id == owner_id:
             return
 
-    # Determine error code: API key auth with wrong scope → 401, OIDC → 403
+    # Determine error code: nobody signed in or API key with wrong scope → 401, OIDC → 403
     token_info = get_token_info(request)
+    if not token_info:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     if token_info.get("auth_method") == "api_key":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

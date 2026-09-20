@@ -76,6 +76,8 @@ server {
     proxy_set_header Authorization $http_authorization;
     proxy_http_version 1.1;
     proxy_set_header Connection "keep-alive";
+    proxy_buffer_size 16k;
+    proxy_buffers 8 16k;
     proxy_buffering off;
   }
   location = / {

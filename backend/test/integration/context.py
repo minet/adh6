@@ -7,6 +7,7 @@ os.environ["ENVIRONMENT"] = "testing"
 os.environ["TESTING"] = "1"
 os.environ["OIDC_ISSUER"] = "https://keycloak.minet.net/realms/MiNET"
 os.environ["OIDC_CLIENT_ID"] = "adh6-testing"
+os.environ["SESSION_SECRET"] = "adh6-testing-session-secret"
 
 # Import FastAPI app
 from adh6.main import app  # noqa

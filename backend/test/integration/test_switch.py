@@ -283,6 +283,26 @@ def test_switch_update_existant_switch(client, sample_switch1: Switch):
     assert_switch_in_db(sample_switch1_changed)
 
 
+def test_switch_update_without_community_keeps_the_stored_one(client, sample_switch1: Switch):
+    r = client.put(
+        f"{base_url}{sample_switch1.id}",
+        data=json.dumps({"description": "Renamed", "ip": "192.168.103.132"}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+    assert_switch_in_db({"description": "Renamed", "ip": "192.168.103.132", "community": sample_switch1.communaute})
+
+
+def test_switch_update_with_a_null_community_clears_it(client, sample_switch1: Switch):
+    r = client.put(
+        f"{base_url}{sample_switch1.id}",
+        data=json.dumps({"description": "Renamed", "ip": "192.168.103.132", "community": None}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 204
+    assert_switch_in_db({"description": "Renamed", "ip": "192.168.103.132", "community": None})
+
+
 def test_switch_update_non_existant_switch(client):
     sample_switch1 = {
         "description": "Modified switch",

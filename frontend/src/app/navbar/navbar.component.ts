@@ -1,14 +1,14 @@
 import {Component, LOCALE_ID, inject} from "@angular/core";
-import {AsyncPipe, CommonModule, DOCUMENT} from "@angular/common";
+import {CommonModule, DOCUMENT} from "@angular/common";
 import {RouterModule} from "@angular/router";
-import {OidcSecurityService} from "angular-auth-oidc-client";
+import {AuthService} from "../auth/auth.service";
 import {AblePipe} from "@casl/angular";
 import {ThemeService} from "../theme.service";
 import {localizedUrl, SupportedLocale} from "./localized-url";
 
 @Component({
   standalone: true,
-  imports: [AsyncPipe, CommonModule, RouterModule, AblePipe],
+  imports: [CommonModule, RouterModule, AblePipe],
   selector: "app-navbar",
   templateUrl: "./navbar.component.html",
   styles: `
@@ -111,16 +111,14 @@ export class NavbarComponent {
   protected readonly theme = inject(ThemeService);
   protected readonly isEnglish = inject(LOCALE_ID).startsWith("en");
   public isMenuActive = false;
-  constructor(public oidcSecurityService: OidcSecurityService) {}
+  protected readonly auth = inject(AuthService);
 
   protected languageUrl(locale: SupportedLocale): string {
     const {pathname, search, hash} = this.document.location;
     return localizedUrl(pathname, search, hash, locale);
   }
 
-  logout() {
-    this.oidcSecurityService
-      .logoff()
-      .subscribe((result) => console.log(result));
+  logout(): void {
+    this.auth.logout();
   }
 }

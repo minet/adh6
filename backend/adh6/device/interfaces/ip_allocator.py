@@ -1,4 +1,5 @@
 import abc
+from collections.abc import Collection
 
 
 class IpAllocator(abc.ABC):
@@ -12,9 +13,10 @@ class IpAllocator(abc.ABC):
         ip_range: str,
         member_id: int | None = None,
         reserved_hosts: int = 1,
+        excluded: Collection[str] = (),
     ) -> str:
         """
-        Allocates a new unused IP address after the reserved first hosts.
+        Allocates a new unused IP address after the reserved first hosts, never one of `excluded`.
 
         :raise NoMoreIPAvailable
         """

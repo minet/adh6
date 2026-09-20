@@ -265,6 +265,15 @@ class NoMoreIPAvailableException(IPAssignError):
         super().__init__(f"No more ips availables: {subnet}")
 
 
+class NoNetworkToAllocateFromError(IPAssignError):
+    pass
+
+
+class IPAlreadyAssignedError(IPAssignError):
+    def __init__(self) -> None:
+        super().__init__("An IP address was assigned to another device at the same time")
+
+
 class BadSubnetError(IPAssignError):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)

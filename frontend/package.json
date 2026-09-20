@@ -25,7 +25,6 @@
     "@angular/router": "^20.1.7",
     "@casl/ability": "^6.7.3",
     "@casl/angular": "^9.0.3",
-    "angular-auth-oidc-client": "^19.0.0",
     "bulma": "^1.0.3",
     "rxjs": "~7.8.2",
     "zone.js": "~0.15.0"

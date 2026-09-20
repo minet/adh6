@@ -14,6 +14,8 @@ from adh6.authentication.oidc.token_verifier import (
     OidcProviderUnavailable,
     get_oidc_token_verifier,
 )
+from adh6.authentication.session.cookies import ACCESS_COOKIE
+from adh6.authentication.session.csrf import enforce_csrf_protection
 from adh6.authentication.storage import RoleRepository
 from adh6.authentication.storage.models import ApiKey as ApiKeyModel
 from adh6.context import set_api_key_id, set_user
@@ -114,7 +116,8 @@ async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
 
 async def authenticate(request: Request, session: Annotated[AsyncSession, Depends(get_session)]) -> None:
     """Attach the caller's identity to the request, in the same session as the route."""
-    if not request.url.path.startswith("/api"):
+    path = request.url.path
+    if not path.startswith("/api") or path.startswith("/api/auth/"):
         return
 
     auth_header = request.headers.get("Authorization", "")
@@ -124,6 +127,9 @@ async def authenticate(request: Request, session: Annotated[AsyncSession, Depend
             token_info = await _validate_token_with_keycloak(auth_header.removeprefix("Bearer "), session)
         elif api_key_header:
             token_info = await _validate_api_key(api_key_header, session)
+        elif session_token := request.cookies.get(ACCESS_COOKIE):
+            enforce_csrf_protection(request)
+            token_info = await _validate_token_with_keycloak(session_token, session)
         else:
             return
     except HTTPException:

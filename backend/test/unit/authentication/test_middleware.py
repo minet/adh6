@@ -96,9 +96,9 @@ class TestValidateTokenWithKeycloak:
         assert excinfo.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
 
-def _request(headers: dict[str, str], path: str = "/api/member/") -> Request:
+def _request(headers: dict[str, str], path: str = "/api/member/", method: str = "GET") -> Request:
     raw_headers = [(name.lower().encode(), value.encode()) for name, value in headers.items()]
-    return Request({"type": "http", "method": "GET", "path": path, "query_string": b"", "headers": raw_headers})
+    return Request({"type": "http", "method": method, "path": path, "query_string": b"", "headers": raw_headers})
 
 
 class TestAuthenticate:
@@ -137,6 +137,84 @@ class TestAuthenticate:
 
         validate.assert_awaited_once_with("key", mock_session)
         assert request.state.token_info == token_info
+
+    async def test_session_cookie_is_resolved_like_a_bearer_token(self, mock_session, verifier, role_repository):
+        verifier.verify.return_value = {"adh6_id": 3}
+        request = _request({"Cookie": "adh6_access=cookie-token"})
+
+        with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+            repo_class.return_value = role_repository
+            await authenticate(request, mock_session)
+
+        verifier.verify.assert_awaited_once_with("cookie-token")
+        assert request.state.token_info["uid"] == 3
+
+    async def test_bearer_and_api_key_win_over_the_session_cookie(self, mock_session, verifier, role_repository):
+        verifier.verify.return_value = {"adh6_id": 1}
+        request = _request({"Authorization": "Bearer abc", "Cookie": "adh6_access=cookie-token"})
+
+        with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+            repo_class.return_value = role_repository
+            await authenticate(request, mock_session)
+
+        verifier.verify.assert_awaited_once_with("abc")
+
+    async def test_a_change_made_with_the_cookie_alone_is_refused(self, mock_session, verifier):
+        request = _request({"Cookie": "adh6_access=cookie-token"}, method="DELETE")
+
+        with pytest.raises(HTTPException) as excinfo:
+            await authenticate(request, mock_session)
+
+        assert excinfo.value.status_code == status.HTTP_403_FORBIDDEN
+        verifier.verify.assert_not_awaited()
+
+    @pytest.mark.parametrize(
+        "extra",
+        [{"Sec-Fetch-Site": "cross-site"}, {"Sec-Fetch-Site": "same-site"}, {"Origin": "https://evil.example"}],
+    )
+    async def test_a_change_from_another_site_is_refused_even_with_the_header(self, mock_session, verifier, extra):
+        headers = {"Cookie": "adh6_access=t", "X-Requested-With": "XMLHttpRequest", "Host": "adh6.minet.net", **extra}
+
+        with pytest.raises(HTTPException) as excinfo:
+            await authenticate(_request(headers, method="POST"), mock_session)
+
+        assert excinfo.value.status_code == status.HTTP_403_FORBIDDEN
+
+    @pytest.mark.parametrize(
+        "extra",
+        [
+            {},
+            {"Sec-Fetch-Site": "same-origin"},
+            {"Origin": "https://adh6.minet.net"},
+            {"Origin": "https://adh6.minet.net:8443"},
+        ],
+    )
+    async def test_a_change_made_by_the_app_is_accepted(self, mock_session, verifier, role_repository, extra):
+        verifier.verify.return_value = {"adh6_id": 3}
+        headers = {"Cookie": "adh6_access=t", "X-Requested-With": "XMLHttpRequest", "Host": "adh6.minet.net", **extra}
+
+        with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+            repo_class.return_value = role_repository
+            await authenticate(_request(headers, method="POST"), mock_session)
+
+        assert verifier.verify.await_count == 1
+
+    async def test_bearer_and_api_key_changes_need_no_csrf_header(self, mock_session, verifier, role_repository):
+        verifier.verify.return_value = {"adh6_id": 1}
+        with patch("adh6.authentication.middleware.RoleRepository") as repo_class:
+            repo_class.return_value = role_repository
+            await authenticate(_request({"Authorization": "Bearer abc"}, method="POST"), mock_session)
+        assert verifier.verify.await_count == 1
+
+        with patch("adh6.authentication.middleware._validate_api_key", AsyncMock(return_value={"uid": 2})):
+            await authenticate(_request({"X-API-KEY": "key"}, method="POST"), mock_session)
+
+    async def test_login_routes_ignore_an_old_session_cookie(self, mock_session, verifier):
+        request = _request({"Cookie": "adh6_access=expired"}, path="/api/auth/login")
+
+        await authenticate(request, mock_session)
+
+        verifier.verify.assert_not_awaited()
 
     async def test_rejected_credentials_propagate(self, mock_session, verifier):
         verifier.verify.side_effect = InvalidOIDCToken("bad")

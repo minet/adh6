@@ -330,6 +330,28 @@ def test_room_add_member_change_vlan_check_wired(
     ) in IPv4Network(sample_vlan.adresses)
 
 
+def test_room_without_vlan_refuses_a_member_with_a_wired_device(client, sample_member):
+    r = client.post(
+        base_url,
+        data=json.dumps({"roomNumber": 4286, "description": "Chambre sans VLAN"}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 201
+    room_id = r.json()["id"]
+
+    r = client.post(
+        f"{base_url}{room_id}/member/",
+        data=json.dumps({"id": sample_member.id}),
+        headers={"Content-Type": "application/json", **TEST_HEADERS},
+    )
+    assert r.status_code == 400
+    assert "VLAN" in r.json()["detail"]
+
+    # The refused move is rolled back: the member is not left in the room.
+    r = client.get(f"{base_url}{room_id}/member/", headers=TEST_HEADERS)
+    assert r.json() == []
+
+
 def test_room_add_member_when_no_room(client, sample_room1, sample_room2, sample_member, sample_vlan69):
     r = client.delete(
         f"{base_url}{sample_room1.id}/member/?memberId={sample_member.id}",

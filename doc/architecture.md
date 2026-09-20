@@ -54,8 +54,12 @@ Shared : `config/`, `security.py`, `database.py`, `exceptions.py`.
 
 ## Authentification et droits
 
-- Le frontend connecte l'utilisateur à Keycloak (flux OIDC avec PKCE) et envoie le token d'accès à l'API.
-- Le backend vérifie ce token localement avec les clés publiques du realm MiNET de Keycloak. Il lit `preferred_username` et `groups`.
+- Le backend mène lui-même la connexion OIDC (code d'autorisation + PKCE) : le navigateur ne voit jamais de token. Les routes sont dans `authentication/session/` sous `/api/auth/` (`login`, `callback`, `refresh`, `logout`), hors de la spec OpenAPI.
+  - `GET /api/auth/login?return_to=/fr/page` mémorise la tentative dans un cookie signé `adh6_oidc_login` (état, nonce, vérificateur PKCE, page de retour ; 10 minutes ; `SameSite=Lax`) puis redirige vers Keycloak. Le callback exige ce cookie : il lie la connexion au navigateur qui l'a lancée.
+  - Une fois connecté, la session tient dans les cookies `adh6_access`, `adh6_refresh` et `adh6_id` : `HttpOnly`, `Secure`, `SameSite=Strict`, `Path=/api`. Le frontend renouvelle l'accès avec `POST /api/auth/refresh` quand l'API répond 401, et se déconnecte avec `POST /api/auth/logout`.
+  - Les requêtes qui modifient des données, authentifiées par cookie, doivent porter l'en-tête `X-Requested-With: XMLHttpRequest` et ne pas venir d'un autre site (`Sec-Fetch-Site`, `Origin`). Les appels par `Authorization: Bearer` ou `X-API-KEY` ne sont pas concernés : le navigateur ne les ajoute pas tout seul.
+  - Réglages : `SESSION_SECRET` (obligatoire), `ADH6_URL` ou `OIDC_REDIRECT_URI` (URL du callback), `SESSION_COOKIE_SECURE`, `OIDC_SCOPE`, `OIDC_CLIENT_SECRET` (seulement si le client Keycloak devient confidentiel).
+- Le backend vérifie chaque token d'accès (cookie, ou `Bearer` pour les autres clients) localement, avec les clés publiques du realm MiNET de Keycloak. Il lit `preferred_username` et `groups`. Sans identité, l'API répond 401 (403 si l'utilisateur est connecté mais n'a pas le droit).
 - Les rôles viennent de la table `role_mappings` : soit par login (`authentication = USER`), soit par groupe Keycloak (`authentication = OIDC`). Les clés d'API ont leurs propres rôles.
 - Rôles : `user`, `admin:read`, `admin:write`, `admin:prod`, `treasurer:read`, `treasurer:write`, `network:read`, `network:write`, `network:write:prod`, `network:write:dev`, `network:write:hosting`.
 - Dans les routes, `require_role_or_ownership` autorise l'accès si l'utilisateur a le rôle demandé ou possède la ressource.

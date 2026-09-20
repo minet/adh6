@@ -1,4 +1,4 @@
-from pydantic import Field, computed_field
+from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,7 +14,6 @@ def _recipients(raw: str) -> list[str]:
 class Settings(BaseSettings):
     debug: bool = False
     testing: bool = False
-    secret_key: str | None = None
 
     # Database settings
     database_username: str | None = None
@@ -31,6 +30,13 @@ class Settings(BaseSettings):
     # so a Keycloak client secret is deliberately not required.
     oidc_issuer: str | None = None
     oidc_client_id: str | None = None
+    oidc_client_secret: SecretStr | None = None
+    oidc_scope: str = "openid offline_access"
+    oidc_redirect_uri: str | None = None
+    session_secret: SecretStr | None = None
+    session_cookie_secure: bool = True
+    oidc_login_ttl_seconds: int = Field(default=600, gt=0)
+    oidc_refresh_cookie_max_age_seconds: int = Field(default=30 * 24 * 3600, gt=0)
     oidc_http_timeout_seconds: float = Field(default=5, gt=0)
     oidc_jwks_cache_ttl_seconds: float = Field(default=3600, gt=0)
     oidc_jwks_refresh_cooldown_seconds: float = Field(default=30, gt=0)

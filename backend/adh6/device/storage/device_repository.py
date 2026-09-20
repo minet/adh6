@@ -7,13 +7,14 @@ from enum import Enum
 from ipaddress import IPv4Address, IPv6Address, ip_address
 
 from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
 from adh6.datetime_utils import utc_now_naive
 from adh6.device.interfaces import DeviceRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
-from adh6.exceptions import InvalidIPv4, InvalidIPv6
+from adh6.exceptions import InvalidIPv4, InvalidIPv6, IPAlreadyAssignedError
 from adh6.member.storage.models import Adherent
 
 from .models import Device as SQLDevice
@@ -117,10 +118,16 @@ class DeviceSQLRepository(DeviceRepository):
         if device is None:
             raise ValueError(f"Device {device_id} not found")
 
-        device.ip = _normalize_ip_address(ipv4, IPv4Address)
-        device.ipv6 = _normalize_ip_address(ipv6, IPv6Address)
-        device.updated_at = utc_now_naive()
-        await self.session.flush()
+        ip = _normalize_ip_address(ipv4, IPv4Address)
+        ipv6_address = _normalize_ip_address(ipv6, IPv6Address)
+        try:
+            async with self.session.begin_nested():
+                device.ip = ip
+                device.ipv6 = ipv6_address
+                device.updated_at = utc_now_naive()
+                await self.session.flush()
+        except IntegrityError as exc:
+            raise IPAlreadyAssignedError from exc
         return _map_device_sql_to_entity(device)
 
     async def delete(self, object_id: int) -> Device | None:

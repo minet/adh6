@@ -3,6 +3,16 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from adh6.device.storage.device_repository import DeviceSQLRepository
 from adh6.device.storage.models import Device
+from adh6.exceptions import IPAlreadyAssignedError
+from sqlalchemy.exc import IntegrityError
+
+
+class Savepoint:
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc_info):
+        return False
 
 
 @pytest.fixture
@@ -10,6 +20,7 @@ def mock_session():
     session = MagicMock()
     session.get = AsyncMock()
     session.flush = AsyncMock()
+    session.begin_nested = Savepoint
     return session
 
 
@@ -68,3 +79,11 @@ async def test_set_ip_addresses_rejects_unknown_device(device_repository, mock_s
 
     with pytest.raises(ValueError, match="Device 42 not found"):
         await device_repository.set_ip_addresses(42, None, None)
+
+
+async def test_set_ip_addresses_reports_an_address_taken_by_another_device(device_repository, mock_session):
+    mock_session.get.return_value = Device(id=1, mac="00-00-00-00-00-01", adherent_id=1, type=0)
+    mock_session.flush.side_effect = IntegrityError("UPDATE devices", {}, Exception("duplicate entry"))
+
+    with pytest.raises(IPAlreadyAssignedError):
+        await device_repository.set_ip_addresses(1, "192.0.2.1", None)
