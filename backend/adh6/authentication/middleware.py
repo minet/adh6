@@ -114,7 +114,9 @@ async def _validate_api_key(key: str, session: AsyncSession) -> dict[str, Any]:
     }
 
 
-async def authenticate(request: Request, session: Annotated[AsyncSession, Depends(get_session, scope="function")]) -> None:
+async def authenticate(
+    request: Request, session: Annotated[AsyncSession, Depends(get_session, scope="function")]
+) -> None:
     """Attach the caller's identity to the request, in the same session as the route."""
     path = request.url.path
     if not path.startswith("/api") or path.startswith("/api/auth/"):
