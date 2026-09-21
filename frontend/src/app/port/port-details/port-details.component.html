@@ -1,51 +1,78 @@
 @if (port$ | async; as port) {
   <div class="container mt-5">
-    <div class="columns">
-      <div class="column is-one-quarter box">
-        <h4 class="title is-4 has-text-centered" i18n="@@common.informations">
-          Informations
-        </h4>
-        <p>
-          <strong i18n="@@port.details.number">Numéro : </strong
-          >{{ port.portNumber }}
-        </p>
-        <p><strong>OID : </strong>{{ port.oid }}</p>
-        <p>
-          <strong>Switch : </strong>
-          <a [routerLink]="['/switch', port.switchObj, 'admin']">
-            {{ switch_description$ | async }}
-          </a>
-        </p>
-        <p>
-          <strong i18n="@@port.details.room">Chambre : </strong>
-          @if (port.room !== null) {
-            <a [routerLink]="['/room/view/', port.room]">
-              {{ room_number$ | async }}
-            </a>
-          } @else {
-            <span i18n="@@common.room.none">Aucune chambre</span>
-          }
-        </p>
-        <p>
-          <strong i18n="@@port.details.current-vlan">VLAN actuel : </strong
-          >{{ vlan$ | async }}
-        </p>
-        <label class="checkbox">
-          <input
-            type="checkbox"
-            [checked]="!!port.publiclyAccessible"
-            (change)="togglePubliclyAccessible(port)" />
-          <strong i18n="@@port.details.public-access"> Accès public</strong>
-        </label>
+    <div class="columns is-variable is-4">
+      <div class="column is-one-third">
+        <div class="box">
+          <h4 class="title is-4 has-text-centered" i18n="@@common.informations">
+            Informations
+          </h4>
+          <div class="port-info">
+            <div class="port-info__row">
+              <span class="port-info__label" i18n="@@port.details.number"
+                >Numéro :
+              </span>
+              <span class="port-info__value">{{ port.portNumber }}</span>
+            </div>
+            <div class="port-info__row">
+              <span class="port-info__label">OID : </span>
+              <span class="port-info__value">{{ port.oid }}</span>
+            </div>
+            <div class="port-info__row">
+              <span class="port-info__label">Switch : </span>
+              <span class="port-info__value">
+                <a [routerLink]="['/switch', port.switchObj, 'admin']">
+                  {{ switch_description$ | async }}
+                </a>
+              </span>
+            </div>
+            <div class="port-info__row">
+              <span class="port-info__label" i18n="@@port.details.room"
+                >Chambre :
+              </span>
+              <span class="port-info__value">
+                @if (port.room !== null) {
+                  <a [routerLink]="['/room/view/', port.room]">
+                    {{ room_number$ | async }}
+                  </a>
+                } @else {
+                  <span i18n="@@common.room.none">Aucune chambre</span>
+                }
+              </span>
+            </div>
+            <div class="port-info__row">
+              <span class="port-info__label" i18n="@@port.details.current-vlan"
+                >VLAN actuel :
+              </span>
+              <span class="port-info__value">{{ vlan$ | async }}</span>
+            </div>
+            <div class="port-info__row">
+              <span class="port-info__label" i18n="@@port.details.public-access"
+                >Accès public</span
+              >
+              <span class="port-info__value">
+                <label class="checkbox port-info__checkbox">
+                  <input
+                    type="checkbox"
+                    aria-label="Accès public"
+                    i18n-aria-label="@@port.details.public-access.aria"
+                    [checked]="!!port.publiclyAccessible"
+                    (change)="togglePubliclyAccessible(port)" />
+                </label>
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="column">
         <div class="box">
           <h4 class="title is-4 has-text-centered">Configuration</h4>
           <div class="port-toggle">
-            <strong>Port</strong>
+            <div class="port-toggle__label">
+              <strong>Port</strong>
+            </div>
             @if ({value: (status$ | async)}; as context) {
-              @if (context.value !== null) {
-                <div>
+              <div class="port-toggle__control">
+                @if (context.value !== null) {
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -62,19 +89,21 @@
                     ">
                     {{ getStatus(context.value) }}
                   </span>
-                </div>
-              } @else {
-                <span class="port-toggle__state" i18n="@@common.loading.short"
-                  >Chargement...</span
-                >
-              }
+                } @else {
+                  <span class="port-toggle__state" i18n="@@common.loading.short"
+                    >Chargement...</span
+                  >
+                }
+              </div>
             }
           </div>
           <div class="port-toggle">
-            <strong i18n="@@port.details.auth">Authentification</strong>
+            <div class="port-toggle__label">
+              <strong i18n="@@port.details.auth">Authentification</strong>
+            </div>
             @if ({value: (auth$ | async)}; as context) {
-              @if (context.value !== null) {
-                <div>
+              <div class="port-toggle__control">
+                @if (context.value !== null) {
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -93,19 +122,21 @@
                     ">
                     {{ getState(context.value) }}
                   </span>
-                </div>
-              } @else {
-                <span class="port-toggle__state" i18n="@@common.loading.short"
-                  >Chargement...</span
-                >
-              }
+                } @else {
+                  <span class="port-toggle__state" i18n="@@common.loading.short"
+                    >Chargement...</span
+                  >
+                }
+              </div>
             }
           </div>
           <div class="port-toggle">
-            <strong>MAB</strong>
+            <div class="port-toggle__label">
+              <strong>MAB</strong>
+            </div>
             @if ({value: (mab$ | async)}; as context) {
-              @if (context.value !== null) {
-                <div>
+              <div class="port-toggle__control">
+                @if (context.value !== null) {
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -122,19 +153,19 @@
                     ">
                     {{ getState(context.value) }}
                   </span>
-                </div>
-              } @else {
-                <span class="port-toggle__state" i18n="@@common.loading.short"
-                  >Chargement...</span
-                >
-              }
+                } @else {
+                  <span class="port-toggle__state" i18n="@@common.loading.short"
+                    >Chargement...</span
+                  >
+                }
+              </div>
             }
           </div>
         </div>
         <div class="box">
           <h4 class="title is-4 has-text-centered">Presets</h4>
           <div class="port-toggle">
-            <div>
+            <div class="port-toggle__label">
               <strong i18n="@@port.details.mini-router">Mini-Routeur</strong>
               <p
                 class="preset-commands has-text-grey"
@@ -144,8 +175,8 @@
               </p>
             </div>
             @if ({value: (miniRouter$ | async)}; as context) {
-              @if (context.value !== null) {
-                <div>
+              <div class="port-toggle__control">
+                @if (context.value !== null) {
                   <label class="switch">
                     <input
                       type="checkbox"
@@ -164,12 +195,12 @@
                     ">
                     {{ getState(context.value) }}
                   </span>
-                </div>
-              } @else {
-                <span class="port-toggle__state" i18n="@@common.loading.short"
-                  >Chargement...</span
-                >
-              }
+                } @else {
+                  <span class="port-toggle__state" i18n="@@common.loading.short"
+                    >Chargement...</span
+                  >
+                }
+              </div>
             }
           </div>
         </div>

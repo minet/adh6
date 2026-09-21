@@ -1571,8 +1571,8 @@
         </context-group>
       </trans-unit>
       <trans-unit id="port.details.public-access" datatype="html">
-        <source> Accès public</source>
-        <target state="final"> Public access</target>
+        <source>Accès public</source>
+        <target state="final">Public access</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/port/port-details/port-details.component.html</context>
         </context-group>
@@ -1622,6 +1622,13 @@
       <trans-unit id="port.details.mini-router.aria" datatype="html">
         <source>Mini-Routeur activé</source>
         <target state="final">Mini-router enabled</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/port/port-details/port-details.component.html</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="port.details.public-access.aria" datatype="html">
+        <source>Accès public</source>
+        <target state="final">Public access</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/port/port-details/port-details.component.html</context>
         </context-group>
