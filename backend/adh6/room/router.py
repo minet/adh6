@@ -28,14 +28,14 @@ router = APIRouter(prefix="/room", tags=["room"])
 
 
 async def get_room_repository(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> RoomRepository:
     """Dependency: Inject Room Repository."""
     return RoomRepository(session)
 
 
 async def get_member_repository(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> MemberRepository:
     """Dependency: Inject Member Repository."""
     return MemberRepository(session)

@@ -24,7 +24,7 @@ vlans_router = APIRouter(prefix="/vlans", tags=["vlan"])
 
 
 async def get_vlan_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> VlanManager:
     """Dependency: Inject VLAN Manager."""
     repo = VLANRepository(session)

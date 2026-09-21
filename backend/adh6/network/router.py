@@ -85,7 +85,7 @@ def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[st
 
 
 async def get_port_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> PortManager:
     """Dependency: Inject Port Manager."""
     repo = PortRepository(session)
@@ -94,7 +94,7 @@ async def get_port_manager(
 
 
 async def get_switch_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> SwitchManager:
     """Dependency: Inject Switch Manager."""
     repo = SwitchRepository(session)
@@ -102,14 +102,14 @@ async def get_switch_manager(
 
 
 async def get_switch_network_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> SwitchNetworkManager:
     """Dependency: Inject switch network manager."""
     return SwitchNetworkManager(PortRepository(session), SwitchRepository(session))
 
 
 async def get_switch_bulk_deps(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> tuple[SwitchNetworkManager, PortManager, RoomStorageRepository]:
     """Dependency: Inject network manager, port manager and room repository for bulk ops."""
     net_manager = SwitchNetworkManager(PortRepository(session), SwitchRepository(session))

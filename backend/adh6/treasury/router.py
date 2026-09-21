@@ -86,21 +86,21 @@ def _parse_transaction_filter(request: Request, raw_filter: str | None) -> Abstr
 
 
 async def get_payment_method_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> PaymentMethodManager:
     repo = PaymentMethodRepository(session)
     return PaymentMethodManager(repo)
 
 
 async def get_transaction_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> TransactionManager:
     repo = TransactionRepository(session)
     return TransactionManager(repo)
 
 
 async def get_product_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
     transaction_manager: Annotated[TransactionManager, Depends(get_transaction_manager)],
 ) -> ProductManager:
     product_repo = ProductRepository(session)
@@ -113,7 +113,7 @@ async def get_product_manager(
 
 
 async def get_export_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> ExportManager:
     return ExportManager(
         transaction_repository=TransactionRepository(session),
