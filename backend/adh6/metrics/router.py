@@ -23,7 +23,7 @@ _health_cache = HealthCache()
 
 
 async def get_health_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> HealthManager:
     """Dependency: Inject Health Manager."""
     repo = PingRepository(session)

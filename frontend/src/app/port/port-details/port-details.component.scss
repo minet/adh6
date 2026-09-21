@@ -1,3 +1,35 @@
+.port-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.port-info__row {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, auto) 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+
+  & + & {
+    border-top: 1px solid var(--bulma-border, #dbdbdb);
+  }
+}
+
+.port-info__label {
+  font-weight: 600;
+}
+
+.port-info__value {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.port-info__checkbox {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
 .port-toggle {
   display: flex;
   align-items: center;
@@ -10,10 +42,21 @@
   }
 }
 
+.port-toggle__label {
+  min-width: 0;
+}
+
+.port-toggle__control {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 .port-toggle__state {
   display: inline-block;
   min-width: 6.5rem;
-  margin-left: 0.75rem;
   font-weight: 600;
   text-align: right;
 }

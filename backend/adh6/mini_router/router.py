@@ -23,7 +23,7 @@ CONFLICT_ERRORS = (MiniRouterAlreadyExists, MiniRouterAlreadyLoaned, MiniRouterD
 
 
 async def get_mini_router_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> MiniRouterManager:
     """Dependency: Inject Mini-Router Manager with repositories."""
     return MiniRouterManager(

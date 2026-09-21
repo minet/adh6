@@ -18,7 +18,7 @@ router = APIRouter(tags=["misc"])
 
 
 async def get_member_repository(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> MemberRepository:
     """Dependency: Inject member repository."""
     return MemberRepository(session)

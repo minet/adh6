@@ -158,7 +158,7 @@ def build_transaction_manager(session: AsyncSession) -> TransactionManager:
 
 
 async def get_member_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> MemberManager:
     """Dependency: Inject Member Manager."""
     member_repo = MemberRepository(session)
@@ -194,7 +194,7 @@ async def get_member_manager(
 
 
 async def get_charter_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> CharterManager:
     """Dependency: Inject Charter Manager."""
     charter_repo = CharterRepository(session)
@@ -204,7 +204,7 @@ async def get_charter_manager(
 
 
 async def get_mailinglist_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> MailinglistManager:
     """Dependency: Inject Mailinglist Manager."""
     member_repo = MemberRepository(session)
@@ -213,7 +213,7 @@ async def get_mailinglist_manager(
 
 
 async def get_subscription_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> SubscriptionManager:
     """Dependency: Inject Subscription Manager."""
     member_repo = MemberRepository(session)
@@ -238,7 +238,7 @@ async def create_member(
     manager: Annotated[MemberManager, Depends(get_member_manager)],
     request: Request,
     # Same session object as the one the manager received: FastAPI caches dependencies per request.
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> int:
     """Create a new member."""
     require_role_or_ownership(request, Roles.ADMIN_WRITE.value)

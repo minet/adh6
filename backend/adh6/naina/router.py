@@ -16,7 +16,7 @@ from .storage import NainaSQLRepository
 router = APIRouter(prefix="/naina", tags=["naina"])
 
 
-async def get_naina_manager(session: Annotated[AsyncSession, Depends(get_session)]) -> NainaManager:
+async def get_naina_manager(session: Annotated[AsyncSession, Depends(get_session, scope="function")]) -> NainaManager:
     return NainaManager(
         repository=NainaSQLRepository(session),
         member_repository=MemberRepository(session),

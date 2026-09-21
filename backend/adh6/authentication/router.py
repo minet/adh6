@@ -45,14 +45,14 @@ class _MemberManagerShim(MemberManager):
 
 
 async def get_member_manager_shim(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> _MemberManagerShim:
     """Build a lightweight member manager shim for auth dependencies."""
     return _MemberManagerShim(MemberRepository(session))
 
 
 async def get_api_key_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
     member_manager: Annotated[_MemberManagerShim, Depends(get_member_manager_shim)],
 ) -> ApiKeyManager:
     """Dependency: Inject API Key Manager with repository."""
@@ -67,7 +67,7 @@ async def get_api_key_manager(
 
 
 async def get_role_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
     member_manager: Annotated[_MemberManagerShim, Depends(get_member_manager_shim)],
 ) -> RoleManager:
     """Dependency: Inject Role Manager with repository."""

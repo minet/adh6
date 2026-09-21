@@ -53,7 +53,7 @@ def _apply_only_projection(payload: dict[str, Any], only: str | None) -> dict[st
 
 
 async def get_device_manager(
-    session: Annotated[AsyncSession, Depends(get_session)],
+    session: Annotated[AsyncSession, Depends(get_session, scope="function")],
 ) -> DeviceManager:
     """Dependency: Inject Device Manager with repository."""
     device_repo = DeviceRepository(session)
