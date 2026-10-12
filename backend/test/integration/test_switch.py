@@ -527,7 +527,7 @@ def test_switch_ping_success_mocked(client, sample_switch1):
             "adh6.network.snmp.switch_network_manager.get_snmp_value_raw",
             AsyncMock(side_effect=snmp_get_responses),
         ),
-        patch("asyncio.sleep", AsyncMock(return_value=None)),
+        patch("adh6.network.snmp.switch_network_manager.PING_POLL_INTERVAL_S", 0),
     ):
         r = client.post(
             f"{base_url}{sample_switch1.id}/ping",
@@ -556,7 +556,7 @@ def test_switch_ping_zero_received_mocked(client, sample_switch1):
             "adh6.network.snmp.switch_network_manager.get_snmp_value_raw",
             AsyncMock(side_effect=snmp_get_responses),
         ),
-        patch("asyncio.sleep", AsyncMock(return_value=None)),
+        patch("adh6.network.snmp.switch_network_manager.PING_POLL_INTERVAL_S", 0),
     ):
         r = client.post(
             f"{base_url}{sample_switch1.id}/ping",
