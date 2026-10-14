@@ -37,6 +37,7 @@ VOICE_VLAN_OID = "1.3.6.1.4.1.9.9.68.1.5.1.1.1"  # CISCO-VLAN-MEMBERSHIP-MIB::vm
 AUTH_HOST_MODE_OID = "1.3.6.1.4.1.9.9.656.1.2.1.1.3"  # CISCO-AUTH-FRAMEWORK-MIB::cafPortAuthHostMode
 NO_RESP_NO_ACTION_OID = "1.3.6.1.4.1.9.9.656.1.3.2.1.1"  # CISCO-AUTH-FRAMEWORK-MIB::cafClientNoRespNoActionEnabled
 NO_RESP_AUTHORIZED_VLAN_OID = "1.3.6.1.4.1.9.9.656.1.3.2.1.2"  # CISCO-AUTH-FRAMEWORK-MIB::cafClientNoRespAuthorizedVlan
+PING_POLL_INTERVAL_S = 0.5
 
 MINI_ROUTER_VOICE_VLAN = 31
 MINI_ROUTER_NO_RESPONSE_VLAN = 15
@@ -307,7 +308,7 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         # Poll ciscoPingCompleted (.14) until true; budget = count*timeout + 5s safety margin
         max_polls = max(10, int((count * timeout_ms / 1000 + 5) * 2))
         for _ in range(max_polls):
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(PING_POLL_INTERVAL_S)
             try:
                 completed = await get_snmp_value_raw(community, ip, f"{base_oid}.14.{serial}")
                 if completed in ("true", "1"):

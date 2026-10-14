@@ -165,10 +165,10 @@ deploy_dev:
   stage: deploy
   trigger:
     project: minet/configurations/push/swarm-prod
-    branch: main
+    branch: preprod
     strategy: depend
     inputs:
-      folder_name: adh6-dev.minet.net
+      folder_name: adh6.minet.net
       image_registry: $CI_REGISTRY_IMAGE
   needs:
     - job: build_backend

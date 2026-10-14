@@ -254,7 +254,7 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
     assert (
         res["ipv6Address"] == "2001:660:3203:435::65"
         if device_to_add["connectionType"] == "wireless"
-        else res["ipv6Address"] == "fe80:42::2"
+        else res["ipv6Address"] == "fe80:42::3"
     )
 
 
@@ -354,7 +354,7 @@ def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_r
         )
         res = r.json()
         start_number_v4 = [2, 4]
-        start_number_v6 = [2, 4]
+        start_number_v6 = [3, 5]
         assert (
             res["ipv4Address"]
             == f"192.168.{42 if d['member'] == TESTING_CLIENT_ID else 69}.{start_number_v4[i // device_number] + (i % device_number)}"
@@ -399,7 +399,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         )
         res = r.json()
         assert res["ipv4Address"] == f"192.168.42.{2 + (i % max_devices)}"
-        assert res["ipv6Address"] == f"fe80:42::{format(2 + (i % max_devices), 'x')}"
+        assert res["ipv6Address"] == f"fe80:42::{format(3 + (i % max_devices), 'x')}"
 
     d = {
         "mac": faker.mac_address(),

@@ -5,6 +5,7 @@ from adh6.constants import (
     DEFAULT_OFFSET,
     WIFI_IPV6_NETWORK,
     WIFI_IPV6_RESERVED_HOSTS,
+    WIRED_IPV6_RESERVED_HOSTS,
 )
 from adh6.decorator import log_call
 from adh6.entity import AbstractVlan, Device, DeviceFilter, Member
@@ -78,6 +79,7 @@ class DeviceIpManager:
             ipv6_reserved_hosts = WIFI_IPV6_RESERVED_HOSTS
         elif vlan:
             ipv6_network = vlan.ipv6_network or ""
+            ipv6_reserved_hosts = WIRED_IPV6_RESERVED_HOSTS
 
         if not ipv4_network:
             missing = (

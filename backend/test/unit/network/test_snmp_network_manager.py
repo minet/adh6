@@ -352,7 +352,7 @@ async def test_ping_from_switch_success(mock_repos):
             "adh6.network.snmp.switch_network_manager.get_snmp_value_raw",
             AsyncMock(side_effect=snmp_get_responses),
         ) as _,
-        patch("asyncio.sleep", AsyncMock(return_value=None)),
+        patch("adh6.network.snmp.switch_network_manager.PING_POLL_INTERVAL_S", 0),
     ):
         result = await manager.ping_from_switch(10, "8.8.8.8", count=5, timeout_ms=1000, size=64)
 
