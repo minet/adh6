@@ -26,10 +26,10 @@ class IPSQLAllocator(IpAllocator):
         except ValueError as exc:
             raise BadSubnetError("Unknown ip subnet") from exc
 
-        if isinstance(network, IPv4Network):
-            smt = select(Device.ip).where(Device.ip.is_not(None))
-        else:
-            smt = select(Device.ipv6).where(Device.ipv6.is_not(None))
+        # Only IPv4 is allocated: IPv6 addresses come from SLAAC (see storage/trace.py)
+        if not isinstance(network, IPv4Network):
+            raise BadSubnetError("Only IPv4 subnets are allocated")
+        smt = select(Device.ip).where(Device.ip.is_not(None))
 
         if member_id:
             smt = smt.where(Device.adherent_id == member_id)

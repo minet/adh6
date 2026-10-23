@@ -62,17 +62,22 @@ def _app():
 async def _db_setup(_app):
     """Session-scoped database schema creation."""
     from adh6.database import engine
+    from adh6.device.storage.trace import metadata as trace_metadata
     from adh6.storage.sql.models import Base
 
     async with engine.begin() as conn:
         # Recover cleanly from an interrupted previous test run.
         await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(trace_metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+        # IPv6 traceability table, filled by the trace collector in production
+        await conn.run_sync(trace_metadata.create_all)
 
     yield
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(trace_metadata.drop_all)
     await engine.dispose()
 
 
@@ -102,6 +107,7 @@ async def add_test_fixtures(*fixtures):
 async def cleanup_test_data():
     """Delete all data from all tables."""
     from adh6.database import async_session_factory, engine
+    from adh6.device.storage.trace import ipv6_neighbors
     from adh6.storage.sql.models import Base
     from sqlalchemy import text
 
@@ -112,6 +118,7 @@ async def cleanup_test_data():
 
         for table in reversed(Base.metadata.sorted_tables):
             await session.execute(table.delete())
+        await session.execute(ipv6_neighbors.delete())
 
         # Re-enable foreign key checks
         if "mysql" in engine.url.drivername:
@@ -137,7 +144,6 @@ def wired_device(faker, sample_member):
         adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
-        ipv6=faker.ipv6(),
     )
 
 
@@ -149,7 +155,6 @@ def wired_device2(faker, sample_member):
         adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
-        ipv6=faker.ipv6(),
     )
 
 
@@ -161,7 +166,6 @@ def wireless_device(faker, sample_member):
         adherent_id=sample_member.id,
         type=DeviceType.wireless.value,
         ip=faker.ipv4_private(),
-        ipv6=faker.ipv6(),
     )
 
 

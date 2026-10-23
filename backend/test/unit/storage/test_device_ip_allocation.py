@@ -70,12 +70,12 @@ async def test_losing_a_race_for_an_address_takes_the_next_free_one(sessions):
 
 async def test_allocation_gives_up_when_every_attempt_loses(sessions):
     repository = MagicMock()
-    repository.set_ip_addresses = AsyncMock(side_effect=IPAlreadyAssignedError)
+    repository.set_ip_address = AsyncMock(side_effect=IPAlreadyAssignedError)
     manager = DeviceIpManager(SnapshotAllocator(used=[]), repository, MagicMock())
 
     with pytest.raises(IPAlreadyAssignedError):
         await manager.allocate_ip_with_vlan(device=wired_device(2), member=MagicMock(), vlan=VLAN)
 
-    assert repository.set_ip_addresses.await_count == MAX_ALLOCATION_ATTEMPTS
-    tried = [call.args[1] for call in repository.set_ip_addresses.await_args_list]
+    assert repository.set_ip_address.await_count == MAX_ALLOCATION_ATTEMPTS
+    tried = [call.args[1] for call in repository.set_ip_address.await_args_list]
     assert len(set(tried)) == MAX_ALLOCATION_ATTEMPTS

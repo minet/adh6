@@ -124,5 +124,4 @@ def _map_device_sql_to_abstract(d: DeviceSQL) -> AbstractDevice:
         mac=d.mac or "",
         name=d.name,
         ipv4Address=None,
-        ipv6Address=None,
     )

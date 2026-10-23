@@ -31,7 +31,7 @@ export class DeviceListComponent extends SearchPage<Device> implements OnInit {
             "id",
             "mac",
             "ipv4Address",
-            "ipv6Address",
+            "ipv6Addresses",
             "connectionType",
             "member",
             "name",

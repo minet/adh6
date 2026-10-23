@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     database_host: str | None = None
     database_db_name: str = "adh6"
 
+    # IPv6 traceability: database filled by the trace collector, on the same MariaDB server.
+    # ADH6 only reads trace.ipv6_neighbors (SELECT grant needed).
+    trace_db_name: str = "trace"
+    # A device's IPv6 addresses are those seen by the router in this window
+    trace_recent_hours: int = Field(default=24, gt=0)
+
     sqlalchemy_echo: bool = False
     sqlalchemy_pool_size: int = 5
     sqlalchemy_max_overflow: int = 10

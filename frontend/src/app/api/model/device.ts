@@ -25,9 +25,9 @@ export interface Device {
      */
     ipv4Address?: string | null;
     /**
-     * The ipv6 address assigned to this device
+     * IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device\'s MAC in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).
      */
-    ipv6Address?: string | null;
+    readonly ipv6Addresses?: Array<string>;
     /**
      * The MAC address of this device
      */

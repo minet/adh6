@@ -51,7 +51,11 @@
                 <strong>IPv6</strong>
               </td>
               <td>
-                {{ device.ipv6Address ?? "-" }}
+                @for (address of device.ipv6Addresses; track address) {
+                  <div>{{ address }}</div>
+                } @empty {
+                  -
+                }
               </td>
             </tr>
             @if (device.connectionType === "wireless") {

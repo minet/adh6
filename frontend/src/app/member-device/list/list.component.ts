@@ -30,7 +30,7 @@ export class MemberDeviceListComponent
           "id",
           "mac",
           "ipv4Address",
-          "ipv6Address",
+          "ipv6Addresses",
           "connectionType",
           "member",
           "name",

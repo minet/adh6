@@ -33,13 +33,13 @@ class Device(BaseModel):
     id: Optional[StrictInt] = Field(default=None, description="The unique identifier of this device")
     connection_type: StrictStr = Field(description="The connection type of this device", alias="connectionType")
     ipv4_address: Optional[StrictStr] = Field(default=None, description="The ipv4 address assigned to this device", alias="ipv4Address")
-    ipv6_address: Optional[StrictStr] = Field(default=None, description="The ipv6 address assigned to this device", alias="ipv6Address")
+    ipv6_addresses: Optional[List[StrictStr]] = Field(default=None, description="IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device's MAC in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).", alias="ipv6Addresses")
     mac: StrictStr = Field(description="The MAC address of this device")
     vendor: Optional[StrictStr] = Field(default=None, description="The vendor of this device (from MAC prefix)")
     name: Optional[StrictStr] = Field(default=None, description="The display name of this device")
     wifi_password: Optional[Annotated[str, Field(strict=True, max_length=63)]] = Field(default=None, description="The wifi password for this device (wireless only, max 63 chars)", alias="wifiPassword")
     member: Optional[StrictInt] = Field(default=None, description="The id of the member this device belongs to")
-    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Address", "mac", "vendor", "name", "wifiPassword", "member"]
+    __properties: ClassVar[List[str]] = ["id", "connectionType", "ipv4Address", "ipv6Addresses", "mac", "vendor", "name", "wifiPassword", "member"]
 
     @field_validator('connection_type')
     def connection_type_validate_enum(cls, value):
@@ -79,9 +79,11 @@ class Device(BaseModel):
           are ignored.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
             "id",
+            "ipv6_addresses",
             "vendor",
         ])
 
@@ -94,11 +96,6 @@ class Device(BaseModel):
         # and model_fields_set contains the field
         if self.ipv4_address is None and "ipv4_address" in self.model_fields_set:
             _dict['ipv4Address'] = None
-
-        # set to None if ipv6_address (nullable) is None
-        # and model_fields_set contains the field
-        if self.ipv6_address is None and "ipv6_address" in self.model_fields_set:
-            _dict['ipv6Address'] = None
 
         # set to None if vendor (nullable) is None
         # and model_fields_set contains the field
@@ -130,7 +127,7 @@ class Device(BaseModel):
             "id": obj.get("id"),
             "connectionType": obj.get("connectionType"),
             "ipv4Address": obj.get("ipv4Address"),
-            "ipv6Address": obj.get("ipv6Address"),
+            "ipv6Addresses": obj.get("ipv6Addresses"),
             "mac": obj.get("mac"),
             "vendor": obj.get("vendor"),
             "name": obj.get("name"),
