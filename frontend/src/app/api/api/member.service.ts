@@ -779,7 +779,7 @@ export class MemberService {
     /**
      * Administratively replace a member password
      * @param id The id of the resource that needs to be fetched.
-     * @param memberIdPasswordPutRequest
+     * @param memberIdPasswordPutRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */

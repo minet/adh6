@@ -1,4 +1,6 @@
 import json
+from datetime import timedelta
+from ipaddress import IPv6Address
 
 import pytest
 from adh6.device.storage.device_repository import DeviceType
@@ -49,19 +51,18 @@ def custom_device(sample_member3):
         adherent_id=sample_member3.id,
         type=DeviceType.wired.value,
         ip="157.159.1.1",
-        ipv6="::1",
     )
 
 
 @pytest.fixture
 def unknown_device(faker, sample_member):
     yield Device(
-        id=faker.random_digit_not_null(),
+        # Fixed id: a random one could be an existing device's
+        id=4242,
         mac=faker.mac_address(),
         adherent_id=sample_member.id,
         type=DeviceType.wired.value,
         ip=faker.ipv4_public(),
-        ipv6=faker.ipv6(),
     )
 
 
@@ -73,7 +74,6 @@ def device_with_invalid_member(faker, sample_device: Device):
         adherent_id=faker.random_digit_not_null(),
         type=DeviceType.wired.value,
         ip=sample_device.ip,
-        ipv6=sample_device.ipv6,
     )
 
 
@@ -150,7 +150,6 @@ def test_device_filter_wired_by_member(client, header, member, expected):
         ("f6-d0", 1),
         ("157.159", 1),
         ("80-65-F3-FC-44-A9", 0),  # Should find nothing
-        ("::1", 1),
         ("-", 4),  # Should find everything
         ("00-", 0),  # Should find nothing
     ],
@@ -160,6 +159,69 @@ def test_device_filter_by_terms(client, terms, expected):
     response = json.loads(r.content.decode("utf-8"))
     assert r.status_code == 200
     assert len(response) == expected
+
+
+@pytest.fixture
+async def trace_rows(client, custom_device):
+    """Addresses the router saw (trace database): two for custom_device in the last 24 h,
+    one older, and one for another MAC"""
+    from adh6.database import async_session_factory
+    from adh6.datetime_utils import utc_now_naive
+    from adh6.device.storage.trace import ipv6_neighbors
+
+    now = utc_now_naive()
+
+    def row(address: str, mac: str, seen):
+        return {
+            "day": seen.date(),
+            "ipv6": IPv6Address(address).packed,
+            "mac": bytes.fromhex(mac),
+            "interface": "Vlan41",
+            "first_seen": seen,
+            "last_seen": seen,
+        }
+
+    async with async_session_factory() as session:
+        await session.execute(
+            ipv6_neighbors.insert(),
+            [
+                row("2001:660:3203:401::14", "9624F6D048A7", now - timedelta(hours=2)),
+                row("2001:660:3203:401:62c4:fbac:8fb3:91bd", "9624F6D048A7", now - timedelta(minutes=5)),
+                row("2001:660:3203:401::99", "9624F6D048A7", now - timedelta(days=30)),
+                row("2001:660:3203:401::77", "8065F3FC44A9", now - timedelta(minutes=5)),
+            ],
+        )
+        await session.commit()
+
+
+def test_device_ipv6_addresses_come_from_trace(client, trace_rows, custom_device):
+    r = client.get(f"{base_url}{custom_device.id}", headers=TEST_HEADERS)
+    assert r.status_code == 200
+    # Last 24 h only, most recent first, never another MAC's
+    assert r.json()["ipv6Addresses"] == ["2001:660:3203:401:62c4:fbac:8fb3:91bd", "2001:660:3203:401::14"]
+
+    r = client.get(f"{base_url}", headers=TEST_HEADERS)
+    devices = {d["id"]: d for d in r.json()}
+    assert devices[custom_device.id]["ipv6Addresses"] == [
+        "2001:660:3203:401:62c4:fbac:8fb3:91bd",
+        "2001:660:3203:401::14",
+    ]
+    assert all(d["ipv6Addresses"] == [] for i, d in devices.items() if i != custom_device.id)
+
+
+@pytest.mark.parametrize(
+    "terms,expected",
+    [
+        ("2001:660:3203:401::99", 1),  # older than 24 h: still found, over the whole retention
+        ("2001:0660:3203:0401:0000:0000:0000:0014", 1),  # any spelling of the address
+        ("2001:660:3203:401::77", 0),  # used by a MAC that is not a device
+        ("2001:660:3203:401::1234", 0),
+    ],
+)
+def test_device_search_by_ipv6_uses_trace(client, trace_rows, terms, expected):
+    r = client.get(f"{base_url}?filter[terms]={terms}", headers=TEST_HEADERS)
+    assert r.status_code == 200
+    assert len(r.json()) == expected
 
 
 def test_device_filter_invalid_limit(client):
@@ -179,7 +241,6 @@ def test_device_filter_hit_limit(client, sample_member: Adherent):
             mac="00-00-00-00-" + suffix[:2] + "-" + suffix[2:],
             type=DeviceType.wired.value,
             ip=f"127.0.0.{index + 1}",
-            ipv6=f"2001:db8::{index + 1}",
         )
         s.add(dev)
     s.commit()
@@ -251,11 +312,8 @@ def test_device_post(client, sample_room1, device_to_add, sample_member: Adheren
         if device_to_add["connectionType"] == "wireless"
         else res["ipv4Address"] == "192.168.42.2"
     )
-    assert (
-        res["ipv6Address"] == "2001:660:3203:435::65"
-        if device_to_add["connectionType"] == "wireless"
-        else res["ipv6Address"] == "fe80:42::3"
-    )
+    # No IPv6 allocation: a new device has not been seen by the router yet
+    assert res["ipv6Addresses"] == []
 
 
 def test_device_post_create_multiple_wireless(
@@ -308,7 +366,7 @@ def test_device_post_create_multiple_wireless(
         subnet_header = ".".join(subnet.split(".")[:3])
         subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        assert res["ipv6Address"] == f"2001:660:3203:435::{format(0x66 + i, 'x')}"
+        assert res["ipv6Addresses"] == []
 
 
 def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_room2):
@@ -354,15 +412,11 @@ def test_device_post_create_multiple_wired(faker, client, sample_room1, sample_r
         )
         res = r.json()
         start_number_v4 = [2, 4]
-        start_number_v6 = [3, 5]
         assert (
             res["ipv4Address"]
             == f"192.168.{42 if d['member'] == TESTING_CLIENT_ID else 69}.{start_number_v4[i // device_number] + (i % device_number)}"
         )
-        assert (
-            res["ipv6Address"]
-            == f"fe80:{42 if d['member'] == TESTING_CLIENT_ID else 69}::{format(start_number_v6[i // device_number] + (i % device_number), 'x')}"
-        )
+        assert res["ipv6Addresses"] == []
 
 
 def test_device_post_create_too_much(faker, client, sample_room1):
@@ -399,7 +453,7 @@ def test_device_post_create_too_much(faker, client, sample_room1):
         )
         res = r.json()
         assert res["ipv4Address"] == f"192.168.42.{2 + (i % max_devices)}"
-        assert res["ipv6Address"] == f"fe80:42::{format(3 + (i % max_devices), 'x')}"
+        assert res["ipv6Addresses"] == []
 
     d = {
         "mac": faker.mac_address(),
@@ -453,7 +507,7 @@ def test_device_post_create_too_much_wireless(faker, client, sample_room1, sampl
         subnet_header = ".".join(subnet.split(".")[:3])
         subnet_start = int(subnet.split(".")[3].split("/")[0]) + 1
         assert res["ipv4Address"] == f"{subnet_header}.{subnet_start + 1 + i // device_number + (i % device_number)}"
-        assert res["ipv6Address"] == f"2001:660:3203:435::{format(0x65 + i, 'x')}"
+        assert res["ipv6Addresses"] == []
 
     d = {
         "mac": faker.mac_address(),
@@ -512,7 +566,7 @@ def test_device_get_valid(client, device, status_code):
     assert json.loads(r.content.decode("utf-8"))
 
 
-@pytest.mark.parametrize("only", ["mac", "ipv4Address", "ipv6Address", "connectionType", "member"])
+@pytest.mark.parametrize("only", ["mac", "ipv4Address", "ipv6Addresses", "connectionType", "member"])
 def test_device_get_only_selected_param(client, wired_device, only):
     r = client.get(
         f"{base_url}{wired_device.id}?only={only}",

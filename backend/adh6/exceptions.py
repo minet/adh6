@@ -26,11 +26,6 @@ class MissingRequiredField(ValidationError):
         super().__init__(f"{msg} is missing")
 
 
-class InvalidIPv6(ValidationError):
-    def __init__(self, v: object):
-        super().__init__(f'"{v}" is not a valid IPv6 address')
-
-
 class InvalidIPv4(ValidationError):
     def __init__(self, v: object):
         super().__init__(f'"{v}" is not a valid IPv4 address')

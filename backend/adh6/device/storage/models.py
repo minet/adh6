@@ -9,10 +9,7 @@ from adh6.storage.base import Base
 
 class Device(Base):
     __tablename__ = "devices"
-    __table_args__ = (
-        UniqueConstraint("ip", name="uq_devices_ip"),
-        UniqueConstraint("ipv6", name="uq_devices_ipv6"),
-    )
+    __table_args__ = (UniqueConstraint("ip", name="uq_devices_ip"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     mac: Mapped[str | None] = mapped_column(String(255))
@@ -25,7 +22,7 @@ class Device(Base):
         DateTime, nullable=False, default=func.now(), server_onupdate=func.now()
     )
     last_seen: Mapped[dt.datetime | None] = mapped_column(DateTime)
-    ipv6: Mapped[str | None] = mapped_column(String(255))
+    # No ipv6 column: a device's IPv6 addresses come from the trace database (storage/trace.py)
     type: Mapped[int | None] = mapped_column(Integer)
     name: Mapped[str | None] = mapped_column(String(255))
     wifi_password: Mapped[str | None] = mapped_column(String(63))

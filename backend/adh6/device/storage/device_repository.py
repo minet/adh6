@@ -2,6 +2,7 @@
 Implements everything related to actions on the SQL database.
 """
 
+import datetime as dt
 import re
 from enum import Enum
 from ipaddress import IPv4Address, IPv6Address, ip_address
@@ -11,13 +12,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
+from adh6.config.configuration import settings
 from adh6.datetime_utils import utc_now_naive
 from adh6.device.interfaces import DeviceRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
-from adh6.exceptions import InvalidIPv4, InvalidIPv6, IPAlreadyAssignedError
+from adh6.exceptions import InvalidIPv4, IPAlreadyAssignedError
 from adh6.member.storage.models import Adherent
 
 from .models import Device as SQLDevice
+from .trace import mac_to_bytes, macs_for_ipv6, recent_ipv6_by_mac
 
 
 class DeviceType(Enum):
@@ -32,12 +35,23 @@ class DeviceSQLRepository(DeviceRepository):
     async def get_by_id(self, object_id: int) -> Device | None:
         stmt = select(SQLDevice).where(SQLDevice.id == object_id)
         obj = await self.session.scalar(stmt)
-        return _map_device_sql_to_entity(obj) if obj else None
+        return (await self._with_ipv6([_map_device_sql_to_entity(obj)]))[0] if obj else None
 
     async def get_by_mac(self, mac: str) -> Device | None:
         stmt = select(SQLDevice).where(SQLDevice.mac == mac)
         obj = await self.session.scalar(stmt)
-        return _map_device_sql_to_entity(obj) if obj else None
+        return (await self._with_ipv6([_map_device_sql_to_entity(obj)]))[0] if obj else None
+
+    async def _with_ipv6(self, devices: list[Device]) -> list[Device]:
+        """Fill each device's ipv6Addresses with the addresses the router saw for its MAC
+        (trace database), in the last trace_recent_hours"""
+        macs = {device.mac: mac_to_bytes(device.mac) for device in devices}
+        since = utc_now_naive() - dt.timedelta(hours=settings.trace_recent_hours)
+        seen = await recent_ipv6_by_mac(self.session, (m for m in macs.values() if m), since)
+        for device in devices:
+            mac = macs[device.mac]
+            device.ipv6_addresses = seen.get(mac, []) if mac else []
+        return devices
 
     async def search_by(self, limit: int, offset: int, device_filter: DeviceFilter) -> tuple[list[Device], int]:
         stmt: Select[tuple[SQLDevice]] = select(SQLDevice)
@@ -48,11 +62,22 @@ class DeviceSQLRepository(DeviceRepository):
                 for column in [
                     SQLDevice.mac,
                     SQLDevice.ip,
-                    SQLDevice.ipv6,
                     SQLDevice.name,
                     Adherent.login,
                 ]
             ]
+            compact_mac_column = func.replace(
+                func.replace(func.replace(func.lower(SQLDevice.mac), ":", ""), "-", ""), ".", ""
+            )
+            # A full IPv6 address finds the devices that used it, over the whole trace retention
+            try:
+                searched_ipv6 = IPv6Address(terms)
+            except ValueError:
+                searched_ipv6 = None
+            if searched_ipv6 is not None:
+                used_by = await macs_for_ipv6(self.session, searched_ipv6)
+                if used_by:
+                    matches.append(compact_mac_column.in_(sorted(mac.hex() for mac in used_by)))
             # Normalize byte separators without collapsing IPv6 addresses into MAC fragments.
             separated_mac = terms.replace("-", ":")
             if (
@@ -69,10 +94,7 @@ class DeviceSQLRepository(DeviceRepository):
             # Compact and Cisco dotted MACs have no byte separators to preserve.
             if re.fullmatch(r"[0-9a-f]{1,12}|(?:[0-9a-f]{4}\.){1,2}[0-9a-f]{1,4}", terms):
                 compact_mac = terms.replace(".", "")
-                mac_column = func.replace(
-                    func.replace(func.replace(func.lower(SQLDevice.mac), ":", ""), "-", ""), ".", ""
-                )
-                matches.append(mac_column.contains(compact_mac, autoescape=True))
+                matches.append(compact_mac_column.contains(compact_mac, autoescape=True))
             stmt = stmt.outerjoin(Adherent, SQLDevice.adherent_id == Adherent.id).where(or_(*matches))
         if device_filter.member:
             stmt = stmt.where(SQLDevice.adherent_id == device_filter.member)
@@ -85,7 +107,7 @@ class DeviceSQLRepository(DeviceRepository):
         rows = await self.session.scalars(stmt.order_by(SQLDevice.id.asc()).offset(offset).limit(limit))
         devices = rows.all()
 
-        return list(map(_map_device_sql_to_entity, devices)), count
+        return await self._with_ipv6(list(map(_map_device_sql_to_entity, devices))), count
 
     async def create(self, obj: DeviceBody) -> Device:
         now = utc_now_naive()
@@ -97,7 +119,6 @@ class DeviceSQLRepository(DeviceRepository):
             type=DeviceType[obj.connection_type].value,
             adherent_id=obj.member,
             ip=None,
-            ipv6=None,
         )
         self.session.add(device)
         await self.session.flush()
@@ -111,19 +132,17 @@ class DeviceSQLRepository(DeviceRepository):
 
         new_device = _merge_sql_with_entity(object_to_update, device, override)
         await self.session.flush()
-        return _map_device_sql_to_entity(new_device)
+        return (await self._with_ipv6([_map_device_sql_to_entity(new_device)]))[0]
 
-    async def set_ip_addresses(self, device_id: int, ipv4: str | None, ipv6: str | None) -> Device:
+    async def set_ip_address(self, device_id: int, ipv4: str | None) -> Device:
         device = await self.session.get(SQLDevice, device_id)
         if device is None:
             raise ValueError(f"Device {device_id} not found")
 
         ip = _normalize_ip_address(ipv4, IPv4Address)
-        ipv6_address = _normalize_ip_address(ipv6, IPv6Address)
         try:
             async with self.session.begin_nested():
                 device.ip = ip
-                device.ipv6 = ipv6_address
                 device.updated_at = utc_now_naive()
                 await self.session.flush()
         except IntegrityError as exc:
@@ -172,22 +191,19 @@ def _merge_sql_with_entity(entity: AbstractDevice, sql_object: SQLDevice, overri
 
     if entity.ipv4_address is not None or override:
         device.ip = _normalize_ip_address(entity.ipv4_address, IPv4Address)
-    if entity.ipv6_address is not None or override:
-        device.ipv6 = _normalize_ip_address(entity.ipv6_address, IPv6Address)
     device.updated_at = now
     return device
 
 
-def _normalize_ip_address(value: str | None, expected_type: type[IPv4Address] | type[IPv6Address]) -> str | None:
+def _normalize_ip_address(value: str | None, expected_type: type[IPv4Address]) -> str | None:
     if value is None:
         return None
-    error_type = InvalidIPv4 if expected_type is IPv4Address else InvalidIPv6
     try:
         address = ip_address(value.strip())
     except ValueError as exc:
-        raise error_type(value) from exc
+        raise InvalidIPv4(value) from exc
     if not isinstance(address, expected_type):
-        raise error_type(value)
+        raise InvalidIPv4(value)
     return str(address)
 
 
@@ -201,7 +217,6 @@ def _map_device_sql_to_entity(d: SQLDevice) -> Device:
         member=d.adherent_id,
         connectionType=DeviceType(d.type).name,
         ipv4Address=d.ip,
-        ipv6Address=d.ipv6,
         name=d.name,
         wifiPassword=d.wifi_password,
     )

@@ -165,7 +165,6 @@ def sample_device(faker, sample_member) -> Device:
         member=sample_member.id,
         connectionType="wired",
         ipv4Address=faker.ipv4(address_class="157.159.41.0/24"),
-        ipv6Address=faker.ipv6(),
     )
 
 

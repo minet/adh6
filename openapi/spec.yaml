@@ -3373,7 +3373,7 @@ components:
             - id
             - mac
             - ipv4Address
-            - ipv6Address
+            - ipv6Addresses
             - connectionType
             - member
             - name
@@ -3826,12 +3826,17 @@ components:
           nullable: true
           format: ipv4
           type: string
-        ipv6Address:
-          description: The ipv6 address assigned to this device
-          example: ::1
-          nullable: true
-          format: ipv6
-          type: string
+        ipv6Addresses:
+          description: >-
+            IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device's MAC
+            in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).
+          example:
+            - "2001:660:3203:401:62c4:fbac:8fb3:91bd"
+          readOnly: true
+          type: array
+          items:
+            format: ipv6
+            type: string
         mac:
           description: The MAC address of this device
           example: 01-23-45-67-89-AB

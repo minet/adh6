@@ -69,7 +69,6 @@ def sample_device(faker, sample_member) -> Device:
         member=sample_member.id,
         connectionType="wired",
         ipv4Address=faker.ipv4_public(),
-        ipv6Address=faker.ipv6(),
     )
 
 

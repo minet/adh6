@@ -29,61 +29,44 @@ def device_repository(mock_session):
     return DeviceSQLRepository(mock_session)
 
 
-async def test_set_ip_addresses_normalizes_addresses(device_repository, mock_session):
+async def test_set_ip_address_normalizes_address(device_repository, mock_session):
     device = Device(id=1, mac="00-00-00-00-00-01", adherent_id=1, type=0)
     mock_session.get.return_value = device
 
-    result = await device_repository.set_ip_addresses(1, " 192.0.2.1 ", "2001:0db8:0:0::1")
+    result = await device_repository.set_ip_address(1, " 192.0.2.1 ")
 
     assert device.ip == "192.0.2.1"
-    assert device.ipv6 == "2001:db8::1"
     assert result.ipv4_address == "192.0.2.1"
-    assert result.ipv6_address == "2001:db8::1"
     mock_session.flush.assert_awaited_once_with()
 
 
-async def test_set_ip_addresses_can_clear_addresses(device_repository, mock_session):
-    device = Device(
-        id=1,
-        mac="00-00-00-00-00-01",
-        adherent_id=1,
-        type=0,
-        ip="192.0.2.1",
-        ipv6="2001:db8::1",
-    )
+async def test_set_ip_address_can_clear_address(device_repository, mock_session):
+    device = Device(id=1, mac="00-00-00-00-00-01", adherent_id=1, type=0, ip="192.0.2.1")
     mock_session.get.return_value = device
 
-    await device_repository.set_ip_addresses(1, None, None)
+    await device_repository.set_ip_address(1, None)
 
     assert device.ip is None
-    assert device.ipv6 is None
 
 
-@pytest.mark.parametrize(
-    ("ipv4", "ipv6"),
-    [
-        ("not-an-ip", None),
-        ("2001:db8::1", None),
-        (None, "192.0.2.1"),
-    ],
-)
-async def test_set_ip_addresses_rejects_invalid_or_wrong_version(device_repository, mock_session, ipv4, ipv6):
+@pytest.mark.parametrize("ipv4", ["not-an-ip", "2001:db8::1"])
+async def test_set_ip_address_rejects_invalid_or_wrong_version(device_repository, mock_session, ipv4):
     mock_session.get.return_value = Device(id=1, mac="00-00-00-00-00-01", adherent_id=1, type=0)
 
     with pytest.raises(ValueError):
-        await device_repository.set_ip_addresses(1, ipv4, ipv6)
+        await device_repository.set_ip_address(1, ipv4)
 
 
-async def test_set_ip_addresses_rejects_unknown_device(device_repository, mock_session):
+async def test_set_ip_address_rejects_unknown_device(device_repository, mock_session):
     mock_session.get.return_value = None
 
     with pytest.raises(ValueError, match="Device 42 not found"):
-        await device_repository.set_ip_addresses(42, None, None)
+        await device_repository.set_ip_address(42, None)
 
 
-async def test_set_ip_addresses_reports_an_address_taken_by_another_device(device_repository, mock_session):
+async def test_set_ip_address_reports_an_address_taken_by_another_device(device_repository, mock_session):
     mock_session.get.return_value = Device(id=1, mac="00-00-00-00-00-01", adherent_id=1, type=0)
     mock_session.flush.side_effect = IntegrityError("UPDATE devices", {}, Exception("duplicate entry"))
 
     with pytest.raises(IPAlreadyAssignedError):
-        await device_repository.set_ip_addresses(1, "192.0.2.1", None)
+        await device_repository.set_ip_address(1, "192.0.2.1")

@@ -39,8 +39,8 @@ async def search_session():
                 Switch(id=7, description="Bâtiment NORD", ip="192.0.2.7"),
                 Port(id=1, numero="Gi1/0/1", oid="1.1", chambre_id=42, switch_id=7),
                 Port(id=2, numero="Gi1/0/2", oid="1.2", switch_id=7),
-                Device(id=1, adherent_id=1, mac="aa:bb:cc:dd:ee:ff", name="Portable", type=0, ipv6="::1"),
-                Device(id=2, adherent_id=999, mac="11:22:33:44:55:66", name="Orphan", type=0, ipv6="2001:db8::2"),
+                Device(id=1, adherent_id=1, mac="aa:bb:cc:dd:ee:ff", name="Portable", type=0),
+                Device(id=2, adherent_id=999, mac="11:22:33:44:55:66", name="Orphan", type=0),
                 Product(id=1, name="Cotisation", buying_price=0, selling_price=100),
                 Product(id=2, name="Literal_100%", buying_price=0, selling_price=100),
                 PaymentMethod(id=1, name="Espèces"),
@@ -76,9 +76,8 @@ async def test_membership_filter_returns_each_member_once(search_session):
         ("AABB.CCDD.EEFF", [1]),
         ("11-22-33-44-55-66", [2]),
         (" JDUPONT ", [1]),
-        ("::1", [1]),
-        ("::2", [2]),
-        ("2001:db8::2", [2]),
+        # IPv6 addresses come from the trace database, which is absent here: no match, no error
+        ("2001:db8::2", []),
         ("-", [1, 2]),
     ],
 )
