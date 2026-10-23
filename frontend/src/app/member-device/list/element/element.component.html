@@ -51,10 +51,25 @@
                 <strong>IPv6</strong>
               </td>
               <td>
-                @for (address of device.ipv6Addresses; track address) {
+                @for (address of shownIpv6(device); track address) {
                   <div>{{ address }}</div>
                 } @empty {
                   -
+                }
+                @if (hiddenIpv6Count(device) > 0) {
+                  <a (click)="ipv6Expanded = !ipv6Expanded">
+                    @if (ipv6Expanded) {
+                      <span i18n="@@device.ipv6.less">Réduire</span>
+                    } @else {
+                      <span
+                        i18n="@@device.ipv6.more"
+                        >{hiddenIpv6Count(device), plural,
+                          =1 {Voir l'autre adresse}
+                          other {Voir les {{ hiddenIpv6Count(device) }} autres}
+                        }</span
+                      >
+                    }
+                  </a>
                 }
               </td>
             </tr>
