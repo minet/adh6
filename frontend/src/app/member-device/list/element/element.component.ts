@@ -32,6 +32,9 @@ export class ElementComponent implements OnInit, OnChanges {
   public device$!: Observable<AbstractDevice>;
   public vendor$!: Observable<string | null>;
   public isCollapse = true;
+  // IPv6 addresses shown before "show the n others" (temporary addresses pile up in 24 h)
+  public readonly ipv6Preview = 3;
+  public ipv6Expanded = false;
 
   private readonly refreshTrigger$ = new BehaviorSubject<void>(undefined);
 
@@ -82,6 +85,15 @@ export class ElementComponent implements OnInit, OnChanges {
 
   public toogleDeviceDetails(): void {
     this.isCollapse = !this.isCollapse;
+  }
+
+  public shownIpv6(device: AbstractDevice): string[] {
+    const addresses = device.ipv6Addresses ?? [];
+    return this.ipv6Expanded ? addresses : addresses.slice(0, this.ipv6Preview);
+  }
+
+  public hiddenIpv6Count(device: AbstractDevice): number {
+    return Math.max((device.ipv6Addresses?.length ?? 0) - this.ipv6Preview, 0);
   }
 
   public rename(): void {

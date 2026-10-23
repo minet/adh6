@@ -73,7 +73,7 @@ async def recent_ipv6_by_mac(
         async with session.begin_nested():
             rows = (await session.execute(stmt)).all()
     except SQLAlchemyError as exc:
-        logger.warning("IPv6 traceability database unavailable: %s", exc)
+        _log_unavailable(exc)
         return {}
 
     found: dict[bytes, list[tuple[dt.datetime, IPv6Address]]] = {}
@@ -92,5 +92,10 @@ async def macs_for_ipv6(session: AsyncSession, address: IPv6Address) -> set[byte
         async with session.begin_nested():
             return {bytes(mac) for mac in (await session.execute(stmt)).scalars()}
     except SQLAlchemyError as exc:
-        logger.warning("IPv6 traceability database unavailable: %s", exc)
+        _log_unavailable(exc)
         return set()
+
+
+def _log_unavailable(exc: SQLAlchemyError) -> None:
+    # Only the database error: the statement's parameters are MAC addresses (personal data)
+    logger.warning("IPv6 traceability database unavailable: %s", getattr(exc, "orig", None) or type(exc).__name__)
