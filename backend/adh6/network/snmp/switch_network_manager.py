@@ -184,11 +184,9 @@ class SwitchSNMPNetworkManager(SwitchNetworkManager):
         Enabled:
             switchport voice vlan 31
             no authentication event no-response action authorize vlan 15
-            authentication host-mode multi-auth
         Disabled:
             no switchport voice vlan 31
             authentication event no-response action authorize vlan 15
-            authentication host-mode multi-host
 
         :raise PortNotFound
         """
