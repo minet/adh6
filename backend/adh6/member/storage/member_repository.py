@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from adh6.datetime_utils import utc_now_naive, utc_today
 from adh6.entity import AbstractMember, Member, MemberFilter
+from adh6.kea.tracker import mark_member
 from adh6.member.interfaces.member_repository import MemberRepository
 from adh6.storage.count import count_rows
 
@@ -133,8 +134,12 @@ class MemberSQLRepository(MemberRepository):
 
             raise MemberNotFoundError(abstract_member.id)
 
+        previous_subnet = adherent.subnet
         new_adherent = _merge_sql_with_entity(abstract_member, adherent, override)
         await self.session.flush()
+        if new_adherent.subnet != previous_subnet:
+            # Wireless devices move to the subnet of the new /28.
+            mark_member(self.session, new_adherent.id)
         return _map_member_sql_to_entity(new_adherent)
 
     async def delete(self, member_id: int) -> None:
@@ -142,6 +147,8 @@ class MemberSQLRepository(MemberRepository):
         member = await self.session.scalar(stmt)
         if not member:
             raise ValueError(f"Member {member_id} not found")
+        # Its devices stay in the table (no cascade): they are found by adherent_id after the commit.
+        mark_member(self.session, member_id)
         await self.session.delete(member)
 
     async def add_duration(self, member_id: int, duration_in_mounth: int) -> None:

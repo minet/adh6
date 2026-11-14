@@ -11,6 +11,7 @@ from adh6.constants import DEFAULT_LIMIT, DEFAULT_OFFSET
 from adh6.datetime_utils import utc_now_naive
 from adh6.entity import AbstractRoom, Room
 from adh6.exceptions import RoomNotFoundError, VLANNotFoundError
+from adh6.kea.tracker import mark_member
 from adh6.member.storage.models import Adherent
 from adh6.room.interfaces import RoomRepository
 from adh6.storage.count import count_rows
@@ -41,6 +42,8 @@ class RoomSQLRepository(RoomRepository):
     async def remove_member(self, member_id: int) -> None:
         stmt = delete(RoomMemberLink).where(RoomMemberLink.member_id == member_id)
         await self.session.execute(stmt)
+        # Without a room, Kea must no longer reserve the member's devices.
+        mark_member(self.session, member_id)
 
         # lines needed for compatibility
         adherent_stmt = select(Adherent).where(Adherent.id == member_id)
@@ -52,6 +55,7 @@ class RoomSQLRepository(RoomRepository):
     async def add_member(self, room_id: int, member_id: int) -> None:
         stmt = insert(RoomMemberLink).values(member_id=member_id, room_id=room_id)
         await self.session.execute(stmt)
+        mark_member(self.session, member_id)
 
         # Those lines are needed for compatibility
         adherent_stmt = select(Adherent).where(Adherent.id == member_id)
@@ -143,8 +147,12 @@ class RoomSQLRepository(RoomRepository):
         room = await self.session.scalar(stmt)
         if room is None:
             raise RoomNotFoundError(str(abstract_room.id))
+        previous_vlan_id = room.vlan_id
         new_chambre = await _merge_sql_with_entity(abstract_room, room, self.session, override)
         await self.session.flush()
+        if new_chambre.vlan_id != previous_vlan_id:
+            # The wired devices of the room's members change subnet.
+            await self._mark_members_of(new_chambre.id)
         return await _map_room_sql_to_entity(new_chambre, self.session)
 
     async def delete(self, object_id: int) -> Room | None:
@@ -152,8 +160,16 @@ class RoomSQLRepository(RoomRepository):
         room = await self.session.scalar(stmt)
         if room is None:
             raise RoomNotFoundError(object_id)
+        # Members left without a room lose their reservations.
+        await self._mark_members_of(room.id)
         await self.session.delete(room)
         return None
+
+    async def _mark_members_of(self, room_id: int) -> None:
+        """Mark the members whose adherents.chambre_id is this room, as Kea's reservations use it."""
+        stmt = select(Adherent.id).where(Adherent.chambre_id == room_id)
+        for member_id in (await self.session.scalars(stmt)).all():
+            mark_member(self.session, member_id)
 
 
 async def _merge_sql_with_entity(

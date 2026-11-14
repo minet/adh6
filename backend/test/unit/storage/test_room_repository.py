@@ -15,6 +15,9 @@ def mock_session():
     session.scalar = AsyncMock()
     session.delete = AsyncMock()
     session.add = MagicMock()
+    # Members of a room, read to mark them for the Kea sync (adh6.kea.tracker).
+    session.scalars = AsyncMock(return_value=MagicMock(all=MagicMock(return_value=[])))
+    session.info = {}
     return session
 
 
@@ -122,3 +125,11 @@ class TestRoomSQLRepository:
 
         # Then
         mock_session.delete.assert_called_once_with(c)
+
+    async def test_delete_marks_its_members_for_kea(self, room_repo, mock_session):
+        mock_session.scalar.return_value = create_mock_chambre()
+        mock_session.scalars.return_value = MagicMock(all=MagicMock(return_value=[5, 6]))
+
+        await room_repo.delete(1)
+
+        assert mock_session.info["kea_member_ids"] == {5, 6}

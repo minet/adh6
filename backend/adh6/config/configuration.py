@@ -24,8 +24,6 @@ class Settings(BaseSettings):
     # IPv6 traceability: database filled by the trace collector, on the same MariaDB server.
     # ADH6 only reads trace.ipv6_neighbors (SELECT grant needed).
     trace_db_name: str = "trace"
-    # A device's IPv6 addresses are those seen by the router in this window
-    trace_recent_hours: int = Field(default=24, gt=0)
 
     sqlalchemy_echo: bool = False
     sqlalchemy_pool_size: int = 5
@@ -97,6 +95,19 @@ class Settings(BaseSettings):
     @property
     def minirouter_recipients(self) -> list[str]:
         return _recipients(self.mail_minirouter_recipients)
+
+    kea_enabled: bool = False
+    kea_api_urls: str = ""
+    kea_api_user: str = "adh6"
+    kea_api_password: SecretStr | None = None
+    kea_api_ca_file: str | None = None
+    kea_api_timeout_seconds: float = Field(default=5, gt=0)
+    kea_sync_budget_seconds: float = Field(default=10, gt=0)
+
+    @computed_field
+    @property
+    def kea_urls(self) -> list[str]:
+        return _recipients(self.kea_api_urls)
 
     # ELK
     elk_enabled: bool = False

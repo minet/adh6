@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from adh6.config.configuration import settings
+from adh6.kea.sync import sync_after_commit
 
 logger = logging.getLogger(__name__)
 
@@ -37,3 +38,5 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
                 # Connection can already be closed on cancellation/disconnect.
                 logger.debug("Session rollback during cleanup failed: %s", rollback_error)
             raise
+        # Only after a successful commit: a rolled-back request never reaches Kea. Never raises.
+        await sync_after_commit(session)

@@ -25,7 +25,7 @@ export interface Device {
      */
     ipv4Address?: string | null;
     /**
-     * IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device\'s MAC in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).
+     * At most two IPv6 addresses (SLAAC, temporary or DHCPv6) seen by the router for this device\'s MAC, collected by trace (IPv6 traceability): the usual one (seen on the most days), then the last obtained one if it is another.
      */
     readonly ipv6Addresses?: Array<string>;
     /**

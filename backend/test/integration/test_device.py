@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import datetime, timedelta
 from ipaddress import IPv6Address
 
 import pytest
@@ -161,58 +161,75 @@ def test_device_filter_by_terms(client, terms, expected):
     assert len(response) == expected
 
 
-@pytest.fixture
-async def trace_rows(client, custom_device):
-    """Addresses the router saw (trace database): two for custom_device in the last 24 h,
-    one older, and one for another MAC"""
+async def insert_trace_rows(rows: list[tuple[str, str, datetime]]):
+    """Addresses the router saw (trace database): (address, MAC, when) each"""
     from adh6.database import async_session_factory
-    from adh6.datetime_utils import utc_now_naive
     from adh6.device.storage.trace import ipv6_neighbors
-
-    now = utc_now_naive()
-
-    def row(address: str, mac: str, seen):
-        return {
-            "day": seen.date(),
-            "ipv6": IPv6Address(address).packed,
-            "mac": bytes.fromhex(mac),
-            "interface": "Vlan41",
-            "first_seen": seen,
-            "last_seen": seen,
-        }
 
     async with async_session_factory() as session:
         await session.execute(
             ipv6_neighbors.insert(),
             [
-                row("2001:660:3203:401::14", "9624F6D048A7", now - timedelta(hours=2)),
-                row("2001:660:3203:401:62c4:fbac:8fb3:91bd", "9624F6D048A7", now - timedelta(minutes=5)),
-                row("2001:660:3203:401::99", "9624F6D048A7", now - timedelta(days=30)),
-                row("2001:660:3203:401::77", "8065F3FC44A9", now - timedelta(minutes=5)),
+                {
+                    "day": seen.date(),
+                    "ipv6": IPv6Address(address).packed,
+                    "mac": bytes.fromhex(mac),
+                    "interface": "Vlan41",
+                    "first_seen": seen,
+                    "last_seen": seen,
+                }
+                for address, mac, seen in rows
             ],
         )
         await session.commit()
 
 
+@pytest.fixture
+async def trace_rows(client, custom_device):
+    """For custom_device: a usual address seen on three days, an old temporary one and one
+    obtained 5 minutes ago; and one for another MAC"""
+    from adh6.datetime_utils import utc_now_naive
+
+    now = utc_now_naive()
+    await insert_trace_rows(
+        [
+            *(("2001:660:3203:401::14", "9624F6D048A7", now - timedelta(days=d)) for d in (3, 4, 5)),
+            ("2001:660:3203:401::99", "9624F6D048A7", now - timedelta(days=30)),
+            ("2001:660:3203:401:62c4:fbac:8fb3:91bd", "9624F6D048A7", now - timedelta(minutes=5)),
+            ("2001:660:3203:401::77", "8065F3FC44A9", now - timedelta(minutes=5)),
+        ]
+    )
+
+
+@pytest.fixture
+async def single_trace_row(client, custom_device):
+    from adh6.datetime_utils import utc_now_naive
+
+    await insert_trace_rows([("2001:660:3203:401::14", "9624F6D048A7", utc_now_naive())])
+
+
 def test_device_ipv6_addresses_come_from_trace(client, trace_rows, custom_device):
+    # The usual address (most days), then the last obtained; never another MAC's
+    expected = ["2001:660:3203:401::14", "2001:660:3203:401:62c4:fbac:8fb3:91bd"]
     r = client.get(f"{base_url}{custom_device.id}", headers=TEST_HEADERS)
     assert r.status_code == 200
-    # Last 24 h only, most recent first, never another MAC's
-    assert r.json()["ipv6Addresses"] == ["2001:660:3203:401:62c4:fbac:8fb3:91bd", "2001:660:3203:401::14"]
+    assert r.json()["ipv6Addresses"] == expected
 
     r = client.get(f"{base_url}", headers=TEST_HEADERS)
     devices = {d["id"]: d for d in r.json()}
-    assert devices[custom_device.id]["ipv6Addresses"] == [
-        "2001:660:3203:401:62c4:fbac:8fb3:91bd",
-        "2001:660:3203:401::14",
-    ]
+    assert devices[custom_device.id]["ipv6Addresses"] == expected
     assert all(d["ipv6Addresses"] == [] for i, d in devices.items() if i != custom_device.id)
+
+
+def test_device_ipv6_single_address_shown_once(client, single_trace_row, custom_device):
+    r = client.get(f"{base_url}{custom_device.id}", headers=TEST_HEADERS)
+    assert r.json()["ipv6Addresses"] == ["2001:660:3203:401::14"]
 
 
 @pytest.mark.parametrize(
     "terms,expected",
     [
-        ("2001:660:3203:401::99", 1),  # older than 24 h: still found, over the whole retention
+        ("2001:660:3203:401::99", 1),  # not shown on the device: still found, over the whole retention
         ("2001:0660:3203:0401:0000:0000:0000:0014", 1),  # any spelling of the address
         ("2001:660:3203:401::77", 0),  # used by a MAC that is not a device
         ("2001:660:3203:401::1234", 0),
