@@ -40,8 +40,11 @@ build_backend:
         - .gitlab-ci.yml
   script:
     - REGISTRY=$IMAGE_REGISTRY_BASE TAG=$TAG docker buildx bake -f docker-bake.hcl backend
-    - docker push $IMAGE_REGISTRY_BASE/backend:$TAG
-    - docker push $IMAGE_REGISTRY_BASE/backend-test:$TAG
+    # Both pushes at once; each pid is waited for so that a failed push fails the job
+    - |
+      docker push "$IMAGE_REGISTRY_BASE/backend:$TAG" & PROD_PUSH=$!
+      docker push "$IMAGE_REGISTRY_BASE/backend-test:$TAG" & TEST_PUSH=$!
+      wait "$PROD_PUSH" && wait "$TEST_PUSH"
 
 build_frontend:
   <<: *docker_login

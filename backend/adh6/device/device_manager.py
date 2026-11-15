@@ -1,5 +1,6 @@
 import logging
 import secrets
+from functools import cache
 from pathlib import Path
 
 from adh6.constants import DEFAULT_LIMIT
@@ -25,6 +26,27 @@ from .interfaces import DeviceRepository
 logger = logging.getLogger(__name__)
 
 
+@cache
+def _mac_oui_dict() -> dict[str, str]:
+    """Read OUIs.txt once per process.
+
+    A DeviceManager is built for every request: reading the 40 000-line file each time cost
+    tens of milliseconds per device request (hundreds on the CI runner).
+    """
+    oui_repository: dict[str, str] = {}
+    file = Path("OUIs.txt")
+    if not file.exists():
+        logger.warning("OUIs.txt not found, skipping loading MAC OUI dictionary")
+        return oui_repository
+    with file.open(encoding="utf-8") as f:
+        line = f.readline()
+        while line != "":
+            oui, company = line.split("\t")
+            oui_repository[oui] = company
+            line = f.readline()
+    return oui_repository
+
+
 class DeviceManager(CRUDManager):
     """
     Implements all the use cases related to device management.
@@ -42,20 +64,7 @@ class DeviceManager(CRUDManager):
         self.device_ip_manager = device_ip_manager
         self.member_repository = member_repository
         self.room_repository = room_repository
-        self.oui_repository: dict[str, str] = {}
-        self.load_mac_oui_dict()
-
-    def load_mac_oui_dict(self) -> None:
-        file = Path("OUIs.txt")
-        if not file.exists():
-            logger.warning("OUIs.txt not found, skipping loading MAC OUI dictionary")
-            return
-        with file.open(encoding="utf-8") as f:
-            line = f.readline()
-            while line != "":
-                oui, company = line.split("\t")
-                self.oui_repository[oui] = company
-                line = f.readline()
+        self.oui_repository: dict[str, str] = _mac_oui_dict()
 
     @log_call
     async def search(  # pyright: ignore[reportIncompatibleMethodOverride]
