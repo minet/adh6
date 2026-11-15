@@ -62,7 +62,7 @@ generate-frontend:
 
 .PHONY: test-backend
 test-backend:
-	cd $(BACKEND_PATH) && uv run pytest
+	cd $(BACKEND_PATH) && uv run pytest -n auto
 
 .PHONY: check-backend
 check-backend:

@@ -66,6 +66,7 @@ tests = [
   "pytest-cov",
   "pytest-cases",
   "pytest-lazy-fixtures",
+  "pytest-xdist>=3.8.0",
 ]
 tox = ["tox", "tox-uv"]
 
@@ -94,19 +95,9 @@ commands = [
   ["ruff", "check", "--fix"],
   ["pyright"],
   ["pyright", "--project", "pyright-tests.json"],
-  ["pytest"],
+  ["pytest", "-n", "auto"],
 ]
 description = "Fix all auto-fixable issues and run tests (local dev)"
-
-[tool.tox.env.ci]
-commands = [
-  ["ruff", "format", "--diff"],
-  ["ruff", "check", "--output-format=gitlab", "--output-file=code-quality-report.json"],
-  ["pyright"],
-  ["pyright", "--project", "pyright-tests.json"],
-  ["pytest", "--junitxml={toxinidir}/report.xml", "--cov-report=xml:{toxinidir}/coverage.xml"],
-]
-description = "CI: lint and test suite"
 
 # https://docs.astral.sh/ruff/
 [tool.ruff]

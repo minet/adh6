@@ -2,6 +2,7 @@ import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from adh6.exceptions import NetworkManagerReadError
 from adh6.network.storage.models import Port, Switch
 from adh6.room.storage.models import Chambre
 from adh6.storage import db
@@ -506,11 +507,16 @@ def test_switch_ping_invalid_ip(client, test_ip):
 
 def test_switch_ping_snmp_failure(client, sample_switch1):
     """ping returns 502 when the switch is unreachable via SNMP."""
-    r = client.post(
-        f"{base_url}{sample_switch1.id}/ping",
-        data=json.dumps({"address": "192.168.1.1", "count": 1, "timeoutMs": 100}),
-        headers={"Content-Type": "application/json", **TEST_HEADERS},
-    )
+    # Mocked: a real SNMP request to an unreachable switch waits ~6s (timeout x retries).
+    with patch(
+        "adh6.network.snmp.switch_network_manager.set_snmp_values_raw",
+        AsyncMock(side_effect=NetworkManagerReadError("SNMP write error:No SNMP response received before timeout")),
+    ):
+        r = client.post(
+            f"{base_url}{sample_switch1.id}/ping",
+            data=json.dumps({"address": "192.168.1.1", "count": 1, "timeoutMs": 100}),
+            headers={"Content-Type": "application/json", **TEST_HEADERS},
+        )
     assert r.status_code == 502
 
 

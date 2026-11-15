@@ -82,11 +82,14 @@ ENV UV_LINK_MODE=copy
 ENV UV_COMPILE_BYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
+# Skip the pyright wrapper's PyPI version check, a network call on every run
+ENV PYRIGHT_PYTHON_IGNORE_WARNINGS=1
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
 COPY --from=build /app/.venv /app/.venv
 COPY backend/pyproject.toml backend/pyright-tests.json backend/uv.lock ./
-# Extend the inherited prod venv with dev packages; pre-bake .tox/ci env
+# Extend the inherited prod venv with lint/test packages only. No tox env and no debugpy:
+# CI runs the commands straight from this venv, which keeps the image small and fast to pull.
 RUN --mount=type=cache,target=/var/cache/apk \
     --mount=type=cache,target=/root/.cache/uv \
     apk add --update \
@@ -98,8 +101,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
     libffi-dev \
     mariadb-dev \
     pkgconf \
-    && uv sync --locked --group dev \
-    && uv run tox -e ci --notest \
+    && uv sync --locked --group lint --group tests \
     && apk del .test-build-deps
 RUN mkdir /openapi
 COPY openapi/spec.yaml /openapi/spec.yaml

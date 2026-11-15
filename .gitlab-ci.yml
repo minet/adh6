@@ -118,7 +118,12 @@ test_backend:
     - job: build_backend
       optional: true
   script:
-    - cd /app && tox -e ci
+    - cd /app
+    - ruff format --diff
+    - ruff check --output-format=gitlab --output-file=code-quality-report.json
+    - pyright
+    - pyright --project pyright-tests.json
+    - pytest -n auto --junitxml=/app/report.xml --cov-report=xml:/app/coverage.xml
   after_script:
     - cp /app/report.xml $CI_PROJECT_DIR/report.xml
     - cp /app/coverage.xml $CI_PROJECT_DIR/coverage.xml

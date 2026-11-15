@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass, field
-from ipaddress import IPv4Address, IPv4Network, ip_address, ip_network
+from ipaddress import IPv4Address, IPv4Network, ip_address
 from typing import Any
 
 from sqlalchemy import ColumnElement, func, select
@@ -57,16 +57,21 @@ class SyncReport:
 
 
 def wireless_subnet_id(subnet: str | None) -> int | None:
-    """Kea subnet id of a member's wireless /28 (10.42.0.16/28 -> 1000, 10.42.47.176/28 -> 1762)."""
+    """Kea subnet id of a member's wireless /28 (10.42.0.16/28 -> 1000, 10.42.47.176/28 -> 1762).
+
+    Same rule as the old `hosts` view: only the address counts, whatever follows it (`/28`,
+    another prefix, or nothing, as some old rows have). Its /28 in 10.42.0.0/16 gives the id.
+    """
     if not subnet:
         return None
+    address = subnet.strip().split("/", 1)[0]
     try:
-        network = ip_network(subnet.strip(), strict=False)
+        parsed = ip_address(address)
     except ValueError:
         return None
-    if not isinstance(network, IPv4Network) or network.prefixlen != 28 or not network.subnet_of(WIRELESS_NETWORK):
+    if not isinstance(parsed, IPv4Address) or parsed not in WIRELESS_NETWORK:
         return None
-    rank = (int(network.network_address) - int(WIRELESS_NETWORK.network_address)) // 16
+    rank = (int(parsed) - int(WIRELESS_NETWORK.network_address)) // 16
     return WIRELESS_FIRST_SUBNET_ID + rank - 1
 
 
