@@ -1,7 +1,7 @@
 """Push the reservations touched by a request to Kea, once its transaction is committed.
 
 Never raises: if Kea is down or refuses a command, the change stays saved in ADH6, a warning is
-logged, and the nightly `python -m adh6.kea.reconcile` fixes Kea. The whole sync is bounded by
+logged, and the periodic `python -m adh6.kea.reconcile` fixes Kea. The whole sync is bounded by
 KEA_SYNC_BUDGET_SECONDS, since it runs before the response is sent.
 """
 

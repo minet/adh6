@@ -15,7 +15,7 @@ import asyncio
 import logging
 import sys
 
-from adh6.database import async_session_factory
+from adh6.database import async_session_factory, engine
 from adh6.kea.client import KeaClient, KeaError, kea_config_from_settings
 from adh6.kea.reservations import reconcile
 
@@ -35,6 +35,9 @@ async def main(argv: list[str]) -> int:
     except KeaError:
         logger.exception("kea_reconcile_failed")
         return 2
+    finally:
+        # Close the pooled MariaDB connections while the event loop still runs.
+        await engine.dispose()
 
     logger.info(
         "kea_reconcile_done deleted=%s added=%s failed=%s duplicates=%s dry_run=%s",

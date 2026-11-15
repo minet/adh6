@@ -1,3 +1,5 @@
+import os
+
 from pydantic import Field, SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -58,7 +60,9 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         if self.testing:
             # File-backed sqlite keeps a shared database across test sessions.
-            return "sqlite+aiosqlite:///./.adh6-test.db"
+            # One file per pytest-xdist worker, so parallel workers do not share tables.
+            worker = os.environ.get("PYTEST_XDIST_WORKER", "")
+            return f"sqlite+aiosqlite:///./.adh6-test{worker}.db"
 
         if not self.database_host:
             # Default fallback if needed, or let it fail/be empty if that's preferred

@@ -23,13 +23,13 @@ Le DHCPv6 n'est pas utilisé : rien n'est envoyé pour l'IPv6.
    - les MAC d'un appareil supprimé ou d'une MAC modifiée ;
    - les membres d'une chambre supprimée ou qui change de VLAN.
 2. **Après le commit**, `get_session` appelle `kea/sync.py`. Pour chaque MAC concernée, ADH6 lit ce que Kea contient (`reservation-get-by-id`), puis supprime et ajoute ce qu'il faut (`reservation-del`, `reservation-add`). Les suppressions passent avant les ajouts. Une requête annulée (rollback) n'envoie rien.
-3. **Chaque nuit**, `python -m adh6.kea.reconcile` compare toutes les réservations de Kea (`reservation-get-page`) avec ADH6 et corrige les écarts.
+3. **Toutes les heures**, `python -m adh6.kea.reconcile` compare toutes les réservations de Kea (`reservation-get-page`) avec ADH6 et corrige les écarts.
    - Il supprime aussi ce qui a été ajouté à la main dans Kea.
    - `--dry-run` liste les changements sans les faire.
    - `--kea-url` vise un autre Kea, par exemple celui de la préprod.
    - Code de sortie : 0 si Kea correspond à ADH6, 1 si un changement a échoué ou si deux appareils ont la même MAC dans un sous-réseau, 2 si Kea ou la configuration est inutilisable.
 
-Si Kea ne répond pas ou refuse une commande, la modification reste enregistrée dans ADH6. Le problème est journalisé (`kea_sync_failed`, `kea_reservation_add_failed`…), et la resynchronisation de la nuit corrige Kea.
+Si Kea ne répond pas ou refuse une commande, la modification reste enregistrée dans ADH6. Le problème est journalisé (`kea_sync_failed`, `kea_reservation_add_failed`…), et la resynchronisation suivante corrige Kea.
 La synchronisation après commit est limitée à `KEA_SYNC_BUDGET_SECONDS`, puisqu'elle passe avant l'envoi de la réponse.
 
 ## Configuration
@@ -53,4 +53,4 @@ Le client essaie les URL dans l'ordre et garde la première qui répond : kea1 e
 L'ordre complet est dans le README du dépôt kea-dhcp. Côté ADH6 :
 1. Déployer avec `KEA_ENABLED=true` et les variables ci-dessus, une fois Kea passé sur `dhcp3`.
 2. Lancer tout de suite `python -m adh6.kea.reconcile --dry-run`, puis sans `--dry-run`. Ça rattrape ce qui a changé depuis la copie initiale des réservations.
-3. Planifier la resynchronisation chaque nuit, avec un service cron dans le dépôt swarm-prod.
+3. Dans swarm-prod, le service `kea_reconcile` du stack ADH6 relance la resynchronisation toutes les heures. Il ne tourne que si `KEA_RECONCILE_REPLICAS=1` (`prod.env`), et l'intervalle est `KEA_RECONCILE_INTERVAL_SECONDS`. Pour voir le résultat : `docker service logs adh6_kea_reconcile | grep kea_reconcile_done`.

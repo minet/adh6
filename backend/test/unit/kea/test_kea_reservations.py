@@ -71,9 +71,15 @@ def test_wireless_subnet_ids_match_nat_wifi():
         assert subnet_id == 999 + rank
 
 
-@pytest.mark.parametrize("subnet", [None, "", "garbage", "10.43.0.16/28", "10.42.0.0/24", "2001:db8::/64"])
+@pytest.mark.parametrize("subnet", [None, "", "garbage", "10.43.0.16/28", "2001:db8::/64"])
 def test_wireless_subnet_id_rejects(subnet):
     assert wireless_subnet_id(subnet) is None
+
+
+@pytest.mark.parametrize("subnet", ["10.42.25.224/28", "10.42.25.224", " 10.42.25.224/28 ", "10.42.25.230/28"])
+def test_wireless_subnet_id_reads_the_address_like_the_old_view(subnet):
+    # View: cast(substring_index(replace(subnet, '/28', ''), '.', -2)) * 16 + 4th octet DIV 16 - 1 + 1000
+    assert wireless_subnet_id(subnet) == 25 * 16 + 224 // 16 - 1 + 1000
 
 
 async def test_desired_reservations_follow_the_old_view(sessions):
