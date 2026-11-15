@@ -168,7 +168,7 @@ async def apply_plan(client: KeaClient, plan: Plan, dry_run: bool = False) -> Sy
     """Delete first, then add: an IP freed by one device can be given to another in the same run.
 
     A refused command is logged and counted, and the others go on. If no Kea server answers,
-    KeaUnavailableError stops everything: the nightly reconciliation will catch up.
+    KeaUnavailableError stops everything: the periodic reconciliation will catch up.
     """
     report = SyncReport(duplicates=plan.duplicates)
     for reservation in plan.deletions:

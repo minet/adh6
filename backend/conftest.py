@@ -9,6 +9,9 @@ import os
 import sys
 from pathlib import Path
 
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+
 BACKEND_ROOT = Path(__file__).resolve().parent
 backend_root_str = str(BACKEND_ROOT)
 
@@ -48,3 +51,18 @@ def _available_cpus() -> int:
 def pytest_xdist_auto_num_workers(config: object) -> int:
     """Number of workers for `pytest -n auto`."""
     return min(_available_cpus(), MAX_XDIST_WORKERS)
+
+
+@event.listens_for(Engine, "connect")
+def _sqlite_without_fsync(dbapi_connection: object, _connection_record: object) -> None:
+    """Never wait for the disk to flush a test SQLite database.
+
+    Every commit, and every CREATE TABLE of create_all(), otherwise costs fsync calls: about
+    40 ms each on the GitLab runner disk, which made the suite take minutes there. A crash
+    can corrupt a test database, which is thrown away anyway.
+    """
+    if "sqlite" not in type(dbapi_connection).__module__:
+        return
+    cursor = dbapi_connection.cursor()  # type: ignore[attr-defined]
+    cursor.execute("PRAGMA synchronous=OFF")
+    cursor.close()
