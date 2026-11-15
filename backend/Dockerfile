@@ -87,7 +87,7 @@ ENV PYRIGHT_PYTHON_IGNORE_WARNINGS=1
 COPY --from=prebuild /app/OUIs.txt .
 COPY --from=prebuild /home/adh6/.pysnmp/ /root/.pysnmp/
 COPY --from=build /app/.venv /app/.venv
-COPY backend/pyproject.toml backend/pyright-tests.json backend/uv.lock ./
+COPY backend/pyproject.toml backend/uv.lock ./
 # Extend the inherited prod venv with lint/test packages only. No tox env and no debugpy:
 # CI runs the commands straight from this venv, which keeps the image small and fast to pull.
 RUN --mount=type=cache,target=/var/cache/apk \
@@ -110,3 +110,7 @@ COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh 
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY backend/test/ test/
+# Pre-compile the app and the test modules as pytest rewrites them: otherwise every xdist worker
+# compiles them again at start-up, which costs seconds on the CI runner.
+RUN python -m compileall -q adh6 \
+    && pytest -o addopts= -p no:cacheprovider --collect-only -q > /dev/null

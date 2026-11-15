@@ -73,8 +73,10 @@ tox = ["tox", "tox-uv"]
 # Docs:
 # - pyright: https://microsoft.github.io/pyright/#/
 [tool.pyright]
-include = ["adh6"]
-typeCheckingMode = "strict"
+# One run checks the app in strict mode and the tests in basic mode: the app is analysed once
+include = ["adh6", "test"]
+strict = ["adh6"]
+typeCheckingMode = "basic"
 venvPath = "."
 venv = ".venv"
 # exclude = ["adh6/entity/*.py", "adh6/typing_utils.py", "adh6/util.py"]
@@ -94,7 +96,6 @@ commands = [
   ["ruff", "format"],
   ["ruff", "check", "--fix"],
   ["pyright"],
-  ["pyright", "--project", "pyright-tests.json"],
   ["pytest", "-n", "auto"],
 ]
 description = "Fix all auto-fixable issues and run tests (local dev)"

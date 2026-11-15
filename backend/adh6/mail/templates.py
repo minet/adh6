@@ -19,7 +19,7 @@ jinja_env = Environment(
 
 # Month names handed to the templates: strftime("%B") would depend on the container locale, which
 # is English in the python-alpine image.
-template_globals = cast(dict[str, Any], jinja_env.globals)
+template_globals = cast(dict[str, Any], jinja_env.globals)  # pyright: ignore[reportUnknownMemberType]
 template_globals["MONTHS_FR"] = [
     "janvier",
     "février",
