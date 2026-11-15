@@ -3828,8 +3828,9 @@ components:
           type: string
         ipv6Addresses:
           description: >-
-            IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device's MAC
-            in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).
+            At most two IPv6 addresses (SLAAC, temporary or DHCPv6) seen by the router for this
+            device's MAC, collected by trace (IPv6 traceability): the usual one (seen on the most
+            days), then the last obtained one if it is another.
           example:
             - "2001:660:3203:401:62c4:fbac:8fb3:91bd"
           readOnly: true

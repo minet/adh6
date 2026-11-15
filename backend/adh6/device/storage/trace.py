@@ -48,10 +48,10 @@ def mac_to_bytes(mac: str | None) -> bytes | None:
     return bytes.fromhex(digits)
 
 
-async def recent_ipv6_by_mac(
-    session: AsyncSession, macs: Iterable[bytes], since: dt.datetime
-) -> dict[bytes, list[str]]:
-    """IPv6 addresses seen since `since` for each MAC, most recent first.
+async def ipv6_by_mac(session: AsyncSession, macs: Iterable[bytes]) -> dict[bytes, list[str]]:
+    """At most two IPv6 addresses for each MAC, over the whole trace retention: first the
+    usual one (seen on the most days), then the last obtained (most recent first sighting)
+    if it is another one.
 
     The trace database is an extra: if it cannot be read (missing grant, database down),
     devices are returned without IPv6 addresses rather than failing the request.
@@ -59,14 +59,15 @@ async def recent_ipv6_by_mac(
     wanted = set(macs)
     if not wanted:
         return {}
-    last_seen = func.max(ipv6_neighbors.c.last_seen).label("last_seen")
     stmt = (
-        select(ipv6_neighbors.c.mac, ipv6_neighbors.c.ipv6, last_seen)
-        .where(
-            ipv6_neighbors.c.mac.in_(wanted),
-            ipv6_neighbors.c.day >= since.date(),
-            ipv6_neighbors.c.last_seen >= since,
+        select(
+            ipv6_neighbors.c.mac,
+            ipv6_neighbors.c.ipv6,
+            func.count(ipv6_neighbors.c.day.distinct()),
+            func.min(ipv6_neighbors.c.first_seen),
+            func.max(ipv6_neighbors.c.last_seen),
         )
+        .where(ipv6_neighbors.c.mac.in_(wanted))
         .group_by(ipv6_neighbors.c.mac, ipv6_neighbors.c.ipv6)
     )
     try:
@@ -76,13 +77,19 @@ async def recent_ipv6_by_mac(
         _log_unavailable(exc)
         return {}
 
-    found: dict[bytes, list[tuple[dt.datetime, IPv6Address]]] = {}
-    for mac, address, seen in rows:
-        found.setdefault(bytes(mac), []).append((seen, IPv6Address(bytes(address))))
-    return {
-        mac: [str(address) for _, address in sorted(entries, key=lambda e: (e[0], e[1]), reverse=True)]
-        for mac, entries in found.items()
-    }
+    found: dict[bytes, list[tuple[IPv6Address, int, dt.datetime, dt.datetime]]] = {}
+    for mac, address, days, obtained, last_seen in rows:
+        found.setdefault(bytes(mac), []).append((IPv6Address(bytes(address)), days, obtained, last_seen))
+    result: dict[bytes, list[str]] = {}
+    for mac, entries in found.items():
+        # Ties broken by the last sighting, then the address, so the choice is stable
+        usual = max(entries, key=lambda e: (e[1], e[3], e[0]))
+        others = [e for e in entries if e is not usual]
+        addresses = [usual]
+        if others:
+            addresses.append(max(others, key=lambda e: (e[2], e[3], e[0])))
+        result[mac] = [str(address) for address, *_ in addresses]
+    return result
 
 
 async def macs_for_ipv6(session: AsyncSession, address: IPv6Address) -> set[bytes]:

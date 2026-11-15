@@ -2,7 +2,6 @@
 Implements everything related to actions on the SQL database.
 """
 
-import datetime as dt
 import re
 from enum import Enum
 from ipaddress import IPv4Address, IPv6Address, ip_address
@@ -12,15 +11,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.selectable import Select
 
-from adh6.config.configuration import settings
 from adh6.datetime_utils import utc_now_naive
 from adh6.device.interfaces import DeviceRepository
 from adh6.entity import AbstractDevice, Device, DeviceBody, DeviceFilter
 from adh6.exceptions import InvalidIPv4, IPAlreadyAssignedError
+from adh6.kea.tracker import mark_mac, mark_member
 from adh6.member.storage.models import Adherent
 
 from .models import Device as SQLDevice
-from .trace import mac_to_bytes, macs_for_ipv6, recent_ipv6_by_mac
+from .trace import ipv6_by_mac, mac_to_bytes, macs_for_ipv6
 
 
 class DeviceType(Enum):
@@ -44,10 +43,9 @@ class DeviceSQLRepository(DeviceRepository):
 
     async def _with_ipv6(self, devices: list[Device]) -> list[Device]:
         """Fill each device's ipv6Addresses with the addresses the router saw for its MAC
-        (trace database), in the last trace_recent_hours"""
+        (trace database): the usual one, then the last obtained"""
         macs = {device.mac: mac_to_bytes(device.mac) for device in devices}
-        since = utc_now_naive() - dt.timedelta(hours=settings.trace_recent_hours)
-        seen = await recent_ipv6_by_mac(self.session, (m for m in macs.values() if m), since)
+        seen = await ipv6_by_mac(self.session, (m for m in macs.values() if m))
         for device in devices:
             mac = macs[device.mac]
             device.ipv6_addresses = seen.get(mac, []) if mac else []
@@ -122,6 +120,7 @@ class DeviceSQLRepository(DeviceRepository):
         )
         self.session.add(device)
         await self.session.flush()
+        mark_member(self.session, device.adherent_id)
         return _map_device_sql_to_entity(device)
 
     async def update(self, object_to_update: AbstractDevice, override: bool = False) -> Device:
@@ -130,8 +129,12 @@ class DeviceSQLRepository(DeviceRepository):
         if device is None:
             raise ValueError(f"Device {object_to_update.id} not found")
 
+        # The old MAC and member may lose their reservation: check both after the commit.
+        mark_mac(self.session, device.mac)
+        mark_member(self.session, device.adherent_id)
         new_device = _merge_sql_with_entity(object_to_update, device, override)
         await self.session.flush()
+        mark_member(self.session, new_device.adherent_id)
         return (await self._with_ipv6([_map_device_sql_to_entity(new_device)]))[0]
 
     async def set_ip_address(self, device_id: int, ipv4: str | None) -> Device:
@@ -147,6 +150,7 @@ class DeviceSQLRepository(DeviceRepository):
                 await self.session.flush()
         except IntegrityError as exc:
             raise IPAlreadyAssignedError from exc
+        mark_member(self.session, device.adherent_id)
         return _map_device_sql_to_entity(device)
 
     async def delete(self, object_id: int) -> Device | None:
@@ -154,6 +158,8 @@ class DeviceSQLRepository(DeviceRepository):
         device = await self.session.scalar(stmt)
         if device is None:
             return None
+        # The row is gone after the commit: its reservations can only be found by MAC.
+        mark_mac(self.session, device.mac)
         await self.session.delete(device)
         return None
 

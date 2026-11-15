@@ -33,7 +33,7 @@ class Device(BaseModel):
     id: Optional[StrictInt] = Field(default=None, description="The unique identifier of this device")
     connection_type: StrictStr = Field(description="The connection type of this device", alias="connectionType")
     ipv4_address: Optional[StrictStr] = Field(default=None, description="The ipv4 address assigned to this device", alias="ipv4Address")
-    ipv6_addresses: Optional[List[StrictStr]] = Field(default=None, description="IPv6 addresses (SLAAC, temporary and DHCPv6) seen by the router for this device's MAC in the last 24 hours, most recent first. Collected by trace (IPv6 traceability).", alias="ipv6Addresses")
+    ipv6_addresses: Optional[List[StrictStr]] = Field(default=None, description="At most two IPv6 addresses (SLAAC, temporary or DHCPv6) seen by the router for this device's MAC, collected by trace (IPv6 traceability): the usual one (seen on the most days), then the last obtained one if it is another.", alias="ipv6Addresses")
     mac: StrictStr = Field(description="The MAC address of this device")
     vendor: Optional[StrictStr] = Field(default=None, description="The vendor of this device (from MAC prefix)")
     name: Optional[StrictStr] = Field(default=None, description="The display name of this device")
