@@ -1,0 +1,42 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "description": "Run by the MiNET Renovate bot: https://gitlabint.priv.minet.net/minet/development/tools/renovate-runner",
+    "extends": ["config:recommended", ":semanticCommits"],
+    "timezone": "Europe/Paris",
+    "baseBranchPatterns": ["dev"],
+    "labels": ["dependencies"],
+    "prConcurrentLimit": 10,
+    "prHourlyLimit": 0,
+    "lockFileMaintenance": {
+        "enabled": true,
+        "schedule": ["before 6am on the first day of the month"]
+    },
+    "packageRules": [
+        {
+            "description": "Group non-major backend Python updates",
+            "matchManagers": ["pep621"],
+            "matchFileNames": ["backend/**"],
+            "matchUpdateTypes": ["minor", "patch"],
+            "groupName": "backend non-major dependencies"
+        },
+        {
+            "description": "Group non-major frontend npm updates",
+            "matchManagers": ["npm"],
+            "matchUpdateTypes": ["minor", "patch"],
+            "groupName": "frontend non-major dependencies"
+        },
+        {
+            "description": "Stay on Python 3.11 until requires-python is bumped",
+            "matchDatasources": ["docker"],
+            "matchPackageNames": ["python"],
+            "matchFileNames": ["backend/**"],
+            "allowedVersions": "/^3\\.11(\\.|-|$)/"
+        },
+        {
+            "description": "Stay on Node 22 LTS for the frontend build",
+            "matchDatasources": ["docker"],
+            "matchPackageNames": ["node"],
+            "allowedVersions": "/^22(\\.|-|$)/"
+        }
+    ]
+}

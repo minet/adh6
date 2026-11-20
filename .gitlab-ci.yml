@@ -22,6 +22,41 @@ variables:
         TAG="$CI_COMMIT_SHORT_SHA"
       fi
 
+# Promotion guard: master only receives code that went through dev first.
+# An MR into master must come from dev.
+guard_master_mr_source:
+  stage: .pre
+  image: alpine:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != "dev"'
+  script:
+    - echo "MRs into master must come from dev (source is $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME)."
+    - echo "Retarget this MR to dev, test on preprod, then open dev -> master."
+    - exit 1
+
+# Every non-merge commit on master must already be on dev. Runs in .pre so
+# nothing gets built as :stable, and deploy_prod needs it, so prod is never
+# deployed when the check fails.
+guard_master_from_dev:
+  stage: .pre
+  image: alpine:latest
+  variables:
+    GIT_DEPTH: 0
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+  script:
+    - apk add --no-cache git
+    - git fetch origin dev
+    - |
+      MISSING=$(git log --no-merges --oneline FETCH_HEAD..$CI_COMMIT_SHA)
+      if [ -n "$MISSING" ]; then
+        echo "These commits are on master but not on dev:"
+        echo "$MISSING"
+        echo "Merge them into dev and validate on preprod before promoting."
+        exit 1
+      fi
+      echo "OK: every commit on master is on dev."
+
 build_backend:
   <<: *docker_login
   stage: build
@@ -150,6 +185,7 @@ deploy_prod:
       folder_name: adh6.minet.net
       image_registry: $CI_REGISTRY_IMAGE
   needs:
+    - job: guard_master_from_dev
     - job: build_backend
       optional: true
     - job: build_frontend
