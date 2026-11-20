@@ -110,7 +110,4 @@ COPY backend/conftest.py backend/main.py backend/manage.py backend/start-dev.sh 
 COPY backend/migrations/ migrations/
 COPY backend/adh6/ adh6/
 COPY backend/test/ test/
-# Pre-compile the app and the test modules as pytest rewrites them: otherwise every xdist worker
-# compiles them again at start-up, which costs seconds on the CI runner.
-RUN python -m compileall -q adh6 \
-    && pytest -o addopts= -p no:cacheprovider --collect-only -q > /dev/null
+RUN python -m compileall -q adh6

@@ -635,7 +635,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="member.form.username.minlength" datatype="html">
-        <source> Le nom d&apos;utilisateur doit contenir au moins 7 caractères </source>
+        <source> Le nom d&apos;utilisateur doit contenir au moins 3 caractères </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/member/create-or-edit/create-or-edit.component.html</context>
         </context-group>
