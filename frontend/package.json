@@ -53,7 +53,7 @@
     "typescript": "~5.9.0"
   },
   "resolutions": {
-    "chokidar": "^3.4.0"
+    "chokidar": "^6.0.0"
   },
   "browserslist": [
     "defaults",
