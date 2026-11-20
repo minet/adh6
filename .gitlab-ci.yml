@@ -90,6 +90,11 @@ build_frontend:
         - frontend/**/*
         - openapi/**/*
         - .gitlab-ci.yml
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
   script:
     - docker build
         --cache-from $IMAGE_REGISTRY_BASE/frontend:$TAG
@@ -99,13 +104,30 @@ build_frontend:
         --file frontend/Dockerfile
         --tag $IMAGE_REGISTRY_BASE/frontend:$TAG
         .
-    - docker push $IMAGE_REGISTRY_BASE/frontend:$TAG
+    # Same daemon: the test target reuses the prebuild layers of the build above
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --provenance=false
+        --target test
+        --file frontend/Dockerfile
+        --tag $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+        .
+    # Both pushes at once; each pid is waited for so that a failed push fails the job
+    - |
+      docker push "$IMAGE_REGISTRY_BASE/frontend:$TAG" & PROD_PUSH=$!
+      docker push "$IMAGE_REGISTRY_BASE/frontend-test:$TAG" & TEST_PUSH=$!
+      wait "$PROD_PUSH" && wait "$TEST_PUSH"
 
 build_reverse_proxy:
   <<: *docker_login
   stage: build
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      changes:
+        - reverse_proxy/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
       changes:
         - reverse_proxy/**/*
         - .gitlab-ci.yml
@@ -175,6 +197,44 @@ test_backend:
         coverage_format: cobertura
         path: coverage.xml
 
+test_frontend:
+  stage: test
+  before_script: []
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+      variables:
+        TAG: stable
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
+      variables:
+        TAG: prep
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      variables:
+        TAG: $CI_COMMIT_SHORT_SHA
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+  image:
+    name: $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+  needs:
+    - job: build_frontend
+      optional: true
+  script:
+    - cd /app/frontend
+    - yarn test
+    - yarn lint
+    - yarn prettier:check
+
 deploy_prod:
   stage: deploy
   trigger:
@@ -193,6 +253,8 @@ deploy_prod:
     - job: build_reverse_proxy
       optional: true
     - job: test_backend
+      optional: true
+    - job: test_frontend
       optional: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
@@ -221,6 +283,8 @@ deploy_dev:
     - job: build_reverse_proxy
       optional: true
     - job: test_backend
+      optional: true
+    - job: test_frontend
       optional: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
