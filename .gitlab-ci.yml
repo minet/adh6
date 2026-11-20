@@ -2,6 +2,7 @@ stages:
   - build
   - test
   - deploy
+  - maintenance
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -195,3 +196,26 @@ deploy_dev:
         - reverse_proxy/**/*
         - openapi/**/*
         - .gitlab-ci.yml
+
+# Self-hosted Renovate: only runs from a pipeline schedule with RENOVATE=true.
+# Needs a masked RENOVATE_TOKEN CI/CD variable (project access token, api + write_repository).
+renovate:
+  stage: maintenance
+  image: renovate/renovate:44.256.1
+  variables:
+    RENOVATE_PLATFORM: gitlab
+    RENOVATE_ENDPOINT: $CI_API_V4_URL
+    RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
+    RENOVATE_REQUIRE_CONFIG: required
+    RENOVATE_ONBOARDING: "false"
+    RENOVATE_BASE_DIR: $CI_PROJECT_DIR/.renovate
+    LOG_LEVEL: info
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RENOVATE == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $RENOVATE == "true"'
+  cache:
+    key: renovate
+    paths:
+      - .renovate/cache/
+  script:
+    - renovate
