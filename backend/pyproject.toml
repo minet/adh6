@@ -23,7 +23,7 @@ dependencies = [
   "opentelemetry-sdk",
   "opentelemetry-exporter-jaeger",
   "httpx>=0.28.1",
-  "rpds-py<2026.6.4",
+  "rpds-py<2026.9.2",
   "fastapi>=0.135.1",
   "uvicorn[standard]>=0.35.0",
   "pydantic>=2.12.5",
