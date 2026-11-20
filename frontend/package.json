@@ -16,6 +16,7 @@
     "prettier:check": "prettier . --check"
   },
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "dependencies": {
     "@angular/common": "^20.1.7",
     "@angular/compiler": "^20.1.7",
