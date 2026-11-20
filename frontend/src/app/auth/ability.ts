@@ -2,13 +2,16 @@ import {
   Ability,
   AbilityBuilder,
   AbilityClass,
+  ForcedSubject,
   PureAbility,
 } from "@casl/ability";
 import {Provider} from "@angular/core";
 import {Profile200Response} from "../api";
 
 type Actions = "manage" | "read" | "free";
-type Subjects = string;
+// A string subject names a feature; "Member" rules can also match on member fields.
+type MemberSubject = ForcedSubject<"Member"> & {id: number};
+type Subjects = string | MemberSubject;
 
 export type AppAbility = Ability<[Actions, Subjects]>;
 export const AppAbility = Ability as AbilityClass<AppAbility>;

@@ -18,11 +18,10 @@ import {
 } from "../../api";
 import {finalize, takeWhile} from "rxjs/operators";
 import {NotificationService} from "../../notification.service";
-import {CommonModule} from "@angular/common";
 import {missingDiscoveredPorts} from "../../port/port-discovery";
 
 @Component({
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [ReactiveFormsModule, FormsModule],
   selector: "app-switch-new",
   templateUrl: "./switch-new.component.html",
   styleUrls: ["./switch-new.component.css"],

@@ -25,8 +25,8 @@ import {CommonModule, AsyncPipe, DatePipe} from "@angular/common";
                 @if (status.status === "LOGIN_INCORRECT_WRONG_MAC") {
                   <ng-container i18n="@@troubleshoot.wrong-mac"
                     >Vous avez essayé de vous connecter avec l'appareil
-                    <code>{{ status.comment }}</code
-                    >, mais cet appareil n'est pas ajouté à votre compte ({{
+                    <code>{{ status.comment }}</code>, mais cet appareil n'est
+                    pas ajouté à votre compte ({{
                       status.lastTimestamp | date: "short"
                     }})</ng-container
                   >

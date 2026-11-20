@@ -52,17 +52,16 @@
                 spellcheck="false"
                 maxlength="17" />
               <!-- Validation feedback -->
-              <div
-                class="help is-danger"
-                *ngIf="
-                  deviceForm.get('mac')?.invalid &&
-                  deviceForm.get('mac')?.touched
-                ">
-                <span i18n="@@device.mac.invalid"
-                  >Veuillez saisir une adresse MAC valide (ex:
-                  AA-BB-CC-DD-EE-FF)</span
-                >
-              </div>
+              @if (
+                deviceForm.get("mac")?.invalid && deviceForm.get("mac")?.touched
+              ) {
+                <div class="help is-danger">
+                  <span i18n="@@device.mac.invalid"
+                    >Veuillez saisir une adresse MAC valide (ex:
+                    AA-BB-CC-DD-EE-FF)</span
+                  >
+                </div>
+              }
             </div>
           </div>
         </div>

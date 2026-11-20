@@ -20,7 +20,7 @@ import {ThemeService} from "../theme.service";
           " />
       </figure>
     </div>
-    <ng-container *ngIf="member$ | async as member">
+    @if (member$ | async; as member) {
       <div class="tabs is-centered is-large">
         <ul>
           <li routerLinkActive="is-active">
@@ -39,7 +39,7 @@ import {ThemeService} from "../theme.service";
         <router-outlet
           (activate)="onOutletLoaded($event, member)"></router-outlet>
       </div>
-    </ng-container>
+    }
   `,
 })
 export class DashboardComponent {

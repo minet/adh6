@@ -12,8 +12,8 @@ dependencies = [
   "sqlalchemy[asyncio]",
   "mysqlclient",
   "python-dateutil", # Un ensemble d'utilitaires pour gérer une base de donnée
-  "pyasn1<0.6.5",
-  "pysnmp==7.1.29", # communiquer avec les switches
+  "pyasn1<0.6.6",
+  "pysnmp==7.1.33", # communiquer avec les switches
   "elasticsearch[async]>=9.5.1,<10",
   "alembic",
   "jinja2",
@@ -37,7 +37,7 @@ dependencies = [
   "jwcrypto>=1.5",
 ] 
 name = "ADH6" 
-requires-python = "~=3.11.0" 
+requires-python = "~=3.11.5" 
 version = "6.0" # https://packaging.python.org/en/latest/specifications/version-specifiers/
 
 # Docs:

@@ -26,13 +26,13 @@ COPY frontend/package.json frontend/angular.json frontend/tsconfig.json ./
 COPY frontend/src src
 RUN ./node_modules/.bin/ng build --configuration production \
     && for locale in fr en; do \
-      ./node_modules/.bin/purgecss -css dist/adh6/browser/$locale/*.css --content dist/adh6/browser/$locale/index.html dist/adh6/browser/$locale/*.js -o dist/adh6/browser/$locale; \
+      ./node_modules/.bin/purgecss --css dist/adh6/browser/$locale/*.css --content dist/adh6/browser/$locale/index.html dist/adh6/browser/$locale/*.js -o dist/adh6/browser/$locale || exit 1; \
     done
 
 
 # CI test image: unit tests, ng lint and prettier run from /app/frontend
 FROM prebuild AS test
-COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend/.eslintrc.json frontend/.prettierrc frontend/.prettierignore ./
+COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend/eslint.config.js frontend/.prettierrc frontend/.prettierignore ./
 COPY frontend/src src
 COPY frontend/test test
 

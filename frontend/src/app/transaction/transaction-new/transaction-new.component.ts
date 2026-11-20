@@ -1,6 +1,5 @@
 import {Component, EventEmitter, OnInit} from "@angular/core";
 import {RouterModule} from "@angular/router";
-import {CommonModule} from "@angular/common";
 import {
   FormBuilder,
   FormControl,
@@ -31,12 +30,7 @@ interface TransactionForm {
 }
 
 @Component({
-  imports: [
-    RouterModule,
-    ReactiveFormsModule,
-    CommonModule,
-    TransactionListComponent,
-  ],
+  imports: [RouterModule, ReactiveFormsModule, TransactionListComponent],
   selector: "app-transaction-new",
   templateUrl: "./transaction-new.component.html",
   standalone: true,
