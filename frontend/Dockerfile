@@ -30,6 +30,13 @@ RUN ./node_modules/.bin/ng build --configuration production \
     done
 
 
+# CI test image: unit tests, ng lint and prettier run from /app/frontend
+FROM prebuild AS test
+COPY frontend/package.json frontend/angular.json frontend/tsconfig.json frontend/.eslintrc.json frontend/.prettierrc frontend/.prettierignore ./
+COPY frontend/src src
+COPY frontend/test test
+
+
 FROM nginx:alpine-slim@sha256:5bfced78d24d644270bedb0a9968697042e38d5c03fb6354603df025279c1cbe AS prod
 
 # Permissions set before copying the build so this layer stays cached

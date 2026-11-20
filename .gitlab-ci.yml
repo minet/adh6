@@ -23,16 +23,22 @@ variables:
       fi
 
 # Promotion guard: master only receives code that went through dev first.
-# An MR into master must come from dev.
+# An MR into master must come from dev. The job runs on every MR into master,
+# so a dev -> master MR always has a pipeline: "Pipelines must succeed" blocks
+# an MR with no pipeline, e.g. when dev's last push matched no build rule.
 guard_master_mr_source:
   stage: .pre
   image: alpine:latest
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != "dev"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   script:
-    - echo "MRs into master must come from dev (source is $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME)."
-    - echo "Retarget this MR to dev, test on preprod, then open dev -> master."
-    - exit 1
+    - |
+      if [ "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" != "dev" ]; then
+        echo "MRs into master must come from dev (source is $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME)."
+        echo "Retarget this MR to dev, test on preprod, then open dev -> master."
+        exit 1
+      fi
+      echo "OK: MR into master comes from dev."
 
 # Every non-merge commit on master must already be on dev. Runs in .pre so
 # nothing gets built as :stable, and deploy_prod needs it, so prod is never
@@ -43,7 +49,7 @@ guard_master_from_dev:
   variables:
     GIT_DEPTH: 0
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
   script:
     - apk add --no-cache git
     - git fetch origin dev
@@ -61,14 +67,7 @@ build_backend:
   <<: *docker_login
   stage: build
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
-      changes:
-        - backend/**/*
-        - docker-bake.hcl
-        - openapi/**/*
-        - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
-      changes:
+    - changes:
         - backend/**/*
         - docker-bake.hcl
         - openapi/**/*
@@ -85,8 +84,7 @@ build_frontend:
   <<: *docker_login
   stage: build
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
-      changes:
+    - changes:
         - frontend/**/*
         - openapi/**/*
         - .gitlab-ci.yml
@@ -99,14 +97,26 @@ build_frontend:
         --file frontend/Dockerfile
         --tag $IMAGE_REGISTRY_BASE/frontend:$TAG
         .
-    - docker push $IMAGE_REGISTRY_BASE/frontend:$TAG
+    # Same daemon: the test target reuses the prebuild layers of the build above
+    - docker build
+        --cache-from $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        --provenance=false
+        --target test
+        --file frontend/Dockerfile
+        --tag $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+        .
+    # Both pushes at once; each pid is waited for so that a failed push fails the job
+    - |
+      docker push "$IMAGE_REGISTRY_BASE/frontend:$TAG" & PROD_PUSH=$!
+      docker push "$IMAGE_REGISTRY_BASE/frontend-test:$TAG" & TEST_PUSH=$!
+      wait "$PROD_PUSH" && wait "$TEST_PUSH"
 
 build_reverse_proxy:
   <<: *docker_login
   stage: build
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
-      changes:
+    - changes:
         - reverse_proxy/**/*
         - .gitlab-ci.yml
   script:
@@ -126,7 +136,7 @@ test_backend:
   variables:
     GIT_STRATEGY: none
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
       variables:
         TAG: stable
       changes:
@@ -134,7 +144,7 @@ test_backend:
         - docker-bake.hcl
         - openapi/**/*
         - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_COMMIT_BRANCH == "dev"'
       variables:
         TAG: prep
       changes:
@@ -142,7 +152,7 @@ test_backend:
         - docker-bake.hcl
         - openapi/**/*
         - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+    - if: '$CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
       variables:
         TAG: $CI_COMMIT_SHORT_SHA
       changes:
@@ -175,6 +185,44 @@ test_backend:
         coverage_format: cobertura
         path: coverage.xml
 
+test_frontend:
+  stage: test
+  before_script: []
+  variables:
+    GIT_STRATEGY: none
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      variables:
+        TAG: stable
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      variables:
+        TAG: prep
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH != "dev" && $CI_COMMIT_BRANCH != "master"'
+      variables:
+        TAG: $CI_COMMIT_SHORT_SHA
+      changes:
+        - frontend/**/*
+        - openapi/**/*
+        - .gitlab-ci.yml
+  image:
+    name: $IMAGE_REGISTRY_BASE/frontend-test:$TAG
+  needs:
+    - job: build_frontend
+      optional: true
+  script:
+    - cd /app/frontend
+    - yarn test
+    - yarn lint
+    - yarn prettier:check
+
 deploy_prod:
   stage: deploy
   trigger:
@@ -194,15 +242,10 @@ deploy_prod:
       optional: true
     - job: test_backend
       optional: true
+    - job: test_frontend
+      optional: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
-      changes:
-        - backend/**/*
-        - docker-bake.hcl
-        - frontend/**/*
-        - reverse_proxy/**/*
-        - openapi/**/*
-        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "master"'
 
 deploy_dev:
   stage: deploy
@@ -222,12 +265,7 @@ deploy_dev:
       optional: true
     - job: test_backend
       optional: true
+    - job: test_frontend
+      optional: true
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "dev"'
-      changes:
-        - backend/**/*
-        - docker-bake.hcl
-        - frontend/**/*
-        - reverse_proxy/**/*
-        - openapi/**/*
-        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "dev"'
