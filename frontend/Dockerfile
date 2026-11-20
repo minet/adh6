@@ -30,7 +30,7 @@ RUN ./node_modules/.bin/ng build --configuration production \
     done
 
 
-FROM nginx:alpine-slim@sha256:688240d46d75f73c320b93657b5fc1d3500589fc11fd122eefdfa9e8d4d7dbc7 AS prod
+FROM nginx:alpine-slim@sha256:5bfced78d24d644270bedb0a9968697042e38d5c03fb6354603df025279c1cbe AS prod
 
 # Permissions set before copying the build so this layer stays cached
 RUN mkdir -p /var/cache/nginx/client_temp \
