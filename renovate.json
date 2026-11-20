@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "description": "Run by the MiNET Renovate bot: https://gitlabint.priv.minet.net/minet/development/tools/renovate-runner",
     "extends": ["config:recommended", ":semanticCommits"],
@@ -39,4 +40,43 @@
             "allowedVersions": "/^22(\\.|-|$)/"
         }
     ]
+=======
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Run by the MiNET Renovate bot: https://gitlabint.priv.minet.net/minet/development/tools/renovate-runner",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "baseBranchPatterns": ["dev"],
+  "ignorePaths": ["**/node_modules/**", "openapi/**", ".pnpm-store/**"],
+  "labels": ["renovate"],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "description": "requires-python is ~=3.11.0: stay on the 3.11 image",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["python"],
+      "allowedVersions": "/^3\\.11(\\.|-|$)/"
+    },
+    {
+      "description": "Node major upgrades also move the frontend toolchain: only offer them from the dashboard",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "One MR for the whole Angular toolchain (framework, CLI, angular-eslint)",
+      "matchPackageNames": ["@angular/**", "@angular-eslint/**", "@angular-devkit/**", "typescript", "zone.js"],
+      "groupName": "angular"
+    },
+    {
+      "description": "Minor/patch Python dependency bumps together",
+      "matchManagers": ["pep621"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "python non-major"
+    }
+  ]
+>>>>>>> origin/master
 }
