@@ -40,7 +40,7 @@
     "@angular/cli": "^20.1.6",
     "@angular/compiler-cli": "^20.1.7",
     "@angular/localize": "^20.1.7",
-    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@fullhuman/postcss-purgecss": "^9.0.0",
     "@types/node": "^22.13.10",
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
