@@ -1,4 +1,4 @@
-FROM alpine:3.22.0 AS certs
+FROM alpine:3.24.4 AS certs
 RUN apk add --no-cache --update openssl
 
 # Make TLS self-signed certificate

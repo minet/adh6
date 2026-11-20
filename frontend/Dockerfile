@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS prebuild
+FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS prebuild
 WORKDIR /app/frontend
 
 # Install packages
@@ -30,7 +30,7 @@ RUN ./node_modules/.bin/ng build --configuration production \
     done
 
 
-FROM nginx:alpine-slim@sha256:688240d46d75f73c320b93657b5fc1d3500589fc11fd122eefdfa9e8d4d7dbc7 AS prod
+FROM nginx:alpine-slim@sha256:5bfced78d24d644270bedb0a9968697042e38d5c03fb6354603df025279c1cbe AS prod
 
 # Permissions set before copying the build so this layer stays cached
 RUN mkdir -p /var/cache/nginx/client_temp \
@@ -48,7 +48,7 @@ COPY --chown=nginx:nginx --from=prodbuild /app/frontend/dist/adh6/browser/ /usr/
 USER nginx
 
 
-FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS dev
+FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS dev
 
 # Create a non-root user for Node.js
 RUN addgroup -g 1001 -S nodeuser && \
