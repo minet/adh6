@@ -64,7 +64,7 @@ export class CreateOrEditComponent implements OnInit {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.minLength(7),
+          Validators.minLength(3),
           Validators.maxLength(255),
         ],
       }),
