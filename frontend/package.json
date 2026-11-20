@@ -28,13 +28,13 @@
     "@casl/angular": "^9.0.3",
     "bulma": "^1.0.3",
     "rxjs": "~7.8.2",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.16.0"
   },
   "devDependencies": {
     "@angular-eslint/builder": "^19.2.1",
-    "@angular-eslint/eslint-plugin": "19.2.1",
-    "@angular-eslint/eslint-plugin-template": "19.2.1",
-    "@angular-eslint/schematics": "19.2.1",
+    "@angular-eslint/eslint-plugin": "19.8.1",
+    "@angular-eslint/eslint-plugin-template": "19.8.1",
+    "@angular-eslint/schematics": "19.8.1",
     "@angular-eslint/template-parser": "^19.2.1",
     "@angular/build": "^20.1.6",
     "@angular/cli": "^20.1.6",
@@ -50,7 +50,7 @@
     "eslint-plugin-security": "^3.0.1",
     "ng-extract-i18n-merge": "^3.4.0",
     "prettier": "^3.6.2",
-    "typescript": "~5.8.2"
+    "typescript": "~5.9.0"
   },
   "resolutions": {
     "chokidar": "^3.4.0"
