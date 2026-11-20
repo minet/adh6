@@ -128,7 +128,7 @@ services:
 
   keycloak:
     container_name: adh6_keycloak
-    image: quay.io/keycloak/keycloak:26.7.2
+    image: quay.io/keycloak/keycloak:26.8.2
     command: start-dev --import-realm
     depends_on:
       database:
@@ -155,7 +155,7 @@ services:
 
   keycloak_init:
     container_name: adh6_keycloak_init
-    image: quay.io/keycloak/keycloak:26.7.2
+    image: quay.io/keycloak/keycloak:26.8.2
     depends_on:
       keycloak:
         condition: service_started
