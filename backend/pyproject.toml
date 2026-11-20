@@ -62,7 +62,7 @@ lint = ["pyright", "ruff"]
 tests = [
   #
   "Faker",
-  "pytest<8",
+  "pytest<10",
   "pytest-cov",
   "pytest-cases",
   "pytest-lazy-fixtures",
