@@ -18,8 +18,7 @@ import {NotificationService} from "../notification.service";
 function matchingPasswords(control: AbstractControl): ValidationErrors | null {
   const password = control.get("password")?.value as string | undefined;
   const confirmation = control.get("passwordConfirm")?.value as
-    | string
-    | undefined;
+    string | undefined;
   return password && confirmation && password !== confirmation
     ? {passwordMismatch: true}
     : null;

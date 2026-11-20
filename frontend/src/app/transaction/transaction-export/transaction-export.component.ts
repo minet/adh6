@@ -1,5 +1,4 @@
 import {Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
 import {
   FormBuilder,
   FormControl,
@@ -17,7 +16,7 @@ interface ExportForm {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   selector: "app-transaction-export",
   templateUrl: "./transaction-export.component.html",
 })

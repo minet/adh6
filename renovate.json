@@ -18,6 +18,12 @@
       "allowedVersions": "/^3\\.11(\\.|-|$)/"
     },
     {
+      "description": "requires-python follows the python:3.11 image above: never bump it on its own",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["requires-python"],
+      "enabled": false
+    },
+    {
       "description": "Node major upgrades also move the frontend toolchain: only offer them from the dashboard",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["node"],

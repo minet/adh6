@@ -9,7 +9,6 @@ import {AbstractDevice, DeviceBody, DeviceService} from "../../api";
 import {takeWhile} from "rxjs/operators";
 import {LOCALE_ID, Inject} from "@angular/core";
 import {NotificationService} from "../../notification.service";
-import {CommonModule} from "@angular/common";
 import {MacAddressFormatterDirective} from "../../shared/directives/mac-address-formatter.directive";
 
 @Component({
@@ -17,7 +16,7 @@ import {MacAddressFormatterDirective} from "../../shared/directives/mac-address-
   templateUrl: "./new.component.html",
   styleUrls: ["./new.component.css"],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MacAddressFormatterDirective],
+  imports: [ReactiveFormsModule, MacAddressFormatterDirective],
 })
 export class NewComponent {
   deviceForm!: UntypedFormGroup;
