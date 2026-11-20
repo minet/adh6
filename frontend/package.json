@@ -36,7 +36,7 @@
     "@angular/compiler-cli": "^21.2.26",
     "@angular/localize": "^21.2.26",
     "@types/node": "^22.13.10",
-    "angular-eslint": "^21.4.0",
+    "angular-eslint": "^22.0.0",
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

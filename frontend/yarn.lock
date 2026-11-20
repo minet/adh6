@@ -136,7 +136,7 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@angular-devkit/architect@0.2102.30", "@angular-devkit/architect@>= 0.2100.0 < 0.2200.0":
+"@angular-devkit/architect@0.2102.30":
   version "0.2102.30"
   resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.2102.30.tgz#30befaf75eda219cec55e31eee96d0711512b3fe"
   integrity sha512-5JsBnI2LQG0h8C1Bp/li2wUrYDhRBEWn2+nGwdI+QhqggZKNASaERPlr1JqaFClwQtRLdLat39ubf99++65erw==
@@ -144,7 +144,7 @@
     "@angular-devkit/core" "21.2.30"
     rxjs "7.8.2"
 
-"@angular-devkit/architect@>=0.2000.0 <0.2300.0":
+"@angular-devkit/architect@>= 0.2200.0 < 0.2300.0", "@angular-devkit/architect@>=0.2000.0 <0.2300.0":
   version "0.2203.0"
   resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.2203.0.tgz#34df6a9827abf431264800687fb4a6c7fe2faa31"
   integrity sha512-pnLupy97/gcfxjSanEDSmK6W+SUlGxdpehbR/kl6PWsHyIOQI9gDwMDNv79jHw1JRyF0QGd+oYrg55l16BKDuw==
@@ -152,7 +152,7 @@
     "@angular-devkit/core" "22.3.0"
     rxjs "7.8.2"
 
-"@angular-devkit/core@21.2.30", "@angular-devkit/core@>= 21.0.0 < 22.0.0":
+"@angular-devkit/core@21.2.30":
   version "21.2.30"
   resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-21.2.30.tgz#5435f21df9246da943e91207c5cae4d3350a300f"
   integrity sha512-vr74ouL0RPIhQmT4ATLq0OmPpYHPezKb+ZZJ7kpw03hBOI/k1+yxvLr7GaKwSFZPqRsi51zk/4yN7E3m3QukCA==
@@ -164,7 +164,7 @@
     rxjs "7.8.2"
     source-map "0.7.6"
 
-"@angular-devkit/core@22.3.0", "@angular-devkit/core@^20.0.0 || ^21.0.0 || ^22.0.0":
+"@angular-devkit/core@22.3.0", "@angular-devkit/core@>= 22.0.0 < 23.0.0", "@angular-devkit/core@^20.0.0 || ^21.0.0 || ^22.0.0":
   version "22.3.0"
   resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-22.3.0.tgz#15fb6c95cccf37e945829414b31418c4d980b34d"
   integrity sha512-6/qXIYkzxO7KXxSD6FSuD8rfCKsMvXPhB9hpWFTtLvacuFtyWMazqnEqUZuFz2oK1qanvcvNkmbZO+6WVzqLJA==
@@ -176,7 +176,7 @@
     rxjs "7.8.2"
     source-map "0.8.0"
 
-"@angular-devkit/schematics@21.2.30", "@angular-devkit/schematics@>= 21.0.0 < 22.0.0":
+"@angular-devkit/schematics@21.2.30":
   version "21.2.30"
   resolved "https://registry.yarnpkg.com/@angular-devkit/schematics/-/schematics-21.2.30.tgz#ec907071c6d769e07e87d8465c619373d20e2d9d"
   integrity sha512-VYsgyYLR2NZ6SZME48u5I08EXvobw2CZtDnqpbbelPRS/bRbnWQHx0ZnsC+4IbQP8/+gCYK9m42jL7jgUU0OcQ==
@@ -187,7 +187,7 @@
     ora "9.3.0"
     rxjs "7.8.2"
 
-"@angular-devkit/schematics@22.3.0", "@angular-devkit/schematics@^20.0.0 || ^21.0.0 || ^22.0.0":
+"@angular-devkit/schematics@22.3.0", "@angular-devkit/schematics@>= 22.0.0 < 23.0.0", "@angular-devkit/schematics@^20.0.0 || ^21.0.0 || ^22.0.0":
   version "22.3.0"
   resolved "https://registry.yarnpkg.com/@angular-devkit/schematics/-/schematics-22.3.0.tgz#aafda06ec4aa7b5fd82f3723d7f7458589e68bfb"
   integrity sha512-+g8v7Kh6GMirUslVz1cumWkVMJ22Zr0Id1SkE6DOK3fsvqi8WeyTXe+Lh/m365lrBsPjBES+FAjjroZFvpmz+A==
@@ -198,65 +198,65 @@
     ora "10.0.0"
     rxjs "7.8.2"
 
-"@angular-eslint/builder@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/builder/-/builder-21.4.0.tgz#56eb8f44b46555c0d27c17156fe311d206bb13de"
-  integrity sha512-3kgGmrVaCYbLtDjC8g4BmMBbdz4thsOB8/NYly8JtXM8EuDZEk5Pz6VTRpJR02ARprwayraTTmhyvq6OGBlQ9w==
+"@angular-eslint/builder@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/builder/-/builder-22.8.0.tgz#798a96be673f6644293756a3b88198b28102618e"
+  integrity sha512-A6DocmcoqdVwWDeSQ3h/qdj/v2lly2Yu4l0ccC2J46JR93k89bdHaj8DwM1pel7KyGyOYPnNw95iwr7T4GEUSA==
   dependencies:
-    "@angular-devkit/architect" ">= 0.2100.0 < 0.2200.0"
-    "@angular-devkit/core" ">= 21.0.0 < 22.0.0"
+    "@angular-devkit/architect" ">= 0.2200.0 < 0.2300.0"
+    "@angular-devkit/core" ">= 22.0.0 < 23.0.0"
 
-"@angular-eslint/bundled-angular-compiler@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/bundled-angular-compiler/-/bundled-angular-compiler-21.4.0.tgz#15a86e7110d4aebee47c0326b9d3d5e96010759c"
-  integrity sha512-/3H4BPbQ1BHJkkrUsfusZtmHc+qiFWBBZ9UDPWah4xZMjflexOK9U4GYeH7nMjcuyqFnIlMMeJJNwNLGt/hmdg==
+"@angular-eslint/bundled-angular-compiler@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/bundled-angular-compiler/-/bundled-angular-compiler-22.8.0.tgz#28fcaf1a8e0f15e534d99bb38dc31405146cc52d"
+  integrity sha512-2L6Lw5D8YbgH6wzfnLA+tctPO9vHPBbSaQwIJvIRKZZyECOwZNigY4O852T5OJjzma6YeQemBzyzI8vJuE5DwA==
 
-"@angular-eslint/eslint-plugin-template@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/eslint-plugin-template/-/eslint-plugin-template-21.4.0.tgz#e1f02d9b31a94b2d4cfee497e5472becc389785c"
-  integrity sha512-sJEHx2WYnvOgPpzP1eHnUdRS06zgKmRxbiIR0JiCcaSen5iv1HlsMieXy//FS9TtNW+abHOy4UtDuGuSPflPFA==
+"@angular-eslint/eslint-plugin-template@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/eslint-plugin-template/-/eslint-plugin-template-22.8.0.tgz#dbf02f04b1fd60deab68b050d9c273cb307bcbb6"
+  integrity sha512-1ksCx0c90wFyJF5wizxlZNYIJbDye7B5+3hYBq6HdiLbV7fijlETm9fs8fNX6ZsJ5oBG7JHiUqqSP03t4amhlw==
   dependencies:
-    "@angular-eslint/bundled-angular-compiler" "21.4.0"
-    "@angular-eslint/utils" "21.4.0"
+    "@angular-eslint/bundled-angular-compiler" "22.8.0"
+    "@angular-eslint/utils" "22.8.0"
     aria-query "5.3.2"
     axobject-query "4.1.0"
 
-"@angular-eslint/eslint-plugin@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/eslint-plugin/-/eslint-plugin-21.4.0.tgz#012abaaf163ffbf0a06fac66e4914b80ca68c77b"
-  integrity sha512-mow2DMj+xBvGl5t7jzC34R8YfbHbaGNyCNFzpovtl9qc0JbuqLyg6htmt8xb05f8ZjATOr4nz0ESt6HV4c51hw==
+"@angular-eslint/eslint-plugin@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/eslint-plugin/-/eslint-plugin-22.8.0.tgz#b2643c58fd73eab5d094c350e71368c7db8669e0"
+  integrity sha512-KAyqA0OHfUBnDOUpya1lWmi/35iNG3bn6Of8kQ3Aingy+opRkyTIK8sfXAZg6H0devD4+n/3amtX1z6IrhXBqQ==
   dependencies:
-    "@angular-eslint/bundled-angular-compiler" "21.4.0"
-    "@angular-eslint/utils" "21.4.0"
+    "@angular-eslint/bundled-angular-compiler" "22.8.0"
+    "@angular-eslint/utils" "22.8.0"
     ts-api-utils "^2.1.0"
 
-"@angular-eslint/schematics@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/schematics/-/schematics-21.4.0.tgz#b3ea62021fadcaddcfcc8e84c9a719f383f5628c"
-  integrity sha512-crD6Hfxs7x5bN9FCqTZI7uVSiGvprfCS3MCPOpyIQl87bRr/9aNhnicJ3ROUHv+2A713BgPHIgiCII/bxzrfPw==
+"@angular-eslint/schematics@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/schematics/-/schematics-22.8.0.tgz#cb5717e93a47eb919add8eb0c91dab33bcd3a6a8"
+  integrity sha512-XIP3qgWO7MGGs1sIeLDCALxlmoZCexE8q7nhTsjsiw7Du5jKWf7iCrMi+FEuvaZvfxvw0LzpVIiPY91wh0RZOQ==
   dependencies:
-    "@angular-devkit/core" ">= 21.0.0 < 22.0.0"
-    "@angular-devkit/schematics" ">= 21.0.0 < 22.0.0"
-    "@angular-eslint/eslint-plugin" "21.4.0"
-    "@angular-eslint/eslint-plugin-template" "21.4.0"
-    ignore "7.0.5"
-    semver "7.7.4"
+    "@angular-devkit/core" ">= 22.0.0 < 23.0.0"
+    "@angular-devkit/schematics" ">= 22.0.0 < 23.0.0"
+    "@angular-eslint/eslint-plugin" "22.8.0"
+    "@angular-eslint/eslint-plugin-template" "22.8.0"
+    ignore "7.0.14"
+    semver "7.8.6"
     strip-json-comments "3.1.1"
 
-"@angular-eslint/template-parser@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/template-parser/-/template-parser-21.4.0.tgz#7f675df2a75469d995aead856ea709b5cc2e6ccd"
-  integrity sha512-BaUSLSyS+43fzDoJkTMkGqNdCXq3fGnUZsfXTmrlZPJf5AYFbgAlAPGZXDJyoNWw43fux+DafdlrlKcYUSgSIw==
+"@angular-eslint/template-parser@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/template-parser/-/template-parser-22.8.0.tgz#adbb01ef109cebb833f756cc34bac7c079b22998"
+  integrity sha512-kiH1eWsrsOybZEPi0Mt9qbu9uZlFDczmdvZLxO3w/e4MUcIA1mYkAWLjd/3cVXkeMG5bjUQx0GIYiboAJ4t9Ng==
   dependencies:
-    "@angular-eslint/bundled-angular-compiler" "21.4.0"
+    "@angular-eslint/bundled-angular-compiler" "22.8.0"
     eslint-scope "9.1.2"
 
-"@angular-eslint/utils@21.4.0":
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/utils/-/utils-21.4.0.tgz#8c052d99bdc3644a457d5d715501ca1f53b119cb"
-  integrity sha512-7pi+Ga7QmdH5Ig/diau6fR5L4yubgKr9TOjdCg7OeuE/zo0O3osTCNT6JOodzS/iQM1kSCJFDoIBKFeUOttiNw==
+"@angular-eslint/utils@22.8.0":
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/@angular-eslint/utils/-/utils-22.8.0.tgz#0fd2a9d9786b45886e349df46a83f2b6f011fce7"
+  integrity sha512-FNpRUt1BhBA+OWtMMiSM+0dspPS5leZpCME7q4+PWdnnttGTp79d3NBvili+NWqqfBIf/+EXvCRmO1gO0GdMDg==
   dependencies:
-    "@angular-eslint/bundled-angular-compiler" "21.4.0"
+    "@angular-eslint/bundled-angular-compiler" "22.8.0"
 
 "@angular/build@^21.2.30":
   version "21.2.30"
@@ -2228,18 +2228,18 @@ algoliasearch@5.48.1:
     "@algolia/requester-fetch" "5.48.1"
     "@algolia/requester-node-http" "5.48.1"
 
-angular-eslint@^21.4.0:
-  version "21.4.0"
-  resolved "https://registry.yarnpkg.com/angular-eslint/-/angular-eslint-21.4.0.tgz#03e668b02377b565d472c0733e0b08e937e96218"
-  integrity sha512-LH7bWmtJvsubzwPoztnl1pWgI5X0VrfGTUITGSYcwn2J+SXuN/avzrKrxJmhUiIrNvLtfV+18GG6xZS1IGZdKg==
+angular-eslint@^22.0.0:
+  version "22.8.0"
+  resolved "https://registry.yarnpkg.com/angular-eslint/-/angular-eslint-22.8.0.tgz#429e1a0a60fa16976659ed632fd26f359af07340"
+  integrity sha512-9dgIJ/NZ2zgF+IW1Ux3AFXlk0q2Fib8WbZP3wbIJdnrpqtmgaMR6S4VMu2rAsdyAhawHwv9f6bUnZdVeze9fJA==
   dependencies:
-    "@angular-devkit/core" ">= 21.0.0 < 22.0.0"
-    "@angular-devkit/schematics" ">= 21.0.0 < 22.0.0"
-    "@angular-eslint/builder" "21.4.0"
-    "@angular-eslint/eslint-plugin" "21.4.0"
-    "@angular-eslint/eslint-plugin-template" "21.4.0"
-    "@angular-eslint/schematics" "21.4.0"
-    "@angular-eslint/template-parser" "21.4.0"
+    "@angular-devkit/core" ">= 22.0.0 < 23.0.0"
+    "@angular-devkit/schematics" ">= 22.0.0 < 23.0.0"
+    "@angular-eslint/builder" "22.8.0"
+    "@angular-eslint/eslint-plugin" "22.8.0"
+    "@angular-eslint/eslint-plugin-template" "22.8.0"
+    "@angular-eslint/schematics" "22.8.0"
+    "@angular-eslint/template-parser" "22.8.0"
     "@typescript-eslint/types" "^8.0.0"
     "@typescript-eslint/utils" "^8.0.0"
 
@@ -3253,10 +3253,10 @@ ignore-walk@^8.0.0:
   dependencies:
     minimatch "^10.0.3"
 
-ignore@7.0.5:
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.5.tgz#4cb5f6cd7d4c7ab0365738c7aea888baa6d7efd9"
-  integrity sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==
+ignore@7.0.14:
+  version "7.0.14"
+  resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.14.tgz#a52b081dfb4d77e947e04d5f9e320b16f1873959"
+  integrity sha512-wCBiZ77u1tuWde6G/nfOtLaCTYcFDU5yCzARzK10y+rLhzYoL7a7yEemcopcc2Mzow7gZOIjnV2ym1NYmdiJOQ==
 
 ignore@^5.2.0:
   version "5.3.2"
@@ -4315,15 +4315,15 @@ semver@7.7.4:
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.7.4.tgz#28464e36060e991fa7a11d0279d2d3f3b57a7e8a"
   integrity sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==
 
+semver@7.8.6, semver@^7.0.0, semver@^7.1.1, semver@^7.3.5, semver@^7.5.3, semver@^7.5.4, semver@^7.7.3:
+  version "7.8.6"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.8.6.tgz#67c0cda133a3ceb6f70b803e67625bf969000424"
+  integrity sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==
+
 semver@^6.3.1:
   version "6.3.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.2.tgz#f50413fbe5a686c6379385b2e8789b61c124a3c7"
   integrity sha512-GYrCADwpu6yV5OAvchkQ27Z5wwMxWAEMg5NNWjyHh/5DboFFqbdbvYNIvZouQpxXyeMPoTOh0vdPYKlf0ZswdQ==
-
-semver@^7.0.0, semver@^7.1.1, semver@^7.3.5, semver@^7.5.3, semver@^7.5.4, semver@^7.7.3:
-  version "7.8.6"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.8.6.tgz#67c0cda133a3ceb6f70b803e67625bf969000424"
-  integrity sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==
 
 send@^1.1.0, send@^1.2.0:
   version "1.2.1"
