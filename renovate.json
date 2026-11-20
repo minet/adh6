@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Run by the MiNET Renovate bot: https://gitlabint.priv.minet.net/minet/development/tools/renovate-runner",
   "extends": ["config:recommended", ":dependencyDashboard"],
   "baseBranchPatterns": ["dev"],
   "ignorePaths": ["**/node_modules/**", "openapi/**", ".pnpm-store/**"],
