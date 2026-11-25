@@ -37,7 +37,7 @@ COPY frontend/src src
 COPY frontend/test test
 
 
-FROM nginx:alpine-slim@sha256:5bfced78d24d644270bedb0a9968697042e38d5c03fb6354603df025279c1cbe AS prod
+FROM nginx:alpine-slim@sha256:c293b28729906d97fa5302fce3bd79bd27a3ea9a5d9604e21c6ff0ebf14549fc AS prod
 
 # Permissions set before copying the build so this layer stays cached
 RUN mkdir -p /var/cache/nginx/client_temp \
